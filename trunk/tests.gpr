@@ -1,0 +1,42 @@
+with "shared.gpr";
+with "autil";
+with "aunit";
+
+project Tests is
+
+   for Languages use ("Ada", "Project file");
+
+   Mains := ("util_harness.adb");
+
+   for Source_Dirs use ("regtests");
+
+   for Main use Mains;
+
+   for Object_Dir use "./" & Shared'Object_Dir & "/obj";
+   for Exec_Dir use "./" & Shared'Exec_Dir & "/bin";
+
+   ------------
+   -- Binder --
+   ------------
+
+   package Binder renames Shared.Binder;
+
+   -------------
+   -- Builder --
+   -------------
+
+   package Builder renames Shared.Builder;
+
+   --------------
+   -- Compiler --
+   --------------
+
+   package Compiler renames Shared.Compiler;
+
+   ------------
+   -- Linker --
+   ------------
+
+   package Linker renames Shared.Linker;
+
+end Tests;
