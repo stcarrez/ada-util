@@ -1,0 +1,19 @@
+with "shared";
+with "xmlada";
+
+project Util is
+
+   for Source_Dirs use ("src");
+
+   for Library_Dir use "../lib/util";
+   for Library_Name use "util";
+   for Library_Kind use "static";
+
+   for Object_Dir use "obj/";
+
+   package Builder  renames Shared.Builder;
+   package Compiler renames Shared.Compiler;
+   package Binder   renames Shared.Binder;
+   package Linker   renames Shared.Linker;
+ 
+end Util;
