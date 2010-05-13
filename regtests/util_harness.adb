@@ -16,19 +16,31 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Ada.Command_Line;
 with Ada.Text_IO;
+with AUnit;
 with AUnit.Reporter.Text;
 with AUnit.Run;
 with Util.Testsuite;
 with Util.Measures;
 
 procedure Util_Harness is
-   procedure Runner is new AUnit.Run.Test_Runner (Util.Testsuite.Suite);
-   Reporter : AUnit.Reporter.Text.Text_Reporter;
+   use type AUnit.Status;
 
-   Perf : aliased Util.Measures.Measure_Set;
+   function Runner is new AUnit.Run.Test_Runner_With_Status (Util.Testsuite.Suite);
+
+   Reporter : AUnit.Reporter.Text.Text_Reporter;
+   Perf     : aliased Util.Measures.Measure_Set;
+   Result   : AUnit.Status;
 begin
    Util.Measures.Set_Current (Perf'Unchecked_Access);
-   Runner (Reporter);
+   Result := Runner (Reporter, True);
    Util.Measures.Write (Perf, "Util measures", Ada.Text_IO.Standard_Output);
+
+   --  Program exit status reflects the testsuite result
+   if Result /= AUnit.Success then
+      Ada.Command_Line.Set_Exit_Status (1);
+   else
+      Ada.Command_Line.Set_Exit_Status (0);
+   end if;
 end Util_Harness;
