@@ -102,6 +102,7 @@ private
       Appender : Util.Log.Appenders.Appender_Access;
    end record;
 
+   --  Finalize the logger and flush the associated appender
    procedure Finalize (Log : in out Logger);
 
 end Util.Log.Loggers;
