@@ -1,0 +1,54 @@
+project Shared is
+   Version := "0.8";
+   for Source_Dirs use ();
+
+   type Mode_Type is ("distrib", "debug", "optimize", "profile");
+   Mode : Mode_Type := external ("MODE", "debug");
+
+   package Builder is
+       case Mode is
+          when "debug" => 
+             for Default_Switches ("Ada") use ("-g");
+          when others =>
+             for Default_Switches ("Ada") use ("-O2");
+       end case;
+   end Builder;
+
+   package compiler is
+      warnings := ("-gnatwua", "-gnatyM99-h");
+
+      case Mode is
+         when "distrib" =>
+            for Default_Switches ("Ada") use ("-O2", "-gnatN");
+
+         when "debug" =>
+            for Default_Switches ("Ada") use warnings
+               & ("-gnata", "-gnatVaMI");
+
+         when "optimize" =>
+            for Default_Switches ("Ada") use warnings
+               & ("-O2", "-gnatN", "-gnatp");
+
+         when "profile" =>
+            for Default_Switches ("Ada") use warnings & ("-pg");
+      end case;
+   end compiler;
+
+   package binder is
+      case Mode is
+         when "debug" =>
+            for Default_Switches ("Ada") use ("-E");
+      end case;
+   end binder;
+
+   package linker is
+      case Mode is
+         when "profile" =>
+            for Default_Switches ("Ada") use ("-pg");
+
+         when "distrib" =>
+            for Default_Switches ("Ada") use ("-s");
+      end case;
+   end linker;        
+ 
+end Shared;
