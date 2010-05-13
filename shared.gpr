@@ -15,7 +15,7 @@ project Shared is
    end Builder;
 
    package compiler is
-      warnings := ("-gnatwua", "-gnatyM99-h");
+      warnings := ("-gnatwua", "-gnatyM80-h");
 
       case Mode is
          when "distrib" =>
