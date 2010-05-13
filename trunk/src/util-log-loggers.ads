@@ -1,0 +1,107 @@
+-----------------------------------------------------------------------
+--  Logs -- Utility Log Package
+--  Copyright (C) 2006, 2008, 2009 Free Software Foundation, Inc.
+--  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
+--
+--  Licensed under the Apache License, Version 2.0 (the "License");
+--  you may not use this file except in compliance with the License.
+--  You may obtain a copy of the License at
+--
+--      http://www.apache.org/licenses/LICENSE-2.0
+--
+--  Unless required by applicable law or agreed to in writing, software
+--  distributed under the License is distributed on an "AS IS" BASIS,
+--  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--  See the License for the specific language governing permissions and
+--  limitations under the License.
+-----------------------------------------------------------------------
+with Ada.Exceptions;
+with Ada.Strings.Unbounded;
+
+with Util.Log.Appenders;
+with Util.Properties;
+private with Ada.Finalization;
+package Util.Log.Loggers is
+
+   use Ada.Exceptions;
+   use Ada.Strings.Unbounded;
+
+   --  The logger identifies and configures the log produced
+   --  by a component that uses it.  The logger has a name
+   --  which can be printed in the log outputs.  The logger instance
+   --  contains a log level which can be used to control the level of
+   --  logs.
+   type Logger is tagged limited private;
+
+   --  Create a logger with the given name.
+   function Create (Name : in String) return Logger;
+
+   --  Change the log level
+   procedure Set_Level (Log   : in out Logger;
+                        Level : in Level_Type);
+
+   --  Get the log level.
+   function Get_Level (Log : in Logger) return Level_Type;
+
+   procedure Print (Log     : in Logger;
+                    Level   : in Level_Type;
+                    Message : in String;
+                    Arg1    : in String := "";
+                    Arg2    : in String := "";
+                    Arg3    : in String := "");
+
+   procedure Debug (Log     : in Logger'Class;
+                    Message : in String;
+                    Arg1    : in String := "";
+                    Arg2    : in String := "";
+                    Arg3    : in String := "");
+
+   procedure Info (Log     : in Logger'Class;
+                   Message : in String;
+                   Arg1    : in String := "";
+                   Arg2    : in String := "";
+                   Arg3    : in String := "");
+
+   procedure Info (Log     : in Logger'Class;
+                   Message : in String;
+                   Arg1    : in Unbounded_String;
+                   Arg2    : in String := "";
+                   Arg3    : in String := "");
+
+   procedure Warn (Log     : in Logger'Class;
+                   Message : in String;
+                   Arg1    : in String := "";
+                   Arg2    : in String := "";
+                   Arg3    : in String := "");
+
+   procedure Error (Log     : in Logger'Class;
+                    Message : in String;
+                    Arg1    : in String := "";
+                    Arg2    : in String := "";
+                    Arg3    : in String := "");
+
+   procedure Error (Log     : in Logger'Class;
+                    Message : in String;
+                    E       : in Exception_Occurrence);
+
+   --  Set the appender that will handle the log events
+   procedure Set_Appender (Log      : in out Logger'Class;
+                           Appender : in Util.Log.Appenders.Appender_Access);
+
+   --  Initialize the log environment with the property file.
+   procedure Initialize (Name : in String);
+
+   --  Initialize the log environment with the properties.
+   procedure Initialize (Properties : in Util.Properties.Manager);
+
+private
+
+   type Logger is new Ada.Finalization.Limited_Controlled with  record
+      Level    : Level_Type := INFO_LEVEL;
+      Name     : Unbounded_String;
+      Appender : Util.Log.Appenders.Appender_Access;
+   end record;
+
+   procedure Finalize (Log : in out Logger);
+
+end Util.Log.Loggers;
