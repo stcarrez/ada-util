@@ -18,6 +18,7 @@
 
 with Util.Properties.Tests;
 with Util.Log.Tests;
+with Util.Files.Tests;
 package body Util.Testsuite is
 
    function Suite return Access_Test_Suite is
@@ -25,6 +26,7 @@ package body Util.Testsuite is
    begin
       Util.Properties.Tests.Add_Tests (Ret);
       Util.Log.Tests.Add_Tests (Ret);
+      Util.Files.Tests.Add_Tests (Ret);
       return Ret;
    end Suite;
 

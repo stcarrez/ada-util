@@ -1,4 +1,4 @@
-with "shared";
+with "../config/shared";
 with "xmlada";
 
 project Util is
@@ -15,5 +15,5 @@ project Util is
    package Compiler renames Shared.Compiler;
    package Binder   renames Shared.Binder;
    package Linker   renames Shared.Linker;
- 
+
 end Util;
