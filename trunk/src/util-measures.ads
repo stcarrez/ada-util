@@ -70,6 +70,11 @@ package Util.Measures is
                     Title    : in String;
                     Stream   : in Ada.Text_IO.File_Type);
 
+   --  Dump  an XML result with the measures in a file.
+   procedure Write (Measures : in out Measure_Set;
+                    Title    : in String;
+                    Path     : in String);
+
    --  ------------------------------
    --  Stamp
    --  ------------------------------
@@ -108,7 +113,8 @@ private
       Name  : String_Access;
    end record;
 
-   type Buckets_Type is array (Ada.Containers.Hash_Type range <>) of Measure_Access;
+   type Buckets_Type is
+     array (Ada.Containers.Hash_Type range <>) of Measure_Access;
    type Buckets_Access is access all Buckets_Type;
 
    --  To reduce contention we only protect insertion and updates of measures.
