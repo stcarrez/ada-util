@@ -33,6 +33,14 @@ package body Util.Tests is
 
    Test_Properties : Util.Properties.Manager;
 
+   --  When a test uses external test files to match a result against a well
+   --  defined content, it can be difficult to maintain those external files.
+   --  The <b>Assert_Equal_Files</b> can automatically maintain the reference
+   --  file by updating it with the lastest test result.
+   --
+   --  Of course, using this mode means the test does not validate anything.
+   Update_Test_Files : Boolean := False;
+
    --  ------------------------------
    --  Get a path to access a test file.
    --  ------------------------------
@@ -143,6 +151,13 @@ package body Util.Tests is
       if Same then
          return;
       end if;
+
+   exception
+      when others =>
+         if Update_Test_Files then
+            Ada.Directories.Copy_File (Source_Name => Test,
+                                       Target_Name => Expect);
+         end if;
    end Assert_Equal_Files;
 
    --  ------------------------------
@@ -153,29 +168,51 @@ package body Util.Tests is
    procedure Harness (Name : in String) is
       use type AUnit.Status;
       use GNAT.Command_Line;
+      use Ada.Text_IO;
 
       function Runner is new AUnit.Run.Test_Runner_With_Status (Suite);
+
+      procedure Help;
+
+      procedure Help is
+      begin
+         Put_Line ("Test harness: " & Name);
+         Put ("Usage: harness [-config file.properties] ");
+         Put_Line ("[-update]");
+         Put_Line ("-config file   Specify a test configuration file");
+         Put_Line ("-update        Update the test reference files if a file");
+         Put_Line ("               is missing or the test generates another output");
+         Put_Line ("               (See Asset_Equals_File)");
+         Ada.Command_Line.Set_Exit_Status (2);
+      end Help;
 
       Reporter : AUnit.Reporter.Text.Text_Reporter;
       Perf     : aliased Util.Measures.Measure_Set;
       Result   : AUnit.Status;
    begin
       loop
-         case Getopt ("config") is
-         when 'c' =>
-            declare
-               Name : constant String := Get_Argument;
-            begin
-               Test_Properties.Load_Properties (Name);
-            exception
-               when Ada.IO_Exceptions.Name_Error =>
-                  Ada.Text_IO.Put_Line ("Cannot find configuration file: " & Name);
-                  Ada.Command_Line.Set_Exit_Status (2);
-                  return;
-            end;
+         case Getopt ("hu c: config: update help") is
+            when ASCII.NUL =>
+               exit;
 
-         when others =>
-            exit;
+            when 'c' =>
+               declare
+                  Name : constant String := Parameter;
+               begin
+                  Test_Properties.Load_Properties (Name);
+               exception
+                  when Ada.IO_Exceptions.Name_Error =>
+                     Ada.Text_IO.Put_Line ("Cannot find configuration file: " & Name);
+                     Ada.Command_Line.Set_Exit_Status (2);
+                     return;
+               end;
+
+            when 'u' =>
+               Update_Test_Files := True;
+
+            when others =>
+               Help;
+               return;
          end case;
       end loop;
 
@@ -194,6 +231,17 @@ package body Util.Tests is
       else
          Ada.Command_Line.Set_Exit_Status (0);
       end if;
+
+   exception
+      when Invalid_Switch =>
+         Put_Line ("Invalid Switch " & Full_Switch);
+         Help;
+         return;
+
+      when Invalid_Parameter =>
+         Put_Line ("No parameter for " & Full_Switch);
+         Help;
+         return;
    end Harness;
 
 end Util.Tests;
