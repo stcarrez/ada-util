@@ -74,6 +74,8 @@ package body Util.Measures is
                     Stream   : in Ada.Text_IO.File_Type) is
       use Ada.Text_IO;
 
+      procedure Dump_XML (Item : in Measure_Access);
+
       procedure Dump_XML (Item : in Measure_Access) is
          Count : constant String := Positive'Image (Item.Count);
          Time  : constant String := Format (Item.Time);
@@ -91,7 +93,7 @@ package body Util.Measures is
 
    begin
       Put (Stream, "<measures title=""");
-      Put (Stream, title);
+      Put (Stream, Title);
       Put_Line (Stream, """>");
       Measures.Data.Steal_Map (Buckets);
       if Buckets /= null then
@@ -112,6 +114,25 @@ package body Util.Measures is
          Free (Buckets);
       end if;
       Put_Line (Stream, "</measures>");
+   end Write;
+
+   --  ------------------------------
+   --  Dump  an XML result with the measures in a file.
+   --  ------------------------------
+   procedure Write (Measures : in out Measure_Set;
+                    Title    : in String;
+                    Path     : in String) is
+      File : Ada.Text_IO.File_Type;
+   begin
+      Ada.Text_IO.Create (File => File, Name => Path);
+      Write (Measures, Title, File);
+      Ada.Text_IO.Close (File);
+   exception
+      when others =>
+         if Ada.Text_IO.Is_Open (File) then
+            Ada.Text_IO.Close (File);
+         end if;
+         raise;
    end Write;
 
    --  ------------------------------
@@ -175,7 +196,8 @@ package body Util.Measures is
          Pos := Ada.Strings.Hash (Title) mod Buckets'Length;
          Node := Buckets (Pos);
          while Node /= null loop
-            if Node.Name'Length = Title'Length and then Node.Name.all = Title then
+            if Node.Name'Length = Title'Length
+              and then Node.Name.all = Title then
                Node.Count := Node.Count + 1;
                Node.Time := Node.Time + D;
                return;
