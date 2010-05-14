@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  Util -- Utilities
+--  files.tests -- Unit tests for files
 --  Copyright (C) 2009, 2010 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -16,12 +16,18 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Util.Testsuite;
-with Util.Tests;
-procedure Util_Harness is
+with AUnit.Test_Suites;
+with AUnit.Test_Fixtures;
 
-   procedure Harness is new Util.Tests.Harness (Util.Testsuite.Suite);
+package Util.Files.Tests is
 
-begin
-   Harness ("util-tests.xml");
-end Util_Harness;
+   procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite);
+
+   type Test is new AUnit.Test_Fixtures.Test_Fixture with null record;
+
+   procedure Test_Read_File (T : in out Test);
+   procedure Test_Read_File_Missing (T : in out Test);
+   procedure Test_Read_File_Truncate (T : in out Test);
+   procedure Test_Write_File (T : in out Test);
+
+end Util.Files.Tests;
