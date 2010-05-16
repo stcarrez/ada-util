@@ -1,0 +1,74 @@
+-----------------------------------------------------------------------
+--  Util.Concurrent -- Concurrent Counters
+--  Copyright (C) 2009, 2010 Stephane Carrez
+--  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
+--
+--  Licensed under the Apache License, Version 2.0 (the "License");
+--  you may not use this file except in compliance with the License.
+--  You may obtain a copy of the License at
+--
+--      http://www.apache.org/licenses/LICENSE-2.0
+--
+--  Unless required by applicable law or agreed to in writing, software
+--  distributed under the License is distributed on an "AS IS" BASIS,
+--  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--  See the License for the specific language governing permissions and
+--  limitations under the License.
+-----------------------------------------------------------------------
+
+--  The <b>Counters</b> package defines the <b>Counter</b> type which provides
+--  atomic increment and decrement operations.  It is intended to be used to
+--  implement reference counting in a multi-threaded environment.
+--
+--    type Ref is record
+--        Cnt  : Counter;
+--        Data : ...;
+--    end record;
+--
+--    Object  : access Ref;
+--    Is_Last : Boolean;
+--  begin
+--    Decrement (Object.Cnt, Is_Last);  -- Multi-task safe operation
+--    if Is_Last then
+--        Free (Object);
+--    end if;
+--
+private with Interfaces;
+package Util.Concurrent.Counters is
+
+   --  ------------------------------
+   --  Atomic Counter
+   --  ------------------------------
+   --  The atomic <b>Counter</b> implements a simple counter that can be
+   --  incremented or decremented atomically.
+   type Counter is private;
+   type Counter_Access is access all Counter;
+
+   --  Increment the counter atomically.
+   procedure Increment (C : in out Counter);
+
+   --  Decrement the counter atomically.
+   procedure Decrement (C : in out Counter);
+
+   --  Decrement the counter atomically and return a status.
+   procedure Decrement (C : in out Counter;
+                        Is_Zero : out Boolean);
+
+   --  Get the counter value
+   function Value (C : in Counter) return Integer;
+
+   ONE : constant Counter;
+
+private
+
+   --  This implementation works without an Ada protected type:
+   --  o The size of the target object is 10 times smaller.
+   --  o Increment and Decrement operations are 5 times faster.
+   --  o It works by using special instructions
+   type Counter is record
+      Value : Interfaces.Unsigned_32 := 0;
+   end record;
+
+   ONE : constant Counter := Counter '(Value => 1);
+
+end Util.Concurrent.Counters;
