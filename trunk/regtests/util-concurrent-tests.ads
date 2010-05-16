@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  Util testsuite - Util Testsuite
+--  concurrency.tests -- Unit tests for concurrency package
 --  Copyright (C) 2009, 2010 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -16,20 +16,17 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Util.Properties.Tests;
-with Util.Log.Tests;
-with Util.Files.Tests;
-with Util.Concurrent.Tests;
-package body Util.Testsuite is
+with AUnit.Test_Suites;
+with AUnit.Test_Fixtures;
 
-   function Suite return Access_Test_Suite is
-      Ret : constant Access_Test_Suite := new Test_Suite;
-   begin
-      Util.Properties.Tests.Add_Tests (Ret);
-      Util.Log.Tests.Add_Tests (Ret);
-      Util.Files.Tests.Add_Tests (Ret);
-      Util.Concurrent.Tests.Add_Tests (Ret);
-      return Ret;
-   end Suite;
+package Util.Concurrent.Tests is
 
-end Util.Testsuite;
+   procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite);
+
+   type Test is new AUnit.Test_Fixtures.Test_Fixture with null record;
+
+   procedure Test_Increment (T : in out Test);
+   procedure Test_Decrement (T : in out Test);
+   procedure Test_Decrement_And_Test (T : in out Test);
+
+end Util.Concurrent.Tests;
