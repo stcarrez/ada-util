@@ -21,6 +21,7 @@ with Ada.Strings.Unbounded;
 
 with GNAT.Source_Info;
 
+with Util.Properties;
 package Util.Tests is
 
    use Ada.Strings.Unbounded;
@@ -63,11 +64,15 @@ package Util.Tests is
                             Source    : String := GNAT.Source_Info.File;
                             Line      : Natural := GNAT.Source_Info.Line);
 
+   --  Default initialization procedure.
+   procedure Initialize_Test (Props : in Util.Properties.Manager);
+
    --  The main testsuite program.  This launches the tests, collects the
    --  results, create performance logs and set the program exit status
    --  according to the testsuite execution status.
    generic
       with function Suite return Access_Test_Suite;
+      with procedure Initialize (Props : in Util.Properties.Manager) is Initialize_Test;
    procedure Harness (Name : in String);
 
 end Util.Tests;
