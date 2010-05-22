@@ -161,6 +161,14 @@ package body Util.Tests is
    end Assert_Equal_Files;
 
    --  ------------------------------
+   --  Default initialization procedure.
+   --  ------------------------------
+   procedure Initialize_Test (Props : in Util.Properties.Manager) is
+   begin
+      null;
+   end Initialize_Test;
+
+   --  ------------------------------
    --  The main testsuite program.  This launches the tests, collects the
    --  results, create performance logs and set the program exit status
    --  according to the testsuite execution status.
@@ -215,6 +223,8 @@ package body Util.Tests is
                return;
          end case;
       end loop;
+
+      Initialize (Test_Properties);
 
       declare
          S  : Util.Measures.Stamp;
