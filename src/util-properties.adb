@@ -133,6 +133,18 @@ package body Util.Properties is
    --  does not exists.
    --  ------------------------------
    procedure Set (Self : in out Manager'Class;
+                  Name : in String;
+                  Item : in Value) is
+   begin
+      Check_And_Create_Impl (Self);
+      Set (Self.Impl.all, +Name, Item);
+   end Set;
+
+   --  ------------------------------
+   --  Set the value of the property.  The property is created if it
+   --  does not exists.
+   --  ------------------------------
+   procedure Set (Self : in out Manager'Class;
                   Name : in Unbounded_String;
                   Item : in Value) is
    begin
