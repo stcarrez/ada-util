@@ -78,6 +78,12 @@ package Util.Properties is
    --  Set the value of the property.  The property is created if it
    --  does not exists.
    procedure Set (Self : in out Manager'Class;
+                  Name : in String;
+                  Item : in Value);
+
+   --  Set the value of the property.  The property is created if it
+   --  does not exists.
+   procedure Set (Self : in out Manager'Class;
                   Name : in Unbounded_String;
                   Item : in Value);
 
