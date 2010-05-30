@@ -34,4 +34,10 @@ package Util.Files is
    procedure Write_File (Path    : in String;
                          Content : in Unbounded_String);
 
+   --  Find the file in one of the search directories.  Each search directory
+   --  is separated by ';' (yes, even on Unix).
+   --  Returns the path to be used for reading the file.
+   function Find_File_Path (Name  : String;
+                            Paths : String) return String;
+
 end Util.Files;

@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Directories;
+with Ada.Strings.Fixed;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
 package body Util.Files is
@@ -105,5 +106,39 @@ package body Util.Files is
    begin
       Write_File (Path, Ada.Strings.Unbounded.To_String (Content));
    end Write_File;
+
+   --  ------------------------------
+   --  Find the file in one of the search directories.  Each search directory
+   --  is separated by ';' (yes, even on Unix).
+   --  Returns the path to be used for reading the file.
+   --  ------------------------------
+   function Find_File_Path (Name  : String;
+                            Paths : String) return String is
+      use Ada.Directories;
+      use Ada.Strings.Fixed;
+
+      Sep_Pos : Natural;
+      Pos     : Positive := Paths'First;
+      Last    : constant Natural := Paths'Last;
+   begin
+      while Pos <= Last loop
+         Sep_Pos := Index (Paths, ";", Pos);
+         if Sep_Pos = 0 then
+            Sep_Pos := Last;
+         else
+            Sep_Pos := Sep_Pos - 1;
+         end if;
+         declare
+            Dir  : constant String := Paths (Pos .. Sep_Pos);
+            Path : constant String := Dir & "/" & Name;
+         begin
+            if Exists (Path) and Kind (Path) = Ordinary_File then
+               return Path;
+            end if;
+            Pos := Sep_Pos + 2;
+         end;
+      end loop;
+      return Name;
+   end Find_File_Path;
 
 end Util.Files;
