@@ -29,5 +29,6 @@ package Util.Files.Tests is
    procedure Test_Read_File_Missing (T : in out Test);
    procedure Test_Read_File_Truncate (T : in out Test);
    procedure Test_Write_File (T : in out Test);
+   procedure Test_Find_File_Path (T : in out Test);
 
 end Util.Files.Tests;
