@@ -132,7 +132,7 @@ package body Util.Files is
             Dir  : constant String := Paths (Pos .. Sep_Pos);
             Path : constant String := Dir & "/" & Name;
          begin
-            if Exists (Path) and Kind (Path) = Ordinary_File then
+            if Exists (Path) and then Kind (Path) = Ordinary_File then
                return Path;
             end if;
             Pos := Sep_Pos + 2;

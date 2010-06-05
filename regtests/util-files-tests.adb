@@ -37,6 +37,8 @@ package body Util.Files.Tests is
         Test_Read_File'Access));
       Suite.Add_Test (Caller.Create ("Test Util.Files.Write_File",
         Test_Write_File'Access));
+      Suite.Add_Test (Caller.Create ("Test Util.Files.Find_File_Path",
+        Test_Find_File_Path'Access));
    end Add_Tests;
 
    --  Test reading a file into a string
@@ -91,5 +93,22 @@ package body Util.Files.Tests is
       Assert_Equals (To_String (Result), Content,
                      "Invalid content written or read");
    end Test_Write_File;
+
+   --  Check Find_File_Path
+   procedure Test_Find_File_Path (T : in out Test) is
+      pragma Unreferenced (T);
+
+      Dir   : constant String := Util.Tests.Get_Path ("regtests");
+      Paths : constant String := ".;" & Dir;
+   begin
+      declare
+         P : constant String := Util.Files.Find_File_Path ("test.properties", Paths);
+      begin
+         Assert_Equals (Dir & "/test.properties", P,
+                        "Invalid path returned");
+      end;
+      Assert_Equals ("blablabla.properties",
+                     Util.Files.Find_File_Path ("blablabla.properties", Paths));
+   end Test_Find_File_Path;
 
 end Util.Files.Tests;
