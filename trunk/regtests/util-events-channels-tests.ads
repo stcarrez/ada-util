@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  Util testsuite - Util Testsuite
+--  events.tests -- Unit tests for event channels
 --  Copyright (C) 2009, 2010 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -16,22 +16,21 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Util.Properties.Tests;
-with Util.Log.Tests;
-with Util.Files.Tests;
-with Util.Concurrent.Tests;
-with Util.Events.Channels.Tests;
-package body Util.Testsuite is
+with AUnit.Test_Suites;
+with AUnit.Test_Fixtures;
 
-   function Suite return Access_Test_Suite is
-      Ret : constant Access_Test_Suite := new Test_Suite;
-   begin
-      Util.Properties.Tests.Add_Tests (Ret);
-      Util.Log.Tests.Add_Tests (Ret);
-      Util.Files.Tests.Add_Tests (Ret);
-      Util.Concurrent.Tests.Add_Tests (Ret);
-      Util.Events.Channels.Tests.Add_Tests (Ret);
-      return Ret;
-   end Suite;
+package Util.Events.Channels.Tests is
 
-end Util.Testsuite;
+   procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite);
+
+   type Test is new AUnit.Test_Fixtures.Test_Fixture
+     and Util.Events.Channels.Subscriber with record
+      Count : Natural := 0;
+   end record;
+
+   procedure Receive_Event (Sub  : in out Test;
+                            Item : in Event'Class);
+
+   procedure Test_Post_Event (T : in out Test);
+
+end Util.Events.Channels.Tests;
