@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util testsuite - Util Testsuite
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  util-events -- Events
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,23 +15,14 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+package body Util.Events is
 
-with Util.Properties.Tests;
-with Util.Log.Tests;
-with Util.Files.Tests;
-with Util.Concurrent.Tests;
-with Util.Events.Channels.Tests;
-package body Util.Testsuite is
-
-   function Suite return Access_Test_Suite is
-      Ret : constant Access_Test_Suite := new Test_Suite;
+   --  ------------------------------
+   --  Get the time identifying when the event was created.
+   --  ------------------------------
+   function Get_Time (Ev : Event) return Ada.Calendar.Time is
    begin
-      Util.Properties.Tests.Add_Tests (Ret);
-      Util.Log.Tests.Add_Tests (Ret);
-      Util.Files.Tests.Add_Tests (Ret);
-      Util.Concurrent.Tests.Add_Tests (Ret);
-      Util.Events.Channels.Tests.Add_Tests (Ret);
-      return Ret;
-   end Suite;
+      return Ev.Date;
+   end Get_Time;
 
-end Util.Testsuite;
+end Util.Events;
