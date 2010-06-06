@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 
 with Ada.Containers;
+with Ada.Containers.Indefinite_Hashed_Maps;
 package Util.Strings is
 
    type String_Access is access all String;
@@ -29,5 +30,11 @@ package Util.Strings is
 
    --  Returns true if left and right strings are equivalent.
    function Equivalent_Keys (Left, Right : Name_Access) return Boolean;
+
+   package String_Map is new Ada.Containers.Indefinite_Hashed_Maps
+     (Key_Type        => Name_Access,
+      Element_Type    => Name_Access,
+      Hash            => Hash,
+      Equivalent_Keys => Equivalent_Keys);
 
 end Util.Strings;
