@@ -16,7 +16,7 @@ project Config is
    end Builder;
 
    package compiler is
-      warnings := ("-gnatwua", "-gnatyM99-h");
+      warnings := ("-gnatwua");
 
       case Mode is
          when "distrib" =>
@@ -39,6 +39,9 @@ project Config is
       case Mode is
          when "debug" =>
             for Default_Switches ("Ada") use ("-E");
+
+	 when others =>
+	    null;
       end case;
    end binder;
 
@@ -49,6 +52,8 @@ project Config is
 
          when "distrib" =>
             for Default_Switches ("Ada") use ("-s");
+	 when others =>
+	    null;
       end case;
    end linker;        
  

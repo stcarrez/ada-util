@@ -1,11 +1,13 @@
 # You may edit this makefile as long as you keep these original 
 # target names defined.
 GNATMAKE=gnatmake
+GNATCLEAN=gnatclean
 GPRPATH=util.gpr
+TESTUTIL_GPRPATH=testutil.gpr
 
-distdir=ada-util-@EL_VERSION@
+distdir=ada-util-@UTIL_VERSION@
 
-DIST_FILE=ada-util-@EL_VERSION@.tar.gz
+DIST_FILE=ada-util-@UTIL_VERSION@.tar.gz
 
 srcdir = .
 top_srcdir = @top_srcdir@
@@ -17,6 +19,7 @@ top_builddir = .
 # Build executables for all mains defined by the project.
 build:
 	$(GNATMAKE) -P "$(GPRPATH)"
+	$(GNATMAKE) -P "$(TESTUTIL_GPRPATH)"
 
 # Not intended for manual invocation.
 # Invoked if automatic builds are enabled.
@@ -45,7 +48,7 @@ rebuild: clean build
 # Files to package in source distribution
 DISTFILES=README LICENSE.txt NOTICE.txt CHANGES config.guess configure config.sub \
 configure.in Makefile.in install-sh \
-util.gpr tests.gpr samples.gpr shared.gpr.in \
+util.gpr tests.gpr samples.gpr config.gpr.in \
 src samples regtests \
 bin obj lib
 
