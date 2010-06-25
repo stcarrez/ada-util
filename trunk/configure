@@ -2889,7 +2889,20 @@ EXEC_PREFIX="$prefix"
 UTIL_LIBDIR="lib"
 
 
-UTIL_ASM_DIR="src/asm-x86"
+
+case "${host}" in
+  ## Intel 386 machines where we don't care about the manufacturer
+  i[3456]86-*-* )
+    src_asm='asm-x86'
+    ;;
+
+  *)
+    src_asm='asm-none'
+    ;;
+
+esac
+
+UTIL_ASM_DIR="src/$src_asm"
 
 
 ac_config_files="$ac_config_files Makefile config.gpr"

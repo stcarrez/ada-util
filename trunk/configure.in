@@ -51,7 +51,20 @@ AC_SUBST(EXEC_PREFIX)
 UTIL_LIBDIR="lib"
 AC_SUBST(UTIL_LIBDIR)
 
-UTIL_ASM_DIR="src/asm-x86"
+
+case "${host}" in
+  ## Intel 386 machines where we don't care about the manufacturer
+  i[[3456]]86-*-* )
+    src_asm='asm-x86'
+    ;;
+
+  *)
+    src_asm='asm-none'
+    ;;
+
+esac
+
+UTIL_ASM_DIR="src/$src_asm"
 AC_SUBST(UTIL_ASM_DIR)
 
 AC_OUTPUT(
