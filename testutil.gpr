@@ -6,7 +6,7 @@ project Testutil is
 
    for Source_Dirs use ("regtests");
    for Excluded_Source_Files use ("util_harness.adb");
-   for Library_Dir use "../lib/testutil";
+   for Library_Dir use Config.Library_Dir;
    for Library_Name use "testutil";
    for Library_Kind use "static";
 
