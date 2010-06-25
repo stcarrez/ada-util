@@ -12,9 +12,9 @@ project Testutil is
 
    for Object_Dir use "obj/";
 
-   package Binder renames Shared.Binder;
-   package Builder renames Shared.Builder;
-   package Compiler renames Shared.Compiler;
-   package Linker renames Shared.Linker;
+   package Binder renames Config.Binder;
+   package Builder renames Config.Builder;
+   package Compiler renames Config.Compiler;
+   package Linker renames Config.Linker;
 
 end Testutil;
