@@ -588,6 +588,7 @@ echo 'BEGIN {' >"$tmp/subs1.awk" &&
 cat >>"$tmp/subs1.awk" <<\_ACAWK &&
 S["LTLIBOBJS"]=""
 S["LIBOBJS"]=""
+S["UTIL_ASM_DIR"]="src/asm-x86"
 S["UTIL_LIBDIR"]="lib"
 S["EXEC_PREFIX"]="NONE"
 S["UTIL_MICRO_VERSION"]="0"

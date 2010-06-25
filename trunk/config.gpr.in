@@ -1,6 +1,9 @@
 project Config is
    Version := "@UTIL_VERSION@";
    Library_Dir := "@UTIL_LIBDIR@";
+
+   Asm_Src_Dir := "@UTIL_ASM_DIR@";
+
    for Source_Dirs use ();
 
    type Mode_Type is ("distrib", "debug", "optimize", "profile");

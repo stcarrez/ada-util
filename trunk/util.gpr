@@ -3,7 +3,7 @@ with "xmlada";
 
 project Util is
 
-   for Source_Dirs use ("src");
+   for Source_Dirs use ("src", Config.Asm_Src_Dir);
 
    for Library_Dir use Config.Library_Dir;
    for Library_Name use "adautil";
