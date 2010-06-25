@@ -1,5 +1,5 @@
-with "shared";
-with "autil";
+with "../config/shared";
+with "util";
 
 project Samples is
 
