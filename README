@@ -1,0 +1,33 @@
+Utility Language
+
+This Ada05 library contains various utility packages for building
+Ada05 applications.
+
+Build with the following commands:
+
+   ./configure
+   make
+
+
+The samples can be built using:
+
+   gnatmake -Psamples
+   
+   
+The unit tests are built using:
+
+   gnatmake -Ptests
+
+
+And unit tests are executed with:
+
+   bin/util_harness
+
+
+Documentation
+
+   The Ada Util sources as well as a wiki documentation is provided on:
+
+   http://code.google.com/p/ada-util/
+
+
