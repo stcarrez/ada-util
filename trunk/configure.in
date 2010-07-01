@@ -68,5 +68,5 @@ UTIL_ASM_DIR="src/$src_asm"
 AC_SUBST(UTIL_ASM_DIR)
 
 AC_OUTPUT(
-Makefile config.gpr
+Makefile util.gpr
 )

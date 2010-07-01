@@ -2,10 +2,14 @@ with "config";
 with "xmlada";
 
 project Util is
+   Version := "@UTIL_VERSION@";
+   Library_Dir := "@UTIL_LIBDIR@";
 
-   for Source_Dirs use ("src", Config.Asm_Src_Dir);
+   Asm_Src_Dir := "@UTIL_ASM_DIR@";
 
-   for Library_Dir use Config.Library_Dir;
+   for Source_Dirs use ("src", Asm_Src_Dir);
+
+   for Library_Dir use "../util/lib";
    for Library_Name use "adautil";
    for Library_Kind use "static";
 
