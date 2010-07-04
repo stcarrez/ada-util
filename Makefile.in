@@ -48,7 +48,7 @@ rebuild: clean build
 # Files to package in source distribution
 DISTFILES=README LICENSE.txt NOTICE.txt CHANGES config.guess configure config.sub \
 configure.in Makefile.in install-sh \
-util.gpr testutil.gpr tests.gpr samples.gpr config.gpr.in \
+util.gpr.in testutil.gpr tests.gpr samples.gpr config.gpr \
 src samples regtests \
 bin obj lib
 
