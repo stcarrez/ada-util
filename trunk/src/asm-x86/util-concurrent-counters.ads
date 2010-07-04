@@ -33,6 +33,8 @@
 --        Free (Object);
 --    end if;
 --
+--  Unlike the Ada portable implementation based on protected type, this implementation
+--  does not require that <b>Counter</b> be a limited type.
 private with Interfaces;
 package Util.Concurrent.Counters is
 
@@ -46,16 +48,20 @@ package Util.Concurrent.Counters is
 
    --  Increment the counter atomically.
    procedure Increment (C : in out Counter);
+   pragma Inline (Increment);
 
    --  Decrement the counter atomically.
    procedure Decrement (C : in out Counter);
+   pragma Inline (Decrement);
 
    --  Decrement the counter atomically and return a status.
    procedure Decrement (C : in out Counter;
                         Is_Zero : out Boolean);
+   pragma Inline (Decrement);
 
    --  Get the counter value
    function Value (C : in Counter) return Integer;
+   pragma Inline (Value);
 
    ONE : constant Counter;
 
