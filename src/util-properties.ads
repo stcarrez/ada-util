@@ -33,7 +33,7 @@ package Util.Properties is
    --  The manager holding the name/value pairs and providing the operations
    --  to get and set the properties.
    type Manager is new Ada.Finalization.Controlled with private;
-   type Manager_Access is access Manager'Class;
+   type Manager_Access is access all Manager'Class;
 
    --  Returns TRUE if the property exists.
    function Exists (Self : in Manager'Class;
