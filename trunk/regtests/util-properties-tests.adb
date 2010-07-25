@@ -23,7 +23,6 @@ with Ada.Text_IO;
 
 with Util.Properties;
 with Util.Properties.Basic;
-with Util.Properties.Bundle;
 
 package body Util.Properties.Tests is
 
@@ -78,51 +77,6 @@ package body Util.Properties.Tests is
       Assert (V = 25, "Default value must be returned for a Get");
    end Test_Integer_Property;
 
-   --  Test the bundle
-   procedure Test_Bundle (T : in out Test) is
-      pragma Unreferenced (T);
-
-      Bundle : Properties.Bundle.Manager;
-      Props  : constant Properties.Manager_Access := new Properties.Manager;
-      V : Integer := 23;
-   begin
-      --  Create a first property (while the bundle is empty)
-      Integer_Property.Set (Bundle, "test-integer", 123);
-      Assert (Bundle.Exists ("test-integer"), "Invalid properties");
-
-      V := Integer_Property.Get (Bundle, "test-integer");
-      Assert (V = 123, "Property was not inserted");
-
-      --  Add a property set to the bundle
-      Bundle.Add_Bundle (Props);
-      Integer_Property.Set (Props.all, "test-integer-second", 24);
-      V := Integer_Property.Get (Props.all, "test-integer-second");
-      Assert (V = 24, "Property was not inserted");
-
-      V := Integer_Property.Get (Bundle, "test-integer-second");
-      Assert (V = 24, "Property was not inserted");
-
-      Bundle.Remove ("test-integer-second");
-      Assert (Props.all.Exists ("test-integer-second") = False,
-              "The 'test-integer-second' property was not removed");
-
-      Assert (Bundle.Exists ("test-integer-second") = False,
-              "Property not removed from bundle");
-   end Test_Bundle;
-
-   --  Test loading of bundles
-   procedure Test_Load_Bundle (T : in out Test) is
-      pragma Unreferenced (T);
-
-      Bundle    : Util.Properties.Bundle.Manager;
-      Fr_Bundle : Util.Properties.Bundle.Manager;
-      De_Bundle : Util.Properties.Bundle.Manager;
-   begin
-      Bundle.Load_Bundle (".", "test");
-      Bundle.Find_Bundle ("fr", Fr_Bundle);
-      Bundle.Find_Bundle ("de", De_Bundle);
-   end Test_Load_Bundle;
-
    --  Test loading of property files
    procedure Test_Load_Property (T : in out Test) is
       pragma Unreferenced (T);
@@ -167,12 +121,6 @@ package body Util.Properties.Tests is
 
       Suite.Add_Test (Caller.Create ("Test Util.Properties.Discrete.Set",
         Test_Integer_Property'Access));
-
-      Suite.Add_Test (Caller.Create ("Test Util.Properties.Bundle",
-        Test_Bundle'Access));
-
-      Suite.Add_Test (Caller.Create ("Test Util.Properties.Bundle.Load",
-        Test_Load_Bundle'Access));
 
       Suite.Add_Test (Caller.Create ("Test Util.Properties.Load_Properties",
         Test_Load_Property'Access));
