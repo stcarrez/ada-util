@@ -18,6 +18,7 @@
 
 with Ada.Containers;
 with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Containers.Indefinite_Hashed_Sets;
 package Util.Strings is
 
    type String_Access is access all String;
@@ -36,5 +37,10 @@ package Util.Strings is
       Element_Type    => Name_Access,
       Hash            => Hash,
       Equivalent_Keys => Equivalent_Keys);
+
+   package String_Set is new Ada.Containers.Indefinite_Hashed_Sets
+     (Element_Type    => Name_Access,
+      Hash            => Hash,
+      Equivalent_Elements => Equivalent_Keys);
 
 end Util.Strings;
