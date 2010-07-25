@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  Util testsuite - Util Testsuite
+--  Util -- Utilities
 --  Copyright (C) 2009, 2010 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -16,26 +16,16 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Util.Properties.Tests;
-with Util.Properties.Bundles.Tests;
-with Util.Log.Tests;
-with Util.Files.Tests;
-with Util.Concurrent.Tests;
-with Util.Events.Channels.Tests;
-package body Util.Testsuite is
+with AUnit.Test_Suites;
+with AUnit.Test_Fixtures;
 
-   Tests : aliased Test_Suite;
+package Util.Properties.Bundles.Tests is
 
-   function Suite return Access_Test_Suite is
-      Result : constant Access_Test_Suite := Tests'Access;
-   begin
-      Util.Properties.Tests.Add_Tests (Result);
-      Util.Properties.Bundles.Tests.Add_Tests (Result);
-      Util.Log.Tests.Add_Tests (Result);
-      Util.Files.Tests.Add_Tests (Result);
-      Util.Concurrent.Tests.Add_Tests (Result);
-      Util.Events.Channels.Tests.Add_Tests (Result);
-      return Result;
-   end Suite;
+   procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite);
 
-end Util.Testsuite;
+   type Test is new AUnit.Test_Fixtures.Test_Fixture with null record;
+
+   procedure Test_Bundle (T : in out Test);
+   procedure Test_Bundle_Loader (T : in out Test);
+
+end Util.Properties.Bundles.Tests;
