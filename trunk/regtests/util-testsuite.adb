@@ -23,6 +23,7 @@ with Util.Files.Tests;
 with Util.Concurrent.Tests;
 with Util.Events.Channels.Tests;
 with Util.Locales.Tests;
+with Util.Strings.Tests;
 package body Util.Testsuite is
 
    Tests : aliased Test_Suite;
@@ -33,6 +34,7 @@ package body Util.Testsuite is
       Util.Properties.Tests.Add_Tests (Result);
       Util.Properties.Bundles.Tests.Add_Tests (Result);
       Util.Locales.Tests.Add_Tests (Result);
+      Util.Strings.Tests.Add_Tests (Result);
       Util.Log.Tests.Add_Tests (Result);
       Util.Files.Tests.Add_Tests (Result);
       Util.Concurrent.Tests.Add_Tests (Result);
