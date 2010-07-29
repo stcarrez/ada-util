@@ -35,6 +35,7 @@ package Util.Properties.Bundles is
    --  and maintains a cache of bundles.  The cache is thread-safe but the returned
    --  bundles are not thread-safe.
    type Loader is limited private;
+   type Loader_Access is access all Loader;
 
    --  Initialize the bundle factory and specify where the property files are stored.
    procedure Initialize (Factory : in out Loader;

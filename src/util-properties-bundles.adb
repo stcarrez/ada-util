@@ -166,6 +166,7 @@ package body Util.Properties.Bundles is
                           Bundle  : out Manager'Class;
                           Found   : out Boolean) is
       use Ada.Strings;
+      use type Util.Properties.Manager_Access;
 
       Loc_Name : constant String := '_' & Locale;
       Last_Pos : Natural := Loc_Name'Last;
@@ -184,7 +185,9 @@ package body Util.Properties.Bundles is
             begin
                Pos := Factory.Bundles.Find (Bundle_Name'Unrestricted_Access);
                if Bundle_Map.Has_Element (Pos) then
-                  Bundle := Bundle_Map.Element (Pos).all;
+                  Bundle.Finalize;
+                  Bundle.Impl := Bundle_Map.Element (Pos).Impl;
+                  Bundle.Impl.Count := Bundle.Impl.Count + 1;
                   Found := True;
                   exit;
                end if;
