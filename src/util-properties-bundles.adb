@@ -72,7 +72,8 @@ package body Util.Properties.Bundles is
       procedure Delete (Self : in Manager;
                         Obj : in out Util.Properties.Interface_P.Manager_Access);
 
-      function Get_Names (Self : in Manager) return Name_Array;
+      function Get_Names (Self   : in Manager;
+                          Prefix : in String) return Name_Array;
 
       procedure Add_Bundle (Self : in out Manager;
                             Props : in Util.Properties.Manager_Access);
@@ -401,13 +402,14 @@ package body Util.Properties.Bundles is
          Free (Item);
       end Delete;
 
-      function Get_Names (Self : in Manager) return Name_Array is
+      function Get_Names (Self   : in Manager;
+                          Prefix : in String) return Name_Array is
          Result : Name_Array (1 .. 2);
          Iter : Cursor := Self.List.First;
       begin
          while Has_Element (Iter) loop
             declare
-               N : constant Name_Array := Element (Iter).Get_Names;
+               N : constant Name_Array := Element (Iter).Get_Names (Prefix);
             begin
                return N;
             end;

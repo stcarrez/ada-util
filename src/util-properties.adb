@@ -176,7 +176,13 @@ package body Util.Properties is
       Remove (Self.Impl.all, Name);
    end Remove;
 
-   function Get_Names (Self : in Manager) return Name_Array is
+   --  ------------------------------
+   --  Return the name of the properties defined in the manager.
+   --  When a prefix is specified, only the properties starting with
+   --  the prefix are returned.
+   --  ------------------------------
+   function Get_Names (Self  : in Manager;
+                       Prefix : in String := "") return Name_Array is
    begin
       if Self.Impl = null then
          declare
@@ -185,7 +191,7 @@ package body Util.Properties is
             return Empty;
          end;
       else
-         return Get_Names (Self.Impl.all);
+         return Get_Names (Self.Impl.all, Prefix);
       end if;
    end Get_Names;
 

@@ -100,7 +100,10 @@ package Util.Properties is
    type Name_Array is array (Natural range <>) of Value;
 
    --  Return the name of the properties defined in the manager.
-   function Get_Names (Self : in Manager) return Name_Array;
+   --  When a prefix is specified, only the properties starting with
+   --  the prefix are returned.
+   function Get_Names (Self   : in Manager;
+                       Prefix : in String := "") return Name_Array;
 
    --  Load the properties from the file input stream.  The file must follow
    --  the definition of Java property files.
@@ -158,7 +161,8 @@ private
       procedure Delete (Self : in Manager; Obj : in out Manager_Access)
         is abstract;
 
-      function Get_Names (Self : in Manager) return Name_Array is abstract;
+      function Get_Names (Self   : in Manager;
+                          Prefix : in String) return Name_Array is abstract;
 
    end Interface_P;
 
