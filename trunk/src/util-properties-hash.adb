@@ -116,17 +116,24 @@ package body Util.Properties.Hash is
       return Left = Right;
    end Equivalent_Keys;
 
-   function Get_Names (Self : in Manager) return Name_Array is
+   function Get_Names (Self   : in Manager;
+                       Prefix : in String) return Name_Array is
       It     : PropertyMap.Cursor := Self.Content.First;
       Result : Name_Array (1 .. Integer (Self.Content.Length));
       Pos    : Natural := 1;
    begin
       while PropertyMap.Has_Element (It) loop
-         Result (Pos) := PropertyMap.Key (It);
+         declare
+            Key : constant Value := PropertyMap.Key (It);
+         begin
+            if Prefix'Length = 0 or else Index (Key, Prefix) = 1 then
+               Result (Pos) := Key;
+               Pos := Pos + 1;
+            end if;
+         end;
          It := PropertyMap.Next (It);
-         Pos := Pos + 1;
       end loop;
-      return Result;
+      return Result (Result'First .. Pos - 1);
    end Get_Names;
 
 end Util.Properties.Hash;
