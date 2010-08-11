@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with GNAT.Command_Line;
 
+with AUnit.Options;
 with AUnit.Assertions;
 with AUnit.Reporter.Text;
 with AUnit.Run;
@@ -228,9 +229,11 @@ package body Util.Tests is
 
       declare
          S  : Util.Measures.Stamp;
+         O  : AUnit.Options.AUnit_Options := AUnit.Options.Default_Options;
       begin
+         O.Global_Timer := True;
          Util.Measures.Set_Current (Perf'Unchecked_Access);
-         Result := Runner (Reporter, True);
+         Result := Runner (Reporter, O);
          Util.Measures.Report (Perf, S, "Testsuite execution");
          Util.Measures.Write (Perf, "Test measures", Name);
       end;
