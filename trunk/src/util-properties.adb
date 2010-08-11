@@ -104,7 +104,13 @@ package body Util.Properties is
          Util.Properties.Factories.Initialize (Self);
          Self.Impl.Count := 1;
       elsif Self.Impl.Count > 1 then
-         Self.Impl := Create_Copy (Self.Impl.all);
+         declare
+            Old : Interface_P.Manager_Access := Self.Impl;
+         begin
+            Self.Impl := Create_Copy (Self.Impl.all);
+            Self.Impl.Count := 1;
+            Old.Count := Old.Count - 1;
+         end;
       end if;
    end Check_And_Create_Impl;
 
