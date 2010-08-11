@@ -23,7 +23,7 @@ with Ada.Containers.Doubly_Linked_Lists;
 --  channel.  It is inspired from Event pattern and CosEvent service.
 package Util.Events.Channels is
 
-   type Subscriber is interface;
+   type Subscriber is limited interface;
    type Subscriber_Access is access all Subscriber'Class;
 
    procedure Receive_Event (Sub  : in out Subscriber;
