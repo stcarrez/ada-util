@@ -135,8 +135,11 @@ package body Util.Files is
             if Exists (Path) and then Kind (Path) = Ordinary_File then
                return Path;
             end if;
-            Pos := Sep_Pos + 2;
+         exception
+            when Name_Error =>
+               null;
          end;
+         Pos := Sep_Pos + 2;
       end loop;
       return Name;
    end Find_File_Path;
