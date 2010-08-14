@@ -27,4 +27,10 @@ package Util.Strings.Tests is
 
    procedure Test_Escape_Javascript (T : in out Test);
 
+   procedure Test_Capitalize (T : in out Test);
+
+   procedure Test_To_Upper_Case (T : in out Test);
+
+   procedure Test_To_Lower_Case (T : in out Test);
+
 end Util.Strings.Tests;
