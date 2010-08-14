@@ -9,8 +9,8 @@ project Tests is
 
    Mains := ("util_harness.adb");
 
-   for Source_Dirs use ("regtests");
-   for Source_Files use ("util_harness.adb");
+   for Source_Dirs use ("regtests/");
+--   for Source_Files use ("util_harness.adb");
 
    for Main use Mains;
 
