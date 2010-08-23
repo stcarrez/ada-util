@@ -56,7 +56,21 @@ package Util.Texts.Transforms is
                           Into    : in out Stream);
    function Escape_Java (Content : Input) return Input;
 
+   --  Escape the content into the result stream using the XML
+   --  escape rules:
+   --   '<' -> '&lt;'
+   --   '>' -> '&gt;'
+   --   ''' -> '&apos;'
+   --   '&' -> '&amp;'
+   --       -> '&#nnn;' if Character'Pos >= 128
+   procedure Escape_Xml (Content : in Input;
+                         Into    : in out Stream);
+   function Escape_Xml (Content : Input) return Input;
+
 private
+   procedure Put (Into  : in out Stream;
+                  Value : in String);
+
    procedure Escape_Java (Content             : in Input;
                           Escape_Single_Quote : in Boolean;
                           Into                : in out Stream);

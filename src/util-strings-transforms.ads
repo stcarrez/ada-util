@@ -69,4 +69,18 @@ package Util.Strings.Transforms is
    function Escape_Java (Content : String) return String
                           renames TR.Escape_Java;
 
+   --  Escape the content into the result stream using the XML
+   --  escape rules:
+   --   '<' -> '&lt;'
+   --   '>' -> '&gt;'
+   --   ''' -> '&apos;'
+   --   '&' -> '&amp;'
+   --       -> '&#nnn;' if Character'Pos >= 128
+   procedure Escape_Xml (Content : in String;
+                         Into    : in out Unbounded_String)
+                          renames TR.Escape_Xml;
+
+   function Escape_Xml (Content : String) return String
+                          renames TR.Escape_Xml;
+
 end Util.Strings.Transforms;
