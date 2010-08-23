@@ -16,15 +16,11 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with AUnit.Assertions;
-with AUnit.Test_Suites;
-with AUnit.Test_Fixtures;
 with AUnit.Test_Caller;
 with Util.Tests;
 with Util.Concurrent.Counters;
 package body Util.Concurrent.Tests is
 
-   use AUnit.Assertions;
    use Util.Tests;
    use Util.Concurrent.Counters;
 
@@ -44,7 +40,7 @@ package body Util.Concurrent.Tests is
       C : Counter;
    begin
       Increment (C);
-      Assert_Equals (Value (C), 1, "Increment failed");
+      Assert_Equals (T, Value (C), 1, "Increment failed");
    end Test_Increment;
 
    procedure Test_Decrement (T : in out Test) is
@@ -52,7 +48,7 @@ package body Util.Concurrent.Tests is
    begin
       Increment (C);
       Decrement (C);
-      Assert_Equals (Value (C), 0, "Increment + Decrement failed");
+      Assert_Equals (T, Value (C), 0, "Increment + Decrement failed");
    end Test_Decrement;
 
    procedure Test_Decrement_And_Test (T : in out Test) is
@@ -60,14 +56,14 @@ package body Util.Concurrent.Tests is
       Is_Zero : Boolean;
    begin
       Increment (C);
-      Assert_Equals (Value (C), 1, "Increment failed");
+      Assert_Equals (T, Value (C), 1, "Increment failed");
       Decrement (C, Is_Zero);
-      Assert_Equals (Value (C), 0, "Decrement failed");
-      Assert (Is_Zero, "Counter should be zero");
+      Assert_Equals (T, Value (C), 0, "Decrement failed");
+      T.Assert (Is_Zero, "Counter should be zero");
       Increment (C);
       Increment (C);
       Decrement (C, Is_Zero);
-      Assert (not Is_Zero, "Counter should not be zero");
+      T.Assert (not Is_Zero, "Counter should not be zero");
    end Test_Decrement_And_Test;
 
 end Util.Concurrent.Tests;

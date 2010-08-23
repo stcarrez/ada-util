@@ -16,8 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with AUnit.Test_Suites;
-with AUnit.Test_Fixtures;
 with AUnit.Test_Caller;
 with Util.Tests;
 package body Util.Events.Channels.Tests is
@@ -34,32 +32,33 @@ package body Util.Events.Channels.Tests is
 
    procedure Receive_Event (Sub  : in out Test;
                             Item : in Event'Class) is
+      pragma Unreferenced (Item);
    begin
       Sub.Count := Sub.Count + 1;
    end Receive_Event;
 
    procedure Test_Post_Event (T : in out Test) is
-      C : Channel_Access := Create ("test", "direct");
-      E : Event;
+      C  : constant Channel_Access := Create ("test", "direct");
+      E  : Event;
       T1 : aliased Test;
       T2 : aliased Test;
    begin
       C.Post (E);
 
-      Assert_Equals ("test", C.Get_Name, "Invalid channel name");
+      Assert_Equals (T, "test", C.Get_Name, "Invalid channel name");
 
       C.Subscribe (T1'Unchecked_Access);
       C.Post (E);
-      Assert_Equals (1, T1.Count, "Invalid number of received events");
-      Assert_Equals (0, T2.Count, "Invalid number of events");
+      Assert_Equals (T, 1, T1.Count, "Invalid number of received events");
+      Assert_Equals (T, 0, T2.Count, "Invalid number of events");
 
       C.Subscribe (T2'Unchecked_Access);
       C.Post (E);
 
       C.Unsubscribe (T1'Unchecked_Access);
       C.Post (E);
-      Assert_Equals (2, T1.Count, "Invalid number of received events");
-      Assert_Equals (2, T2.Count, "Invalid number of events");
+      Assert_Equals (T, 2, T1.Count, "Invalid number of received events");
+      Assert_Equals (T, 2, T2.Count, "Invalid number of events");
    end Test_Post_Event;
 
 end Util.Events.Channels.Tests;

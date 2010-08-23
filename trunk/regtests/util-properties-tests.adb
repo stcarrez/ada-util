@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with AUnit.Assertions;
 with AUnit.Test_Caller;
 
 with Ada.Text_IO;
@@ -27,7 +26,6 @@ with Util.Properties.Basic;
 package body Util.Properties.Tests is
 
    use Ada.Text_IO;
-   use AUnit.Assertions;
    use Util.Properties.Basic;
    use Util;
 
@@ -36,21 +34,19 @@ package body Util.Properties.Tests is
    --    Properties.Exists
    --    Properties.Get
    procedure Test_Property (T : in out Test) is
-      pragma Unreferenced (T);
-
       Props : Properties.Manager;
    begin
-      Assert (Exists (Props, "test") = false,
-              "Invalid properties");
+      T.Assert (Exists (Props, "test") = false,
+                "Invalid properties");
       Props.Set ("test", "toto");
-      Assert (Exists (Props, "test"),
-              "Property was not inserted");
+      T.Assert (Exists (Props, "test"),
+                "Property was not inserted");
       declare
          V : constant String := Props.Get ("test");
       begin
 
-         Assert (V = "toto",
-                 "Property was not set correctly");
+         T.Assert (V = "toto",
+                   "Property was not set correctly");
       end;
    end Test_Property;
 
@@ -58,29 +54,25 @@ package body Util.Properties.Tests is
    --     Get
    --     Set
    procedure Test_Integer_Property (T : in out Test) is
-      pragma Unreferenced (T);
-
       Props : Properties.Manager;
       V     : Integer := 23;
    begin
       Integer_Property.Set (Props, "test-integer", V);
-      Assert (Props.Exists ("test-integer"), "Invalid properties");
+      T.Assert (Props.Exists ("test-integer"), "Invalid properties");
 
       V := Integer_Property.Get (Props, "test-integer");
-      Assert (V = 23, "Property was not inserted");
+      T.Assert (V = 23, "Property was not inserted");
 
       Integer_Property.Set (Props, "test-integer", 24);
       V := Integer_Property.Get (Props, "test-integer");
-      Assert (V = 24, "Property was not inserted");
+      T.Assert (V = 24, "Property was not inserted");
 
       V := Integer_Property.Get (Props, "unknown", 25);
-      Assert (V = 25, "Default value must be returned for a Get");
+      T.Assert (V = 25, "Default value must be returned for a Get");
    end Test_Integer_Property;
 
    --  Test loading of property files
    procedure Test_Load_Property (T : in out Test) is
-      pragma Unreferenced (T);
-
       Props : Properties.Manager;
       F : File_Type;
    begin
@@ -91,13 +83,13 @@ package body Util.Properties.Tests is
       declare
          Names : constant Name_Array := Get_Names (Props);
       begin
-         Assert (Names'Length > 30,
-                 "Loading the test properties returned too few properties");
+         T.Assert (Names'Length > 30,
+                   "Loading the test properties returned too few properties");
 
-         Assert (To_String (Props.Get ("root.dir")) = ".",
-                 "Invalid property 'root.dir'");
-         Assert (To_String (Props.Get ("console.lib")) = "${dist.lib.dir}/console.jar",
-                 "Invalid property 'console.lib'");
+         T.Assert (To_String (Props.Get ("root.dir")) = ".",
+                   "Invalid property 'root.dir'");
+         T.Assert (To_String (Props.Get ("console.lib")) = "${dist.lib.dir}/console.jar",
+                   "Invalid property 'console.lib'");
       end;
    exception
       when Ada.Text_IO.Name_Error =>
