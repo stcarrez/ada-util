@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 
 with AUnit.Test_Suites;
+with AUnit.Assertions;
 with Ada.Strings.Unbounded;
 
 with GNAT.Source_Info;
@@ -39,26 +40,30 @@ package Util.Tests is
 
    --  Check that two files are equal.  This is intended to be used by
    --  tests that create files that are then checked against patterns.
-   procedure Assert_Equal_Files (Expect  : in String;
+   procedure Assert_Equal_Files (T       : in AUnit.Assertions.Test'Class;
+                                 Expect  : in String;
                                  Test    : in String;
                                  Message : in String := "Test failed";
                                  Source  : String := GNAT.Source_Info.File;
                                  Line    : Natural := GNAT.Source_Info.Line);
 
    --  Check that the value matches what we expect.
-   procedure Assert_Equals (Expect, Value : in Integer;
+   procedure Assert_Equals (T         : in AUnit.Assertions.Test'Class;
+                            Expect, Value : in Integer;
                             Message : in String := "Test failed";
                             Source    : String := GNAT.Source_Info.File;
                             Line      : Natural := GNAT.Source_Info.Line);
 
    --  Check that the value matches what we expect.
-   procedure Assert_Equals (Expect, Value : in String;
-                            Message : in String := "Test failed";
+   procedure Assert_Equals (T         : in AUnit.Assertions.Test'Class;
+                            Expect, Value : in String;
+                            Message   : in String := "Test failed";
                             Source    : String := GNAT.Source_Info.File;
                             Line      : Natural := GNAT.Source_Info.Line);
 
    --  Check that the value matches what we expect.
-   procedure Assert_Equals (Expect  : in String;
+   procedure Assert_Equals (T       : in AUnit.Assertions.Test'Class;
+                            Expect  : in String;
                             Value   : in Unbounded_String;
                             Message : in String := "Test failed";
                             Source    : String := GNAT.Source_Info.File;
