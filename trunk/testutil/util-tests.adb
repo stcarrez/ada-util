@@ -18,7 +18,6 @@
 with GNAT.Command_Line;
 
 with AUnit.Options;
-with AUnit.Assertions;
 with AUnit.Reporter.Text;
 with AUnit.Run;
 with Util.Measures;
@@ -26,7 +25,6 @@ with Ada.Command_Line;
 with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Text_IO;
-with Util.Properties;
 with Util.Files;
 package body Util.Tests is
 
@@ -72,45 +70,49 @@ package body Util.Tests is
    --  ------------------------------
    --  Check that the value matches what we expect.
    --  ------------------------------
-   procedure Assert_Equals (Expect, Value : in Integer;
+   procedure Assert_Equals (T       : in AUnit.Assertions.Test'Class;
+                            Expect, Value : in Integer;
                             Message : in String := "Test failed";
                             Source    : String := GNAT.Source_Info.File;
                             Line      : Natural := GNAT.Source_Info.Line) is
    begin
-      Assert (Condition => Expect = Value,
-              Message   => Message & ": expecting '"
-              & Integer'Image (Expect) & "'"
-              & " value was '"
-              & Integer'Image (Value) & "'",
-              Source    => Source,
-              Line      => Line);
+      T.Assert (Condition => Expect = Value,
+                Message   => Message & ": expecting '"
+                & Integer'Image (Expect) & "'"
+                & " value was '"
+                & Integer'Image (Value) & "'",
+                Source    => Source,
+                Line      => Line);
    end Assert_Equals;
 
    --  ------------------------------
    --  Check that the value matches what we expect.
    --  ------------------------------
-   procedure Assert_Equals (Expect, Value : in String;
+   procedure Assert_Equals (T         : in AUnit.Assertions.Test'Class;
+                            Expect, Value : in String;
                             Message   : in String := "Test failed";
                             Source    : String := GNAT.Source_Info.File;
                             Line      : Natural := GNAT.Source_Info.Line) is
    begin
-      Assert (Condition => Expect = Value,
-              Message   => Message & ": expecting '" & Expect & "'"
-              & " value was '" & Value & "'",
-              Source    => Source,
-              Line      => Line);
+      T.Assert (Condition => Expect = Value,
+                Message   => Message & ": expecting '" & Expect & "'"
+                & " value was '" & Value & "'",
+                Source    => Source,
+                Line      => Line);
    end Assert_Equals;
 
    --  ------------------------------
    --  Check that the value matches what we expect.
    --  ------------------------------
-   procedure Assert_Equals (Expect  : in String;
+   procedure Assert_Equals (T       : in AUnit.Assertions.Test'Class;
+                            Expect  : in String;
                             Value   : in Unbounded_String;
                             Message : in String := "Test failed";
                             Source  : String := GNAT.Source_Info.File;
                             Line    : Natural := GNAT.Source_Info.Line) is
    begin
-      Assert_Equals (Expect => Expect,
+      Assert_Equals (T      => T,
+                     Expect => Expect,
                      Value  => To_String (Value),
                      Message => Message,
                      Source  => Source,
@@ -121,7 +123,8 @@ package body Util.Tests is
    --  Check that two files are equal.  This is intended to be used by
    --  tests that create files that are then checked against patterns.
    --  ------------------------------
-   procedure Assert_Equal_Files (Expect  : in String;
+   procedure Assert_Equal_Files (T       : in AUnit.Assertions.Test'Class;
+                                 Expect  : in String;
                                  Test    : in String;
                                  Message : in String := "Test failed";
                                  Source  : String := GNAT.Source_Info.File;
@@ -133,8 +136,8 @@ package body Util.Tests is
       Same        : Boolean;
    begin
       if not Ada.Directories.Exists (Expect) then
-         Assert (False, "Expect file '" & Expect & "' does not exist",
-                 Source => Source, Line => Line);
+         T.Assert (False, "Expect file '" & Expect & "' does not exist",
+                   Source => Source, Line => Line);
       end if;
       Read_File (Path => Expect,
                  Into => Expect_File);
@@ -142,8 +145,9 @@ package body Util.Tests is
                  Into => Test_File);
 
       --  Check file sizes
-      Assert_Equals (Expect => Length (Expect_File),
-                     Value  => Length (Test_File),
+      Assert_Equals (T       => T,
+                     Expect  => Length (Expect_File),
+                     Value   => Length (Test_File),
                      Message => Message & ": Invalid file sizes",
                      Source  => Source,
                      Line    => Line);
