@@ -409,7 +409,8 @@ package body Util.Properties.Bundles is
       begin
          while Has_Element (Iter) loop
             declare
-               N : constant Name_Array := Element (Iter).Get_Names (Prefix);
+	       M : constant Util.Properties.Manager_Access := Element (Iter);
+               N : constant Name_Array := M.Get_Names (Prefix);
             begin
                return N;
             end;
