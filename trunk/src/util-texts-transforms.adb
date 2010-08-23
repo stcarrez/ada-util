@@ -19,8 +19,20 @@ package body Util.Texts.Transforms is
 
    type Code is mod 2**32;
 
+   Conversion : constant String (1 .. 16) := "0123456789ABCDEF";
+
+   procedure Put_Dec (Into  : in out Stream;
+                      Value : in Code);
+
+   procedure Put (Into  : in out Stream;
+                  Value : in String) is
+   begin
+      for I in Value'Range loop
+         Put (Into, Value (I));
+      end loop;
+   end Put;
+
    procedure Put_Hex (Into : in out Stream; Value : Code) is
-      Conversion : constant String (1 .. 16) := "0123456789ABCDEF";
       S          : String (1 .. 6) := (1 => '\', 2 => 'u', others => '0');
       P          : Code := Value;
       N          : Code;
@@ -33,10 +45,25 @@ package body Util.Texts.Transforms is
          exit when I = 1;
          I := I - 1;
       end loop;
-      for J in S'Range loop
-         Put (Into, S (J));
-      end loop;
+      Put (Into, S);
    end Put_Hex;
+
+   procedure Put_Dec (Into  : in out Stream;
+                      Value : in Code) is
+      S : String (1 .. 9) := (others => '0');
+      P : Code := Value;
+      N : Code;
+      I : Positive := S'Last;
+   begin
+      while P /= 0 loop
+         N := P mod 10;
+         P := P / 10;
+         S (I) := Conversion (Positive'Val (N + 1));
+         exit when P = 0;
+         I := I - 1;
+      end loop;
+      Put (Into, S (I .. S'Last));
+   end Put_Dec;
 
    --  ------------------------------
    --  Capitalize the string into the result stream.
@@ -142,6 +169,7 @@ package body Util.Texts.Transforms is
       Escape_Java (Content             => Content, Into => Into,
                    Escape_Single_Quote => False);
    end Escape_Java;
+
    function Escape_Java (Content : Input) return Input is
       Result : Stream;
    begin
@@ -204,5 +232,51 @@ package body Util.Texts.Transforms is
          end if;
       end loop;
    end Escape_Java;
+
+
+   function Escape_Xml (Content : Input) return Input is
+      Result : Stream;
+   begin
+      Escape_Xml (Content => Content,
+                  Into    => Result);
+      return To_Input (Result);
+   end Escape_Xml;
+
+   --  Escape the content into the result stream using the XML
+   --  escape rules:
+   --   '<' -> '&lt;'
+   --   '>' -> '&gt;'
+   --   ''' -> '&apos;'
+   --   '&' -> '&amp;'
+   --       -> '&#nnn;' if Character'Pos >= 128
+   procedure Escape_Xml (Content : in Input;
+                         Into    : in out Stream) is
+      C : Code;
+   begin
+      for I in Content'Range loop
+         C := Char'Pos (Content (I));
+         if C = Character'Pos ('<') then
+            Put (Into, "&lt;");
+
+         elsif C = Character'Pos ('>') then
+            Put (Into, "&gt;");
+
+         elsif C = Character'Pos ('&') then
+            Put (Into, "&amp;");
+
+         elsif C = Character'Pos (''') then
+            Put (Into, "&apos;");
+
+         elsif C > 16#7F# then
+            Put (Into, '&');
+            Put (Into, '#');
+            Put_Dec (Into, C);
+            Put (Into, ';');
+
+         else
+            Put (Into, Character'Val (C));
+         end if;
+      end loop;
+   end Escape_Xml;
 
 end Util.Texts.Transforms;

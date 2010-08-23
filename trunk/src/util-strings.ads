@@ -44,31 +44,27 @@ package Util.Strings is
       Hash            => Hash,
       Equivalent_Elements => Equivalent_Keys);
 
-   --  The <b>Escape</b> package provides several operations to escape
-   --  a string using different rules.  The input string can be any
-   --  character type but the result is always a character type.
    generic
       type Stream is limited private;
       type Char is (<>);
       type Input is array (Positive range <>) of Char;
+      type Value is limited private;
+      type Value_List is array (Positive range <>) of Value;
       with procedure Put (Buffer : in out Stream; C : in Character);
-   package Escape is
-
-      --  Escape the content into the result stream using the JavaScript
-      --  escape rules.
-      procedure Escape_Java_Script (Content : in Input;
-                                    Into    : in out Stream);
+      with function To_Input (Arg : in Value) return Input;
+   package Formats is
 
       --  Escape the content into the result stream using the Java
       --  escape rules.
-      procedure Escape_Java (Content : in Input;
-                             Into    : in out Stream);
+      procedure Format (Content   : in Input;
+                        Arguments : in Value_List;
+                        Into      : in out Stream);
 
    private
-      procedure Escape_Java (Content : in Input;
-                             Escape_Single_Quote : in Boolean;
-                             Into    : in out Stream);
-   end Escape;
+      procedure Format (Argument : in Value;
+                        Into     : in out Stream);
+
+   end Formats;
 
    --  String reference
    type String_Ref is private;

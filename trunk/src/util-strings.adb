@@ -78,95 +78,61 @@ package body Util.Strings is
       end if;
    end Finalize;
 
-   package body Escape is
+   package body Formats is
       type Code is mod 2**32;
 
-      procedure Put_Hex (Into : in out Stream; Value : Code) is
-         Conversion : constant String (1 .. 16) := "0123456789ABCDEF";
-         S : String (1 .. 6) := (1 => '\', 2 => 'u', others => '0');
-         P : Code := Value;
-         N : Code;
-         I : Positive := S'Last;
-      begin
-         while P /= 0 loop
-            N := P mod 16;
-            P := P / 16;
-            S (I) := Conversion (Positive'Val (N + 1));
-            exit when I = 1;
-            I := I - 1;
-         end loop;
-         for J in S'Range loop
-            Put (Into, S (J));
-         end loop;
-      end Put_Hex;
-
-      procedure Escape_Java_Script (Content : in Input;
-                                    Into    : in out Stream) is
-      begin
-         Escape_Java (Content => Content, Into => Into,
-                      Escape_Single_Quote => True);
-      end Escape_Java_Script;
-
-      procedure Escape_Java (Content : in Input;
-                             Into    : in out Stream) is
-      begin
-         Escape_Java (Content => Content, Into => Into,
-                      Escape_Single_Quote => False);
-      end Escape_Java;
-
-      procedure Escape_Java (Content : in Input;
-                             Escape_Single_Quote : in Boolean;
-                             Into : in out Stream) is
+      procedure Format (Content   : in Input;
+                        Arguments : in Value_List;
+                        Into      : in out Stream) is
          C : Code;
+         Old_Pos : Natural;
+         N       : Natural;
+         Pos     : Natural := Content'First;
+      begin
+         while Pos <= Content'Last loop
+            C := Char'Pos (Content (Pos));
+            if C = Character'Pos ('{') then
+               N := 0;
+               Pos := Pos + 1;
+               Old_Pos := Pos;
+               while Pos <= Content'Last loop
+                  C := Char'Pos (Content (Pos));
+                  if C >= Character'Pos ('0') and C <= Character'Pos ('9') then
+                     N := N * 10 + Natural (C - Character'Pos ('0'));
+                     Pos := Pos + 1;
+                  elsif C = Character'Pos ('}') then
+                     if N > Arguments'Length then
+                        Put (Into, '{');
+                        Pos := Old_Pos;
+                     else
+                        Format (Arguments (N + Arguments'First), Into);
+                        Pos := Pos + 1;
+                     end if;
+                     exit;
+                  else
+                     Put (Into, '{');
+                     Pos := Old_Pos;
+                     exit;
+                  end if;
+               end loop;
+            else
+               Put (Into, Character'Val (C));
+               Pos := Pos + 1;
+            end if;
+         end loop;
+      end Format;
+
+      procedure Format (Argument : in Value;
+                        Into     : in out Stream) is
+         Content : constant Input := To_Input (Argument);
+         C       : Code;
       begin
          for I in Content'Range loop
             C := Char'Pos (Content (I));
-            if C < 16#20# then
-               if C = 16#0A# then
-                  Put (Into, '\');
-                  Put (Into, 'n');
-
-               elsif C = 16#0D# then
-                  Put (Into, '\');
-                  Put (Into, 'r');
-
-               elsif C = 16#08# then
-                  Put (Into, '\');
-                  Put (Into, 'b');
-
-               elsif C = 16#09# then
-                  Put (Into, '\');
-                  Put (Into, 't');
-
-               elsif C = 16#0C# then
-                  Put (Into, '\');
-                  Put (Into, 'f');
-               else
-                  Put_Hex (Into, C);
-               end if;
-
-            elsif C = 16#27# then
-               if Escape_Single_Quote then
-                  Put (Into, '\');
-               end if;
-               Put (Into, Character'Val (C));
-
-            elsif C = 16#22# then
-               Put (Into, '\');
-               Put (Into, Character'Val (C));
-
-            elsif C = 16#5C# then
-               Put (Into, '\');
-               Put (Into, Character'Val (C));
-
-            elsif C > 16#80# then
-               Put_Hex (Into, C);
-
-            else
-               Put (Into, Character'Val (C));
-            end if;
+            Put (Into, Character'Val (C));
          end loop;
-      end Escape_Java;
-   end Escape;
+      end Format;
+
+   end Formats;
 
 end Util.Strings;
