@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with AUnit.Assertions;
 with AUnit.Test_Caller;
 
 with Util.Log;
@@ -25,10 +24,9 @@ with Util.Properties;
 with Util.Measures;
 package body Util.Log.Tests is
 
-   use AUnit.Assertions;
    use Util;
 
-   Log : Loggers.Logger := Loggers.Create ("util.log.test");
+   Log : constant Loggers.Logger := Loggers.Create ("util.log.test");
 
    procedure Test_Log (T : in out Test) is
       pragma Unreferenced (T);
@@ -56,7 +54,7 @@ package body Util.Log.Tests is
       Util.Log.Loggers.Initialize (Props);
 
       declare
-         L : Loggers.Logger := Loggers.Create ("util.log.test.file");
+         L : constant Loggers.Logger := Loggers.Create ("util.log.test.file");
       begin
          L.Debug ("Writing a debug message");
          L.Debug ("{0}: {1}", "Parameter", "Value");

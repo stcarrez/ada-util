@@ -16,14 +16,11 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with AUnit.Assertions;
 with AUnit.Test_Caller;
 with Util.Tests;
-with Ada.Strings.Unbounded;
 package body Util.Locales.Tests is
 
    use Util.Tests;
-   use AUnit.Assertions;
 
    package Caller is new AUnit.Test_Caller (Test);
 
@@ -38,14 +35,12 @@ package body Util.Locales.Tests is
    end Add_Tests;
 
    procedure Test_Get_Locale (T : in out Test) is
-      pragma Unreferenced (T);
-
       Loc : Locale;
    begin
       Loc := Get_Locale ("en");
-      Assert_Equals ("en", Get_Language (Loc), "Invalid language");
-      Assert_Equals ("", Get_Country (Loc), "Invalid country");
-      Assert_Equals ("", Get_Variant (Loc), "Invalid variant");
+      Assert_Equals (T, "en", Get_Language (Loc), "Invalid language");
+      Assert_Equals (T, "", Get_Country (Loc), "Invalid country");
+      Assert_Equals (T, "", Get_Variant (Loc), "Invalid variant");
    end Test_Get_Locale;
 
 --     procedure Test_Get_Country (T : in out Test);
@@ -54,18 +49,18 @@ package body Util.Locales.Tests is
    procedure Test_Hash_Locale (T : in out Test) is
       use type Ada.Containers.Hash_Type;
    begin
-      Assert (Hash (FRANCE) /= Hash (FRENCH), "Hash should be different");
-      Assert (Hash (FRANCE) /= Hash (ENGLISH), "Hash should be different");
-      Assert (Hash (FRENCH) /= Hash (ENGLISH), "Hash should be different");
+      T.Assert (Hash (FRANCE) /= Hash (FRENCH), "Hash should be different");
+      T.Assert (Hash (FRANCE) /= Hash (ENGLISH), "Hash should be different");
+      T.Assert (Hash (FRENCH) /= Hash (ENGLISH), "Hash should be different");
    end Test_Hash_Locale;
 
    procedure Test_Compare_Locale (T : in out Test) is
    begin
-      Assert (FRANCE /= FRENCH, "Equality");
-      Assert (FRANCE = FRANCE, "Equality");
-      Assert (FRANCE = Get_Locale ("fr", "FR"), "Equality");
-      Assert (FRANCE /= ENGLISH, "Equality");
-      Assert (FRENCH /= ENGLISH, "Equaliy");
+      T.Assert (FRANCE /= FRENCH, "Equality");
+      T.Assert (FRANCE = FRANCE, "Equality");
+      T.Assert (FRANCE = Get_Locale ("fr", "FR"), "Equality");
+      T.Assert (FRANCE /= ENGLISH, "Equality");
+      T.Assert (FRENCH /= ENGLISH, "Equaliy");
    end Test_Compare_Locale;
 
 end Util.Locales.Tests;

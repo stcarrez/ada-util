@@ -16,8 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-
-with AUnit.Assertions;
 with AUnit.Test_Caller;
 
 with Util.Tests;
@@ -26,14 +24,11 @@ with Util.Properties.Basic;
 
 package body Util.Properties.Bundles.Tests is
 
-   use AUnit.Assertions;
    use Util.Tests;
    use Util.Properties.Basic;
 
    --  Test the bundle
    procedure Test_Bundle (T : in out Test) is
-      pragma Unreferenced (T);
-
       Bundle : Properties.Bundles.Manager;
       Props  : constant Properties.Manager_Access := new Properties.Manager;
       V : Integer := 23;
@@ -49,10 +44,10 @@ package body Util.Properties.Bundles.Tests is
       Bundle.Add_Bundle (Props);
       Integer_Property.Set (Props.all, "test-integer-second", 24);
       V := Integer_Property.Get (Props.all, "test-integer-second");
-      Assert (V = 24, "Property was not inserted");
+      T.Assert (V = 24, "Property was not inserted");
 
       V := Integer_Property.Get (Bundle, "test-integer-second");
-      Assert (V = 24, "Property was not inserted");
+      T.Assert (V = 24, "Property was not inserted");
 
 --        Bundle.Remove ("test-integer-second");
 --        Assert (Props.all.Exists ("test-integer-second") = False,
@@ -69,18 +64,18 @@ package body Util.Properties.Bundles.Tests is
       Initialize (Factory, Util.Tests.Get_Test_Path ("regtests/bundles"));
       Load_Bundle (Factory, "bundle", "fr", Bundle);
 
-      Assert_Equals ("Message France", String '(Bundle.Get ("message")),
+      Assert_Equals (T, "Message France", String '(Bundle.Get ("message")),
                      "Load fr bundle failed");
 
-      Assert_Equals ("Default", String '(Bundle.Get ("message_default")),
+      Assert_Equals (T, "Default", String '(Bundle.Get ("message_default")),
                      "Load fr bundle failed");
 
       Load_Bundle (Factory, "bundle", "en_GB", Bundle);
 
-      Assert_Equals ("GB message", String '(Bundle.Get ("message")),
+      Assert_Equals (T, "GB message", String '(Bundle.Get ("message")),
                      "Load en_GB bundle failed");
 
-      Assert_Equals ("Default", String '(Bundle.Get ("message_default")),
+      Assert_Equals (T, "Default", String '(Bundle.Get ("message_default")),
                      "Load en_GB bundle failed");
 
    end Test_Bundle_Loader;
