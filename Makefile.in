@@ -49,7 +49,7 @@ rebuild: clean build
 DISTFILES=README LICENSE.txt NOTICE.txt CHANGES config.guess configure config.sub \
 configure.in Makefile.in install-sh \
 util.gpr.in testutil.gpr tests.gpr samples.gpr config.gpr \
-src samples regtests \
+src samples regtests testutil \
 bin obj lib
 
 dist:
