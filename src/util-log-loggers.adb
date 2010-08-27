@@ -290,9 +290,28 @@ package body Util.Log.Loggers is
       Log : Logger_Info_Access;
    begin
       Manager.Create (Name, Log);
+--        declare
+--           Event : Util.Log.Appenders.Log_Event;
+--        begin
+--           Event.Time    := Ada.Calendar.Clock;
+--           Event.Level   := DEBUG_LEVEL;
+--           Event.Message := Format ("Create logger {0}", Name, "", "");
+--           Event.Logger  := To_Unbounded_String (Name);
+--           Log.Appender.Append (Event);
+--        end;
       return Logger '(Ada.Finalization.Limited_Controlled with
                       Name     => To_Unbounded_String (Name),
                       Instance => Log);
+   end Create;
+
+   --  ------------------------------
+   --  Initialize the logger and create a logger with the given name.
+   --  ------------------------------
+   function Create (Name   : in String;
+                    Config : in String) return Logger is
+   begin
+      Initialize (Config);
+      return Create (Name);
    end Create;
 
    --  ------------------------------
@@ -328,27 +347,31 @@ package body Util.Log.Loggers is
                     Arg2    : in String;
                     Arg3    : in String) return Unbounded_String is
       Result : Unbounded_String := To_Unbounded_String (Message);
-      Pos    : Natural;
+      Pos    : Natural := 1;
       C      : Character;
    begin
       --  Replace {N} with arg1, arg2, arg3 or ?
       loop
-         Pos := Index (Result, "{");
+         Pos := Index (Result, "{", Pos);
          exit when Pos = 0 or Pos + 2 > Length (Result)
            or Element (Result, Pos + 2) /= '}';
          C := Element (Result, Pos + 1);
          case C is
             when '0' =>
                Replace_Slice (Result, Pos, Pos + 2, Arg1);
+               Pos := Pos + Arg1'Length;
 
             when '1' =>
                Replace_Slice (Result, Pos, Pos + 2, Arg2);
+               Pos := Pos + Arg2'Length;
 
             when '2' =>
                Replace_Slice (Result, Pos, Pos + 2, Arg3);
+               Pos := Pos + Arg3'Length;
 
             when others =>
                Replace_Slice (Result, Pos, Pos + 2, "?");
+               Pos := Pos + 2;
          end case;
       end loop;
       return Result;
@@ -447,7 +470,8 @@ package body Util.Log.Loggers is
    --  Finalize the logger and flush the associated appender
    --  ------------------------------
    procedure Finalize (Log : in out Logger) is
-    begin
+   begin
+      Log.info ("Finalize logger {0}", To_String (Log.Name));
       if Log.Instance.Appender /= null then
          Log.Instance.Appender.Flush;
       end if;
