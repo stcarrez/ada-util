@@ -170,7 +170,7 @@ package body Util.Properties.Bundles is
       use type Util.Properties.Manager_Access;
 
       Loc_Name : constant String := '_' & Locale;
-      Last_Pos : Natural := Loc_Name'Last;
+      Last_Pos : Integer := Loc_Name'Last;
    begin
       Log.Info ("Looking for bundle {0} and language {1}", Name, Locale);
 
@@ -179,11 +179,12 @@ package body Util.Properties.Bundles is
       declare
          Pos : Bundle_Map.Cursor;
       begin
-         while Last_Pos >= Loc_Name'First loop
+         while Last_Pos + 1 >= Loc_Name'First loop
             declare
                Bundle_Name : aliased constant String
                  := Name & Loc_Name (Loc_Name'First .. Last_Pos);
             begin
+               Log.Debug ("Searching for {0}", Bundle_Name);
                Pos := Factory.Bundles.Find (Bundle_Name'Unrestricted_Access);
                if Bundle_Map.Has_Element (Pos) then
                   Bundle.Finalize;
@@ -194,7 +195,7 @@ package body Util.Properties.Bundles is
                end if;
             end;
             if Last_Pos > Loc_Name'First then
-               Last_Pos := Fixed.Index (Loc_Name, "_", Last_Pos - 1, Backward);
+               Last_Pos := Fixed.Index (Loc_Name, "_", Last_Pos - 1, Backward) - 1;
             else
                Last_Pos := Last_Pos - 1;
             end if;
