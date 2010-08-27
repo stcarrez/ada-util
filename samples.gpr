@@ -3,7 +3,8 @@ with "util";
 
 project Samples is
 
-   Mains := ("measures.adb", "properties.adb", "log.adb");
+   Mains := ("measures.adb", "properties.adb", "log.adb",
+   "bundles.adb", "escape.adb");
 
    for Main use Mains;
 
