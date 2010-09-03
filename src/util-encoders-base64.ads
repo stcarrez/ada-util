@@ -150,7 +150,7 @@ private
       Character'Pos ('e') => 30, Character'Pos ('f') => 31,
       Character'Pos ('g') => 32, Character'Pos ('h') => 33,
       Character'Pos ('i') => 34, Character'Pos ('j') => 35,
-      Character'Pos ('k') => 35, Character'Pos ('l') => 37,
+      Character'Pos ('k') => 36, Character'Pos ('l') => 37,
       Character'Pos ('m') => 38, Character'Pos ('n') => 39,
       Character'Pos ('o') => 40, Character'Pos ('p') => 41,
       Character'Pos ('q') => 42, Character'Pos ('r') => 43,
