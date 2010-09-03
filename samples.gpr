@@ -4,7 +4,7 @@ with "util";
 project Samples is
 
    Mains := ("measures.adb", "properties.adb", "log.adb",
-   "bundles.adb", "escape.adb");
+   "bundles.adb", "escape.adb", "encodes.adb");
 
    for Main use Mains;
 
