@@ -20,6 +20,8 @@
 --  from the Java Log4j library.
 package Util.Log is
 
+   pragma Pure;
+
    subtype Level_Type is Natural;
 
    FATAL_LEVEL : constant Level_Type := 0;

@@ -20,6 +20,8 @@ with Ada.Strings.Unbounded;
 with Ada.Characters.Handling;
 package Util.Strings.Transforms is
 
+   pragma Preelaborate;
+
    use Ada.Strings.Unbounded;
 
    package TR is

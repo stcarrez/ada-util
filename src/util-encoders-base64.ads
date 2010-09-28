@@ -22,6 +22,8 @@ with Interfaces;
 --  in Base64 (See rfc4648: The Base16, Base32, and Base64 Data Encodings).
 package Util.Encoders.Base64 is
 
+   pragma Preelaborate;
+
    --  ------------------------------
    --  Base64 encoder
    --  ------------------------------

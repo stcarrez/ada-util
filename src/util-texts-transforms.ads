@@ -25,6 +25,8 @@ generic
    with function To_Input (S : Stream) return Input;
 package Util.Texts.Transforms is
 
+   pragma Preelaborate;
+
    --  Capitalize the string into the result stream.
    procedure Capitalize (Content : in Input;
                          Into    : in out Stream);

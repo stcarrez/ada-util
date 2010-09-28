@@ -18,4 +18,6 @@
 
 package Util.Texts is
 
+   pragma Pure;
+
 end Util.Texts;
