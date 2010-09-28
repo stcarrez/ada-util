@@ -22,6 +22,8 @@ with Ada.Containers.Indefinite_Hashed_Sets;
 with Util.Concurrent.Counters;
 package Util.Strings is
 
+   pragma Preelaborate;
+
    type String_Access is access all String;
 
    --  Constant string access

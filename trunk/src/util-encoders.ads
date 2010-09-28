@@ -24,6 +24,8 @@ with Ada.Strings.Unbounded;
 --  another format.
 package Util.Encoders is
 
+   pragma Preelaborate;
+
    Not_Supported  : exception;
    Encoding_Error : exception;
 

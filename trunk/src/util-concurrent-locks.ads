@@ -17,6 +17,8 @@
 -----------------------------------------------------------------------
 package Util.Concurrent.Locks is
 
+   pragma Preelaborate;
+
    --  Lock for accessing the shared cache
    protected type RW_Lock is
       --  Lock the resource for reading.

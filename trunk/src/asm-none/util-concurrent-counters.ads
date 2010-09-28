@@ -35,6 +35,8 @@
 --
 package Util.Concurrent.Counters is
 
+   pragma Preelaborate;
+
    --  ------------------------------
    --  Atomic Counter
    --  ------------------------------

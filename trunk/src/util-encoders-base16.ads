@@ -21,6 +21,8 @@ with Ada.Streams;
 --  in hexadecimal.
 package Util.Encoders.Base16 is
 
+   pragma Preelaborate;
+
    --  ------------------------------
    --  Base16 encoder
    --  ------------------------------

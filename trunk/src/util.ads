@@ -17,6 +17,6 @@
 -----------------------------------------------------------------------
 package Util is
 
-   pragma Preelaborate;
+   pragma Pure;
 
 end Util;
