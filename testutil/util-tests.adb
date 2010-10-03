@@ -26,6 +26,7 @@ with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Text_IO;
 with Util.Files;
+with Util.Log.Loggers;
 package body Util.Tests is
 
    use AUnit.Assertions;
@@ -135,14 +136,23 @@ package body Util.Tests is
       Test_File   : Unbounded_String;
       Same        : Boolean;
    begin
-      if not Ada.Directories.Exists (Expect) then
-         T.Assert (False, "Expect file '" & Expect & "' does not exist",
-                   Source => Source, Line => Line);
-      end if;
-      Read_File (Path => Expect,
-                 Into => Expect_File);
-      Read_File (Path => Test,
-                 Into => Test_File);
+      begin
+         if not Ada.Directories.Exists (Expect) then
+            T.Assert (False, "Expect file '" & Expect & "' does not exist",
+                      Source => Source, Line => Line);
+         end if;
+         Read_File (Path => Expect,
+                    Into => Expect_File);
+         Read_File (Path => Test,
+                    Into => Test_File);
+
+      exception
+         when others =>
+            if Update_Test_Files then
+               Ada.Directories.Copy_File (Source_Name => Test,
+                                          Target_Name => Expect);
+            end if;
+      end;
 
       --  Check file sizes
       Assert_Equals (T       => T,
@@ -156,13 +166,6 @@ package body Util.Tests is
       if Same then
          return;
       end if;
-
-   exception
-      when others =>
-         if Update_Test_Files then
-            Ada.Directories.Copy_File (Source_Name => Test,
-                                       Target_Name => Expect);
-         end if;
    end Assert_Equal_Files;
 
    --  ------------------------------
@@ -228,6 +231,11 @@ package body Util.Tests is
                return;
          end case;
       end loop;
+
+      --  Initialization is optional.  Get the log configuration by reading the property
+      --  file 'samples/log4j.properties'.  The 'log.util' logger will use a DEBUG level
+      --  and write the message in 'result.log'.
+      Util.Log.Loggers.Initialize (Test_Properties);
 
       Initialize (Test_Properties);
 
