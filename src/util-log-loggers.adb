@@ -59,6 +59,9 @@ package body Util.Log.Loggers is
       --  and creating the appender
       procedure Initialize (Log : in out Logger_Info);
 
+      --  Re-initializes the loggers after the configuration is changed.
+      procedure Initialize_Again;
+
       --  Find the appender to be used for the given logger.
       --  Create the appender if necessary.
       procedure Find_Appender (Name     : in String;
@@ -134,18 +137,23 @@ package body Util.Log.Loggers is
          Properties.Load_Properties (Config, F);
          Close (F);
 
+         Initialize_Again;
+      end Initialize;
+
+      --  ------------------------------
+      --  Re-initializes the loggers after the configuration is changed.
+      --  ------------------------------
+      procedure Initialize_Again is
+         L : Logger_Info_Access := First_Logger;
+      begin
          --  Re-initialize the existing loggers.  Note that there is no concurrency
          --  protection if a thread calls 'Initialize' while another thread is using
          --  an already initialized logger.
-         declare
-            L : Logger_Info_Access := First_Logger;
-         begin
-            while L /= null loop
-               Initialize (L.all);
-               L := L.Next_Logger;
-            end loop;
-         end;
-      end Initialize;
+         while L /= null loop
+            Initialize (L.all);
+            L := L.Next_Logger;
+         end loop;
+      end Initialize_Again;
 
       --  ------------------------------
       --  Initialize the log environment with the properties.
@@ -153,6 +161,7 @@ package body Util.Log.Loggers is
       procedure Initialize (Properties : in Util.Properties.Manager) is
       begin
          Config.Copy (From => Properties, Prefix => "log4j.");
+         Initialize_Again;
       end Initialize;
 
       --  ------------------------------
