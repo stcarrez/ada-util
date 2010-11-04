@@ -19,13 +19,17 @@ with Util.Strings.Transforms;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Command_Line;
-
+with Util.Strings;
 procedure Escape is
 
    use Ada.Strings.Unbounded;
 
    Count : constant Natural := Ada.Command_Line.Argument_Count;
+   M : access Util.Strings.String_Map.Map := new Util.Strings.String_Map.Map;
 begin
+   for I in 1 .. 10 loop
+      M.Insert (new String '("K " & Integer'Image (I)), new String '("V"));
+   end loop;
    if Count = 0 then
       Ada.Text_IO.Put_Line ("Usage: escape string...");
       return;

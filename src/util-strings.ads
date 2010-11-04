@@ -24,8 +24,6 @@ package Util.Strings is
 
    pragma Preelaborate;
 
-   type String_Access is access all String;
-
    --  Constant string access
    type Name_Access is access constant String;
 
@@ -34,6 +32,22 @@ package Util.Strings is
 
    --  Returns true if left and right strings are equivalent.
    function Equivalent_Keys (Left, Right : Name_Access) return Boolean;
+
+   --  Search for the first occurrence of the character in the string
+   --  after the from index.  This implementation is 3-times faster than
+   --  the Ada.Strings.Fixed version.
+   --  Returns the index of the first occurrence or 0.
+   function Index (Source : in String;
+                   Char   : in Character;
+                   From   : in Natural := 0) return Natural;
+
+   --  Search for the first occurrence of the character in the string
+   --  before the from index and going backward.
+   --  This implementation is 3-times faster than the Ada.Strings.Fixed version.
+   --  Returns the index of the first occurrence or 0.
+   function Rindex (Source : in String;
+                    Ch     : in Character;
+                    From   : in Natural := 0) return Natural;
 
    package String_Map is new Ada.Containers.Indefinite_Hashed_Maps
      (Key_Type        => Name_Access,

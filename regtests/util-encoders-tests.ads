@@ -29,5 +29,6 @@ package Util.Encoders.Tests is
    procedure Test_Base64_Decode (T : in out Test);
    procedure Test_Encoder (T : in out Test;
                            C : in out Util.Encoders.Encoder);
+   procedure Test_Base64_Benchmark (T : in out Test);
 
 end Util.Encoders.Tests;
