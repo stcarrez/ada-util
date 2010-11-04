@@ -20,6 +20,7 @@ with AUnit.Test_Caller;
 with AUnit.Assertions;
 with Util.Files;
 with Util.Tests;
+with Util.Measures;
 with Ada.Text_IO;
 package body Util.Encoders.Tests is
 
@@ -37,6 +38,8 @@ package body Util.Encoders.Tests is
         Test_Base64_Encode'Access));
       Suite.Add_Test (Caller.Create ("Test Util.Encoders.Base64.Decode",
         Test_Base64_Decode'Access));
+      Suite.Add_Test (Caller.Create ("Test Util.Encoders.Base64.Benchmark",
+        Test_Base64_Benchmark'Access));
    end Add_Tests;
 
    procedure Test_Base64_Encode (T : in out Test) is
@@ -90,5 +93,17 @@ package body Util.Encoders.Tests is
       Assert_Equals (T, "ABCD", Util.Encoders.Decode (C, "41424344"));
       Test_Encoder (T, C);
    end Test_Hex;
+
+   procedure Test_Base64_Benchmark (T : in out Test) is
+      C : Util.Encoders.Encoder := Create ("base64");
+      S : String (1 .. 1_024) := (others => 'a');
+   begin
+      declare
+         T : Util.Measures.Stamp;
+         R : constant String := Util.Encoders.Encode (C, S);
+      begin
+         Util.Measures.Report (T, "Base64 encode 1024 bytes");
+      end;
+   end Test_Base64_Benchmark;
 
 end Util.Encoders.Tests;

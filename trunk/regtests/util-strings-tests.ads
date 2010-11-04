@@ -34,5 +34,8 @@ package Util.Strings.Tests is
    procedure Test_To_Upper_Case (T : in out Test);
 
    procedure Test_To_Lower_Case (T : in out Test);
+   procedure Test_Measure_Copy (T : in out Test);
+   procedure Test_Index (T : in out Test);
+   procedure Test_Rindex (T : in out Test);
 
 end Util.Strings.Tests;

@@ -32,10 +32,6 @@ package body Util.Properties.Bundles is
      new Ada.Unchecked_Deallocation (Manager'Class,
                                      Bundle_Manager_Access);
 
-   procedure Free is
-     new Ada.Unchecked_Deallocation (String,
-                                     Util.Strings.String_Access);
-
    --  Implementation of the Bundle
    --  (this allows to decouples the implementation from the API)
    package Interface_P is
@@ -410,7 +406,7 @@ package body Util.Properties.Bundles is
       begin
          while Has_Element (Iter) loop
             declare
-	       M : constant Util.Properties.Manager_Access := Element (Iter);
+               M : constant Util.Properties.Manager_Access := Element (Iter);
                N : constant Name_Array := M.Get_Names (Prefix);
             begin
                return N;
@@ -437,7 +433,7 @@ package body Util.Properties.Bundles is
 
       function To_String_Access is
         new Ada.Unchecked_Conversion (Source => Util.Strings.Name_Access,
-                                      Target => Util.Strings.String_Access);
+                                      Target => Ada.Strings.Unbounded.String_Access);
 
    begin
       Log.Info ("Clearing bundle cache");
@@ -446,7 +442,7 @@ package body Util.Properties.Bundles is
       loop
          declare
             Pos  : Bundle_Map.Cursor := Factory.Bundles.First;
-            Name : Util.Strings.String_Access;
+            Name : Ada.Strings.Unbounded.String_Access;
             Node : Bundle_Manager_Access;
          begin
             exit when not Has_Element (Pos);
