@@ -23,6 +23,7 @@ with Ada.Strings.Unbounded;
 with GNAT.Source_Info;
 
 with Util.Properties;
+with Util.Assertions;
 package Util.Tests is
 
    use Ada.Strings.Unbounded;
@@ -48,11 +49,8 @@ package Util.Tests is
                                  Line    : Natural := GNAT.Source_Info.Line);
 
    --  Check that the value matches what we expect.
-   procedure Assert_Equals (T         : in AUnit.Assertions.Test'Class;
-                            Expect, Value : in Integer;
-                            Message : in String := "Test failed";
-                            Source    : String := GNAT.Source_Info.File;
-                            Line      : Natural := GNAT.Source_Info.Line);
+   procedure Assert_Equals is new Assertions.Assert_Equals_T (Value_Type => Integer);
+   procedure Assert_Equals is new Assertions.Assert_Equals_T (Value_Type => Character);
 
    --  Check that the value matches what we expect.
    procedure Assert_Equals (T         : in AUnit.Assertions.Test'Class;

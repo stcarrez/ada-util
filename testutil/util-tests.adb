@@ -71,20 +71,20 @@ package body Util.Tests is
    --  ------------------------------
    --  Check that the value matches what we expect.
    --  ------------------------------
-   procedure Assert_Equals (T       : in AUnit.Assertions.Test'Class;
-                            Expect, Value : in Integer;
-                            Message : in String := "Test failed";
-                            Source    : String := GNAT.Source_Info.File;
-                            Line      : Natural := GNAT.Source_Info.Line) is
-   begin
-      T.Assert (Condition => Expect = Value,
-                Message   => Message & ": expecting '"
-                & Integer'Image (Expect) & "'"
-                & " value was '"
-                & Integer'Image (Value) & "'",
-                Source    => Source,
-                Line      => Line);
-   end Assert_Equals;
+--     procedure Assert_Equals (T       : in AUnit.Assertions.Test'Class;
+--                              Expect, Value : in Integer;
+--                              Message : in String := "Test failed";
+--                              Source    : String := GNAT.Source_Info.File;
+--                              Line      : Natural := GNAT.Source_Info.Line) is
+--     begin
+--        T.Assert (Condition => Expect = Value,
+--                  Message   => Message & ": expecting '"
+--                  & Integer'Image (Expect) & "'"
+--                  & " value was '"
+--                  & Integer'Image (Value) & "'",
+--                  Source    => Source,
+--                  Line      => Line);
+--     end Assert_Equals;
 
    --  ------------------------------
    --  Check that the value matches what we expect.
