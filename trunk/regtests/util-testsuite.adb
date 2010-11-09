@@ -26,6 +26,7 @@ with Util.Locales.Tests;
 with Util.Strings.Tests;
 with Util.Encoders.Tests;
 with Util.Streams.Buffered.Tests;
+with Util.Streams.Files.Tests;
 package body Util.Testsuite is
 
    Tests : aliased Test_Suite;
@@ -43,6 +44,7 @@ package body Util.Testsuite is
       Util.Events.Channels.Tests.Add_Tests (Result);
       Util.Encoders.Tests.Add_Tests (Result);
       Util.Streams.Buffered.Tests.Add_Tests (Result);
+      Util.Streams.Files.Tests.Add_Tests (Result);
       return Result;
    end Suite;
 
