@@ -31,6 +31,8 @@ package Util.Streams.Buffered is
    --  be called when finalizing the buffered stream.
    type Buffered_Stream is limited new Output_Stream and Input_Stream with private;
 
+   type Buffer_Access is access Ada.Streams.Stream_Element_Array;
+
    --  Initialize the stream to read or write on the given streams.
    --  An internal buffer is allocated for writing the stream.
    procedure Initialize (Stream  : in out Buffered_Stream;
@@ -41,6 +43,9 @@ package Util.Streams.Buffered is
    --  Initialize the stream with a buffer of <b>Size</b> bytes.
    procedure Initialize (Stream  : in out Buffered_Stream;
                          Size    : in Positive);
+
+   --  Get the direct access to the buffer.
+   function Get_Buffer (Stream : in Buffered_Stream) return Buffer_Access;
 
    --  Write a raw character on the stream.
    procedure Write (Stream : in out Buffered_Stream;
@@ -79,14 +84,16 @@ package Util.Streams.Buffered is
                    Into   : out Ada.Streams.Stream_Element_Array;
                    Last   : out Ada.Streams.Stream_Element_Offset);
 
+   --  Read into the buffer as many bytes as possible and return in
+   --  <b>last</b> the position of the last byte read.
+   procedure Read (Stream : in out Buffered_Stream;
+                   Into   : in out Ada.Strings.Unbounded.Unbounded_String);
 private
 
    use Ada.Streams;
 
    --  Flush the stream and release the buffer.
    procedure Finalize (Object : in out Buffered_Stream);
-
-   type Buffer_Access is access Ada.Streams.Stream_Element_Array;
 
    type Buffered_Stream is new Ada.Finalization.Limited_Controlled
      and Output_Stream and Input_Stream with record
