@@ -53,6 +53,12 @@ package body Util.Streams.Buffered is
       Stream.No_Flush := True;
    end Initialize;
 
+   --  Get the direct access to the buffer.
+   function Get_Buffer (Stream : in Buffered_Stream) return Buffer_Access is
+   begin
+      return Stream.Buffer;
+   end Get_Buffer;
+
    --  ------------------------------
    --  Get the number of element in the stream.
    --  ------------------------------
@@ -250,6 +256,29 @@ package body Util.Streams.Buffered is
          Stream.Read_Pos := Pos;
       end loop;
       Last := Total;
+   end Read;
+
+   --  ------------------------------
+   --  Read into the buffer as many bytes as possible and return in
+   --  <b>last</b> the position of the last byte read.
+   --  ------------------------------
+   procedure Read (Stream : in out Buffered_Stream;
+                   Into   : in out Ada.Strings.Unbounded.Unbounded_String) is
+      Pos   : Stream_Element_Offset := Stream.Read_Pos;
+      Avail : Stream_Element_Offset;
+   begin
+      Avail := Stream.Write_Pos - Pos;
+      if Avail = 0 then
+         Stream.Fill;
+         Pos := Stream.Read_Pos;
+         Avail := Stream.Write_Pos - Pos;
+         return;
+      end if;
+      for I in 1 .. Avail loop
+         Ada.Strings.Unbounded.Append (Into, Character'Val (Stream.Buffer (Pos)));
+         Pos := Pos + 1;
+      end loop;
+      Stream.Read_Pos := Pos;
    end Read;
 
    --  ------------------------------
