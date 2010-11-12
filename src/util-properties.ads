@@ -176,7 +176,10 @@ private
       Impl : Interface_P.Manager_Access := null;
    end record;
 
+   overriding
    procedure Adjust   (Object : in out Manager);
+
+   overriding
    procedure Finalize (Object : in out Manager);
 
 end Util.Properties;
