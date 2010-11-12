@@ -92,9 +92,6 @@ private
 
    use Ada.Streams;
 
-   --  Flush the stream and release the buffer.
-   procedure Finalize (Object : in out Buffered_Stream);
-
    type Buffered_Stream is new Ada.Finalization.Limited_Controlled
      and Output_Stream and Input_Stream with record
       --  The buffer where the data is written before being flushed.
@@ -117,5 +114,9 @@ private
 
       No_Flush    : Boolean := False;
    end record;
+
+   --  Flush the stream and release the buffer.
+   overriding
+   procedure Finalize (Object : in out Buffered_Stream);
 
 end Util.Streams.Buffered;
