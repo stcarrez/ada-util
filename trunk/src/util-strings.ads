@@ -15,9 +15,10 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-
+with Ada.Strings.Hash;
 with Ada.Containers;
 with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Indefinite_Hashed_Sets;
 with Util.Concurrent.Counters;
 package Util.Strings is
@@ -49,7 +50,7 @@ package Util.Strings is
                     Ch     : in Character;
                     From   : in Natural := 0) return Natural;
 
-   package String_Map is new Ada.Containers.Indefinite_Hashed_Maps
+   package String_Access_Map is new Ada.Containers.Hashed_Maps
      (Key_Type        => Name_Access,
       Element_Type    => Name_Access,
       Hash            => Hash,
