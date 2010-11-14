@@ -15,9 +15,8 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Ada.Strings.Hash;
+with Ada.Strings.Unbounded;
 with Ada.Containers;
-with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Indefinite_Hashed_Sets;
 with Util.Concurrent.Counters;
@@ -64,15 +63,32 @@ package Util.Strings is
    --  String reference
    type String_Ref is private;
 
+   --  Create a string reference from a string.
    function To_String_Ref (S : in String) return String_Ref;
 
+   --  Create a string reference from an unbounded string.
+   function To_String_Ref (S : in Ada.Strings.Unbounded.Unbounded_String) return String_Ref;
+
+   --  Get the string
    function To_String (S : in String_Ref) return String;
 
+   --  Get the string as an unbounded string
+   function To_Unbounded_String (S : in String_Ref) return Ada.Strings.Unbounded.Unbounded_String;
+
+   --  Compute the hash value of the string reference.
+   function Hash (Key : String_Ref) return Ada.Containers.Hash_Type;
+
+   --  Returns true if left and right string references are equivalent.
+   function Equivalent_Keys (Left, Right : String_Ref) return Boolean;
+   function "=" (Left, Right : String_Ref) return Boolean renames Equivalent_Keys;
+
 private
+   pragma Inline (To_String_Ref);
+   pragma Inline (To_String);
 
    type String_Record (Len : Natural) is limited record
-      Str     : String (1 .. Len);
       Counter : Util.Concurrent.Counters.Counter;
+      Str     : String (1 .. Len);
    end record;
    type String_Record_Access is access all String_Record;
 
@@ -80,9 +96,11 @@ private
       Str : String_Record_Access := null;
    end record;
 
+   --  Increment the reference counter.
    overriding
    procedure Adjust (Object : in out String_Ref);
 
+   --  Decrement the reference counter and free the allocated string.
    overriding
    procedure Finalize (Object : in out String_Ref);
 
