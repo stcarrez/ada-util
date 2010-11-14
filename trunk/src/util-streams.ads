@@ -19,6 +19,8 @@
 with Ada.Streams;
 package Util.Streams is
 
+   pragma Preelaborate;
+
    --  -----------------------
    --  Output stream
    --  -----------------------

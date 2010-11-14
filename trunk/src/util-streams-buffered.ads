@@ -19,6 +19,8 @@ with Ada.Strings.Unbounded;
 with Ada.Finalization;
 package Util.Streams.Buffered is
 
+   pragma Preelaborate;
+
    --  -----------------------
    --  Buffered stream
    --  -----------------------
