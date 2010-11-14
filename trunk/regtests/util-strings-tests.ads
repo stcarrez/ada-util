@@ -38,4 +38,7 @@ package Util.Strings.Tests is
    procedure Test_Index (T : in out Test);
    procedure Test_Rindex (T : in out Test);
 
+   --  Do some benchmark on String -> X hash mapped.
+   procedure Test_Measure_Hash (T : in out Test);
+
 end Util.Strings.Tests;
