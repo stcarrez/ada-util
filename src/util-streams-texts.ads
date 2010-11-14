@@ -19,6 +19,8 @@ with Ada.Strings.Unbounded;
 with Util.Streams.Buffered;
 package Util.Streams.Texts is
 
+   pragma Preelaborate;
+
    --  -----------------------
    --  Print stream
    --  -----------------------
