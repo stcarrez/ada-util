@@ -19,9 +19,11 @@ with Ada.Strings;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Unbounded.Aux;
 with Ada.Strings.Fixed;
+with Ada.Strings.Unbounded.Hash;
 with AUnit.Test_Caller;
 with Util.Tests;
 with Util.Strings.Transforms;
+with Util.Strings.Maps;
 with Ada.Streams;
 with Util.Measures;
 package body Util.Strings.Tests is
@@ -50,6 +52,8 @@ package body Util.Strings.Tests is
         Test_Index'Access));
       Suite.Add_Test (Caller.Create ("Test Util.Strings.Rindex",
         Test_Rindex'Access));
+      Suite.Add_Test (Caller.Create ("Test Util.Strings.Benchmark",
+        Test_Measure_Hash'Access));
    end Add_Tests;
 
    procedure Test_Escape_Javascript (T : in out Test) is
@@ -190,5 +194,80 @@ package body Util.Strings.Tests is
          Assert_Equals (T, 1, Pos, "Invalid rindex position");
       end;
    end Test_Rindex;
+
+   package String_Map is new Ada.Containers.Hashed_Maps
+     (Key_Type        => Unbounded_String,
+      Element_Type    => Unbounded_String,
+      Hash            => Hash,
+      Equivalent_Keys => "=");
+
+   package String_Ref_Map is new Ada.Containers.Hashed_Maps
+     (Key_Type        => String_Ref,
+      Element_Type    => String_Ref,
+      Hash            => Hash,
+      Equivalent_Keys => Equivalent_Keys);
+
+   --  Do some benchmark on String -> X hash mapped.
+   procedure Test_Measure_Hash (T : in out Test) is
+      KEY     : aliased constant String := "testing";
+      Str_Map : Util.Strings.Maps.Map;
+      Ptr_Map : Util.Strings.String_Access_Map.Map;
+      Ref_Map : String_Ref_Map.Map;
+      Unb_Map : String_Map.Map;
+      Name    : String_Access := new String '(KEY);
+      Ref     : String_Ref := To_String_Ref (KEY);
+   begin
+      Str_Map.Insert (Name.all, Name.all);
+      Ptr_Map.Insert (Name.all'Access, Name.all'Access);
+      Unb_Map.Insert (To_Unbounded_String (KEY), To_Unbounded_String (KEY));
+      Ref_Map.Insert (Ref, Ref);
+
+      --  Performance of Hashed_Map Name_Access -> Name_Access
+      --  (the fastest hash)
+      declare
+         St  : Util.Measures.Stamp;
+         Pos : constant Util.Strings.String_Access_Map.Cursor := Ptr_Map.Find (KEY'Unchecked_Access);
+         Val : constant Name_Access := Util.Strings.String_Access_Map.Element (Pos);
+      begin
+         Util.Measures.Report (St, "Util.Strings.String_Access_Maps.Find+Element");
+         Assert_Equals (T, "testing", Val.all, "Invalid value returned");
+      end;
+
+      --  Performance of Hashed_Map String_Ref -> String_Ref
+      --  (almost same performance as Hashed_Map Name_Access -> Name_Access)
+      declare
+         St  : Util.Measures.Stamp;
+         Pos : constant String_Ref_Map.Cursor := Ref_Map.Find (Ref);
+         Val : constant String_Ref := String_Ref_Map.Element (Pos);
+      begin
+         Util.Measures.Report (St, "Util.Strings.String_Ref_Maps.Find+Element");
+         Assert_Equals (T, "testing", String '(To_String (Val)), "Invalid value returned");
+      end;
+
+      --  Performance of Hashed_Map Unbounded_String -> Unbounded_String
+      --  (little overhead due to String copy made by Unbounded_String)
+      declare
+         St  : Util.Measures.Stamp;
+         Pos : constant String_Map.Cursor := Unb_Map.Find (To_Unbounded_String (KEY));
+         Val : constant Unbounded_String := String_Map.Element (Pos);
+      begin
+         Util.Measures.Report (St, "Hashed_Maps<Unbounded,Unbounded..Find+Element");
+         Assert_Equals (T, "testing", Val, "Invalid value returned");
+      end;
+
+      --  Performance for Indefinite_Hashed_Map String -> String
+      --  (the slowest hash, string copy to get the result, pointer to key and element
+      --  in the hash map implementation)
+      declare
+         St  : Util.Measures.Stamp;
+         Pos : constant Util.Strings.Maps.Cursor := Str_Map.Find (KEY);
+         Val : constant String := Util.Strings.Maps.Element (Pos);
+      begin
+         Util.Measures.Report (St, "Util.Strings.Maps.Find+Element");
+         Assert_Equals (T, "testing", Val, "Invalid value returned");
+      end;
+
+      Free (Name);
+   end Test_Measure_Hash;
 
 end Util.Strings.Tests;
