@@ -39,8 +39,11 @@ package body Util.Strings is
       return Left.all = Right.all;
    end Equivalent_Keys;
 
-
    use Util.Concurrent.Counters;
+
+   --  ------------------------------
+   --  Create a string reference from a string.
+   --  ------------------------------
    function To_String_Ref (S : in String) return String_Ref is
       Str : constant String_Record_Access
         := new String_Record '(Len => S'Length, Str => S, Counter => ONE);
@@ -49,11 +52,73 @@ package body Util.Strings is
                            Str => Str);
    end To_String_Ref;
 
+   --  ------------------------------
+   --  Create a string reference from an unbounded string.
+   --  ------------------------------
+   function To_String_Ref (S : in Ada.Strings.Unbounded.Unbounded_String) return String_Ref is
+      use Ada.Strings.Unbounded;
+
+      Len : constant Natural := Length (S);
+      Str : constant String_Record_Access
+        := new String_Record '(Len => Len, Str => To_String (S), Counter => ONE);
+   begin
+      return String_Ref '(Ada.Finalization.Controlled with
+                          Str => Str);
+   end to_String_Ref;
+
+   --  ------------------------------
+   --  Get the string
+   --  ------------------------------
    function To_String (S : in String_Ref) return String is
    begin
-      return S.Str.Str;
+      if S.Str /= null then
+         return S.Str.Str;
+      else
+         return "";
+      end if;
    end To_String;
 
+   --  ------------------------------
+   --  Get the string as an unbounded string
+   --  ------------------------------
+   function To_Unbounded_String (S : in String_Ref) return Ada.Strings.Unbounded.Unbounded_String is
+   begin
+      if S.Str /= null then
+         return Ada.Strings.Unbounded.To_Unbounded_String (S.Str.Str);
+      else
+         return Ada.Strings.Unbounded.Null_Unbounded_String;
+      end if;
+   end To_Unbounded_String;
+
+   --  ------------------------------
+   --  Compute the hash value of the string reference.
+   --  ------------------------------
+   function Hash (Key : String_Ref) return Ada.Containers.Hash_Type is
+   begin
+      if Key.Str /= null then
+         return Ada.Strings.Hash (Key.Str.Str);
+      else
+         return 0;
+      end if;
+   end Hash;
+
+   --  ------------------------------
+   --  Returns true if left and right string references are equivalent.
+   --  ------------------------------
+   function Equivalent_Keys (Left, Right : String_Ref) return Boolean is
+   begin
+      if Left.Str = Right.Str then
+         return True;
+      elsif Left.Str = null or Right.Str = null then
+         return False;
+      else
+         return Left.Str.Str = Right.Str.Str;
+      end if;
+   end Equivalent_Keys;
+
+   --  ------------------------------
+   --  Increment the reference counter.
+   --  ------------------------------
    overriding
    procedure Adjust (Object : in out String_Ref) is
    begin
@@ -62,6 +127,9 @@ package body Util.Strings is
       end if;
    end Adjust;
 
+   --  ------------------------------
+   --  Decrement the reference counter and free the allocated string.
+   --  ------------------------------
    overriding
    procedure Finalize (Object : in out String_Ref) is
 
