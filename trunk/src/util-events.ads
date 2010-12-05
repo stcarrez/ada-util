@@ -23,6 +23,8 @@ package Util.Events is
    --  Get the time identifying when the event was created.
    function Get_Time (Ev : Event) return Ada.Calendar.Time;
 
+   type Event_Listener is limited interface;
+
 private
 
    type Event is tagged record
