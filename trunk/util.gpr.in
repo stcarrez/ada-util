@@ -1,5 +1,4 @@
 with "config";
-with "xmlada";
 
 project Util is
    Version := "@UTIL_VERSION@";
