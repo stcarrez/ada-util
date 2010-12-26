@@ -16,7 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with AUnit.Test_Caller;
+with Util.Test_Caller;
 
 with Ada.Text_IO;
 
@@ -97,25 +97,25 @@ package body Util.Properties.Tests is
          raise;
    end Test_Load_Property;
 
-   package Caller is new AUnit.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test);
 
    procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
    begin
-      Suite.Add_Test (Caller.Create ("Test Util.Properties.Set",
-        Test_Property'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Properties.Get",
-        Test_Property'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Properties.Exists",
-        Test_Property'Access));
+      Caller.Add_Test (Suite, "Test Util.Properties.Set",
+                       Test_Property'Access);
+      Caller.Add_Test (Suite, "Test Util.Properties.Get",
+                       Test_Property'Access);
+      Caller.Add_Test (Suite, "Test Util.Properties.Exists",
+                       Test_Property'Access);
 
-      Suite.Add_Test (Caller.Create ("Test Util.Properties.Discrete.Get",
-        Test_Integer_Property'Access));
+      Caller.Add_Test (Suite, "Test Util.Properties.Discrete.Get",
+                       Test_Integer_Property'Access);
 
-      Suite.Add_Test (Caller.Create ("Test Util.Properties.Discrete.Set",
-        Test_Integer_Property'Access));
+      Caller.Add_Test (Suite, "Test Util.Properties.Discrete.Set",
+                       Test_Integer_Property'Access);
 
-      Suite.Add_Test (Caller.Create ("Test Util.Properties.Load_Properties",
-        Test_Load_Property'Access));
+      Caller.Add_Test (Suite, "Test Util.Properties.Load_Properties",
+                       Test_Load_Property'Access);
    end Add_Tests;
 
 end Util.Properties.Tests;

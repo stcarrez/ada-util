@@ -16,24 +16,24 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with AUnit.Test_Caller;
 with Util.Tests;
 with Util.Concurrent.Counters;
+with Util.Test_Caller;
 package body Util.Concurrent.Tests is
 
    use Util.Tests;
    use Util.Concurrent.Counters;
 
-   package Caller is new AUnit.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test);
 
    procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
    begin
-      Suite.Add_Test (Caller.Create ("Test Util.Concurrent.Counter.Increment",
-        Test_Increment'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Concurrent.Counter.Decrement",
-        Test_Decrement'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Concurrent.Counter.Decrement + Test",
-        Test_Decrement_And_Test'Access));
+      Caller.Add_Test (Suite, "Test Util.Concurrent.Counter.Increment",
+                       Test_Increment'Access);
+      Caller.Add_Test (Suite, "Test Util.Concurrent.Counter.Decrement",
+                       Test_Decrement'Access);
+      Caller.Add_Test (Suite, "Test Util.Concurrent.Counter.Decrement + Test",
+                       Test_Decrement_And_Test'Access);
    end Add_Tests;
 
    procedure Test_Increment (T : in out Test) is

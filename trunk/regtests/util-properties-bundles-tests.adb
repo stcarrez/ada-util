@@ -16,8 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with AUnit.Test_Caller;
-
+with Util.Test_Caller;
 with Util.Tests;
 with Util.Properties.Bundles;
 with Util.Properties.Basic;
@@ -29,8 +28,8 @@ package body Util.Properties.Bundles.Tests is
 
    --  Test the bundle
    procedure Test_Bundle (T : in out Test) is
+      Props  : aliased Properties.Manager; --  _Access := new Properties.Manager;
       Bundle : Properties.Bundles.Manager;
-      Props  : constant Properties.Manager_Access := new Properties.Manager;
       V : Integer := 23;
    begin
       --  Create a first property (while the bundle is empty)
@@ -41,9 +40,9 @@ package body Util.Properties.Bundles.Tests is
 --        Assert (V = 123, "Property was not inserted");
 
       --  Add a property set to the bundle
-      Bundle.Add_Bundle (Props);
-      Integer_Property.Set (Props.all, "test-integer-second", 24);
-      V := Integer_Property.Get (Props.all, "test-integer-second");
+      Bundle.Add_Bundle (Props'Unchecked_Access);
+      Integer_Property.Set (Props, "test-integer-second", 24);
+      V := Integer_Property.Get (Props, "test-integer-second");
       T.Assert (V = 24, "Property was not inserted");
 
       V := Integer_Property.Get (Bundle, "test-integer-second");
@@ -80,15 +79,15 @@ package body Util.Properties.Bundles.Tests is
 
    end Test_Bundle_Loader;
 
-   package Caller is new AUnit.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test);
 
    procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
    begin
-      Suite.Add_Test (Caller.Create ("Test Util.Properties.Bundles",
-        Test_Bundle'Access));
+      Caller.Add_Test (Suite, "Test Util.Properties.Bundles",
+                       Test_Bundle'Access);
 
-      Suite.Add_Test (Caller.Create ("Test Util.Properties.Bundles.Load_Bundle",
-        Test_Bundle_Loader'Access));
+      Caller.Add_Test (Suite, "Test Util.Properties.Bundles.Load_Bundle",
+                       Test_Bundle_Loader'Access);
    end Add_Tests;
 
 end Util.Properties.Bundles.Tests;

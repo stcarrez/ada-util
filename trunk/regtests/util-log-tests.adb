@@ -16,7 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with AUnit.Test_Caller;
+with Util.Test_Caller;
 
 with Util.Log;
 with Util.Log.Loggers;
@@ -91,21 +91,21 @@ package body Util.Log.Tests is
       end;
    end Test_Log_Perf;
 
-   package Caller is new AUnit.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test);
 
    procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
    begin
-      Suite.Add_Test (Caller.Create ("Test Util.Log.Loggers.Info",
-        Test_Log'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Log.Loggers.Debug",
-        Test_Log'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Log.Loggers.Set_Level",
-        Test_Log'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Log.Appenders.File_Appender",
-        Test_File_Appender'Access));
+      Caller.Add_Test (Suite, "Test Util.Log.Loggers.Info",
+                       Test_Log'Access);
+      Caller.Add_Test (Suite, "Test Util.Log.Loggers.Debug",
+                       Test_Log'Access);
+      Caller.Add_Test (Suite, "Test Util.Log.Loggers.Set_Level",
+                       Test_Log'Access);
+      Caller.Add_Test (Suite, "Test Util.Log.Appenders.File_Appender",
+                       Test_File_Appender'Access);
 
-      Suite.Add_Test (Caller.Create ("Test Util.Log.Loggers.Log (Perf)",
-        Test_Log_Perf'Access));
+      Caller.Add_Test (Suite, "Test Util.Log.Loggers.Log (Perf)",
+                       Test_Log_Perf'Access);
    end Add_Tests;
 
 end Util.Log.Tests;

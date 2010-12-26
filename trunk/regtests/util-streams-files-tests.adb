@@ -17,7 +17,7 @@
 -----------------------------------------------------------------------
 
 with Ada.Strings.Unbounded;
-with AUnit.Test_Caller;
+with Util.Test_Caller;
 
 with Util.Files;
 with Util.Tests;
@@ -27,14 +27,14 @@ package body Util.Streams.Files.Tests is
    use Util.Tests;
    use Ada.Streams.Stream_IO;
 
-   package Caller is new AUnit.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test);
 
    procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
    begin
-      Suite.Add_Test (Caller.Create ("Test Util.Streams.Files.Create, Write, Flush, Close",
-        Test_Read_Write'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Streams.Files.Write, Flush",
-        Test_Write'Access));
+      Caller.Add_Test (Suite, "Test Util.Streams.Files.Create, Write, Flush, Close",
+                       Test_Read_Write'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Files.Write, Flush",
+                       Test_Write'Access);
    end Add_Tests;
 
    procedure Test_Read_Write (T : in out Test) is
