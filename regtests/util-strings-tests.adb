@@ -17,10 +17,10 @@
 -----------------------------------------------------------------------
 with Ada.Strings;
 with Ada.Strings.Unbounded;
-with Ada.Strings.Unbounded.Aux;
+--  with Ada.Strings.Unbounded.Aux;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded.Hash;
-with AUnit.Test_Caller;
+with Util.Test_Caller;
 with Util.Tests;
 with Util.Strings.Transforms;
 with Util.Strings.Maps;
@@ -32,28 +32,28 @@ package body Util.Strings.Tests is
    use Util.Tests;
    use Util.Strings.Transforms;
 
-   package Caller is new AUnit.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test);
 
    procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
    begin
-      Suite.Add_Test (Caller.Create ("Test Util.Strings.Transforms.Escape_Javascript",
-        Test_Escape_Javascript'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Strings.Transforms.Escape_Xml",
-        Test_Escape_Xml'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Strings.Transforms.Capitalize",
-        Test_Capitalize'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Strings.Transforms.To_Upper_Case",
-        Test_To_Upper_Case'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Strings.Transforms.To_Lower_Case",
-        Test_To_Lower_Case'Access));
-      Suite.Add_Test (Caller.Create ("Test Measure",
-        Test_Measure_Copy'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Strings.Index",
-        Test_Index'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Strings.Rindex",
-        Test_Rindex'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Strings.Benchmark",
-        Test_Measure_Hash'Access));
+      Caller.Add_Test (Suite, "Test Util.Strings.Transforms.Escape_Javascript",
+                       Test_Escape_Javascript'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Transforms.Escape_Xml",
+                       Test_Escape_Xml'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Transforms.Capitalize",
+                       Test_Capitalize'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Transforms.To_Upper_Case",
+                       Test_To_Upper_Case'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Transforms.To_Lower_Case",
+                       Test_To_Lower_Case'Access);
+      Caller.Add_Test (Suite, "Test Measure",
+                       Test_Measure_Copy'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Index",
+                       Test_Index'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Rindex",
+                       Test_Rindex'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Benchmark",
+                       Test_Measure_Hash'Access);
    end Add_Tests;
 
    procedure Test_Escape_Javascript (T : in out Test) is
@@ -128,19 +128,19 @@ package body Util.Strings.Tests is
          Append (R, S);
          Util.Measures.Report (T, "Stream transform using temporary string (1024 bytes)");
       end;
-      declare
-         T : Util.Measures.Stamp;
-         R : Ada.Strings.Unbounded.Unbounded_String;
-         P : constant Ptr := new String (1 .. Buf'Length);
-
-         pragma Suppress (All_Checks, P);
-      begin
-         for I in P'Range loop
-            P (I) := Character'Val (Buf (Ada.Streams.Stream_Element_Offset (I)));
-         end loop;
-         Ada.Strings.Unbounded.Aux.Set_String (R, P.all'Access);
-         Util.Measures.Report (T, "Stream transform using Aux string (1024 bytes)");
-      end;
+--        declare
+--           T : Util.Measures.Stamp;
+--           R : Ada.Strings.Unbounded.Unbounded_String;
+--           P : constant Ptr := new String (1 .. Buf'Length);
+--
+--           pragma Suppress (All_Checks, P);
+--        begin
+--           for I in P'Range loop
+--              P (I) := Character'Val (Buf (Ada.Streams.Stream_Element_Offset (I)));
+--           end loop;
+--           Ada.Strings.Unbounded.Aux.Set_String (R, P.all'Access);
+--           Util.Measures.Report (T, "Stream transform using Aux string (1024 bytes)");
+--        end;
    end Test_Measure_Copy;
 
    --  Test the Index operation
@@ -215,7 +215,7 @@ package body Util.Strings.Tests is
       Ref_Map : String_Ref_Map.Map;
       Unb_Map : String_Map.Map;
       Name    : String_Access := new String '(KEY);
-      Ref     : String_Ref := To_String_Ref (KEY);
+      Ref     : constant String_Ref := To_String_Ref (KEY);
    begin
       Str_Map.Insert (Name.all, Name.all);
       Ptr_Map.Insert (Name.all'Access, Name.all'Access);

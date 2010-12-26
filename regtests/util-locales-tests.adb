@@ -16,22 +16,22 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with AUnit.Test_Caller;
+with Util.Test_Caller;
 with Util.Tests;
 package body Util.Locales.Tests is
 
    use Util.Tests;
 
-   package Caller is new AUnit.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test);
 
    procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
    begin
-      Suite.Add_Test (Caller.Create ("Test Util.Locales.Get_Locale",
-        Test_Get_Locale'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Locales.Hash",
-        Test_Hash_Locale'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Locales.=",
-        Test_Compare_Locale'Access));
+      Caller.Add_Test (Suite, "Test Util.Locales.Get_Locale",
+                       Test_Get_Locale'Access);
+      Caller.Add_Test (Suite, "Test Util.Locales.Hash",
+                       Test_Hash_Locale'Access);
+      Caller.Add_Test (Suite, "Test Util.Locales.=",
+                       Test_Compare_Locale'Access);
    end Add_Tests;
 
    procedure Test_Get_Locale (T : in out Test) is

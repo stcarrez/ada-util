@@ -16,7 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with AUnit.Test_Caller;
+with Util.Test_Caller;
 with AUnit.Assertions;
 with Util.Files;
 with Util.Tests;
@@ -26,20 +26,20 @@ package body Util.Encoders.Tests is
 
    use Util.Tests;
 
-   package Caller is new AUnit.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test);
 
    procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
    begin
-      Suite.Add_Test (Caller.Create ("Test Util.Encoders.Base16.Encode",
-        Test_Hex'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Encoders.Base16.Decode",
-        Test_Hex'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Encoders.Base64.Encode",
-        Test_Base64_Encode'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Encoders.Base64.Decode",
-        Test_Base64_Decode'Access));
-      Suite.Add_Test (Caller.Create ("Test Util.Encoders.Base64.Benchmark",
-        Test_Base64_Benchmark'Access));
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base16.Encode",
+                       Test_Hex'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base16.Decode",
+                       Test_Hex'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Encode",
+                       Test_Base64_Encode'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Decode",
+                       Test_Base64_Decode'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Benchmark",
+                       Test_Base64_Benchmark'Access);
    end Add_Tests;
 
    procedure Test_Base64_Encode (T : in out Test) is
