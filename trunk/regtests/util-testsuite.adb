@@ -27,6 +27,7 @@ with Util.Strings.Tests;
 with Util.Encoders.Tests;
 with Util.Streams.Buffered.Tests;
 with Util.Streams.Files.Tests;
+with Util.Beans.Objects.Discretes;
 package body Util.Testsuite is
 
    Tests : aliased Test_Suite;
@@ -45,6 +46,7 @@ package body Util.Testsuite is
       Util.Encoders.Tests.Add_Tests (Result);
       Util.Streams.Buffered.Tests.Add_Tests (Result);
       Util.Streams.Files.Tests.Add_Tests (Result);
+      Util.Beans.Objects.Discretes.Add_Tests (Result);
       return Result;
    end Suite;
 
