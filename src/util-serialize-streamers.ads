@@ -15,20 +15,39 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Util.Serialize.Mappers;
 package Util.Serialize.Streamers is
 
    type Streamer is limited private;
 
-   procedure Add_Mapping (Handler : in out Streamer;
-                          Name    : in String;
-                          Mapper  : in Util.Serialize.Mappers.Mapper'Class);
-
-   procedure Add_Attribute_Mapping (Handler : in out Streamer;
-                                    Name    :
 private
 
    type Streamer is limited record
       N : Natural;
    end record;
+--
+--     Pm : aliased Person_Mapper;
+--     Am : aliased Address_Mapper;
+--     S  : Streamer;
+--
+--     S.Add_Member ("person", Pm'Unchecked_Access);
+--     Pm.Add_Member ("name");
+--     Pm.Add_Member ("age");
+--     Pm.Add_Member ("address", Am'Unchecked_Access);
+--
+--     Am.Add_Member ("street");
+--     Am.Add_Member ("country");
+--     Am.Add_Member ("city");
+--
+--     S.Add_Member ("addr", Am'Unchecked_Access);
+--     S.Add_Member ("asd", X'Unchecked_Access);
+--
+--     S.Add_Mapper ("person", new Person_Mapper);
+--     S.Add_Mapping ("person", "name");
+--     S.Add_Mapping ("person", "age");
+--     S.Add_Mapping ("person", "address", new Address_Mapper);
+--     S.Add_Mapping ("address", "street");
+--
+--
 
 end Util.Serialize.Streamers;

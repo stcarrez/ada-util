@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  util-serialize -- Serialize objects in various formats
+--  util-serialize-mappers -- Serialize objects in various formats
 --  Copyright (C) 2010 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -16,34 +16,54 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Beans.Objects;
+with Ada.Strings.Hash;
+with Ada.Containers.Indefinite_Hashed_Maps;
 package Util.Serialize.Mappers is
 
    type Mapper is abstract tagged limited private;
-
-   procedure Error (Stream  : in out Mapper;
-                    Message : in String);
+   type Mapper_Access is access all Mapper'Class;
 
    --  Start a new object associated with the given name.  This is called when
    --  the '{' is reached.  The reader must be updated so that the next
    --  <b>Set_Member</b> procedure will associate the name/value pair on the
    --  new object.
-   procedure Create_Object (Stream : in out Mapper;
-                            Name   : in String) is abstract;
+   procedure Create_Object (Controller : in out Mapper;
+                            Name       : in String) is abstract;
 
    --  Finish an object associated with the given name.  The reader must be
    --  updated to be associated with the previous object.
-   procedure Finish_Object (Stream : in out Mapper;
-                            Name   : in String) is abstract;
+   procedure Finish_Object (Controller : in out Mapper;
+                            Name       : in String) is abstract;
 
    --  Set the name/value pair on the current object.
-   procedure Set_Member (Stream  : in out Mapper;
-                         Name    : in String;
-                         Value   : in Util.Beans.Objects.Object) is abstract;
+   procedure Set_Member (Controller  : in out Mapper;
+                         Name        : in String;
+                         Value       : in Util.Beans.Objects.Object) is abstract;
+
+   --  Bind the name and the handler in the current mapper.
+   procedure Add_Member (Controller : in out Mapper;
+                         Name       : in String;
+                         Handler    : in Mapper_Access);
+
+   --  Add the member to the current mapper.
+   procedure Add_Member (Controller : in out Mapper;
+                         Name       : in String);
+
+   --  Find the mapper associated with the given name.
+   --  Returns null if there is no mapper.
+   function Find_Mapper (Controller : in Mapper;
+                         Name       : in String) return Mapper_Access;
 
 private
 
+   package Mapper_Map is new Ada.Containers.Indefinite_Hashed_Maps
+     (Key_Type        => String,
+      Element_Type    => Mapper_Access,
+      Hash            => Ada.Strings.Hash,
+      Equivalent_Keys => "=");
+
    type Mapper is abstract tagged limited record
-      N : Natural;
+      Mapping : Mapper_Map.Map;
    end record;
 
 end Util.Serialize.Mappers;
