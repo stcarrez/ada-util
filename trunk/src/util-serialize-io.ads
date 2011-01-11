@@ -19,7 +19,7 @@ with Util.Beans.Objects;
 with Util.Streams.Buffered;
 package Util.Serialize.IO is
 
-   type Parser is abstract new Util.Readers.Parser with private;
+   type Parser is abstract tagged private;
 
    --  Parse the stream using the JSON parser.
    procedure Parse (Handler : in out Parser;
@@ -30,20 +30,25 @@ package Util.Serialize.IO is
    --  <b>Set_Member</b> procedure will associate the name/value pair on the
    --  new object.
    procedure Start_Object (Handler : in out Parser;
-                           Name    : in Unbounded_String) is abstract;
+                           Name    : in String) is abstract;
 
    --  Finish an object associated with the given name.  The reader must be
    --  updated to be associated with the previous object.
    procedure Finish_Object (Handler : in out Parser;
-                            Name    : in Unbounded_String) is abstract;
+                            Name    : in String) is abstract;
 
    --  Set the name/value pair on the current object.
    procedure Set_Member (Handler : in out Parser;
-                         Name    : in Unbounded_String;
+                         Name    : in String;
                          Value   : in Util.Beans.Objects.Object) is abstract;
 
    --  Report an error while parsing the JSON stream.
    procedure Error (Handler  : in out Parser;
                     Message : in String);
+private
+
+   type Parser is abstract tagged record
+      N : Natural;
+   end record;
 
 end Util.Serialize.IO;

@@ -115,7 +115,7 @@ package body Util.Serialize.IO.JSON is
                --              Finish_Array (P, Name);
 
             when T_NULL =>
-               Set_Member (P, Name, "", T_NULL);
+               Set_Member (P, Name, Util.Beans.Objects.Null_Object);
 
             when T_NUMBER =>
                Set_Member (P, Name, P.Token, T_INTEGER);
@@ -124,10 +124,10 @@ package body Util.Serialize.IO.JSON is
                Set_Member (P, Name, P.Token, T_STRING);
 
             when T_TRUE =>
-               Set_Member (P, Name, "true", T_BOOLEAN);
+               Set_Member (P, Name, Util.Beans.Objects.To_Object (True));
 
             when T_FALSE =>
-               Set_Member (P, Name, "false", T_BOOLEAN);
+               Set_Member (P, Name, Util.Beans.Objects.To_Object (False));
 
             when T_EOF =>
                P.Error ("End of stream reached");
