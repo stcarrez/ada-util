@@ -15,8 +15,35 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Ada.Strings.Unbounded;
 package Util.Serialize.IO.JSON is
 
-   pragma Pure;
+
+   type Parser is new Serialize.IO.Parser with private;
+
+   --  Parse the stream using the JSON parser.
+   procedure Parse (Handler : in out Parser;
+                    Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class);
+
+   --  Report an error while parsing the JSON stream.
+   procedure Error (Handler  : in out Parser;
+                    Message : in String);
+
+private
+
+   type Token_Type is (T_EOF, T_LEFT_BRACE, T_RIGHT_BRACE, T_LEFT_BRACKET,
+                       T_RIGHT_BRACKET, T_COLON, T_COMMA, T_TRUE, T_FALSE,
+                       T_STRING, T_NUMBER, T_BOOLEAN, T_UNKNOWN, T_NULL);
+
+   type Parser is new Util.Serialize.Io.Parser with record
+      State : Natural;
+      Pos  : Natural;
+      Last : Natural;
+      Token_Start : Natural;
+      Token_End   : Natural;
+      Token : Ada.Strings.Unbounded.Unbounded_String;
+      Value : Long_Long_Integer;
+      Pending_Token : Token_Type := T_EOF;
+   end record;
 
 end Util.Serialize.IO.JSON;

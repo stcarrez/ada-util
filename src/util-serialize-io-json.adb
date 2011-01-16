@@ -80,8 +80,8 @@ package body Util.Serialize.IO.JSON is
       --  value   ::= string | number | object | array | true | false | null
       --  ------------------------------
       procedure Parse_Pairs (P : in out Parser'Class) is
-         Name  : Unbounded_String;
-         Token : Token_Type;
+         Current_Name : Unbounded_String;
+         Token        : Token_Type;
       begin
          loop
             Peek (P, Token);
@@ -89,53 +89,60 @@ package body Util.Serialize.IO.JSON is
                Put_Back (P, Token);
                return;
             end if;
-            Name := P.Token;
+            Current_Name := P.Token;
             Peek (P, Token);
             if Token /= T_COLON then
                P.Error ("Missing ':'");
             end if;
             Peek (P, Token);
-            case Token is
-            when T_LEFT_BRACE =>
-               Start_Object (P, Name);
-               Parse_Pairs (P);
-               Peek (P, Token);
-               if Token /= T_RIGHT_BRACE then
-                  P.Error ("Missing '}'");
-               end if;
-               Finish_Object (P, Name);
-               --
-               --           when T_LEFT_BRACKET =>
-               --              Start_Array (P, Name);
-               --              Parse_Array (P);
-               --              Peek (P, Token);
-               --              if Token /= T_RIGHT_BRACKET then
-               --                 P.Error ("Missing ']'");
-               --              end if;
-               --              Finish_Array (P, Name);
 
-            when T_NULL =>
-               Set_Member (P, Name, Util.Beans.Objects.Null_Object);
+            declare
+               Name : constant String := To_String (Current_Name);
+            begin
+               case Token is
+               when T_LEFT_BRACE =>
+                  P.Start_Object (Name);
+                  Parse_Pairs (P);
+                  Peek (P, Token);
+                  if Token /= T_RIGHT_BRACE then
+                     P.Error ("Missing '}'");
+                  end if;
+                  P.Finish_Object (Name);
 
-            when T_NUMBER =>
-               Set_Member (P, Name, P.Token, T_INTEGER);
 
-            when T_STRING =>
-               Set_Member (P, Name, P.Token, T_STRING);
+                  --
+                  --           when T_LEFT_BRACKET =>
+                  --              Start_Array (P, Name);
+                  --              Parse_Array (P);
+                  --              Peek (P, Token);
+                  --              if Token /= T_RIGHT_BRACKET then
+                  --                 P.Error ("Missing ']'");
+                  --              end if;
+                  --              Finish_Array (P, Name);
 
-            when T_TRUE =>
-               Set_Member (P, Name, Util.Beans.Objects.To_Object (True));
+               when T_NULL =>
+                  P.Set_Member (Name, Util.Beans.Objects.Null_Object);
 
-            when T_FALSE =>
-               Set_Member (P, Name, Util.Beans.Objects.To_Object (False));
+               when T_NUMBER =>
+                  P.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token));
 
-            when T_EOF =>
-               P.Error ("End of stream reached");
-               return;
+               when T_STRING =>
+                  P.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token));
 
-            when others =>
-               P.Error ("Invalid token");
-            end case;
+               when T_TRUE =>
+                  P.Set_Member (Name, Util.Beans.Objects.To_Object (True));
+
+               when T_FALSE =>
+                  P.Set_Member (Name, Util.Beans.Objects.To_Object (False));
+
+               when T_EOF =>
+                  P.Error ("End of stream reached");
+                  return;
+
+               when others =>
+                  P.Error ("Invalid token");
+               end case;
+            end;
 
             Peek (P, Token);
             if Token /= T_COMMA then
@@ -341,78 +348,9 @@ package body Util.Serialize.IO.JSON is
 
       Root_Name : constant Unbounded_String := To_Unbounded_String ("");
    begin
-      Reader'Class (Parser).Start_Object (Root_Name);
-      Parse (Parser);
-      Reader'Class (Parser).Finish_Object (Root_Name);
+--      Util.Serialize.IO.Parser'Class (Parser).Start_Object (Root_Name);
+      Parse (Handler);
+--      Util.Serialize.IO.Parser'Class (Parser).Finish_Object (Root_Name);
    end Parse;
-
-
-   --  ------------------------------
-   --  Get the JSON root object.
-   --  ------------------------------
-   function Get_Object (Parser : in JSON_Reader) return JSON_Object_Access is
-   begin
-      return Parser.Root;
-   end Get_Object;
-
-   --  ------------------------------
-   --  Start a new object associated with the given name.  This is called when
-   --  the '{' is reached.  The reader must be updated so that the next
-   --  <b>Set_Member</b> procedure will associate the name/value pair on the
-   --  new object.
-   --  ------------------------------
-   overriding
-   procedure Create_Object (Stream : in out JSON_Reader;
-                            Name   : in String) is
-      Obj : constant JSON_Object_Access := new JSON_Object;
-      Value : JSON_Value_Access;
-   begin
-      --  Obj.Name := Name;
-      if Stream.Root = null then
-         Stream.Root := Obj;
-      end if;
-      if Stream.Current /= null then
-         Value := new JSON_Value '(Of_Type => T_OBJECT, Object_Value => Obj);
-         Stream.Current.Members.Insert (Key => Name, New_Item => Value);
-      end if;
-      Stream.Current := Obj;
-      Stream.Stack.Append (Obj);
-   end Create_Object;
-
-   --  ------------------------------
-   --  Finish an object associated with the given name.  The reader must be
-   --  updated to be associated with the previous object.
-   --  ------------------------------
-   overriding
-   procedure Finish_Object (Stream : in out JSON_Reader;
-                            Name   : in String) is
-      use type Ada.Containers.Count_Type;
-   begin
-      if Stream.Stack.Length > 1 then
-         Stream.Stack.Delete_Last;
-         Stream.Current := Stream.Stack.Last_Element;
-      end if;
-   end Finish_Object;
-
-   --  ------------------------------
-   --  Set the name/value pair on the current object.
-   --  ------------------------------
-   overriding
-   procedure Set_Member (Stream  : in out JSON_Reader;
-                         Name    : in String;
-                         Value   : in String;
-                         Of_Type : in Value_Type) is
-   begin
-      if Stream.Current = null then
-         Stream.Error ("No current object");
-      else
-         declare
-            Val : constant JSON_Value_Access := new JSON_Value '(Of_Type => T_STRING,
-                                                                 String_Value => To_Unbounded_String (Value));
-         begin
-            Stream.Current.Members.Insert (Key => Name, New_Item => Val);
-         end;
-      end if;
-   end Set_Member;
 
 end Util.Serialize.IO.JSON;
