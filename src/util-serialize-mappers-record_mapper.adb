@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Readers.Object_Reader -- Object Reader
---  Copyright (C) 2010 Stephane Carrez
+--  Util.Serialize.Mappers.Record_Mapper -- Mapper for record types
+--  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,67 +19,32 @@ with Util.Serialize.Contexts;
 
 package body Util.Serialize.Mappers.Record_Mapper is
 
-   --  Data context to get access to the target element.
-   type Element_Data is new Util.Serialize.Contexts.Data with record
-      Element : Element_Type_Access;
-   end record;
-   type Element_Data_Access is access all Element_Data'Class;
+   Key : Util.Serialize.Contexts.Data_Key;
 
-   type Attribute_Mapping is new Mapping with record
-      Index : Fields;
-      Key   : Contexts.Data_Key;
-   end record;
-   type Attribute_Mapping_Access is access all Attribute_Mapping'Class;
-
-   procedure Execute (Map   : in Attribute_Mapping;
-                      Ctx   : in out Util.Serialize.Contexts.Context'Class;
-                      Value : in Util.Beans.Objects.Object);
-
-   --  Create a new object associated with the given name.
-   --  The reader must be associated with the new object so
-   --  that calls to <b>Set_Member</b> will apply on the new object.
---     procedure Create_Object (Parser : in out T_Reader;
---                              Name   : in String);
-
-   --  Finish an object associated with the given name.  The reader must be
-   --  updated to be associated with the previous object.
---     procedure Finish_Object (Parser : in out T_Reader;
---                              Name   : in String);
-
-   --  Set the name/value pair on the current object.  The value is an
-   --  object held by another parser.
---     procedure Set_Object (Parser : in out T_Reader;
---                           Name   : in String;
---                           Value  : in Reader'Class);
-
-   procedure Add_Mapping (Into  : in out Mapper;
-                          Path  : in String;
-                          Field : in Fields) is
-      Map : constant Attribute_Mapping_Access := new Attribute_Mapping;
+   --  -----------------------
+   --  Get the element object.
+   --  -----------------------
+   function Get_Element (Data : in Element_Data) return Element_Type_Access is
    begin
-      Map.Key   := Into.Key;
-      Map.Index := Field;
---        Into.Add_Mapping (Path, Map);
-   end Add_Mapping;
---
---     function Create_Context (Map : in T_Mapper) return Context_Access is
---        Result : Element_Context_Access := new Element_Context;
---     begin
---        return Result;
---     end Create_Context;
+      return Data.Element;
+   end Get_Element;
 
---     procedure Push_Context (Mapper : in Mapper;
---                             Context : in out Util.Serialize.Streamers.Reader'Class) is
---        --      Ctx :
---     begin
---        null;
---     end Push_Context;
+   --  -----------------------
+   --  Set the element object.
+   --  -----------------------
+   procedure Set_Element (Data    : in out Element_Data;
+                          Element : in Element_Type_Access) is
+   begin
+      Data.Element := Element;
+   end Set_Element;
 
-   --  Execute the rule associated
-   procedure Execute (Map   : in Attribute_Mapping;
-                      Ctx   : in out Util.Serialize.Contexts.Context'Class;
-                      Value : in Util.Beans.Objects.Object) is
-      D : constant Contexts.Data_Access := Ctx.Get_Data (Map.Key);
+   --  -----------------------
+   --  Execute the process procedure on the object stored in the current data context.
+   --  Raises No_Data if the context does not hold such data.
+   --  -----------------------
+   procedure Execute_Object (Ctx     : in out Util.Serialize.Contexts.Context'Class;
+                             Process : not null access procedure (Item : in out Element_Type)) is
+      D : constant Contexts.Data_Access := Ctx.Get_Data (Key);
    begin
       if not (D.all in Element_Data'Class) then
          raise Util.Serialize.Contexts.No_Data;
@@ -90,8 +55,60 @@ package body Util.Serialize.Mappers.Record_Mapper is
          if DE.Element = null then
             raise Util.Serialize.Contexts.No_Data;
          end if;
-         Set_Member (DE.Element.all, Map.Index, Value);
+         Process (DE.Element.all);
       end;
+   end Execute_Object;
+
+   --  -----------------------
+   --  Add a mapping for setting a member.  When the attribute rule defined by <b>Path</b>
+   --  is matched, the <b>Set_Member</b> procedure will be called with the value and the
+   --  <b>Field</b> identification.
+   --  -----------------------
+   procedure Add_Mapping (Into  : in out Mapper;
+                          Path  : in String;
+                          Field : in Fields) is
+      Map : constant Attribute_Mapping_Access := new Attribute_Mapping;
+   begin
+      Map.Index   := Field;
+      Map.Process := Into.Process;
+      Into.Add_Mapping (Path, Map.all'Access);
+   end Add_Mapping;
+
+   --  -----------------------
+   --  Bind the mapper with the given process procedure.  The <b>Process</b> procedure is
+   --  invoked to obtain the target element onto which the <b>Set_Member</b> procedure is called.
+   --  The default process procedures obtains the target object from the data context.
+   --  -----------------------
+   procedure Bind (Into    : in out Mapper;
+                   Process : in Process_Object) is
+   begin
+      Into.Process := Process;
+   end Bind;
+
+   --  -----------------------
+   --  Execute the rule associated with the mapping.
+   --  Set the data member associated with the mapping rule.
+   --  -----------------------
+   procedure Execute (Map   : in Attribute_Mapping;
+                      Ctx   : in out Util.Serialize.Contexts.Context'Class;
+                      Value : in Util.Beans.Objects.Object) is
+
+      procedure Set_Member (P : in out Element_Type) is
+      begin
+         Set_Member (P, Map.Index, Value);
+      end Set_Member;
+
+   begin
+      Map.Process (Ctx, Set_Member'Access);
    end Execute;
 
+   procedure Set_Context (Ctx : in out Util.Serialize.Contexts.Context'Class;
+                          Data : in Element_Data_Access) is
+   begin
+      Ctx.Set_Data (Key => Key, Content => Data.all'Unchecked_Access);
+   end Set_Context;
+
+begin
+   --  Allocate the unique data key.
+   Util.Serialize.Contexts.Allocate (Key);
 end Util.Serialize.Mappers.Record_Mapper;
