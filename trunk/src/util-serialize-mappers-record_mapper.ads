@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Beans.Objects;
-with Util.Serialize.Streamers;
 generic
    type Element_Type is limited private;
    type Element_Type_Access is access all Element_Type;
@@ -69,8 +68,15 @@ package Util.Serialize.Mappers.Record_Mapper is
    procedure Bind (Into    : in out Mapper;
                    Process : in Process_Object);
 
-   procedure Set_Context (Ctx  : in out Util.Serialize.Contexts.Context'Class;
-                          Data : in Element_Data_Access);
+   --  Set the element in the context.
+   procedure Set_Context (Ctx     : in out Util.Serialize.Contexts.Context'Class;
+                          Element : in Element_Type_Access);
+
+   --  Copy the mapping definitions defined by <b>From</b> into the target mapper
+   --  and use the <b>Process</b> procedure to give access to the element.
+   procedure Copy (Into    : in out Mapper;
+                   From    : in Mapper;
+                   Process : in Process_Object);
 
 private
 
