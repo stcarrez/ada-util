@@ -16,7 +16,10 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Ada.Unchecked_Deallocation;
 package body Util.Serialize.Mappers is
+
+   procedure Free is new Ada.Unchecked_Deallocation (Mapping'Class, Mapping_Access);
 
    --  -----------------------
    --  Bind the name and the handler in the current mapper.
@@ -42,6 +45,19 @@ package body Util.Serialize.Mappers is
    --  Find the mapper associated with the given name.
    --  Returns null if there is no mapper.
    --  -----------------------
+   function Find_Mapping (Controller : in Mapper;
+                         Name       : in String) return Mapping_Access is
+      Pos : constant Mapping_Map.Cursor := Controller.Rules.Find (Key => Name);
+   begin
+      if Mapping_Map.Has_Element (Pos) then
+         return Mapping_Map.Element (Pos);
+      else
+         return null;
+      end if;
+   end Find_Mapping;
+
+   --  Find the mapper associated with the given name.
+   --  Returns null if there is no mapper.
    function Find_Mapper (Controller : in Mapper;
                          Name       : in String) return Mapper_Access is
       Pos : constant Mapper_Map.Cursor := Controller.Mapping.Find (Key => Name);
@@ -52,5 +68,50 @@ package body Util.Serialize.Mappers is
          return null;
       end if;
    end Find_Mapper;
+
+   procedure Add_Mapping (Into : in out Mapper;
+                          Path : in String;
+                          Map  : in Mapping_Access) is
+   begin
+      Into.Rules.Insert (Key => Path, New_Item => Map);
+   end Add_Mapping;
+
+   procedure Add_Mapping (Into : in out Mapper;
+                          Path : in String;
+                          Map  : in Mapper_Access) is
+   begin
+      Into.Mapping.Insert (Key => Path, New_Item => Map);
+   end Add_Mapping;
+
+   procedure Start_Object (Handler : in Mapper;
+                           Context : in out Util.Serialize.Contexts.Context'Class;
+                           Name    : in String) is
+   begin
+      null;
+   end Start_Object;
+
+   procedure Finish_Object (Handler : in Mapper;
+                            Context : in out Util.Serialize.Contexts.Context'Class;
+                            Name    : in String) is
+   begin
+      null;
+   end Finish_Object;
+
+   --  -----------------------
+   --  Finalize the object and release any mapping.
+   --  -----------------------
+   overriding
+   procedure Finalize (Controller : in out Mapper) is
+      Pos     : Mapping_Map.Cursor;
+      Content : Mapping_Access;
+   begin
+      loop
+         Pos := Controller.Rules.First;
+         exit when not Mapping_Map.Has_Element (Pos);
+         Content := Mapping_Map.Element (Pos);
+         Free (Content);
+         Controller.Rules.Delete (Pos);
+      end loop;
+   end Finalize;
 
 end Util.Serialize.Mappers;
