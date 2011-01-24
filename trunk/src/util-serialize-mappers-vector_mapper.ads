@@ -1,0 +1,117 @@
+-----------------------------------------------------------------------
+--  Util.Serialize.Mappers.Vector_Mapper -- Mapper for vector types
+--  Copyright (C) 2010, 2011 Stephane Carrez
+--  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
+--
+--  Licensed under the Apache License, Version 2.0 (the "License");
+--  you may not use this file except in compliance with the License.
+--  You may obtain a copy of the License at
+--
+--      http://www.apache.org/licenses/LICENSE-2.0
+--
+--  Unless required by applicable law or agreed to in writing, software
+--  distributed under the License is distributed on an "AS IS" BASIS,
+--  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--  See the License for the specific language governing permissions and
+--  limitations under the License.
+-----------------------------------------------------------------------
+with Ada.Containers;
+with Ada.Containers.Vectors;
+with Util.Serialize.Contexts;
+with Util.Serialize.Mappers.Record_Mapper;
+generic
+
+   --  Package that represents the vectors of elements.
+   with package Vectors is
+     new Ada.Containers.Vectors (<>);
+
+   --  Package that maps the element into a record.
+   with package Element_Mapper is
+     new Record_Mapper (Element_Type => Vectors.Element_Type, others => <>);
+
+package Util.Serialize.Mappers.Vector_Mapper is
+
+   subtype Element_Type is Vectors.Element_Type;
+
+   subtype Vector is Vectors.Vector;
+
+   subtype Index_Type is Vectors.Index_Type;
+
+   type Vector_Type_Access is access all Vector;
+
+   --  Procedure to give access to the <b>Vector</b> object from the context.
+   type Process_Object is not null
+   access procedure (Ctx     : in out Util.Serialize.Contexts.Context'Class;
+                     Process : not null access procedure (Item : in out Vector));
+
+   --  -----------------------
+   --  Data context
+   --  -----------------------
+   --  Data context to get access to the target element.
+   type Vector_Data is new Util.Serialize.Contexts.Data with private;
+   type Vector_Data_Access is access all Vector_Data'Class;
+
+   --  Get the vector object.
+   function Get_Vector (Data : in Vector_Data) return Vector_Type_Access;
+
+   --  Set the vector object.
+   procedure Set_Vector (Data   : in out Vector_Data;
+                         Vector : in Vector_Type_Access);
+
+   --  -----------------------
+   --  Execute the process procedure on the object stored in the current data context.
+   --  Give access to the current vector element to the <b>Process</b> procedure.
+   --  Raises No_Data if the context does not hold such data.
+   --  -----------------------
+   procedure Execute_Object (Ctx     : in out Util.Serialize.Contexts.Context'Class;
+                             Process : not null
+                             access procedure (Item : in out Element_Type));
+
+   --  -----------------------
+   --  Record mapper
+   --  -----------------------
+   type Mapper is new Util.Serialize.Mappers.Mapper with private;
+   type Mapper_Access is access all Mapper'Class;
+
+   --  Set the <b>Data</b> vector in the context.
+   procedure Set_Context (Ctx  : in out Util.Serialize.Contexts.Context'Class;
+                          Data : in Vector_Type_Access);
+
+   procedure Set_Mapping (Into  : in out Mapper;
+                          Path  : in String;
+                          Inner : in Element_Mapper.Mapper);
+
+   --  Find the mapper associated with the given name.
+   --  Returns null if there is no mapper.
+   function Find_Mapping (Controller : in Mapper;
+                          Name       : in String) return Mapping_Access;
+
+   --  Find the mapper associated with the given name.
+   --  Returns null if there is no mapper.
+   function Find_Mapper (Controller : in Mapper;
+                         Name       : in String) return Util.Serialize.Mappers.Mapper_Access;
+
+   procedure Start_Object (Handler : in Mapper;
+                           Context : in out Util.Serialize.Contexts.Context'Class;
+                           Name    : in String);
+
+   procedure Finish_Object (Handler : in Mapper;
+                            Context : in out Util.Serialize.Contexts.Context'Class;
+                            Name    : in String);
+
+private
+
+   type Vector_Data is new Util.Serialize.Contexts.Data with record
+      Vector   : Vector_Type_Access;
+      Position : Index_Type;
+   end record;
+
+   type Mapper is new Util.Serialize.Mappers.Mapper with record
+      Map         : aliased Element_Mapper.Mapper;
+      Element_Map : Util.Serialize.Mappers.Mapper_Access;
+   end record;
+
+   overriding
+   procedure Initialize (Controller : in out Mapper);
+
+end Util.Serialize.Mappers.Vector_Mapper;
