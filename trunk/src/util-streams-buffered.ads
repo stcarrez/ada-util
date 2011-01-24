@@ -103,7 +103,7 @@ private
       Write_Pos   : Stream_Element_Offset := 0;
 
       --  The next read position within the buffer.
-      Read_Pos    : Stream_Element_Offset := 0;
+      Read_Pos    : Stream_Element_Offset := 1;
 
       --  The last valid write position within the buffer.
       Last        : Stream_Element_Offset := 0;

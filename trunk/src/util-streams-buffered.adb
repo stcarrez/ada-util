@@ -39,7 +39,7 @@ package body Util.Streams.Buffered is
       Stream.Output    := Output;
       Stream.Input     := Input;
       Stream.Write_Pos := 1;
-      Stream.Read_Pos  := 1;
+      Stream.Read_Pos  := 2;
       Stream.No_Flush  := False;
    end Initialize;
 
@@ -194,13 +194,14 @@ package body Util.Streams.Buffered is
    --  ------------------------------
    procedure Fill (Stream : in out Buffered_Stream) is
    begin
-      if Stream.Write_Pos > 1 then
+      --  if Stream.Write_Pos > 1 then
          if Stream.Input = null then
-            raise Ada.IO_Exceptions.Data_Error with "Output buffer is full";
+            raise Ada.IO_Exceptions.Data_Error with "Input buffer is empty";
          else
-            Stream.Input.Read (Stream.Buffer (1 .. Stream.Last - 1), Stream.Write_Pos);
+         Stream.Input.Read (Stream.Buffer (1 .. Stream.Last - 1), Stream.Write_Pos);
+         Stream.Read_Pos := 1;
          end if;
-      end if;
+      --  end if;
    end Fill;
 
    --  ------------------------------
@@ -209,7 +210,7 @@ package body Util.Streams.Buffered is
    procedure Read (Stream : in out Buffered_Stream;
                    Char   : out Character) is
    begin
-      if Stream.Read_Pos >= Stream.Write_Pos then
+      if Stream.Read_Pos > Stream.Write_Pos then
          Stream.Fill;
       end if;
       Char := Character'Val (Stream.Buffer (Stream.Read_Pos));
