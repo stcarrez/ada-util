@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  mapping -- Example of record mappings
+--  mapping -- Example of serialization mappings
 --  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -15,18 +15,14 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-
-with Util.Beans.Objects;
-with Util.Serialize.Mappers.Record_Mapper;
+with Util.Serialize.Contexts;
 package body Mapping is
 
    use Util.Beans.Objects;
 
-   type Person_Fields is (FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_AGE);
-
-   type Person_Access is access all Person;
-
+   --  ------------------------------
    --  Set the name/value pair on the current object.
+   --  ------------------------------
    procedure Set_Member (P     : in out Person;
                          Field : in Person_Fields;
                          Value : in Util.Beans.Objects.Object) is
@@ -47,7 +43,9 @@ package body Mapping is
    type Address_Fields is (FIELD_CITY, FIELD_STREET, FIELD_COUNTRY, FIELD_ZIP);
    type Address_Access is access all Address;
 
+   --  ------------------------------
    --  Set the name/value pair on the current object.
+   --  ------------------------------
    procedure Set_Member (Addr  : in out Address;
                          Field : in Address_Fields;
                          Value : in Util.Beans.Objects.Object) is
@@ -68,18 +66,20 @@ package body Mapping is
       end case;
    end Set_Member;
 
-   package Address_Mapper is new Util.Serialize.Mappers.Record_Mapper
-     (Element_Type => Address, Element_Type_Access => Address_Access,
-      Fields => Address_Fields, Set_Member => Set_Member);
+   package Address_Mapper is
+     new Util.Serialize.Mappers.Record_Mapper (Element_Type        => Address,
+                                               Element_Type_Access => Address_Access,
+                                               Fields              => Address_Fields,
+                                               Set_Member          => Set_Member);
 
-   package Person_Mapper is new Util.Serialize.Mappers.Record_Mapper
-     (Element_Type => Person, Element_Type_Access => Person_Access,
-      Fields => Person_Fields, Set_Member => Set_Member);
+   --  Mapping for the Address record.
+   Address_Mapping       : aliased Address_Mapper.Mapper;
 
-   Address_Mapping : aliased Address_Mapper.Mapper;
+   --  Mapping for the Person record.
+   Person_Mapping        : aliased Person_Mapper.Mapper;
 
-   Person_Mapping  : aliased Person_Mapper.Mapper;
-
+   --  Mapping for a list of Person records (stored as a Vector).
+   Person_Vector_Mapping : aliased Person_Vector_Mapper.Mapper;
 
    --  ------------------------------
    --  Get the address mapper which describes how to load an Address.
@@ -92,10 +92,40 @@ package body Mapping is
    --  ------------------------------
    --  Get the person mapper which describes how to load a Person.
    --  ------------------------------
-   function Get_Person_Mapper return Util.Serialize.Mappers.Mapper_Access is
+   function Get_Person_Mapper return Person_Mapper.Mapper_Access is
    begin
       return Person_Mapping'Access;
    end Get_Person_Mapper;
+
+   --  ------------------------------
+   --  Get the person vector mapper which describes how to load a list of Person.
+   --  ------------------------------
+   function Get_Person_Vector_Mapper return Person_Vector_Mapper.Mapper_Access is
+   begin
+      return Person_Vector_Mapping'Access;
+   end Get_Person_Vector_Mapper;
+
+   --  ------------------------------
+   --  Helper to give access to the <b>Address</b> member of a <b>Person</b>.
+   --  ------------------------------
+   procedure Person_Address (Ctx     : in out Util.Serialize.Contexts.Context'Class;
+                             Process : not null access procedure (Item : in out Address)) is
+      procedure Process_Person (P : in out Person) is
+      begin
+         Process (P.Addr);
+      end Process_Person;
+   begin
+      Person_Mapper.Execute_Object (Ctx, Process_Person'Access);
+   end Person_Address;
+
+   --  ------------------------------
+   --  Helper to give access to the <b>Address</b> member of a <b>Person</b>.
+   --  ------------------------------
+   procedure Proxy_Person_Address (Element : in out Person;
+                                   Process : not null access procedure (Item : in out Address)) is
+   begin
+      Process (Element.Addr);
+   end Proxy_Person_Address;
 
 begin
    --  XML:                                JSON:
@@ -104,6 +134,7 @@ begin
    --  <street>Champs de Mars</street>     "street" : "Champs de Mars"
    --  <country>France</country>           "country" : "France"
    --  <zip>75</zip>                       "zip" : 75
+   Address_Mapping.Bind (Person_Address'Access);
    Address_Mapping.Add_Mapping ("city", FIELD_CITY);
    Address_Mapping.Add_Mapping ("street", FIELD_STREET);
    Address_Mapping.Add_Mapping ("country", FIELD_COUNTRY);
@@ -124,11 +155,12 @@ begin
    --     <info><facebook><id>...</id></facebook></info>
    --  </xxx>
    --  Person_Mapper.Add_Mapping ("@id");
-   --  Person_Mapper.Add_Mapping ("address", Address_Mapper'Access);
+   Person_Mapping.Add_Mapping ("address", Address_Mapping'Access);
    Person_Mapping.Add_Mapping ("name", FIELD_FIRST_NAME);
    Person_Mapping.Add_Mapping ("last_name", FIELD_LAST_NAME);
    Person_Mapping.Add_Mapping ("age", FIELD_AGE);
   --   Person_Mapper.Add_Mapping ("info/*");
    --  Person_Mapper.Add_Mapping ("address/street/@number");
 
+   Person_Vector_Mapping.Set_Mapping ("person", Person_Mapping);
 end Mapping;
