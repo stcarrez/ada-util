@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  ASF.Readers -- Print streams for servlets
---  Copyright (C) 2010 Stephane Carrez
+--  util-serialize-io-json -- JSON Serialization Driver
+--  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,25 +15,19 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Ada.Streams;
-with Ada.Strings.Unbounded;
-with Ada.Finalization;
+
 with Ada.Characters.Latin_1;
-with Ada.Characters.Conversions;
 with Ada.IO_Exceptions;
 
 with Util.Streams;
-with Util.Streams.Files;
-with Util.Streams.Texts;
-with Ada.Streams.Stream_IO;
 package body Util.Serialize.IO.JSON is
 
    use Ada.Strings.Unbounded;
 
-   procedure Error (Handler  : in out Parser;
+   procedure Error (Handler : in out Parser;
                     Message : in String) is
    begin
-      raise Parse_Error with Message;
+      raise Parse_Error with Natural'Image (Handler.Line_Number) & ":" & Message;
    end Error;
 
    procedure Parse (Handler : in out Parser;
@@ -56,6 +50,11 @@ package body Util.Serialize.IO.JSON is
       --  pair    ::= string ':' value
       --  value   ::= string | number | object | array | true | false | null
       procedure Parse_Pairs (P : in out Parser'Class);
+
+      --  Parse a value
+      --  value   ::= string | number | object | array | true | false | null
+      procedure Parse_Value (P    : in out Parser'Class;
+                             Name : in String);
 
       procedure Parse (P : in out Parser'Class);
 
@@ -94,56 +93,8 @@ package body Util.Serialize.IO.JSON is
             if Token /= T_COLON then
                P.Error ("Missing ':'");
             end if;
-            Peek (P, Token);
 
-            declare
-               Name : constant String := To_String (Current_Name);
-            begin
-               case Token is
-               when T_LEFT_BRACE =>
-                  P.Start_Object (Name);
-                  Parse_Pairs (P);
-                  Peek (P, Token);
-                  if Token /= T_RIGHT_BRACE then
-                     P.Error ("Missing '}'");
-                  end if;
-                  P.Finish_Object (Name);
-
-
-                  --
-                  --           when T_LEFT_BRACKET =>
-                  --              Start_Array (P, Name);
-                  --              Parse_Array (P);
-                  --              Peek (P, Token);
-                  --              if Token /= T_RIGHT_BRACKET then
-                  --                 P.Error ("Missing ']'");
-                  --              end if;
-                  --              Finish_Array (P, Name);
-
-               when T_NULL =>
-                  P.Set_Member (Name, Util.Beans.Objects.Null_Object);
-
-               when T_NUMBER =>
-                  P.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token));
-
-               when T_STRING =>
-                  P.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token));
-
-               when T_TRUE =>
-                  P.Set_Member (Name, Util.Beans.Objects.To_Object (True));
-
-               when T_FALSE =>
-                  P.Set_Member (Name, Util.Beans.Objects.To_Object (False));
-
-               when T_EOF =>
-                  P.Error ("End of stream reached");
-                  return;
-
-               when others =>
-                  P.Error ("Invalid token");
-               end case;
-            end;
-
+            Parse_Value (P, To_String (Current_Name));
             Peek (P, Token);
             if Token /= T_COMMA then
                Put_Back (P, Token);
@@ -151,6 +102,62 @@ package body Util.Serialize.IO.JSON is
             end if;
          end loop;
       end Parse_Pairs;
+
+      --  ------------------------------
+      --  Parse a value
+      --  value   ::= string | number | object | array | true | false | null
+      --  ------------------------------
+      procedure Parse_Value (P    : in out Parser'Class;
+                             Name : in String) is
+         Token : Token_Type;
+      begin
+         Peek (P, Token);
+         case Token is
+            when T_LEFT_BRACE =>
+               P.Start_Object (Name);
+               Parse_Pairs (P);
+               Peek (P, Token);
+               if Token /= T_RIGHT_BRACE then
+                  P.Error ("Missing '}'");
+               end if;
+               P.Finish_Object (Name);
+
+                  --
+            when T_LEFT_BRACKET =>
+               P.Start_Array (Name);
+               loop
+                  Parse_Value (P, "");
+                  Peek (P, Token);
+                  exit when Token = T_RIGHT_BRACKET;
+                  if Token /= T_COMMA then
+                     P.Error ("Missing ']'");
+                  end if;
+               end loop;
+               P.Finish_Array (Name);
+
+            when T_NULL =>
+               P.Set_Member (Name, Util.Beans.Objects.Null_Object);
+
+            when T_NUMBER =>
+               P.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token));
+
+            when T_STRING =>
+               P.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token));
+
+            when T_TRUE =>
+               P.Set_Member (Name, Util.Beans.Objects.To_Object (True));
+
+            when T_FALSE =>
+               P.Set_Member (Name, Util.Beans.Objects.To_Object (False));
+
+            when T_EOF =>
+               P.Error ("End of stream reached");
+               return;
+
+            when others =>
+               P.Error ("Invalid token");
+         end case;
+      end Parse_Value;
 
       --  ------------------------------
       --  Put back a token in the buffer.
@@ -166,8 +173,6 @@ package body Util.Serialize.IO.JSON is
       --  ------------------------------
       procedure Peek (P     : in out Parser'Class;
                       Token : out Token_Type) is
-         use Ada.Characters.Conversions;
-
          C, C1 : Character;
       begin
          --  If a token was put back, return it.
@@ -177,17 +182,21 @@ package body Util.Serialize.IO.JSON is
             return;
          end if;
 
-         --  Skip white spaces
-         loop
-            Stream.Read (Char => C);
-            exit when C /= ' ' and C /= Ada.Characters.Latin_1.CR and C /= Ada.Characters.Latin_1.LF;
-         end loop;
-
-         --  Check for end of string.
-         --           if P.Pos > P.Last then
-         --              Token := T_EOF;
-         --              return;
-         --           end if;
+         if P.Has_Pending_Char then
+            C := P.Pending_Char;
+         else
+            --  Skip white spaces
+            loop
+               Stream.Read (Char => C);
+               if C = Ada.Characters.Latin_1.LF then
+                  P.Line_Number := P.Line_Number + 1;
+               else
+                  exit when C /= ' '
+                    and C /= Ada.Characters.Latin_1.CR and C /= Ada.Characters.Latin_1.HT;
+               end if;
+            end loop;
+         end if;
+         P.Has_Pending_Char := False;
 
          --  See what we have and continue parsing.
          case C is
@@ -201,6 +210,9 @@ package body Util.Serialize.IO.JSON is
                if C1 = '\' then
                   Stream.Read (Char => C1);
                   case C1 is
+                     when '"' | '\' | '/' =>
+                        C := C1;
+
                      when 'b' =>
                         C1 := Ada.Characters.Latin_1.BS;
 
@@ -232,26 +244,39 @@ package body Util.Serialize.IO.JSON is
             return;
 
             --  Number
-         when '0' .. '9' =>
-
-            P.Pos := P.Pos - 1;
-            Parse_Number (P, P.Value);
-            if P.Pos <= P.Last then
-               declare
-                  Decimal_Part : Long_Long_Integer := 0;
-               begin
+         when '-' | '0' .. '9' =>
+            Delete (P.Token, 1, Length (P.Token));
+            Append (P.Token, C);
+            loop
+               Stream.Read (Char => C);
+               exit when C not in '0' .. '9';
+               Append (P.Token, C);
+            end loop;
+            if C = '.' then
+               Append (P.Token, C);
+               loop
                   Stream.Read (Char => C);
-                  if C = '.' then
-                     if P.Pos <= P.Last then
-                        Stream.Read (Char => C);
-                        if C in '0' .. '9' then
-                           Parse_Number (P, Decimal_Part);
-                        end if;
-                     end if;
-                  end if;
-               end;
+                  exit when C not in '0' .. '9';
+                  Append (P.Token, C);
+               end loop;
             end if;
-
+            if C = 'e' or C = 'E' then
+               Append (P.Token, C);
+               Stream.Read (Char => C);
+               if C = '+' or C = '-' then
+                  Append (P.Token, C);
+                  Stream.Read (Char => C);
+               end if;
+               loop
+                  Stream.Read (Char => C);
+                  exit when C not in '0' .. '9';
+                  Append (P.Token, C);
+               end loop;
+            end if;
+            if C /= ' ' and C /= Ada.Characters.Latin_1.HT then
+               P.Has_Pending_Char := True;
+               P.Pending_Char := C;
+            end if;
             Token := T_NUMBER;
             return;
 
@@ -259,12 +284,17 @@ package body Util.Serialize.IO.JSON is
          when 'a' .. 'z' | 'A' .. 'Z' =>
             Delete (P.Token, 1, Length (P.Token));
             Append (P.Token, C);
-            while P.Pos <= P.Last loop
+            loop
                Stream.Read (Char => C);
                exit when not (C in 'a' .. 'z' or C in 'A' .. 'Z'
                               or C in '0' .. '9' or C = '_');
                Append (P.Token, C);
             end loop;
+            --  Putback the last character unless we can ignore it.
+            if C /= ' ' and C /= Ada.Characters.Latin_1.HT then
+               P.Has_Pending_Char := True;
+               P.Pending_Char := C;
+            end if;
 
             --  and empty eq false ge gt le lt ne not null true
             case Element (P.Token, 1) is
@@ -337,7 +367,7 @@ package body Util.Serialize.IO.JSON is
          Num   : Long_Long_Integer;
          C     : Character;
       begin
-         while P.Pos <= P.Last loop
+         loop
             Stream.Read (Char => C);
             exit when C not in '0' .. '9';
             Num := Character'Pos (C) - Character'Pos ('0');
@@ -346,11 +376,8 @@ package body Util.Serialize.IO.JSON is
          Result := Value;
       end Parse_Number;
 
-      Root_Name : constant Unbounded_String := To_Unbounded_String ("");
    begin
---      Util.Serialize.IO.Parser'Class (Parser).Start_Object (Root_Name);
       Parse (Handler);
---      Util.Serialize.IO.Parser'Class (Parser).Finish_Object (Root_Name);
    end Parse;
 
 end Util.Serialize.IO.JSON;

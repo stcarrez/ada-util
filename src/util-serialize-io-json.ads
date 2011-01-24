@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@ package Util.Serialize.IO.JSON is
                     Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class);
 
    --  Report an error while parsing the JSON stream.
-   procedure Error (Handler  : in out Parser;
+   procedure Error (Handler : in out Parser;
                     Message : in String);
 
 private
@@ -36,14 +36,11 @@ private
                        T_STRING, T_NUMBER, T_BOOLEAN, T_UNKNOWN, T_NULL);
 
    type Parser is new Util.Serialize.Io.Parser with record
-      State : Natural;
-      Pos  : Natural;
-      Last : Natural;
-      Token_Start : Natural;
-      Token_End   : Natural;
-      Token : Ada.Strings.Unbounded.Unbounded_String;
-      Value : Long_Long_Integer;
-      Pending_Token : Token_Type := T_EOF;
+      Token            : Ada.Strings.Unbounded.Unbounded_String;
+      Pending_Token    : Token_Type := T_EOF;
+      Line_Number      : Natural  := 1;
+      Has_Pending_Char : Boolean := False;
+      Pending_Char     : Character;
    end record;
 
 end Util.Serialize.IO.JSON;
