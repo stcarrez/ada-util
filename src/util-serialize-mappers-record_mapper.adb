@@ -102,11 +102,40 @@ package body Util.Serialize.Mappers.Record_Mapper is
       Map.Process (Ctx, Set_Member'Access);
    end Execute;
 
-   procedure Set_Context (Ctx : in out Util.Serialize.Contexts.Context'Class;
-                          Data : in Element_Data_Access) is
+   --  -----------------------
+   --  Set the element in the context.
+   --  -----------------------
+   procedure Set_Context (Ctx     : in out Util.Serialize.Contexts.Context'Class;
+                          Element : in Element_Type_Access) is
+      Data_Context : constant Element_Data_Access := new Element_Data;
    begin
-      Ctx.Set_Data (Key => Key, Content => Data.all'Unchecked_Access);
+      Data_Context.Element := Element;
+      Ctx.Set_Data (Key => Key, Content => Data_Context.all'Access);
    end Set_Context;
+
+   --  -----------------------
+   --  Copy the mapping definitions defined by <b>From</b> into the target mapper
+   --  and use the <b>Process</b> procedure to give access to the element.
+   --  -----------------------
+   procedure Copy (Into    : in out Mapper;
+                   From    : in Mapper;
+                   Process : in Process_Object) is
+      Iter : Mapping_Map.Cursor := From.Rules.First;
+   begin
+      while Mapping_Map.Has_Element (Iter) loop
+         declare
+            Path : constant String := Mapping_Map.Key (Iter);
+            E    : constant Mapping_Access := Mapping_Map.Element (Iter);
+            Map  : constant Attribute_Mapping_Access := Attribute_Mapping'Class (E.all)'Access;
+            N    : constant Attribute_Mapping_Access := new Attribute_Mapping;
+         begin
+            N.Index := Map.Index;
+            N.Process := Process;
+            Into.Add_Mapping (Path, N.all'Access);
+         end;
+         Mapping_Map.Next (Iter);
+      end loop;
+   end Copy;
 
 begin
    --  Allocate the unique data key.
