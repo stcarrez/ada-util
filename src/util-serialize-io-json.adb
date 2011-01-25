@@ -125,14 +125,18 @@ package body Util.Serialize.IO.JSON is
                   --
             when T_LEFT_BRACKET =>
                P.Start_Array (Name);
-               loop
-                  Parse_Value (P, "");
-                  Peek (P, Token);
-                  exit when Token = T_RIGHT_BRACKET;
-                  if Token /= T_COMMA then
-                     P.Error ("Missing ']'");
-                  end if;
-               end loop;
+               Peek (P, Token);
+               if Token /= T_RIGHT_BRACKET then
+                  Put_Back (P, Token);
+                  loop
+                     Parse_Value (P, "");
+                     Peek (P, Token);
+                     exit when Token = T_RIGHT_BRACKET;
+                     if Token /= T_COMMA then
+                        P.Error ("Missing ']'");
+                     end if;
+                  end loop;
+               end if;
                P.Finish_Array (Name);
 
             when T_NULL =>
