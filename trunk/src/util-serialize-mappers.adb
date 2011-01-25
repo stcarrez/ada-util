@@ -83,6 +83,21 @@ package body Util.Serialize.Mappers is
       Into.Mapping.Insert (Key => Path, New_Item => Map);
    end Add_Mapping;
 
+   --  -----------------------
+   --  Set the name/value pair on the current object.  For each active mapping,
+   --  find whether a rule matches our name and execute it.
+   --  -----------------------
+   procedure Set_Member (Handler : in Mapper;
+                         Name    : in String;
+                         Value   : in Util.Beans.Objects.Object;
+                         Context : in out Util.Serialize.Contexts.Context'Class) is
+      Map : constant Mapping_Access := Mapper'Class (Handler).Find_Mapping (Name);
+   begin
+      if Map /= null then
+         Map.Execute (Context, Value);
+      end if;
+   end Set_Member;
+
    procedure Start_Object (Handler : in Mapper;
                            Context : in out Util.Serialize.Contexts.Context'Class;
                            Name    : in String) is
