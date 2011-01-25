@@ -62,6 +62,13 @@ package Util.Serialize.Mappers is
                           Path : in String;
                           Map  : in Mapper_Access);
 
+   --  Set the name/value pair on the current object.  For each active mapping,
+   --  find whether a rule matches our name and execute it.
+   procedure Set_Member (Handler : in Mapper;
+                         Name    : in String;
+                         Value   : in Util.Beans.Objects.Object;
+                         Context : in out Util.Serialize.Contexts.Context'Class);
+
    procedure Start_Object (Handler : in Mapper;
                            Context : in out Util.Serialize.Contexts.Context'Class;
                            Name    : in String);

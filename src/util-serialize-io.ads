@@ -33,6 +33,10 @@ package Util.Serialize.IO is
    procedure Parse (Handler : in out Parser;
                     File    : in String);
 
+   --  Parse the content string.
+   procedure Parse_String (Handler : in out Parser;
+                           Content : in String);
+
    --  Start a new object associated with the given name.  This is called when
    --  the '{' is reached.  The reader must be updated so that the next
    --  <b>Set_Member</b> procedure will associate the name/value pair on the

@@ -39,6 +39,17 @@ package body Util.Serialize.IO is
    end Parse;
 
    --  ------------------------------
+   --  Parse the content string.
+   --  ------------------------------
+   procedure Parse_String (Handler : in out Parser;
+                           Content : in String) is
+      Stream : aliased Util.Streams.Buffered.Buffered_Stream;
+   begin
+      Stream.Initialize (Content  => Content);
+      Parser'Class (Handler).Parse (Stream);
+   end Parse_String;
+
+   --  ------------------------------
    --  Push the current context when entering in an element.
    --  ------------------------------
    procedure Push (Handler : in out Parser;
@@ -151,17 +162,11 @@ package body Util.Serialize.IO is
    procedure Set_Member (Handler : in out Parser;
                          Name    : in String;
                          Value   : in Util.Beans.Objects.Object) is
-      use type Util.Serialize.Mappers.Mapping_Access;
       use type Util.Serialize.Mappers.Mapper_Access;
-
-      Map : Util.Serialize.Mappers.Mapping_Access;
    begin
       if Handler.Current /= null and then Handler.Current.Mapper /= null then
-         Map := Handler.Current.Mapper.Find_Mapping (Name);
-         if Map /= null then
-            Map.Execute (Handler, Value);
-         end if;
-      end if;
+         Handler.Current.Mapper.Set_Member (Name => Name, Value => Value, Context => Handler);
+       end if;
    end Set_Member;
 
    --  Report an error while parsing the JSON stream.
