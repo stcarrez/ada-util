@@ -44,6 +44,26 @@ package body Util.Streams.Buffered is
    end Initialize;
 
    --  ------------------------------
+   --  Initialize the stream to read from the string.
+   --  ------------------------------
+   procedure Initialize (Stream  : in out Buffered_Stream;
+                         Content : in String) is
+   begin
+      Free_Buffer (Stream.Buffer);
+      Stream.Last      := Stream_Element_Offset (Content'Length);
+      Stream.Buffer    := new Stream_Element_Array (1 .. Content'Length);
+      Stream.Output    := null;
+      Stream.Input     := null;
+      Stream.Write_Pos := Stream.Last;
+      Stream.Read_Pos  := 1;
+      Stream.No_Flush  := False;
+      for I in Content'Range loop
+         Stream.Buffer (Stream_Element_Offset (I - Content'First + 1))
+           := Character'Pos (Content (I));
+      end loop;
+   end Initialize;
+
+   --  ------------------------------
    --  Initialize the stream with a buffer of <b>Size</b> bytes.
    --  ------------------------------
    procedure Initialize (Stream  : in out Buffered_Stream;

@@ -46,6 +46,10 @@ package Util.Streams.Buffered is
    procedure Initialize (Stream  : in out Buffered_Stream;
                          Size    : in Positive);
 
+   --  Initialize the stream to read from the string.
+   procedure Initialize (Stream  : in out Buffered_Stream;
+                         Content : in String);
+
    --  Get the direct access to the buffer.
    function Get_Buffer (Stream : in Buffered_Stream) return Buffer_Access;
 
