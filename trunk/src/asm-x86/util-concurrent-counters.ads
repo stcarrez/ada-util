@@ -50,20 +50,25 @@ package Util.Concurrent.Counters is
 
    --  Increment the counter atomically.
    procedure Increment (C : in out Counter);
-   pragma Inline (Increment);
+   pragma Inline_Always (Increment);
+
+   --  Increment the counter atomically and return the value before increment.
+   procedure Increment (C     : in out Counter;
+                        Value : out Integer);
+   pragma Inline_Always (Increment);
 
    --  Decrement the counter atomically.
    procedure Decrement (C : in out Counter);
-   pragma Inline (Decrement);
+   pragma Inline_Always (Decrement);
 
    --  Decrement the counter atomically and return a status.
    procedure Decrement (C : in out Counter;
                         Is_Zero : out Boolean);
-   pragma Inline (Decrement);
+   pragma Inline_Always (Decrement);
 
    --  Get the counter value
    function Value (C : in Counter) return Integer;
-   pragma Inline (Value);
+   pragma Inline_Always (Value);
 
    ONE : constant Counter;
 
