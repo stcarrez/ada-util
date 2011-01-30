@@ -17,7 +17,7 @@
 -----------------------------------------------------------------------
 
 with Ada.Unchecked_Deallocation;
-with Util.Concurrent.Locks;
+with Util.Concurrent.Counters;
 package body Util.Serialize.Contexts is
 
    procedure Free is new Ada.Unchecked_Deallocation (Data'Class, Data_Access);
@@ -25,19 +25,16 @@ package body Util.Serialize.Contexts is
    --  ------------------------------
    --  Context data key
    --  ------------------------------
-
-   Lock     : Util.Concurrent.Locks.RW_Lock;
-   Next_Key : Data_Key := 1;
+   Next_Key : Util.Concurrent.Counters.Counter := Util.Concurrent.Counters.ONE;
 
    --  ------------------------------
    --  Allocate a unique data key for a mapper.
    --  ------------------------------
    procedure Allocate (Key : out Data_Key) is
+      Val : Integer;
    begin
-      Lock.Write;
-      Key := Next_Key;
-      Next_Key := Next_Key + 1;
-      Lock.Release_Write;
+      Util.Concurrent.Counters.Increment (Next_Key, Val);
+      Key := Data_Key (Val);
    end Allocate;
 
    function Hash (Key : in Data_Key) return Ada.Containers.Hash_Type is
