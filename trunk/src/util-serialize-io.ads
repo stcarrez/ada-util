@@ -16,12 +16,36 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Beans.Objects;
+with Util.Streams;
 with Util.Streams.Buffered;
 with Util.Serialize.Contexts;
 with Util.Serialize.Mappers;
+with Ada.Containers;
+with Util.Stacks;
 package Util.Serialize.IO is
 
    Parse_Error : exception;
+
+   type Output_Stream is limited interface and Util.Streams.Output_Stream;
+
+   procedure Start_Entity (Stream : in out Output_Stream;
+                           Name   : in String) is null;
+
+   procedure End_Entity (Stream : in out Output_Stream;
+                         Name   : in String) is null;
+
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Util.Beans.Objects.Object) is abstract;
+
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Util.Beans.Objects.Object) is abstract;
+
+   procedure Start_Array (Stream : in out Output_Stream;
+                          Length : in Ada.Containers.Count_Type) is null;
+
+   procedure End_Array (Stream : in out Output_Stream) is null;
 
    type Parser is abstract new Util.Serialize.Contexts.Context with private;
 
@@ -36,6 +60,9 @@ package Util.Serialize.IO is
    --  Parse the content string.
    procedure Parse_String (Handler : in out Parser;
                            Content : in String);
+
+   --  Returns true if the <b>Parse</b> operation detected at least one error.
+   function Has_Error (Handler : in Parser) return Boolean;
 
    --  Start a new object associated with the given name.  This is called when
    --  the '{' is reached.  The reader must be updated so that the next
@@ -84,13 +111,13 @@ private
       Mapper : Util.Serialize.Mappers.Mapper_Access;
    end record;
    type Element_Context_Access is access all Element_Context;
-   type Element_Context_Array is array (Natural range <>) of aliased Element_Context;
-   type Element_Context_Array_Access is access all Element_Context_Array;
+
+   package Context_Stack is new Util.Stacks (Element_Type => Element_Context,
+                                             Element_Type_Access => Element_Context_Access);
 
    type Parser is abstract new Util.Serialize.Contexts.Context with record
-      Current        : Element_Context_Access;
-      Stack          : Element_Context_Array_Access;
-      Stack_Pos      : Natural := 0;
+      Error_Flag     : Boolean := False;
+      Stack          : Context_Stack.Stack;
       Mappers        : Util.Serialize.Mappers.Mapper_Map.Map;
       Current_Mapper : Util.Serialize.Mappers.Mapper_Access;
    end record;
