@@ -36,9 +36,16 @@ package Util.Streams.Texts is
    procedure Write (Stream : in out Print_Stream;
                     Item   : in Integer);
 
+   --  Write an integer on the stream.
+   procedure Write (Stream : in out Print_Stream;
+                    Item   : in Long_Long_Integer);
+
    --  Write a string on the stream.
    procedure Write (Stream : in out Print_Stream;
                     Item   : in Ada.Strings.Unbounded.Unbounded_String);
+
+   --  Get the output stream content as a string.
+   function To_String (Stream : in Print_Stream) return String;
 
 private
 

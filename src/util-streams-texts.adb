@@ -39,6 +39,20 @@ package body Util.Streams.Texts is
    end Write;
 
    --  ------------------------------
+   --  Write an integer on the stream.
+   --  ------------------------------
+   procedure Write (Stream : in out Print_Stream;
+                    Item   : in Long_Long_Integer) is
+      S : constant String := Long_Long_Integer'Image (Item);
+   begin
+      if Item > 0 then
+         Stream.Write (S (S'First + 1 .. S'Last));
+      else
+         Stream.Write (S);
+      end if;
+   end Write;
+
+   --  ------------------------------
    --  Write a string on the stream.
    --  ------------------------------
    procedure Write (Stream : in out Print_Stream;
@@ -46,5 +60,21 @@ package body Util.Streams.Texts is
    begin
       Stream.Write (Ada.Strings.Unbounded.To_String (Item));
    end Write;
+
+   --  ------------------------------
+   --  Get the output stream content as a string.
+   --  ------------------------------
+   function To_String (Stream : in Print_Stream) return String is
+      use Ada.Streams;
+
+      Size   : constant Natural := Stream.Get_Size;
+      Buffer : constant Streams.Buffered.Buffer_Access := Stream.Get_Buffer;
+      Result : String (1 .. Size);
+   begin
+      for I in Result'Range loop
+         Result (I) := Character'Val (Buffer (Stream_Element_Offset (I)));
+      end loop;
+      return Result;
+   end To_String;
 
 end Util.Streams.Texts;
