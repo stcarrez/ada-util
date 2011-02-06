@@ -16,7 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Serialize.Contexts;
-
+with Util.Strings.Transforms;
 package body Util.Serialize.Mappers.Record_Mapper is
 
    Key : Util.Serialize.Contexts.Data_Key;
@@ -85,6 +85,20 @@ package body Util.Serialize.Mappers.Record_Mapper is
       Into.Process := Process;
    end Bind;
 
+   --
+   procedure Bind (Into    : in out Mapper;
+                   Getter  : in Get_Member_Access) is
+   begin
+      Into.Get_Member := Getter;
+   end Bind;
+
+   procedure Set_Member (Map     : in Attribute_Mapping;
+                         Element : in out Element_Type;
+                         Value   : in Util.Beans.Objects.Object) is
+   begin
+      Set_Member (Element, Map.Index, Value);
+   end Set_Member;
+
    --  -----------------------
    --  Execute the rule associated with the mapping.
    --  Set the data member associated with the mapping rule.
@@ -122,6 +136,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
                    Process : in Process_Object) is
       Iter : Mapping_Map.Cursor := From.Rules.First;
    begin
+      Into.Get_Member := From.Get_Member;
       while Mapping_Map.Has_Element (Iter) loop
          declare
             Path : constant String := Mapping_Map.Key (Iter);
@@ -136,6 +151,50 @@ package body Util.Serialize.Mappers.Record_Mapper is
          Mapping_Map.Next (Iter);
       end loop;
    end Copy;
+
+   --  -----------------------
+   --  Build a default mapping based on the <b>Fields</b> enumeration.
+   --  The enumeration name is used for the mapping name with the optional <b>FIELD_</b>
+   --  prefix stripped.
+   --  -----------------------
+   procedure Add_Default_Mapping (Into : in out Mapper) is
+      use Util.Strings.Transforms;
+   begin
+      for Field in Fields'Range loop
+         declare
+            Name : constant String := To_Lower_Case (Fields'Image (Field));
+         begin
+            if Name (Name'First .. Name'First + 5) = "field_" then
+               Into.Add_Mapping (Name (Name'First + 6 .. Name'Last), Field);
+            else
+               Into.Add_Mapping (Name, Field);
+            end if;
+         end;
+      end loop;
+   end Add_Default_Mapping;
+
+   --  -----------------------
+   --  Write the element on the stream using the mapper description.
+   --  -----------------------
+   procedure Write (Handler : in Mapper;
+                    Stream  : in out Util.Serialize.IO.Output_Stream'Class;
+                    Element : in Element_Type) is
+      Iter : Mapping_Map.Cursor := Handler.Rules.First;
+   begin
+      Stream.Start_Entity ("");
+      while Mapping_Map.Has_Element (Iter) loop
+         declare
+            Path : constant String := Mapping_Map.Key (Iter);
+            E    : constant Mapping_Access := Mapping_Map.Element (Iter);
+            Map  : constant Attribute_Mapping_Access := Attribute_Mapping'Class (E.all)'Access;
+            Val  : constant Util.Beans.Objects.Object := Handler.Get_Member (Element, Map.Index);
+         begin
+            Stream.Write_Attribute (Name  => Path, Value => Val);
+         end;
+         Mapping_Map.Next (Iter);
+      end loop;
+      Stream.End_Entity ("");
+   end Write;
 
 begin
    --  Allocate the unique data key.

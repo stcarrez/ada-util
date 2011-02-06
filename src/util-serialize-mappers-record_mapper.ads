@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Beans.Objects;
+with Util.Serialize.IO;
 generic
    type Element_Type is limited private;
    type Element_Type_Access is access all Element_Type;
@@ -23,7 +24,18 @@ generic
    with procedure Set_Member (Into   : in out Element_Type;
                               Field  : in Fields;
                               Value  : in Util.Beans.Objects.Object);
+
+   --  Adding a second function/procedure as generic parameter makes the
+   --  Vector_Mapper generic package fail to instantiate a valid package.
+   --  The failure occurs in Vector_Mapper in the 'with package Element_Mapper' instantiation.
+   --
+--        with function Get_Member (From  : in Element_Type;
+--                                  Field : in Fields) return Util.Beans.Objects.Object;
 package Util.Serialize.Mappers.Record_Mapper is
+
+   type Get_Member_Access is
+     access function (From  : in Element_Type;
+                      Field : in Fields) return Util.Beans.Objects.Object;
 
    --  Procedure to give access to the <b>Element_Type</b> object from the context.
    type Process_Object is not null
@@ -68,6 +80,10 @@ package Util.Serialize.Mappers.Record_Mapper is
    procedure Bind (Into    : in out Mapper;
                    Process : in Process_Object);
 
+   --
+   procedure Bind (Into    : in out Mapper;
+                   Getter  : in Get_Member_Access);
+
    --  Set the element in the context.
    procedure Set_Context (Ctx     : in out Util.Serialize.Contexts.Context'Class;
                           Element : in Element_Type_Access);
@@ -78,6 +94,16 @@ package Util.Serialize.Mappers.Record_Mapper is
                    From    : in Mapper;
                    Process : in Process_Object);
 
+   --  Build a default mapping based on the <b>Fields</b> enumeration.
+   --  The enumeration name is used for the mapping name with the optional <b>FIELD_</b>
+   --  prefix stripped.
+   procedure Add_Default_Mapping (Into : in out Mapper);
+
+   --  Write the element on the stream using the mapper description.
+   procedure Write (Handler : in Mapper;
+                    Stream  : in out Util.Serialize.IO.Output_Stream'Class;
+                    Element : in Element_Type);
+
 private
 
    type Element_Data is new Util.Serialize.Contexts.Data with record
@@ -85,7 +111,8 @@ private
    end record;
 
    type Mapper is new Util.Serialize.Mappers.Mapper with record
-      Process : Process_Object := Execute_Object'Access;
+      Process    : Process_Object := Execute_Object'Access;
+      Get_Member : Get_Member_Access;
    end record;
 
    type Attribute_Mapping is new Mapping with record
