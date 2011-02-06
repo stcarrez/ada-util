@@ -24,6 +24,9 @@ package body Util.Texts.Transforms is
    procedure Put_Dec (Into  : in out Stream;
                       Value : in Code);
 
+   procedure To_Hex (Into  : in out Stream;
+                     Value : in Code);
+
    procedure Put (Into  : in out Stream;
                   Value : in String) is
    begin
@@ -32,7 +35,20 @@ package body Util.Texts.Transforms is
       end loop;
    end Put;
 
-   procedure Put_Hex (Into : in out Stream; Value : Code) is
+   --  ------------------------------
+   --  Write in the output stream the value as a \uNNNN encoding form.
+   --  ------------------------------
+   procedure To_Hex (Into  : in out Stream;
+                     Value : in Char) is
+   begin
+      To_Hex (Into, Code (Char'Pos (Value)));
+   end To_Hex;
+
+   --  ------------------------------
+   --  Write in the output stream the value as a \uNNNN encoding form.
+   --  ------------------------------
+   procedure To_Hex (Into  : in out Stream;
+                     Value : in Code) is
       S          : String (1 .. 6) := (1 => '\', 2 => 'u', others => '0');
       P          : Code := Value;
       N          : Code;
@@ -46,7 +62,7 @@ package body Util.Texts.Transforms is
          I := I - 1;
       end loop;
       Put (Into, S);
-   end Put_Hex;
+   end To_Hex;
 
    procedure Put_Dec (Into  : in out Stream;
                       Value : in Code) is
@@ -207,7 +223,7 @@ package body Util.Texts.Transforms is
                Put (Into, '\');
                Put (Into, 'f');
             else
-               Put_Hex (Into, C);
+               To_Hex (Into, C);
             end if;
 
          elsif C = 16#27# then
@@ -225,7 +241,7 @@ package body Util.Texts.Transforms is
             Put (Into, Character'Val (C));
 
          elsif C > 16#80# then
-            Put_Hex (Into, C);
+            To_Hex (Into, C);
 
          else
             Put (Into, Character'Val (C));
