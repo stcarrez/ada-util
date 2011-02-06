@@ -46,6 +46,8 @@ package body Util.Strings.Tests is
                        Test_To_Upper_Case'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.Transforms.To_Lower_Case",
                        Test_To_Lower_Case'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Transforms.To_Hex",
+                       Test_To_Hex'Access);
       Caller.Add_Test (Suite, "Test Measure",
                        Test_Measure_Copy'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.Index",
@@ -101,6 +103,20 @@ package body Util.Strings.Tests is
    begin
       Assert_Equals (T, "lowercase_0123_str", To_Lower_Case ("LowERCase_0123_STR"));
    end Test_To_Lower_Case;
+
+   procedure Test_To_Hex (T : in out Test) is
+      Result : Unbounded_String;
+   begin
+      To_Hex (Result, Character'Val (23));
+      Assert_Equals (T, "\u0017", Result);
+
+      To_Hex (Result, Character'Val (31));
+      Assert_Equals (T, "\u0017\u001F", Result);
+
+      To_Hex (Result, Character'Val (255));
+      Assert_Equals (T, "\u0017\u001F\u00FF", Result);
+   end Test_To_Hex;
+
    type Ptr is not null access all String;
 
    procedure Test_Measure_Copy (T : in out Test) is

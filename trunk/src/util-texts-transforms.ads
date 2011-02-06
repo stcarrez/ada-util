@@ -46,6 +46,11 @@ package Util.Texts.Transforms is
                             Into    : in out Stream);
    function To_Lower_Case (Content : Input) return Input;
 
+   --  Write in the output stream the value as a \uNNNN encoding form.
+   procedure To_Hex (Into  : in out Stream;
+                     Value : in Char);
+   pragma Inline_Always (To_Hex);
+
    --  Escape the content into the result stream using the JavaScript
    --  escape rules.
    procedure Escape_Java_Script (Content : in Input;
