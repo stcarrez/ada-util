@@ -21,10 +21,6 @@ with Ada.Streams.Stream_IO;
 with Ada.Unchecked_Deallocation;
 package body Util.Serialize.IO is
 
-   procedure Free is
-     new Ada.Unchecked_Deallocation (Element_Context_Array,
-                                     Element_Context_Array_Access);
-
    --  Read the file and parse it using the JSON parser.
    procedure Parse (Handler : in out Parser;
                     File    : in String) is
@@ -50,29 +46,21 @@ package body Util.Serialize.IO is
    end Parse_String;
 
    --  ------------------------------
+   --  Returns true if the <b>Parse</b> operation detected at least one error.
+   --  ------------------------------
+   function Has_Error (Handler : in Parser) return Boolean is
+   begin
+      return Handler.Error_Flag;
+   end Has_Error;
+
+   --  ------------------------------
    --  Push the current context when entering in an element.
    --  ------------------------------
    procedure Push (Handler : in out Parser;
                    Mapper  : in Util.Serialize.Mappers.Mapper_Access) is
    begin
-      if Handler.Stack = null then
-         Handler.Stack := new Element_Context_Array (1 .. 100);
-         Handler.Stack_Pos := Handler.Stack'First;
-      elsif Handler.Stack_Pos = Handler.Stack'Last then
-         declare
-            Old : Element_Context_Array_Access := Handler.Stack;
-         begin
-            Handler.Stack := new Element_Context_Array (1 .. Old'Last + 100);
-            Handler.Stack (1 .. Old'Last) := Old (1 .. Old'Last);
-            Free (Old);
-         end;
-      end if;
-      if Handler.Stack_Pos /= Handler.Stack'First then
-         Handler.Stack (Handler.Stack_Pos + 1) := Handler.Stack (Handler.Stack_Pos);
-      end if;
-      Handler.Stack_Pos := Handler.Stack_Pos + 1;
-      Handler.Current := Handler.Stack (Handler.Stack_Pos)'Access;
-      Handler.Current.Mapper := Mapper;
+      Context_Stack.Push (Handler.Stack);
+      Context_Stack.Current (Handler.Stack).Mapper := Mapper;
    end Push;
 
    --  ------------------------------
@@ -80,8 +68,7 @@ package body Util.Serialize.IO is
    --  ------------------------------
    procedure Pop (Handler  : in out Parser) is
    begin
-      Handler.Stack_Pos := Handler.Stack_Pos - 1;
-      Handler.Current   := Handler.Stack (Handler.Stack_Pos)'Access;
+      Context_Stack.Pop (Handler.Stack);
    end Pop;
 
    function Find_Mapper (Handler : in Parser;
@@ -90,9 +77,10 @@ package body Util.Serialize.IO is
 
       Pos : Util.Serialize.Mappers.Mapper_Map.Cursor;
       Map : Util.Serialize.Mappers.Mapper_Access;
+      Current : Element_Context_Access := Context_Stack.Current (Handler.Stack);
    begin
-      if Handler.Current /= null and then Handler.Current.Mapper /= null then
-         Map := Handler.Current.Mapper.Find_Mapper (Name);
+      if Current /= null and then Current.Mapper /= null then
+         Map := Current.Mapper.Find_Mapper (Name);
          if Map /= null then
             return Map;
          end if;
@@ -115,9 +103,10 @@ package body Util.Serialize.IO is
       use type Util.Serialize.Mappers.Mapper_Access;
 
       Map : Util.Serialize.Mappers.Mapper_Access := Handler.Find_Mapper (Name);
+      Current : Element_Context_Access := Context_Stack.Current (Handler.Stack);
    begin
-      if Handler.Current /= null and then Handler.Current.Mapper /= null then
-         Handler.Current.Mapper.Start_Object (Handler, Name);
+      if Current /= null and then Current.Mapper /= null then
+         Current.Mapper.Start_Object (Handler, Name);
       end if;
       Handler.Push (Map);
 --        for I in Handler.Contexts loop
@@ -137,9 +126,13 @@ package body Util.Serialize.IO is
       use type Util.Serialize.Mappers.Mapper_Access;
    begin
       Handler.Pop;
-      if Handler.Current /= null and then Handler.Current.Mapper /= null then
-         Handler.Current.Mapper.Finish_Object (Handler, Name);
-      end if;
+      declare
+         Current : Element_Context_Access := Context_Stack.Current (Handler.Stack);
+      begin
+         if Current /= null and then Current.Mapper /= null then
+            Current.Mapper.Finish_Object (Handler, Name);
+         end if;
+      end;
    end Finish_Object;
 
    procedure Start_Array (Handler : in out Parser;
@@ -163,9 +156,11 @@ package body Util.Serialize.IO is
                          Name    : in String;
                          Value   : in Util.Beans.Objects.Object) is
       use type Util.Serialize.Mappers.Mapper_Access;
+
+      Current : Element_Context_Access := Context_Stack.Current (Handler.Stack);
    begin
-      if Handler.Current /= null and then Handler.Current.Mapper /= null then
-         Handler.Current.Mapper.Set_Member (Name => Name, Value => Value, Context => Handler);
+      if Current /= null and then Current.Mapper /= null then
+         Current.Mapper.Set_Member (Name => Name, Value => Value, Context => Handler);
        end if;
    end Set_Member;
 
