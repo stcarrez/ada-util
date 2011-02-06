@@ -16,8 +16,35 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Strings.Unbounded;
+with Util.Streams.Texts;
+with Util.Stacks;
 package Util.Serialize.IO.JSON is
 
+
+   type Output_Stream is
+     new Util.Streams.Texts.Print_Stream and Util.Serialize.IO.Output_Stream with private;
+
+   procedure Write_String (Stream : in out Output_Stream;
+                           Value  : in String);
+
+   procedure Start_Entity (Stream : in out Output_Stream;
+                           Name   : in String);
+
+   procedure End_Entity (Stream : in out Output_Stream;
+                         Name   : in String);
+
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Util.Beans.Objects.Object);
+
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Util.Beans.Objects.Object);
+
+   procedure Start_Array (Stream : in out Output_Stream;
+                          Length : in Ada.Containers.Count_Type);
+
+   procedure End_Array (Stream : in out Output_Stream);
 
    type Parser is new Serialize.IO.Parser with private;
 
@@ -30,6 +57,20 @@ package Util.Serialize.IO.JSON is
                     Message : in String);
 
 private
+
+   type Node_Info is record
+      Is_Array   : Boolean := False;
+      Has_Fields : Boolean := False;
+   end record;
+   type Node_Info_Access is access all Node_Info;
+
+   package Node_Info_Stack is new Util.Stacks (Element_Type => Node_Info,
+                                               Element_Type_Access => Node_Info_Access);
+
+   type Output_Stream is
+     new Util.Streams.Texts.Print_Stream and Util.Serialize.IO.Output_Stream with record
+      Stack : Node_Info_Stack.Stack;
+   end record;
 
    type Token_Type is (T_EOF, T_LEFT_BRACE, T_RIGHT_BRACE, T_LEFT_BRACKET,
                        T_RIGHT_BRACKET, T_COLON, T_COMMA, T_TRUE, T_FALSE,

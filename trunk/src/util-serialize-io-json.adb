@@ -20,9 +20,160 @@ with Ada.Characters.Latin_1;
 with Ada.IO_Exceptions;
 
 with Util.Streams;
+with Util.Streams.Buffered;
 package body Util.Serialize.IO.JSON is
 
    use Ada.Strings.Unbounded;
+
+   --  -----------------------
+   --  Write the string as a quoted JSON string
+   --  -----------------------
+   procedure Write_String (Stream : in out Output_Stream;
+                           Value  : in String) is
+   begin
+      Stream.Write ('"');
+      for I in Value'Range loop
+         declare
+            C : constant Character := Value (I);
+         begin
+            if C = '"' then
+               Stream.Write ("\""");
+
+            elsif C = '\'  then
+               Stream.Write ("\\");
+
+            elsif Character'Pos (C) >= 16#20# then
+               Stream.Write (C);
+
+            else
+               case C is
+                  when Ada.Characters.Latin_1.BS =>
+                     Stream.Write ("\b");
+
+                  when Ada.Characters.Latin_1.VT =>
+                     Stream.Write ("\f");
+
+                  when Ada.Characters.Latin_1.LF =>
+                     Stream.Write ("\n");
+
+                  when Ada.Characters.Latin_1.CR =>
+                     Stream.Write ("\r");
+
+                  when Ada.Characters.Latin_1.HT =>
+                     Stream.Write ("\t");
+
+                  when others =>
+                     Util.Streams.Texts.TR.To_Hex (Streams.Buffered.Buffered_Stream (Stream), C);
+
+               end case;
+            end if;
+         end;
+      end loop;
+      Stream.Write ('"');
+   end Write_String;
+
+   --  -----------------------
+   --  Start writing an object identified by the given name
+   --  -----------------------
+   procedure Start_Entity (Stream : in out Output_Stream;
+                           Name   : in String) is
+      Current : access Node_Info := Node_Info_Stack.Current (Stream.Stack);
+   begin
+      if Current /= null then
+         if Current.Has_Fields then
+            Stream.Write (',');
+         else
+            Current.Has_Fields := True;
+         end if;
+      end if;
+      Node_Info_Stack.Push (Stream.Stack);
+      Current := Node_Info_Stack.Current (Stream.Stack);
+      Current.Has_Fields := False;
+
+      if Name'Length > 0 then
+         Stream.Write_String (Name);
+         Stream.Write (':');
+      end if;
+      Stream.Write ('{');
+   end Start_Entity;
+
+   --  -----------------------
+   --  Finish writing an object identified by the given name
+   --  -----------------------
+   procedure End_Entity (Stream : in out Output_Stream;
+                         Name   : in String) is
+   begin
+      Node_Info_Stack.Pop (Stream.Stack);
+      Stream.Write ('}');
+   end End_Entity;
+
+   --  -----------------------
+   --  Write an attribute member from the current object
+   --  -----------------------
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Util.Beans.Objects.Object) is
+      use Util.Beans.Objects;
+
+      Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
+   begin
+      if Current /= null then
+         if Current.Has_Fields then
+            Stream.Write (",");
+         else
+            Current.Has_Fields := True;
+         end if;
+      end if;
+      Stream.Write_String (Name);
+      Stream.Write (':');
+      case Util.Beans.Objects.Get_Type (Value) is
+         when TYPE_NULL =>
+            Stream.Write ("null");
+
+         when TYPE_BOOLEAN =>
+            if Util.Beans.Objects.To_Boolean (Value) then
+               Stream.Write ("true");
+            else
+               Stream.Write ("false");
+            end if;
+
+         when TYPE_INTEGER =>
+            Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
+
+         when others =>
+            Stream.Write_String (Util.Beans.Objects.To_String (Value));
+
+      end case;
+   end Write_Attribute;
+
+   --  -----------------------
+   --  Write an object value as an entity
+   --  -----------------------
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Util.Beans.Objects.Object) is
+   begin
+      Stream.Write_Attribute (Name, Value);
+   end Write_Entity;
+
+   --  -----------------------
+   --  Start an array that will contain the specified number of elements
+   --  -----------------------
+   procedure Start_Array (Stream : in out Output_Stream;
+                          Length : in Ada.Containers.Count_Type) is
+   begin
+      Node_Info_Stack.Push (Stream.Stack);
+      Stream.Write ('[');
+   end Start_Array;
+
+   --  -----------------------
+   --  Finishes an array
+   --  -----------------------
+   procedure End_Array (Stream : in out Output_Stream) is
+   begin
+      Node_Info_Stack.Pop (Stream.Stack);
+      Stream.Write (']');
+   end End_Array;
 
    procedure Error (Handler : in out Parser;
                     Message : in String) is
