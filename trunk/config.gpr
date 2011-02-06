@@ -26,7 +26,7 @@ project Config is
 
          when "optimize" =>
             for Default_Switches ("Ada") use warnings
-               & ("-O2", "-gnatN", "-gnatp");
+               & ("-O2", "-gnatN", "-gnatp", "-fdata-sections", "-ffunction-sections");
 
          when "profile" =>
             for Default_Switches ("Ada") use warnings & ("-pg");
@@ -50,6 +50,10 @@ project Config is
 
          when "distrib" =>
             for Default_Switches ("Ada") use ("-s");
+
+         when "optimize" =>
+            for Default_Switches ("Ada") use ("--gc-sections");
+	 
 	 when others =>
 	    null;
       end case;
