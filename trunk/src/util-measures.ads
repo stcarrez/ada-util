@@ -16,8 +16,8 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Text_IO;
-private with Ada.Calendar;
-private with Ada.Containers;
+with Ada.Calendar;
+with Ada.Containers;
 
 --  The <b>Measures</b> package defines utility types and functions to make
 --  performance measurements in an Ada application.  It is designed to be used
