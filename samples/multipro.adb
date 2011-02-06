@@ -28,7 +28,7 @@ procedure Multipro is
    Log  : constant Loggers.Logger := Loggers.Create ("multipro");
 
    --  Target counter value we would like.
-   Max_Counter       : constant Integer := 1_000_000;
+   Max_Counter       : constant Integer := 10_000_000;
 
    --  Max number of tasks for executing the concurrent increment.
    Max_Tasks         : constant Integer := 16;
