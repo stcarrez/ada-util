@@ -17,6 +17,8 @@
 -----------------------------------------------------------------------
 with Ada.Strings.Unbounded;
 with Util.Streams.Buffered;
+with Util.Texts.Transforms;
+with Ada.Characters.Handling;
 package Util.Streams.Texts is
 
    pragma Preelaborate;
@@ -45,7 +47,17 @@ package Util.Streams.Texts is
                     Item   : in Ada.Strings.Unbounded.Unbounded_String);
 
    --  Get the output stream content as a string.
-   function To_String (Stream : in Print_Stream) return String;
+   function To_String (Stream : in Buffered.Buffered_Stream) return String;
+
+
+   package TR is
+     new Util.Texts.Transforms (Stream => Buffered.Buffered_Stream,
+                                Char   => Character,
+                                Input  => String,
+                                Put    => Buffered.Write,
+                                To_Upper => Ada.Characters.Handling.To_Upper,
+                                To_Lower => Ada.Characters.Handling.To_Lower,
+                                To_Input => To_String);
 
 private
 
