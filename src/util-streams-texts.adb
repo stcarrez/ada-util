@@ -64,7 +64,7 @@ package body Util.Streams.Texts is
    --  ------------------------------
    --  Get the output stream content as a string.
    --  ------------------------------
-   function To_String (Stream : in Print_Stream) return String is
+   function To_String (Stream : in Buffered.Buffered_Stream) return String is
       use Ada.Streams;
 
       Size   : constant Natural := Stream.Get_Size;
