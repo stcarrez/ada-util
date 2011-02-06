@@ -156,6 +156,22 @@ package body Util.Serialize.Mappers.Vector_Mapper is
       null;
    end Finish_Object;
 
+   --  -----------------------
+   --  Write the element on the stream using the mapper description.
+   --  -----------------------
+   procedure Write (Handler : in Mapper;
+                    Stream  : in out Util.Serialize.IO.Output_Stream'Class;
+                    Element : in Vectors.Vector) is
+      Pos : Vectors.Cursor := Element.First;
+   begin
+      Stream.Start_Array (Element.Length);
+      while Vectors.Has_Element (Pos) loop
+         Handler.Map.Write (Stream, Vectors.Element (Pos));
+         Vectors.Next (Pos);
+      end loop;
+      Stream.End_Array;
+   end Write;
+
 begin
    --  Allocate the unique data key.
    Util.Serialize.Contexts.Allocate (Key);
