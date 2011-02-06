@@ -21,8 +21,11 @@ with Ada.Command_Line;
 with Util.Serialize.IO.JSON;
 with Ada.Containers;
 with Mapping;
+with Util.Streams.Texts;
+with Util.Streams.Buffered;
 procedure Json is
 
+   use Util.Streams.Buffered;
    use Ada.Strings.Unbounded;
    use type Mapping.Person_Access;
    use type Ada.Containers.Count_Type;
@@ -71,6 +74,26 @@ begin
          if List.Length = 0 then
             Print (P);
          end if;
+
+         declare
+            Output : Util.Serialize.IO.JSON.Output_Stream;
+         begin
+            Output.Initialize (Size => 10000);
+            Mapping.Get_Person_Mapper.Write (Output, P);
+            Ada.Text_IO.Put_Line ("Person: " & Util.Streams.Texts.To_String (Buffered_Stream (Output)));
+         end;
+
+         declare
+            Output : Util.Serialize.IO.JSON.Output_Stream;
+         begin
+            Output.Initialize (Size => 10000);
+            Output.Write ("{""list"":");
+            Mapping.Get_Person_Vector_Mapper.Write (Output, List);
+            Output.Write ("}");
+
+            Ada.Text_IO.Put_Line ("IO:");
+            Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Buffered_Stream (Output)));
+         end;
       end;
    end loop;
 end Json;

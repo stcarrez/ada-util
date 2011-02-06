@@ -49,6 +49,9 @@ package Mapping is
                          Field : in Person_Fields;
                          Value : in Util.Beans.Objects.Object);
 
+   function Get_Person_Member (From  : in Person;
+                               Field : in Person_Fields) return Util.Beans.Objects.Object;
+
    package Person_Mapper is
      new Util.Serialize.Mappers.Record_Mapper (Element_Type        => Person,
                                                Element_Type_Access => Person_Access,
