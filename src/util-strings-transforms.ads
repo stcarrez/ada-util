@@ -55,6 +55,10 @@ package Util.Strings.Transforms is
    function To_Lower_Case (Content : String) return String
                            renames TR.To_Lower_Case;
 
+   --  Write in the output stream the value as a \uNNNN encoding form.
+   procedure To_Hex (Into  : in out Unbounded_String;
+                     Value : in Character) renames TR.To_Hex;
+
    --  Escape the content into the result stream using the JavaScript
    --  escape rules.
    procedure Escape_Javascript (Content : in String;
