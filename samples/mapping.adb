@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Serialize.Contexts;
+with Util.Beans.Objects;
 package body Mapping is
 
    use Util.Beans.Objects;
@@ -39,6 +40,25 @@ package body Mapping is
 
       end case;
    end Set_Member;
+
+   --  ------------------------------
+   --  Set the name/value pair on the current object.
+   --  ------------------------------
+   function Get_Person_Member (From  : in Person;
+                               Field : in Person_Fields) return Util.Beans.Objects.Object is
+   begin
+      case Field is
+         when FIELD_FIRST_NAME =>
+            return Util.Beans.Objects.To_Object (From.First_Name);
+
+         when FIELD_LAST_NAME =>
+            return Util.Beans.Objects.To_Object (From.Last_Name);
+
+         when FIELD_AGE =>
+            return Util.Beans.Objects.To_Object (From.Age);
+
+      end case;
+   end Get_Person_Member;
 
    type Address_Fields is (FIELD_CITY, FIELD_STREET, FIELD_COUNTRY, FIELD_ZIP);
    type Address_Access is access all Address;
@@ -65,6 +85,25 @@ package body Mapping is
 
       end case;
    end Set_Member;
+
+   function Get_Member (Addr  : in Address;
+                        Field : in Address_Fields) return Util.Beans.Objects.Object is
+   begin
+      case Field is
+         when FIELD_CITY =>
+            return Util.Beans.Objects.To_Object (Addr.City);
+
+         when FIELD_STREET =>
+            return Util.Beans.Objects.To_Object (Addr.Street);
+
+         when FIELD_COUNTRY =>
+            return Util.Beans.Objects.To_Object (Addr.Country);
+
+         when FIELD_ZIP =>
+            return Util.Beans.Objects.To_Object (Addr.Zip);
+
+      end case;
+   end Get_Member;
 
    package Address_Mapper is
      new Util.Serialize.Mappers.Record_Mapper (Element_Type        => Address,
@@ -121,11 +160,11 @@ package body Mapping is
    --  ------------------------------
    --  Helper to give access to the <b>Address</b> member of a <b>Person</b>.
    --  ------------------------------
-   procedure Proxy_Person_Address (Element : in out Person;
-                                   Process : not null access procedure (Item : in out Address)) is
-   begin
-      Process (Element.Addr);
-   end Proxy_Person_Address;
+--     procedure Proxy_Person_Address (Element : in out Person;
+--                                     Process : not null access procedure (Item : in out Address)) is
+--     begin
+--        Process (Element.Addr);
+--     end Proxy_Person_Address;
 
 begin
    --  XML:                                JSON:
@@ -135,10 +174,8 @@ begin
    --  <country>France</country>           "country" : "France"
    --  <zip>75</zip>                       "zip" : 75
    Address_Mapping.Bind (Person_Address'Access);
-   Address_Mapping.Add_Mapping ("city", FIELD_CITY);
-   Address_Mapping.Add_Mapping ("street", FIELD_STREET);
-   Address_Mapping.Add_Mapping ("country", FIELD_COUNTRY);
-   Address_Mapping.Add_Mapping ("zip", FIELD_ZIP);
+   Address_Mapping.Bind (Get_Member'Access);
+   Address_Mapping.Add_Default_Mapping;
 
    --  XML:
    --  ----
@@ -155,10 +192,10 @@ begin
    --     <info><facebook><id>...</id></facebook></info>
    --  </xxx>
    --  Person_Mapper.Add_Mapping ("@id");
+   Person_Mapping.Bind (Get_Person_Member'Access);
    Person_Mapping.Add_Mapping ("address", Address_Mapping'Access);
    Person_Mapping.Add_Mapping ("name", FIELD_FIRST_NAME);
-   Person_Mapping.Add_Mapping ("last_name", FIELD_LAST_NAME);
-   Person_Mapping.Add_Mapping ("age", FIELD_AGE);
+   Person_Mapping.Add_Default_Mapping;
   --   Person_Mapper.Add_Mapping ("info/*");
    --  Person_Mapper.Add_Mapping ("address/street/@number");
 
