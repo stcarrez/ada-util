@@ -71,9 +71,12 @@ package body Util.Streams.Buffered is
    begin
       Stream.Initialize (Output => null, Input => null, Size => Size);
       Stream.No_Flush := True;
+      Stream.Read_Pos := 1;
    end Initialize;
 
+   --  ------------------------------
    --  Get the direct access to the buffer.
+   --  ------------------------------
    function Get_Buffer (Stream : in Buffered_Stream) return Buffer_Access is
    begin
       return Stream.Buffer;
