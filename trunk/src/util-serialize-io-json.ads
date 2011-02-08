@@ -20,30 +20,48 @@ with Util.Streams.Texts;
 with Util.Stacks;
 package Util.Serialize.IO.JSON is
 
-
+   --  ------------------------------
+   --  JSON Output Stream
+   --  ------------------------------
+   --  The <b>Output_Stream</b> provides methods for creating a JSON output stream.
+   --  The stream object takes care of the JSON escape rules.
    type Output_Stream is
      new Util.Streams.Texts.Print_Stream and Util.Serialize.IO.Output_Stream with private;
 
+   --  Write the value as a JSON string.  Special characters are escaped using the JSON
+   --  escape rules.
    procedure Write_String (Stream : in out Output_Stream;
                            Value  : in String);
 
+   --  Start a new JSON object.  If the name is not empty, write it as a string
+   --  followed by the ':' (colon).  The JSON object starts with '{' (curly brace).
+   --  Example:   "list": {
    procedure Start_Entity (Stream : in out Output_Stream;
                            Name   : in String);
 
+   --  Terminates the current JSON object.
    procedure End_Entity (Stream : in out Output_Stream;
                          Name   : in String);
 
+   --  Write a JSON name/value pair.  The value is written according to its type
+   --  Example:  "name": null
+   --            "name": false
+   --            "name": 12
+   --            "name": "value"
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object);
 
+   --  Write a JSON name/value pair (see Write_Attribute).
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object);
 
+   --  Starts a JSON array.
    procedure Start_Array (Stream : in out Output_Stream;
                           Length : in Ada.Containers.Count_Type);
 
+   --  Terminates a JSON array.
    procedure End_Array (Stream : in out Output_Stream);
 
    type Parser is new Serialize.IO.Parser with private;
