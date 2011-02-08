@@ -26,6 +26,12 @@ package Util.Serialize.IO is
 
    Parse_Error : exception;
 
+   --  ------------------------------
+   --  Output stream for serialization
+   --  ------------------------------
+   --  The <b>Output_Stream</b> interface defines the abstract operations for
+   --  the serialization framework to write objects on the stream according to
+   --  a target format such as XML or JSON.
    type Output_Stream is limited interface and Util.Streams.Output_Stream;
 
    procedure Start_Entity (Stream : in out Output_Stream;
