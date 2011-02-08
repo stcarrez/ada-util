@@ -20,24 +20,15 @@ with Ada.Containers.Vectors;
 with Util.Serialize.Contexts;
 with Util.Serialize.Mappers.Record_Mapper;
 with Util.Serialize.IO;
-with Util.Beans.Objects;
 generic
 
    --  Package that represents the vectors of elements.
    with package Vectors is
      new Ada.Containers.Vectors (<>);
---     type Fields is (<>);
---     with function Get_Member (From  : in Vectors.Element_Type;
---                               Field : in Fields) return Util.Beans.Objects.Object;
---     with procedure Set_Member (Into   : in out Vectors.Element_Type;
---                                Field  : in Fields;
---                                Value  : in Util.Beans.Objects.Object);
 
    --  Package that maps the element into a record.
    with package Element_Mapper is
      new Record_Mapper (Element_Type => Vectors.Element_Type,
---                          Get_Member => Get_Member,
---                          Set_Member => Set_Member,
                         others => <>);
 
 package Util.Serialize.Mappers.Vector_Mapper is
