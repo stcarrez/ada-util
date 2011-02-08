@@ -102,6 +102,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    procedure End_Entity (Stream : in out Output_Stream;
                          Name   : in String) is
+      pragma Unreferenced (Name);
    begin
       Node_Info_Stack.Pop (Stream.Stack);
       Stream.Write ('}');
@@ -161,6 +162,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    procedure Start_Array (Stream : in out Output_Stream;
                           Length : in Ada.Containers.Count_Type) is
+      pragma Unreferenced (Length);
    begin
       Node_Info_Stack.Push (Stream.Stack);
       Stream.Write ('[');
@@ -191,10 +193,6 @@ package body Util.Serialize.IO.JSON is
       --  Parse the expression buffer to find the next token.
       procedure Peek (P     : in out Parser'Class;
                       Token : out Token_Type);
-
-      --  Parse a number
-      procedure Parse_Number (P      : in out Parser'Class;
-                              Result : out Long_Long_Integer);
 
       --  Parse a list of members
       --  members ::= pair | pair ',' members
@@ -387,7 +385,8 @@ package body Util.Serialize.IO.JSON is
                         null;
 
                      when others =>
-                        null;
+                        P.Error ("Invalid character '" & C1 & "' in \x sequence");
+
                   end case;
                elsif C1 = C then
                   Token := T_STRING;
@@ -511,25 +510,6 @@ package body Util.Serialize.IO.JSON is
             Token := T_EOF;
             return;
       end Peek;
-
-
-      --  ------------------------------
-      --  Parse a number
-      --  ------------------------------
-      procedure Parse_Number (P      : in out Parser'Class;
-                              Result : out Long_Long_Integer) is
-         Value : Long_Long_Integer := 0;
-         Num   : Long_Long_Integer;
-         C     : Character;
-      begin
-         loop
-            Stream.Read (Char => C);
-            exit when C not in '0' .. '9';
-            Num := Character'Pos (C) - Character'Pos ('0');
-            Value := Value * 10 + Num;
-         end loop;
-         Result := Value;
-      end Parse_Number;
 
    begin
       Parse (Handler);
