@@ -114,7 +114,11 @@ private
                          Name    : in String) return Util.Serialize.Mappers.Mapper_Access;
 
    type Element_Context is record
-      Mapper : Util.Serialize.Mappers.Mapper_Access;
+      --  The object mapper being process.
+      Object_Mapper :Util.Serialize.Mappers.Mapper_Access;
+
+      --  The current inner mapper within the object mapper.
+      Mapper        : Util.Serialize.Mappers.Mapper_Access;
    end record;
    type Element_Context_Access is access all Element_Context;
 

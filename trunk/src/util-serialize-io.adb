@@ -58,9 +58,17 @@ package body Util.Serialize.IO is
    --  ------------------------------
    procedure Push (Handler : in out Parser;
                    Mapper  : in Util.Serialize.Mappers.Mapper_Access) is
+      use type Util.Serialize.Mappers.Mapper_Access;
    begin
       Context_Stack.Push (Handler.Stack);
-      Context_Stack.Current (Handler.Stack).Mapper := Mapper;
+      declare
+         Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
+      begin
+         Current.Mapper := Mapper;
+         if Current.Object_Mapper = null then
+            Current.Object_Mapper := Mapper;
+         end if;
+      end;
    end Push;
 
    --  ------------------------------
@@ -155,12 +163,18 @@ package body Util.Serialize.IO is
    procedure Set_Member (Handler : in out Parser;
                          Name    : in String;
                          Value   : in Util.Beans.Objects.Object) is
-      use type Util.Serialize.Mappers.Mapper_Access;
+      use Util.Serialize.Mappers;
 
       Current : Element_Context_Access := Context_Stack.Current (Handler.Stack);
    begin
       if Current /= null and then Current.Mapper /= null then
-         Current.Mapper.Set_Member (Name => Name, Value => Value, Context => Handler);
+         declare
+            Map : constant Mapping_Access := Current.Mapper.Find_Mapping (Name);
+         begin
+            if Map /= null then
+               Current.Mapper.Execute (Map.all, Handler, Value);
+            end if;
+         end;
        end if;
    end Set_Member;
 

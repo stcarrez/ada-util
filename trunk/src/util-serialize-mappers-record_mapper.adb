@@ -39,32 +39,6 @@ package body Util.Serialize.Mappers.Record_Mapper is
    end Set_Element;
 
    --  -----------------------
-   --  Execute the process procedure on the object stored in the current data context.
-   --  Raises No_Data if the context does not hold such data.
-   --  -----------------------
-   procedure Execute_Object (Ctx     : in out Util.Serialize.Contexts.Context'Class;
-                             Attr    : in Mapping'Class;
-                             Value   : in Util.Beans.Objects.Object;
-                             Process : not null
-                             access procedure (Attr  : in Mapping'Class;
-                                               Item  : in out Element_Type;
-                                               Value : in Util.Beans.Objects.Object)) is
-      D : constant Contexts.Data_Access := Ctx.Get_Data (Key);
-   begin
-      if not (D.all in Element_Data'Class) then
-         raise Util.Serialize.Contexts.No_Data;
-      end if;
-      declare
-         DE : constant Element_Data_Access := Element_Data'Class (D.all)'Access;
-      begin
-         if DE.Element = null then
-            raise Util.Serialize.Contexts.No_Data;
-         end if;
---           Process (Attr, DE.Element.all, Value);
-      end;
-   end Execute_Object;
-
-   --  -----------------------
    --  Execute the mapping operation on the object associated with the current context.
    --  The object is extracted from the context and the <b>Execute</b> operation is called.
    --  -----------------------
@@ -98,13 +72,17 @@ package body Util.Serialize.Mappers.Record_Mapper is
       Map : constant Attribute_Mapping_Access := new Attribute_Mapping;
    begin
       Map.Index   := Field;
---        Map.Process := Into.Process;
       Into.Add_Mapping (Path, Map.all'Access);
    end Add_Mapping;
 
-   procedure Add_Mapping (Into : in out Mapper;
-                          Path : in String;
-                          Map  : in Util.Serialize.Mappers.Mapper_Access;
+   --  -----------------------
+   --  Add a mapping associated with the path and described by a mapper object.
+   --  The <b>Proxy</b> procedure is in charge of giving access to the target
+   --  object used by the <b>Map</b> mapper.
+   --  -----------------------
+   procedure Add_Mapping (Into  : in out Mapper;
+                          Path  : in String;
+                          Map   : in Util.Serialize.Mappers.Mapper_Access;
                           Proxy : in Proxy_Object) is
      M : Proxy_Mapper_Access := new Proxy_Mapper;
    begin
@@ -112,18 +90,6 @@ package body Util.Serialize.Mappers.Record_Mapper is
       M.Execute := Proxy;
       Into.Mapping.Insert (Key => Path, New_Item => M.all'Access);
    end Add_Mapping;
-
-   --  -----------------------
-   --  Bind the mapper with the given process procedure.  The <b>Process</b> procedure is
-   --  invoked to obtain the target element onto which the <b>Set_Member</b> procedure is called.
-   --  The default process procedures obtains the target object from the data context.
-   --  -----------------------
-   procedure Bind (Into    : in out Mapper;
-                   Process : in Process_Object) is
-   begin
-      --        Into.Process := Process;
-      null;
-   end Bind;
 
    --
    procedure Bind (Into    : in out Mapper;
@@ -152,37 +118,6 @@ package body Util.Serialize.Mappers.Record_Mapper is
       end if;
       Attribute_Mapping (Attr).Set_Member (Element, Value);
    end Set_Member;
-
-   --  -----------------------
-   --  Execute the rule associated with the mapping.
-   --  Set the data member associated with the mapping rule.
-   --  -----------------------
-   procedure Execute (Map   : in Attribute_Mapping;
-                      Ctx   : in out Util.Serialize.Contexts.Context'Class;
-                      Value : in Util.Beans.Objects.Object) is
---
---        procedure Set_Member (P : in out Element_Type) is
---        begin
---           Set_Member (P, Map.Index, Value);
---        end Set_Member;
-
-   begin
-      --        Map.Process (Ctx, Map, Value);
-      null;
-   end Execute;
-
---     procedure Execute (Map   : in Proxy_Attribute_Mapping;
---                        Ctx   : in out Util.Serialize.Contexts.Context'Class;
---                        Value : in Util.Beans.Objects.Object) is
---        procedure Set_Member (P : in out Element_Type) is
---        begin
---           Map.Proxy_Set_Member (Map.Map.all, P, Value);
---        end Set_Member;
-
---     begin
-      --        Map.Process (Ctx, Map.Map.all, Value);
---        null;
---     end Execute;
 
    --  -----------------------
    --  Set the element in the context.
@@ -229,7 +164,6 @@ package body Util.Serialize.Mappers.Record_Mapper is
             N    : constant Attribute_Mapping_Access := new Attribute_Mapping;
          begin
             N.Index := Map.Index;
---              N.Process := Process;
             Into.Add_Mapping (Path, N.all'Access);
          end;
          Mapping_Map.Next (Iter);

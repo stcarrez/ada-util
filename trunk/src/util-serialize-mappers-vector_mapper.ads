@@ -61,15 +61,6 @@ package Util.Serialize.Mappers.Vector_Mapper is
                          Vector : in Vector_Type_Access);
 
    --  -----------------------
-   --  Execute the process procedure on the object stored in the current data context.
-   --  Give access to the current vector element to the <b>Process</b> procedure.
-   --  Raises No_Data if the context does not hold such data.
-   --  -----------------------
-   procedure Execute_Object (Ctx     : in out Util.Serialize.Contexts.Context'Class;
-                             Process : not null
-                             access procedure (Item : in out Element_Type));
-
-   --  -----------------------
    --  Record mapper
    --  -----------------------
    type Mapper is new Util.Serialize.Mappers.Mapper with private;
@@ -88,7 +79,7 @@ package Util.Serialize.Mappers.Vector_Mapper is
 
    procedure Set_Mapping (Into  : in out Mapper;
                           Path  : in String;
-                          Inner : in Element_Mapper.Mapper);
+                          Inner : in Element_Mapper.Mapper_Access);
 
    --  Find the mapper associated with the given name.
    --  Returns null if there is no mapper.
