@@ -33,11 +33,6 @@ package Util.Serialize.Mappers is
    type Mapping is abstract tagged limited private;
    type Mapping_Access is access all Mapping'Class;
 
-   --  Execute the rule associated with the mapping.
-   procedure Execute (Map     : in Mapping;
-                      Context : in out Util.Serialize.Contexts.Context'Class;
-                      Value   : in Util.Beans.Objects.Object) is abstract;
-
    --  ------------------------------
    --  Mapper
    --  ------------------------------

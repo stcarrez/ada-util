@@ -44,30 +44,6 @@ package body Util.Serialize.Mappers.Vector_Mapper is
       Data.Vector := Vector;
    end Set_Vector;
 
-   --  -----------------------
-   --  Execute the process procedure on the object stored in the current data context.
-   --  Give access to the current vector element to the <b>Process</b> procedure.
-   --  Raises No_Data if the context does not hold such data.
-   --  -----------------------
-   procedure Execute_Object (Ctx     : in out Util.Serialize.Contexts.Context'Class;
-                             Process : not null
-                             access procedure (Item : in out Element_Type)) is
-      D : constant Contexts.Data_Access := Ctx.Get_Data (Key);
-   begin
-      if not (D.all in Vector_Data'Class) then
-         raise Util.Serialize.Contexts.No_Data;
-      end if;
-      declare
-         DE : constant Vector_Data_Access := Vector_Data'Class (D.all)'Access;
-      begin
-         if DE.Vector = null then
-            raise Util.Serialize.Contexts.No_Data;
-         end if;
-         --  Update the element through the generic procedure
-         Update_Element (DE.Vector.all, DE.Position - 1, Process);
-      end;
-   end Execute_Object;
-
    procedure Start_Array (Ctx : in out Util.Serialize.Contexts.Context'Class) is
       D : constant Contexts.Data_Access := Ctx.Get_Data (Key);
    begin
@@ -103,14 +79,33 @@ package body Util.Serialize.Mappers.Vector_Mapper is
                       Map     : in Mapping'Class;
                       Ctx     : in out Util.Serialize.Contexts.Context'Class;
                       Value   : in Util.Beans.Objects.Object) is
+
+      procedure Process (Element : in out Element_Type) is
+      begin
+         Element_Mapper.Set_Member (Map, Element, Value);
+      end Process;
+
+      D : constant Contexts.Data_Access := Ctx.Get_Data (Key);
    begin
-      null;
+      if not (D.all in Vector_Data'Class) then
+         raise Util.Serialize.Contexts.No_Data;
+      end if;
+      declare
+         DE : constant Vector_Data_Access := Vector_Data'Class (D.all)'Access;
+      begin
+         if DE.Vector = null then
+            raise Util.Serialize.Contexts.No_Data;
+         end if;
+         --  Update the element through the generic procedure
+         Update_Element (DE.Vector.all, DE.Position - 1, Process'Access);
+      end;
    end Execute;
 
    procedure Set_Mapping (Into  : in out Mapper;
                           Path  : in String;
-                          Inner : in Element_Mapper.Mapper) is
+                          Inner : in Element_Mapper.Mapper_Access) is
    begin
+      Into.Add_Mapping (Path, Inner.all'Access);
       null; -- Element_Mapper.Copy (Into.Map, Inner, Execute_Object'Access);
    end Set_Mapping;
 
