@@ -87,7 +87,8 @@ package body Util.Serialize.Mappers.Record_Mapper is
      M : Proxy_Mapper_Access := new Proxy_Mapper;
    begin
       M.Mapper  := Map;
-      M.Execute := Proxy;
+      M.Execute := Execute'Access;
+      M.Is_Proxy_Mapper := True;
       Into.Mapping.Insert (Key => Path, New_Item => M.all'Access);
    end Add_Mapping;
 
@@ -134,10 +135,10 @@ package body Util.Serialize.Mappers.Record_Mapper is
    --  Find the mapper associated with the given name.
    --  Returns null if there is no mapper.
    --  -----------------------
+   overriding
    function Find_Mapping (Controller : in Proxy_Mapper;
                           Name       : in String) return Mapping_Access is
       Result : Mapping_Access := Controller.Mapper.Find_Mapping (Name);
-      Pos : constant Mapping_Map.Cursor := Controller.Rules.Find (Key => Name);
    begin
       if Result /= null then
          return Result;
@@ -145,6 +146,22 @@ package body Util.Serialize.Mappers.Record_Mapper is
          return Util.Serialize.Mappers.Mapper (Controller).Find_Mapping (Name);
       end if;
    end Find_Mapping;
+
+   --  -----------------------
+   --  Find the mapper associated with the given name.
+   --  Returns null if there is no mapper.
+   --  -----------------------
+   overriding
+   function Find_Mapper (Controller : in Proxy_Mapper;
+                         Name       : in String) return Util.Serialize.Mappers.Mapper_Access is
+      Result : Util.Serialize.Mappers.Mapper_Access := Controller.Mapper.Find_Mapper (Name);
+   begin
+      if Result /= null then
+         return Result;
+      else
+         return Util.Serialize.Mappers.Mapper (Controller).Find_Mapper (Name);
+      end if;
+   end Find_Mapper;
 
    --  -----------------------
    --  Copy the mapping definitions defined by <b>From</b> into the target mapper

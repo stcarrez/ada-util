@@ -92,6 +92,8 @@ package Util.Serialize.Mappers is
                          Name       : in String) return Mapper_Access;
 
 
+   function Is_Proxy (Controller : in Mapper) return Boolean;
+
    package Mapper_Map is new Ada.Containers.Indefinite_Hashed_Maps
      (Key_Type        => String,
       Element_Type    => Mapper_Access,
@@ -125,6 +127,7 @@ private
    type Mapper is abstract new Ada.Finalization.Limited_Controlled with record
       Mapping : Mapper_Map.Map;
       Rules   : Mapping_Map.Map;
+      Is_Proxy_Mapper : Boolean := false;
    end record;
 
    --  Finalize the object and release any mapping.

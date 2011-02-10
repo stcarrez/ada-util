@@ -46,7 +46,6 @@ package Util.Serialize.Mappers.Record_Mapper is
                      access procedure (Attr  : in Mapping'Class;
                                        Item  : in out Element_Type;
                                        Value : in Util.Beans.Objects.Object));
---                       Process : not null access procedure (Item : in out Element_Type));
 
    type Proxy_Object is not null
    access procedure (Attr    : in Mapping'Class;
@@ -138,7 +137,6 @@ private
 
    type Mapper is new Util.Serialize.Mappers.Mapper with record
       Execute    : Proxy_Object := Set_Member'Access;
-      --  Process    : Process_Object := Execute_Object'Access;
       Get_Member : Get_Member_Access;
    end record;
 
@@ -161,5 +159,11 @@ private
    overriding
    function Find_Mapping (Controller : in Proxy_Mapper;
                           Name       : in String) return Util.Serialize.Mappers.Mapping_Access;
+
+   --  Find the mapper associated with the given name.
+   --  Returns null if there is no mapper.
+   overriding
+   function Find_Mapper (Controller : in Proxy_Mapper;
+                         Name       : in String) return Util.Serialize.Mappers.Mapper_Access;
 
 end Util.Serialize.Mappers.Record_Mapper;
