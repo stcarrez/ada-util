@@ -147,15 +147,21 @@ package body Mapping is
    --  ------------------------------
    --  Helper to give access to the <b>Address</b> member of a <b>Person</b>.
    --  ------------------------------
-   procedure Person_Address (Ctx     : in out Util.Serialize.Contexts.Context'Class;
-                             Process : not null access procedure (Item : in out Address)) is
-      procedure Process_Person (P : in out Person) is
-      begin
-         Process (P.Addr);
-      end Process_Person;
+
+   procedure Proxy_Info (Attr : in Util.Serialize.Mappers.Mapping'Class;
+                         Element : in out Address;
+                         Value   : in Util.Beans.Objects.Object) is
    begin
-      Person_Mapper.Execute_Object (Ctx, Process_Person'Access);
-   end Person_Address;
+      --        Info_Mapper.Set_Member (Attr, Element.Info, Value);
+      null;
+   end Proxy_Info;
+
+   procedure Proxy_Address (Attr    : in Util.Serialize.Mappers.Mapping'Class;
+                            Element : in out Person;
+                            Value   : in Util.Beans.Objects.Object) is
+   begin
+      Address_Mapper.Set_Member (Attr, Element.Addr, Value);
+   end Proxy_Address;
 
    --  ------------------------------
    --  Helper to give access to the <b>Address</b> member of a <b>Person</b>.
@@ -173,8 +179,8 @@ begin
    --  <street>Champs de Mars</street>     "street" : "Champs de Mars"
    --  <country>France</country>           "country" : "France"
    --  <zip>75</zip>                       "zip" : 75
-   Address_Mapping.Bind (Person_Address'Access);
    Address_Mapping.Bind (Get_Member'Access);
+--     Address_Mapping.Add_Mapping ("info", Info_Mapping, Proxy_Info'Access);
    Address_Mapping.Add_Default_Mapping;
 
    --  XML:
@@ -193,7 +199,7 @@ begin
    --  </xxx>
    --  Person_Mapper.Add_Mapping ("@id");
    Person_Mapping.Bind (Get_Person_Member'Access);
-   Person_Mapping.Add_Mapping ("address", Address_Mapping'Access);
+   Person_Mapping.Add_Mapping ("address", Address_Mapping'Access, Proxy_Address'Access);
    Person_Mapping.Add_Mapping ("name", FIELD_FIRST_NAME);
    Person_Mapping.Add_Default_Mapping;
   --   Person_Mapper.Add_Mapping ("info/*");
