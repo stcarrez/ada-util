@@ -65,7 +65,7 @@ package body Util.Serialize.IO is
          Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
       begin
          Current.Mapper := Mapper;
-         if Current.Object_Mapper = null then
+         if Current.Object_Mapper = null or else (Mapper /= null and then Mapper.Is_Proxy) then
             Current.Object_Mapper := Mapper;
          end if;
       end;
@@ -172,7 +172,7 @@ package body Util.Serialize.IO is
             Map : constant Mapping_Access := Current.Mapper.Find_Mapping (Name);
          begin
             if Map /= null then
-               Current.Mapper.Execute (Map.all, Handler, Value);
+               Current.Object_Mapper.Execute (Map.all, Handler, Value);
             end if;
          end;
        end if;

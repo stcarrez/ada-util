@@ -101,11 +101,46 @@ package body Util.Serialize.Mappers.Vector_Mapper is
       end;
    end Execute;
 
+   --  -----------------------
+   --  Find the mapper associated with the given name.
+   --  Returns null if there is no mapper.
+   --  -----------------------
+   overriding
+   function Find_Mapping (Controller : in Proxy_Mapper;
+                          Name       : in String) return Mapping_Access is
+      Result : Mapping_Access := Controller.Mapper.Find_Mapping (Name);
+   begin
+      if Result /= null then
+         return Result;
+      else
+         return Util.Serialize.Mappers.Mapper (Controller).Find_Mapping (Name);
+      end if;
+   end Find_Mapping;
+
+   --  Find the mapper associated with the given name.
+   --  Returns null if there is no mapper.
+   overriding
+   function Find_Mapper (Controller : in Proxy_Mapper;
+                         Name       : in String) return Util.Serialize.Mappers.Mapper_Access is
+      Result : Util.Serialize.Mappers.Mapper_Access := Controller.Mapper.Find_Mapper (Name);
+   begin
+      if Result /= null then
+         return Result;
+      else
+         return Util.Serialize.Mappers.Mapper (Controller).Find_Mapper (Name);
+      end if;
+   end Find_Mapper;
+
    procedure Set_Mapping (Into  : in out Mapper;
                           Path  : in String;
                           Inner : in Element_Mapper.Mapper_Access) is
+      M : Proxy_Mapper_Access := new Proxy_Mapper;
    begin
-      Into.Add_Mapping (Path, Inner.all'Access);
+      M.Mapper  := Inner.all'Access;
+--        M.Execute := Proxy;
+      M.Is_Proxy_Mapper := True;
+      --        Into.Add_Mapping (Path, M.all'Access);
+      Into.Element_Map := M.all'Access;
       null; -- Element_Mapper.Copy (Into.Map, Inner, Execute_Object'Access);
    end Set_Mapping;
 

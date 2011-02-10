@@ -56,6 +56,11 @@ package body Util.Serialize.Mappers is
       end if;
    end Find_Mapping;
 
+   function Is_Proxy (Controller : in Mapper) return Boolean is
+   begin
+      return Controller.Is_Proxy_Mapper;
+   end Is_Proxy;
+
    --  Find the mapper associated with the given name.
    --  Returns null if there is no mapper.
    function Find_Mapper (Controller : in Mapper;
