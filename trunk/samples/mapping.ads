@@ -26,11 +26,17 @@ package Mapping is
 
    use Ada.Strings.Unbounded;
 
+   type Property is record
+      Name     : Unbounded_String;
+      Value    : Unbounded_String;
+   end record;
+
    type Address is record
       City      : Unbounded_String;
       Street    : Unbounded_String;
       Country   : Unbounded_String;
       Zip       : Natural;
+      Info      : Property;
    end record;
 
    type Person is record

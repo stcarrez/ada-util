@@ -21,6 +21,42 @@ package body Mapping is
 
    use Util.Beans.Objects;
 
+   type Property_Fields is (FIELD_NAME, FIELD_VALUE);
+   type Property_Access is access all Property;
+
+   procedure Set_Member (P : in out Property;
+                         Field : in Property_Fields;
+                         Value : in Util.Beans.Objects.Object) is
+   begin
+      case Field is
+         when FIELD_NAME =>
+            P.Name := To_Unbounded_String (Value);
+
+         when FIELD_VALUE =>
+            P.Value := To_Unbounded_String (Value);
+
+      end case;
+   end Set_Member;
+
+   function Get_Member (P : in Property;
+                        Field : in Property_Fields) return Util.Beans.Objects.Object is
+   begin
+      case Field is
+         when FIELD_NAME =>
+            return To_Object (P.Name);
+
+         when FIELD_VALUE =>
+            return To_Object (P.Value);
+
+      end case;
+   end Get_Member;
+
+   package Property_Mapper is
+     new Util.Serialize.Mappers.Record_Mapper (Element_Type        => Property,
+                                               Element_Type_Access => Property_Access,
+                                               Fields              => Property_Fields,
+                                               Set_Member          => Set_Member);
+
    --  ------------------------------
    --  Set the name/value pair on the current object.
    --  ------------------------------
@@ -111,6 +147,9 @@ package body Mapping is
                                                Fields              => Address_Fields,
                                                Set_Member          => Set_Member);
 
+   --  Mapping for the Property record.
+   Property_Mapping      : aliased Property_Mapper.Mapper;
+
    --  Mapping for the Address record.
    Address_Mapping       : aliased Address_Mapper.Mapper;
 
@@ -147,13 +186,11 @@ package body Mapping is
    --  ------------------------------
    --  Helper to give access to the <b>Address</b> member of a <b>Person</b>.
    --  ------------------------------
-
-   procedure Proxy_Info (Attr : in Util.Serialize.Mappers.Mapping'Class;
+   procedure Proxy_Info (Attr    : in Util.Serialize.Mappers.Mapping'Class;
                          Element : in out Address;
                          Value   : in Util.Beans.Objects.Object) is
    begin
-      --        Info_Mapper.Set_Member (Attr, Element.Info, Value);
-      null;
+      Property_Mapper.Set_Member (Attr, Element.Info, Value);
    end Proxy_Info;
 
    procedure Proxy_Address (Attr    : in Util.Serialize.Mappers.Mapping'Class;
@@ -163,16 +200,9 @@ package body Mapping is
       Address_Mapper.Set_Member (Attr, Element.Addr, Value);
    end Proxy_Address;
 
-   --  ------------------------------
-   --  Helper to give access to the <b>Address</b> member of a <b>Person</b>.
-   --  ------------------------------
---     procedure Proxy_Person_Address (Element : in out Person;
---                                     Process : not null access procedure (Item : in out Address)) is
---     begin
---        Process (Element.Addr);
---     end Proxy_Person_Address;
-
 begin
+   Property_Mapping.Add_Default_Mapping;
+
    --  XML:                                JSON:
    --  ----                                -----
    --  <city>Paris</city>                  "city" : "Paris"
@@ -180,7 +210,7 @@ begin
    --  <country>France</country>           "country" : "France"
    --  <zip>75</zip>                       "zip" : 75
    Address_Mapping.Bind (Get_Member'Access);
---     Address_Mapping.Add_Mapping ("info", Info_Mapping, Proxy_Info'Access);
+   Address_Mapping.Add_Mapping ("info", Property_Mapping'Access, Proxy_Info'Access);
    Address_Mapping.Add_Default_Mapping;
 
    --  XML:
@@ -205,5 +235,5 @@ begin
   --   Person_Mapper.Add_Mapping ("info/*");
    --  Person_Mapper.Add_Mapping ("address/street/@number");
 
-   Person_Vector_Mapping.Set_Mapping ("person", Person_Mapping);
+   Person_Vector_Mapping.Set_Mapping ("person", Person_Mapping'Access);
 end Mapping;

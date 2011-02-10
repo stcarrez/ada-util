@@ -43,6 +43,8 @@ procedure Json is
       Ada.Text_IO.Put_Line ("City       : " & To_String (P.Addr.City));
       Ada.Text_IO.Put_Line ("Zip        : " & Natural'Image (P.Addr.Zip));
       Ada.Text_IO.Put_Line ("Country    : " & To_String (P.Addr.Country));
+      Ada.Text_IO.Put_Line ("Info       : " & To_String (P.Addr.Info.Name)
+                            & "=" & To_String (P.Addr.Info.Value));
    end Print;
 
    procedure Print (P : in Mapping.Person_Vector.Cursor) is
