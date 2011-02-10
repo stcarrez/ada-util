@@ -43,7 +43,12 @@ package body Util.Serialize.Mappers.Record_Mapper is
    --  Raises No_Data if the context does not hold such data.
    --  -----------------------
    procedure Execute_Object (Ctx     : in out Util.Serialize.Contexts.Context'Class;
-                             Process : not null access procedure (Item : in out Element_Type)) is
+                             Attr    : in Mapping'Class;
+                             Value   : in Util.Beans.Objects.Object;
+                             Process : not null
+                             access procedure (Attr  : in Mapping'Class;
+                                               Item  : in out Element_Type;
+                                               Value : in Util.Beans.Objects.Object)) is
       D : constant Contexts.Data_Access := Ctx.Get_Data (Key);
    begin
       if not (D.all in Element_Data'Class) then
@@ -55,9 +60,32 @@ package body Util.Serialize.Mappers.Record_Mapper is
          if DE.Element = null then
             raise Util.Serialize.Contexts.No_Data;
          end if;
-         Process (DE.Element.all);
+--           Process (Attr, DE.Element.all, Value);
       end;
    end Execute_Object;
+
+   --  -----------------------
+   --  Execute the mapping operation on the object associated with the current context.
+   --  The object is extracted from the context and the <b>Execute</b> operation is called.
+   --  -----------------------
+   procedure Execute (Handler : in Mapper;
+                      Map     : in Mapping'Class;
+                      Ctx     : in out Util.Serialize.Contexts.Context'Class;
+                      Value   : in Util.Beans.Objects.Object) is
+      D : constant Contexts.Data_Access := Ctx.Get_Data (Key);
+   begin
+      if not (D.all in Element_Data'Class) then
+         raise Util.Serialize.Contexts.No_Data;
+      end if;
+      declare
+         DE : constant Element_Data_Access := Element_Data'Class (D.all)'Access;
+      begin
+         if DE.Element = null then
+            raise Util.Serialize.Contexts.No_Data;
+         end if;
+         Handler.Execute (Map, DE.Element.all, Value);
+      end;
+   end Execute;
 
    --  -----------------------
    --  Add a mapping for setting a member.  When the attribute rule defined by <b>Path</b>
@@ -70,8 +98,19 @@ package body Util.Serialize.Mappers.Record_Mapper is
       Map : constant Attribute_Mapping_Access := new Attribute_Mapping;
    begin
       Map.Index   := Field;
-      Map.Process := Into.Process;
+--        Map.Process := Into.Process;
       Into.Add_Mapping (Path, Map.all'Access);
+   end Add_Mapping;
+
+   procedure Add_Mapping (Into : in out Mapper;
+                          Path : in String;
+                          Map  : in Util.Serialize.Mappers.Mapper_Access;
+                          Proxy : in Proxy_Object) is
+     M : Proxy_Mapper_Access := new Proxy_Mapper;
+   begin
+      M.Mapper  := Map;
+      M.Execute := Proxy;
+      Into.Mapping.Insert (Key => Path, New_Item => M.all'Access);
    end Add_Mapping;
 
    --  -----------------------
@@ -82,7 +121,8 @@ package body Util.Serialize.Mappers.Record_Mapper is
    procedure Bind (Into    : in out Mapper;
                    Process : in Process_Object) is
    begin
-      Into.Process := Process;
+      --        Into.Process := Process;
+      null;
    end Bind;
 
    --
@@ -92,11 +132,25 @@ package body Util.Serialize.Mappers.Record_Mapper is
       Into.Get_Member := Getter;
    end Bind;
 
-   procedure Set_Member (Map     : in Attribute_Mapping;
+   procedure Set_Member (Attr    : in Attribute_Mapping;
                          Element : in out Element_Type;
                          Value   : in Util.Beans.Objects.Object) is
    begin
-      Set_Member (Element, Map.Index, Value);
+      Set_Member (Element, Attr.Index, Value);
+   end Set_Member;
+
+   --  -----------------------
+   --  Set the attribute member described by the <b>Attr</b> mapping
+   --  into the value passed in <b>Element</b>.
+   --  -----------------------
+   procedure Set_Member (Attr    : in Mapping'Class;
+                         Element : in out Element_Type;
+                         Value   : in Util.Beans.Objects.Object) is
+   begin
+      if not (Attr in Attribute_Mapping) then
+         raise Mapping_Error;
+      end if;
+      Attribute_Mapping (Attr).Set_Member (Element, Value);
    end Set_Member;
 
    --  -----------------------
@@ -106,15 +160,29 @@ package body Util.Serialize.Mappers.Record_Mapper is
    procedure Execute (Map   : in Attribute_Mapping;
                       Ctx   : in out Util.Serialize.Contexts.Context'Class;
                       Value : in Util.Beans.Objects.Object) is
-
-      procedure Set_Member (P : in out Element_Type) is
-      begin
-         Set_Member (P, Map.Index, Value);
-      end Set_Member;
+--
+--        procedure Set_Member (P : in out Element_Type) is
+--        begin
+--           Set_Member (P, Map.Index, Value);
+--        end Set_Member;
 
    begin
-      Map.Process (Ctx, Set_Member'Access);
+      --        Map.Process (Ctx, Map, Value);
+      null;
    end Execute;
+
+--     procedure Execute (Map   : in Proxy_Attribute_Mapping;
+--                        Ctx   : in out Util.Serialize.Contexts.Context'Class;
+--                        Value : in Util.Beans.Objects.Object) is
+--        procedure Set_Member (P : in out Element_Type) is
+--        begin
+--           Map.Proxy_Set_Member (Map.Map.all, P, Value);
+--        end Set_Member;
+
+--     begin
+      --        Map.Process (Ctx, Map.Map.all, Value);
+--        null;
+--     end Execute;
 
    --  -----------------------
    --  Set the element in the context.
@@ -126,6 +194,22 @@ package body Util.Serialize.Mappers.Record_Mapper is
       Data_Context.Element := Element;
       Ctx.Set_Data (Key => Key, Content => Data_Context.all'Access);
    end Set_Context;
+
+   --  -----------------------
+   --  Find the mapper associated with the given name.
+   --  Returns null if there is no mapper.
+   --  -----------------------
+   function Find_Mapping (Controller : in Proxy_Mapper;
+                          Name       : in String) return Mapping_Access is
+      Result : Mapping_Access := Controller.Mapper.Find_Mapping (Name);
+      Pos : constant Mapping_Map.Cursor := Controller.Rules.Find (Key => Name);
+   begin
+      if Result /= null then
+         return Result;
+      else
+         return Util.Serialize.Mappers.Mapper (Controller).Find_Mapping (Name);
+      end if;
+   end Find_Mapping;
 
    --  -----------------------
    --  Copy the mapping definitions defined by <b>From</b> into the target mapper
@@ -145,7 +229,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
             N    : constant Attribute_Mapping_Access := new Attribute_Mapping;
          begin
             N.Index := Map.Index;
-            N.Process := Process;
+--              N.Process := Process;
             Into.Add_Mapping (Path, N.all'Access);
          end;
          Mapping_Map.Next (Iter);

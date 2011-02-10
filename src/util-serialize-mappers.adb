@@ -94,7 +94,7 @@ package body Util.Serialize.Mappers is
       Map : constant Mapping_Access := Mapper'Class (Handler).Find_Mapping (Name);
    begin
       if Map /= null then
-         Map.Execute (Context, Value);
+         Mapper'Class (Handler).Execute (Map.all, Context, Value);
       end if;
    end Set_Member;
 
