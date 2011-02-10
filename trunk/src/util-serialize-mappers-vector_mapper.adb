@@ -97,11 +97,21 @@ package body Util.Serialize.Mappers.Vector_Mapper is
       Ctx.Set_Data (Key => Key, Content => Data_Context.all'Access);
    end Set_Context;
 
+   --  Execute the mapping operation on the object associated with the current context.
+   --  The object is extracted from the context and the <b>Execute</b> operation is called.
+   procedure Execute (Handler : in Mapper;
+                      Map     : in Mapping'Class;
+                      Ctx     : in out Util.Serialize.Contexts.Context'Class;
+                      Value   : in Util.Beans.Objects.Object) is
+   begin
+      null;
+   end Execute;
+
    procedure Set_Mapping (Into  : in out Mapper;
                           Path  : in String;
                           Inner : in Element_Mapper.Mapper) is
    begin
-      Element_Mapper.Copy (Into.Map, Inner, Execute_Object'Access);
+      null; -- Element_Mapper.Copy (Into.Map, Inner, Execute_Object'Access);
    end Set_Mapping;
 
    --  -----------------------

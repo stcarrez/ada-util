@@ -75,6 +75,13 @@ package Util.Serialize.Mappers.Vector_Mapper is
    type Mapper is new Util.Serialize.Mappers.Mapper with private;
    type Mapper_Access is access all Mapper'Class;
 
+   --  Execute the mapping operation on the object associated with the current context.
+   --  The object is extracted from the context and the <b>Execute</b> operation is called.
+   procedure Execute (Handler : in Mapper;
+                      Map     : in Mapping'Class;
+                      Ctx     : in out Util.Serialize.Contexts.Context'Class;
+                      Value   : in Util.Beans.Objects.Object);
+
    --  Set the <b>Data</b> vector in the context.
    procedure Set_Context (Ctx  : in out Util.Serialize.Contexts.Context'Class;
                           Data : in Vector_Type_Access);

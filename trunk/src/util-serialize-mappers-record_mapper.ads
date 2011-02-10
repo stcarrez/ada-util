@@ -40,7 +40,24 @@ package Util.Serialize.Mappers.Record_Mapper is
    --  Procedure to give access to the <b>Element_Type</b> object from the context.
    type Process_Object is not null
    access procedure (Ctx     : in out Util.Serialize.Contexts.Context'Class;
-                     Process : not null access procedure (Item : in out Element_Type));
+                     Attr    : in Mapping'Class;
+                     Value   : in Util.Beans.Objects.Object;
+                     Process : not null
+                     access procedure (Attr  : in Mapping'Class;
+                                       Item  : in out Element_Type;
+                                       Value : in Util.Beans.Objects.Object));
+--                       Process : not null access procedure (Item : in out Element_Type));
+
+   type Proxy_Object is not null
+   access procedure (Attr    : in Mapping'Class;
+                     Element : in out Element_Type;
+                     Value   : Util.Beans.Objects.Object);
+
+   --  Set the attribute member described by the <b>Attr</b> mapping
+   --  into the value passed in <b>Element</b>.
+   procedure Set_Member (Attr    : in Mapping'Class;
+                         Element : in out Element_Type;
+                         Value   : in Util.Beans.Objects.Object);
 
    --  -----------------------
    --  Data context
@@ -59,13 +76,30 @@ package Util.Serialize.Mappers.Record_Mapper is
    --  Execute the process procedure on the object stored in the current data context.
    --  Raises No_Data if the context does not hold such data.
    procedure Execute_Object (Ctx     : in out Util.Serialize.Contexts.Context'Class;
-                             Process : not null access procedure (Item : in out Element_Type));
+                             Attr    : in Mapping'Class;
+                             Value   : in Util.Beans.Objects.Object;
+                             Process : not null
+                             access procedure (Attr  : in Mapping'Class;
+                                               Item  : in out Element_Type;
+                                               Value : in Util.Beans.Objects.Object));
 
    --  -----------------------
    --  Record mapper
    --  -----------------------
    type Mapper is new Util.Serialize.Mappers.Mapper with private;
    type Mapper_Access is access all Mapper'Class;
+--
+--     procedure Execute (Handler : in Mapper;
+--                        Map     : in Mapping'Class;
+--                        Item    : in out Element_Type;
+--                        Value   : in Util.Beans.Objects.Object);
+
+   --  Execute the mapping operation on the object associated with the current context.
+   --  The object is extracted from the context and the <b>Execute</b> operation is called.
+   procedure Execute (Handler : in Mapper;
+                      Map     : in Mapping'Class;
+                      Ctx     : in out Util.Serialize.Contexts.Context'Class;
+                      Value   : in Util.Beans.Objects.Object);
 
    --  Add a mapping for setting a member.  When the attribute rule defined by <b>Path</b>
    --  is matched, the <b>Set_Member</b> procedure will be called with the value and the
@@ -73,6 +107,11 @@ package Util.Serialize.Mappers.Record_Mapper is
    procedure Add_Mapping (Into  : in out Mapper;
                           Path  : in String;
                           Field : in Fields);
+
+   procedure Add_Mapping (Into : in out Mapper;
+                          Path : in String;
+                          Map  : in Util.Serialize.Mappers.Mapper_Access;
+                          Proxy : in Proxy_Object);
 
    --  Bind the mapper with the given process procedure.  The <b>Process</b> procedure is
    --  invoked to obtain the target element onto which the <b>Set_Member</b> procedure is called.
@@ -111,18 +150,35 @@ private
    end record;
 
    type Mapper is new Util.Serialize.Mappers.Mapper with record
-      Process    : Process_Object := Execute_Object'Access;
+      Execute    : Proxy_Object := Set_Member'Access;
+      --  Process    : Process_Object := Execute_Object'Access;
       Get_Member : Get_Member_Access;
    end record;
 
    type Attribute_Mapping is new Mapping with record
       Index   : Fields;
-      Process : Process_Object := Execute_Object'Access;
+      --  Process : Process_Object := Execute_Object'Access;
    end record;
    type Attribute_Mapping_Access is access all Attribute_Mapping'Class;
 
    procedure Execute (Map   : in Attribute_Mapping;
                       Ctx   : in out Util.Serialize.Contexts.Context'Class;
                       Value : in Util.Beans.Objects.Object);
+
+   procedure Set_Member (Attr    : in Attribute_Mapping;
+                         Element : in out Element_Type;
+                         Value   : in Util.Beans.Objects.Object);
+
+   type Proxy_Mapper is new Mapper with record
+      Mapper  : Util.Serialize.Mappers.Mapper_Access;
+   end record;
+   type Proxy_Mapper_Access is access all Proxy_Mapper'Class;
+
+   --  Find the mapper associated with the given name.
+   --  Returns null if there is no mapper.
+   --  -----------------------
+   overriding
+   function Find_Mapping (Controller : in Proxy_Mapper;
+                          Name       : in String) return Util.Serialize.Mappers.Mapping_Access;
 
 end Util.Serialize.Mappers.Record_Mapper;

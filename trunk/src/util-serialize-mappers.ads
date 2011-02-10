@@ -23,6 +23,8 @@ with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Finalization;
 package Util.Serialize.Mappers is
 
+   Mapping_Error : exception;
+
    --  ------------------------------
    --  Mapping node
    --  ------------------------------
@@ -41,6 +43,13 @@ package Util.Serialize.Mappers is
    --  ------------------------------
    type Mapper is abstract new Ada.Finalization.Limited_Controlled with private;
    type Mapper_Access is access all Mapper'Class;
+
+   --  Execute the mapping operation on the object associated with the current context.
+   --  The object is extracted from the context and the <b>Execute</b> operation is called.
+   procedure Execute (Handler : in Mapper;
+                      Map     : in Mapping'Class;
+                      Ctx     : in out Util.Serialize.Contexts.Context'Class;
+                      Value   : in Util.Beans.Objects.Object) is abstract;
 
    --  Bind the name and the handler in the current mapper.
    procedure Add_Member (Controller : in out Mapper;
@@ -126,5 +135,10 @@ private
    --  Finalize the object and release any mapping.
    overriding
    procedure Finalize (Controller : in out Mapper);
+--
+--     type Proxy_Mapper is abstract new Mapper with record
+--        Mapper : Mapper_Access;
+--     end record;
+--     type Proxy_Mapper_Access is access all Proxy_Mapper'Class;
 
 end Util.Serialize.Mappers;
