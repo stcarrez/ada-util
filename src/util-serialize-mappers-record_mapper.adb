@@ -87,7 +87,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
      M : Proxy_Mapper_Access := new Proxy_Mapper;
    begin
       M.Mapper  := Map;
-      M.Execute := Execute'Access;
+      M.Execute := Proxy;
       M.Is_Proxy_Mapper := True;
       Into.Mapping.Insert (Key => Path, New_Item => M.all'Access);
    end Add_Mapping;
