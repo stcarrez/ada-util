@@ -95,7 +95,8 @@ package body Util.Texts.Transforms is
             Upper := False;
          else
             C := Char'Pos (To_Lower (Content (I)));
-            if C = Character'Pos ('_') then
+            if C = Character'Pos ('_') or C = Character'Pos ('.') or C = Character'Pos (':')
+              or C = Character'Pos (';') or C = Character'Pos (',') or C = Character'Pos (' ') then
                Upper := True;
             end if;
          end if;
