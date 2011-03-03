@@ -23,6 +23,7 @@ with Ada.Strings.Hash;
 with Ada.Calendar;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Unchecked_Deallocation;
+with Ada.IO_Exceptions;
 package body Util.Log.Loggers is
 
    use Util;
@@ -138,6 +139,18 @@ package body Util.Log.Loggers is
          Close (F);
 
          Initialize_Again;
+
+      exception
+         when Ada.IO_Exceptions.Name_Error =>
+            declare
+               Event : Util.Log.Appenders.Log_Event;
+            begin
+               Event.Time    := Ada.Calendar.Clock;
+               Event.Level   := WARN_LEVEL;
+               Event.Message := Format ("Log configuration file {0} not found", Name, "", "");
+               Event.Logger  := Ada.Strings.Unbounded.To_Unbounded_String ("Init");
+               Manager.Default_Appender.Append (Event);
+            end;
       end Initialize;
 
       --  ------------------------------
@@ -415,6 +428,17 @@ package body Util.Log.Loggers is
       Print (Log, DEBUG_LEVEL, Message, Arg1, Arg2, Arg3);
    end Debug;
 
+   procedure Debug (Log     : in Logger'Class;
+                    Message : in String;
+                    Arg1    : in Unbounded_String;
+                    Arg2    : in String := "";
+                    Arg3    : in String := "") is
+   begin
+      if Log.Instance.Level >= DEBUG_LEVEL then
+         Print (Log, DEBUG_LEVEL, Message, To_String (Arg1), Arg2, Arg3);
+      end if;
+   end Debug;
+
    procedure Info (Log     : in Logger'Class;
                    Message : in String;
                    Arg1    : in String := "";
@@ -480,7 +504,7 @@ package body Util.Log.Loggers is
    --  ------------------------------
    procedure Finalize (Log : in out Logger) is
    begin
-      Log.info ("Finalize logger {0}", To_String (Log.Name));
+      Log.Debug ("Finalize logger {0}", Log.Name);
       if Log.Instance.Appender /= null then
          Log.Instance.Appender.Flush;
       end if;

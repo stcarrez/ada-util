@@ -63,6 +63,12 @@ package Util.Log.Loggers is
                     Arg2    : in String := "";
                     Arg3    : in String := "");
 
+   procedure Debug (Log     : in Logger'Class;
+                    Message : in String;
+                    Arg1    : in Unbounded_String;
+                    Arg2    : in String := "";
+                    Arg3    : in String := "");
+
    procedure Info (Log     : in Logger'Class;
                    Message : in String;
                    Arg1    : in String := "";
