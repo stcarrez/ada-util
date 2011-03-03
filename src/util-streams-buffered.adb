@@ -217,14 +217,13 @@ package body Util.Streams.Buffered is
    --  ------------------------------
    procedure Fill (Stream : in out Buffered_Stream) is
    begin
-      --  if Stream.Write_Pos > 1 then
-         if Stream.Input = null then
-            raise Ada.IO_Exceptions.Data_Error with "Input buffer is empty";
-         else
+      if Stream.Input = null then
+         Stream.Eof := True;
+      else
          Stream.Input.Read (Stream.Buffer (1 .. Stream.Last - 1), Stream.Write_Pos);
+         Stream.Eof := Stream.Write_Pos < 1;
          Stream.Read_Pos := 1;
-         end if;
-      --  end if;
+      end if;
    end Fill;
 
    --  ------------------------------
@@ -235,6 +234,9 @@ package body Util.Streams.Buffered is
    begin
       if Stream.Read_Pos > Stream.Write_Pos then
          Stream.Fill;
+         if Stream.Eof then
+            raise Ada.IO_Exceptions.Data_Error with "End of buffer";
+         end if;
       end if;
       Char := Character'Val (Stream.Buffer (Stream.Read_Pos));
       Stream.Read_Pos := Stream.Read_Pos + 1;
@@ -294,9 +296,11 @@ package body Util.Streams.Buffered is
       Avail := Stream.Write_Pos - Pos;
       if Avail = 0 then
          Stream.Fill;
-         Pos := Stream.Read_Pos;
+         if Stream.Eof then
+            return;
+         end if;
+         Pos   := Stream.Read_Pos;
          Avail := Stream.Write_Pos - Pos;
-         return;
       end if;
       for I in 1 .. Avail loop
          Ada.Strings.Unbounded.Append (Into, Character'Val (Stream.Buffer (Pos)));

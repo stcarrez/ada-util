@@ -119,6 +119,9 @@ private
       Input       : Input_Stream_Access := null;
 
       No_Flush    : Boolean := False;
+
+      --  Reached end of file when reading.
+      Eof         : Boolean := False;
    end record;
 
    --  Flush the stream and release the buffer.
