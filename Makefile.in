@@ -44,6 +44,10 @@ analyze:
 # Clean, then build executables for all mains defined by the project.
 rebuild: clean build
 
+# Update src/util.ads with the latest SVN revision number.
+version:
+	gnatprep `svn info | grep '^[UR][eR][Lv]' | sed -e 's,URL: \(.*\),-DURL="\1",' -e 's,Revision: ,-DREVISION=,'` \
+		  src/util.gpb src/util.ads
 
 # Files to package in source distribution
 DISTFILES=README LICENSE.txt NOTICE.txt CHANGES config.guess configure config.sub \
