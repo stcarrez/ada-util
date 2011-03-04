@@ -16,9 +16,9 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Text_IO;
-with Ada.Strings.Fixed;
 with Ada.Containers;
 with Ada.Strings;
+with Ada.Strings.Fixed;
 with Ada.Strings.Hash;
 with Ada.Calendar;
 with Ada.Containers.Indefinite_Hashed_Maps;
@@ -65,20 +65,25 @@ package body Util.Log.Loggers is
 
       --  Find the appender to be used for the given logger.
       --  Create the appender if necessary.
-      procedure Find_Appender (Name     : in String;
+      procedure Find_Appender (Property : in String;
                                Appender : out Appender_Access);
+
+      --  Obtain an appender given its name.  If the appender does not exist, it is created.
+      procedure Build_Appender (Name     : in String;
+                                Appender : out Appender_Access);
+
+      procedure Delete_Appenders;
 
       Config           : Properties.Manager;
       Appenders        : Appender_Maps.Map;
-      Default_Appender : Log.Appenders.Appender_Access;
+      Default_Level    : Level_Type := INFO_LEVEL;
+      Default_Appender : Log.Appenders.Appender_Access := null;
       First_Logger     : Logger_Info_Access := null;
    end Log_Manager;
 
    Manager : Log_Manager;
 
    function Get_Appender (Value : in String) return String;
-
-   function Get_Level (Value : in String) return Level_Type;
 
    function Format (Message : in String;
                     Arg1    : in String;
@@ -102,7 +107,7 @@ package body Util.Log.Loggers is
                                              Ada.Strings.Backward);
          begin
             if Pos <= Name'First then
-               return "INFO";
+               return "";
             else
                return Get_Logger_Property (Properties, Name (Name'First .. Pos - 1));
             end if;
@@ -133,7 +138,6 @@ package body Util.Log.Loggers is
       procedure Initialize (Name : in String) is
          F : File_Type;
       begin
-         Manager.Default_Appender := new Log.Appenders.Console_Appender;
          Open (F, In_File, Name);
          Properties.Load_Properties (Config, F);
          Close (F);
@@ -149,7 +153,7 @@ package body Util.Log.Loggers is
                Event.Level   := WARN_LEVEL;
                Event.Message := Format ("Log configuration file {0} not found", Name, "", "");
                Event.Logger  := Ada.Strings.Unbounded.To_Unbounded_String ("Init");
-               Manager.Default_Appender.Append (Event);
+               Default_Appender.Append (Event);
             end;
       end Initialize;
 
@@ -159,6 +163,22 @@ package body Util.Log.Loggers is
       procedure Initialize_Again is
          L : Logger_Info_Access := First_Logger;
       begin
+         Delete_Appenders;
+
+         --  Initialize the default category.
+         if Config.Exists ("log4j.rootCategory") then
+            declare
+               Value : constant String := Config.Get ("log4j.rootCategory");
+            begin
+               Default_Level := Get_Level (Value, Default_Level);
+               Find_Appender (Property => Value, Appender => Default_Appender);
+            end;
+         end if;
+         if Default_Appender = null then
+            Default_Appender := new Log.Appenders.Console_Appender;
+         end if;
+         Appenders.Insert (Key => "root", New_Item => Default_Appender);
+
          --  Re-initialize the existing loggers.  Note that there is no concurrency
          --  protection if a thread calls 'Initialize' while another thread is using
          --  an already initialized logger.
@@ -183,9 +203,10 @@ package body Util.Log.Loggers is
       --  ------------------------------
       procedure Initialize (Log : in out Logger_Info) is
          Name : constant String := To_String (Log.Name);
+         Prop : constant String := Get_Logger_Property (Config, Name);
       begin
-         Log.Level := Get_Level (Get_Logger_Property (Config, Name));
-         Find_Appender (Name, Log.Appender);
+         Log.Level := Get_Level (Prop, Default_Level);
+         Find_Appender (Prop, Log.Appender);
       end Initialize;
 
       --  ------------------------------
@@ -231,17 +252,60 @@ package body Util.Log.Loggers is
          Free (Log);
       end Remove;
 
+      procedure Delete_Appenders is
+         procedure Free is new Ada.Unchecked_Deallocation (Object => Appender'Class,
+                                                           Name   => Appender_Access);
+
+         Iter : Appender_Maps.Cursor;
+      begin
+         loop
+            Iter := Appenders.First;
+            exit when not Appender_Maps.Has_Element (Iter);
+            declare
+               E : Appender_Access := Appender_Maps.Element (Iter);
+            begin
+               Appenders.Delete (Iter);
+               Free (E);
+            end;
+         end loop;
+         Default_Appender := null;
+      end Delete_Appenders;
+
       --  ------------------------------
-      --  Find an appender given its name
+      --  Obtain an appender given its name.  If the appender does not exist, it is created.
       --  ------------------------------
-      procedure Find_Appender (Name     : in String;
+      procedure Build_Appender (Name     : in String;
+                                Appender : out Appender_Access) is
+         use Appender_Maps;
+
+         Pos : constant Appender_Maps.Cursor := Appenders.Find (Name);
+      begin
+         if Pos /= Appender_Maps.No_Element then
+            Appender := Appender_Maps.Element (Pos);
+            return;
+         end if;
+         declare
+            Prop_Name     : constant String := "log4j.appender." & Name;
+            Appender_Type : constant String := Config.Get (Prop_Name, "console");
+         begin
+            if Index (Appender_Type, "File") > 0 then
+               Appender := Create_File_Appender (Prop_Name, Config, Default_Level);
+            else
+               Appender := Create_Console_Appender (Prop_Name, Config, Default_Level);
+            end if;
+            Appenders.Insert (Name, Appender);
+         end;
+      end Build_Appender;
+
+      --  ------------------------------
+      --  Find an appender given the property value
+      --  ------------------------------
+      procedure Find_Appender (Property : in String;
                                Appender : out Appender_Access) is
          use Appender_Maps;
 
-         Value          : constant String := Get_Logger_Property (Config, Name);
-         Appender_Name  : constant String := Get_Appender (Value);
-         Pos : constant Appender_Maps.Cursor
-           := Manager.Appenders.Find (Appender_Name);
+         Appender_Name  : constant String := Get_Appender (Property);
+         Pos            : constant Appender_Maps.Cursor := Appenders.Find (Appender_Name);
       begin
          if Pos /= Appender_Maps.No_Element then
             Appender := Appender_Maps.Element (Pos);
@@ -249,48 +313,34 @@ package body Util.Log.Loggers is
          end if;
 
          declare
-            Appender_Type : constant String
-              := Config.Get ("log4j.appender." & Appender_Name, "console");
+            N        : Natural := Index (Appender_Name, ",");
+            Last_Pos : Natural := Appender_Name'First;
+            List     : List_Appender_Access;
+            A        : Appender_Access;
          begin
-            if Index (Appender_Type, "File") > 0 then
-               Appender := Create_File_Appender ("log4j.appender."
-                                                 & Appender_Name, Config);
-
-               Manager.Appenders.Insert (Appender_Name, Appender);
+            --  The appender configuration refers to a list of appenders.
+            --  Example:  DEBUG, out1, console
+            if N > 0 then
+               List := Create_List_Appender;
+               loop
+                  Build_Appender (Trim (Appender_Name (Last_Pos .. N - 1), Both), A);
+                  List.Add_Appender (A);
+                  exit when N > Appender_Name'Last;
+                  Last_Pos := N + 1;
+                  N := Ada.Strings.Fixed.Index (Appender_Name, ",", Last_Pos);
+                  if N = 0 then
+                     N := Appender_Name'Last + 1;
+                  end if;
+               end loop;
+               Appender := List.all'Access;
+               Appenders.Insert (Appender_Name, Appender);
             else
-               if Manager.Default_Appender = null then
-                  Manager.Default_Appender := new Console_Appender;
-               end if;
-               Appender := Manager.Default_Appender;
+               Build_Appender (Appender_Name, Appender);
             end if;
          end;
       end Find_Appender;
 
    end Log_Manager;
-
-   --  ------------------------------
-   --  Get the log level from the property value
-   --  ------------------------------
-   function Get_Level (Value : in String) return Level_Type is
-      Val : constant String  := Trim (Value, Both);
-      Pos : constant Natural := Index (Val, ",");
-   begin
-      if Pos > Val'First then
-         return Get_Level (Val (Val'First .. Pos - 1));
-      elsif Val = "INFO" then
-         return INFO_LEVEL;
-      elsif Val = "DEBUG" then
-         return DEBUG_LEVEL;
-      elsif Val = "WARN" then
-         return WARN_LEVEL;
-      elsif Val = "ERROR" then
-         return ERROR_LEVEL;
-      elsif Val = "FATAL" then
-         return FATAL_LEVEL;
-      else
-         return INFO_LEVEL;
-      end if;
-   end Get_Level;
 
    --  ------------------------------
    --  Get the log appender name from the property value
@@ -436,6 +486,17 @@ package body Util.Log.Loggers is
    begin
       if Log.Instance.Level >= DEBUG_LEVEL then
          Print (Log, DEBUG_LEVEL, Message, To_String (Arg1), Arg2, Arg3);
+      end if;
+   end Debug;
+
+   procedure Debug (Log     : in Logger'Class;
+                    Message : in String;
+                    Arg1    : in Unbounded_String;
+                    Arg2    : in Unbounded_String;
+                    Arg3    : in String := "") is
+   begin
+      if Log.Instance.Level >= DEBUG_LEVEL then
+         Print (Log, DEBUG_LEVEL, Message, To_String (Arg1), To_String (Arg2), Arg3);
       end if;
    end Debug;
 
