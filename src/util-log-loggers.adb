@@ -153,6 +153,9 @@ package body Util.Log.Loggers is
                Event.Level   := WARN_LEVEL;
                Event.Message := Format ("Log configuration file {0} not found", Name, "", "");
                Event.Logger  := Ada.Strings.Unbounded.To_Unbounded_String ("Init");
+               if Default_Appender = null then
+                  Default_Appender := new Console_Appender;
+               end if;
                Default_Appender.Append (Event);
             end;
       end Initialize;
