@@ -20,11 +20,14 @@ with GNAT.Command_Line;
 with AUnit.Options;
 with AUnit.Reporter.Text;
 with AUnit.Run;
-with Util.Measures;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Text_IO;
+with Ada.Calendar.Formatting;
+
+with Util.Strings;
+with Util.Measures;
 with Util.Files;
 with Util.Log.Loggers;
 package body Util.Tests is
@@ -69,6 +72,29 @@ package body Util.Tests is
    end Get_Parameter;
 
    --  ------------------------------
+   --  Get a new unique string
+   --  ------------------------------
+   function Get_Uuid return String is
+      Time  : constant Ada.Calendar.Time := Ada.Calendar.Clock;
+      Year  : Ada.Calendar.Year_Number;
+      Month : Ada.Calendar.Month_Number;
+      Day   : Ada.Calendar.Day_Number;
+      T     : Ada.Calendar.Day_Duration;
+      V     : Long_Long_Integer;
+   begin
+      Ada.Calendar.Split (Date    => Time,
+                          Year    => Year,
+                          Month   => Month,
+                          Day     => Day,
+                          Seconds => T);
+      V := (Long_Long_Integer (Year) * 365 * 24 * 3600 * 1000)
+        + (Long_Long_Integer (Month) * 31 * 24 * 3600 * 1000)
+        + (Long_Long_Integer (Day) * 24 * 3600 * 1000)
+        + (Long_Long_Integer (T * 1000));
+      return "U" & Util.Strings.Image (V);
+   end Get_Uuid;
+
+   --  ------------------------------
    --  Check that the value matches what we expect.
    --  ------------------------------
 --     procedure Assert_Equals (T       : in AUnit.Assertions.Test'Class;
@@ -85,6 +111,24 @@ package body Util.Tests is
 --                  Source    => Source,
 --                  Line      => Line);
 --     end Assert_Equals;
+
+   --  ------------------------------
+   --  Check that the value matches what we expect.
+   --  ------------------------------
+   procedure Assert_Equals (T         : in AUnit.Assertions.Test'Class;
+                            Expect, Value : in Ada.Calendar.Time;
+                            Message   : in String := "Test failed";
+                            Source    : String := GNAT.Source_Info.File;
+                            Line      : Natural := GNAT.Source_Info.Line) is
+      use Ada.Calendar.Formatting;
+      use Ada.Calendar;
+   begin
+      T.Assert (Condition => Image (Expect) = Image (Value),
+                Message   => Message & ": expecting '" & Image (Expect) & "'"
+                & " value was '" & Image (Value) & "'",
+                Source    => Source,
+                Line      => Line);
+   end Assert_Equals;
 
    --  ------------------------------
    --  Check that the value matches what we expect.
