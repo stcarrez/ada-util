@@ -459,7 +459,7 @@ package body Util.Log.Loggers is
                     Arg2    : in String := "";
                     Arg3    : in String := "") is
    begin
-      if Log.Instance.Level >= Level then
+      if Log.Instance /= null and then Log.Instance.Level >= Level then
          declare
             Event : Util.Log.Appenders.Log_Event;
          begin

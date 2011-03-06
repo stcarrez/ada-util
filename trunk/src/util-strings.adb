@@ -39,6 +39,32 @@ package body Util.Strings is
       return Left.all = Right.all;
    end Equivalent_Keys;
 
+   --  ------------------------------
+   --  Returns Integer'Image (Value) with the possible space stripped.
+   --  ------------------------------
+   function Image (Value : in Integer) return String is
+      S : constant String := Integer'Image (Value);
+   begin
+      if S (S'First) = ' ' then
+         return S (S'First + 1 .. S'Last);
+      else
+         return S;
+      end if;
+   end Image;
+
+   --  ------------------------------
+   --  Returns Integer'Image (Value) with the possible space stripped.
+   --  ------------------------------
+   function Image (Value : in Long_Long_Integer) return String is
+      S : constant String := Long_Long_Integer'Image (Value);
+   begin
+      if S (S'First) = ' ' then
+         return S (S'First + 1 .. S'Last);
+      else
+         return S;
+      end if;
+   end Image;
+
    use Util.Concurrent.Counters;
 
    --  ------------------------------
