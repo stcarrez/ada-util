@@ -49,6 +49,12 @@ package Util.Strings is
                     Ch     : in Character;
                     From   : in Natural := 0) return Natural;
 
+   --  Returns Integer'Image (Value) with the possible space stripped.
+   function Image (Value : in Integer) return String;
+
+   --  Returns Integer'Image (Value) with the possible space stripped.
+   function Image (Value : in Long_Long_Integer) return String;
+
    package String_Access_Map is new Ada.Containers.Hashed_Maps
      (Key_Type        => Name_Access,
       Element_Type    => Name_Access,
