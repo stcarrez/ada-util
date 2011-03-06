@@ -19,6 +19,7 @@
 with AUnit.Test_Suites;
 with AUnit.Assertions;
 with Ada.Strings.Unbounded;
+with Ada.Calendar;
 
 with GNAT.Source_Info;
 
@@ -39,6 +40,9 @@ package Util.Tests is
    function Get_Parameter (Name    : String;
                            Default : String := "") return String;
 
+   --  Get a new unique string
+   function Get_Uuid return String;
+
    --  Check that two files are equal.  This is intended to be used by
    --  tests that create files that are then checked against patterns.
    procedure Assert_Equal_Files (T       : in AUnit.Assertions.Test'Class;
@@ -51,6 +55,13 @@ package Util.Tests is
    --  Check that the value matches what we expect.
    procedure Assert_Equals is new Assertions.Assert_Equals_T (Value_Type => Integer);
    procedure Assert_Equals is new Assertions.Assert_Equals_T (Value_Type => Character);
+
+   --  Check that the value matches what we expect.
+   procedure Assert_Equals (T         : in AUnit.Assertions.Test'Class;
+                            Expect, Value : in Ada.Calendar.Time;
+                            Message   : in String := "Test failed";
+                            Source    : String := GNAT.Source_Info.File;
+                            Line      : Natural := GNAT.Source_Info.Line);
 
    --  Check that the value matches what we expect.
    procedure Assert_Equals (T         : in AUnit.Assertions.Test'Class;
