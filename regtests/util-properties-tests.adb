@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util -- Unit tests for properties
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,6 +97,28 @@ package body Util.Properties.Tests is
          raise;
    end Test_Load_Property;
 
+   --  ------------------------------
+   --  Test copy of properties
+   --  ------------------------------
+   procedure Test_Copy_Property (T : in out Test) is
+      Props : Properties.Manager;
+   begin
+      Props.Set ("prefix.one", "1");
+      Props.Set ("prefix.two", "2");
+      Props.Set ("prefix", "Not copied");
+      Props.Set ("prefix.", "Copied");
+      declare
+         Copy : Properties.Manager;
+      begin
+         Copy.Copy (From   => Props,
+                    Prefix => "prefix.",
+                    Strip  => True);
+         T.Assert (Copy.Exists ("one"), "Property one not found");
+         T.Assert (Copy.Exists ("two"), "Property two not found");
+         T.Assert (Copy.Exists (""), "Property '' does not exist.");
+      end;
+   end Test_Copy_Property;
+
    package Caller is new Util.Test_Caller (Test);
 
    procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
@@ -116,6 +138,8 @@ package body Util.Properties.Tests is
 
       Caller.Add_Test (Suite, "Test Util.Properties.Load_Properties",
                        Test_Load_Property'Access);
+      Caller.Add_Test (Suite, "Test Util.Properties.Copy",
+                       Test_Copy_Property'Access);
    end Add_Tests;
 
 end Util.Properties.Tests;

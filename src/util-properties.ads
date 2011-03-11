@@ -117,10 +117,12 @@ package Util.Properties is
                               Path : in String);
 
    --  Copy the properties from FROM which start with a given prefix.
-   --  If the prefix is empty, all properties are copied.
+   --  If the prefix is empty, all properties are copied.  When <b>Strip</b> is True,
+   --  the prefix part is removed from the property name.
    procedure Copy (Self   : in out Manager'Class;
                    From   : in Manager'Class;
-                   Prefix : in String := "");
+                   Prefix : in String := "";
+                   Strip  : in Boolean := False);
 
 private
 
