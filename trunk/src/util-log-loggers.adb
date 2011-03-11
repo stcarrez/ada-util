@@ -259,15 +259,25 @@ package body Util.Log.Loggers is
          procedure Free is new Ada.Unchecked_Deallocation (Object => Appender'Class,
                                                            Name   => Appender_Access);
 
-         Iter : Appender_Maps.Cursor;
       begin
-         loop
-            Iter := Appenders.First;
-            exit when not Appender_Maps.Has_Element (Iter);
+         while not Appenders.Is_Empty loop
             declare
-               E : Appender_Access := Appender_Maps.Element (Iter);
+               Iter : Appender_Maps.Cursor := Appenders.First;
+               E    : Appender_Access := Appender_Maps.Element (Iter);
             begin
                Appenders.Delete (Iter);
+
+               --  Remove each mapping that points to the same appender.
+               Iter := Appenders.First;
+               while Appender_Maps.Has_Element (Iter) loop
+                  if Appender_Maps.Element (Iter) = E then
+                     Appenders.Delete (Iter);
+                     Iter := Appenders.First;
+                  else
+                     Appender_Maps.Next (Iter);
+                  end if;
+               end loop;
+
                Free (E);
             end;
          end loop;
