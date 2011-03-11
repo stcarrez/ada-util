@@ -98,6 +98,33 @@ package body Util.Properties.Tests is
    end Test_Load_Property;
 
    --  ------------------------------
+   --  Test loading of property files
+   --  ------------------------------
+   procedure Test_Load_Strip_Property (T : in out Test) is
+      Props : Properties.Manager;
+      F : File_Type;
+   begin
+      --  Load, filter and strip properties
+      Open (F, In_File, "regtests/test.properties");
+      Load_Properties (Props, F, "tomcat.", True);
+      Close (F);
+
+      declare
+         Names : constant Name_Array := Get_Names (Props);
+      begin
+         T.Assert (Names'Length > 3,
+                   "Loading the test properties returned too few properties");
+
+         T.Assert (To_String (Props.Get ("version")) = "0.6",
+                   "Invalid property 'root.dir'");
+      end;
+   exception
+      when Ada.Text_IO.Name_Error =>
+         Ada.Text_IO.Put_Line ("Cannot find test file: regtests/test.properties");
+         raise;
+   end Test_Load_Strip_Property;
+
+   --  ------------------------------
    --  Test copy of properties
    --  ------------------------------
    procedure Test_Copy_Property (T : in out Test) is
@@ -138,6 +165,8 @@ package body Util.Properties.Tests is
 
       Caller.Add_Test (Suite, "Test Util.Properties.Load_Properties",
                        Test_Load_Property'Access);
+      Caller.Add_Test (Suite, "Test Util.Properties.Load_Strip_Properties",
+                       Test_Load_Strip_Property'Access);
       Caller.Add_Test (Suite, "Test Util.Properties.Copy",
                        Test_Copy_Property'Access);
    end Add_Tests;

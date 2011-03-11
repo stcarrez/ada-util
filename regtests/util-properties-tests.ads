@@ -28,6 +28,7 @@ package Util.Properties.Tests is
    procedure Test_Property (T : in out Test);
    procedure Test_Integer_Property (T : in out Test);
    procedure Test_Load_Property (T : in out Test);
+   procedure Test_Load_Strip_Property (T : in out Test);
    procedure Test_Copy_Property (T : in out Test);
 
 end Util.Properties.Tests;
