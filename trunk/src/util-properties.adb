@@ -276,11 +276,13 @@ package body Util.Properties is
 
    --  ------------------------------
    --  Copy the properties from FROM which start with a given prefix.
-   --  If the prefix is empty, all properties are copied.
+   --  If the prefix is empty, all properties are copied.  When <b>Strip</b> is True,
+   --  the prefix part is removed from the property name.
    --  ------------------------------
-   procedure Copy (Self : in out Manager'Class;
-                   From : in Manager'Class;
-                   Prefix : in String := "") is
+   procedure Copy (Self   : in out Manager'Class;
+                   From   : in Manager'Class;
+                   Prefix : in String := "";
+                   Strip  : in Boolean := False) is
       Names : constant Name_Array := From.Get_Names;
    begin
       for I in Names'Range loop
@@ -288,7 +290,15 @@ package body Util.Properties is
             Name : Unbounded_String renames Names (I);
          begin
             if Prefix'Length = 0 or else Index (Name, Prefix) = 1 then
-               Self.Set (Name, From.Get (Name));
+               if Strip and Prefix'Length > 0 then
+                  declare
+                     S : constant String := Slice (Name, Prefix'Length + 1, Length (Name));
+                  begin
+                     Self.Set (+ (S), From.Get (Name));
+                  end;
+               else
+                  Self.Set (Name, From.Get (Name));
+               end if;
             end if;
          end;
       end loop;
