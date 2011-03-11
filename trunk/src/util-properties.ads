@@ -106,15 +106,23 @@ package Util.Properties is
                        Prefix : in String := "") return Name_Array;
 
    --  Load the properties from the file input stream.  The file must follow
-   --  the definition of Java property files.
-   procedure Load_Properties (Self : in out Manager'Class;
-                              File : in Ada.Text_IO.File_Type);
+   --  the definition of Java property files.  When a prefix is specified, keep
+   --  only the properties that starts with the prefix.  When <b>Strip</b> is True,
+   --  the prefix part is removed from the property name.
+   procedure Load_Properties (Self   : in out Manager'Class;
+                              File   : in Ada.Text_IO.File_Type;
+                              Prefix : in String := "";
+                              Strip  : in Boolean := False);
 
    --  Load the properties from the file.  The file must follow the
-   --  definition of Java property files.
+   --  definition of Java property files.  When a prefix is specified, keep
+   --  only the properties that starts with the prefix.  When <b>Strip</b> is True,
+   --  the prefix part is removed from the property name.
    --  Raises NAME_ERROR if the file does not exist.
-   procedure Load_Properties (Self : in out Manager'Class;
-                              Path : in String);
+   procedure Load_Properties (Self   : in out Manager'Class;
+                              Path   : in String;
+                              Prefix : in String := "";
+                              Strip  : in Boolean := False);
 
    --  Copy the properties from FROM which start with a given prefix.
    --  If the prefix is empty, all properties are copied.  When <b>Strip</b> is True,
