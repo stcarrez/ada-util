@@ -227,9 +227,11 @@ package body Util.Properties is
       end if;
    end Set_Property_Implementation;
 
-   procedure Load_Property (Name  : out Unbounded_String;
-                            Value : out Unbounded_String;
-                            File  : in File_Type) is
+   procedure Load_Property (Name   : out Unbounded_String;
+                            Value  : out Unbounded_String;
+                            File   : in File_Type;
+                            Prefix : in String := "";
+                            Strip  : in Boolean := False) is
       Line : Unbounded_String;
       Pos  : Natural;
       Len  : Natural;
@@ -239,10 +241,16 @@ package body Util.Properties is
          Len  := Length (Line);
          if Len /= 0 and then Element (Line, 1) /= '#' then
             Pos := Index (Line, "=");
-            if Pos > 0 then
+            if Pos > 0 and then Prefix'Length > 0 and then Index (Line, Prefix) = 1 then
+               Name  := Unbounded_Slice (Line, Prefix'Length + 1, Pos - 1);
+               Value := Tail (Line, Len - Pos);
+               return;
+
+            elsif Pos > 0 and Prefix'Length = 0 then
                Name  := Head (Line, Pos - 1);
                Value := Tail (Line, Len - Pos);
                return;
+
             end if;
          end if;
       end loop;
@@ -250,12 +258,14 @@ package body Util.Properties is
       Value := Null_Unbounded_String;
    end Load_Property;
 
-   procedure Load_Properties (Self : in out Manager'Class;
-                              File : in File_Type) is
+   procedure Load_Properties (Self   : in out Manager'Class;
+                              File   : in File_Type;
+                              Prefix : in String := "";
+                              Strip  : in Boolean := False) is
       Name, Value : Unbounded_String;
    begin
       loop
-         Load_Property (Name, Value, File);
+         Load_Property (Name, Value, File, Prefix, Strip);
          exit when Name = Null_Unbounded_String;
          Set (Self, To_String (Name), To_String (Value));
       end loop;
@@ -265,12 +275,14 @@ package body Util.Properties is
          return;
    end Load_Properties;
 
-   procedure Load_Properties (Self : in out Manager'Class;
-                              Path : in String) is
+   procedure Load_Properties (Self   : in out Manager'Class;
+                              Path   : in String;
+                              Prefix : in String := "";
+                              Strip  : in Boolean := False) is
       F : File_Type;
    begin
       Open (F, In_File, Path);
-      Load_Properties (Self, F);
+      Load_Properties (Self, F, Prefix, Strip);
       Close (F);
    end Load_Properties;
 
