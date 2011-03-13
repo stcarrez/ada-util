@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Logs -- Utility Log Package
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,7 @@ with Ada.Calendar;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Unchecked_Deallocation;
 with Ada.IO_Exceptions;
+with Util.Strings;
 package body Util.Log.Loggers is
 
    use Util;
@@ -95,23 +96,20 @@ package body Util.Log.Loggers is
    --  Get the logger property associated with a given logger
    --  ------------------------------
    function Get_Logger_Property (Properties : in Util.Properties.Manager;
-                                 Name : in String) return String is
+                                 Name       : in String) return String is
       Prop_Name : constant String := "log4j.logger." & Name;
+      Pos       : Natural := Prop_Name'Last;
    begin
-      return Trim (Properties.Get (Prop_Name), Both);
-
-   exception
-      when Util.Properties.NO_PROPERTY =>
-         declare
-            Pos : constant Natural := Index (Name, ".",
-                                             Ada.Strings.Backward);
-         begin
-            if Pos <= Name'First then
-               return "";
-            else
-               return Get_Logger_Property (Properties, Name (Name'First .. Pos - 1));
-            end if;
-         end;
+      while Pos > Prop_Name'First loop
+         if Properties.Exists (Prop_Name (Prop_Name'First .. Pos)) then
+            return Trim (Properties.Get (Prop_Name (Prop_Name'First .. Pos)), Both);
+         end if;
+         Pos := Util.Strings.RIndex (Prop_Name, '.', Pos);
+         if Pos > 0 then
+            Pos := Pos - 1;
+         end if;
+      end loop;
+      return "";
    end Get_Logger_Property;
 
    --  ------------------------------
