@@ -19,6 +19,8 @@ with Ada.Text_IO;
 with Ada.Calendar;
 with Ada.Containers;
 
+with Util.Streams.Texts;
+
 --  The <b>Measures</b> package defines utility types and functions to make
 --  performance measurements in an Ada application.  It is designed to be used
 --  for production and multi-threaded environments.
@@ -62,6 +64,13 @@ package Util.Measures is
 
    --  Get the per-thread measure set.
    function Get_Current return Measure_Set_Access;
+
+   --  Dump an XML result with the measures collected by the measure set.
+   --  When writing the measures, the measure set is cleared.  It is safe
+   --  to write measures while other measures are being collected.
+   procedure Write (Measures : in out Measure_Set;
+                    Title    : in String;
+                    Stream   : in out Util.Streams.Texts.Print_Stream'Class);
 
    --  Dump an XML result with the measures collected by the measure set.
    --  When writing the measures, the measure set is cleared.  It is safe
@@ -123,12 +132,16 @@ private
    protected type Measure_Data is
 
       --  Get the measures and clear to start a new set of measures.
-      entry Steal_Map (Result : out Buckets_Access);
+      --  Return in <b>Time_Start</b> and <b>Time_End</b> the period of time.
+      procedure Steal_Map (Result     : out Buckets_Access;
+                           Time_Start : out Ada.Calendar.Time;
+                           Time_End   : out Ada.Calendar.Time);
 
       --  Add the measure
-      entry Add (Title : in String; D : in Duration);
+      procedure Add (Title : in String; D : in Duration);
 
    private
+      Start   : Ada.Calendar.Time := Ada.Calendar.Clock;
       Buckets : Buckets_Access;
    end Measure_Data;
 
