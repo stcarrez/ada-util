@@ -19,9 +19,9 @@ with Ada.Strings.Unbounded;
 with Util.Streams.Buffered;
 with Util.Texts.Transforms;
 with Ada.Characters.Handling;
+with Ada.Calendar;
+with GNAT.Calendar.Time_IO;
 package Util.Streams.Texts is
-
-   pragma Preelaborate;
 
    --  -----------------------
    --  Print stream
@@ -45,6 +45,11 @@ package Util.Streams.Texts is
    --  Write a string on the stream.
    procedure Write (Stream : in out Print_Stream;
                     Item   : in Ada.Strings.Unbounded.Unbounded_String);
+
+   --  Write a date on the stream.
+   procedure Write (Stream : in out Print_Stream;
+                    Item   : in Ada.Calendar.Time;
+                    Format : in GNAT.Calendar.Time_IO.Picture_String := GNAT.Calendar.Time_IO.ISO_Date);
 
    --  Get the output stream content as a string.
    function To_String (Stream : in Buffered.Buffered_Stream) return String;
