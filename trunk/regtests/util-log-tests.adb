@@ -74,6 +74,14 @@ package body Util.Log.Tests is
       Props.Set ("log4j.logger.util.log.test.perf", "DEBUG,test");
       Util.Log.Loggers.Initialize (Props);
 
+      for I in 1 .. 1000 loop
+         declare
+            S : Util.Measures.Stamp;
+         begin
+            Util.Measures.Report (S, "Util.Measures.Report");
+         end;
+      end loop;
+
       declare
          L : Loggers.Logger := Loggers.Create ("util.log.test.perf");
          S : Util.Measures.Stamp;
