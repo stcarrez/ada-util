@@ -62,6 +62,16 @@ package body Util.Streams.Texts is
    end Write;
 
    --  ------------------------------
+   --  Write a date on the stream.
+   --  ------------------------------
+   procedure Write (Stream : in out Print_Stream;
+                    Item   : in Ada.Calendar.Time;
+                    Format : in GNAT.Calendar.Time_IO.Picture_String := GNAT.Calendar.Time_IO.ISO_Date) is
+   begin
+      Stream.Write (GNAT.Calendar.Time_IO.Image (Item, Format));
+   end Write;
+
+   --  ------------------------------
    --  Get the output stream content as a string.
    --  ------------------------------
    function To_String (Stream : in Buffered.Buffered_Stream) return String is
