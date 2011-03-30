@@ -72,6 +72,14 @@ package body Util.Tests is
    end Get_Parameter;
 
    --  ------------------------------
+   --  Get the test configuration properties.
+   --  ------------------------------
+   function Get_Properties return Util.Properties.Manager is
+   begin
+      return Test_Properties;
+   end Get_Properties;
+
+   --  ------------------------------
    --  Get a new unique string
    --  ------------------------------
    function Get_Uuid return String is

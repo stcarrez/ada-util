@@ -40,6 +40,9 @@ package Util.Tests is
    function Get_Parameter (Name    : String;
                            Default : String := "") return String;
 
+   --  Get the test configuration properties.
+   function Get_Properties return Util.Properties.Manager;
+
    --  Get a new unique string
    function Get_Uuid return String;
 
@@ -88,6 +91,5 @@ package Util.Tests is
       with function Suite return Access_Test_Suite;
       with procedure Initialize (Props : in Util.Properties.Manager) is Initialize_Test;
    procedure Harness (Name : in String);
-
 
 end Util.Tests;
