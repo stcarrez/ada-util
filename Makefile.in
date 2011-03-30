@@ -18,8 +18,8 @@ top_builddir = .
 
 # Build executables for all mains defined by the project.
 build:
-	$(GNATMAKE) -P "$(GPRPATH)"
-	$(GNATMAKE) -P "$(TESTUTIL_GPRPATH)"
+	$(GNATMAKE) -p -P "$(GPRPATH)"
+	$(GNATMAKE) -p -P "$(TESTUTIL_GPRPATH)"
 
 # Not intended for manual invocation.
 # Invoked if automatic builds are enabled.

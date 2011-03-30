@@ -5,11 +5,11 @@ with "aunit";
 project Testutil is
 
    for Source_Dirs use ("testutil");
-   for Library_Dir use Util.Library_Dir;
+   for Library_Dir use Util.Library_Dir & "/testutil";
    for Library_Name use "testutil";
    for Library_Kind use "static";
 
-   for Object_Dir use "obj/";
+   for Object_Dir use "obj/testutil";
 
    package Binder renames Config.Binder;
    package Builder renames Config.Builder;
