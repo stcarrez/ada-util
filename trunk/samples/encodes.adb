@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  encodes -- Encodes strings
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,6 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Util.Strings.Transforms;
-with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Command_Line;
 with Util.Encoders;
@@ -24,7 +22,6 @@ with Util.Encoders;
 procedure Encodes is
 
    use Util.Encoders;
-   use Ada.Strings.Unbounded;
 
    Encode : Boolean := True;
    Count  : constant Natural := Ada.Command_Line.Argument_Count;
@@ -39,7 +36,7 @@ begin
    end if;
    declare
       Name : constant String := Ada.Command_Line.Argument (1);
-      C    : Encoder := Util.Encoders.Create (Name);
+      C    : constant Encoder := Util.Encoders.Create (Name);
    begin
       for I in 2 .. Count loop
          declare
