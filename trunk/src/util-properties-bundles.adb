@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -402,7 +402,7 @@ package body Util.Properties.Bundles is
       function Get_Names (Self   : in Manager;
                           Prefix : in String) return Name_Array is
          Result : Name_Array (1 .. 2);
-         Iter : Cursor := Self.List.First;
+         Iter   : constant Cursor := Self.List.First;
       begin
          while Has_Element (Iter) loop
             declare
@@ -411,7 +411,6 @@ package body Util.Properties.Bundles is
             begin
                return N;
             end;
-            Iter := Next (Iter);
          end loop;
          return Result;
       end Get_Names;

@@ -83,7 +83,6 @@ package body Util.Log.Appenders is
    --  ------------------------------
    function Format (Self  : in Appender;
                     Event : in Log_Event) return String is
-      pragma Unreferenced (Self);
    begin
       case Self.Layout is
          when MESSAGE =>
@@ -198,7 +197,7 @@ package body Util.Log.Appenders is
                                      Properties : in Util.Properties.Manager;
                                      Default    : in Level_Type)
                                      return Appender_Access is
-      Result : Console_Appender_Access := new Console_Appender;
+      Result : constant Console_Appender_Access := new Console_Appender;
    begin
       Result.Set_Level (Name, Properties, Default);
       Result.Set_Layout (Name, Properties, FULL);
