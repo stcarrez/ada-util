@@ -15,8 +15,6 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Util.Serialize.Contexts;
-with Util.Beans.Objects;
 package body Mapping is
 
    use Util.Beans.Objects;
@@ -210,7 +208,7 @@ begin
    --  <country>France</country>           "country" : "France"
    --  <zip>75</zip>                       "zip" : 75
    Address_Mapping.Bind (Get_Member'Access);
-   Address_Mapping.Add_Mapping ("info", Property_Mapping'Access, Proxy_Info'Access);
+--     Address_Mapping.Add_Mapping ("info", Property_Mapping'Access, Proxy_Info'Access);
    Address_Mapping.Add_Default_Mapping;
 
    --  XML:
