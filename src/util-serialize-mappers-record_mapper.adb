@@ -138,7 +138,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
    overriding
    function Find_Mapping (Controller : in Proxy_Mapper;
                           Name       : in String) return Mapping_Access is
-      Result : Mapping_Access := Controller.Mapper.Find_Mapping (Name);
+      Result : constant Mapping_Access := Controller.Mapper.Find_Mapping (Name);
    begin
       if Result /= null then
          return Result;
@@ -154,7 +154,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
    overriding
    function Find_Mapper (Controller : in Proxy_Mapper;
                          Name       : in String) return Util.Serialize.Mappers.Mapper_Access is
-      Result : Util.Serialize.Mappers.Mapper_Access := Controller.Mapper.Find_Mapper (Name);
+      Result : constant Mappers.Mapper_Access := Controller.Mapper.Find_Mapper (Name);
    begin
       if Result /= null then
          return Result;
@@ -170,6 +170,8 @@ package body Util.Serialize.Mappers.Record_Mapper is
    procedure Copy (Into    : in out Mapper;
                    From    : in Mapper;
                    Process : in Process_Object) is
+      pragma Unreferenced (Process);
+
       Iter : Mapping_Map.Cursor := From.Rules.First;
    begin
       Into.Get_Member := From.Get_Member;

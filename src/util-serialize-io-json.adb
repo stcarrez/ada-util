@@ -394,8 +394,6 @@ package body Util.Serialize.IO.JSON is
                end if;
                Append (P.Token, C1);
             end loop;
-            P.Error ("Missing '""' to terminate the string");
-            return;
 
             --  Number
          when '-' | '0' .. '9' =>

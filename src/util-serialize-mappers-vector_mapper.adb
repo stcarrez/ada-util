@@ -56,6 +56,7 @@ package body Util.Serialize.Mappers.Vector_Mapper is
          DE.Position := Index_Type'First;
       end;
    end Start_Array;
+   pragma Unreferenced (Start_Array);
 
    --  -----------------------
    --  Record mapper
@@ -79,6 +80,7 @@ package body Util.Serialize.Mappers.Vector_Mapper is
                       Map     : in Mapping'Class;
                       Ctx     : in out Util.Serialize.Contexts.Context'Class;
                       Value   : in Util.Beans.Objects.Object) is
+      pragma Unreferenced (Handler);
 
       procedure Process (Element : in out Element_Type) is
       begin
@@ -108,7 +110,7 @@ package body Util.Serialize.Mappers.Vector_Mapper is
    overriding
    function Find_Mapping (Controller : in Proxy_Mapper;
                           Name       : in String) return Mapping_Access is
-      Result : Mapping_Access := Controller.Mapper.Find_Mapping (Name);
+      Result : constant Mapping_Access := Controller.Mapper.Find_Mapping (Name);
    begin
       if Result /= null then
          return Result;
@@ -122,7 +124,7 @@ package body Util.Serialize.Mappers.Vector_Mapper is
    overriding
    function Find_Mapper (Controller : in Proxy_Mapper;
                          Name       : in String) return Util.Serialize.Mappers.Mapper_Access is
-      Result : Util.Serialize.Mappers.Mapper_Access := Controller.Mapper.Find_Mapper (Name);
+      Result : constant Mappers.Mapper_Access := Controller.Mapper.Find_Mapper (Name);
    begin
       if Result /= null then
          return Result;
@@ -134,6 +136,8 @@ package body Util.Serialize.Mappers.Vector_Mapper is
    procedure Set_Mapping (Into  : in out Mapper;
                           Path  : in String;
                           Inner : in Element_Mapper.Mapper_Access) is
+      pragma Unreferenced (Path);
+
       M : Proxy_Mapper_Access := new Proxy_Mapper;
    begin
       M.Mapper  := Inner.all'Access;
@@ -160,6 +164,7 @@ package body Util.Serialize.Mappers.Vector_Mapper is
    --  -----------------------
    function Find_Mapper (Controller : in Mapper;
                          Name       : in String) return Util.Serialize.Mappers.Mapper_Access is
+      pragma Unreferenced (Name);
    begin
       return Controller.Element_Map.all'Unchecked_Access;
    end Find_Mapper;
@@ -173,6 +178,8 @@ package body Util.Serialize.Mappers.Vector_Mapper is
    procedure Start_Object (Handler : in Mapper;
                            Context : in out Util.Serialize.Contexts.Context'Class;
                            Name    : in String) is
+      pragma Unreferenced (Handler, Name);
+
       D : constant Contexts.Data_Access := Context.Get_Data (Key);
    begin
       if not (D.all in Vector_Data'Class) then

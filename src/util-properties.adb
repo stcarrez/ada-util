@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -105,7 +105,7 @@ package body Util.Properties is
          Self.Impl.Count := 1;
       elsif Self.Impl.Count > 1 then
          declare
-            Old : Interface_P.Manager_Access := Self.Impl;
+            Old : constant Interface_P.Manager_Access := Self.Impl;
          begin
             Self.Impl := Create_Copy (Self.Impl.all);
             Self.Impl.Count := 1;
@@ -232,6 +232,8 @@ package body Util.Properties is
                             File   : in File_Type;
                             Prefix : in String := "";
                             Strip  : in Boolean := False) is
+      pragma Unreferenced (Strip);
+
       Line : Unbounded_String;
       Pos  : Natural;
       Len  : Natural;

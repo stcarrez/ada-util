@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io -- IO Drivers for serialization
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,6 @@
 with Util.Streams.Files;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
-with Ada.Unchecked_Deallocation;
 package body Util.Serialize.IO is
 
    --  Read the file and parse it using the JSON parser.
@@ -83,9 +82,9 @@ package body Util.Serialize.IO is
                          Name    : in String) return Util.Serialize.Mappers.Mapper_Access is
       use type Util.Serialize.Mappers.Mapper_Access;
 
-      Pos : Util.Serialize.Mappers.Mapper_Map.Cursor;
-      Map : Util.Serialize.Mappers.Mapper_Access;
-      Current : Element_Context_Access := Context_Stack.Current (Handler.Stack);
+      Pos     : Util.Serialize.Mappers.Mapper_Map.Cursor;
+      Map     : Util.Serialize.Mappers.Mapper_Access;
+      Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
    begin
       if Current /= null and then Current.Mapper /= null then
          Map := Current.Mapper.Find_Mapper (Name);
@@ -110,8 +109,8 @@ package body Util.Serialize.IO is
 
       use type Util.Serialize.Mappers.Mapper_Access;
 
-      Map : Util.Serialize.Mappers.Mapper_Access := Handler.Find_Mapper (Name);
-      Current : Element_Context_Access := Context_Stack.Current (Handler.Stack);
+      Map     : constant Util.Serialize.Mappers.Mapper_Access := Handler.Find_Mapper (Name);
+      Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
    begin
       if Current /= null and then Current.Mapper /= null then
          Current.Mapper.Start_Object (Handler, Name);
@@ -135,7 +134,7 @@ package body Util.Serialize.IO is
    begin
       Handler.Pop;
       declare
-         Current : Element_Context_Access := Context_Stack.Current (Handler.Stack);
+         Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
       begin
          if Current /= null and then Current.Mapper /= null then
             Current.Mapper.Finish_Object (Handler, Name);
@@ -145,13 +144,14 @@ package body Util.Serialize.IO is
 
    procedure Start_Array (Handler : in out Parser;
                           Name    : in String) is
-      Map : Util.Serialize.Mappers.Mapper_Access := Handler.Find_Mapper (Name);
+      Map : constant Util.Serialize.Mappers.Mapper_Access := Handler.Find_Mapper (Name);
    begin
       Handler.Push (Map);
    end Start_Array;
 
    procedure Finish_Array (Handler : in out Parser;
                            Name    : in String) is
+      pragma Unreferenced (Name);
    begin
       Handler.Pop;
    end Finish_Array;
@@ -165,7 +165,7 @@ package body Util.Serialize.IO is
                          Value   : in Util.Beans.Objects.Object) is
       use Util.Serialize.Mappers;
 
-      Current : Element_Context_Access := Context_Stack.Current (Handler.Stack);
+      Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
    begin
       if Current /= null and then Current.Mapper /= null then
          declare
