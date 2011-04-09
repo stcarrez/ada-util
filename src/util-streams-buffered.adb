@@ -322,4 +322,12 @@ package body Util.Streams.Buffered is
       end if;
    end Finalize;
 
+   --  ------------------------------
+   --  Returns True if the end of the stream is reached.
+   --  ------------------------------
+   function Is_Eof (Stream : in Buffered_Stream) return Boolean is
+   begin
+      return Stream.Eof;
+   end Is_Eof;
+
 end Util.Streams.Buffered;
