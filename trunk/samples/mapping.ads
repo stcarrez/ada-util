@@ -35,14 +35,14 @@ package Mapping is
       City      : Unbounded_String;
       Street    : Unbounded_String;
       Country   : Unbounded_String;
-      Zip       : Natural;
+      Zip       : Natural := 0;
       Info      : Property;
    end record;
 
    type Person is record
       First_Name : Unbounded_String;
       Last_Name  : Unbounded_String;
-      Age        : Natural;
+      Age        : Natural := 0;
       Addr       : Address;
    end record;
 
