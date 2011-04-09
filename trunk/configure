@@ -556,6 +556,8 @@ PACKAGE_URL=
 ac_unique_file="src/util.ads"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+UTIL_XML_DIR
+WITH_XML_ADA
 UTIL_ASM_DIR
 UTIL_LIBDIR
 EXEC_PREFIX
@@ -628,6 +630,7 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
+with_xml
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1245,6 +1248,11 @@ fi
 if test -n "$ac_init_help"; then
 
   cat <<\_ACEOF
+
+Optional Packages:
+  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-xmlada=          Enable XML serialization
 
 Some influential environment variables:
   CC          C compiler command
@@ -2903,6 +2911,52 @@ case "${host}" in
 esac
 
 UTIL_ASM_DIR="src/$src_asm"
+
+
+##########################################
+# XMLAda library
+##########################################
+
+ac_xml_ada=xmlada-config
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking xmlada library" >&5
+$as_echo_n "checking xmlada library... " >&6; }
+
+# Check whether --with-xml was given.
+if test "${with_xml+set}" = set; then :
+  withval=$with_xml;
+  ac_xml_ada=${withval}/xmlada-config
+  WITH_XML_ADA="with \"${withval}\";";
+  UTIL_XML_DIR='src/xml';
+
+else
+
+  WITH_XML_ADA='';
+  UTIL_XML_DIR='src';
+
+fi
+
+
+ac_xml_version=`$ac_xml_ada --version 2>/dev/null | sed -e 's, ,-,g'`
+case $ac_xml_version in
+  XmlAda-3.2*)
+      { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_xml_version" >&5
+$as_echo "$ac_xml_version" >&6; }
+      WITH_XML_ADA="with \"xmlada\";";
+      UTIL_XML_DIR='src/xml';
+      ;;
+
+  *)
+      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+      WITH_XML_ADA='';
+      UTIL_XML_DIR='src';
+      ;;
+
+esac
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${WITH_XML}" >&5
+$as_echo "${WITH_XML}" >&6; }
+
 
 
 ac_config_files="$ac_config_files Makefile util.gpr"
