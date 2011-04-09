@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-mappers -- Serialize objects in various formats
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,43 +16,30 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Util.Strings;
+with Util.Log.Loggers;
 with Ada.Unchecked_Deallocation;
 package body Util.Serialize.Mappers is
 
+   use Util.Log;
+
    procedure Free is new Ada.Unchecked_Deallocation (Mapping'Class, Mapping_Access);
 
-   --  -----------------------
-   --  Bind the name and the handler in the current mapper.
-   --  -----------------------
-   procedure Add_Member (Controller : in out Mapper;
-                         Name       : in String;
-                         Handler    : in Mapper_Access) is
-   begin
-      Controller.Mapping.Insert (Key      => Name,
-                                 New_Item => Handler);
-   end Add_Member;
-
-   --  -----------------------
-   --  Add the member to the current mapper.
-   --  -----------------------
-   procedure Add_Member (Controller : in out Mapper;
-                         Name       : in String) is
-   begin
-      Controller.Mapping.Insert (Key => Name, New_Item => null);
-   end Add_Member;
+   --  The logger
+   Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.Mappers");
 
    --  -----------------------
    --  Find the mapper associated with the given name.
    --  Returns null if there is no mapper.
    --  -----------------------
    function Find_Mapping (Controller : in Mapper;
-                         Name       : in String) return Mapping_Access is
-      Pos : constant Mapping_Map.Cursor := Controller.Rules.Find (Key => Name);
+                          Name       : in String) return Mapping_Access is
+      Mapper : constant Mapper_Access := Controller.Find_Mapper (Name);
    begin
-      if Mapping_Map.Has_Element (Pos) then
-         return Mapping_Map.Element (Pos);
-      else
+      if Mapper = null then
          return null;
+      else
+         return Mapper.Mapping;
       end if;
    end Find_Mapping;
 
@@ -65,27 +52,126 @@ package body Util.Serialize.Mappers is
    --  Returns null if there is no mapper.
    function Find_Mapper (Controller : in Mapper;
                          Name       : in String) return Mapper_Access is
-      Pos : constant Mapper_Map.Cursor := Controller.Mapping.Find (Key => Name);
+      use type Ada.Strings.Unbounded.Unbounded_String;
+      Node : Mapper_Access := Controller.First_Child;
    begin
-      if Mapper_Map.Has_Element (Pos) then
-         return Mapper_Map.Element (Pos);
-      else
-         return null;
+      if Node = null and Controller.Mapper /= null then
+         Node := Controller.Mapper.First_Child;
       end if;
+      while Node /= null and then Node.Name /= Name loop
+         Node := Node.Next_Mapping;
+      end loop;
+      return node;
    end Find_Mapper;
 
+   --  -----------------------
+   --  Find a path component representing a child mapper under <b>From</b> and
+   --  identified by the given <b>Name</b>.  If the mapper is not found, a new
+   --  Mapper_Node is created.
+   --  -----------------------
+   procedure Find_Path_Component (From   : in out Mapper'Class;
+                                  Name   : in String;
+                                  Result : out Mapper_Access) is
+      use Ada.Strings.Unbounded;
+
+      Node : Mapper_Access := From.First_Child;
+   begin
+      if Node = null then
+         Result := new Mapper;
+         Result.Name := To_Unbounded_String (Name);
+         From.First_Child := Result;
+         return;
+      end if;
+      loop
+         if Node.Name = Name then
+            Result := Node;
+            return;
+         end if;
+         if Node.Next_Mapping = null then
+            Result := new Mapper;
+            Result.Name := To_Unbounded_String (Name);
+            Node.Next_Mapping := Result;
+            return;
+         end if;
+         Node := Node.Next_Mapping;
+      end loop;
+   end Find_Path_Component;
+
+   --  -----------------------
+   --  Build the mapping tree that corresponds to the given <b>Path</b>.
+   --  Each path component is represented by a <b>Mapper_Node</b> element.
+   --  The node is created if it does not exists.
+   --  -----------------------
+   procedure Build_Path (Into     : in out Mapper'Class;
+                         Path     : in String;
+                         Last_Pos : out Natural;
+                         Node     : out Mapper_Access) is
+      Pos      : Natural;
+   begin
+      Node     := Into'Unchecked_Access;
+      Last_Pos := Path'First;
+      loop
+         Pos := Util.Strings.Index (Source => Path,
+                                    Char   => '/',
+                                    From   => Last_Pos);
+         if Pos = 0 then
+            Node.Find_Path_Component (Name   => Path (Last_Pos .. Path'Last),
+                                      Result => Node);
+            Last_Pos := Path'Last + 1;
+         else
+            Node.Find_Path_Component (Name   => Path (Last_Pos .. Pos - 1),
+                                      Result => Node);
+            Last_Pos := Pos + 1;
+         end if;
+         exit when Last_Pos > Path'Last;
+      end loop;
+   end Build_Path;
+
+   --  -----------------------
+   --  Add a mapping to associate the given <b>Path</b> to the mapper defined in <b>Map</b>.
+   --  The <b>Path</b> string describes the matching node using a simplified XPath notation.
+   --  Example:
+   --     info/first_name    matches:  <info><first_name>...</first_name></info>
+   --     info/a/b/name      matches:  <info><a><b><name>...</name></b></a></info>
+   --  -----------------------
    procedure Add_Mapping (Into : in out Mapper;
                           Path : in String;
-                          Map  : in Mapping_Access) is
+                          Map  : in Mapper_Access) is
+      Node     : Mapper_Access;
+      Last_Pos : Natural;
    begin
-      Into.Rules.Insert (Key => Path, New_Item => Map);
+      Log.Info ("Mapping {0} for mapper X", Path);
+
+      --  Find or build the mapping tree.
+      Into.Build_Path (Path, Last_Pos, Node);
+
+      if Last_Pos < Path'Last then
+         Log.Warn ("Ignoring the end of mapping path {0}", Path);
+      end if;
+      if Node.Mapper /= null then
+         Log.Warn ("Overriding the mapping {0} for mapper X", Path);
+      end if;
+      Node.Mapper := Map;
    end Add_Mapping;
 
    procedure Add_Mapping (Into : in out Mapper;
                           Path : in String;
-                          Map  : in Mapper_Access) is
+                          Map  : in Mapping_Access) is
+      Node     : Mapper_Access;
+      Last_Pos : Natural;
    begin
-      Into.Mapping.Insert (Key => Path, New_Item => Map);
+      Log.Info ("Mapping {0}", Path);
+
+      --  Find or build the mapping tree.
+      Into.Build_Path (Path, Last_Pos, Node);
+
+      if Last_Pos < Path'Last then
+         Log.Warn ("Ignoring the end of mapping path {0}", Path);
+      end if;
+      if Node.Mapping /= null then
+         Log.Warn ("Overriding the mapping {0} for mapper X", Path);
+      end if;
+      Node.Mapping := Map;
    end Add_Mapping;
 
    --  -----------------------
@@ -122,16 +208,17 @@ package body Util.Serialize.Mappers is
    --  -----------------------
    overriding
    procedure Finalize (Controller : in out Mapper) is
-      Pos     : Mapping_Map.Cursor;
-      Content : Mapping_Access;
+--        Pos     : Mapping_Map.Cursor;
+--        Content : Mapping_Access;
    begin
-      loop
-         Pos := Controller.Rules.First;
-         exit when not Mapping_Map.Has_Element (Pos);
-         Content := Mapping_Map.Element (Pos);
-         Free (Content);
-         Controller.Rules.Delete (Pos);
-      end loop;
+--        loop
+--           Pos := Controller.Rules.First;
+--           exit when not Mapping_Map.Has_Element (Pos);
+--           Content := Mapping_Map.Element (Pos);
+--           Free (Content);
+--           Controller.Rules.Delete (Pos);
+--        end loop;
+      null;
    end Finalize;
 
 end Util.Serialize.Mappers;

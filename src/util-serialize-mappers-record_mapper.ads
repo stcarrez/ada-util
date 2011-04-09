@@ -149,9 +149,7 @@ private
                          Element : in out Element_Type;
                          Value   : in Util.Beans.Objects.Object);
 
-   type Proxy_Mapper is new Mapper with record
-      Mapper  : Util.Serialize.Mappers.Mapper_Access;
-   end record;
+   type Proxy_Mapper is new Mapper with null record;
    type Proxy_Mapper_Access is access all Proxy_Mapper'Class;
 
    --  Find the mapper associated with the given name.

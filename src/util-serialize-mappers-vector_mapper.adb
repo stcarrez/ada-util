@@ -71,7 +71,7 @@ package body Util.Serialize.Mappers.Vector_Mapper is
    begin
       Data_Context.Vector   := Data;
       Data_Context.Position := Index_Type'First;
-      Ctx.Set_Data (Key => Key, Content => Data_Context.all'Access);
+      Ctx.Set_Data (Key => Key, Content => Data_Context.all'Unchecked_Access);
    end Set_Context;
 
    --  Execute the mapping operation on the object associated with the current context.
@@ -140,11 +140,11 @@ package body Util.Serialize.Mappers.Vector_Mapper is
 
       M : Proxy_Mapper_Access := new Proxy_Mapper;
    begin
-      M.Mapper  := Inner.all'Access;
+      M.Mapper  := Inner.all'Unchecked_Access;
 --        M.Execute := Proxy;
       M.Is_Proxy_Mapper := True;
       --        Into.Add_Mapping (Path, M.all'Access);
-      Into.Element_Map := M.all'Access;
+      Into.Element_Map := M.all'Unchecked_Access;
       null; -- Element_Mapper.Copy (Into.Map, Inner, Execute_Object'Access);
    end Set_Mapping;
 

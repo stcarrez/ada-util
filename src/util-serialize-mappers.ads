@@ -19,14 +19,13 @@ with Util.Beans.Objects;
 with Ada.Strings.Hash;
 with Ada.Strings.Unbounded;
 with Util.Serialize.Contexts;
-with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Finalization;
 package Util.Serialize.Mappers is
 
    Mapping_Error : exception;
 
    --  ------------------------------
-   --  Mapping node
+   --  Mapping
    --  ------------------------------
    --  The <b>Mapping</b> represents a rule component to establish a mapping
    --  when reading some format (XML, JSON).
@@ -36,24 +35,23 @@ package Util.Serialize.Mappers is
    --  ------------------------------
    --  Mapper
    --  ------------------------------
-   type Mapper is abstract new Ada.Finalization.Limited_Controlled with private;
+   --  The <b>Mapper</b> represents a node of the mapping tree.  The mapping
+   --  tree is walked horizontally to find siblings.  It is walked vertically when
+   --  entering or leaving an object.
+   type Mapper is new Ada.Finalization.Limited_Controlled with private;
    type Mapper_Access is access all Mapper'Class;
+
+   --  Find the mapping associated with the given attribute name.
+   --  Returns null if there is no mapping.
+   function Find_Mapping (Controller : in Mapper;
+                          Name       : in String) return Mapping_Access;
 
    --  Execute the mapping operation on the object associated with the current context.
    --  The object is extracted from the context and the <b>Execute</b> operation is called.
    procedure Execute (Handler : in Mapper;
                       Map     : in Mapping'Class;
                       Ctx     : in out Util.Serialize.Contexts.Context'Class;
-                      Value   : in Util.Beans.Objects.Object) is abstract;
-
-   --  Bind the name and the handler in the current mapper.
-   procedure Add_Member (Controller : in out Mapper;
-                         Name       : in String;
-                         Handler    : in Mapper_Access);
-
-   --  Add the member to the current mapper.
-   procedure Add_Member (Controller : in out Mapper;
-                         Name       : in String);
+                      Value   : in Util.Beans.Objects.Object) is null;
 
    --  Add a mapping for setting a member.  When the attribute rule defined by <b>Path</b>
    --  is matched, the <b>Set_Member</b> procedure will be called with the value and the
@@ -83,8 +81,8 @@ package Util.Serialize.Mappers is
 
    --  Find the mapper associated with the given name.
    --  Returns null if there is no mapper.
-   function Find_Mapping (Controller : in Mapper;
-                          Name       : in String) return Mapping_Access;
+--     function Find_Mapping (Controller : in Mapper;
+--                            Name       : in String) return Mapping_Access;
 
    --  Find the mapper associated with the given name.
    --  Returns null if there is no mapper.
@@ -94,13 +92,21 @@ package Util.Serialize.Mappers is
 
    function Is_Proxy (Controller : in Mapper) return Boolean;
 
-   package Mapper_Map is new Ada.Containers.Indefinite_Hashed_Maps
-     (Key_Type        => String,
-      Element_Type    => Mapper_Access,
-      Hash            => Ada.Strings.Hash,
-      Equivalent_Keys => "=");
-
 private
+   --  Find a path component representing a child mapper under <b>From</b> and
+   --  identified by the given <b>Name</b>.  If the mapper is not found, a new
+   --  Mapper_Node is created.
+   procedure Find_Path_Component (From   : in out Mapper'Class;
+                                  Name   : in String;
+                                  Result : out Mapper_Access);
+
+   --  Build the mapping tree that corresponds to the given <b>Path</b>.
+   --  Each path component is represented by a <b>Mapper_Node</b> element.
+   --  The node is created if it does not exists.
+   procedure Build_Path (Into     : in out Mapper'Class;
+                         Path     : in String;
+                         Last_Pos : out Natural;
+                         Node     : out Mapper_Access);
 
    type Mapping is abstract tagged limited record
       Mapper : Mapper_Access;
@@ -118,16 +124,13 @@ private
 --        Child : Mapping_Access;
 --     end record;
 
-   package Mapping_Map is new Ada.Containers.Indefinite_Hashed_Maps
-     (Key_Type        => String,
-      Element_Type    => Mapping_Access,
-      Hash            => Ada.Strings.Hash,
-      Equivalent_Keys => "=");
-
-   type Mapper is abstract new Ada.Finalization.Limited_Controlled with record
-      Mapping : Mapper_Map.Map;
-      Rules   : Mapping_Map.Map;
-      Is_Proxy_Mapper : Boolean := false;
+   type Mapper is new Ada.Finalization.Limited_Controlled with record
+      Next_Mapping : Mapper_Access := null;
+      First_Child  : Mapper_Access := null;
+      Mapper       : Mapper_Access := null;
+      Mapping      : Mapping_Access := null;
+      Name         : Ada.Strings.Unbounded.Unbounded_String;
+      Is_Proxy_Mapper : Boolean := False;
    end record;
 
    --  Finalize the object and release any mapping.

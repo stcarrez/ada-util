@@ -17,9 +17,15 @@
 -----------------------------------------------------------------------
 with Util.Serialize.Contexts;
 with Util.Strings.Transforms;
+with Util.Log.Loggers;
 package body Util.Serialize.Mappers.Record_Mapper is
 
+   use Util.Log;
+
    Key : Util.Serialize.Contexts.Data_Key;
+
+   --  The logger
+   Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.Mappers.Record_Mapper");
 
    --  -----------------------
    --  Get the element object.
@@ -72,7 +78,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
       Map : constant Attribute_Mapping_Access := new Attribute_Mapping;
    begin
       Map.Index   := Field;
-      Into.Add_Mapping (Path, Map.all'Access);
+      Into.Add_Mapping (Path, Map.all'Unchecked_Access);
    end Add_Mapping;
 
    --  -----------------------
@@ -84,12 +90,12 @@ package body Util.Serialize.Mappers.Record_Mapper is
                           Path  : in String;
                           Map   : in Util.Serialize.Mappers.Mapper_Access;
                           Proxy : in Proxy_Object) is
-     M : Proxy_Mapper_Access := new Proxy_Mapper;
+     M : constant Proxy_Mapper_Access := new Proxy_Mapper;
    begin
       M.Mapper  := Map;
       M.Execute := Proxy;
       M.Is_Proxy_Mapper := True;
-      Into.Mapping.Insert (Key => Path, New_Item => M.all'Access);
+      Into.Add_Mapping (Path, M.all'Access);
    end Add_Mapping;
 
    --
@@ -172,21 +178,22 @@ package body Util.Serialize.Mappers.Record_Mapper is
                    Process : in Process_Object) is
       pragma Unreferenced (Process);
 
-      Iter : Mapping_Map.Cursor := From.Rules.First;
+--        Iter : Mapping_Map.Cursor; --  := From.Rules.First;
    begin
-      Into.Get_Member := From.Get_Member;
-      while Mapping_Map.Has_Element (Iter) loop
-         declare
-            Path : constant String := Mapping_Map.Key (Iter);
-            E    : constant Mapping_Access := Mapping_Map.Element (Iter);
-            Map  : constant Attribute_Mapping_Access := Attribute_Mapping'Class (E.all)'Access;
-            N    : constant Attribute_Mapping_Access := new Attribute_Mapping;
-         begin
-            N.Index := Map.Index;
-            Into.Add_Mapping (Path, N.all'Access);
-         end;
-         Mapping_Map.Next (Iter);
-      end loop;
+      Log.Error ("Copy is not implemented");
+--        Into.Get_Member := From.Get_Member;
+--        while Mapping_Map.Has_Element (Iter) loop
+--           declare
+--              Path : constant String := Mapping_Map.Key (Iter);
+--              E    : constant Mapping_Access := Mapping_Map.Element (Iter);
+--              Map  : constant Attribute_Mapping_Access := Attribute_Mapping'Class (E.all)'Access;
+--              N    : constant Attribute_Mapping_Access := new Attribute_Mapping;
+--           begin
+--              N.Index := Map.Index;
+--              Into.Add_Mapping (Path, N.all'Access);
+--           end;
+--           Mapping_Map.Next (Iter);
+--        end loop;
    end Copy;
 
    --  -----------------------
@@ -216,21 +223,22 @@ package body Util.Serialize.Mappers.Record_Mapper is
    procedure Write (Handler : in Mapper;
                     Stream  : in out Util.Serialize.IO.Output_Stream'Class;
                     Element : in Element_Type) is
-      Iter : Mapping_Map.Cursor := Handler.Rules.First;
+--        Iter : Mapping_Map.Cursor; --  := Handler.Rules.First;
    begin
-      Stream.Start_Entity ("");
-      while Mapping_Map.Has_Element (Iter) loop
-         declare
-            Path : constant String := Mapping_Map.Key (Iter);
-            E    : constant Mapping_Access := Mapping_Map.Element (Iter);
-            Map  : constant Attribute_Mapping_Access := Attribute_Mapping'Class (E.all)'Access;
-            Val  : constant Util.Beans.Objects.Object := Handler.Get_Member (Element, Map.Index);
-         begin
-            Stream.Write_Attribute (Name  => Path, Value => Val);
-         end;
-         Mapping_Map.Next (Iter);
-      end loop;
-      Stream.End_Entity ("");
+      Log.Error ("Write is not implemented");
+--        Stream.Start_Entity ("");
+--        while Mapping_Map.Has_Element (Iter) loop
+--           declare
+--              Path : constant String := Mapping_Map.Key (Iter);
+--              E    : constant Mapping_Access := Mapping_Map.Element (Iter);
+--              Map  : constant Attribute_Mapping_Access := Attribute_Mapping'Class (E.all)'Access;
+--              Val  : constant Util.Beans.Objects.Object := Handler.Get_Member (Element, Map.Index);
+--           begin
+--              Stream.Write_Attribute (Name  => Path, Value => Val);
+--           end;
+--           Mapping_Map.Next (Iter);
+--        end loop;
+--        Stream.End_Entity ("");
    end Write;
 
 begin
