@@ -94,6 +94,10 @@ package Util.Streams.Buffered is
    --  <b>last</b> the position of the last byte read.
    procedure Read (Stream : in out Buffered_Stream;
                    Into   : in out Ada.Strings.Unbounded.Unbounded_String);
+
+   --  Returns True if the end of the stream is reached.
+   function Is_Eof (Stream : in Buffered_Stream) return Boolean;
+
 private
 
    use Ada.Streams;
