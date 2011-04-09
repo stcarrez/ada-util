@@ -104,8 +104,12 @@ package Util.Serialize.IO is
 
 private
 
-   procedure Push (Handler : in out Parser;
-                   Mapper  : in Util.Serialize.Mappers.Mapper_Access);
+   --  Implementation limitation:  the max number of active mapping nodes
+   MAX_NODES : constant Positive := 10;
+
+   type Mapper_Access_Array is array (1 .. MAX_NODES) of Serialize.Mappers.Mapper_Access;
+
+   procedure Push (Handler : in out Parser);
 
    --  Pop the context and restore the previous context when leaving an element
    procedure Pop (Handler  : in out Parser);
@@ -115,10 +119,13 @@ private
 
    type Element_Context is record
       --  The object mapper being process.
-      Object_Mapper :Util.Serialize.Mappers.Mapper_Access;
+      Object_Mapper : Util.Serialize.Mappers.Mapper_Access;
 
       --  The current inner mapper within the object mapper.
-      Mapper        : Util.Serialize.Mappers.Mapper_Access;
+--        Mapper        : Util.Serialize.Mappers.Mapper_Access;
+
+      --  The active mapping nodes.
+      Active_Nodes : Mapper_Access_Array;
    end record;
    type Element_Context_Access is access all Element_Context;
 
@@ -128,7 +135,7 @@ private
    type Parser is abstract new Util.Serialize.Contexts.Context with record
       Error_Flag     : Boolean := False;
       Stack          : Context_Stack.Stack;
-      Mappers        : Util.Serialize.Mappers.Mapper_Map.Map;
+      Mapping_Tree   : aliased Mappers.Mapper;
       Current_Mapper : Util.Serialize.Mappers.Mapper_Access;
    end record;
 

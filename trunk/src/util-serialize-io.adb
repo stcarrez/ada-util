@@ -55,19 +55,10 @@ package body Util.Serialize.IO is
    --  ------------------------------
    --  Push the current context when entering in an element.
    --  ------------------------------
-   procedure Push (Handler : in out Parser;
-                   Mapper  : in Util.Serialize.Mappers.Mapper_Access) is
+   procedure Push (Handler : in out Parser) is
       use type Util.Serialize.Mappers.Mapper_Access;
    begin
       Context_Stack.Push (Handler.Stack);
-      declare
-         Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
-      begin
-         Current.Mapper := Mapper;
-         if Current.Object_Mapper = null or else (Mapper /= null and then Mapper.Is_Proxy) then
-            Current.Object_Mapper := Mapper;
-         end if;
-      end;
    end Push;
 
    --  ------------------------------
@@ -80,25 +71,26 @@ package body Util.Serialize.IO is
 
    function Find_Mapper (Handler : in Parser;
                          Name    : in String) return Util.Serialize.Mappers.Mapper_Access is
-      use type Util.Serialize.Mappers.Mapper_Access;
-
-      Pos     : Util.Serialize.Mappers.Mapper_Map.Cursor;
-      Map     : Util.Serialize.Mappers.Mapper_Access;
-      Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
+--        use type Util.Serialize.Mappers.Mapper_Access;
+--
+--        Pos     : Util.Serialize.Mappers.Mapper_Map.Cursor;
+--        Map     : Util.Serialize.Mappers.Mapper_Access;
+--        Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
    begin
-      if Current /= null and then Current.Mapper /= null then
-         Map := Current.Mapper.Find_Mapper (Name);
-         if Map /= null then
-            return Map;
-         end if;
-      end if;
-      Pos := Handler.Mappers.Find (Name);
-      if Util.Serialize.Mappers.Mapper_Map.Has_Element (Pos) then
-         Map := Util.Serialize.Mappers.Mapper_Map.Element (Pos);
-         return Map;
-      end if;
+--        if Current /= null and then Current.Mapper /= null then
+--           Map := Current.Mapper.Find_Mapper (Name);
+--           if Map /= null then
+--              return Map;
+--           end if;
+--        end if;
+--        Pos := Handler.Mappers.Find (Name);
+--        if Util.Serialize.Mappers.Mapper_Map.Has_Element (Pos) then
+--           Map := Util.Serialize.Mappers.Mapper_Map.Element (Pos);
+--           return Map;
+--        end if;
       return null;
    end Find_Mapper;
+
 
    --  Start a new object associated with the given name.  This is called when
    --  the '{' is reached.  The reader must be updated so that the next
@@ -109,20 +101,37 @@ package body Util.Serialize.IO is
 
       use type Util.Serialize.Mappers.Mapper_Access;
 
-      Map     : constant Util.Serialize.Mappers.Mapper_Access := Handler.Find_Mapper (Name);
       Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
+      Next    : Element_Context_Access;
+      Pos     : Positive;
    begin
-      if Current /= null and then Current.Mapper /= null then
-         Current.Mapper.Start_Object (Handler, Name);
-      end if;
-      Handler.Push (Map);
---        for I in Handler.Contexts loop
---           Map := Ctx.Find_Mapper (Name);
---           if Map /= null then
---              Ctx.Push_Mapper (Map);
---           end if;
---        end loop;
+      Context_Stack.Push (Handler.Stack);
+      Next := Context_Stack.Current (Handler.Stack);
+      if Current /= null then
+         Pos := 1;
 
+         --  Notify we are entering in the given node for each active mapping.
+         for I in Current.Active_Nodes'Range loop
+            declare
+               Node : constant Mappers.Mapper_Access := Current.Active_Nodes (I);
+               Child : Mappers.Mapper_Access;
+            begin
+               exit when Node = null;
+               Node.Start_Object (Handler, Name);
+               Child := Node.Find_Mapper (Name => Name);
+               if Child /= null then
+                  Next.Active_Nodes (Pos) := Child;
+                  Pos := Pos + 1;
+               end if;
+            end;
+         end loop;
+         while Pos <= Next.Active_Nodes'Last loop
+            Next.Active_Nodes (Pos) := null;
+            Pos := Pos + 1;
+         end loop;
+      else
+         Next.Active_Nodes (1) := Handler.Mapping_Tree.Find_Mapper (Name);
+      end if;
    end Start_Object;
 
    --  Finish an object associated with the given name.  The reader must be
@@ -136,17 +145,24 @@ package body Util.Serialize.IO is
       declare
          Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
       begin
-         if Current /= null and then Current.Mapper /= null then
-            Current.Mapper.Finish_Object (Handler, Name);
+         if Current /= null then
+            --  Notify we are leaving the given node for each active mapping.
+            for I in Current.Active_Nodes'Range loop
+               declare
+                  Node : constant Mappers.Mapper_Access := Current.Active_Nodes (I);
+               begin
+                  exit when Node = null;
+                  Node.Finish_Object (Handler, Name);
+               end;
+            end loop;
          end if;
       end;
    end Finish_Object;
 
    procedure Start_Array (Handler : in out Parser;
                           Name    : in String) is
-      Map : constant Util.Serialize.Mappers.Mapper_Access := Handler.Find_Mapper (Name);
    begin
-      Handler.Push (Map);
+      Handler.Push;
    end Start_Array;
 
    procedure Finish_Array (Handler : in out Parser;
@@ -167,14 +183,19 @@ package body Util.Serialize.IO is
 
       Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
    begin
-      if Current /= null and then Current.Mapper /= null then
-         declare
-            Map : constant Mapping_Access := Current.Mapper.Find_Mapping (Name);
-         begin
-            if Map /= null then
-               Current.Object_Mapper.Execute (Map.all, Handler, Value);
-            end if;
-         end;
+      if Current /= null then
+
+         --  Look each active mapping node.
+         for I in Current.Active_Nodes'Range loop
+            declare
+               Node : constant Mapper_Access := Current.Active_Nodes (I);
+            begin
+               exit when Node = null;
+               Node.Set_Member (Name    => Name,
+                                Value   => Value,
+                                Context => Handler);
+            end;
+         end loop;
        end if;
    end Set_Member;
 
@@ -189,7 +210,7 @@ package body Util.Serialize.IO is
                           Path    : in String;
                           Mapper  : in Util.Serialize.Mappers.Mapper_Access) is
    begin
-      Handler.Mappers.Insert (Path, Mapper);
+      Handler.Mapping_Tree.Add_Mapping (Path, Mapper);
    end Add_Mapping;
 
 end Util.Serialize.IO;
