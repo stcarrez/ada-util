@@ -121,31 +121,29 @@ package body Util.Serialize.Mappers.Vector_Mapper is
 
    --  Find the mapper associated with the given name.
    --  Returns null if there is no mapper.
-   overriding
-   function Find_Mapper (Controller : in Proxy_Mapper;
-                         Name       : in String) return Util.Serialize.Mappers.Mapper_Access is
-      Result : constant Mappers.Mapper_Access := Controller.Mapper.Find_Mapper (Name);
-   begin
-      if Result /= null then
-         return Result;
-      else
-         return Util.Serialize.Mappers.Mapper (Controller).Find_Mapper (Name);
-      end if;
-   end Find_Mapper;
+--     overriding
+--     function Find_Mapper (Controller : in Proxy_Mapper;
+--                           Name       : in String) return Util.Serialize.Mappers.Mapper_Access is
+--        Result : constant Mappers.Mapper_Access := Controller.Mapper.Find_Mapper (Name);
+--     begin
+--        if Result /= null then
+--           return Result;
+--        else
+--           return Util.Serialize.Mappers.Mapper (Controller).Find_Mapper (Name);
+--        end if;
+--     end Find_Mapper;
 
    procedure Set_Mapping (Into  : in out Mapper;
-                          Path  : in String;
                           Inner : in Element_Mapper.Mapper_Access) is
-      pragma Unreferenced (Path);
-
       M : Proxy_Mapper_Access := new Proxy_Mapper;
    begin
       M.Mapper  := Inner.all'Unchecked_Access;
 --        M.Execute := Proxy;
       M.Is_Proxy_Mapper := True;
       --        Into.Add_Mapping (Path, M.all'Access);
-      Into.Element_Map := M.all'Unchecked_Access;
+--        Into.Element_Map := M.all'Unchecked_Access;
       null; -- Element_Mapper.Copy (Into.Map, Inner, Execute_Object'Access);
+      Into.Mapper := Inner.all'Unchecked_Access;
    end Set_Mapping;
 
    --  -----------------------
@@ -164,15 +162,14 @@ package body Util.Serialize.Mappers.Vector_Mapper is
    --  -----------------------
    function Find_Mapper (Controller : in Mapper;
                          Name       : in String) return Util.Serialize.Mappers.Mapper_Access is
-      pragma Unreferenced (Name);
    begin
-      return Controller.Element_Map.all'Unchecked_Access;
+      return Controller.Mapper.Find_Mapper (Name);
    end Find_Mapper;
 
    overriding
    procedure Initialize (Controller : in out Mapper) is
    begin
-      Controller.Element_Map := Controller.Map'Unchecked_Access;
+      Controller.Mapper := Controller.Map'Unchecked_Access;
    end Initialize;
 
    procedure Start_Object (Handler : in Mapper;

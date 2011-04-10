@@ -113,13 +113,14 @@ package body Util.Serialize.IO is
          --  Notify we are entering in the given node for each active mapping.
          for I in Current.Active_Nodes'Range loop
             declare
-               Node : constant Mappers.Mapper_Access := Current.Active_Nodes (I);
+               Node  : constant Mappers.Mapper_Access := Current.Active_Nodes (I);
                Child : Mappers.Mapper_Access;
             begin
                exit when Node = null;
-               Node.Start_Object (Handler, Name);
+--                 Node.Start_Object (Handler, Name);
                Child := Node.Find_Mapper (Name => Name);
                if Child /= null then
+                  Child.Start_Object (Handler, Name);
                   Next.Active_Nodes (Pos) := Child;
                   Pos := Pos + 1;
                end if;
@@ -141,7 +142,7 @@ package body Util.Serialize.IO is
 
       use type Util.Serialize.Mappers.Mapper_Access;
    begin
-      Handler.Pop;
+
       declare
          Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
       begin
@@ -157,6 +158,7 @@ package body Util.Serialize.IO is
             end loop;
          end if;
       end;
+      Handler.Pop;
    end Finish_Object;
 
    procedure Start_Array (Handler : in out Parser;

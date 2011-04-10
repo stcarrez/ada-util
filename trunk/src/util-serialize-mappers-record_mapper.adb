@@ -134,7 +134,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
       Data_Context : constant Element_Data_Access := new Element_Data;
    begin
       Data_Context.Element := Element;
-      Ctx.Set_Data (Key => Key, Content => Data_Context.all'Access);
+      Ctx.Set_Data (Key => Key, Content => Data_Context.all'Unchecked_Access);
    end Set_Context;
 
    --  -----------------------
