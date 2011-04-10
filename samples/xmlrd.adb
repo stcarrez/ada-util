@@ -33,6 +33,7 @@ with Util.Serialize.Mappers.Vector_Mapper;
 with Util.Serialize.IO.XML;
 procedure Xmlrd is
 
+   use Ada.Containers;
    use Util.Streams.Buffered;
    use Ada.Strings.Unbounded;
    use type Mapping.Person_Access;
@@ -42,9 +43,10 @@ procedure Xmlrd is
 
    Count  : constant Natural := Ada.Command_Line.Argument_Count;
 
-   type Rule_Fields is (FIELD_ROLE, FIELD_URL_PATTERN);
+   type Rule_Fields is (FIELD_ID, FIELD_ROLE, FIELD_URL_PATTERN);
 
    type Rule is record
+      Id       : Integer := -1;
       Roles    : Util.Beans.Objects.Vectors.Vector;
       Patterns : Util.Beans.Objects.Vectors.Vector;
    end record;
@@ -58,6 +60,8 @@ procedure Xmlrd is
                          Field : in Rule_Fields;
                          Value : in Util.Beans.Objects.Object) is
    begin
+      Ada.Text_IO.Put_Line ("Set member " & Rule_Fields'Image (Field)
+                            & " to " & Util.Beans.Objects.To_String (Value));
       case Field is
          when FIELD_ROLE =>
             P.Roles.Append (Value);
@@ -65,6 +69,8 @@ procedure Xmlrd is
          when FIELD_URL_PATTERN =>
             P.Patterns.Append (Value);
 
+         when FIELD_ID =>
+            P.Id := Util.Beans.Objects.To_Integer (Value);
       end case;
    end Set_Member;
 
@@ -79,8 +85,17 @@ procedure Xmlrd is
                                                Element_Mapper => Rule_Mapper);
 
    procedure Print (P : in Rule) is
+      procedure Print_Value (Pos : in Util.Beans.Objects.Vectors.Cursor) is
+         Item : Util.Beans.Objects.Object := Util.Beans.Objects.Vectors.Element (Pos);
+      begin
+         Ada.Text_IO.Put_Line ("     " & Util.Beans.Objects.To_String (Item));
+      end Print_Value;
    begin
-      Ada.Text_IO.Put_Line ("rule : ");
+      Ada.Text_IO.Put_Line ("rule: " & Integer'Image (P.Id));
+      Ada.Text_IO.Put_Line ("  roles:");
+      P.Roles.Iterate (Process => Print_Value'Access);
+      Ada.Text_IO.Put_Line ("  url:");
+      P.Patterns.Iterate (Process => Print_Value'Access);
    end Print;
 
    procedure Print (P : in Rule_Vector.Cursor) is
@@ -99,44 +114,27 @@ begin
 
    Rule_Mapping.Add_Mapping ("role", FIELD_ROLE);
    Rule_Mapping.Add_Mapping ("url-pattern", FIELD_URL_PATTERN);
-   Rule_Vector_Mapping.Set_Mapping ("", Rule_Mapping'Unchecked_Access);
+   Rule_Mapping.Add_Mapping ("internal/info/id", FIELD_ID);
+   Rule_Mapping.Add_Mapping ("@id", FIELD_ID);
+   Rule_Vector_Mapping.Set_Mapping (Rule_Mapping'Unchecked_Access);
 
-   Reader.Add_Mapping ("access-rules/rule", Rule_Vector_Mapping'Unchecked_Access);
+   Reader.Add_Mapping ("access-rules/rule", Rule_Mapping'Unchecked_Access);
+--     Reader.Add_Mapping ("access-rules/rule", Rule_Vector_Mapping'Unchecked_Access);
 
    for I in 1 .. Count loop
       declare
          S    : constant String := Ada.Command_Line.Argument (I);
 
          List : aliased Rule_Vector_Mapper.Vector;
+         R    : aliased Rule;
       begin
          Rule_Vector_Mapper.Set_Context (Reader, List'Unchecked_Access);
+         Rule_Mapper.Set_Context (Reader, R'Unchecked_Access);
          Reader.Parse (S);
 
+         Ada.Text_IO.Put_Line ("Rule count: " & Count_Type'Image (List.Length));
          --  The list now contains our elements.
          List.Iterate (Process => Print'Access);
---           if List.Length = 0 then
---              Print (P);
---           end if;
---
---           declare
---              Output : Util.Serialize.IO.JSON.Output_Stream;
---           begin
---              Output.Initialize (Size => 10000);
---              Mapping.Get_Person_Mapper.Write (Output, P);
---              Ada.Text_IO.Put_Line ("Person: " & Util.Streams.Texts.To_String (Buffered_Stream (Output)));
---           end;
-
---           declare
---              Output : Util.Serialize.IO.JSON.Output_Stream;
---           begin
---              Output.Initialize (Size => 10000);
---              Output.Write ("{""list"":");
---              Mapping.Get_Person_Vector_Mapper.Write (Output, List);
---              Output.Write ("}");
---
---              Ada.Text_IO.Put_Line ("IO:");
---              Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Buffered_Stream (Output)));
---           end;
       end;
    end loop;
 end Xmlrd;
