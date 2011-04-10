@@ -51,7 +51,7 @@ package Util.Serialize.Mappers is
    procedure Execute (Handler : in Mapper;
                       Map     : in Mapping'Class;
                       Ctx     : in out Util.Serialize.Contexts.Context'Class;
-                      Value   : in Util.Beans.Objects.Object) is null;
+                      Value   : in Util.Beans.Objects.Object);
 
    --  Add a mapping for setting a member.  When the attribute rule defined by <b>Path</b>
    --  is matched, the <b>Set_Member</b> procedure will be called with the value and the

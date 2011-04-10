@@ -78,7 +78,6 @@ package Util.Serialize.Mappers.Vector_Mapper is
                           Data : in Vector_Type_Access);
 
    procedure Set_Mapping (Into  : in out Mapper;
-                          Path  : in String;
                           Inner : in Element_Mapper.Mapper_Access);
 
    --  Find the mapper associated with the given name.
@@ -113,7 +112,6 @@ private
 
    type Mapper is new Util.Serialize.Mappers.Mapper with record
       Map         : aliased Element_Mapper.Mapper;
-      Element_Map : Util.Serialize.Mappers.Mapper_Access;
    end record;
 
    overriding
@@ -130,8 +128,8 @@ private
 
    --  Find the mapper associated with the given name.
    --  Returns null if there is no mapper.
-   overriding
-   function Find_Mapper (Controller : in Proxy_Mapper;
-                         Name       : in String) return Util.Serialize.Mappers.Mapper_Access;
+--     overriding
+--     function Find_Mapper (Controller : in Proxy_Mapper;
+--                           Name       : in String) return Util.Serialize.Mappers.Mapper_Access;
 
 end Util.Serialize.Mappers.Vector_Mapper;

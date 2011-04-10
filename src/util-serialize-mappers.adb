@@ -43,6 +43,21 @@ package body Util.Serialize.Mappers is
       end if;
    end Find_Mapping;
 
+   --  Execute the mapping operation on the object associated with the current context.
+   --  The object is extracted from the context and the <b>Execute</b> operation is called.
+   procedure Execute (Handler : in Mapper;
+                      Map     : in Mapping'Class;
+                      Ctx     : in out Util.Serialize.Contexts.Context'Class;
+                      Value   : in Util.Beans.Objects.Object) is
+   begin
+      Log.Info ("Execute map {0} on mapper {1}",
+                Ada.Strings.Unbounded.To_String (Map.Name),
+                Ada.Strings.Unbounded.To_String (Handler.Name));
+      if Handler.Mapper /= null then
+         Handler.Mapper.all.Execute (Map, Ctx, Value);
+      end if;
+   end Execute;
+
    function Is_Proxy (Controller : in Mapper) return Boolean is
    begin
       return Controller.Is_Proxy_Mapper;
@@ -56,7 +71,7 @@ package body Util.Serialize.Mappers is
       Node : Mapper_Access := Controller.First_Child;
    begin
       if Node = null and Controller.Mapper /= null then
-         Node := Controller.Mapper.First_Child;
+         return Controller.Mapper.Find_Mapper (Name);
       end if;
       while Node /= null and then Node.Name /= Name loop
          Node := Node.Next_Mapping;
@@ -193,14 +208,19 @@ package body Util.Serialize.Mappers is
                            Context : in out Util.Serialize.Contexts.Context'Class;
                            Name    : in String) is
    begin
-      null;
+      Log.Info ("Start object {0} in mapper {1}", Name, Ada.Strings.Unbounded.To_String (Handler.Name));
+      if Handler.Mapper /= null then
+         Handler.Mapper.Start_Object (Context, Name);
+      end if;
    end Start_Object;
 
    procedure Finish_Object (Handler : in Mapper;
                             Context : in out Util.Serialize.Contexts.Context'Class;
                             Name    : in String) is
    begin
-      null;
+      if Handler.Mapper /= null then
+         Handler.Mapper.Finish_Object (Context, Name);
+      end if;
    end Finish_Object;
 
    --  -----------------------

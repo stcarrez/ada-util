@@ -210,6 +210,7 @@ package body Util.Serialize.IO.XML is
    begin
       --  Pop the current context to restore the last context.
       Pop (Handler);
+      Handler.Handler.Finish_Object (Local_Name);
       if Length (Handler.Text) > 0 then
          Log.Info ("Close object {0} -> {1}", Local_Name, To_String (Handler.Text));
          Handler.Handler.Set_Member (Local_Name, Util.Beans.Objects.To_Object (Handler.Text));
