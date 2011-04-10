@@ -233,5 +233,5 @@ begin
   --   Person_Mapper.Add_Mapping ("info/*");
    --  Person_Mapper.Add_Mapping ("address/street/@number");
 
-   Person_Vector_Mapping.Set_Mapping ("person", Person_Mapping'Access);
+   Person_Vector_Mapping.Set_Mapping (Person_Mapping'Access);
 end Mapping;
