@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Beans.Objects;
-with Ada.Strings.Hash;
 with Ada.Strings.Unbounded;
 with Util.Serialize.Contexts;
 with Ada.Finalization;
@@ -66,10 +65,11 @@ package Util.Serialize.Mappers is
 
    --  Set the name/value pair on the current object.  For each active mapping,
    --  find whether a rule matches our name and execute it.
-   procedure Set_Member (Handler : in Mapper;
-                         Name    : in String;
-                         Value   : in Util.Beans.Objects.Object;
-                         Context : in out Util.Serialize.Contexts.Context'Class);
+   procedure Set_Member (Handler   : in Mapper;
+                         Name      : in String;
+                         Value     : in Util.Beans.Objects.Object;
+                         Attribute : in Boolean := False;
+                         Context   : in out Util.Serialize.Contexts.Context'Class);
 
    procedure Start_Object (Handler : in Mapper;
                            Context : in out Util.Serialize.Contexts.Context'Class;
@@ -81,13 +81,9 @@ package Util.Serialize.Mappers is
 
    --  Find the mapper associated with the given name.
    --  Returns null if there is no mapper.
---     function Find_Mapping (Controller : in Mapper;
---                            Name       : in String) return Mapping_Access;
-
-   --  Find the mapper associated with the given name.
-   --  Returns null if there is no mapper.
    function Find_Mapper (Controller : in Mapper;
-                         Name       : in String) return Mapper_Access;
+                         Name       : in String;
+                         Attribute  : in Boolean := False) return Mapper_Access;
 
 
    function Is_Proxy (Controller : in Mapper) return Boolean;
@@ -109,20 +105,10 @@ private
                          Node     : out Mapper_Access);
 
    type Mapping is abstract tagged limited record
-      Mapper : Mapper_Access;
-      Name   : Ada.Strings.Unbounded.Unbounded_String;
+      Mapper       : Mapper_Access;
+      Name         : Ada.Strings.Unbounded.Unbounded_String;
+      Is_Attribute : Boolean := False;
    end record;
-
---     type Entity_Mapping is new Mapping with null record;
---
---     type Attribute_Mapping is new Mapping with record
---        Target : Ada.Strings.Unbounded.Unbounded_String;
---     end record;
-
---     type Node_Mapping is new Mapping with record
---        Next  : Mapping_Access;
---        Child : Mapping_Access;
---     end record;
 
    type Mapper is new Ada.Finalization.Limited_Controlled with record
       Next_Mapping : Mapper_Access := null;
@@ -136,10 +122,5 @@ private
    --  Finalize the object and release any mapping.
    overriding
    procedure Finalize (Controller : in out Mapper);
---
---     type Proxy_Mapper is abstract new Mapper with record
---        Mapper : Mapper_Access;
---     end record;
---     type Proxy_Mapper_Access is access all Proxy_Mapper'Class;
 
 end Util.Serialize.Mappers;

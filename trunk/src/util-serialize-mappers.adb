@@ -43,16 +43,15 @@ package body Util.Serialize.Mappers is
       end if;
    end Find_Mapping;
 
+   --  -----------------------
    --  Execute the mapping operation on the object associated with the current context.
    --  The object is extracted from the context and the <b>Execute</b> operation is called.
+   --  -----------------------
    procedure Execute (Handler : in Mapper;
                       Map     : in Mapping'Class;
                       Ctx     : in out Util.Serialize.Contexts.Context'Class;
                       Value   : in Util.Beans.Objects.Object) is
    begin
-      Log.Info ("Execute map {0} on mapper {1}",
-                Ada.Strings.Unbounded.To_String (Map.Name),
-                Ada.Strings.Unbounded.To_String (Handler.Name));
       if Handler.Mapper /= null then
          Handler.Mapper.all.Execute (Map, Ctx, Value);
       end if;
@@ -63,17 +62,23 @@ package body Util.Serialize.Mappers is
       return Controller.Is_Proxy_Mapper;
    end Is_Proxy;
 
+   --  -----------------------
    --  Find the mapper associated with the given name.
    --  Returns null if there is no mapper.
+   --  -----------------------
    function Find_Mapper (Controller : in Mapper;
-                         Name       : in String) return Mapper_Access is
+                         Name       : in String;
+                         Attribute  : in Boolean := False) return Mapper_Access is
       use type Ada.Strings.Unbounded.Unbounded_String;
       Node : Mapper_Access := Controller.First_Child;
    begin
       if Node = null and Controller.Mapper /= null then
          return Controller.Mapper.Find_Mapper (Name);
       end if;
-      while Node /= null and then Node.Name /= Name loop
+      while Node /= null
+        and then Node.Name /= Name
+        and then (Attribute = False or (Node.Mapping /= null
+                                        and then Node.Mapping.Is_Attribute = Attribute)) loop
          Node := Node.Next_Mapping;
       end loop;
       return node;
@@ -172,6 +177,7 @@ package body Util.Serialize.Mappers is
    procedure Add_Mapping (Into : in out Mapper;
                           Path : in String;
                           Map  : in Mapping_Access) is
+      use Ada.Strings.Unbounded;
       Node     : Mapper_Access;
       Last_Pos : Natural;
    begin
@@ -186,21 +192,32 @@ package body Util.Serialize.Mappers is
       if Node.Mapping /= null then
          Log.Warn ("Overriding the mapping {0} for mapper X", Path);
       end if;
+      if Length (Node.Name) = 0 then
+         Log.Warn ("Mapped name is empty in mapping path {0}", Path);
+      elsif Element (Node.Name, 1) = '@' then
+         Delete (Node.Name, 1, 1);
+         Map.Is_Attribute := True;
+      else
+         Map.Is_Attribute := False;
+      end if;
+
       Node.Mapping := Map;
+      Node.Mapper  := Into'Unchecked_Access;
    end Add_Mapping;
 
    --  -----------------------
    --  Set the name/value pair on the current object.  For each active mapping,
    --  find whether a rule matches our name and execute it.
    --  -----------------------
-   procedure Set_Member (Handler : in Mapper;
-                         Name    : in String;
-                         Value   : in Util.Beans.Objects.Object;
-                         Context : in out Util.Serialize.Contexts.Context'Class) is
-      Map : constant Mapping_Access := Mapper'Class (Handler).Find_Mapping (Name);
+   procedure Set_Member (Handler   : in Mapper;
+                         Name      : in String;
+                         Value     : in Util.Beans.Objects.Object;
+                         Attribute : in Boolean := False;
+                         Context   : in out Util.Serialize.Contexts.Context'Class) is
+      Map : constant Mapper_Access := Mapper'Class (Handler).Find_Mapper (Name, Attribute);
    begin
-      if Map /= null then
-         Mapper'Class (Handler).Execute (Map.all, Context, Value);
+      if Map /= null and then Map.Mapping /= null and then Map.Mapper /= null then
+         Map.Mapper.all.Execute (Map.Mapping.all, Context, Value);
       end if;
    end Set_Member;
 
@@ -208,7 +225,6 @@ package body Util.Serialize.Mappers is
                            Context : in out Util.Serialize.Contexts.Context'Class;
                            Name    : in String) is
    begin
-      Log.Info ("Start object {0} in mapper {1}", Name, Ada.Strings.Unbounded.To_String (Handler.Name));
       if Handler.Mapper /= null then
          Handler.Mapper.Start_Object (Context, Name);
       end if;
@@ -228,17 +244,19 @@ package body Util.Serialize.Mappers is
    --  -----------------------
    overriding
    procedure Finalize (Controller : in out Mapper) is
---        Pos     : Mapping_Map.Cursor;
---        Content : Mapping_Access;
+      procedure Free is new Ada.Unchecked_Deallocation (Mapper'Class, Mapper_Access);
+      procedure Free is new Ada.Unchecked_Deallocation (Mapping'Class, Mapping_Access);
+
+      Node : Mapper_Access := Controller.First_Child;
+      Next : Mapper_Access;
    begin
---        loop
---           Pos := Controller.Rules.First;
---           exit when not Mapping_Map.Has_Element (Pos);
---           Content := Mapping_Map.Element (Pos);
---           Free (Content);
---           Controller.Rules.Delete (Pos);
---        end loop;
-      null;
+      Controller.First_Child := null;
+      while Node /= null loop
+         Next := Node.Next_Mapping;
+         Free (Node);
+         Node := Next;
+      end loop;
+      Free (Controller.Mapping);
    end Finalize;
 
 end Util.Serialize.Mappers;
