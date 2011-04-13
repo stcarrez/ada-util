@@ -74,8 +74,10 @@ package body Util.Serialize.Mappers.Vector_Mapper is
       Ctx.Set_Data (Key => Key, Content => Data_Context.all'Unchecked_Access);
    end Set_Context;
 
+   --  -----------------------
    --  Execute the mapping operation on the object associated with the current context.
    --  The object is extracted from the context and the <b>Execute</b> operation is called.
+   --  -----------------------
    procedure Execute (Handler : in Mapper;
                       Map     : in Mapping'Class;
                       Ctx     : in out Util.Serialize.Contexts.Context'Class;
@@ -103,46 +105,9 @@ package body Util.Serialize.Mappers.Vector_Mapper is
       end;
    end Execute;
 
-   --  -----------------------
-   --  Find the mapper associated with the given name.
-   --  Returns null if there is no mapper.
-   --  -----------------------
-   overriding
-   function Find_Mapping (Controller : in Proxy_Mapper;
-                          Name       : in String) return Mapping_Access is
-      Result : constant Mapping_Access := Controller.Mapper.Find_Mapping (Name);
-   begin
-      if Result /= null then
-         return Result;
-      else
-         return Util.Serialize.Mappers.Mapper (Controller).Find_Mapping (Name);
-      end if;
-   end Find_Mapping;
-
-   --  Find the mapper associated with the given name.
-   --  Returns null if there is no mapper.
---     overriding
---     function Find_Mapper (Controller : in Proxy_Mapper;
---                           Name       : in String) return Util.Serialize.Mappers.Mapper_Access is
---        Result : constant Mappers.Mapper_Access := Controller.Mapper.Find_Mapper (Name);
---     begin
---        if Result /= null then
---           return Result;
---        else
---           return Util.Serialize.Mappers.Mapper (Controller).Find_Mapper (Name);
---        end if;
---     end Find_Mapper;
-
    procedure Set_Mapping (Into  : in out Mapper;
                           Inner : in Element_Mapper.Mapper_Access) is
-      M : Proxy_Mapper_Access := new Proxy_Mapper;
    begin
-      M.Mapper  := Inner.all'Unchecked_Access;
---        M.Execute := Proxy;
-      M.Is_Proxy_Mapper := True;
-      --        Into.Add_Mapping (Path, M.all'Access);
---        Into.Element_Map := M.all'Unchecked_Access;
-      null; -- Element_Mapper.Copy (Into.Map, Inner, Execute_Object'Access);
       Into.Mapper := Inner.all'Unchecked_Access;
    end Set_Mapping;
 
@@ -178,6 +143,12 @@ package body Util.Serialize.Mappers.Vector_Mapper is
       pragma Unreferenced (Handler, Name);
 
       D : constant Contexts.Data_Access := Context.Get_Data (Key);
+
+      procedure Set_Context (Item : in out Element_Type) is
+      begin
+         Element_Mapper.Set_Context (Ctx => Context, Element => Item'Unrestricted_Access);
+      end Set_Context;
+
    begin
       if not (D.all in Vector_Data'Class) then
          raise Util.Serialize.Contexts.No_Data;
@@ -189,6 +160,7 @@ package body Util.Serialize.Mappers.Vector_Mapper is
             raise Util.Serialize.Contexts.No_Data;
          end if;
          Insert_Space (DE.Vector.all, DE.Position);
+         DE.Vector.Update_Element (Index => DE.Position, Process => Set_Context'Access);
          DE.Position := DE.Position + 1;
       end;
    end Start_Object;

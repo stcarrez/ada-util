@@ -162,6 +162,7 @@ private
    --  Returns null if there is no mapper.
    overriding
    function Find_Mapper (Controller : in Proxy_Mapper;
-                         Name       : in String) return Util.Serialize.Mappers.Mapper_Access;
+                         Name       : in String;
+                         Attribute  : in Boolean := False) return Util.Serialize.Mappers.Mapper_Access;
 
 end Util.Serialize.Mappers.Record_Mapper;

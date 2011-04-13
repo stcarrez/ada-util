@@ -117,19 +117,4 @@ private
    overriding
    procedure Initialize (Controller : in out Mapper);
 
-   type Proxy_Mapper is new Mapper with null record;
-   type Proxy_Mapper_Access is access all Proxy_Mapper'Class;
-
-   --  Find the mapper associated with the given name.
-   --  Returns null if there is no mapper.
-   overriding
-   function Find_Mapping (Controller : in Proxy_Mapper;
-                          Name       : in String) return Util.Serialize.Mappers.Mapping_Access;
-
-   --  Find the mapper associated with the given name.
-   --  Returns null if there is no mapper.
---     overriding
---     function Find_Mapper (Controller : in Proxy_Mapper;
---                           Name       : in String) return Util.Serialize.Mappers.Mapper_Access;
-
 end Util.Serialize.Mappers.Vector_Mapper;

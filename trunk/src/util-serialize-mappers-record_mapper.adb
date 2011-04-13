@@ -159,13 +159,14 @@ package body Util.Serialize.Mappers.Record_Mapper is
    --  -----------------------
    overriding
    function Find_Mapper (Controller : in Proxy_Mapper;
-                         Name       : in String) return Util.Serialize.Mappers.Mapper_Access is
-      Result : constant Mappers.Mapper_Access := Controller.Mapper.Find_Mapper (Name);
+                         Name       : in String;
+                         Attribute  : in Boolean := False) return Util.Serialize.Mappers.Mapper_Access is
+      Result : constant Mappers.Mapper_Access := Controller.Mapper.Find_Mapper (Name, Attribute);
    begin
       if Result /= null then
          return Result;
       else
-         return Util.Serialize.Mappers.Mapper (Controller).Find_Mapper (Name);
+         return Util.Serialize.Mappers.Mapper (Controller).Find_Mapper (Name, Attribute);
       end if;
    end Find_Mapper;
 
