@@ -32,6 +32,9 @@ package Util.Stacks is
    --  Pop the top element.
    procedure Pop (Container : in out Stack);
 
+   --  Clear the stack.
+   procedure Clear (Container : in out Stack);
+
 private
    type Element_Type_Array is array (Natural range <>) of aliased Element_Type;
    type Element_Type_Array_Access is access all Element_Type_Array;

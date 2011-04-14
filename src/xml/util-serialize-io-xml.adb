@@ -16,13 +16,10 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Ada.Unchecked_Deallocation;
-with Ada.Strings.Unbounded;
 with Unicode;
 with Unicode.CES.Utf8;
 
 with Ada.Exceptions;
-with Ada.Strings.Fixed;
 with Util.Log.Loggers;
 package body Util.Serialize.IO.XML is
 
@@ -33,7 +30,6 @@ package body Util.Serialize.IO.XML is
    use Sax.Attributes;
    use Unicode;
    use Unicode.CES;
-   use Ada.Strings.Fixed;
    use Ada.Strings.Unbounded;
 
    --  The logger
@@ -167,18 +163,18 @@ package body Util.Serialize.IO.XML is
                             Local_Name    : in Unicode.CES.Byte_Sequence := "";
                             Qname         : in Unicode.CES.Byte_Sequence := "";
                             Atts          : in Sax.Attributes.Attributes'Class) is
+      pragma Unreferenced (Namespace_URI, Qname);
 
       use Ada.Exceptions;
 
       Attr_Count : Natural;
-      Name       : constant Unbounded_String := To_Unbounded_String (Local_Name);
    begin
 --        Handler.Line.Line   := Sax.Locators.Get_Line_Number (Handler.Locator);
 --        Handler.Line.Column := Sax.Locators.Get_Column_Number (Handler.Locator);
 
       --  Push the current context to keep track where we are.
       Push (Handler);
-      Log.Info ("Start object {0}", Local_Name);
+      Log.Debug ("Start object {0}", Local_Name);
 
       Handler.Handler.Start_Object (Local_Name);
       Attr_Count := Get_Length (Atts);
@@ -188,7 +184,9 @@ package body Util.Serialize.IO.XML is
                Name  : constant String := Get_Qname (Atts, I);
                Value : constant String := Get_Value (Atts, I);
             begin
-               Handler.Handler.Set_Member (Name, Util.Beans.Objects.To_Object (Value));
+               Handler.Handler.Set_Member (Name      => Name,
+                                           Value     => Util.Beans.Objects.To_Object (Value),
+                                           Attribute => True);
             end;
          end loop;
 
@@ -206,17 +204,17 @@ package body Util.Serialize.IO.XML is
                           Namespace_URI : in Unicode.CES.Byte_Sequence := "";
                           Local_Name    : in Unicode.CES.Byte_Sequence := "";
                           Qname         : in Unicode.CES.Byte_Sequence := "") is
-      pragma Unreferenced (Local_Name);
+      pragma Unreferenced (Namespace_URI, Qname);
    begin
       --  Pop the current context to restore the last context.
       Pop (Handler);
       Handler.Handler.Finish_Object (Local_Name);
       if Length (Handler.Text) > 0 then
-         Log.Info ("Close object {0} -> {1}", Local_Name, To_String (Handler.Text));
+         Log.Debug ("Close object {0} -> {1}", Local_Name, To_String (Handler.Text));
          Handler.Handler.Set_Member (Local_Name, Util.Beans.Objects.To_Object (Handler.Text));
          Set_Unbounded_String (Handler.Text, "");
       else
-         Log.Info ("Close object {0}", Local_Name);
+         Log.Debug ("Close object {0}", Local_Name);
       end if;
    end End_Element;
 
@@ -318,7 +316,7 @@ package body Util.Serialize.IO.XML is
    --  Set the XHTML reader to ignore or not the white spaces.
    --  When set to True, the ignorable white spaces will not be kept.
    --  ------------------------------
-   procedure Set_Ignore_White_Spaces (Reader : in out Xhtml_Reader;
+   procedure Set_Ignore_White_Spaces (Reader : in out Parser;
                                       Value  : in Boolean) is
    begin
       Reader.Ignore_White_Spaces := Value;
@@ -327,7 +325,7 @@ package body Util.Serialize.IO.XML is
    --  ------------------------------
    --  Set the XHTML reader to ignore empty lines.
    --  ------------------------------
-   procedure Set_Ignore_Empty_Lines (Reader : in out Xhtml_Reader;
+   procedure Set_Ignore_Empty_Lines (Reader : in out Parser;
                                      Value  : in Boolean) is
    begin
       Reader.Ignore_Empty_Lines := Value;
@@ -343,6 +341,8 @@ package body Util.Serialize.IO.XML is
    --  Parse the stream using the JSON parser.
    procedure Parse (Handler : in out Parser;
                     Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class) is
+
+      type String_Access is access all String (1 .. 32);
 
       type Stream_Input is new Input_Sources.Input_Source with record
          Index    : Natural;
@@ -386,7 +386,6 @@ package body Util.Serialize.IO.XML is
       --  Return the next character in the string.
       procedure Next_Char (From : in out Stream_Input;
                            C    : out Unicode.Unicode_Char) is
-         Ch : Character;
       begin
          if From.Index + 6 >= From.Last then
             Fill (From);
@@ -406,13 +405,16 @@ package body Util.Serialize.IO.XML is
 
       Input      : Stream_Input;
       Xml_Parser : Xhtml_Reader;
+      Buf        : aliased String (1 .. 32);
    begin
-      Input.Buffer := new String (1 .. 32);
+      Input.Buffer := Buf'Access;
       Input.Index  := 2;
       Input.Last   := 1;
       Input.Set_Encoding (Unicode.CES.Utf8.Utf8_Encoding);
       Input.Encoding := Unicode.CES.Utf8.Utf8_Encoding;
       Xml_Parser.Handler := Handler'Unchecked_Access;
+      Xml_Parser.Ignore_White_Spaces := Handler.Ignore_White_Spaces;
+      Xml_Parser.Ignore_Empty_Lines  := Handler.Ignore_Empty_Lines;
       Sax.Readers.Reader (Xml_Parser).Parse (Input);
 
    exception

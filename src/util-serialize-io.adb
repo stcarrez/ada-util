@@ -30,6 +30,7 @@ package body Util.Serialize.IO is
                          Input  => Stream'Unchecked_Access,
                          Size   => 1024);
       Stream.Open (Mode => Ada.Streams.Stream_IO.In_File, Name => File);
+      Context_Stack.Clear (Handler.Stack);
       Parser'Class (Handler).Parse (Buffer);
    end Parse;
 
@@ -41,6 +42,7 @@ package body Util.Serialize.IO is
       Stream : aliased Util.Streams.Buffered.Buffered_Stream;
    begin
       Stream.Initialize (Content  => Content);
+      Context_Stack.Clear (Handler.Stack);
       Parser'Class (Handler).Parse (Stream);
    end Parse_String;
 
@@ -161,6 +163,15 @@ package body Util.Serialize.IO is
       Handler.Pop;
    end Finish_Object;
 
+   --  Finish an object associated with the given name and set the value associated with
+   --  that name.  The reader must be updated to be associated with the previous object.
+   procedure Finish_Object (Handler : in out Parser;
+                            Name    : in String;
+                            Value   : in Util.Beans.Objects.Object) is
+   begin
+      null;
+   end Finish_Object;
+
    procedure Start_Array (Handler : in out Parser;
                           Name    : in String) is
    begin
@@ -178,9 +189,10 @@ package body Util.Serialize.IO is
    --  Set the name/value pair on the current object.  For each active mapping,
    --  find whether a rule matches our name and execute it.
    --  -----------------------
-   procedure Set_Member (Handler : in out Parser;
-                         Name    : in String;
-                         Value   : in Util.Beans.Objects.Object) is
+   procedure Set_Member (Handler   : in out Parser;
+                         Name      : in String;
+                         Value     : in Util.Beans.Objects.Object;
+                         Attribute : in Boolean := False) is
       use Util.Serialize.Mappers;
 
       Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
@@ -193,9 +205,10 @@ package body Util.Serialize.IO is
                Node : constant Mapper_Access := Current.Active_Nodes (I);
             begin
                exit when Node = null;
-               Node.Set_Member (Name    => Name,
-                                Value   => Value,
-                                Context => Handler);
+               Node.Set_Member (Name      => Name,
+                                Value     => Value,
+                                Attribute => Attribute,
+                                Context   => Handler);
             end;
          end loop;
        end if;
