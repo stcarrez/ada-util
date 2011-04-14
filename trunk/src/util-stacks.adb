@@ -65,6 +65,17 @@ package body Util.Stacks is
    end Pop;
 
    --  ------------------------------
+   --  Clear the stack.
+   --  ------------------------------
+   procedure Clear (Container : in out Stack) is
+   begin
+      if Container.Stack /= null then
+         Container.Pos := Container.Stack'First;
+      end if;
+      Container.Current := null;
+   end Clear;
+
+   --  ------------------------------
    --  Release the stack
    --  ------------------------------
    overriding

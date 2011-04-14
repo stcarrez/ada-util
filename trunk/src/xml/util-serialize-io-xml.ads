@@ -24,10 +24,7 @@ with Unicode.CES;
 with Input_Sources;
 
 with Ada.Strings.Unbounded;
-with Util.Beans.Objects;
 with Util.Streams.Buffered;
-with Util.Serialize.Contexts;
-with Util.Serialize.Mappers;
 package Util.Serialize.IO.XML is
 
    Parse_Error : exception;
@@ -37,10 +34,15 @@ package Util.Serialize.IO.XML is
    --  Parse the stream using the JSON parser.
    procedure Parse (Handler : in out Parser;
                     Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class);
---
---     procedure Add_Mapping (Handler : in out Parser;
---                            Path    : in String;
---                            Mapper  : in Util.Serialize.Mappers.Mapper_Access);
+
+   --  Set the XHTML reader to ignore or not the white spaces.
+   --  When set to True, the ignorable white spaces will not be kept.
+   procedure Set_Ignore_White_Spaces (Reader : in out Parser;
+                                      Value  : in Boolean);
+
+   --  Set the XHTML reader to ignore empty lines.
+   procedure Set_Ignore_Empty_Lines (Reader : in out Parser;
+                                     Value  : in Boolean);
 
    type Xhtml_Reader is new Sax.Readers.Reader with private;
 
@@ -128,20 +130,12 @@ private
    procedure Collect_Text (Handler : in out Xhtml_Reader;
                            Content : Unicode.CES.Byte_Sequence);
 
-   --  Set the XHTML reader to ignore or not the white spaces.
-   --  When set to True, the ignorable white spaces will not be kept.
-   procedure Set_Ignore_White_Spaces (Reader : in out Xhtml_Reader;
-                                      Value  : in Boolean);
-
    type Xhtml_Reader is new Sax.Readers.Reader with record
       Locator : Sax.Locators.Locator;
       Stack_Pos  : Natural := 0;
       Handler    : access Parser'Class;
 
       Text : Ada.Strings.Unbounded.Unbounded_String;
-
-      --  Whether the unknown tags are escaped using XML escape rules.
-      Escape_Unknown_Tags : Boolean := True;
 
       --  Whether white spaces can be ignored.
       Ignore_White_Spaces : Boolean := True;
@@ -154,6 +148,12 @@ private
       Line_Number      : Natural  := 1;
       Has_Pending_Char : Boolean := False;
       Pending_Char     : Character;
+
+      --  Whether white spaces can be ignored.
+      Ignore_White_Spaces : Boolean := True;
+
+      --  Whether empty lines should be ignored (when white spaces are kept).
+      Ignore_Empty_Lines : Boolean := True;
    end record;
 
 end Util.Serialize.IO.XML;

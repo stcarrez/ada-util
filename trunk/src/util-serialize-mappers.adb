@@ -73,15 +73,20 @@ package body Util.Serialize.Mappers is
       Node : Mapper_Access := Controller.First_Child;
    begin
       if Node = null and Controller.Mapper /= null then
-         return Controller.Mapper.Find_Mapper (Name);
+         return Controller.Mapper.Find_Mapper (Name, Attribute);
       end if;
-      while Node /= null
-        and then Node.Name /= Name
-        and then (Attribute = False or (Node.Mapping /= null
-                                        and then Node.Mapping.Is_Attribute = Attribute)) loop
+      while Node /= null loop
+         if Node.Name = Name then
+            if (Attribute = False and Node.Mapping = null) or else not Node.Mapping.Is_Attribute then
+               return Node;
+            end if;
+            if Attribute and Node.Mapping.Is_Attribute then
+               return Node;
+            end if;
+         end if;
          Node := Node.Next_Mapping;
       end loop;
-      return node;
+      return null;
    end Find_Mapper;
 
    --  -----------------------

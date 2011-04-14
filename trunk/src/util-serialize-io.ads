@@ -90,9 +90,10 @@ package Util.Serialize.IO is
 
    --  Set the name/value pair on the current object.  For each active mapping,
    --  find whether a rule matches our name and execute it.
-   procedure Set_Member (Handler : in out Parser;
-                         Name    : in String;
-                         Value   : in Util.Beans.Objects.Object);
+   procedure Set_Member (Handler   : in out Parser;
+                         Name      : in String;
+                         Value     : in Util.Beans.Objects.Object;
+                         Attribute : in Boolean := False);
 
    --  Report an error while parsing the JSON stream.
    procedure Error (Handler : in out Parser;
