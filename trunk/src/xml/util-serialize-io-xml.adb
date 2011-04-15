@@ -35,43 +35,6 @@ package body Util.Serialize.IO.XML is
    --  The logger
    Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.IO.XML");
 
-   procedure Push (Handler : in out Xhtml_Reader'Class);
-   procedure Pop (Handler  : in out Xhtml_Reader'Class);
-
-   --  ------------------------------
-   --  Push the current context when entering in an element.
-   --  ------------------------------
-   procedure Push (Handler : in out Xhtml_Reader'Class) is
-   begin
---        if Handler.Stack = null then
---           Handler.Stack := new Element_Context_Array (1 .. 100);
---        elsif Handler.Stack_Pos = Handler.Stack'Last then
---           declare
---              Old : Element_Context_Array_Access := Handler.Stack;
---           begin
---              Handler.Stack := new Element_Context_Array (1 .. Old'Last + 100);
---              Handler.Stack (1 .. Old'Last) := Old (1 .. Old'Last);
---              Free (Old);
---           end;
---        end if;
---        if Handler.Stack_Pos /= Handler.Stack'First then
---           Handler.Stack (Handler.Stack_Pos + 1) := Handler.Stack (Handler.Stack_Pos);
---        end if;
---        Handler.Stack_Pos := Handler.Stack_Pos + 1;
---        Handler.Current := Handler.Stack (Handler.Stack_Pos)'Access;
-      null;
-   end Push;
-
-   --  ------------------------------
-   --  Pop the context and restore the previous context when leaving an element
-   --  ------------------------------
-   procedure Pop (Handler  : in out Xhtml_Reader'Class) is
-   begin
---        Handler.Stack_Pos := Handler.Stack_Pos - 1;
---        Handler.Current := Handler.Stack (Handler.Stack_Pos)'Access;
-      null;
-   end Pop;
-
    --  ------------------------------
    --  Warning
    --  ------------------------------
@@ -172,8 +135,6 @@ package body Util.Serialize.IO.XML is
 --        Handler.Line.Line   := Sax.Locators.Get_Line_Number (Handler.Locator);
 --        Handler.Line.Column := Sax.Locators.Get_Column_Number (Handler.Locator);
 
-      --  Push the current context to keep track where we are.
-      Push (Handler);
       Log.Debug ("Start object {0}", Local_Name);
 
       Handler.Handler.Start_Object (Local_Name);
@@ -206,8 +167,6 @@ package body Util.Serialize.IO.XML is
                           Qname         : in Unicode.CES.Byte_Sequence := "") is
       pragma Unreferenced (Namespace_URI, Qname);
    begin
-      --  Pop the current context to restore the last context.
-      Pop (Handler);
       Handler.Handler.Finish_Object (Local_Name);
       if Length (Handler.Text) > 0 then
          Log.Debug ("Close object {0} -> {1}", Local_Name, To_String (Handler.Text));
@@ -253,7 +212,7 @@ package body Util.Serialize.IO.XML is
    procedure Processing_Instruction (Handler : in out Xhtml_Reader;
                                      Target  : in Unicode.CES.Byte_Sequence;
                                      Data    : in Unicode.CES.Byte_Sequence) is
-      pragma Unmodified (Handler);
+      pragma Unreferenced (Handler);
    begin
       Log.Error ("Processing instruction: {0}: {1}", Target, Data);
    end Processing_Instruction;
@@ -422,5 +381,138 @@ package body Util.Serialize.IO.XML is
 --           Free (Parser.Stack);
          raise;
    end Parse;
+
+   --  Close the current XML entity if an entity was started
+   procedure Close_Current (Stream : in out Output_Stream'Class);
+
+   --  ------------------------------
+   --  Close the current XML entity if an entity was started
+   --  ------------------------------
+   procedure Close_Current (Stream : in out Output_Stream'Class) is
+   begin
+      if Stream.Close_Start then
+         Stream.Write ('>');
+         Stream.Close_Start := False;
+      end if;
+   end Close_Current;
+
+   --  ------------------------------
+   --  Write the value as a XML string.  Special characters are escaped using the XML
+   --  escape rules.
+   --  ------------------------------
+   procedure Write_String (Stream : in out Output_Stream;
+                           Value  : in String) is
+   begin
+      Close_Current (Stream);
+      Stream.Write (Value);
+   end Write_String;
+
+   --  ------------------------------
+   --  Start a new XML object.
+   --  ------------------------------
+   procedure Start_Entity (Stream : in out Output_Stream;
+                           Name   : in String) is
+   begin
+      Close_Current (Stream);
+      Stream.Close_Start := True;
+      Stream.Write ('<');
+      Stream.Write (Name);
+   end Start_Entity;
+
+   --  ------------------------------
+   --  Terminates the current XML object.
+   --  ------------------------------
+   procedure End_Entity (Stream : in out Output_Stream;
+                         Name   : in String) is
+   begin
+      Close_Current (Stream);
+      Stream.Write ("</");
+      Stream.Write (Name);
+      Stream.Write ('>');
+   end End_Entity;
+
+   --  ------------------------------
+   --  Write a XML name/value attribute.
+   --  ------------------------------
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Util.Beans.Objects.Object) is
+      use Util.Beans.Objects;
+   begin
+      Stream.Write (' ');
+      Stream.Write (Name);
+      Stream.Write ("=""");
+      case Util.Beans.Objects.Get_Type (Value) is
+         when TYPE_NULL =>
+            null;
+
+         when TYPE_BOOLEAN =>
+            if Util.Beans.Objects.To_Boolean (Value) then
+               Stream.Write ("true");
+            else
+               Stream.Write ("false");
+            end if;
+
+         when TYPE_INTEGER =>
+            Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
+
+         when others =>
+            Stream.Write_String (Util.Beans.Objects.To_String (Value));
+
+      end case;
+      Stream.Write ('"');
+   end Write_Attribute;
+
+   --  ------------------------------
+   --  Write a XML name/value entity (see Write_Attribute).
+   --  ------------------------------
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Util.Beans.Objects.Object) is
+      use Util.Beans.Objects;
+   begin
+      Close_Current (Stream);
+      Stream.Write ('<');
+      Stream.Write (Name);
+      Stream.Write ('>');
+      case Util.Beans.Objects.Get_Type (Value) is
+         when TYPE_NULL =>
+            null;
+
+         when TYPE_BOOLEAN =>
+            if Util.Beans.Objects.To_Boolean (Value) then
+               Stream.Write ("true");
+            else
+               Stream.Write ("false");
+            end if;
+
+         when TYPE_INTEGER =>
+            Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
+
+         when others =>
+            Stream.Write_String (Util.Beans.Objects.To_String (Value));
+
+      end case;
+      Stream.Write ("</");
+      Stream.Write (Name);
+      Stream.Write ('>');
+   end Write_Entity;
+
+   --  ------------------------------
+   --  Starts a XML array.
+   --  ------------------------------
+   procedure Start_Array (Stream : in out Output_Stream;
+                          Length : in Ada.Containers.Count_Type) is
+   begin
+      null;
+   end Start_Array;
+
+   --  ------------------------------
+   --  Terminates a XML array.
+   --  ------------------------------
+   procedure End_Array (Stream : in out Output_Stream) is
+   begin
+      null;
+   end End_Array;
 
 end Util.Serialize.IO.XML;

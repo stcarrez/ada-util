@@ -25,6 +25,7 @@ with Input_Sources;
 
 with Ada.Strings.Unbounded;
 with Util.Streams.Buffered;
+with Util.Streams.Texts;
 package Util.Serialize.IO.XML is
 
    Parse_Error : exception;
@@ -45,6 +46,45 @@ package Util.Serialize.IO.XML is
                                      Value  : in Boolean);
 
    type Xhtml_Reader is new Sax.Readers.Reader with private;
+
+
+   --  ------------------------------
+   --  XML Output Stream
+   --  ------------------------------
+   --  The <b>Output_Stream</b> provides methods for creating an XML output stream.
+   --  The stream object takes care of the XML escape rules.
+   type Output_Stream is
+     new Util.Streams.Texts.Print_Stream and Util.Serialize.IO.Output_Stream with private;
+
+   --  Write the value as a XML string.  Special characters are escaped using the XML
+   --  escape rules.
+   procedure Write_String (Stream : in out Output_Stream;
+                           Value  : in String);
+
+   --  Start a new XML object.
+   procedure Start_Entity (Stream : in out Output_Stream;
+                           Name   : in String);
+
+   --  Terminates the current XML object.
+   procedure End_Entity (Stream : in out Output_Stream;
+                         Name   : in String);
+
+   --  Write a XML name/value attribute.
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Util.Beans.Objects.Object);
+
+   --  Write a XML name/value entity (see Write_Attribute).
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Util.Beans.Objects.Object);
+
+   --  Starts a XML array.
+   procedure Start_Array (Stream : in out Output_Stream;
+                          Length : in Ada.Containers.Count_Type);
+
+   --  Terminates a XML array.
+   procedure End_Array (Stream : in out Output_Stream);
 
 private
 
@@ -154,6 +194,11 @@ private
 
       --  Whether empty lines should be ignored (when white spaces are kept).
       Ignore_Empty_Lines : Boolean := True;
+   end record;
+
+   type Output_Stream is
+     new Util.Streams.Texts.Print_Stream and Util.Serialize.IO.Output_Stream with record
+      Close_Start : Boolean := False;
    end record;
 
 end Util.Serialize.IO.XML;
