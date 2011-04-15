@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util testsuite - Util Testsuite
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,7 @@ with Util.Streams.Buffered.Tests;
 with Util.Streams.Files.Tests;
 with Util.Beans.Objects.Discretes;
 with Util.Serialize.IO.JSON.Tests;
+with Util.Serialize.IO.XML.Tests;
 package body Util.Testsuite is
 
    Tests : aliased Test_Suite;
@@ -49,6 +50,7 @@ package body Util.Testsuite is
       Util.Streams.Files.Tests.Add_Tests (Result);
       Util.Beans.Objects.Discretes.Add_Tests (Result);
       Util.Serialize.IO.JSON.Tests.Add_Tests (Result);
+      Util.Serialize.IO.XML.Tests.Add_Tests (Result);
       return Result;
    end Suite;
 
