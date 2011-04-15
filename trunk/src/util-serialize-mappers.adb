@@ -29,21 +29,6 @@ package body Util.Serialize.Mappers is
    Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.Mappers");
 
    --  -----------------------
-   --  Find the mapper associated with the given name.
-   --  Returns null if there is no mapper.
-   --  -----------------------
-   function Find_Mapping (Controller : in Mapper;
-                          Name       : in String) return Mapping_Access is
-      Mapper : constant Mapper_Access := Controller.Find_Mapper (Name);
-   begin
-      if Mapper = null then
-         return null;
-      else
-         return Mapper.Mapping;
-      end if;
-   end Find_Mapping;
-
-   --  -----------------------
    --  Execute the mapping operation on the object associated with the current context.
    --  The object is extracted from the context and the <b>Execute</b> operation is called.
    --  -----------------------
@@ -243,6 +228,28 @@ package body Util.Serialize.Mappers is
          Handler.Mapper.Finish_Object (Context, Name);
       end if;
    end Finish_Object;
+
+   procedure Iterate (Controller : in Mapper;
+                      Process : not null access procedure (Map : in Mapper'Class)) is
+      Node : Mapper_Access := Controller.First_Child;
+   begin
+      --  Pass 1: process the attributes first
+      while Node /= null loop
+         if Node.Mapping /= null and then Node.Mapping.Is_Attribute then
+            Process.all (Node.all);
+         end if;
+         Node := Node.Next_Mapping;
+      end loop;
+
+      --  Pass 2: process the elements
+      Node := Controller.First_Child;
+      while Node /= null loop
+         if Node.Mapping = null or else not Node.Mapping.Is_Attribute then
+            Process.all (Node.all);
+         end if;
+         Node := Node.Next_Mapping;
+      end loop;
+   end Iterate;
 
    --  -----------------------
    --  Finalize the object and release any mapping.

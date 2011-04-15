@@ -82,11 +82,6 @@ package Util.Serialize.Mappers.Vector_Mapper is
 
    --  Find the mapper associated with the given name.
    --  Returns null if there is no mapper.
-   function Find_Mapping (Controller : in Mapper;
-                          Name       : in String) return Mapping_Access;
-
-   --  Find the mapper associated with the given name.
-   --  Returns null if there is no mapper.
    function Find_Mapper (Controller : in Mapper;
                          Name       : in String) return Util.Serialize.Mappers.Mapper_Access;
 

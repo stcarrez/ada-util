@@ -40,11 +40,6 @@ package Util.Serialize.Mappers is
    type Mapper is new Ada.Finalization.Limited_Controlled with private;
    type Mapper_Access is access all Mapper'Class;
 
-   --  Find the mapping associated with the given attribute name.
-   --  Returns null if there is no mapping.
-   function Find_Mapping (Controller : in Mapper;
-                          Name       : in String) return Mapping_Access;
-
    --  Execute the mapping operation on the object associated with the current context.
    --  The object is extracted from the context and the <b>Execute</b> operation is called.
    procedure Execute (Handler : in Mapper;
@@ -87,6 +82,9 @@ package Util.Serialize.Mappers is
 
 
    function Is_Proxy (Controller : in Mapper) return Boolean;
+
+   procedure Iterate (Controller : in Mapper;
+                      Process : not null access procedure (Map : in Mapper'Class));
 
 private
    --  Find a path component representing a child mapper under <b>From</b> and
