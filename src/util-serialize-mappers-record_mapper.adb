@@ -105,6 +105,17 @@ package body Util.Serialize.Mappers.Record_Mapper is
       Into.Get_Member := Getter;
    end Bind;
 
+   procedure Bind (Into    : in out Mapper;
+                   From    : in Mapper_Access) is
+   begin
+      Into.Get_Member := From.Get_Member;
+   end Bind;
+
+   function Get_Getter (From : in Mapper) return Get_Member_Access is
+   begin
+      return From.Get_Member;
+   end Get_Getter;
+
    procedure Set_Member (Attr    : in Attribute_Mapping;
                          Element : in out Element_Type;
                          Value   : in Util.Beans.Objects.Object) is
@@ -142,25 +153,9 @@ package body Util.Serialize.Mappers.Record_Mapper is
    --  Returns null if there is no mapper.
    --  -----------------------
    overriding
-   function Find_Mapping (Controller : in Proxy_Mapper;
-                          Name       : in String) return Mapping_Access is
-      Result : constant Mapping_Access := Controller.Mapper.Find_Mapping (Name);
-   begin
-      if Result /= null then
-         return Result;
-      else
-         return Util.Serialize.Mappers.Mapper (Controller).Find_Mapping (Name);
-      end if;
-   end Find_Mapping;
-
-   --  -----------------------
-   --  Find the mapper associated with the given name.
-   --  Returns null if there is no mapper.
-   --  -----------------------
-   overriding
    function Find_Mapper (Controller : in Proxy_Mapper;
                          Name       : in String;
-                         Attribute  : in Boolean := False) return Util.Serialize.Mappers.Mapper_Access is
+                         Attribute  : in Boolean := False) return Mappers.Mapper_Access is
       Result : constant Mappers.Mapper_Access := Controller.Mapper.Find_Mapper (Name, Attribute);
    begin
       if Result /= null then
@@ -169,33 +164,6 @@ package body Util.Serialize.Mappers.Record_Mapper is
          return Util.Serialize.Mappers.Mapper (Controller).Find_Mapper (Name, Attribute);
       end if;
    end Find_Mapper;
-
-   --  -----------------------
-   --  Copy the mapping definitions defined by <b>From</b> into the target mapper
-   --  and use the <b>Process</b> procedure to give access to the element.
-   --  -----------------------
-   procedure Copy (Into    : in out Mapper;
-                   From    : in Mapper;
-                   Process : in Process_Object) is
-      pragma Unreferenced (Process);
-
---        Iter : Mapping_Map.Cursor; --  := From.Rules.First;
-   begin
-      Log.Error ("Copy is not implemented");
---        Into.Get_Member := From.Get_Member;
---        while Mapping_Map.Has_Element (Iter) loop
---           declare
---              Path : constant String := Mapping_Map.Key (Iter);
---              E    : constant Mapping_Access := Mapping_Map.Element (Iter);
---              Map  : constant Attribute_Mapping_Access := Attribute_Mapping'Class (E.all)'Access;
---              N    : constant Attribute_Mapping_Access := new Attribute_Mapping;
---           begin
---              N.Index := Map.Index;
---              Into.Add_Mapping (Path, N.all'Access);
---           end;
---           Mapping_Map.Next (Iter);
---        end loop;
-   end Copy;
 
    --  -----------------------
    --  Build a default mapping based on the <b>Fields</b> enumeration.
@@ -224,22 +192,43 @@ package body Util.Serialize.Mappers.Record_Mapper is
    procedure Write (Handler : in Mapper;
                     Stream  : in out Util.Serialize.IO.Output_Stream'Class;
                     Element : in Element_Type) is
---        Iter : Mapping_Map.Cursor; --  := Handler.Rules.First;
    begin
-      Log.Error ("Write is not implemented");
---        Stream.Start_Entity ("");
---        while Mapping_Map.Has_Element (Iter) loop
---           declare
---              Path : constant String := Mapping_Map.Key (Iter);
---              E    : constant Mapping_Access := Mapping_Map.Element (Iter);
---              Map  : constant Attribute_Mapping_Access := Attribute_Mapping'Class (E.all)'Access;
---              Val  : constant Util.Beans.Objects.Object := Handler.Get_Member (Element, Map.Index);
---           begin
---              Stream.Write_Attribute (Name  => Path, Value => Val);
---           end;
---           Mapping_Map.Next (Iter);
---        end loop;
---        Stream.End_Entity ("");
+      if Handler.Get_Member = null then
+         raise Mapping_Error with "The mapper has a null Get_Member function";
+      end if;
+      Write (Handler, Handler.Get_Member, Stream, Element);
+   end Write;
+
+   --  Write the element on the stream using the mapper description.
+   procedure Write (Handler : in Util.Serialize.Mappers.Mapper'Class;
+                    Getter  : in Get_Member_Access;
+                    Stream  : in out Util.Serialize.IO.Output_Stream'Class;
+                    Element : in Element_Type) is
+      use Ada.Strings.Unbounded;
+      --        Iter : Mapping_Map.Cursor; --  := Handler.Rules.First;
+      procedure Write (Map : in Util.Serialize.Mappers.Mapper'Class) is
+         Name : constant String := To_String (Map.Name);
+      begin
+         if Map.Mapping /= null then
+            declare
+               M   : constant Attribute_Mapping_Access := Attribute_Mapping'Class (Map.Mapping.all)'Access;
+               Val : constant Util.Beans.Objects.Object := Getter (Element, M.Index);
+            begin
+               if M.Is_Attribute then
+                  Stream.Write_Attribute (Name => Name, Value => Val);
+               else
+                  Stream.Write_Entity (Name => Name, Value => Val);
+               end if;
+            end;
+         else
+            Stream.Start_Entity (Name);
+            Map.Iterate (Write'Access);
+            Stream.End_Entity (Name);
+         end if;
+      end Write;
+
+   begin
+      Handler.Iterate (Write'Access);
    end Write;
 
 begin

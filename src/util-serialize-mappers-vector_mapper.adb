@@ -109,17 +109,8 @@ package body Util.Serialize.Mappers.Vector_Mapper is
                           Inner : in Element_Mapper.Mapper_Access) is
    begin
       Into.Mapper := Inner.all'Unchecked_Access;
+      Into.Map.Bind (Inner);
    end Set_Mapping;
-
-   --  -----------------------
-   --  Find the mapper associated with the given name.
-   --  Returns null if there is no mapper.
-   --  -----------------------
-   function Find_Mapping (Controller : in Mapper;
-                          Name       : in String) return Mapping_Access is
-   begin
-      return Controller.Map.Find_Mapping (Name);
-   end Find_Mapping;
 
    --  -----------------------
    --  Find the mapper associated with the given name.
@@ -182,7 +173,8 @@ package body Util.Serialize.Mappers.Vector_Mapper is
    begin
       Stream.Start_Array (Element.Length);
       while Vectors.Has_Element (Pos) loop
-         Handler.Map.Write (Stream, Vectors.Element (Pos));
+         Element_Mapper.Write (Handler.Mapper.all, Handler.Map.Get_Getter,
+                               Stream, Vectors.Element (Pos));
          Vectors.Next (Pos);
       end loop;
       Stream.End_Array;

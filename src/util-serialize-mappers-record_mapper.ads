@@ -77,11 +77,6 @@ package Util.Serialize.Mappers.Record_Mapper is
    --  -----------------------
    type Mapper is new Util.Serialize.Mappers.Mapper with private;
    type Mapper_Access is access all Mapper'Class;
---
---     procedure Execute (Handler : in Mapper;
---                        Map     : in Mapping'Class;
---                        Item    : in out Element_Type;
---                        Value   : in Util.Beans.Objects.Object);
 
    --  Execute the mapping operation on the object associated with the current context.
    --  The object is extracted from the context and the <b>Execute</b> operation is called.
@@ -109,15 +104,14 @@ package Util.Serialize.Mappers.Record_Mapper is
    procedure Bind (Into    : in out Mapper;
                    Getter  : in Get_Member_Access);
 
+   procedure Bind (Into    : in out Mapper;
+                   From    : in Mapper_Access);
+
+   function Get_Getter (From : in Mapper) return Get_Member_Access;
+
    --  Set the element in the context.
    procedure Set_Context (Ctx     : in out Util.Serialize.Contexts.Context'Class;
                           Element : in Element_Type_Access);
-
-   --  Copy the mapping definitions defined by <b>From</b> into the target mapper
-   --  and use the <b>Process</b> procedure to give access to the element.
-   procedure Copy (Into    : in out Mapper;
-                   From    : in Mapper;
-                   Process : in Process_Object);
 
    --  Build a default mapping based on the <b>Fields</b> enumeration.
    --  The enumeration name is used for the mapping name with the optional <b>FIELD_</b>
@@ -126,6 +120,12 @@ package Util.Serialize.Mappers.Record_Mapper is
 
    --  Write the element on the stream using the mapper description.
    procedure Write (Handler : in Mapper;
+                    Stream  : in out Util.Serialize.IO.Output_Stream'Class;
+                    Element : in Element_Type);
+
+   --  Write the element on the stream using the mapper description.
+   procedure Write (Handler : in Util.Serialize.Mappers.Mapper'Class;
+                    Getter  : in Get_Member_Access;
                     Stream  : in out Util.Serialize.IO.Output_Stream'Class;
                     Element : in Element_Type);
 
@@ -151,12 +151,6 @@ private
 
    type Proxy_Mapper is new Mapper with null record;
    type Proxy_Mapper_Access is access all Proxy_Mapper'Class;
-
-   --  Find the mapper associated with the given name.
-   --  Returns null if there is no mapper.
-   overriding
-   function Find_Mapping (Controller : in Proxy_Mapper;
-                          Name       : in String) return Util.Serialize.Mappers.Mapping_Access;
 
    --  Find the mapper associated with the given name.
    --  Returns null if there is no mapper.
