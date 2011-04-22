@@ -144,4 +144,21 @@ package body Util.Files is
       return Name;
    end Find_File_Path;
 
+   --  ------------------------------
+   --  Returns the name of the external file with the specified directory
+   --  and the name.  Unlike the Ada.Directories.Compose, the name can represent
+   --  a relative path and thus include directory separators.
+   --  ------------------------------
+   function Compose (Directory : in String;
+                     Name      : in String) return String is
+   begin
+      if Directory'Length = 0 then
+         return Name;
+      elsif Directory (Directory'Last) = '/' then
+         return Directory & Name;
+      else
+         return Directory & "/" & Name;
+      end if;
+   end Compose;
+
 end Util.Files;

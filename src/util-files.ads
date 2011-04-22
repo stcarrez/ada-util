@@ -40,4 +40,10 @@ package Util.Files is
    function Find_File_Path (Name  : String;
                             Paths : String) return String;
 
+   --  Returns the name of the external file with the specified directory
+   --  and the name.  Unlike the Ada.Directories.Compose, the name can represent
+   --  a relative path and thus include directory separators.
+   function Compose (Directory : in String;
+                     Name      : in String) return String;
+
 end Util.Files;
