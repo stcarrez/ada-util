@@ -25,8 +25,10 @@ package Util.Serialize.IO.XML.Tests is
 
    type Test is new AUnit.Test_Fixtures.Test_Fixture with null record;
 
+   --  Test XML de-serialization
    procedure Test_Parser (T : in out Test);
 
+   --  Test XML serialization
    procedure Test_Writer (T : in out Test);
 
 end Util.Serialize.IO.XML.Tests;
