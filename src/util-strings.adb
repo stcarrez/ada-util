@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util-strings -- Various String Utility
---  Copyright (C) 2001, 2002, 2003, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -142,6 +142,39 @@ package body Util.Strings is
       end if;
    end Equivalent_Keys;
 
+   function "=" (Left  : in String_Ref;
+                 Right : in String) return Boolean is
+   begin
+      if Left.Str = null then
+         return False;
+      else
+         return Left.Str.Str = Right;
+      end if;
+   end "=";
+
+   function "=" (Left  : in String_Ref;
+                 Right : in Ada.Strings.Unbounded.Unbounded_String) return Boolean is
+      use Ada.Strings.Unbounded;
+   begin
+      if Left.Str = null then
+         return Right = Null_Unbounded_String;
+      else
+         return Right = Left.Str.Str;
+      end if;
+   end "=";
+
+   --  ------------------------------
+   --  Returns the string length.
+   --  ------------------------------
+   function Length (S : in String_Ref) return Natural is
+   begin
+      if S.Str = null then
+         return 0;
+      else
+         return S.Str.Len;
+      end if;
+   end Length;
+
    --  ------------------------------
    --  Increment the reference counter.
    --  ------------------------------
@@ -165,10 +198,12 @@ package body Util.Strings is
       Is_Zero : Boolean;
    begin
       if Object.Str /= null then
-          Util.Concurrent.Counters.Decrement (Object.Str.Counter, Is_Zero);
-          if Is_Zero then
-              Free (Object.Str);
-          end if;
+         Util.Concurrent.Counters.Decrement (Object.Str.Counter, Is_Zero);
+         if Is_Zero then
+            Free (Object.Str);
+         else
+            Object.Str := null;
+         end if;
       end if;
    end Finalize;
 
