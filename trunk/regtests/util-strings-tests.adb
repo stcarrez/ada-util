@@ -56,6 +56,8 @@ package body Util.Strings.Tests is
                        Test_Rindex'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.Benchmark",
                        Test_Measure_Hash'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.String_Ref",
+                       Test_String_Ref'Access);
    end Add_Tests;
 
    procedure Test_Escape_Javascript (T : in out Test) is
@@ -285,5 +287,25 @@ package body Util.Strings.Tests is
 
       Free (Name);
    end Test_Measure_Hash;
+
+   --  ------------------------------
+   --  Test String_Ref creation
+   --  ------------------------------
+   procedure Test_String_Ref (T : in out Test) is
+      R1 : String_Ref := To_String_Ref ("testing a string");
+   begin
+      for I in 1 .. 1_000 loop
+         declare
+            S  : String (1 .. I) := (others => 'x');
+            R2 : String_Ref := To_String_Ref (S);
+         begin
+            Assert_Equals (T, S, To_String (R2), "Invalid String_Ref");
+            T.Assert (R2 = S, "Invalid comparison");
+            Assert_Equals (T, I, Length (R2), "Invalid length");
+            R1 := R2;
+            T.Assert (R1 = R2, "Invalid String_Ref copy");
+         end;
+      end loop;
+   end Test_String_Ref;
 
 end Util.Strings.Tests;

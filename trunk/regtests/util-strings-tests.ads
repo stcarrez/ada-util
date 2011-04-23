@@ -42,4 +42,7 @@ package Util.Strings.Tests is
    --  Do some benchmark on String -> X hash mapped.
    procedure Test_Measure_Hash (T : in out Test);
 
+   --  Test String_Ref creation
+   procedure Test_String_Ref (T : in out Test);
+
 end Util.Strings.Tests;
