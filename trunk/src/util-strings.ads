@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util-strings -- Various String Utility
---  Copyright (C) 2001, 2002, 2003, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -82,11 +82,18 @@ package Util.Strings is
    function To_Unbounded_String (S : in String_Ref) return Ada.Strings.Unbounded.Unbounded_String;
 
    --  Compute the hash value of the string reference.
-   function Hash (Key : String_Ref) return Ada.Containers.Hash_Type;
+   function Hash (Key : in String_Ref) return Ada.Containers.Hash_Type;
 
    --  Returns true if left and right string references are equivalent.
-   function Equivalent_Keys (Left, Right : String_Ref) return Boolean;
-   function "=" (Left, Right : String_Ref) return Boolean renames Equivalent_Keys;
+   function Equivalent_Keys (Left, Right : in String_Ref) return Boolean;
+   function "=" (Left, Right : in String_Ref) return Boolean renames Equivalent_Keys;
+   function "=" (Left  : in String_Ref;
+                 Right : in String) return Boolean;
+   function "=" (Left  : in String_Ref;
+                 Right : in Ada.Strings.Unbounded.Unbounded_String) return Boolean;
+
+   --  Returns the string length.
+   function Length (S : in String_Ref) return Natural;
 
 private
    pragma Inline (To_String_Ref);
