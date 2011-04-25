@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects -- Generic Typed Data Representation
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -84,6 +84,16 @@ package body Util.Beans.Objects is
    end To_Duration;
 
    --  ------------------------------
+   --  Returns False
+   --  ------------------------------
+   function Is_Empty (Type_Def : in Basic_Type;
+                      Value    : in Object_Value) return Boolean is
+      pragma Unreferenced (Type_Def, Value);
+   begin
+      return False;
+   end Is_Empty;
+
+   --  ------------------------------
    --  Null Type
    --  ------------------------------
 
@@ -114,6 +124,16 @@ package body Util.Beans.Objects is
    begin
       return "null";
    end To_String;
+
+   --  ------------------------------
+   --  Returns True
+   --  ------------------------------
+   function Is_Empty (Type_Def : in Null_Type;
+                      Value    : in Object_Value) return Boolean is
+      pragma Unreferenced (Type_Def, Value);
+   begin
+      return True;
+   end Is_Empty;
 
    --  ------------------------------
    --  Integer Type
@@ -293,11 +313,12 @@ package body Util.Beans.Objects is
    function To_String (Type_Def : in String_Type;
                        Value    : in Object_Value) return String is
       pragma Unreferenced (Type_Def);
+      Proxy : constant String_Proxy_Access := Value.String_Proxy;
    begin
-      if Value.Proxy = null then
+      if Proxy = null then
          return "null";
       else
-         return Value.Proxy.String_Value.all;
+         return Proxy.Value;
       end if;
    end To_String;
 
@@ -307,11 +328,12 @@ package body Util.Beans.Objects is
    function To_Long_Long (Type_Def : in String_Type;
                           Value    : in Object_Value) return Long_Long_Integer is
       pragma Unreferenced (Type_Def);
+      Proxy : constant String_Proxy_Access := Value.String_Proxy;
    begin
-      if Value.Proxy = null then
+      if Proxy = null then
          return 0;
       else
-         return Long_Long_Integer'Value (Value.Proxy.String_Value.all);
+         return Long_Long_Integer'Value (Proxy.Value);
       end if;
    end To_Long_Long;
 
@@ -321,11 +343,12 @@ package body Util.Beans.Objects is
    function To_Long_Float (Type_Def : in String_Type;
                            Value    : in Object_Value) return Long_Long_Float is
       pragma Unreferenced (Type_Def);
+      Proxy : constant String_Proxy_Access := Value.String_Proxy;
    begin
-      if Value.Proxy = null then
+      if Proxy = null then
          return 0.0;
       else
-         return Long_Long_Float'Value (Value.Proxy.String_Value.all);
+         return Long_Long_Float'Value (Proxy.Value);
       end if;
    end To_Long_Float;
 
@@ -335,12 +358,24 @@ package body Util.Beans.Objects is
    function To_Boolean (Type_Def : in String_Type;
                         Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
+      Proxy : constant String_Proxy_Access := Value.String_Proxy;
    begin
-      return Value.Proxy /= null
-        and then (Value.Proxy.String_Value.all = "true"
-                  or Value.Proxy.String_Value.all = "TRUE"
-                  or Value.Proxy.String_Value.all = "1");
+      return Proxy /= null
+        and then (Proxy.Value = "true"
+                  or Proxy.Value = "TRUE"
+                  or Proxy.Value = "1");
    end To_Boolean;
+
+   --  ------------------------------
+   --  Returns True if the value is empty.
+   --  ------------------------------
+   function Is_Empty (Type_Def : in String_Type;
+                      Value    : in Object_Value) return Boolean is
+      pragma Unreferenced (Type_Def);
+      Proxy : constant String_Proxy_Access := Value.String_Proxy;
+   begin
+      return Proxy = null or else Proxy.Value = "";
+   end Is_Empty;
 
    --  ------------------------------
    --  Convert the value into a duration.
@@ -352,7 +387,7 @@ package body Util.Beans.Objects is
       if Value.Proxy = null then
          return 0.0;
       else
-         return Duration'Value (Value.Proxy.String_Value.all);
+         return Duration'Value (String_Proxy (Value.Proxy.all).Value);
       end if;
    end To_Duration;
 
@@ -384,11 +419,12 @@ package body Util.Beans.Objects is
    function To_String (Type_Def : in Wide_String_Type;
                        Value    : in Object_Value) return String is
       pragma Unreferenced (Type_Def);
+      Proxy : constant Wide_String_Proxy_Access := Value.Wide_Proxy;
    begin
-      if Value.Proxy = null then
+      if Proxy = null then
          return "null";
       else
-         return To_String (Value.Proxy.Wide_String_Value.all);
+         return To_String (Proxy.Value);
       end if;
    end To_String;
 
@@ -398,11 +434,12 @@ package body Util.Beans.Objects is
    function To_Wide_Wide_String (Type_Def : in Wide_String_Type;
                                  Value    : in Object_Value) return Wide_Wide_String is
       pragma Unreferenced (Type_Def);
+      Proxy : constant Wide_String_Proxy_Access := Value.Wide_Proxy;
    begin
-      if Value.Proxy = null then
+      if Proxy = null then
          return "null";
       else
-         return Value.Proxy.Wide_String_Value.all;
+         return Proxy.Value;
       end if;
    end To_Wide_Wide_String;
 
@@ -412,11 +449,12 @@ package body Util.Beans.Objects is
    function To_Long_Long (Type_Def : in Wide_String_Type;
                           Value    : in Object_Value) return Long_Long_Integer is
       pragma Unreferenced (Type_Def);
+      Proxy : constant Wide_String_Proxy_Access := Value.Wide_Proxy;
    begin
-      if Value.Proxy = null then
+      if Proxy = null then
          return 0;
       else
-         return Long_Long_Integer'Value (To_String (Value.Proxy.Wide_String_Value.all));
+         return Long_Long_Integer'Value (To_String (Proxy.Value));
       end if;
    end To_Long_Long;
 
@@ -426,11 +464,12 @@ package body Util.Beans.Objects is
    function To_Long_Float (Type_Def : in Wide_String_Type;
                            Value    : in Object_Value) return Long_Long_Float is
       pragma Unreferenced (Type_Def);
+      Proxy : constant Wide_String_Proxy_Access := Value.Wide_Proxy;
    begin
-      if Value.Proxy = null then
+      if Proxy = null then
          return 0.0;
       else
-         return Long_Long_Float'Value (To_String (Value.Proxy.Wide_String_Value.all));
+         return Long_Long_Float'Value (To_String (Proxy.Value));
       end if;
    end To_Long_Float;
 
@@ -440,11 +479,12 @@ package body Util.Beans.Objects is
    function To_Boolean (Type_Def : in Wide_String_Type;
                         Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
+      Proxy : constant Wide_String_Proxy_Access := Value.Wide_Proxy;
    begin
-      return Value.Proxy /= null
-        and then (Value.Proxy.Wide_String_Value.all = "true"
-                  or Value.Proxy.Wide_String_Value.all = "TRUE"
-                  or Value.Proxy.Wide_String_Value.all = "1");
+      return Proxy /= null
+        and then (Proxy.Value = "true"
+                  or Proxy.Value = "TRUE"
+                  or Proxy.Value = "1");
    end To_Boolean;
 
    --  ------------------------------
@@ -453,13 +493,25 @@ package body Util.Beans.Objects is
    function To_Duration (Type_Def : in Wide_String_Type;
                          Value    : in Object_Value) return Duration is
       pragma Unreferenced (Type_Def);
+      Proxy : constant Wide_String_Proxy_Access := Value.Wide_Proxy;
    begin
-      if Value.Proxy = null then
+      if Proxy = null then
          return 0.0;
       else
-         return Duration'Value (To_String (Value.Proxy.Wide_String_Value.all));
+         return Duration'Value (To_String (Proxy.Value));
       end if;
    end To_Duration;
+
+   --  ------------------------------
+   --  Returns True if the value is empty.
+   --  ------------------------------
+   function Is_Empty (Type_Def : in Wide_String_Type;
+                      Value    : in Object_Value) return Boolean is
+      pragma Unreferenced (Type_Def);
+      Proxy : constant Wide_String_Proxy_Access := Value.Wide_Proxy;
+   begin
+      return Proxy = null or else Proxy.Value = "";
+   end Is_Empty;
 
    --  ------------------------------
    --  Boolean Type
@@ -665,9 +717,35 @@ package body Util.Beans.Objects is
    function To_Boolean (Type_Def : in Bean_Type;
                         Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
+      Proxy : constant Bean_Proxy_Access := Value.Proxy;
    begin
-      return Value.Proxy /= null and then Value.Proxy.Bean /= null;
+      return Proxy /= null;
    end To_Boolean;
+
+   --  ------------------------------
+   --  Returns True if the value is empty.
+   --  ------------------------------
+   function Is_Empty (Type_Def : in Bean_Type;
+                      Value    : in Object_Value) return Boolean is
+      pragma Unreferenced (Type_Def);
+      Proxy : constant Bean_Proxy_Access := Value.Proxy;
+   begin
+      if Proxy = null then
+         return True;
+      end if;
+      if not (Proxy.all in Bean_Proxy'Class) then
+         return False;
+      end if;
+      if not (Bean_Proxy (Proxy.all).Bean.all in Util.Beans.Basic.List_Bean'Class) then
+         return False;
+      end if;
+      declare
+         L : constant Util.Beans.Basic.List_Bean_Access :=
+           Beans.Basic.List_Bean'Class (Bean_Proxy (Proxy.all).Bean.all)'Unchecked_Access;
+      begin
+         return L.Get_Count = 0;
+      end;
+   end Is_Empty;
 
    --  ------------------------------
    --  Convert the value into a string.
@@ -697,34 +775,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    function Is_Empty (Value : in Object) return Boolean is
    begin
-      case Value.V.Of_Type is
-         when TYPE_NULL =>
-            return True;
-
-         when TYPE_STRING =>
-            return Value.V.Proxy = null or else Value.V.Proxy.String_Value.all = "";
-
-         when TYPE_WIDE_STRING  =>
-            return Value.V.Proxy = null or else Value.V.Proxy.Wide_String_Value.all = "";
-
-         when TYPE_BEAN =>
-            if Value.V.Proxy = null or else Value.V.Proxy.Bean = null then
-               return True;
-            end if;
-            if not (Value.V.Proxy.Bean.all in Util.Beans.Basic.List_Bean'Class) then
-               return False;
-            end if;
-            declare
-               L : constant Util.Beans.Basic.List_Bean_Access :=
-                 Util.Beans.Basic.List_Bean'Class (Value.V.Proxy.Bean.all)'Unchecked_Access;
-            begin
-               return L.Get_Count = 0;
-            end;
-
-         when others =>
-            return False;
-
-      end case;
+      return Value.Type_Def.Is_Empty (Value.V);
    end Is_Empty;
 
    --  ------------------------------
@@ -778,10 +829,10 @@ package body Util.Beans.Objects is
    begin
       case Value.V.Of_Type is
          when TYPE_STRING =>
-            if Value.V.Proxy = null then
+            if Value.V.String_Proxy = null then
                return To_Unbounded_String ("null");
             end if;
-            return To_Unbounded_String (Value.V.Proxy.String_Value.all);
+            return To_Unbounded_String (Value.V.String_Proxy.Value);
 
          when others =>
             return To_Unbounded_String (To_String (Value));
@@ -796,17 +847,17 @@ package body Util.Beans.Objects is
    begin
       case Value.V.Of_Type is
          when TYPE_WIDE_STRING =>
-            if Value.V.Proxy = null then
+            if Value.V.Wide_Proxy = null then
                return To_Unbounded_Wide_Wide_String ("null");
             end if;
-            return To_Unbounded_Wide_Wide_String (Value.V.Proxy.Wide_String_Value.all);
+            return To_Unbounded_Wide_Wide_String (Value.V.Wide_Proxy.Value);
 
          when TYPE_STRING =>
-            if Value.V.Proxy = null then
+            if Value.V.String_Proxy = null then
                return To_Unbounded_Wide_Wide_String ("null");
             end if;
             return To_Unbounded_Wide_Wide_String
-              (To_Wide_Wide_String (Value.V.Proxy.String_Value.all));
+              (To_Wide_Wide_String (Value.V.String_Proxy.Value));
 
          when others =>
             return To_Unbounded_Wide_Wide_String (To_Wide_Wide_String (To_String (Value)));
@@ -847,9 +898,10 @@ package body Util.Beans.Objects is
    end To_Duration;
 
    function To_Bean (Value : in Object) return access Util.Beans.Basic.Readonly_Bean'Class is
+--        Proxy : constant Bean_Proxy_Access;
    begin
       if Value.V.Of_Type = TYPE_BEAN and then Value.V.Proxy /= null then
-         return Value.V.Proxy.Bean;
+         return Bean_Proxy (Value.V.Proxy.all).Bean;
       else
          return null;
       end if;
@@ -979,13 +1031,12 @@ package body Util.Beans.Objects is
    --  Convert a string into a generic typed object.
    --  ------------------------------
    function To_Object (Value : String) return Object is
-      S : constant Ada.Strings.Unbounded.String_Access := new String '(Value);
    begin
       return Object '(Controlled with
                       V => Object_Value '(Of_Type => TYPE_STRING,
-                                          Proxy   => new Bean_Proxy '(Ref_Counter  => ONE,
-                                                                      Of_Type      => TYPE_STRING,
-                                                                      String_Value => S)),
+                                          String_Proxy  => new String_Proxy '(Ref_Counter  => ONE,
+                                                                        Len  => Value'Length,
+                                                                        Value => Value)),
                       Type_Def     => Str_Type'Access);
    end To_Object;
 
@@ -993,13 +1044,13 @@ package body Util.Beans.Objects is
    --  Convert a wide string into a generic typed object.
    --  ------------------------------
    function To_Object (Value : Wide_Wide_String) return Object is
-      S : constant Wide_Wide_String_Access := new Wide_Wide_String '(Value);
    begin
       return Object '(Controlled with
                       V => Object_Value '(Of_Type => TYPE_WIDE_STRING,
-                                          Proxy   => new Bean_Proxy '(Ref_Counter => ONE,
-                                                                      Of_Type => TYPE_WIDE_STRING,
-                                                                      Wide_String_Value => S)),
+                                          Wide_Proxy => new Wide_String_Proxy
+                                            '(Ref_Counter => ONE,
+                                              Len => Value'Length,
+                                              Value => Value)),
                       Type_Def          => WString_Type'Access);
    end To_Object;
 
@@ -1007,13 +1058,13 @@ package body Util.Beans.Objects is
    --  Convert an unbounded string into a generic typed object.
    --  ------------------------------
    function To_Object (Value : Unbounded_String) return Object is
-      S : constant Ada.Strings.Unbounded.String_Access := new String '(To_String (Value));
+      Len : constant Natural := Length (Value);
    begin
       return Object '(Controlled with
                       V => Object_Value '(Of_Type => TYPE_STRING,
-                                          Proxy   => new Bean_Proxy '(Ref_Counter  => ONE,
-                                                                      Of_Type      => TYPE_STRING,
-                                                                      String_Value => S)),
+                                          String_Proxy => new String_Proxy '(Ref_Counter  => ONE,
+                                                                        Len => Len,
+                                                                        Value => To_String (Value))),
                       Type_Def => Str_Type'Access);
    end To_Object;
 
@@ -1021,13 +1072,14 @@ package body Util.Beans.Objects is
    --  Convert a unbounded wide string into a generic typed object.
    --  ------------------------------
    function To_Object (Value : Unbounded_Wide_Wide_String) return Object is
-      S : constant Wide_Wide_String_Access := new Wide_Wide_String '(To_Wide_Wide_String (Value));
+      Len : constant Natural := Length (Value);
    begin
       return Object '(Controlled with
         V => Object_Value '(Of_Type => TYPE_WIDE_STRING,
-                            Proxy   => new Bean_Proxy '(Ref_Counter => ONE,
-                                                        Of_Type => TYPE_WIDE_STRING,
-                                                        Wide_String_Value => S)),
+                            Wide_Proxy   => new Wide_String_Proxy
+                              '(Ref_Counter => ONE,
+                                Len => Len,
+                                Value => To_Wide_Wide_String (Value))),
         Type_Def          => WString_Type'Access);
    end To_Object;
 
@@ -1041,8 +1093,7 @@ package body Util.Beans.Objects is
       else
          return Object '(Controlled with
                          V => Object_Value '(Of_Type => TYPE_BEAN,
-                                             Proxy   => new Bean_Proxy '(Of_Type => TYPE_BEAN,
-                                                                         Ref_Counter => ONE,
+                                             Proxy   => new Bean_Proxy '(Ref_Counter => ONE,
                                                                          Bean => Value)),
                          Type_Def   => Bn_Type'Access);
       end if;
@@ -1443,9 +1494,19 @@ package body Util.Beans.Objects is
    procedure Adjust (Obj : in out Object) is
    begin
       case Obj.V.Of_Type is
-         when TYPE_BEAN | TYPE_STRING | TYPE_WIDE_STRING =>
+         when TYPE_BEAN =>
             if Obj.V.Proxy /= null then
                Util.Concurrent.Counters.Increment (Obj.V.Proxy.Ref_Counter);
+            end if;
+
+         when TYPE_STRING =>
+            if Obj.V.String_Proxy /= null then
+               Util.Concurrent.Counters.Increment (Obj.V.String_Proxy.Ref_Counter);
+            end if;
+
+         when TYPE_WIDE_STRING =>
+            if Obj.V.Wide_Proxy /= null then
+               Util.Concurrent.Counters.Increment (Obj.V.Wide_Proxy.Ref_Counter);
             end if;
 
          when others =>
@@ -1455,31 +1516,49 @@ package body Util.Beans.Objects is
    end Adjust;
 
    procedure Free is
-     new Ada.Unchecked_Deallocation (Object => Bean_Proxy,
+     new Ada.Unchecked_Deallocation (Object => Proxy'Class,
                                      Name   => Bean_Proxy_Access);
+
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Object => String_Proxy,
+                                     Name   => String_Proxy_Access);
+
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Object => Wide_String_Proxy,
+                                     Name   => Wide_String_Proxy_Access);
 
    overriding
    procedure Finalize (Obj : in out Object) is
       Release : Boolean;
    begin
       case Obj.V.Of_Type is
-         when TYPE_BEAN | TYPE_STRING | TYPE_WIDE_STRING =>
+         when TYPE_STRING =>
+             if Obj.V.String_Proxy /= null then
+               Util.Concurrent.Counters.Decrement (Obj.V.String_Proxy.Ref_Counter, Release);
+               if Release then
+                  Free (Obj.V.String_Proxy);
+               else
+                  Obj.V.String_Proxy := null;
+               end if;
+            end if;
+
+         when TYPE_WIDE_STRING =>
+            if Obj.V.Wide_Proxy /= null then
+               Util.Concurrent.Counters.Decrement (Obj.V.Wide_Proxy.Ref_Counter, Release);
+               if Release then
+                  Free (Obj.V.Wide_Proxy);
+               else
+                  Obj.V.Wide_Proxy := null;
+               end if;
+            end if;
+
+         when TYPE_BEAN =>
             if Obj.V.Proxy /= null then
                Util.Concurrent.Counters.Decrement (Obj.V.Proxy.Ref_Counter, Release);
                if Release then
-                  case Obj.V.Proxy.Of_Type is
-                     when TYPE_STRING =>
-                        Free (Obj.V.Proxy.String_Value);
-
-                     when TYPE_WIDE_STRING =>
-                        Free (Obj.V.Proxy.Wide_String_Value);
-
-                     when others =>
-                        null;
-
-                  end case;
-
                   Free (Obj.V.Proxy);
+               else
+                  Obj.V.Proxy := null;
                end if;
             end if;
 

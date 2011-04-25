@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 
 with Ada.Strings.Hash;
+with Ada.Strings.Wide_Wide_Hash;
 with Ada.Characters.Conversions;
 with Ada.Unchecked_Conversion;
 with Interfaces;
@@ -89,10 +90,10 @@ begin
          end;
 
       when TYPE_STRING =>
-         if Key.V.Proxy = null then
+         if Key.V.String_Proxy = null then
             return 0;
          else
-            return Hash (Key.V.Proxy.String_Value.all);
+            return Hash (Key.V.String_Proxy.Value);
          end if;
 
       when TYPE_TIME =>
@@ -107,18 +108,18 @@ begin
          end;
 
       when TYPE_WIDE_STRING =>
-         if Key.V.Proxy = null then
+         if Key.V.Wide_Proxy = null then
             return 0;
          else
-            return Hash (To_String (Key.V.Proxy.Wide_String_Value.all));
+            return Wide_Wide_Hash (Key.V.Wide_Proxy.Value);
          end if;
 
       when TYPE_BEAN =>
-         if Key.V.Proxy.Bean = null then
+         if Key.V.Proxy = null or else Bean_Proxy (Key.V.Proxy.all).Bean = null then
             return 0;
          end if;
          declare
-            U32 : constant U32_For_Access :=  To_U32_For_Access (Key.V.Proxy.Bean.all'Access);
+            U32 : constant U32_For_Access :=  To_U32_For_Access (Bean_Proxy (Key.V.Proxy.all).Bean.all'Access);
             Val : Unsigned_32 := U32 (U32'First);
 
             --  The loop is not executed if pointers are 32-bit wide.
