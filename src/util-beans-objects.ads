@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects -- Generic Typed Data Representation
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -116,6 +116,10 @@ package Util.Beans.Objects is
    function To_Duration (Type_Def : in Object_Type;
                          Value    : in Object_Value) return Duration is abstract;
 
+   --  Returns True if the value is empty.
+   function Is_Empty (Type_Def : in Object_Type;
+                      Value    : in Object_Value) return Boolean is abstract;
+
    --  ------------------------------
    --  Generic Object holding a value
    --  ------------------------------
@@ -229,6 +233,10 @@ private
    function To_Duration (Type_Def : in Basic_Type;
                          Value    : in Object_Value) return Duration;
 
+   --  Returns False
+   function Is_Empty (Type_Def : in Basic_Type;
+                      Value    : in Object_Value) return Boolean;
+
    --  ------------------------------
    --  Null Type
    --  ------------------------------
@@ -243,6 +251,10 @@ private
    --  Convert the value into a string.
    function To_String (Type_Def : in Null_Type;
                        Value    : in Object_Value) return String;
+
+   --  Returns True
+   function Is_Empty (Type_Def : in Null_Type;
+                      Value    : in Object_Value) return Boolean;
 
    --  ------------------------------
    --  Integer Type
@@ -336,6 +348,10 @@ private
    function To_Duration (Type_Def : in String_Type;
                          Value    : in Object_Value) return Duration;
 
+   --  Returns True if the value is empty.
+   function Is_Empty (Type_Def : in String_Type;
+                      Value    : in Object_Value) return Boolean;
+
    --  ------------------------------
    --  Wide String Type
    --  ------------------------------
@@ -370,6 +386,10 @@ private
    --  Convert the value into a duration.
    function To_Duration (Type_Def : in Wide_String_Type;
                          Value    : in Object_Value) return Duration;
+
+   --  Returns True if the value is empty.
+   function Is_Empty (Type_Def : in Wide_String_Type;
+                      Value    : in Object_Value) return Boolean;
 
    --  ------------------------------
    --  Boolean Type
@@ -456,23 +476,42 @@ private
    function To_Boolean (Type_Def : in Bean_Type;
                         Value    : in Object_Value) return Boolean;
 
+   --  Returns True if the value is empty.
+   function Is_Empty (Type_Def : in Bean_Type;
+                      Value    : in Object_Value) return Boolean;
+
    subtype Proxy_Data_Type is Data_Type range TYPE_STRING .. TYPE_BEAN;
 
-   type Bean_Proxy (Of_Type : Proxy_Data_Type) is record
+   type Proxy -- (Of_Type : Proxy_Data_Type)
+     is tagged limited record
       Ref_Counter : Util.Concurrent.Counters.Counter;
-      case Of_Type is
-         when TYPE_STRING =>
-            String_Value : String_Access;
-
-         when TYPE_WIDE_STRING =>
-            Wide_String_Value : Wide_Wide_String_Access;
-
-         when TYPE_BEAN =>
-            Bean        : access Util.Beans.Basic.Readonly_Bean'Class;
-      end case;
+--        case Of_Type is
+--           when TYPE_STRING =>
+--              String_Value : String_Access;
+--
+--           when TYPE_WIDE_STRING =>
+--              Wide_String_Value : Wide_Wide_String_Access;
+--
+--           when TYPE_BEAN =>
+--              Bean        : access Util.Beans.Basic.Readonly_Bean'Class;
+--        end case;
    end record;
 
-   type Bean_Proxy_Access is access all Bean_Proxy;
+   type Bean_Proxy_Access is access all Proxy'Class;
+
+   type String_Proxy (Len : Natural) is new Proxy with record
+      Value : String (1 .. Len);
+   end record;
+   type String_Proxy_Access is access all String_Proxy;
+
+   type Wide_String_Proxy (Len : Natural) is new Proxy with record
+      Value : Wide_Wide_String (1 .. Len);
+   end record;
+   type Wide_String_Proxy_Access is access all Wide_String_Proxy;
+
+   type Bean_Proxy is new Proxy with record
+      Bean : access Util.Beans.Basic.Readonly_Bean'Class;
+   end record;
 
    type Object_Value (Of_Type : Data_Type := TYPE_NULL) is record
       case Of_Type is
@@ -492,7 +531,13 @@ private
          when TYPE_TIME =>
             Time_Value  : Duration;
 
-         when TYPE_BEAN | TYPE_STRING | TYPE_WIDE_STRING =>
+         when TYPE_STRING =>
+            String_Proxy : String_Proxy_Access;
+
+         when TYPE_WIDE_STRING =>
+            Wide_Proxy : Wide_String_Proxy_Access;
+
+         when TYPE_BEAN =>
             Proxy : Bean_Proxy_Access;
 
       end case;

@@ -28,11 +28,11 @@ begin
    if Value.V.Proxy = null then
       return null;
    end if;
-   if Value.V.Proxy.Bean = null then
+   if Bean_Proxy (Value.V.Proxy.all).Bean = null then
       return null;
    end if;
-   if not (Value.V.Proxy.Bean.all in T'Class) then
+   if not (Bean_Proxy (Value.V.Proxy.all).Bean.all in T'Class) then
       return null;
    end if;
-   return T'Class (Value.V.Proxy.Bean.all)'Unchecked_Access;
+   return T'Class (Bean_Proxy (Value.V.Proxy.all).Bean.all)'Unchecked_Access;
 end Util.Beans.Objects.To_Access;

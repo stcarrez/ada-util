@@ -95,16 +95,16 @@ package body Util.Beans.Objects.Enums is
             end if;
 
          when TYPE_STRING =>
-            if Value.V.Proxy = null then
+            if Value.V.String_Proxy = null then
                raise Constraint_Error with "The object value is null";
             end if;
-            return T'Value (Value.V.Proxy.String_Value.all);
+            return T'Value (Value.V.String_Proxy.Value);
 
          when TYPE_WIDE_STRING =>
-            if Value.V.Proxy = null then
+            if Value.V.Wide_Proxy = null then
                raise Constraint_Error with "The object value is null";
             end if;
-            return T'Value (To_String (Value.V.Proxy.Wide_String_Value.all));
+            return T'Value (To_String (Value.V.Wide_Proxy.Value));
 
          when TYPE_NULL =>
             raise Constraint_Error with "The object value is null";
