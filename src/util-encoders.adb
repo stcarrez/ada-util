@@ -18,6 +18,7 @@
 
 with Util.Encoders.Base16;
 with Util.Encoders.Base64;
+with Util.Encoders.SHA1;
 package body Util.Encoders is
 
    use Ada;
@@ -65,7 +66,7 @@ package body Util.Encoders is
       return E.Decode.Transform (Data);
    end Decode;
 
-   MIN_BUFFER_SIZE : constant Streams.Stream_Element_Offset := 16;
+   MIN_BUFFER_SIZE : constant Streams.Stream_Element_Offset := 64;
    MAX_BUFFER_SIZE : constant Streams.Stream_Element_Offset := 2_048;
 
    function Best_Size (Length : Natural) return Streams.Stream_Element_Offset;
@@ -153,6 +154,38 @@ package body Util.Encoders is
    end Transform;
 
    --  ------------------------------
+   --  Transform the input string <b>Data</b> using the transformation
+   --  rules provided by the <b>E</b> transformer.
+   --
+   --  Returns the transformed string.
+   --
+   --  Raises the <b>Encoding_Error</b> exception if the source string
+   --  cannot be transformed
+   --  ------------------------------
+   function Transform (E    : in Transformer'Class;
+                       Data : in Streams.Stream_Element_Array) return String is
+      Buf_Size : constant Streams.Stream_Element_Offset := Best_Size (Data'Length);
+      Res      : Streams.Stream_Element_Array (1 .. Buf_Size);
+      Tmp      : String (1 .. Natural (Buf_Size));
+      Result   : Ada.Strings.Unbounded.Unbounded_String;
+      Last_Encoded  : Streams.Stream_Element_Offset;
+      Last          : Streams.Stream_Element_Offset;
+   begin
+
+      --  Encode that buffer and put the result in out result string.
+      E.Transform (Data    => Data,
+                   Into    => Res,
+                   Encoded => Last_Encoded,
+                   Last    => Last);
+
+      for I in 1 .. Last loop
+         Tmp (Natural (I)) := Character'Val (Res (I));
+      end loop;
+      Append (Result, Tmp (1 .. Natural (Last)));
+      return To_String (Result);
+   end Transform;
+
+   --  ------------------------------
    --  Create the encoder object for the specified algorithm.
    --  ------------------------------
    function Create (Name : String) return Encoder is
@@ -173,6 +206,12 @@ package body Util.Encoders is
          return E : Encoder do
            E.Encode := new Util.Encoders.Base64.Encoder;
            E.Decode := new Util.Encoders.Base64.Decoder;
+         end return;
+
+      elsif Name = HASH_SHA1 then
+         return E : Encoder do
+            E.Encode := new Util.Encoders.SHA1.Encoder;
+            E.Decode := new Util.Encoders.Base64.Decoder;
          end return;
       end if;
       raise Storage_Error;

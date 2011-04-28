@@ -40,6 +40,9 @@ package Util.Encoders is
    BASE_16     : constant String := "base16";
    HEX         : constant String := "hex";
 
+   --  Encoder for SHA1 (RFC 3174)
+   HASH_SHA1   : constant String := "sha1";
+
    --  ------------------------------
    --  Encoder context object
    --  ------------------------------
@@ -81,7 +84,7 @@ package Util.Encoders is
    --  ------------------------------
    --  The <b>Transformer</b> interface defines the operation to transform
    --  a stream from one data format to another.
-   type Transformer is interface;
+   type Transformer is limited interface;
    type Transformer_Access is access all Transformer'Class;
 
    --  Transform the input stream represented by <b>Data</b> into
@@ -120,6 +123,16 @@ package Util.Encoders is
    --  cannot be transformed
    function Transform (E    : in Transformer'Class;
                        Data : in String) return String;
+
+   --  Transform the input string <b>Data</b> using the transformation
+   --  rules provided by the <b>E</b> transformer.
+   --
+   --  Returns the transformed string.
+   --
+   --  Raises the <b>Encoding_Error</b> exception if the source string
+   --  cannot be transformed
+   function Transform (E    : in Transformer'Class;
+                       Data : in Ada.Streams.Stream_Element_Array) return String;
 
 private
 
