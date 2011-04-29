@@ -17,14 +17,17 @@
 -----------------------------------------------------------------------
 
 with Util.Test_Caller;
-with AUnit.Assertions;
-with Util.Files;
 with Util.Tests;
 with Util.Measures;
 with Ada.Text_IO;
+with Util.Encoders.SHA1;
+--  with Util.Log.Loggers;
 package body Util.Encoders.Tests is
 
    use Util.Tests;
+--     use Util.Log;
+--
+--     Log : constant Loggers.Logger := Loggers.Create ("Util.Encoders.Tests");
 
    package Caller is new Util.Test_Caller (Test);
 
@@ -40,10 +43,14 @@ package body Util.Encoders.Tests is
                        Test_Base64_Decode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Benchmark",
                        Test_Base64_Benchmark'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.SHA1.Encode",
+                       Test_SHA1_Encode'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.SHA1.Benchmark",
+                       Test_SHA1_Benchmark'Access);
    end Add_Tests;
 
    procedure Test_Base64_Encode (T : in out Test) is
-      C : Util.Encoders.Encoder := Create ("base64");
+      C : constant Util.Encoders.Encoder := Create ("base64");
    begin
       Assert_Equals (T, "YQ==", Util.Encoders.Encode (C, "a"));
       Assert_Equals (T, "fA==", Util.Encoders.Encode (C, "|"));
@@ -95,15 +102,84 @@ package body Util.Encoders.Tests is
    end Test_Hex;
 
    procedure Test_Base64_Benchmark (T : in out Test) is
-      C : Util.Encoders.Encoder := Create ("base64");
-      S : String (1 .. 1_024) := (others => 'a');
+      pragma Unreferenced (T);
+
+      C : constant Util.Encoders.Encoder := Create ("base64");
+      S : constant String (1 .. 1_024) := (others => 'a');
    begin
       declare
          T : Util.Measures.Stamp;
          R : constant String := Util.Encoders.Encode (C, S);
+         pragma Unreferenced (R);
       begin
          Util.Measures.Report (T, "Base64 encode 1024 bytes");
       end;
    end Test_Base64_Benchmark;
+
+   procedure Test_SHA1_Encode (T : in out Test) is
+      C   : Util.Encoders.SHA1.Context;
+      E   : Util.Encoders.Encoder := Create ("sha1");
+      Hash : Util.Encoders.SHA1.Digest;
+
+      procedure Check_Hash (Value  : in String;
+                            Expect : in String) is
+         J, N : Natural;
+         Ctx  : Util.Encoders.SHA1.Context;
+      begin
+         for I in 1 .. Value'Length loop
+            J := Value'First;
+            while J <= Value'Last loop
+               if J + I <= Value'Last then
+                  N := J + I;
+               else
+                  N := Value'Last;
+               end if;
+               Util.Encoders.SHA1.Update (Ctx, Value (J .. N));
+               J := N + 1;
+            end loop;
+            Util.Encoders.SHA1.Finish (Ctx, Hash);
+            Assert_Equals (T, Expect, Hash, "Invalid hash for: " & Value);
+         end loop;
+      end Check_Hash;
+
+   begin
+      Util.Encoders.SHA1.Update (C, "a");
+      Util.Encoders.SHA1.Finish (C, Hash);
+
+      Assert_Equals (T, "86F7E437FAA5A7FCE15D1DDCB9EAEAEA377667B8", Hash,
+                     "Invalid hash for 'a'");
+
+      Check_Hash ("ut", "E746699D3947443D84DAD1E0C58BF7AD34712438");
+      Check_Hash ("Uti", "2C669751BDC4929377245F5EEBEAED1CE4DA8A45");
+      Check_Hash ("Util", "4C31156EFED35EE7814650F8971C3698059440E3");
+      Check_Hash ("Util.Encoders", "7DB6007AD8BAEA7C167FF2AE06C9F50A4645F971");
+      Check_Hash ("e746699d3947443d84dad1e0c58bf7ad347124382C669751BDC492937"
+                  & "7245F5EEBEAED1CE4DA8A45",
+                  "875C9C0DE4CE91ED8F432DD02B5BB40CD35DAACD");
+   end Test_SHA1_Encode;
+
+   --  ------------------------------
+   --  Benchmark test for SHA1
+   --  ------------------------------
+   procedure Test_SHA1_Benchmark (T : in out Test) is
+      pragma Unreferenced (T);
+
+      Hash  : Util.Encoders.SHA1.Digest;
+      Sizes : constant array (1 .. 6) of Positive := (1, 10, 100, 1000, 10000, 100000);
+   begin
+      for I in Sizes'Range loop
+         declare
+            Size : constant Positive := Sizes (I);
+            S    : constant String (1 .. Size) := (others => '0');
+            T1   : Util.Measures.Stamp;
+            C    : Util.Encoders.SHA1.Context;
+         begin
+            Util.Encoders.SHA1.Update (C, S);
+            Util.Encoders.SHA1.Finish (C, Hash);
+
+            Util.Measures.Report (T1, "Encode SHA1" & Integer'Image (Size) & " bytes");
+         end;
+      end loop;
+   end Test_SHA1_Benchmark;
 
 end Util.Encoders.Tests;

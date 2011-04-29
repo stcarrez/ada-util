@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encodes-tests - Test for encoding
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,5 +30,9 @@ package Util.Encoders.Tests is
    procedure Test_Encoder (T : in out Test;
                            C : in out Util.Encoders.Encoder);
    procedure Test_Base64_Benchmark (T : in out Test);
+   procedure Test_SHA1_Encode (T : in out Test);
+
+   --  Benchmark test for SHA1
+   procedure Test_SHA1_Benchmark (T : in out Test);
 
 end Util.Encoders.Tests;
