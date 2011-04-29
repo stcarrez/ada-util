@@ -54,7 +54,7 @@ package body Util.Encoders.SHA1 is
                              Into => Into,
                              Last => Last,
                              Encoded => Encoded);
-      Last := Data'Last;
+      Encoded := Data'Last;
    end Transform;
 
    --  Delete the encoder object.
