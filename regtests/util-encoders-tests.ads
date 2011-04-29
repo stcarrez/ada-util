@@ -35,4 +35,13 @@ package Util.Encoders.Tests is
    --  Benchmark test for SHA1
    procedure Test_SHA1_Benchmark (T : in out Test);
 
+   --  Test HMAC-SHA1
+   procedure Test_HMAC_SHA1_RFC2202_T1 (T : in out Test);
+   procedure Test_HMAC_SHA1_RFC2202_T2 (T : in out Test);
+   procedure Test_HMAC_SHA1_RFC2202_T3 (T : in out Test);
+   procedure Test_HMAC_SHA1_RFC2202_T4 (T : in out Test);
+   procedure Test_HMAC_SHA1_RFC2202_T5 (T : in out Test);
+   procedure Test_HMAC_SHA1_RFC2202_T6 (T : in out Test);
+   procedure Test_HMAC_SHA1_RFC2202_T7 (T : in out Test);
+
 end Util.Encoders.Tests;
