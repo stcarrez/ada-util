@@ -19,8 +19,10 @@
 with Util.Test_Caller;
 with Util.Tests;
 with Util.Measures;
+with Util.Strings.Transforms;
 with Ada.Text_IO;
 with Util.Encoders.SHA1;
+with Util.Encoders.HMAC.SHA1;
 --  with Util.Log.Loggers;
 package body Util.Encoders.Tests is
 
@@ -47,6 +49,20 @@ package body Util.Encoders.Tests is
                        Test_SHA1_Encode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.SHA1.Benchmark",
                        Test_SHA1_Benchmark'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA1.Sign_SHA1 (RFC2202 test1)",
+                       Test_HMAC_SHA1_RFC2202_T1'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA1.Sign_SHA1 (RFC2202 test2)",
+                       Test_HMAC_SHA1_RFC2202_T2'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA1.Sign_SHA1 (RFC2202 test3)",
+                       Test_HMAC_SHA1_RFC2202_T3'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA1.Sign_SHA1 (RFC2202 test4)",
+                       Test_HMAC_SHA1_RFC2202_T4'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA1.Sign_SHA1 (RFC2202 test5)",
+                       Test_HMAC_SHA1_RFC2202_T5'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA1.Sign_SHA1 (RFC2202 test6)",
+                       Test_HMAC_SHA1_RFC2202_T6'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA1.Sign_SHA1 (RFC2202 test7)",
+                       Test_HMAC_SHA1_RFC2202_T7'Access);
    end Add_Tests;
 
    procedure Test_Base64_Encode (T : in out Test) is
@@ -181,5 +197,70 @@ package body Util.Encoders.Tests is
          end;
       end loop;
    end Test_SHA1_Benchmark;
+
+   procedure Check_HMAC (T      : in out Test'Class;
+                         Key    : in String;
+                         Value  : in String;
+                         Expect : in String) is
+      H : constant String := Util.Encoders.HMAC.SHA1.Sign (Key, Value);
+   begin
+      Assert_Equals (T, Expect, Util.Strings.Transforms.To_Lower_Case (H),
+                     "Invalid HMAC-SHA1");
+   end Check_HMAC;
+
+   --  ------------------------------
+   --  Test HMAC-SHA1
+   --  ------------------------------
+   procedure Test_HMAC_SHA1_RFC2202_T1 (T : in out Test) is
+      Key : constant String (1 .. 20) := (others => Character'Val (16#0b#));
+   begin
+      Check_HMAC (T, Key, "Hi There", "b617318655057264e28bc0b6fb378c8ef146be00");
+   end Test_HMAC_SHA1_RFC2202_T1;
+
+   procedure Test_HMAC_SHA1_RFC2202_T2 (T : in out Test) is
+   begin
+      Check_HMAC (T, "Jefe", "what do ya want for nothing?",
+                  "effcdf6ae5eb2fa2d27416d5f184df9c259a7c79");
+   end Test_HMAC_SHA1_RFC2202_T2;
+
+   procedure Test_HMAC_SHA1_RFC2202_T3 (T : in out Test) is
+      Key  : constant String (1 .. 20) := (others => Character'Val (16#aa#));
+      Data : constant String (1 .. 50) := (others => Character'Val (16#dd#));
+   begin
+      Check_HMAC (T, Key, Data,
+                  "125d7342b9ac11cd91a39af48aa17b4f63f175d3");
+   end Test_HMAC_SHA1_RFC2202_T3;
+
+   procedure Test_HMAC_SHA1_RFC2202_T4 (T : in out Test) is
+      C    : Util.Encoders.Encoder := Create ("hex");
+      Key  : constant String := Util.Encoders.Decode (C, "0102030405060708090a0b0c0d0e0f10111213141516171819");
+      Data : constant String (1 .. 50) := (others => Character'Val (16#cd#));
+   begin
+      Check_HMAC (T, Key, Data,
+                  "4c9007f4026250c6bc8414f9bf50c86c2d7235da");
+   end Test_HMAC_SHA1_RFC2202_T4;
+
+   procedure Test_HMAC_SHA1_RFC2202_T5 (T : in out Test) is
+      Key  : constant String (1 .. 20) := (others => Character'Val (16#0c#));
+   begin
+      --  RFC2202 test case 5 but without truncation...
+      Check_HMAC (T, Key, "Test With Truncation",
+                  "4c1a03424b55e07fe7f27be1d58bb9324a9a5a04");
+   end Test_HMAC_SHA1_RFC2202_T5;
+
+   procedure Test_HMAC_SHA1_RFC2202_T6 (T : in out Test) is
+      Key  : constant String (1 .. 80) := (others => Character'Val (16#aa#));
+   begin
+      Check_HMAC (T, Key, "Test Using Larger Than Block-Size Key - Hash Key First",
+                  "aa4ae5e15272d00e95705637ce8a3b55ed402112");
+   end Test_HMAC_SHA1_RFC2202_T6;
+
+   procedure Test_HMAC_SHA1_RFC2202_T7 (T : in out Test) is
+      Key  : constant String (1 .. 80) := (others => Character'Val (16#Aa#));
+   begin
+      Check_HMAC (T, Key, "Test Using Larger Than Block-Size Key and Larger "
+                    & "Than One Block-Size Data",
+                  "e8e99d0f45237d786d6bbaa7965c7808bbff1a91");
+   end Test_HMAC_SHA1_RFC2202_T7;
 
 end Util.Encoders.Tests;
