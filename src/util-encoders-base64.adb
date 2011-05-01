@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base64 -- Encode/Decode a stream in base64adecimal
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Ada.Unchecked_Deallocation;
 package body Util.Encoders.Base64 is
 
    use Interfaces;
@@ -92,22 +91,6 @@ package body Util.Encoders.Base64 is
       Last    := Pos - 1;
       Encoded := Data'Last;
    end Transform;
-
-   --  ------------------------------
-   --  Delete the encoder object.
-   --  ------------------------------
-   overriding
-   procedure Delete (E : access Encoder) is
-
-     type Encoder_Access is access all Encoder'Class;
-
-     procedure Free is
-       new Ada.Unchecked_Deallocation (Encoder'Class, Encoder_Access);
-
-     O : Encoder_Access := E.all'Access;
-   begin
-      Free (O);
-   end Delete;
 
    --  ------------------------------
    --  Decodes the base64 input stream represented by <b>Data</b> into
@@ -198,21 +181,5 @@ package body Util.Encoders.Base64 is
       Last    := Pos - 1;
       Encoded := Data'Last;
    end Transform;
-
-   --  ------------------------------
-   --  Delete the decoder object.
-   --  ------------------------------
-   overriding
-   procedure Delete (E : access Decoder) is
-
-     type Decoder_Access is access all Decoder'Class;
-
-     procedure Free is
-       new Ada.Unchecked_Deallocation (Decoder'Class, Decoder_Access);
-
-     O : Decoder_Access := E.all'Access;
-   begin
-      Free (O);
-   end Delete;
 
 end Util.Encoders.Base64;

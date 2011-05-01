@@ -33,6 +33,10 @@ package Util.Encoders.HMAC.SHA1 is
    function Sign (Key  : in String;
                   Data : in String) return Util.Encoders.SHA1.Digest;
 
+   --  Sign the data string with the key and return the HMAC-SHA1 code as base64 string.
+   function Sign_Base64 (Key  : in String;
+                         Data : in String) return Util.Encoders.SHA1.Base64_Digest;
+
    --  ------------------------------
    --  HMAC-SHA1 Context
    --  ------------------------------
@@ -66,6 +70,11 @@ package Util.Encoders.HMAC.SHA1 is
    procedure Finish (E    : in out Context;
                      Hash : out Util.Encoders.SHA1.Digest);
 
+   --  Computes the HMAC-SHA1 with the private key and the data collected by
+   --  the <b>Update</b> procedures.  Returns the base64 hash in <b>Hash</b>.
+   procedure Finish_Base64 (E    : in out Context;
+                            Hash : out Util.Encoders.SHA1.Base64_Digest);
+
    --  ------------------------------
    --  HMAC-SHA1 encoder
    --  ------------------------------
@@ -91,10 +100,6 @@ package Util.Encoders.HMAC.SHA1 is
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset);
-
-   --  Delete the encoder object.
-   overriding
-   procedure Delete (E : access Encoder);
 
 private
 

@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 
 with Util.Encoders.Base16;
+with Util.Encoders.Base64;
 
 --  The <b>Util.Encodes.SHA1</b> package generates SHA-1 hash according to
 --  RFC3174 or [FIPS-180-1].
@@ -44,6 +45,8 @@ package body Util.Encoders.SHA1 is
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset) is
+      pragma Unreferenced (E);
+
       Hex_Encoder : Util.Encoders.Base16.Encoder;
       Sha_Encoder : Context;
       Hash        : Ada.Streams.Stream_Element_Array (0 .. 19);
@@ -56,13 +59,6 @@ package body Util.Encoders.SHA1 is
                              Encoded => Encoded);
       Encoded := Data'Last;
    end Transform;
-
-   --  Delete the encoder object.
-   overriding
-   procedure Delete (E : access Encoder) is
-   begin
-      null;
-   end Delete;
 
    Padding : constant String (1 .. 64) := (1 => Character'Val (16#80#), 2 .. 64 => ASCII.NUL);
 
@@ -134,6 +130,25 @@ package body Util.Encoders.SHA1 is
       Finish (E, H);
       B.Transform (Data => H, Into => Buf, Last => Last, Encoded => Encoded);
    end Finish;
+
+   --  ------------------------------
+   --  Computes the SHA1 hash and returns the base64 hash in <b>Hash</b>.
+   --  ------------------------------
+   procedure Finish_Base64 (E    : in out Context;
+                            Hash : out Base64_Digest) is
+      Buf : Ada.Streams.Stream_Element_Array (1 .. Hash'Length);
+      for Buf'Address use Hash'Address;
+      pragma Import (Ada, Buf);
+
+      H       : Hash_Array;
+      B       : Util.Encoders.Base64.Encoder;
+      Last    : Ada.Streams.Stream_Element_Offset;
+      Encoded : Ada.Streams.Stream_Element_Offset;
+
+   begin
+      Finish (E, H);
+      B.Transform (Data => H, Into => Buf, Last => Last, Encoded => Encoded);
+   end Finish_Base64;
 
    function To_Unsigned_32 (C3, C2, C1, C0 : in Character) return Unsigned_32;
    pragma Inline_Always (To_Unsigned_32);

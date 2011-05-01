@@ -31,6 +31,7 @@ package Util.Encoders.SHA1 is
    --  The SHA-1 hash as hexadecimal string.
    subtype Digest is String (1 .. 40);
 
+   subtype Base64_Digest is String (1 .. 28);
    --  ------------------------------
    --  SHA1 Context
    --  ------------------------------
@@ -51,6 +52,10 @@ package Util.Encoders.SHA1 is
    --  Computes the SHA1 hash and returns the hexadecimal hash in <b>Hash</b>.
    procedure Finish (E    : in out Context;
                      Hash : out Digest);
+
+   --  Computes the SHA1 hash and returns the base64 hash in <b>Hash</b>.
+   procedure Finish_Base64 (E    : in out Context;
+                            Hash : out Base64_Digest);
 
    --  ------------------------------
    --  SHA1 encoder
@@ -77,10 +82,6 @@ package Util.Encoders.SHA1 is
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset);
-
-   --  Delete the encoder object.
-   overriding
-   procedure Delete (E : access Encoder);
 
 private
 
