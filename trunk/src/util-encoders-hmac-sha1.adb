@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 
 with Util.Encoders.Base16;
+with Util.Encoders.Base64;
 
 --  The <b>Util.Encodes.HMAC.SHA1</b> package generates HMAC-SHA1 authentication
 --  (See RFC 2104 - HMAC: Keyed-Hashing for Message Authentication).
@@ -49,6 +50,18 @@ package body Util.Encoders.HMAC.SHA1 is
       Finish (Ctx, Result);
       return Result;
    end Sign;
+
+   --  Sign the data string with the key and return the HMAC-SHA1 code as base64 string.
+   function Sign_Base64 (Key  : in String;
+                         Data : in String) return Util.Encoders.SHA1.Base64_Digest is
+      Ctx    : Context;
+      Result : Util.Encoders.SHA1.Base64_Digest;
+   begin
+      Set_Key (Ctx, Key);
+      Update (Ctx, Data);
+      Finish_Base64 (Ctx, Result);
+      return Result;
+   end Sign_Base64;
 
    --  ------------------------------
    --  Set the hmac private key.  The key must be set before calling any <b>Update</b>
@@ -166,6 +179,23 @@ package body Util.Encoders.HMAC.SHA1 is
       B.Transform (Data => H, Into => Buf, Last => Last, Encoded => Encoded);
    end Finish;
 
+   --  Computes the HMAC-SHA1 with the private key and the data collected by
+   --  the <b>Update</b> procedures.  Returns the base64 hash in <b>Hash</b>.
+   procedure Finish_Base64 (E    : in out Context;
+                            Hash : out Util.Encoders.SHA1.Base64_Digest) is
+      Buf : Ada.Streams.Stream_Element_Array (1 .. Hash'Length);
+      for Buf'Address use Hash'Address;
+      pragma Import (Ada, Buf);
+
+      H       : Util.Encoders.SHA1.Hash_Array;
+      B       : Util.Encoders.Base64.Encoder;
+      Last    : Ada.Streams.Stream_Element_Offset;
+      Encoded : Ada.Streams.Stream_Element_Offset;
+   begin
+      Finish (E, H);
+      B.Transform (Data => H, Into => Buf, Last => Last, Encoded => Encoded);
+   end Finish_Base64;
+
    --  Encodes the binary input stream represented by <b>Data</b> into
    --  an SHA-1 hash output stream <b>Into</b>.
    --
@@ -187,13 +217,6 @@ package body Util.Encoders.HMAC.SHA1 is
    begin
       null;
    end Transform;
-
-   --  Delete the encoder object.
-   overriding
-   procedure Delete (E : access Encoder) is
-   begin
-      null;
-   end Delete;
 
    --  Initialize the SHA-1 context.
    overriding

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -107,9 +107,6 @@ package Util.Encoders is
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset) is abstract;
 
-   --  Delete the transformer object.
-   procedure Delete (E : access Transformer) is abstract;
-
    procedure Transform (E    : in Transformer;
                         Data : in String;
                         Result : out Ada.Strings.Unbounded.Unbounded_String) is null;
@@ -137,11 +134,12 @@ package Util.Encoders is
 private
 
    type Encoder is new Ada.Finalization.Limited_Controlled with record
-      Encode : Transformer_Access;
-      Decode : Transformer_Access;
+      Encode : Transformer_Access := null;
+      Decode : Transformer_Access := null;
    end record;
 
    --  Delete the transformers
+   overriding
    procedure Finalize (E : in out Encoder);
 
 end Util.Encoders;

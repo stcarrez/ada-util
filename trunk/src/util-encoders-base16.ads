@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base16 -- Encode/Decode a stream in hexadecimal
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,10 +49,6 @@ package Util.Encoders.Base16 is
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset);
 
-   --  Delete the encoder object.
-   overriding
-   procedure Delete (E : access Encoder);
-
    --  ------------------------------
    --  Base16 decoder
    --  ------------------------------
@@ -77,10 +73,6 @@ package Util.Encoders.Base16 is
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset);
-
-   --  Delete the decoder object.
-   overriding
-   procedure Delete (E : access Decoder);
 
 private
 

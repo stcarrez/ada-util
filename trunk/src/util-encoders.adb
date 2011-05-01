@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Ada.Unchecked_Deallocation;
 with Util.Encoders.Base16;
 with Util.Encoders.Base64;
 with Util.Encoders.SHA1;
@@ -220,16 +221,15 @@ package body Util.Encoders is
    --  ------------------------------
    --  Delete the transformers
    --  ------------------------------
+   overriding
    procedure Finalize (E : in out Encoder) is
+
+      procedure Free is
+        new Ada.Unchecked_Deallocation (Transformer'Class, Transformer_Access);
+
    begin
-      if E.Encode /= null then
-         E.Encode.Delete;
-         E.Encode := null;
-      end if;
-      if E.Decode /= null then
-         E.Decode.Delete;
-         E.Decode := null;
-      end if;
+      Free (E.Encode);
+      Free (E.Decode);
    end Finalize;
 
 end Util.Encoders;
