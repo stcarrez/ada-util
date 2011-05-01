@@ -28,6 +28,7 @@ with Util.Encoders.Tests;
 with Util.Streams.Buffered.Tests;
 with Util.Streams.Files.Tests;
 with Util.Beans.Objects.Discretes;
+with Util.Beans.Objects.Record_Tests;
 with Util.Serialize.IO.JSON.Tests;
 with Util.Serialize.IO.XML.Tests;
 package body Util.Testsuite is
@@ -49,6 +50,7 @@ package body Util.Testsuite is
       Util.Streams.Buffered.Tests.Add_Tests (Result);
       Util.Streams.Files.Tests.Add_Tests (Result);
       Util.Beans.Objects.Discretes.Add_Tests (Result);
+      Util.Beans.Objects.Record_Tests.Add_Tests (Result);
       Util.Serialize.IO.JSON.Tests.Add_Tests (Result);
       Util.Serialize.IO.XML.Tests.Add_Tests (Result);
       return Result;

@@ -133,8 +133,7 @@ package body Util.Encoders.Tests is
    end Test_Base64_Benchmark;
 
    procedure Test_SHA1_Encode (T : in out Test) is
-      C   : Util.Encoders.SHA1.Context;
-      E   : Util.Encoders.Encoder := Create ("sha1");
+      C    : Util.Encoders.SHA1.Context;
       Hash : Util.Encoders.SHA1.Digest;
 
       procedure Check_Hash (Value  : in String;
@@ -232,7 +231,7 @@ package body Util.Encoders.Tests is
    end Test_HMAC_SHA1_RFC2202_T3;
 
    procedure Test_HMAC_SHA1_RFC2202_T4 (T : in out Test) is
-      C    : Util.Encoders.Encoder := Create ("hex");
+      C    : constant Util.Encoders.Encoder := Create ("hex");
       Key  : constant String := Util.Encoders.Decode (C, "0102030405060708090a0b0c0d0e0f10111213141516171819");
       Data : constant String (1 .. 50) := (others => Character'Val (16#cd#));
    begin
