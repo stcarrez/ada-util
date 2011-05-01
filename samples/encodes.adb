@@ -31,7 +31,8 @@ begin
       Ada.Text_IO.Put_Line ("Usage: encodes {encoder} [-d|-e] string...");
       Ada.Text_IO.Put_Line ("Encoders: " & Util.Encoders.BASE_64 & ", "
                             & Util.Encoders.BASE_64_URL & ", "
-                            & Util.Encoders.BASE_16);
+                            & Util.Encoders.BASE_16 & ", "
+                            & Util.Encoders.HASH_SHA1);
       return;
    end if;
    declare
