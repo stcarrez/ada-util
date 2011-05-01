@@ -18,7 +18,7 @@
 with Ada.Strings.Unbounded;
 with Ada.Containers;
 with Ada.Containers.Hashed_Maps;
-with Ada.Containers.Indefinite_Hashed_Sets;
+with Ada.Containers.Hashed_Sets;
 with Util.Concurrent.Counters;
 package Util.Strings is
 
@@ -61,7 +61,7 @@ package Util.Strings is
       Hash            => Hash,
       Equivalent_Keys => Equivalent_Keys);
 
-   package String_Set is new Ada.Containers.Indefinite_Hashed_Sets
+   package String_Set is new Ada.Containers.Hashed_Sets
      (Element_Type    => Name_Access,
       Hash            => Hash,
       Equivalent_Elements => Equivalent_Keys);
