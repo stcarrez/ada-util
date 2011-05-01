@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  strings.tests -- Unit tests for strings
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 with Ada.Strings;
 with Ada.Strings.Unbounded;
---  with Ada.Strings.Unbounded.Aux;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded.Hash;
 with Util.Test_Caller;
@@ -119,9 +118,9 @@ package body Util.Strings.Tests is
       Assert_Equals (T, "\u0017\u001F\u00FF", Result);
    end Test_To_Hex;
 
-   type Ptr is not null access all String;
-
    procedure Test_Measure_Copy (T : in out Test) is
+      pragma Unreferenced (T);
+
       Buf : constant Ada.Streams.Stream_Element_Array (1 .. 10_024) := (others => 23);
       pragma Suppress (All_Checks, Buf);
    begin
@@ -296,8 +295,8 @@ package body Util.Strings.Tests is
    begin
       for I in 1 .. 1_000 loop
          declare
-            S  : String (1 .. I) := (others => 'x');
-            R2 : String_Ref := To_String_Ref (S);
+            S  : constant String (1 .. I) := (others => 'x');
+            R2 : constant String_Ref := To_String_Ref (S);
          begin
             Assert_Equals (T, S, To_String (R2), "Invalid String_Ref");
             T.Assert (R2 = S, "Invalid comparison");
