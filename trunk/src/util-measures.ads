@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  measure -- Benchmark tools
---  Copyright (C) 2008, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2008, 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
 with Ada.Text_IO;
 with Ada.Calendar;
 with Ada.Containers;
+with Ada.Finalization;
 
 with Util.Streams.Texts;
 
@@ -145,11 +146,15 @@ private
       Buckets : Buckets_Access;
    end Measure_Data;
 
-   type Measure_Set is limited record
+   type Measure_Set is new Ada.Finalization.Limited_Controlled with record
       Enabled : Boolean := True;
       pragma Atomic (Enabled);
 
       Data    : Measure_Data;
    end record;
+
+   --  Finalize the measures and release the storage.
+   overriding
+   procedure Finalize (Measures : in out Measure_Set);
 
 end Util.Measures;
