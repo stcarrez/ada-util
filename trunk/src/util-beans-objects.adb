@@ -1083,7 +1083,8 @@ package body Util.Beans.Objects is
         Type_Def          => WString_Type'Access);
    end To_Object;
 
-   function To_Object (Value : access Util.Beans.Basic.Readonly_Bean'Class) return Object is
+   function To_Object (Value   : access Util.Beans.Basic.Readonly_Bean'Class;
+                       Storage : in Storage_Type := DYNAMIC) return Object is
    begin
       if Value = null then
          return Object '(Controlled with
@@ -1094,7 +1095,8 @@ package body Util.Beans.Objects is
          return Object '(Controlled with
                          V => Object_Value '(Of_Type => TYPE_BEAN,
                                              Proxy   => new Bean_Proxy '(Ref_Counter => ONE,
-                                                                         Bean => Value)),
+                                                                         Bean    => Value,
+                                                                         Storage => Storage)),
                          Type_Def   => Bn_Type'Access);
       end if;
    end To_Object;
@@ -1516,6 +1518,10 @@ package body Util.Beans.Objects is
    end Adjust;
 
    procedure Free is
+     new Ada.Unchecked_Deallocation (Object => Basic.Readonly_Bean'Class,
+                                     Name   => Basic.Readonly_Bean_Access);
+
+   procedure Free is
      new Ada.Unchecked_Deallocation (Object => Proxy'Class,
                                      Name   => Bean_Proxy_Access);
 
@@ -1556,6 +1562,7 @@ package body Util.Beans.Objects is
             if Obj.V.Proxy /= null then
                Util.Concurrent.Counters.Decrement (Obj.V.Proxy.Ref_Counter, Release);
                if Release then
+                  Obj.V.Proxy.all.Release;
                   Free (Obj.V.Proxy);
                else
                   Obj.V.Proxy := null;
@@ -1567,5 +1574,21 @@ package body Util.Beans.Objects is
 
       end case;
    end Finalize;
+
+   --  ------------------------------
+   --  Release the object pointed to by the proxy (if necessary).
+   --  ------------------------------
+   overriding
+   procedure Release (P : in out Bean_Proxy) is
+   begin
+      if P.Storage = DYNAMIC and P.Bean /= null then
+         declare
+            Bean : Basic.Readonly_Bean_Access := P.Bean.all'Access;
+         begin
+            P.Bean := null;
+            Free (Bean);
+         end;
+      end if;
+   end Release;
 
 end Util.Beans.Objects;
