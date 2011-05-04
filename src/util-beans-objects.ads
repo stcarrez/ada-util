@@ -62,6 +62,8 @@ package Util.Beans.Objects is
                       --  The object holds a generic bean
                       TYPE_BEAN);
 
+   type Storage_Type is (STATIC, DYNAMIC);
+
    --  Exception raised when the value identified by a name is not
    --  recognized.
    No_Value : exception;
@@ -187,7 +189,13 @@ package Util.Beans.Objects is
    function To_Object (Value : in Unbounded_Wide_Wide_String) return Object;
    function To_Object (Value : in Boolean) return Object;
    function To_Object (Value : in Duration) return Object;
-   function To_Object (Value : access Util.Beans.Basic.Readonly_Bean'Class) return Object;
+
+   --  Create an object that refers to the bean object.  With the storage type
+   --  <b>DYNAMIC</b>, the default, the bean object will be freed when there is
+   --  no <b>Object</b> that refers to that bean.  With <b>STATIC</b>, the bean
+   --  is a static bean and it will not be freed automaticaly.
+   function To_Object (Value   : access Util.Beans.Basic.Readonly_Bean'Class;
+                       Storage : in Storage_Type := DYNAMIC) return Object;
 
    --  Comparison of objects
    function "<" (Left, Right : Object) return Boolean;
@@ -482,20 +490,12 @@ private
 
    subtype Proxy_Data_Type is Data_Type range TYPE_STRING .. TYPE_BEAN;
 
-   type Proxy -- (Of_Type : Proxy_Data_Type)
-     is tagged limited record
+   type Proxy is tagged limited record
       Ref_Counter : Util.Concurrent.Counters.Counter;
---        case Of_Type is
---           when TYPE_STRING =>
---              String_Value : String_Access;
---
---           when TYPE_WIDE_STRING =>
---              Wide_String_Value : Wide_Wide_String_Access;
---
---           when TYPE_BEAN =>
---              Bean        : access Util.Beans.Basic.Readonly_Bean'Class;
---        end case;
    end record;
+
+   --  Release the object pointed to by the proxy (if necessary).
+   procedure Release (P : in out Proxy) is null;
 
    type Bean_Proxy_Access is access all Proxy'Class;
 
@@ -510,8 +510,13 @@ private
    type Wide_String_Proxy_Access is access all Wide_String_Proxy;
 
    type Bean_Proxy is new Proxy with record
-      Bean : access Util.Beans.Basic.Readonly_Bean'Class;
+      Bean    : access Util.Beans.Basic.Readonly_Bean'Class;
+      Storage : Storage_Type;
    end record;
+
+   --  Release the object pointed to by the proxy (if necessary).
+   overriding
+   procedure Release (P : in out Bean_Proxy);
 
    type Object_Value (Of_Type : Data_Type := TYPE_NULL) is record
       case Of_Type is
@@ -543,7 +548,7 @@ private
       end case;
    end record;
 
-   No_Type        : aliased constant Null_Type := Null_Type '(others => <>);
+   No_Type     : aliased constant Null_Type := Null_Type '(others => <>);
 
    Null_Value  : constant Object_Value := Object_Value '(Of_Type => TYPE_NULL);
 

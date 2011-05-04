@@ -18,6 +18,7 @@
 
 with Ada.Unchecked_Deallocation;
 
+with Util.Beans.Objects;
 package body Util.Beans.Basic.Lists is
 
    --  ------------------------------
@@ -27,7 +28,7 @@ package body Util.Beans.Basic.Lists is
    procedure Initialize (Object : in out List_Bean) is
       Bean : constant Readonly_Bean_Access := Object.Current'Unchecked_Access;
    begin
-      Object.Row := Util.Beans.Objects.To_Object (Bean);
+      Object.Row := Util.Beans.Objects.To_Object (Bean, Util.Beans.Objects.STATIC);
    end Initialize;
 
    --  ------------------------------
