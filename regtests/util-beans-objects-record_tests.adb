@@ -19,6 +19,10 @@
 with Util.Test_Caller;
 with Util.Tests;
 
+with Ada.Text_IO;
+with Util.Strings;
+with Util.Beans.Basic;
+with Util.Beans.Objects.Vectors;
 with Util.Beans.Objects.Records;
 package body Util.Beans.Objects.Record_Tests is
 
@@ -28,8 +32,10 @@ package body Util.Beans.Objects.Record_Tests is
 
    procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
    begin
-      Caller.Add_Test (Suite, "Test Util.Concurrent.Counter.Increment",
+      Caller.Add_Test (Suite, "Test Util.Beans.Objects.Records",
                        Test_Record'Access);
+      Caller.Add_Test (Suite, "Test Util.Beans.Basic",
+                       Test_Bean'Access);
    end Add_Tests;
 
    type Data is record
@@ -71,5 +77,84 @@ package body Util.Beans.Objects.Record_Tests is
          V := Data_Bean.To_Object (D);
       end;
    end Test_Record;
+
+   type Bean_Type is new Util.Beans.Basic.Readonly_Bean with record
+      Name : Unbounded_String;
+   end record;
+   type Bean_Type_Access is access all Bean_Type'Class;
+
+   overriding
+   function Get_Value (Bean : in Bean_Type;
+                       Name : in String) return Util.Beans.Objects.Object;
+
+   overriding
+   function Get_Value (Bean : in Bean_Type;
+                       Name : in String) return Util.Beans.Objects.Object is
+   begin
+      if Name = "name" then
+         return Util.Beans.Objects.To_Object (Bean.Name);
+      elsif Name = "length" then
+         return Util.Beans.Objects.To_Object (Length (Bean.Name));
+      else
+         return Util.Beans.Objects.Null_Object;
+      end if;
+   end Get_Value;
+
+   procedure Test_Bean (T : in out Test) is
+      use Basic;
+      Static : aliased Bean_Type;
+   begin
+      Static.Name := To_Unbounded_String ("Static");
+
+      --  Allocate dynamically several Bean_Type objects and drop the list.
+      --  The memory held by internal proxy as well as the Bean_Type must be freed.
+      --  The static bean should never be freed!
+      for I in 1 .. 10 loop
+         declare
+            List  : Util.Beans.Objects.Vectors.Vector;
+            Value : Util.Beans.Objects.Object;
+            Bean  : Bean_Type_Access;
+            P     : access Readonly_Bean'Class;
+         begin
+            for J in 1 .. 1_000 loop
+               if I = J then
+                  Value := To_Object (Static'Unchecked_Access, Objects.STATIC);
+                  List.Append (Value);
+               end if;
+               Bean := new Bean_Type;
+               Bean.Name := To_Unbounded_String ("B" & Util.Strings.Image (J));
+               Value := To_Object (Bean);
+               List.Append (Value);
+            end loop;
+
+            --  Verify each bean of the list
+            for J in 1 .. 1_000 + 1 loop
+               Value := List.Element (J - 1);
+
+               --  Check some common status.
+               T.Assert (not Is_Null (Value), "The value should hold a bean");
+               T.Assert (Get_Type (Value) = TYPE_BEAN, "The value should hold a bean");
+               T.Assert (not Is_Empty (Value), "The value should not be empty");
+
+               --  Check the bean access.
+               P := To_Bean (Value);
+               T.Assert (P /= null, "To_Bean returned null");
+               Bean := Bean_Type'Class (P.all)'Access;
+
+               --  Check we have the good bean object.
+               if I = J then
+                  Assert_Equals (T, "Static", To_String (Bean.Name),
+                                 "Bean at" & Integer'Image (J) & " is invalid");
+               elsif J > I then
+                  Assert_Equals (T, "B" & Util.Strings.Image (J - 1), To_String (Bean.Name),
+                                 "Bean at" & Integer'Image (J) & " is invalid");
+               else
+                  Assert_Equals (T, "B" & Util.Strings.Image (J), To_String (Bean.Name),
+                                 "Bean at" & Integer'Image (J) & " is invalid");
+               end if;
+            end loop;
+         end;
+      end loop;
+   end Test_Bean;
 
 end Util.Beans.Objects.Record_Tests;
