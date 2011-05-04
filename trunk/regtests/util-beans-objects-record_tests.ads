@@ -27,4 +27,6 @@ package Util.Beans.Objects.Record_Tests is
 
    procedure Test_Record (T : in out Test);
 
+   procedure Test_Bean (T : in out Test);
+
 end Util.Beans.Objects.Record_Tests;
