@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  measure -- Benchmark tools
---  Copyright (C) 2008, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2008, 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -273,5 +273,35 @@ package body Util.Measures is
          return Duration'Image (D) & "s";
       end if;
    end Format;
+
+   --  ------------------------------
+   --  Finalize the measures and release the storage.
+   --  ------------------------------
+   overriding
+   procedure Finalize (Measures : in out Measure_Set) is
+      Buckets : Buckets_Access;
+      TS, TE  : Ada.Calendar.Time;
+   begin
+      --  When deleting the measure set, we have to release the buckets and measures
+      --  that were allocated.  We could call <b>Write</b> but we don't know where
+      --  the measures have to be written.
+      Measures.Data.Steal_Map (Buckets, TS, TE);
+      if Buckets /= null then
+         for I in Buckets'Range loop
+            declare
+               Next : Measure_Access;
+               Node : Measure_Access := Buckets (I);
+            begin
+               while Node /= null loop
+                  Free (Node.Name);
+                  Next := Node.Next;
+                  Free (Node);
+                  Node := Next;
+               end loop;
+            end;
+         end loop;
+         Free (Buckets);
+      end if;
+   end Finalize;
 
 end Util.Measures;
