@@ -307,9 +307,9 @@ package body Util.Serialize.IO.XML is
 
       --  True if From is past the last character in the string.
       function Eof (From : in Stream_Input) return Boolean;
-      procedure Fill (From : in out Stream_Input);
+      procedure Fill (From : in out Stream_Input'Class);
 
-      procedure Fill (From : in out Stream_Input) is
+      procedure Fill (From : in out Stream_Input'Class) is
       begin
          --  Move to the buffer start
          if From.Last > From.Index and From.Index > From.Buffer'First then
