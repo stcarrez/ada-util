@@ -18,14 +18,11 @@
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Command_Line;
-with Util.Serialize.IO.JSON;
 with Ada.Containers;
 with Ada.Containers.Vectors;
-with Mapping;
 
 with Util.Beans;
 with Util.Beans.Objects;
-with Util.Beans.Objects.Vectors;
 with Util.Streams.Texts;
 with Util.Streams.Buffered;
 with Util.Serialize.Mappers.Record_Mapper;
@@ -36,8 +33,6 @@ procedure Xmlrd is
    use Ada.Containers;
    use Util.Streams.Buffered;
    use Ada.Strings.Unbounded;
-   use type Mapping.Person_Access;
-   use type Ada.Containers.Count_Type;
 
    Reader : Util.Serialize.IO.XML.Parser;
 
@@ -57,6 +52,14 @@ procedure Xmlrd is
    package Service_Vector is
      new Ada.Containers.Vectors (Element_Type => Service,
                                  Index_Type   => Natural);
+
+   procedure Print (P : in Service_Vector.Cursor);
+   procedure Print (P : in Service);
+   procedure Set_Member (P     : in out Service;
+                         Field : in Service_Fields;
+                         Value : in Util.Beans.Objects.Object);
+   function Get_Member (P     : in Service;
+                        Field : in Service_Fields) return Util.Beans.Objects.Object;
 
    procedure Set_Member (P     : in out Service;
                          Field : in Service_Fields;
@@ -115,11 +118,14 @@ procedure Xmlrd is
      new Util.Serialize.Mappers.Vector_Mapper (Vectors        => Service_Vector,
                                                Element_Mapper => Service_Mapper);
 
-   procedure Print (P : in Service) is
 
+   procedure Print (P : in Service) is
    begin
-      Ada.Text_IO.Put_Line ("  roles:");
-      Ada.Text_IO.Put_Line ("  url:");
+      Ada.Text_IO.Put_Line ("        URI: " & To_String (P.URI));
+      Ada.Text_IO.Put_Line ("   Priority: " & Integer'Image (P.Priority));
+      Ada.Text_IO.Put_Line ("Type (last): " & To_String (P.RDS_Type));
+      Ada.Text_IO.Put_Line ("   Delegate: " & To_String (P.Delegate));
+      Ada.Text_IO.New_Line;
    end Print;
 
    procedure Print (P : in Service_Vector.Cursor) is
@@ -143,7 +149,6 @@ begin
    Service_Mapping.Bind (Get_Member'Access);
    Service_Vector_Mapping.Set_Mapping (Service_Mapping'Unchecked_Access);
 
-
    Reader.Add_Mapping ("XRDS/XRD/Service", Service_Vector_Mapping'Unchecked_Access);
 
    for I in 1 .. Count loop
@@ -151,27 +156,23 @@ begin
          S    : constant String := Ada.Command_Line.Argument (I);
 
          List : aliased Service_Vector_Mapper.Vector;
-         R    : aliased Service;
       begin
          Service_Vector_Mapper.Set_Context (Reader, List'Unchecked_Access);
-         Service_Mapper.Set_Context (Reader, R'Unchecked_Access);
          Reader.Parse (S);
-
-         Print (R);
 
          Ada.Text_IO.Put_Line ("Rule count: " & Count_Type'Image (List.Length));
 
          --  The list now contains our elements.
          List.Iterate (Process => Print'Access);
 
-
          declare
             Output : Util.Serialize.IO.XML.Output_Stream;
          begin
             Output.Initialize (Size => 10000);
-            Service_Mapping.Write (Output, R);
+            Output.Start_Entity ("XRDS");
             Service_Vector_Mapping.Write (Output, List);
-            Ada.Text_IO.Put_Line ("Rule: " & Util.Streams.Texts.To_String (Buffered_Stream (Output)));
+            Output.End_Entity ("XRDS");
+            Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Buffered_Stream (Output)));
          end;
       end;
    end loop;
