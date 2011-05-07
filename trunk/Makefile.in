@@ -1,6 +1,7 @@
 # You may edit this makefile as long as you keep these original 
 # target names defined.
-GNATMAKE=gnatmake
+MODE=distrib
+GNATMAKE=gnatmake -XMode=${MODE}
 GNATCLEAN=gnatclean
 GPRPATH=util.gpr
 TESTUTIL_GPRPATH=testutil.gpr
@@ -40,8 +41,12 @@ autobuild:
 	$(GNATMAKE) -gnatc -c -k  -P "$(GPRPATH)"
 
 # Clean the root project of all build products.
-clean:
-	$(GNATCLEAN) -P "$(GPRPATH)"
+clean:	clean_test
+	$(GNATCLEAN) -q -P "$(GPRPATH)"
+
+# Clean the files produced by the unit tests
+clean_test:
+	rm -f test?.log test.log test-stream.txt test-write.txt util-tests.xml
 
 # Clean root project and all imported projects too.
 clean_tree:
@@ -61,11 +66,11 @@ version:
 		  src/util.gpb src/util.ads
 
 # Files to package in source distribution
-DISTFILES=README LICENSE.txt NOTICE.txt CHANGES config.guess configure config.sub \
+DISTFILES=README LICENSE.txt NOTICE.txt NEWS CHANGES ChangeLog config.guess configure config.sub \
 configure.in Makefile.in install-sh \
 util.gpr.in testutil.gpr tests.gpr samples.gpr config.gpr \
 src samples regtests testutil \
-bin obj lib
+bin obj lib distrib
 
 dist:
 	-rm -rf $(distdir)
@@ -85,6 +90,7 @@ dist:
 	  fi; \
 	done
 	-rm -f $(distdir)/bin/*
+	-rm -f $(distdir)/obj/*
 	tar --exclude=.svn --exclude="*~" --exclude="*.o" --exclude="*.ali" \
 	    --exclude="*.log" --exclude="*.a" \
 	    -cvzf $(DIST_FILE) $(distdir)

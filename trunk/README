@@ -19,9 +19,13 @@ The unit tests are built using:
    gnatmake -Ptests
 
 
-And unit tests are executed with:
+And unit tests are executed with (145 success, 0 failed):
 
    bin/util_harness
+
+For the installation, use the following command:
+
+   make install
 
 
 Documentation
@@ -29,5 +33,3 @@ Documentation
    The Ada Util sources as well as a wiki documentation is provided on:
 
    http://code.google.com/p/ada-util/
-
-
