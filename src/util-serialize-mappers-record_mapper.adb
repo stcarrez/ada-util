@@ -132,6 +132,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
                          Value   : in Util.Beans.Objects.Object) is
    begin
       if not (Attr in Attribute_Mapping) then
+         Log.Error ("Mapping is not an Attribute_Mapping");
          raise Mapping_Error;
       end if;
       Attribute_Mapping (Attr).Set_Member (Element, Value);
@@ -194,12 +195,15 @@ package body Util.Serialize.Mappers.Record_Mapper is
                     Element : in Element_Type) is
    begin
       if Handler.Get_Member = null then
+         Log.Error ("The mapper has a null Get_Member function");
          raise Mapping_Error with "The mapper has a null Get_Member function";
       end if;
       Write (Handler, Handler.Get_Member, Stream, Element);
    end Write;
 
+   --  -----------------------
    --  Write the element on the stream using the mapper description.
+   --  -----------------------
    procedure Write (Handler : in Util.Serialize.Mappers.Mapper'Class;
                     Getter  : in Get_Member_Access;
                     Stream  : in out Util.Serialize.IO.Output_Stream'Class;

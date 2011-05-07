@@ -19,7 +19,6 @@
 with Unicode;
 with Unicode.CES.Utf8;
 
-with Ada.Exceptions;
 with Util.Log.Loggers;
 package body Util.Serialize.IO.XML is
 
@@ -128,8 +127,6 @@ package body Util.Serialize.IO.XML is
                             Atts          : in Sax.Attributes.Attributes'Class) is
       pragma Unreferenced (Namespace_URI, Qname);
 
-      use Ada.Exceptions;
-
       Attr_Count : Natural;
    begin
 --        Handler.Line.Line   := Sax.Locators.Get_Line_Number (Handler.Locator);
@@ -139,22 +136,16 @@ package body Util.Serialize.IO.XML is
 
       Handler.Handler.Start_Object (Local_Name);
       Attr_Count := Get_Length (Atts);
-      begin
-         for I in 0 .. Attr_Count - 1 loop
-            declare
-               Name  : constant String := Get_Qname (Atts, I);
-               Value : constant String := Get_Value (Atts, I);
-            begin
-               Handler.Handler.Set_Member (Name      => Name,
-                                           Value     => Util.Beans.Objects.To_Object (Value),
-                                           Attribute => True);
-            end;
-         end loop;
-
-      exception
-         when others =>
-            raise;
-      end;
+      for I in 0 .. Attr_Count - 1 loop
+         declare
+            Name  : constant String := Get_Qname (Atts, I);
+            Value : constant String := Get_Value (Atts, I);
+         begin
+            Handler.Handler.Set_Member (Name      => Name,
+                                        Value     => Util.Beans.Objects.To_Object (Value),
+                                        Attribute => True);
+         end;
+      end loop;
    end Start_Element;
 
    --  ------------------------------
@@ -375,11 +366,6 @@ package body Util.Serialize.IO.XML is
       Xml_Parser.Ignore_White_Spaces := Handler.Ignore_White_Spaces;
       Xml_Parser.Ignore_Empty_Lines  := Handler.Ignore_Empty_Lines;
       Sax.Readers.Reader (Xml_Parser).Parse (Input);
-
-   exception
-      when others =>
---           Free (Parser.Stack);
-         raise;
    end Parse;
 
    --  Close the current XML entity if an entity was started

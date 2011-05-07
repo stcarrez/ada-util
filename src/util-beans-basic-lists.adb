@@ -18,7 +18,6 @@
 
 with Ada.Unchecked_Deallocation;
 
-with Util.Beans.Objects;
 package body Util.Beans.Basic.Lists is
 
    --  ------------------------------
