@@ -146,21 +146,19 @@ begin
                --  Get the data, compute something and change the reference.
                for I in 1 .. Cnt loop
                   declare
---                       Ref  : constant Data_Ref.Ref := Get_Reference;
---                       Ref2 : constant Data_Ref.Ref := Data_Ref.Create;
+                     Ref  : constant Data_Ref.Ref := Get_Reference;
+                     Ref2 : constant Data_Ref.Ref := Data_Ref.Create;
                      Key  : constant String := "K" & Natural'Image (I / 10);
                   begin
---                       Ref2.Value.all.Value := Ref.Value.all.Value + 1;
---                       Ref2.Value.all.Rand  := Cnt;
---                       Ref2.Value.all.Result := Long_Long_Integer (Ref2.Value.all.Rand * Cnt)
---                         * Long_Long_Integer (Ref2.Value.all.Value);
---                       Set_Reference (Ref2);
---                       Util.Concurrent.Counters.Increment (Counter);
+                     Ref2.Value.all.Value := Ref.Value.all.Value + 1;
+                     Ref2.Value.all.Rand  := Cnt;
+                     Ref2.Value.all.Result := Long_Long_Integer (Ref2.Value.all.Rand * Cnt)
+                       * Long_Long_Integer (Ref2.Value.all.Value);
+                     Set_Reference (Ref2);
+                     Util.Concurrent.Counters.Increment (Counter);
 
                      if not Exists (Key) then
                         Add (Key, Natural'Image (I));
---                          Log.Info ("{0} has added {1} -> {2}",
---                                    Integer'Image (Id), Key, Natural'Image (I));
                      end if;
                      declare
                         S : constant String := Find (Key);
