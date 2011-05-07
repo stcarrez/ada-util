@@ -24,6 +24,12 @@ package body Util.Properties is
    use Ada.Strings.Unbounded.Text_IO;
    use Interface_P;
 
+   procedure Load_Property (Name   : out Unbounded_String;
+                            Value  : out Unbounded_String;
+                            File   : in File_Type;
+                            Prefix : in String := "";
+                            Strip  : in Boolean := False);
+
    function Exists (Self : in Manager'Class;
                     Name : in String) return Boolean is
    begin
@@ -308,7 +314,7 @@ package body Util.Properties is
                   declare
                      S : constant String := Slice (Name, Prefix'Length + 1, Length (Name));
                   begin
-                     Self.Set (+ (S), From.Get (Name));
+                     Self.Set (+(S), From.Get (Name));
                   end;
                else
                   Self.Set (Name, From.Get (Name));

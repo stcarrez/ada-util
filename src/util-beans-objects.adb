@@ -752,7 +752,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    function To_Long_Long (Type_Def : in Basic_Type;
                           Value    : in Object_Value) return Long_Long_Integer is
-      pragma Unreferenced(Type_Def, Value);
+      pragma Unreferenced (Type_Def, Value);
    begin
       return 0;
    end To_Long_Long;
@@ -1062,9 +1062,10 @@ package body Util.Beans.Objects is
    begin
       return Object '(Controlled with
                       V => Object_Value '(Of_Type => TYPE_STRING,
-                                          String_Proxy => new String_Proxy '(Ref_Counter  => ONE,
-                                                                        Len => Len,
-                                                                        Value => To_String (Value))),
+                                          String_Proxy => new String_Proxy
+                                            '(Ref_Counter  => ONE,
+                                              Len          => Len,
+                                              Value        => To_String (Value))),
                       Type_Def => Str_Type'Access);
    end To_Object;
 
@@ -1225,7 +1226,7 @@ package body Util.Beans.Objects is
       if Left.V.Of_Type = TYPE_INTEGER or Right.V.Of_Type = TYPE_INTEGER then
          return TYPE_INTEGER;
       end if;
-       if Left.V.Of_Type = TYPE_BOOLEAN and Right.V.Of_Type = TYPE_BOOLEAN then
+      if Left.V.Of_Type = TYPE_BOOLEAN and Right.V.Of_Type = TYPE_BOOLEAN then
          return TYPE_BOOLEAN;
       end if;
       return TYPE_FLOAT;
@@ -1539,7 +1540,7 @@ package body Util.Beans.Objects is
    begin
       case Obj.V.Of_Type is
          when TYPE_STRING =>
-             if Obj.V.String_Proxy /= null then
+            if Obj.V.String_Proxy /= null then
                Util.Concurrent.Counters.Decrement (Obj.V.String_Proxy.Ref_Counter, Release);
                if Release then
                   Free (Obj.V.String_Proxy);

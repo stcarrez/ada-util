@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Streams.Files -- File Stream utilities
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,7 +49,8 @@ package Util.Streams.Texts is
    --  Write a date on the stream.
    procedure Write (Stream : in out Print_Stream;
                     Item   : in Ada.Calendar.Time;
-                    Format : in GNAT.Calendar.Time_IO.Picture_String := GNAT.Calendar.Time_IO.ISO_Date);
+                    Format : in GNAT.Calendar.Time_IO.Picture_String
+                    := GNAT.Calendar.Time_IO.ISO_Date);
 
    --  Get the output stream content as a string.
    function To_String (Stream : in Buffered.Buffered_Stream) return String;

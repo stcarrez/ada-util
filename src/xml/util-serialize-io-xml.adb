@@ -341,7 +341,6 @@ package body Util.Serialize.IO.XML is
             Fill (From);
          end if;
          From.Encoding.Read (From.Buffer.all, From.Index, C);
---           Log.Info ("Read => " & Character'Val (Unicode.Unicode_Char'Pos (C))); --  Unicode.Unicode_Char'Image (C));
       end Next_Char;
 
       --  True if From is past the last character in the string.

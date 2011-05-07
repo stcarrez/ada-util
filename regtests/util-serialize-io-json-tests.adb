@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 
 with Util.Test_Caller;
-with Util.Tests;
 with Util.Log.Loggers;
 
 package body Util.Serialize.IO.JSON.Tests is
@@ -40,6 +39,7 @@ package body Util.Serialize.IO.JSON.Tests is
    --  Check various JSON parsing errors.
    --  ------------------------------
    procedure Test_Parse_Error (T : in out Test) is
+      pragma Unreferenced (T);
 
       procedure Check_Parse_Error (Content : in String) is
          P : Parser;
@@ -70,6 +70,7 @@ package body Util.Serialize.IO.JSON.Tests is
    --  Check various (basic) JSON valid strings (no mapper).
    --  ------------------------------
    procedure Test_Parser (T : in out Test) is
+      pragma Unreferenced (T);
 
       procedure Check_Parse (Content : in String) is
          P : Parser;

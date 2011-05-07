@@ -184,7 +184,7 @@ private
       Ignore_Empty_Lines : Boolean := True;
    end record;
 
-   type Parser is new Util.Serialize.Io.Parser with record
+   type Parser is new Util.Serialize.IO.Parser with record
       Line_Number      : Natural  := 1;
       Has_Pending_Char : Boolean := False;
       Pending_Char     : Character;

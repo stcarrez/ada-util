@@ -193,20 +193,20 @@ package body Util.Encoders is
    begin
       if Name = BASE_16 or Name = HEX then
          return E : Encoder do
-           E.Encode := new Util.Encoders.Base16.Encoder;
-           E.Decode := new Util.Encoders.Base16.Decoder;
+            E.Encode := new Util.Encoders.Base16.Encoder;
+            E.Decode := new Util.Encoders.Base16.Decoder;
          end return;
 
       elsif Name = BASE_64 then
          return E : Encoder do
-           E.Encode := new Util.Encoders.Base64.Encoder;
-           E.Decode := new Util.Encoders.Base64.Decoder;
+            E.Encode := new Util.Encoders.Base64.Encoder;
+            E.Decode := new Util.Encoders.Base64.Decoder;
          end return;
 
       elsif Name = BASE_64_URL then
          return E : Encoder do
-           E.Encode := new Util.Encoders.Base64.Encoder;
-           E.Decode := new Util.Encoders.Base64.Decoder;
+            E.Encode := new Util.Encoders.Base64.Encoder;
+            E.Decode := new Util.Encoders.Base64.Decoder;
          end return;
 
       elsif Name = HASH_SHA1 then

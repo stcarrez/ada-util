@@ -19,6 +19,5 @@ project Util is
    package Builder  renames Config.Builder;
    package Compiler renames Config.Compiler;
    package Binder   renames Config.Binder;
-   package Linker   renames Config.Linker;
 
 end Util;

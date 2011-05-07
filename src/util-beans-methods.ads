@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Methods -- Bean methods
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@ package Util.Beans.Methods is
    type Method_Binding_Array is array (Natural range <>) of Method_Binding_Access;
    type Method_Binding_Array_Access is access constant Method_Binding_Array;
 
-   type Method_Bean is limited Interface;
+   type Method_Bean is limited interface;
    type Method_Bean_Access is access all Method_Bean'Class;
 
    function Get_Method_Bindings (From : in Method_Bean)

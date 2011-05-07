@@ -44,20 +44,6 @@ package body Util.Serialize.Mappers.Vector_Mapper is
       Data.Vector := Vector;
    end Set_Vector;
 
-   procedure Start_Array (Ctx : in out Util.Serialize.Contexts.Context'Class) is
-      D : constant Contexts.Data_Access := Ctx.Get_Data (Key);
-   begin
-      if not (D.all in Vector_Data'Class) then
-         raise Util.Serialize.Contexts.No_Data;
-      end if;
-      declare
-         DE : constant Vector_Data_Access := Vector_Data'Class (D.all)'Access;
-      begin
-         DE.Position := Index_Type'First;
-      end;
-   end Start_Array;
-   pragma Unreferenced (Start_Array);
-
    --  -----------------------
    --  Record mapper
    --  -----------------------
@@ -83,6 +69,8 @@ package body Util.Serialize.Mappers.Vector_Mapper is
                       Ctx     : in out Util.Serialize.Contexts.Context'Class;
                       Value   : in Util.Beans.Objects.Object) is
       pragma Unreferenced (Handler);
+
+      procedure Process (Element : in out Element_Type);
 
       procedure Process (Element : in out Element_Type) is
       begin
@@ -132,6 +120,8 @@ package body Util.Serialize.Mappers.Vector_Mapper is
                            Context : in out Util.Serialize.Contexts.Context'Class;
                            Name    : in String) is
       pragma Unreferenced (Handler, Name);
+
+      procedure Set_Context (Item : in out Element_Type);
 
       D : constant Contexts.Data_Access := Context.Get_Data (Key);
 

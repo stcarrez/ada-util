@@ -61,7 +61,8 @@ package body Util.Log.Appenders is
    begin
       if Properties.Exists (Prop_Name) then
          declare
-            Value : constant String := To_Lower_Case (Fixed.Trim (Properties.Get (Prop_Name), Both));
+            Value : constant String
+              := To_Lower_Case (Fixed.Trim (Properties.Get (Prop_Name), Both));
          begin
             if Value = "message" then
                Self.Layout := MESSAGE;

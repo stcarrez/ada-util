@@ -45,7 +45,7 @@ package body Util.Encoders.Base64 is
                         Encoded : out Ada.Streams.Stream_Element_Offset) is
 
       Pos      : Streams.Stream_Element_Offset := Into'First;
-      I        : Streams.Stream_Element_OFfset := Data'First;
+      I        : Streams.Stream_Element_Offset := Data'First;
       C1, C2   : Unsigned_8;
 
       Alphabet : constant Alphabet_Access := E.Alphabet;
@@ -113,7 +113,7 @@ package body Util.Encoders.Base64 is
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset) is
 
-     use Ada.Streams;
+      use Ada.Streams;
 
       Size     : constant Streams.Stream_Element_Offset := Data'Length / 4;
       Pos      : Streams.Stream_Element_Offset := Into'First;

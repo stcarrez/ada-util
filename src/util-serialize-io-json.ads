@@ -94,7 +94,7 @@ private
                        T_RIGHT_BRACKET, T_COLON, T_COMMA, T_TRUE, T_FALSE,
                        T_STRING, T_NUMBER, T_BOOLEAN, T_UNKNOWN, T_NULL);
 
-   type Parser is new Util.Serialize.Io.Parser with record
+   type Parser is new Util.Serialize.IO.Parser with record
       Token            : Ada.Strings.Unbounded.Unbounded_String;
       Pending_Token    : Token_Type := T_EOF;
       Line_Number      : Natural  := 1;

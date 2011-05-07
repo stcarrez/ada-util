@@ -193,7 +193,7 @@ package body Util.Serialize.IO is
                                 Context   => Handler);
             end;
          end loop;
-       end if;
+      end if;
    end Set_Member;
 
    --  ------------------------------

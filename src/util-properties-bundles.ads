@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties-bundles -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,7 +63,7 @@ private
        (Element_Type    => Bundle_Manager_Access,
         Key_Type        => Util.Strings.Name_Access,
         Hash            => Util.Strings.Hash,
-        Equivalent_Keys => util.Strings.Equivalent_Keys);
+        Equivalent_Keys => Util.Strings.Equivalent_Keys);
 
    type Loader is new Ada.Finalization.Limited_Controlled with record
       Lock    : Util.Concurrent.Locks.RW_Lock;
