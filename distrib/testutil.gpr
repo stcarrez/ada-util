@@ -1,0 +1,15 @@
+with "util";
+with "aunit";
+
+project Testutil is
+   Version := "1.2.0";
+
+   for Library_Name use "adatestutil";
+   for Library_Dir use "/usr/lib";
+   for Library_Kind use "static";
+
+   for Source_Dirs use ("/usr/share/ada/adainclude/testutil");
+   for Library_ALI_Dir use "/usr/share/ada/adainclude/testutil";
+   for Externally_Built use "true";
+
+end Testutil;

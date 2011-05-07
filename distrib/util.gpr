@@ -1,0 +1,13 @@
+with "xmlada";
+
+project Util is
+   Version := "1.2.0";
+
+   for Library_Name use "adautil";
+   for Library_Dir use "/usr/lib";
+   for Library_Kind use "static";
+
+   for Source_Dirs use ("/usr/share/ada/adainclude/util");
+   for Library_ALI_Dir use "/usr/share/ada/adainclude/util";
+   for Externally_Built use "true";
+end Util;
