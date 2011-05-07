@@ -23,8 +23,6 @@ package body Util.Serialize.Mappers is
 
    use Util.Log;
 
-   procedure Free is new Ada.Unchecked_Deallocation (Mapping'Class, Mapping_Access);
-
    --  The logger
    Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.Mappers");
 

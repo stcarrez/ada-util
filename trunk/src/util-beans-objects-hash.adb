@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Hash -- Hash on an object
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +18,12 @@
 
 with Ada.Strings.Hash;
 with Ada.Strings.Wide_Wide_Hash;
-with Ada.Characters.Conversions;
 with Ada.Unchecked_Conversion;
 with Interfaces;
 with Util.Beans.Basic;
 function Util.Beans.Objects.Hash (Key : in Object) return Ada.Containers.Hash_Type is
    use Ada.Containers;
    use Ada.Strings;
-   use Ada.Characters.Conversions;
    use Interfaces;
    use Util.Beans.Basic;
 

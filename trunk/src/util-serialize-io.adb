@@ -20,7 +20,9 @@ with Ada.Streams;
 with Ada.Streams.Stream_IO;
 package body Util.Serialize.IO is
 
+   --  ------------------------------
    --  Read the file and parse it using the JSON parser.
+   --  ------------------------------
    procedure Parse (Handler : in out Parser;
                     File    : in String) is
       Stream     : aliased Util.Streams.Files.File_Stream;
@@ -73,31 +75,17 @@ package body Util.Serialize.IO is
 
    function Find_Mapper (Handler : in Parser;
                          Name    : in String) return Util.Serialize.Mappers.Mapper_Access is
---        use type Util.Serialize.Mappers.Mapper_Access;
---
---        Pos     : Util.Serialize.Mappers.Mapper_Map.Cursor;
---        Map     : Util.Serialize.Mappers.Mapper_Access;
---        Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
+      pragma Unreferenced (Handler, Name);
    begin
---        if Current /= null and then Current.Mapper /= null then
---           Map := Current.Mapper.Find_Mapper (Name);
---           if Map /= null then
---              return Map;
---           end if;
---        end if;
---        Pos := Handler.Mappers.Find (Name);
---        if Util.Serialize.Mappers.Mapper_Map.Has_Element (Pos) then
---           Map := Util.Serialize.Mappers.Mapper_Map.Element (Pos);
---           return Map;
---        end if;
       return null;
    end Find_Mapper;
 
-
+   --  ------------------------------
    --  Start a new object associated with the given name.  This is called when
    --  the '{' is reached.  The reader must be updated so that the next
    --  <b>Set_Member</b> procedure will associate the name/value pair on the
    --  new object.
+   --  ------------------------------
    procedure Start_Object (Handler : in out Parser;
                            Name    : in String) is
 
@@ -137,8 +125,10 @@ package body Util.Serialize.IO is
       end if;
    end Start_Object;
 
+   --  ------------------------------
    --  Finish an object associated with the given name.  The reader must be
    --  updated to be associated with the previous object.
+   --  ------------------------------
    procedure Finish_Object (Handler : in out Parser;
                             Name    : in String) is
 
@@ -163,17 +153,9 @@ package body Util.Serialize.IO is
       Handler.Pop;
    end Finish_Object;
 
-   --  Finish an object associated with the given name and set the value associated with
-   --  that name.  The reader must be updated to be associated with the previous object.
-   procedure Finish_Object (Handler : in out Parser;
-                            Name    : in String;
-                            Value   : in Util.Beans.Objects.Object) is
-   begin
-      null;
-   end Finish_Object;
-
    procedure Start_Array (Handler : in out Parser;
                           Name    : in String) is
+      pragma Unreferenced (Name);
    begin
       Handler.Push;
    end Start_Array;
@@ -214,9 +196,11 @@ package body Util.Serialize.IO is
        end if;
    end Set_Member;
 
+   --  ------------------------------
    --  Report an error while parsing the JSON stream.
-  procedure Error (Handler : in out Parser;
-                   Message : in String) is
+   --  ------------------------------
+   procedure Error (Handler : in out Parser;
+                    Message : in String) is
    begin
       raise Parse_Error with Message;
    end Error;
