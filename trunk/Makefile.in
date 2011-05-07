@@ -9,12 +9,23 @@ distdir=ada-util-@UTIL_VERSION@
 
 DIST_FILE=ada-util-@UTIL_VERSION@.tar.gz
 
+XML_SRC_DIR=@UTIL_XML_DIR@
+ASM_SRC_DIR=@UTIL_ASM_DIR@
+
+MKDIR=mkdir
+CP=cp
+
 srcdir = .
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 top_builddir = .
+
+includedir=${prefix}/share/ada/adainclude
+projectdir=${prefix}/share/ada/adainclude
+libdir=${prefix}/lib
+alidir=${prefix}/share/ada/adainclude
 
 # Build executables for all mains defined by the project.
 build:
@@ -77,3 +88,25 @@ dist:
 	tar --exclude=.svn --exclude="*~" --exclude="*.o" --exclude="*.ali" \
 	    --exclude="*.log" --exclude="*.a" \
 	    -cvzf $(DIST_FILE) $(distdir)
+
+
+install:
+	$(MKDIR) -p ${includedir}/util
+	$(MKDIR) -p ${includedir}/testutil
+	$(MKDIR) -p ${projectdir}/
+	${MKDIR} -p ${alidir}/testutil
+	${MKDIR} -p ${alidir}/util
+	${CP} src/*.ad[bs] ${includedir}/testutil
+	${CP} src/*.ad[bs] ${includedir}/util
+	if test T${XML_SRC_DIR} != T ; then \
+	   ${CP} ${XML_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
+	fi
+	if test T${ASM_SRC_DIR} != T ; then \
+	   ${CP} ${ASM_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
+	fi
+	${CP} distrib/util.gpr ${projectdir}/util.gpr
+	${CP} distrib/testutil.gpr ${projectdir}/testutil.gpr
+	${CP} lib/testutil/*.ali ${alidir}/testutil
+	${CP} lib/util/*.ali ${alidir}/util
+	${CP} lib/util/libadautil.a ${libdir}/
+	${CP} lib/testutil/libtestutil.a ${libdir}/
