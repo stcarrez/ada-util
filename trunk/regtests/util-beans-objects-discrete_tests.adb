@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Discrete_Tests - Generic simple test for discrete object types
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -151,9 +151,9 @@ package body Util.Beans.Objects.Discrete_Tests is
    --  Test Util.Beans.Objects."<" and Util.Beans.Objects.">"
    --  ------------------------------
    procedure Test_Lt_Gt (T : Test; V : String; N : Test_Type) is
-      Res   : Boolean;
+      Res    : Boolean;
       Is_Neg : constant Boolean := Index (V, "-") = V'First;
-      O : Util.Beans.Objects.Object := To_Object_Test (N);
+      O      : constant Util.Beans.Objects.Object := To_Object_Test (N);
    begin
       Res := To_Object_Test (N) < To_Object_Test (N);
       T.Assert (Condition => Res = False,

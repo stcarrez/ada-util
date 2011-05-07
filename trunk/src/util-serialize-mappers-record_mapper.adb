@@ -90,7 +90,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
                           Path  : in String;
                           Map   : in Util.Serialize.Mappers.Mapper_Access;
                           Proxy : in Proxy_Object) is
-     M : constant Proxy_Mapper_Access := new Proxy_Mapper;
+      M : constant Proxy_Mapper_Access := new Proxy_Mapper;
    begin
       M.Mapper  := Map;
       M.Execute := Proxy;
@@ -209,13 +209,16 @@ package body Util.Serialize.Mappers.Record_Mapper is
                     Stream  : in out Util.Serialize.IO.Output_Stream'Class;
                     Element : in Element_Type) is
       use Ada.Strings.Unbounded;
-      --        Iter : Mapping_Map.Cursor; --  := Handler.Rules.First;
+
+      procedure Write (Map : in Util.Serialize.Mappers.Mapper'Class);
+
       procedure Write (Map : in Util.Serialize.Mappers.Mapper'Class) is
          Name : constant String := To_String (Map.Name);
       begin
          if Map.Mapping /= null then
             declare
-               M   : constant Attribute_Mapping_Access := Attribute_Mapping'Class (Map.Mapping.all)'Access;
+               M   : constant Attribute_Mapping_Access
+                 := Attribute_Mapping'Class (Map.Mapping.all)'Access;
                Val : constant Util.Beans.Objects.Object := Getter (Element, M.Index);
             begin
                if M.Is_Attribute then

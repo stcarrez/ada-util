@@ -60,7 +60,8 @@ package body Util.Serialize.Mappers is
       end if;
       while Node /= null loop
          if Node.Name = Name then
-            if (Attribute = False and Node.Mapping = null) or else not Node.Mapping.Is_Attribute then
+            if (Attribute = False and Node.Mapping = null)
+              or else not Node.Mapping.Is_Attribute then
                return Node;
             end if;
             if Attribute and Node.Mapping.Is_Attribute then

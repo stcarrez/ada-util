@@ -14,7 +14,11 @@ The samples can be built using:
    gnatmake -Psamples
    
    
-The unit tests are built using:
+The unit tests are built and executed with:
+
+   make test
+
+Or manually build with:
 
    gnatmake -Ptests
 

@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  json -- JSON Reader
+--  xrds -- XRDS parser example
 --  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -43,68 +43,92 @@ procedure Xmlrd is
 
    Count  : constant Natural := Ada.Command_Line.Argument_Count;
 
-   type Rule_Fields is (FIELD_ID, FIELD_ROLE, FIELD_URL_PATTERN);
+   type Service_Fields is (FIELD_PRIORITY, FIELD_TYPE, FIELD_URI, FIELD_LOCAL_ID, FIELD_DELEGATE);
 
-   type Rule is record
-      Id       : Integer := -1;
-      Roles    : Util.Beans.Objects.Vectors.Vector;
-      Patterns : Util.Beans.Objects.Vectors.Vector;
+   type Service is record
+      Priority : Integer;
+      URI      : Ada.Strings.Unbounded.Unbounded_String;
+      RDS_Type : Ada.Strings.Unbounded.Unbounded_String;
+      Delegate : Ada.Strings.Unbounded.Unbounded_String;
+      Local_Id : Ada.Strings.Unbounded.Unbounded_String;
    end record;
-   type Rule_Access is access all Rule;
+   type Service_Access is access all Service;
 
-   package Rule_Vector is
-     new Ada.Containers.Vectors (Element_Type => Rule,
+   package Service_Vector is
+     new Ada.Containers.Vectors (Element_Type => Service,
                                  Index_Type   => Natural);
 
-   procedure Set_Member (P     : in out Rule;
-                         Field : in Rule_Fields;
+   procedure Set_Member (P     : in out Service;
+                         Field : in Service_Fields;
                          Value : in Util.Beans.Objects.Object) is
    begin
-      Ada.Text_IO.Put_Line ("Set member " & Rule_Fields'Image (Field)
+      Ada.Text_IO.Put_Line ("Set member " & Service_Fields'Image (Field)
                             & " to " & Util.Beans.Objects.To_String (Value));
       case Field is
-         when FIELD_ROLE =>
-            P.Roles.Append (Value);
+         when FIELD_PRIORITY =>
+            P.Priority := Util.Beans.Objects.To_Integer (Value);
 
-         when FIELD_URL_PATTERN =>
-            P.Patterns.Append (Value);
+         when FIELD_TYPE =>
+            P.RDS_Type := Util.Beans.Objects.To_Unbounded_String (Value);
 
-         when FIELD_ID =>
-            P.Id := Util.Beans.Objects.To_Integer (Value);
+         when FIELD_URI =>
+            P.URI := Util.Beans.Objects.To_Unbounded_String (Value);
+
+         when FIELD_LOCAL_ID =>
+            P.Local_Id := Util.Beans.Objects.To_Unbounded_String (Value);
+
+         when FIELD_DELEGATE =>
+            P.Delegate := Util.Beans.Objects.To_Unbounded_String (Value);
+
       end case;
    end Set_Member;
 
-   package Rule_Mapper is
-     new Util.Serialize.Mappers.Record_Mapper (Element_Type        => Rule,
-                                               Element_Type_Access => Rule_Access,
-                                               Fields              => Rule_Fields,
+   function Get_Member (P : in Service;
+                        Field : in Service_Fields) return Util.Beans.Objects.Object is
+   begin
+      case Field is
+         when FIELD_PRIORITY =>
+            return Util.Beans.Objects.To_Object (P.Priority);
+
+         when FIELD_TYPE =>
+            return Util.Beans.Objects.To_Object (P.RDS_Type);
+
+         when FIELD_URI =>
+            return Util.Beans.Objects.To_Object (P.URI);
+
+         when FIELD_LOCAL_ID =>
+            return Util.Beans.Objects.To_Object (P.Local_Id);
+
+         when FIELD_DELEGATE =>
+            return Util.Beans.Objects.To_Object (P.Delegate);
+
+      end case;
+   end Get_Member;
+
+   package Service_Mapper is
+     new Util.Serialize.Mappers.Record_Mapper (Element_Type        => Service,
+                                               Element_Type_Access => Service_Access,
+                                               Fields              => Service_Fields,
                                                Set_Member          => Set_Member);
 
-   package Rule_Vector_Mapper is
-     new Util.Serialize.Mappers.Vector_Mapper (Vectors        => Rule_Vector,
-                                               Element_Mapper => Rule_Mapper);
+   package Service_Vector_Mapper is
+     new Util.Serialize.Mappers.Vector_Mapper (Vectors        => Service_Vector,
+                                               Element_Mapper => Service_Mapper);
 
-   procedure Print (P : in Rule) is
-      procedure Print_Value (Pos : in Util.Beans.Objects.Vectors.Cursor) is
-         Item : Util.Beans.Objects.Object := Util.Beans.Objects.Vectors.Element (Pos);
-      begin
-         Ada.Text_IO.Put_Line ("     " & Util.Beans.Objects.To_String (Item));
-      end Print_Value;
+   procedure Print (P : in Service) is
+
    begin
-      Ada.Text_IO.Put_Line ("rule: " & Integer'Image (P.Id));
       Ada.Text_IO.Put_Line ("  roles:");
-      P.Roles.Iterate (Process => Print_Value'Access);
       Ada.Text_IO.Put_Line ("  url:");
-      P.Patterns.Iterate (Process => Print_Value'Access);
    end Print;
 
-   procedure Print (P : in Rule_Vector.Cursor) is
+   procedure Print (P : in Service_Vector.Cursor) is
    begin
-      Print (Rule_Vector.Element (P));
+      Print (Service_Vector.Element (P));
    end Print;
 
-   Rule_Mapping        : aliased Rule_Mapper.Mapper;
-   Rule_Vector_Mapping : aliased Rule_Vector_Mapper.Mapper;
+   Service_Mapping        : aliased Service_Mapper.Mapper;
+   Service_Vector_Mapping : aliased Service_Vector_Mapper.Mapper;
 
 begin
    if Count = 0 then
@@ -112,29 +136,43 @@ begin
       return;
    end if;
 
-   Rule_Mapping.Add_Mapping ("role", FIELD_ROLE);
-   Rule_Mapping.Add_Mapping ("url-pattern", FIELD_URL_PATTERN);
-   Rule_Mapping.Add_Mapping ("internal/info/id", FIELD_ID);
-   Rule_Mapping.Add_Mapping ("@id", FIELD_ID);
-   Rule_Vector_Mapping.Set_Mapping (Rule_Mapping'Unchecked_Access);
+   Service_Mapping.Add_Mapping ("Type", FIELD_TYPE);
+   Service_Mapping.Add_Mapping ("URI", FIELD_URI);
+   Service_Mapping.Add_Mapping ("Delegate", FIELD_DELEGATE);
+   Service_Mapping.Add_Mapping ("@priority", FIELD_PRIORITY);
+   Service_Mapping.Bind (Get_Member'Access);
+   Service_Vector_Mapping.Set_Mapping (Service_Mapping'Unchecked_Access);
 
-   Reader.Add_Mapping ("access-rules/rule", Rule_Mapping'Unchecked_Access);
---     Reader.Add_Mapping ("access-rules/rule", Rule_Vector_Mapping'Unchecked_Access);
+
+   Reader.Add_Mapping ("XRDS/XRD/Service", Service_Vector_Mapping'Unchecked_Access);
 
    for I in 1 .. Count loop
       declare
          S    : constant String := Ada.Command_Line.Argument (I);
 
-         List : aliased Rule_Vector_Mapper.Vector;
-         R    : aliased Rule;
+         List : aliased Service_Vector_Mapper.Vector;
+         R    : aliased Service;
       begin
-         Rule_Vector_Mapper.Set_Context (Reader, List'Unchecked_Access);
-         Rule_Mapper.Set_Context (Reader, R'Unchecked_Access);
+         Service_Vector_Mapper.Set_Context (Reader, List'Unchecked_Access);
+         Service_Mapper.Set_Context (Reader, R'Unchecked_Access);
          Reader.Parse (S);
 
+         Print (R);
+
          Ada.Text_IO.Put_Line ("Rule count: " & Count_Type'Image (List.Length));
+
          --  The list now contains our elements.
          List.Iterate (Process => Print'Access);
+
+
+         declare
+            Output : Util.Serialize.IO.XML.Output_Stream;
+         begin
+            Output.Initialize (Size => 10000);
+            Service_Mapping.Write (Output, R);
+            Service_Vector_Mapping.Write (Output, List);
+            Ada.Text_IO.Put_Line ("Rule: " & Util.Streams.Texts.To_String (Buffered_Stream (Output)));
+         end;
       end;
    end loop;
 end Xmlrd;

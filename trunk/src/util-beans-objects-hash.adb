@@ -54,7 +54,7 @@ function Util.Beans.Objects.Hash (Key : in Object) return Ada.Containers.Hash_Ty
                                                                Target => U32_For_Access);
 
 begin
-   case key.V.Of_Type is
+   case Key.V.Of_Type is
       when TYPE_NULL =>
          return 0;
 
@@ -117,7 +117,8 @@ begin
             return 0;
          end if;
          declare
-            U32 : constant U32_For_Access :=  To_U32_For_Access (Bean_Proxy (Key.V.Proxy.all).Bean.all'Access);
+            U32 : constant U32_For_Access
+              :=  To_U32_For_Access (Bean_Proxy (Key.V.Proxy.all).Bean.all'Access);
             Val : Unsigned_32 := U32 (U32'First);
 
             --  The loop is not executed if pointers are 32-bit wide.

@@ -21,6 +21,9 @@ with Util.Concurrent.Counters;
 with Util.Measures;
 with Ada.Text_IO;
 with Util.Refs;
+with Ada.Strings.Hash;
+with Ada.Containers.Indefinite_Hashed_Maps;
+with GNAT.Traceback.Symbolic;
 procedure Multipro_Refs is
 
    use Util.Log;
@@ -36,6 +39,42 @@ procedure Multipro_Refs is
    type Data_Access is access all Data;
 
    package Data_Ref is new Util.Refs.References (Data, Data_Access);
+
+   package Hash_Map is new Ada.Containers.Indefinite_Hashed_Maps (String, String,
+                                                                  Ada.Strings.Hash,
+                                                                  "=");
+   type Cache is new Util.Refs.Ref_Entity with record
+      Map : Hash_Map.Map;
+   end record;
+   type Cache_Access is access all Cache;
+   package Hash_Ref is new Util.Refs.References (Cache, Cache_Access);
+
+   R : Hash_Ref.Atomic_Ref;
+
+   function Exists (Key : in String) return Boolean is
+      C : constant Hash_Ref.Ref := R.Get;
+   begin
+      return C.Value.Map.Contains (Key);
+   end Exists;
+
+   function Find (Key : in String) return String is
+      C : constant Hash_Ref.Ref := R.Get;
+   begin
+      if C.Value.Map.Contains (Key) then
+         return C.Value.Map.Element (Key);
+      else
+         return "";
+      end if;
+   end Find;
+
+   procedure Add (Key : in String; Value : in String) is
+      C : constant Hash_Ref.Ref := R.Get;
+      N : constant Hash_Ref.Ref := Hash_Ref.Create;
+   begin
+      N.Value.all.Map := C.Value.Map;
+      N.Value.all.Map.Include (Key, Value);
+      R.Set (N);
+   end Add;
 
    --  Target counter value we would like.
    Max_Counter       : constant Integer := 1_00_000;
@@ -78,6 +117,7 @@ begin
    Safe_Ref.Set (Data_Ref.Create);
    Get_Reference.Value.all.Value := 0;
    for Task_Count in 1 .. Max_Tasks loop
+      R.Set (Hash_Ref.Create);
       declare
          --  Each task will increment the counter by the following amount.
          Increment_By_Task : constant Integer := Max_Counter / Task_Count;
@@ -89,33 +129,53 @@ begin
             --  A task that increments the shared counter <b>Unsafe</b> and <b>Counter</b> by
             --  the specified amount.
             task type Worker is
-               entry Start (Count : in Natural);
+               entry Start (Count : in Natural;
+                            Ident : in Integer);
             end Worker;
 
             task body Worker is
                Cnt : Natural;
+               Id  : Integer;
             begin
-               accept Start (Count : in Natural) do
+               accept Start (Count : in Natural;
+                             Ident : in Integer) do
                   Cnt := Count;
+                  Id  := Ident;
                end;
 
                --  Get the data, compute something and change the reference.
                for I in 1 .. Cnt loop
                   declare
-                     Ref  : constant Data_Ref.Ref := Get_Reference;
-                     Ref2 : constant Data_Ref.Ref := Data_Ref.Create;
+--                       Ref  : constant Data_Ref.Ref := Get_Reference;
+--                       Ref2 : constant Data_Ref.Ref := Data_Ref.Create;
+                     Key  : constant String := "K" & Natural'Image (I / 10);
                   begin
-                     Ref2.Value.all.Value := Ref.Value.all.Value + 1;
-                     Ref2.Value.all.Rand  := Cnt;
-                     Ref2.Value.all.Result := Long_Long_Integer (Ref2.Value.all.Rand * Cnt)
-                       * Long_Long_Integer (Ref2.Value.all.Value);
-                     Set_Reference (Ref2);
-                     Util.Concurrent.Counters.Increment (Counter);
+--                       Ref2.Value.all.Value := Ref.Value.all.Value + 1;
+--                       Ref2.Value.all.Rand  := Cnt;
+--                       Ref2.Value.all.Result := Long_Long_Integer (Ref2.Value.all.Rand * Cnt)
+--                         * Long_Long_Integer (Ref2.Value.all.Value);
+--                       Set_Reference (Ref2);
+--                       Util.Concurrent.Counters.Increment (Counter);
+
+                     if not Exists (Key) then
+                        Add (Key, Natural'Image (I));
+--                          Log.Info ("{0} has added {1} -> {2}",
+--                                    Integer'Image (Id), Key, Natural'Image (I));
+                     end if;
+                     declare
+                        S : constant String := Find (Key);
+                     begin
+                        null;
+                     exception
+                        when others =>
+                           Log.Info ("Find did not found the key: {0}", Key);
+                     end;
                   end;
                end loop;
             exception
-               when others =>
-                  Log.Error ("Exception raised");
+               when E : others =>
+                  Log.Error ("Exception raised: {0}",
+                             GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
             end Worker;
 
             type Worker_Array is array (1 .. Task_Count) of Worker;
@@ -125,7 +185,7 @@ begin
          begin
             Log.Info ("Starting " & Integer'Image (Task_Count) & " tasks");
             for I in Tasks'Range loop
-               Tasks (I).Start (Increment_By_Task);
+               Tasks (I).Start (Increment_By_Task, I);
             end loop;
 
             --  Leaving the Worker task scope means we are waiting for our tasks to finish.

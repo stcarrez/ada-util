@@ -91,6 +91,9 @@ package body Util.Log.Loggers is
                     Arg2    : in String;
                     Arg3    : in String) return Unbounded_String;
 
+   --  Get the logger property associated with a given logger
+   function Get_Logger_Property (Properties : in Util.Properties.Manager;
+                                 Name       : in String) return String;
 
    --  ------------------------------
    --  Get the logger property associated with a given logger
@@ -104,7 +107,7 @@ package body Util.Log.Loggers is
          if Properties.Exists (Prop_Name (Prop_Name'First .. Pos)) then
             return Trim (Properties.Get (Prop_Name (Prop_Name'First .. Pos)), Both);
          end if;
-         Pos := Util.Strings.RIndex (Prop_Name, '.', Pos);
+         Pos := Util.Strings.Rindex (Prop_Name, '.', Pos);
          if Pos > 0 then
             Pos := Pos - 1;
          end if;

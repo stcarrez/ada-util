@@ -157,6 +157,7 @@ private
    overriding
    function Find_Mapper (Controller : in Proxy_Mapper;
                          Name       : in String;
-                         Attribute  : in Boolean := False) return Util.Serialize.Mappers.Mapper_Access;
+                         Attribute  : in Boolean := False)
+                         return Util.Serialize.Mappers.Mapper_Access;
 
 end Util.Serialize.Mappers.Record_Mapper;

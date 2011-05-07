@@ -1,7 +1,7 @@
 # You may edit this makefile as long as you keep these original 
 # target names defined.
 MODE=distrib
-GNATMAKE=gnatmake -XMode=${MODE}
+GNATMAKE=gnatmake -XMODE=${MODE} -XPROCESSORS=4
 GNATCLEAN=gnatclean
 GPRPATH=util.gpr
 TESTUTIL_GPRPATH=testutil.gpr
@@ -32,6 +32,11 @@ alidir=${prefix}/share/ada/adainclude
 build:
 	$(GNATMAKE) -p -P "$(GPRPATH)"
 	$(GNATMAKE) -p -P "$(TESTUTIL_GPRPATH)"
+
+# Build and run the unit tests
+test:	build
+	$(GNATMAKE) -p -Ptests
+	bin/util_harness
 
 # Not intended for manual invocation.
 # Invoked if automatic builds are enabled.

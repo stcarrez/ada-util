@@ -263,34 +263,34 @@ package body Util.Encoders.SHA1 is
       end if;
    end Update;
 
-   function F1 (B, C, D: in Unsigned_32) return Unsigned_32;
+   function F1 (B, C, D : in Unsigned_32) return Unsigned_32;
    pragma Inline_Always (F1);
 
-   function F2 (B, C, D: in Unsigned_32) return Unsigned_32;
+   function F2 (B, C, D : in Unsigned_32) return Unsigned_32;
    pragma Inline_Always (F2);
 
-   function F3 (B, C, D: in Unsigned_32) return Unsigned_32;
+   function F3 (B, C, D : in Unsigned_32) return Unsigned_32;
    pragma Inline_Always (F3);
 
-   function F4 (B, C, D: in Unsigned_32) return Unsigned_32;
+   function F4 (B, C, D : in Unsigned_32) return Unsigned_32;
    pragma Inline_Always (F4);
 
-   function F1 (B, C, D: in Unsigned_32) return Unsigned_32 is
+   function F1 (B, C, D : in Unsigned_32) return Unsigned_32 is
    begin
       return (B and C) or ((not B) and D);
    end F1;
 
-   function F2 (B, C, D: in Unsigned_32) return Unsigned_32 is
+   function F2 (B, C, D : in Unsigned_32) return Unsigned_32 is
    begin
       return B xor C xor D;
    end F2;
 
-   function F3 (B, C, D: in Unsigned_32) return Unsigned_32 is
+   function F3 (B, C, D : in Unsigned_32) return Unsigned_32 is
    begin
       return (B and C) or (B and D) or (C and D);
    end F3;
 
-   function F4 (B, C, D: in Unsigned_32) return Unsigned_32 is
+   function F4 (B, C, D : in Unsigned_32) return Unsigned_32 is
    begin
       return B xor C xor D;
    end F4;

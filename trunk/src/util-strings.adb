@@ -74,8 +74,8 @@ package body Util.Strings is
       Str : constant String_Record_Access
         := new String_Record '(Len => S'Length, Str => S, Counter => ONE);
    begin
-       return String_Ref '(Ada.Finalization.Controlled with
-                           Str => Str);
+      return String_Ref '(Ada.Finalization.Controlled with
+                          Str => Str);
    end To_String_Ref;
 
    --  ------------------------------
@@ -90,7 +90,7 @@ package body Util.Strings is
    begin
       return String_Ref '(Ada.Finalization.Controlled with
                           Str => Str);
-   end to_String_Ref;
+   end To_String_Ref;
 
    --  ------------------------------
    --  Get the string
@@ -107,7 +107,8 @@ package body Util.Strings is
    --  ------------------------------
    --  Get the string as an unbounded string
    --  ------------------------------
-   function To_Unbounded_String (S : in String_Ref) return Ada.Strings.Unbounded.Unbounded_String is
+   function To_Unbounded_String (S : in String_Ref)
+                                 return Ada.Strings.Unbounded.Unbounded_String is
    begin
       if S.Str /= null then
          return Ada.Strings.Unbounded.To_Unbounded_String (S.Str.Str);
@@ -182,7 +183,7 @@ package body Util.Strings is
    procedure Adjust (Object : in out String_Ref) is
    begin
       if Object.Str /= null then
-          Util.Concurrent.Counters.Increment (Object.Str.Counter);
+         Util.Concurrent.Counters.Increment (Object.Str.Counter);
       end if;
    end Adjust;
 
@@ -192,7 +193,7 @@ package body Util.Strings is
    overriding
    procedure Finalize (Object : in out String_Ref) is
 
-     procedure Free is
+      procedure Free is
         new Ada.Unchecked_Deallocation (String_Record, String_Record_Access);
 
       Is_Zero : Boolean;
@@ -249,6 +250,6 @@ package body Util.Strings is
          end if;
       end loop;
       return 0;
-   end RIndex;
+   end Rindex;
 
 end Util.Strings;

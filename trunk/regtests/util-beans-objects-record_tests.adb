@@ -19,7 +19,6 @@
 with Util.Test_Caller;
 with Util.Tests;
 
-with Ada.Text_IO;
 with Util.Strings;
 with Util.Beans.Basic;
 with Util.Beans.Objects.Vectors;

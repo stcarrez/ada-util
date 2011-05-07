@@ -100,7 +100,7 @@ package body Util.Beans.Objects.Time is
             return Value;
 
          when TYPE_STRING | TYPE_WIDE_STRING =>
-            return Util.Beans.Objects.Time.To_Object (Ada.Calendar.Formatting.Value (Value.Type_Def.To_String (Value.V)));
+            return Time.To_Object (Formatting.Value (Value.Type_Def.To_String (Value.V)));
 
          when others =>
             raise Constraint_Error with "Conversion to a date is not possible";
