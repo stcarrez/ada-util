@@ -1,7 +1,7 @@
 Version 1.2	- May 2011
   - Integrates the Ada EL beans framework
   - Added encoders (base16, base64, SHA1, HMAC-SHA1)
-  - Added serialization framework (JSON, XML)
+  - Added serialization framework (JSON, XML) - EXPERIMENTAL
   - Added reference counters
 
 Version 1.1	- Aug 2010

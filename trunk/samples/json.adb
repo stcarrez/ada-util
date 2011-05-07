@@ -34,6 +34,9 @@ procedure Json is
 
    Count  : constant Natural := Ada.Command_Line.Argument_Count;
 
+   procedure Print (P : in Mapping.Person_Vector.Cursor);
+   procedure Print (P : in Mapping.Person);
+
    procedure Print (P : in Mapping.Person) is
    begin
       Ada.Text_IO.Put_Line ("first_name : " & To_String (P.First_Name));
@@ -82,7 +85,8 @@ begin
          begin
             Output.Initialize (Size => 10000);
             Mapping.Get_Person_Mapper.Write (Output, P);
-            Ada.Text_IO.Put_Line ("Person: " & Util.Streams.Texts.To_String (Buffered_Stream (Output)));
+            Ada.Text_IO.Put_Line ("Person: "
+                                  & Util.Streams.Texts.To_String (Buffered_Stream (Output)));
          end;
 
          declare
