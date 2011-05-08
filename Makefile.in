@@ -107,7 +107,7 @@ install:
 	$(MKDIR) -p ${projectdir}/
 	${MKDIR} -p ${alidir}/testutil
 	${MKDIR} -p ${alidir}/util
-	${CP} src/*.ad[bs] ${includedir}/testutil
+	${CP} testutil/*.ad[bs] ${includedir}/testutil
 	${CP} src/*.ad[bs] ${includedir}/util
 	if test T${XML_SRC_DIR} != T ; then \
 	   ${CP} ${XML_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
@@ -120,4 +120,12 @@ install:
 	${CP} lib/testutil/*.ali ${alidir}/testutil
 	${CP} lib/util/*.ali ${alidir}/util
 	${CP} lib/util/libadautil.a ${libdir}/
-	${CP} lib/testutil/libtestutil.a ${libdir}/
+	${CP} lib/testutil/libadatestutil.a ${libdir}/
+
+uninstall:
+	rm -rf ${includedir}/testutil
+	rm -rf ${includedir}/util
+	rm -f ${libdir}/libadautil.a
+	rm -f ${libdir}/libadatestutil.a
+	rm -f ${projectdir}/testutil.gpr
+	rm -f ${projectdir}/util.gpr
