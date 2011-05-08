@@ -1,9 +1,11 @@
 project Config is
    for Source_Dirs use ();
 
+   type Yes_No is ("yes", "no");
    type Mode_Type is ("distrib", "debug", "optimize", "profile");
    Mode : Mode_Type := external ("MODE", "debug");
 
+   Coverage : Yes_No := External ("COVERAGE", "no");
    Processors := External ("PROCESSORS", "1");
 
    package Builder is
@@ -33,6 +35,13 @@ project Config is
          when "profile" =>
             for Default_Switches ("Ada") use warnings & ("-pg");
       end case;
+
+      case Coverage is
+      when "yes" =>
+         for Default_Switches ("ada") use Compiler'Default_Switches ("ada") &
+           ("-fprofile-arcs", "-ftest-coverage");
+      when others =>
+      end case;
    end compiler;
 
    package binder is
@@ -58,6 +67,13 @@ project Config is
 	 
 	 when others =>
 	    null;
+      end case;
+
+      case Coverage is
+      when "yes" =>
+         for Default_Switches ("ada") use Linker'Default_Switches ("ada") &
+           ("-fprofile-arcs");
+      when others =>
       end case;
    end linker;        
  

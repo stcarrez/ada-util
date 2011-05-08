@@ -23,6 +23,6 @@ package Util is
    SVN_URL : constant String := "https://ada-util.googlecode.com/svn/trunk";
 
    --  Revision used (must run 'make version' to update)
-   SVN_REV : constant Positive := 253;
+   SVN_REV : constant Positive := 259;
 
 end Util;
