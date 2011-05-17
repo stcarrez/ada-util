@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  concurrency.tests -- Unit tests for concurrency package
---  Copyright (C) 2009, 2010, 201 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,5 +30,11 @@ package Util.Concurrent.Tests is
    procedure Test_Decrement_And_Test (T : in out Test);
 
    procedure Test_Copy (T : in out Test);
+
+   --  Test concurrent pool
+   procedure Test_Pool (T : in out Test);
+
+   --  Test concurrent pool
+   procedure Test_Concurrent_Pool (T : in out Test);
 
 end Util.Concurrent.Tests;
