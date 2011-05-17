@@ -16,14 +16,29 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Text_IO;
+with Ada.Strings.Unbounded;
+with Ada.Finalization;
+
 with Util.Tests;
 with Util.Concurrent.Counters;
 with Util.Test_Caller;
+with Util.Measures;
 with Util.Concurrent.Copies;
+with Util.Concurrent.Pools;
 package body Util.Concurrent.Tests is
 
    use Util.Tests;
    use Util.Concurrent.Counters;
+
+   type Connection is new Ada.Finalization.Controlled with record
+      Name  : Ada.Strings.Unbounded.Unbounded_String;
+      Value : Natural := 0;
+   end record;
+
+   overriding
+   procedure Finalize (C : in out Connection);
+
+   package Connection_Pool is new Util.Concurrent.Pools (Connection);
 
    package Caller is new Util.Test_Caller (Test);
 
@@ -37,7 +52,139 @@ package body Util.Concurrent.Tests is
                        Test_Decrement_And_Test'Access);
       Caller.Add_Test (Suite, "Test Util.Concurrent.Copies.Get + Set",
                        Test_Copy'Access);
+      Caller.Add_Test (Suite, "Test Util.Concurrent.Pools.Get_Instance",
+                       Test_Pool'Access);
+      Caller.Add_Test (Suite, "Test Util.Concurrent.Pools (concurrent test)",
+                       Test_Concurrent_Pool'Access);
    end Add_Tests;
+
+   overriding
+   procedure Finalize (C : in out Connection) is
+   begin
+      null;
+   end Finalize;
+
+   --  ------------------------------
+   --  Test concurrent pool
+   --  ------------------------------
+   procedure Test_Pool (T : in out Test) is
+      use Ada.Strings.Unbounded;
+
+      P : Connection_Pool.Pool;
+      C : Connection;
+   begin
+      --  Set the pool capacity.
+      P.Set_Size (Capacity => 10);
+
+      --  Insert the objects.
+      for I in 1 .. 10 loop
+         C.Name := To_Unbounded_String (Integer'Image (I));
+         P.Release (C);
+      end loop;
+
+      --  Use the pool and verify the objects.
+      declare
+         C : array (1 .. 10) of Connection;
+      begin
+         for J in 1 .. 3 loop
+            --  Get each object and verify that it matches our instance.
+            for I in reverse 1 .. 10 loop
+               P.Get_Instance (C (I));
+               Assert_Equals (T, Integer'Image (I), To_String (C (I).Name), "Invalid pool object");
+            end loop;
+
+            --  Put the object back in the pool.
+            for I in 1 .. 10 loop
+               P.Release (C (I));
+            end loop;
+         end loop;
+      end;
+
+      declare
+         S : Util.Measures.Stamp;
+      begin
+         for I in 1 .. 1_000 loop
+            P.Get_Instance (C);
+            P.Release (C);
+         end loop;
+         Util.Measures.Report (S, "1000 Pool Get_Instance+Release");
+      end;
+   end Test_Pool;
+
+   --  ------------------------------
+   --  Test concurrent pool
+   --  ------------------------------
+   procedure Test_Concurrent_Pool (T : in out Test) is
+      use Ada.Strings.Unbounded;
+
+      Count_By_Task : constant Natural := 100_001;
+      Task_Count    : constant Natural := 17;
+      Capacity      : constant Natural := 5;
+
+      P : Connection_Pool.Pool;
+      C : Connection;
+      S : Util.Measures.Stamp;
+   begin
+      --  Set the pool capacity.
+      P.Set_Size (Capacity => Capacity);
+
+      --  Insert the objects.
+      for I in 1 .. Capacity loop
+         C.Name := To_Unbounded_String (Integer'Image (I));
+         P.Release (C);
+      end loop;
+
+      declare
+
+         --  A task that picks an object from the pool, increment the value and puts
+         --  back the object in the pool.
+         task type Worker is
+            entry Start (Count : in Natural);
+         end Worker;
+
+         task body Worker is
+            Cnt : Natural;
+         begin
+            accept Start (Count : in Natural) do
+               Cnt := Count;
+            end Start;
+            --  Get an object from the pool, increment the value and put it back in the pool.
+            for I in 1 .. Cnt loop
+               declare
+                  C : Connection;
+               begin
+                  P.Get_Instance (C);
+                  C.Value := C.Value + 1;
+                  P.Release (C);
+               end;
+            end loop;
+         exception
+            when others =>
+               Ada.Text_IO.Put_Line ("Exception raised.");
+
+         end Worker;
+
+         type Worker_Array is array (1 .. Task_Count) of Worker;
+
+         Tasks : Worker_Array;
+      begin
+         for I in Tasks'Range loop
+            Tasks (I).Start (Count_By_Task);
+         end loop;
+
+         --  Leaving the Worker task scope means we are waiting for our tasks to finish.
+      end;
+      Util.Measures.Report (S, "Executed Get+Release " & Natural'Image (Count_By_Task * Task_Count));
+      declare
+         Total : Natural := 0;
+      begin
+         for I in 1 .. Capacity loop
+            P.Get_Instance (C);
+            Total := Total + C.Value;
+         end loop;
+         Assert_Equals (T, Count_By_Task * Task_Count, Total, "Invalid computation");
+      end;
+   end Test_Concurrent_Pool;
 
    procedure Test_Increment (T : in out Test) is
       C : Counter;
@@ -114,7 +261,7 @@ package body Util.Concurrent.Tests is
          begin
             accept Start (Count : in Natural) do
                Cnt := Count;
-            end;
+            end Start;
             --  Increment the two counters as many times as necessary.
             for I in 1 .. Cnt loop
                Val := D.Get;
