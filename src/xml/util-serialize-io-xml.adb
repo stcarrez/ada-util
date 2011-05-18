@@ -442,7 +442,7 @@ package body Util.Serialize.IO.XML is
             Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
 
          when others =>
-            Stream.Write_String (Util.Beans.Objects.To_String (Value));
+            Stream.Write (Util.Beans.Objects.To_String (Value));
 
       end case;
       Stream.Write ('"');
