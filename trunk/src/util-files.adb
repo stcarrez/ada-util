@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Files -- Various File Utility Packages
---  Copyright (C) 2001, 2002, 2003, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -143,6 +143,52 @@ package body Util.Files is
       end loop;
       return Name;
    end Find_File_Path;
+
+   --  ------------------------------
+   --  Compose an existing path by adding the specified name to each path component
+   --  and return a new paths having only existing directories.  Each directory is
+   --  separated by ';'.
+   --  If the composed path exists, it is added to the result path.
+   --  Example:
+   --    paths = 'web;regtests'  name = 'info'
+   --    result = 'web/info;regtests/info'
+   --  Returns the composed path.
+   --  ------------------------------
+   function Compose_Path (Paths : in String;
+                          Name  : in String) return String is
+      use Ada.Directories;
+      use Ada.Strings.Fixed;
+
+      Sep_Pos : Natural;
+      Pos     : Positive := Paths'First;
+      Last    : constant Natural := Paths'Last;
+      Result  : Unbounded_String;
+   begin
+      while Pos <= Last loop
+         Sep_Pos := Index (Paths, ";", Pos);
+         if Sep_Pos = 0 then
+            Sep_Pos := Last;
+         else
+            Sep_Pos := Sep_Pos - 1;
+         end if;
+         declare
+            Dir  : constant String := Paths (Pos .. Sep_Pos);
+            Path : constant String := Util.Files.Compose (Dir, Name);
+         begin
+            if Exists (Path) and then Kind (Path) = Directory then
+               if Length (Result) > 0 then
+                  Append (Result, ';');
+               end if;
+               Append (Result, Path);
+            end if;
+         exception
+            when Name_Error =>
+               null;
+         end;
+         Pos := Sep_Pos + 2;
+      end loop;
+      return To_String (Result);
+   end Compose_Path;
 
    --  ------------------------------
    --  Returns the name of the external file with the specified directory

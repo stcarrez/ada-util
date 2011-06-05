@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Files -- Various File Utility Packages
---  Copyright (C) 2001, 2002, 2003, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,5 +45,16 @@ package Util.Files is
    --  a relative path and thus include directory separators.
    function Compose (Directory : in String;
                      Name      : in String) return String;
+
+   --  Compose an existing path by adding the specified name to each path component
+   --  and return a new paths having only existing directories.  Each directory is
+   --  separated by ';'.
+   --  If the composed path exists, it is added to the result path.
+   --  Example:
+   --    paths = 'web;regtests'  name = 'info'
+   --    result = 'web/info;regtests/info'
+   --  Returns the composed path.
+   function Compose_Path (Paths : in String;
+                          Name  : in String) return String;
 
 end Util.Files;
