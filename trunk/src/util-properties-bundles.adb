@@ -22,6 +22,8 @@ with Ada.Directories;
 with Ada.Containers.Vectors;
 with Ada.Strings.Fixed;
 with Util.Log.Loggers;
+with Util.Files;
+with Util.Strings.Maps;
 package body Util.Properties.Bundles is
 
    use Util.Log;
@@ -218,38 +220,40 @@ package body Util.Properties.Bundles is
       use Bundle_Map;
 
       Path    : constant String := To_String (Factory.Path);
-      Filter  : constant Filter_Type := (Ordinary_File => True, others => False);
       Pattern : constant String := Name & "*.properties";
-      Ent     : Directory_Entry_Type;
       Names   : Util.Strings.String_Set.Set;
-      Search  : Search_Type;
+      Files   : Util.Strings.Maps.Map;
+      Iter    : Util.Strings.Maps.Cursor;
+
+      procedure Process_File (Name      : in String;
+                              File_Path : in String) is
+         Bundle      : constant Bundle_Manager_Access := new Manager;
+         Bundle_Name : constant Name_Access
+           := new String '(Name (Name'First .. Name'Last - 11));
+      begin
+         Log.Debug ("Loading file {0}", File_Path);
+
+         Interface_P.Manager'Class (Bundle.Impl.all).Load_Properties (File_Path);
+         Factory.Bundles.Include (Key => Bundle_Name, New_Item => Bundle);
+         Found := True;
+         Names.Insert (Bundle_Name);
+      end Process_File;
+
    begin
       Log.Info ("Reading bundle {1} in directory {0}", Path, Name);
 
       Found := False;
-      Start_Search (Search, Directory => Path,
-                    Pattern => Pattern, Filter => Filter);
+      Util.Files.Find_Files_Path (Pattern => Pattern,
+                                  Path    => Path,
+                                  Into    => Files);
 
       Factory.Lock.Write;
 
       begin
-         --  Scan the directory and load all the property files.
-         while More_Entries (Search) loop
-            Get_Next_Entry (Search, Ent);
-            declare
-               Simple      : constant String := Simple_Name (Ent);
-               File_Path   : constant String := Full_Name (Ent);
-               Bundle      : constant Bundle_Manager_Access := new Manager;
-               Bundle_Name : constant Name_Access
-                 := new String '(Simple (Simple'First .. Simple'Last - 11));
-            begin
-               Log.Debug ("Loading file {0}", File_Path);
-
-               Interface_P.Manager'Class (Bundle.Impl.all).Load_Properties (File_Path);
-               Factory.Bundles.Include (Key => Bundle_Name, New_Item => Bundle);
-               Found := True;
-               Names.Insert (Bundle_Name);
-            end;
+         Iter := Files.First;
+         while Util.Strings.Maps.Has_Element (Iter) loop
+            Util.Strings.Maps.Query_Element (Iter, Process_File'Access);
+            Util.Strings.Maps.Next (Iter);
          end loop;
 
          --  Link the property files to implement the localization default rules.
