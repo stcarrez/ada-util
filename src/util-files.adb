@@ -108,6 +108,40 @@ package body Util.Files is
    end Write_File;
 
    --  ------------------------------
+   --  Iterate over the search directories defined in <b>Paths</b> and execute
+   --  <b>Process</b> with each directory until it returns <b>True</b> in <b>Done</b>
+   --  or the last search directory is found.  Each search directory
+   --  is separated by ';' (yes, even on Unix).
+   --  ------------------------------
+   procedure Iterate_Path (Path   : in String;
+                           Process : not null access procedure (Dir  : in String;
+                                                                Done : out Boolean)) is
+      use Ada.Directories;
+      use Ada.Strings.Fixed;
+
+      Sep_Pos : Natural;
+      Pos     : Positive := Path'First;
+      Last    : constant Natural := Path'Last;
+   begin
+      while Pos <= Last loop
+         Sep_Pos := Index (Path, ";", Pos);
+         if Sep_Pos = 0 then
+            Sep_Pos := Last;
+         else
+            Sep_Pos := Sep_Pos - 1;
+         end if;
+         declare
+            Dir  : constant String := Path (Pos .. Sep_Pos);
+            Done : Boolean;
+         begin
+            Process (Dir => Dir, Done => Done);
+            exit when Done;
+         end;
+         Pos := Sep_Pos + 2;
+      end loop;
+   end Iterate_Path;
+
+   --  ------------------------------
    --  Find the file in one of the search directories.  Each search directory
    --  is separated by ';' (yes, even on Unix).
    --  Returns the path to be used for reading the file.
@@ -120,6 +154,7 @@ package body Util.Files is
       Sep_Pos : Natural;
       Pos     : Positive := Paths'First;
       Last    : constant Natural := Paths'Last;
+
    begin
       while Pos <= Last loop
          Sep_Pos := Index (Paths, ";", Pos);
@@ -145,6 +180,49 @@ package body Util.Files is
    end Find_File_Path;
 
    --  ------------------------------
+   --  Find the files which match the pattern in the directories specified in the
+   --  search path <b>Path</b>.  Each search directory is separated by ';'.
+   --  File names are added to the string set in <b>Into</b>.
+   --  ------------------------------
+   procedure Find_Files_Path (Pattern : in String;
+                              Path    : in String;
+                              Into    : in out Util.Strings.Maps.Map) is
+
+      procedure Find_Files (Dir : in String;
+                            Done : out Boolean);
+
+      --  ------------------------------
+      --  Find the files matching the pattern in <b>Dir</b>.
+      --  ------------------------------
+      procedure Find_Files (Dir  : in String;
+                            Done : out Boolean) is
+         use Ada.Directories;
+
+         Filter  : constant Filter_Type := (Ordinary_File => True, others => False);
+         Ent     : Directory_Entry_Type;
+         Search  : Search_Type;
+      begin
+         Start_Search (Search, Directory => Dir,
+                       Pattern => Pattern, Filter => Filter);
+         while More_Entries (Search) loop
+            Get_Next_Entry (Search, Ent);
+            declare
+               Name      : constant String := Simple_Name (Ent);
+               File_Path : constant String := Full_Name (Ent);
+            begin
+               if not Into.Contains (Name) then
+                  Into.Insert (Name, File_Path);
+               end if;
+            end;
+         end loop;
+         Done := False;
+      end Find_Files;
+
+   begin
+      Iterate_Path (Path => Path, Process => Find_Files'Access);
+   end Find_Files_Path;
+
+   --  ------------------------------
    --  Compose an existing path by adding the specified name to each path component
    --  and return a new paths having only existing directories.  Each directory is
    --  separated by ';'.
@@ -156,37 +234,37 @@ package body Util.Files is
    --  ------------------------------
    function Compose_Path (Paths : in String;
                           Name  : in String) return String is
-      use Ada.Directories;
-      use Ada.Strings.Fixed;
 
-      Sep_Pos : Natural;
-      Pos     : Positive := Paths'First;
-      Last    : constant Natural := Paths'Last;
+      procedure Compose (Dir : in String;
+                         Done : out Boolean);
+
       Result  : Unbounded_String;
-   begin
-      while Pos <= Last loop
-         Sep_Pos := Index (Paths, ";", Pos);
-         if Sep_Pos = 0 then
-            Sep_Pos := Last;
-         else
-            Sep_Pos := Sep_Pos - 1;
-         end if;
-         declare
-            Dir  : constant String := Paths (Pos .. Sep_Pos);
-            Path : constant String := Util.Files.Compose (Dir, Name);
-         begin
-            if Exists (Path) and then Kind (Path) = Directory then
-               if Length (Result) > 0 then
-                  Append (Result, ';');
-               end if;
-               Append (Result, Path);
+
+      --  ------------------------------
+      --  Build the new path by checking if <b>Name</b> exists in <b>Dir</b>
+      --  and appending the new path in the <b>Result</b>.
+      --  ------------------------------
+      procedure Compose (Dir : in String;
+                         Done : out Boolean) is
+         use Ada.Directories;
+         use Ada.Strings.Fixed;
+
+         Path : constant String := Util.Files.Compose (Dir, Name);
+      begin
+         Done := False;
+         if Exists (Path) and then Kind (Path) = Directory then
+            if Length (Result) > 0 then
+               Append (Result, ';');
             end if;
-         exception
-            when Name_Error =>
-               null;
-         end;
-         Pos := Sep_Pos + 2;
-      end loop;
+            Append (Result, Path);
+         end if;
+      exception
+         when Name_Error =>
+            null;
+      end Compose;
+
+   begin
+      Iterate_Path (Path => Paths, Process => Compose'Access);
       return To_String (Result);
    end Compose_Path;
 
