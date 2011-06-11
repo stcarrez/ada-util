@@ -34,6 +34,8 @@ package body Util.Files.Tests is
                        Test_Read_File'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Write_File",
                        Test_Write_File'Access);
+      Caller.Add_Test (Suite, "Test Util.Files.Iterate_Path",
+                       Test_Iterate_Path'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Find_File_Path",
                        Test_Find_File_Path'Access);
    end Add_Tests;
@@ -99,5 +101,32 @@ package body Util.Files.Tests is
       Assert_Equals (T, "blablabla.properties",
                      Util.Files.Find_File_Path ("blablabla.properties", Paths));
    end Test_Find_File_Path;
+
+   --  ------------------------------
+   --  Check Iterate_Path
+   --  ------------------------------
+   procedure Test_Iterate_Path (T : in out Test) is
+
+      Last : Unbounded_String;
+
+      procedure Check_Path (Dir : in String;
+                            Done : out Boolean) is
+      begin
+         if Dir = "a" or Dir = "bc" or Dir = "de" then
+            Done := False;
+         else
+            Done := True;
+            Last := To_Unbounded_String (Dir);
+         end if;
+      end Check_Path;
+
+   begin
+      Iterate_Path ("a;bc;de;f", Check_Path'Access);
+      Assert_Equals (T, "f", Last, "Invalid last path");
+
+      Iterate_Path ("de;bc;de;b", Check_Path'Access);
+      Assert_Equals (T, "b", Last, "Invalid last path");
+
+   end Test_Iterate_Path;
 
 end Util.Files.Tests;

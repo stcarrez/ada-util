@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  files.tests -- Unit tests for files
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,5 +30,6 @@ package Util.Files.Tests is
    procedure Test_Read_File_Truncate (T : in out Test);
    procedure Test_Write_File (T : in out Test);
    procedure Test_Find_File_Path (T : in out Test);
+   procedure Test_Iterate_Path (T : in out Test);
 
 end Util.Files.Tests;
