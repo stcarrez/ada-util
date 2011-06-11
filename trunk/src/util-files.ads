@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Strings.Unbounded;
+with Util.Strings.Maps;
 package Util.Files is
 
    use Ada.Strings.Unbounded;
@@ -34,11 +35,26 @@ package Util.Files is
    procedure Write_File (Path    : in String;
                          Content : in Unbounded_String);
 
+   --  Iterate over the search directories defined in <b>Path</b> and execute
+   --  <b>Process</b> with each directory until it returns <b>True</b> in <b>Done</b>
+   --  or the last search directory is found.  Each search directory
+   --  is separated by ';' (yes, even on Unix).
+   procedure Iterate_Path (Path   : in String;
+                           Process : not null access procedure (Dir  : in String;
+                                                                Done : out Boolean));
+
    --  Find the file in one of the search directories.  Each search directory
    --  is separated by ';' (yes, even on Unix).
    --  Returns the path to be used for reading the file.
    function Find_File_Path (Name  : String;
                             Paths : String) return String;
+
+   --  Find the files which match the pattern in the directories specified in the
+   --  search path <b>Path</b>.  Each search directory is separated by ';'.
+   --  File names are added to the string set in <b>Into</b>.
+   procedure Find_Files_Path (Pattern : in String;
+                              Path    : in String;
+                              Into    : in out Util.Strings.Maps.Map);
 
    --  Returns the name of the external file with the specified directory
    --  and the name.  Unlike the Ada.Directories.Compose, the name can represent
