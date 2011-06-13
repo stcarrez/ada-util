@@ -45,7 +45,7 @@ package body Util.Texts.Formats is
                   N := N * 10 + Natural (C - Character'Pos ('0'));
                   Pos := Pos + 1;
                elsif C = Character'Pos ('}') then
-                  if N > Arguments'Length then
+                  if N >= Arguments'Length then
                      Put (Into, '{');
                      Pos := Old_Pos;
                   else
