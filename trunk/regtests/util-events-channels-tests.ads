@@ -18,12 +18,13 @@
 
 with AUnit.Test_Suites;
 with AUnit.Test_Fixtures;
+with Util.Tests;
 
 package Util.Events.Channels.Tests is
 
    procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite);
 
-   type Test is new AUnit.Test_Fixtures.Test_Fixture
+   type Test is new Util.Tests.Test
      and Util.Events.Channels.Subscriber with record
       Count : Natural := 0;
    end record;

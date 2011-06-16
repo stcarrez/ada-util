@@ -139,11 +139,11 @@ package body Util.Log.Tests is
             Id   : constant String := Fixed.Trim (Integer'Image (I), Both);
             Path : constant String := "test" & Id & ".log";
          begin
-            Assert (T, Ada.Directories.Exists (Path), "Log file " & Path & " not found");
+            T.Assert (Ada.Directories.Exists (Path), "Log file " & Path & " not found");
             if I > 5 then
-               Assert (T, Ada.Directories.Size (Path) < 100, "Log file " & Path & " should be empty");
+               T.Assert (Ada.Directories.Size (Path) < 100, "Log file " & Path & " should be empty");
             else
-               Assert (T, Ada.Directories.Size (Path) > 100, "Log file " & Path & " is empty");
+               T.Assert (Ada.Directories.Size (Path) > 100, "Log file " & Path & " is empty");
             end if;
          end;
       end loop;

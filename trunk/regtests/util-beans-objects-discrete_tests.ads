@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Discrete_Tests - Generic simple test for discrete object types
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
 -----------------------------------------------------------------------
 
 with AUnit.Test_Suites; use AUnit.Test_Suites;
-with AUnit.Test_Fixtures;
+with Util.Tests;
 
 generic
    type Test_Type is private;
@@ -31,7 +31,7 @@ generic
    Test_Values : String;
 package Util.Beans.Objects.Discrete_Tests is
 
-   type Test is new AUnit.Test_Fixtures.Test_Fixture with record
+   type Test is new Util.Tests.Test with record
       I1 : Integer;
       I2 : Integer;
    end record;
