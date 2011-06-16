@@ -110,20 +110,20 @@ package body Util.Serialize.IO.XML.Tests is
                            & "<status>1</status></node></info>");
       Assert_Equals (T, "A", Result.Name, "Invalid name");
       Assert_Equals (T, 2, Result.Value, "Invalid value");
-      Assert (T, Result.Bool, "Invalid boolean");
+      T.Assert (Result.Bool, "Invalid boolean");
 
       --  Another extraction.
       Reader.Parse_String ("<info><node><name>B</name><value>20</value>"
                            & "<status>0</status></node></info>");
       Assert_Equals (T, "B", Result.Name, "Invalid name");
       Assert_Equals (T, 20, Result.Value, "Invalid value");
-      Assert (T, not Result.Bool, "Invalid boolean");
+      T.Assert (not Result.Bool, "Invalid boolean");
 
       --  Another extraction using attribute mappings.
       Reader.Parse_String ("<info><node id='23' bool='true'><name>TOTO</name></node></info>");
       Assert_Equals (T, "TOTO", Result.Name, "Invalid name");
       Assert_Equals (T, 23, Result.Value, "Invalid value");
-      Assert (T, Result.Bool, "Invalid boolean");
+      T.Assert (Result.Bool, "Invalid boolean");
 
    end Test_Parser;
 

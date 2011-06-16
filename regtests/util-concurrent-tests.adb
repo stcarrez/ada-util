@@ -295,7 +295,7 @@ package body Util.Concurrent.Tests is
       --  We can't predict the exact value for string after the rotation passes.
       --  At least, we must have one of the following values (when using an unprotected
       --  copy, the string value contains garbage).
-      Assert (T, D.Get.S = "0123456789" or D.Get.S = "1234567890" or
+      T.Assert (D.Get.S = "0123456789" or D.Get.S = "1234567890" or
                 D.Get.S = "2345678901" or D.Get.S = "3456789012" or
                   D.Get.S = "4567890123" or D.Get.S = "5678901234" or
                     D.Get.S = "6789012345" or D.Get.S = "7890123456" or

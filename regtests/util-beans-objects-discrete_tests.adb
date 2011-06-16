@@ -26,6 +26,7 @@ package body Util.Beans.Objects.Discrete_Tests is
 
    use Ada.Strings.Fixed;
    use Ada.Containers;
+   use Util.Tests;
 
    procedure Test_Eq (T : Test; V : String; N : Test_Type);
    procedure Test_Conversion (T : Test; V : String; N : Test_Type);
@@ -80,7 +81,7 @@ package body Util.Beans.Objects.Discrete_Tests is
    --  ------------------------------
    --  Test Util.Beans.Objects.Hash
    --  ------------------------------
-    procedure Test_Hash (T : in out Test) is
+   procedure Test_Hash (T : in out Test) is
       pragma Unmodified (T);
 
       Pos, Next   : Natural;
@@ -114,7 +115,7 @@ package body Util.Beans.Objects.Discrete_Tests is
       end loop;
 
       Ada.Text_IO.Put_Line ("Found " & Natural'Image (Nb_Hash) & " hash values");
-      Assert (T, Nb_Hash > 1, "Only one hash value found");
+      T.Assert (Nb_Hash > 1, "Only one hash value found");
    end Test_Hash;
 
    --  ------------------------------
