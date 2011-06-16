@@ -34,6 +34,10 @@ package body Util.Serialize.IO.XML is
    --  The logger
    Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.IO.XML");
 
+   --  Return the location where the exception was raised.
+   function Get_Location (Except : Sax.Exceptions.Sax_Parse_Exception'Class)
+                          return String is separate;
+
    --  ------------------------------
    --  Warning
    --  ------------------------------
@@ -42,7 +46,7 @@ package body Util.Serialize.IO.XML is
                       Except  : Sax.Exceptions.Sax_Parse_Exception'Class) is
       pragma Warnings (Off, Handler);
    begin
-      Log.Warn ("{0}: {1}", To_String (Get_Locator (Except)), Get_Message (Except));
+      Log.Warn ("{0}: {1}", Get_Location (Except), Get_Message (Except));
    end Warning;
 
    --  ------------------------------
@@ -53,7 +57,7 @@ package body Util.Serialize.IO.XML is
                     Except  : in Sax.Exceptions.Sax_Parse_Exception'Class) is
       pragma Warnings (Off, Handler);
    begin
-      Log.Error ("{0}: {1}", To_String (Get_Locator (Except)), Get_Message (Except));
+      Log.Error ("{0}: {1}", Get_Location (Except), Get_Message (Except));
    end Error;
 
    --  ------------------------------
@@ -64,7 +68,7 @@ package body Util.Serialize.IO.XML is
                           Except  : in Sax.Exceptions.Sax_Parse_Exception'Class) is
       pragma Unreferenced (Handler);
    begin
-      Log.Error ("{0}: {1}", To_String (Get_Locator (Except)), Get_Message (Except));
+      Log.Error ("{0}: {1}", Get_Location (Except), Get_Message (Except));
    end Fatal_Error;
 
    --  ------------------------------

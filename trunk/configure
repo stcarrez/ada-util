@@ -556,6 +556,7 @@ PACKAGE_URL=
 ac_unique_file="src/util.ads"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+UTIL_XML_VERSION
 UTIL_XML_DIR
 WITH_XML_ADA
 UTIL_ASM_DIR
@@ -2943,6 +2944,15 @@ case $ac_xml_version in
 $as_echo "$ac_xml_version" >&6; }
       WITH_XML_ADA="with \"xmlada\";";
       UTIL_XML_DIR='src/xml';
+      UTIL_XML_VERSION='3';
+      ;;
+
+  XmlAda-4.*)
+      { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_xml_version" >&5
+$as_echo "$ac_xml_version" >&6; }
+      WITH_XML_ADA="with \"xmlada\";";
+      UTIL_XML_DIR='src/xml';
+      UTIL_XML_VERSION='4';
       ;;
 
   *)
@@ -2956,6 +2966,7 @@ esac
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${WITH_XML}" >&5
 $as_echo "${WITH_XML}" >&6; }
+
 
 
 
