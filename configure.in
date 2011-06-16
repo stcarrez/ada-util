@@ -91,6 +91,14 @@ case $ac_xml_version in
       AC_MSG_RESULT($ac_xml_version)
       WITH_XML_ADA="with \"xmlada\";";
       UTIL_XML_DIR='src/xml';
+      UTIL_XML_VERSION='3';
+      ;;
+
+  XmlAda-4.*)
+      AC_MSG_RESULT($ac_xml_version)
+      WITH_XML_ADA="with \"xmlada\";";
+      UTIL_XML_DIR='src/xml';
+      UTIL_XML_VERSION='4';
       ;;
 
   *)
@@ -104,6 +112,7 @@ esac
 AC_MSG_RESULT(${WITH_XML})
 AC_SUBST(WITH_XML_ADA)
 AC_SUBST(UTIL_XML_DIR)
+AC_SUBST(UTIL_XML_VERSION)
 
 AC_OUTPUT(
 Makefile util.gpr

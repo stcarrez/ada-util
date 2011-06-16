@@ -5,8 +5,24 @@ project Util is
    Version := "@UTIL_VERSION@";
    Library_Dir := "@UTIL_LIBDIR@";
 
+   type Xml_Version_Type is ("3", "4");
+
+   Xml_Version : Xml_Version_Type := "@UTIL_XML_VERSION@";
    Xml_Src_Dir := "@UTIL_XML_DIR@";
    Asm_Src_Dir := "@UTIL_ASM_DIR@";
+
+   package Naming is
+      case Xml_Version is
+         when "4" =>
+            for Implementation ("Util.Serialize.IO.XML.Get_Location")
+               use "util-serialize-io-xml-get_location-xmlada-4.adb";
+
+         when "3" =>
+            for Implementation ("Util.Serialize.IO.XML.Get_Location")
+               use "util-serialize-io-xml-get_location-xmlada-3.adb";
+
+      end case;
+   end Naming;
 
    for Source_Dirs use ("src", Asm_Src_Dir, Xml_Src_Dir);
 

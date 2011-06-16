@@ -86,6 +86,10 @@ package Util.Serialize.IO.XML is
    --  Terminates a XML array.
    procedure End_Array (Stream : in out Output_Stream);
 
+   --  Return the location where the exception was raised.
+   function Get_Location (Except : Sax.Exceptions.Sax_Parse_Exception'Class)
+                          return String;
+
 private
 
    overriding
