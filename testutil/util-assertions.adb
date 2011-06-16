@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with AUnit.Assertions;
 package body Util.Assertions is
 
    --  ------------------------------
@@ -28,13 +29,13 @@ package body Util.Assertions is
                               Source  : in String := GNAT.Source_Info.File;
                               Line    : in Natural := GNAT.Source_Info.Line) is
    begin
-      T.Assert (Condition => Expect = Value,
-                Message   => Message & ": expecting '"
-                & Value_Type'Image (Expect) & "'"
-                & " value was '"
-                & Value_Type'Image (Value) & "'",
-                Source    => Source,
-                Line      => Line);
+      AUnit.Assertions.Assert (Condition => Expect = Value,
+                               Message   => Message & ": expecting '"
+                               & Value_Type'Image (Expect) & "'"
+                               & " value was '"
+                               & Value_Type'Image (Value) & "'",
+                               Source    => Source,
+                               Line      => Line);
    end Assert_Equals_T;
 
 end Util.Assertions;
