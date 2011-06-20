@@ -169,6 +169,7 @@ package body Util.Serialize.IO.XML is
          Set_Unbounded_String (Handler.Text, "");
       else
          Log.Debug ("Close object {0}", Local_Name);
+         Handler.Handler.Set_Member (Local_Name, Util.Beans.Objects.To_Object (Handler.Text));
       end if;
    end End_Element;
 
