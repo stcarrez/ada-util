@@ -28,6 +28,8 @@ package Util.Serialize.IO.XML.Tests is
    --  Test XML de-serialization
    procedure Test_Parser (T : in out Test);
 
+   procedure Test_Parser2 (T : in out Test);
+
    --  Test XML serialization
    procedure Test_Writer (T : in out Test);
 
