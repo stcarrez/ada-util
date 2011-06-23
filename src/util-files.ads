@@ -43,6 +43,17 @@ package Util.Files is
                            Process : not null access procedure (Dir  : in String;
                                                                 Done : out Boolean));
 
+   --  Iterate over the search directories defined in <b>Path</b> and search
+   --  for files matching the pattern defined by <b>Pattern</b>.  For each file,
+   --  execute <b>Process</b> with the file basename and the full file path.
+   --  Stop iterating when the <b>Process</b> procedure returns True.
+   --  Each search directory is separated by ';'.
+   procedure Iterate_Files_Path (Pattern : in String;
+                                 Path    : in String;
+                                 Process : not null access procedure (Name : in String;
+                                                                      File : in String;
+                                                                      Done : out Boolean));
+
    --  Find the file in one of the search directories.  Each search directory
    --  is separated by ';' (yes, even on Unix).
    --  Returns the path to be used for reading the file.

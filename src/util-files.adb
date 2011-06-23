@@ -180,13 +180,17 @@ package body Util.Files is
    end Find_File_Path;
 
    --  ------------------------------
-   --  Find the files which match the pattern in the directories specified in the
-   --  search path <b>Path</b>.  Each search directory is separated by ';'.
-   --  File names are added to the string set in <b>Into</b>.
+   --  Iterate over the search directories defined in <b>Path</b> and search
+   --  for files matching the pattern defined by <b>Pattern</b>.  For each file,
+   --  execute <b>Process</b> with the file basename and the full file path.
+   --  Stop iterating when the <b>Process</b> procedure returns True.
+   --  Each search directory is separated by ';'.
    --  ------------------------------
-   procedure Find_Files_Path (Pattern : in String;
-                              Path    : in String;
-                              Into    : in out Util.Strings.Maps.Map) is
+   procedure Iterate_Files_Path (Pattern : in String;
+                                 Path    : in String;
+                                 Process : not null access procedure (Name : in String;
+                                                                      File : in String;
+                                                                      Done : out Boolean)) is
 
       procedure Find_Files (Dir : in String;
                             Done : out Boolean);
@@ -202,6 +206,7 @@ package body Util.Files is
          Ent     : Directory_Entry_Type;
          Search  : Search_Type;
       begin
+         Done := False;
          Start_Search (Search, Directory => Dir,
                        Pattern => Pattern, Filter => Filter);
          while More_Entries (Search) loop
@@ -210,16 +215,44 @@ package body Util.Files is
                Name      : constant String := Simple_Name (Ent);
                File_Path : constant String := Full_Name (Ent);
             begin
-               if not Into.Contains (Name) then
-                  Into.Insert (Name, File_Path);
-               end if;
+               Process (Name, File_Path, Done);
+               exit when Done;
             end;
          end loop;
-         Done := False;
       end Find_Files;
 
    begin
       Iterate_Path (Path => Path, Process => Find_Files'Access);
+   end Iterate_Files_Path;
+
+   --  ------------------------------
+   --  Find the files which match the pattern in the directories specified in the
+   --  search path <b>Path</b>.  Each search directory is separated by ';'.
+   --  File names are added to the string set in <b>Into</b>.
+   --  ------------------------------
+   procedure Find_Files_Path (Pattern : in String;
+                              Path    : in String;
+                              Into    : in out Util.Strings.Maps.Map) is
+
+      procedure Add_File (Name : in String;
+                          File_Path : in String;
+                          Done : out Boolean);
+
+      --  ------------------------------
+      --  Find the files matching the pattern in <b>Dir</b>.
+      --  ------------------------------
+      procedure Add_File (Name : in String;
+                          File_Path : in String;
+                          Done      : out Boolean) is
+      begin
+         if not Into.Contains (Name) then
+            Into.Insert (Name, File_Path);
+         end if;
+         Done := False;
+      end Add_File;
+
+   begin
+      Iterate_Files_Path (Pattern => Pattern, Path => Path, Process => Add_File'Access);
    end Find_Files_Path;
 
    --  ------------------------------
