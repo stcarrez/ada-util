@@ -24,7 +24,8 @@ package body Util.Serialize.Mappers is
    use Util.Log;
 
    --  The logger
-   Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.Mappers");
+   Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.Mappers",
+                                                    Util.Log.WARN_LEVEL);
 
    --  -----------------------
    --  Execute the mapping operation on the object associated with the current context.

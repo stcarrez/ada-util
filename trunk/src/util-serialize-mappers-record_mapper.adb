@@ -25,7 +25,8 @@ package body Util.Serialize.Mappers.Record_Mapper is
    Key : Util.Serialize.Contexts.Data_Key;
 
    --  The logger
-   Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.Mappers.Record_Mapper");
+   Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.Mappers.Record_Mapper",
+                                                    Util.Log.WARN_LEVEL);
 
    --  -----------------------
    --  Get the element object.

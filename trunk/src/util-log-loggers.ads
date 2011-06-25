@@ -36,6 +36,10 @@ package Util.Log.Loggers is
    --  Create a logger with the given name.
    function Create (Name : in String) return Logger;
 
+   --  Create a logger with the given name and use the specified level.
+   function Create (Name  : in String;
+                    Level : in Level_Type) return Logger;
+
    --  Initialize the logger and create a logger with the given name.
    function Create (Name   : in String;
                     Config : in String) return Logger;
