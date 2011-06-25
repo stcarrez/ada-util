@@ -390,6 +390,18 @@ package body Util.Log.Loggers is
                       Instance => Log);
    end Create;
 
+   --  Create a logger with the given name and use the specified level.
+   function Create (Name  : in String;
+                    Level : in Level_Type) return Logger is
+      Log : Logger_Info_Access;
+   begin
+      Manager.Create (Name, Log);
+      Log.Level := Level;
+      return Logger '(Ada.Finalization.Limited_Controlled with
+                      Name     => To_Unbounded_String (Name),
+                      Instance => Log);
+   end Create;
+
    --  ------------------------------
    --  Initialize the logger and create a logger with the given name.
    --  ------------------------------
