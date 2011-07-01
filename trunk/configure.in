@@ -105,6 +105,7 @@ case $ac_xml_version in
       AC_MSG_RESULT(no)
       WITH_XML_ADA='';
       UTIL_XML_DIR='src';
+      UTIL_XML_VERSION='none';
       ;;
 
 esac
