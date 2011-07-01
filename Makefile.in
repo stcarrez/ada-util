@@ -116,8 +116,8 @@ install:
 	if test T${ASM_SRC_DIR} != T ; then \
 	   ${CP} ${ASM_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
 	fi
-	sed -e 's,INSTALL,$prefix,g' < distrib/util.gpr > ${projectdir}/util.gpr
-	sed -e 's,INSTALL,$prefix,g' < distrib/testutil.gpr > ${projectdir}/testutil.gpr
+	sed -e "s,INSTALL,${prefix},g" < distrib/util.gpr > ${projectdir}/util.gpr
+	sed -e "s,INSTALL,${prefix},g" < distrib/testutil.gpr > ${projectdir}/testutil.gpr
 	${CP} lib/testutil/*.ali ${alidir}/testutil
 	${CP} lib/util/*.ali ${alidir}/util
 	${CP} lib/util/libadautil.a ${libdir}/
