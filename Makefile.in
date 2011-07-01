@@ -1,7 +1,7 @@
 # You may edit this makefile as long as you keep these original 
 # target names defined.
 MODE=distrib
-GNATMAKE=gnatmake -XMODE=${MODE} -XPROCESSORS=4
+GNATMAKE=gnatmake
 GNATCLEAN=gnatclean
 GPRPATH=util.gpr
 SVN=svn
@@ -31,8 +31,8 @@ alidir=${prefix}/share/ada/adainclude
 
 # Build executables for all mains defined by the project.
 build:
-	$(GNATMAKE) -p -P "$(GPRPATH)"
-	$(GNATMAKE) -p -P "$(TESTUTIL_GPRPATH)"
+	$(GNATMAKE) -XMODE=${MODE} -XPROCESSORS=4 -p -P "$(GPRPATH)"
+	$(GNATMAKE) -XMODE=${MODE} -XPROCESSORS=4 -p -P "$(TESTUTIL_GPRPATH)"
 
 # Build and run the unit tests
 test:	build
