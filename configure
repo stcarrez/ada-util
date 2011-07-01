@@ -2960,6 +2960,7 @@ $as_echo "$ac_xml_version" >&6; }
 $as_echo "no" >&6; }
       WITH_XML_ADA='';
       UTIL_XML_DIR='src';
+      UTIL_XML_VERSION='none';
       ;;
 
 esac

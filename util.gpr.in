@@ -5,7 +5,7 @@ project Util is
    Version := "@UTIL_VERSION@";
    Library_Dir := "@UTIL_LIBDIR@";
 
-   type Xml_Version_Type is ("3", "4");
+   type Xml_Version_Type is ("none", "3", "4");
 
    Xml_Version : Xml_Version_Type := "@UTIL_XML_VERSION@";
    Xml_Src_Dir := "@UTIL_XML_DIR@";
@@ -20,6 +20,8 @@ project Util is
          when "3" =>
             for Implementation ("Util.Serialize.IO.XML.Get_Location")
                use "util-serialize-io-xml-get_location-xmlada-3.adb";
+
+	 when "none" =>
 
       end case;
    end Naming;
