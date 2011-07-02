@@ -37,7 +37,7 @@ build:
 # Build and run the unit tests
 test:	build
 	$(GNATMAKE) -p -Ptests
-	bin/util_harness
+	bin/util_harness -xml util-aunit.xml
 
 # Not intended for manual invocation.
 # Invoked if automatic builds are enabled.
