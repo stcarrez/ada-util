@@ -19,6 +19,7 @@ with GNAT.Command_Line;
 
 with AUnit.Options;
 with AUnit.Reporter.Text;
+with AUnit.Test_Results;
 with AUnit.Run;
 with AUnit.Assertions;
 
@@ -32,6 +33,7 @@ with Util.Strings;
 with Util.Measures;
 with Util.Files;
 with Util.Log.Loggers;
+with Util.Tests.Reporter;
 package body Util.Tests is
 
    use AUnit.Assertions;
@@ -263,8 +265,9 @@ package body Util.Tests is
       procedure Help is
       begin
          Put_Line ("Test harness: " & Name);
-         Put ("Usage: harness [-config file.properties] ");
+         Put ("Usage: harness [-xml result.xml] [-config file.properties] ");
          Put_Line ("[-update]");
+         Put_Line ("-xml file      Produce an XML test report");
          Put_Line ("-config file   Specify a test configuration file");
          Put_Line ("-update        Update the test reference files if a file");
          Put_Line ("               is missing or the test generates another output");
@@ -272,12 +275,13 @@ package body Util.Tests is
          Ada.Command_Line.Set_Exit_Status (2);
       end Help;
 
-      Reporter : AUnit.Reporter.Text.Text_Reporter;
       Perf     : aliased Util.Measures.Measure_Set;
       Result   : AUnit.Status;
+      XML      : Boolean := False;
+      Output   : Ada.Strings.Unbounded.Unbounded_String;
    begin
       loop
-         case Getopt ("hu c: config: update help") is
+         case Getopt ("hux: c: config: update help xml:") is
             when ASCII.NUL =>
                exit;
 
@@ -296,6 +300,10 @@ package body Util.Tests is
             when 'u' =>
                Update_Test_Files := True;
 
+            when 'x' =>
+               XML := True;
+               Output := To_Unbounded_String (Parameter);
+
             when others =>
                Help;
                return;
@@ -313,9 +321,23 @@ package body Util.Tests is
          S  : Util.Measures.Stamp;
          O  : AUnit.Options.AUnit_Options := AUnit.Options.Default_Options;
       begin
-         O.Global_Timer := True;
+         O.Global_Timer    := True;
+         O.Test_Case_Timer := True;
          Util.Measures.Set_Current (Perf'Unchecked_Access);
-         Result := Runner (Reporter, O);
+         if XML then
+            declare
+               Reporter : Util.Tests.Reporter.XML_Reporter;
+            begin
+               Reporter.File := Output;
+               Result := Runner (Reporter, O);
+            end;
+         else
+            declare
+               Reporter : AUnit.Reporter.Text.Text_Reporter;
+            begin
+               Result := Runner (Reporter, O);
+            end;
+         end if;
          Util.Measures.Report (Perf, S, "Testsuite execution");
          Util.Measures.Write (Perf, "Test measures", Name);
       end;
