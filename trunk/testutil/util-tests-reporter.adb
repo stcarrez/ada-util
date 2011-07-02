@@ -35,6 +35,8 @@ package body Util.Tests.Reporter is
    use type AUnit.Message_String;
    use Ada.Text_IO;
 
+   procedure Print_Summary (R : in out Result'Class);
+
    procedure Dump_Result_List (File : in Ada.Text_IO.File_Type;
                                L    : in Result_Lists.List);
    --  List failed assertions
@@ -93,10 +95,29 @@ package body Util.Tests.Reporter is
       Ada.Text_IO.Close (Output);
    end Report;
 
+   procedure Print_Summary (R : in out Result'Class) is
+      S_Count : constant Integer := Integer (Success_Count (R));
+      F_Count : constant Integer := Integer (Failure_Count (R));
+      E_Count : constant Integer := Integer (Error_Count (R));
+   begin
+      New_Line;
+      Put ("Total Tests Run:   ");
+      Put (Util.Strings.Image (Integer (Test_Count (R))));
+      New_Line;
+      Put ("Successful Tests:  ");
+      Put (Util.Strings.Image (S_Count));
+      New_Line;
+      Put ("Failed Assertions: ");
+      Put (Util.Strings.Image (F_Count));
+      New_Line;
+      Put ("Unexpected Errors: ");
+      Put (Util.Strings.Image (E_Count));
+      New_Line;
+   end Print_Summary;
+
    ------------
    -- Report --
    ------------
-
    procedure Report (Engine : XML_Reporter;
                      File   : in out Ada.Text_IO.File_Type;
                      R      : in out Result'Class)
@@ -133,6 +154,8 @@ package body Util.Tests.Reporter is
       else
          Put_Line (File, ">");
       end if;
+
+      Print_Summary (R);
 
       Put_Line (File, "  <Statistics>");
       Put      (File, "    <Tests>");
