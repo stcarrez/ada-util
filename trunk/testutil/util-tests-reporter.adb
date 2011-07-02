@@ -24,15 +24,15 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with AUnit.Time_Measure;
 with Util.Strings;
+with Util.Strings.Transforms;
 
 --  Very simple reporter to console
 package body Util.Tests.Reporter is
 
    use AUnit.Test_Results;
-   use AUnit.Time_Measure;
    use type AUnit.Message_String;
+   use type AUnit.Time_Measure.Time;
    use Ada.Text_IO;
 
    procedure Print_Summary (R : in out Result'Class);
@@ -127,11 +127,11 @@ package body Util.Tests.Reporter is
       procedure Put (I : in Integer);
       procedure Put (S : in String);
 
-      T   : AUnit_Duration;
+      T   : AUnit.Time_Measure.AUnit_Duration;
 
       procedure Put (I : in Integer) is
       begin
-         Ada.Text_IO.Put (File, Integer'Image (I));
+         Ada.Text_IO.Put (File, Util.Strings.Image (I));
       end Put;
 
       procedure Put (S : in String) is
@@ -146,7 +146,7 @@ package body Util.Tests.Reporter is
       Put      (File, "<TestRun");
 
       if Elapsed  (R) /= AUnit.Time_Measure.Null_Time then
-         T := Get_Measure (Elapsed (R));
+         T := AUnit.Time_Measure.Get_Measure (Elapsed (R));
 
          Put (File, " elapsed='");
          Put_Measure (T);
@@ -207,11 +207,13 @@ package body Util.Tests.Reporter is
    procedure Report_Test (File : in Ada.Text_IO.File_Type;
                           Test : in Test_Result) is
 
+      use Util.Strings.Transforms;
+
       procedure Put (I : in Integer);
       procedure Put (S : in String);
 
       Is_Assert : Boolean;
-      T : AUnit_Duration;
+      T : AUnit.Time_Measure.AUnit_Duration;
 
       procedure Put (I : in Integer) is
       begin
@@ -228,7 +230,7 @@ package body Util.Tests.Reporter is
    begin
       Put (File, "    <Test");
       if Test.Elapsed /= AUnit.Time_Measure.Null_Time then
-         T := Get_Measure (Test.Elapsed);
+         T := AUnit.Time_Measure.Get_Measure (Test.Elapsed);
 
          Put (File, " elapsed='");
          Put_Measure (T);
@@ -237,11 +239,11 @@ package body Util.Tests.Reporter is
          Put_Line (File, ">");
       end if;
       Put      (File, "      <Name>");
-      Put      (File, Test.Test_Name.all);
+      Put      (File, Escape_Xml (Test.Test_Name.all));
 
       if Test.Routine_Name /= null then
          Put (File, " : ");
-         Put (File, Test.Routine_Name.all);
+         Put (File, Escape_Xml (Test.Routine_Name.all));
       end if;
 
       Put_Line (File, "</Name>");
@@ -264,7 +266,7 @@ package body Util.Tests.Reporter is
          Put_Line (File, "</FailureType>");
          Put      (File, "      <Message>");
          if Is_Assert then
-            Put   (File, Test.Failure.Message.all);
+            Put   (File, Escape_Xml (Test.Failure.Message.all));
          else
             Put   (File, Test.Error.Exception_Name.all);
          end if;
@@ -273,7 +275,7 @@ package body Util.Tests.Reporter is
          if Is_Assert then
             Put_Line (File, "      <Location>");
             Put      (File, "        <File>");
-            Put      (File, Test.Failure.Source_Name.all);
+            Put      (File, Escape_XML (Test.Failure.Source_Name.all));
             Put_Line (File, "</File>");
             Put      (File, "        <Line>");
             Put      (File, Test.Failure.Line);
@@ -288,13 +290,13 @@ package body Util.Tests.Reporter is
 
             if Test.Error.Exception_Message /= null then
                Put      (File, "      <Information>");
-               Put      (File, Test.Error.Exception_Message.all);
+               Put      (File, Escape_Xml (Test.Error.Exception_Message.all));
                Put_Line (File, "</Information>");
             end if;
 
             if Test.Error.Traceback /= null then
                Put      (File, "      <Traceback>");
-               Put      (File, Test.Error.Traceback.all);
+               Put      (File, Escape_Xml (Test.Error.Traceback.all));
                Put_Line (File, "</Traceback>");
             end if;
 
