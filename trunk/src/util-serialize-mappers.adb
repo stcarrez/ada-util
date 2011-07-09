@@ -179,7 +179,11 @@ package body Util.Serialize.Mappers is
       if Node.Mapper /= null then
          Log.Warn ("Overriding the mapping {0} for mapper X", Path);
       end if;
-      Copy (Node, Map.First_Child);
+      if Map.First_Child /= null then
+         Copy (Node, Map.First_Child);
+      else
+         Node.Mapper := Map;
+      end if;
    end Add_Mapping;
 
    procedure Add_Mapping (Into : in out Mapper;
