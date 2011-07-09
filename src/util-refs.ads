@@ -55,13 +55,13 @@ package Util.Refs is
    procedure Finalize (Object : in out Ref_Entity) is null;
 
    generic
-      type Element_Type is new Ref_Entity with private;
+      type Element_Type (<>) is new Ref_Entity with private;
       type Element_Access is access all Element_Type;
-   package References is
+   package Indefinite_References is
       type Ref is new Ada.Finalization.Controlled with private;
 
       --  Create an element and return a reference to that element.
-      function Create return Ref;
+      function Create (Value : in Element_Access) return Ref;
 
       --  Get the element access value.
       function Value (Object : in Ref'Class) return Element_Access;
@@ -104,6 +104,39 @@ package Util.Refs is
       --  Update the reference counter after an assignment.
       overriding
       procedure Adjust (Obj : in out Ref);
+
+   end Indefinite_References;
+
+   generic
+      type Element_Type is new Ref_Entity with private;
+      type Element_Access is access all Element_Type;
+   package References is
+      package IR is new Indefinite_References (Element_Type, Element_Access);
+
+      subtype Ref is IR.Ref;
+
+      --  Create an element and return a reference to that element.
+      function Create return Ref;
+
+      --  Get the element access value.
+      function Value (Object : in Ref'Class) return Element_Access
+                      renames IR.Value;
+
+      --  Returns true if the reference does not contain any element.
+      function Is_Null (Object : in Ref'Class) return Boolean
+                        renames IR.Is_Null;
+
+      --  The <b>Atomic_Ref</b> protected type defines a reference to an
+      --  element which can be obtained and changed atomically.  The default
+      --  Ada construct:
+      --
+      --     Ref1 := Ref2;
+      --
+      --  does not guarantee atomicity of the copy (assignment) and the increment
+      --  of the reference counter (Adjust operation).  To replace shared reference
+      --  by another one, the whole assignment and Adjust have to be protected.
+      --  This is achieved by this protected type through the <b>Get</b> and <b>Set</b>
+      subtype Atomic_Ref is IR.Atomic_Ref;
 
    end References;
 
