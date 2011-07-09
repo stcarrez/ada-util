@@ -100,6 +100,10 @@ package Util.Serialize.Mappers.Record_Mapper is
                           Map   : in Util.Serialize.Mappers.Mapper_Access;
                           Proxy : in Proxy_Object);
 
+   --  Clone the <b>Handler</b> instance and get a copy of that single object.
+   overriding
+   function Clone (Handler : in Mapper) return Util.Serialize.Mappers.Mapper_Access;
+
    --
    procedure Bind (Into    : in out Mapper;
                    Getter  : in Get_Member_Access);
