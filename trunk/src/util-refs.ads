@@ -118,14 +118,6 @@ package Util.Refs is
       --  Create an element and return a reference to that element.
       function Create return Ref;
 
-      --  Get the element access value.
-      function Value (Object : in Ref'Class) return Element_Access
-                      renames IR.Value;
-
-      --  Returns true if the reference does not contain any element.
-      function Is_Null (Object : in Ref'Class) return Boolean
-                        renames IR.Is_Null;
-
       --  The <b>Atomic_Ref</b> protected type defines a reference to an
       --  element which can be obtained and changed atomically.  The default
       --  Ada construct:
