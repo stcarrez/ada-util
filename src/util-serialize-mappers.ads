@@ -15,10 +15,12 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Util.Beans.Objects;
 with Ada.Strings.Unbounded;
-with Util.Serialize.Contexts;
 with Ada.Finalization;
+
+with Util.Beans.Objects;
+with Util.Log.Loggers;
+with Util.Serialize.Contexts;
 package Util.Serialize.Mappers is
 
    Mapping_Error : exception;
@@ -58,6 +60,9 @@ package Util.Serialize.Mappers is
                           Path : in String;
                           Map  : in Mapper_Access);
 
+   --  Clone the <b>Handler</b> instance and get a copy of that single object.
+   function Clone (Handler : in Mapper) return Mapper_Access;
+
    --  Set the name/value pair on the current object.  For each active mapping,
    --  find whether a rule matches our name and execute it.
    procedure Set_Member (Handler   : in Mapper;
@@ -85,6 +90,11 @@ package Util.Serialize.Mappers is
 
    procedure Iterate (Controller : in Mapper;
                       Process : not null access procedure (Map : in Mapper'Class));
+
+   --  Dump the mapping tree on the logger using the INFO log level.
+   procedure Dump (Handler : in Mapper'Class;
+                   Log     : in Util.Log.Loggers.Logger'Class;
+                   Prefix  : in String := "");
 
 private
    --  Find a path component representing a child mapper under <b>From</b> and
@@ -115,6 +125,7 @@ private
       Mapping      : Mapping_Access := null;
       Name         : Ada.Strings.Unbounded.Unbounded_String;
       Is_Proxy_Mapper : Boolean := False;
+      Is_Clone        : Boolean := False;
    end record;
 
    --  Finalize the object and release any mapping.

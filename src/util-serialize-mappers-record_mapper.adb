@@ -239,6 +239,21 @@ package body Util.Serialize.Mappers.Record_Mapper is
       Handler.Iterate (Write'Access);
    end Write;
 
+   --  -----------------------
+   --  Clone the <b>Handler</b> instance and get a copy of that single object.
+   --  -----------------------
+   function Clone (Handler : in Mapper) return Util.Serialize.Mappers.Mapper_Access is
+      Result : Mapper_Access := new Mapper;
+   begin
+      Result.Name            := Handler.Name;
+      Result.Mapper          := Handler.Mapper;
+      Result.Mapping         := Handler.Mapping;
+      Result.Is_Proxy_Mapper := Handler.Is_Proxy_Mapper;
+      Result.Get_Member      := Handler.Get_Member;
+      Result.Execute         := Handler.Execute;
+      return Result.all'Access;
+   end Clone;
+
 begin
    --  Allocate the unique data key.
    Util.Serialize.Contexts.Allocate (Key);

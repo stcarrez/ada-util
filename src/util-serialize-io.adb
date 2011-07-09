@@ -212,4 +212,13 @@ package body Util.Serialize.IO is
       Handler.Mapping_Tree.Add_Mapping (Path, Mapper);
    end Add_Mapping;
 
+   --  ------------------------------
+   --  Dump the mapping tree on the logger using the INFO log level.
+   --  ------------------------------
+   procedure Dump (Handler : in Parser'Class;
+                   Log     : in Util.Log.Loggers.Logger'Class) is
+   begin
+      Util.Serialize.Mappers.Dump (Handler.Mapping_Tree, Log, "Mapping ");
+   end Dump;
+
 end Util.Serialize.IO;

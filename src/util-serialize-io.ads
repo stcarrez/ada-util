@@ -15,12 +15,14 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Ada.Containers;
+
 with Util.Beans.Objects;
 with Util.Streams;
 with Util.Streams.Buffered;
 with Util.Serialize.Contexts;
 with Util.Serialize.Mappers;
-with Ada.Containers;
+with Util.Log.Loggers;
 with Util.Stacks;
 package Util.Serialize.IO is
 
@@ -102,6 +104,10 @@ package Util.Serialize.IO is
    procedure Add_Mapping (Handler : in out Parser;
                           Path    : in String;
                           Mapper  : in Util.Serialize.Mappers.Mapper_Access);
+
+   --  Dump the mapping tree on the logger using the INFO log level.
+   procedure Dump (Handler : in Parser'Class;
+                   Log     : in Util.Log.Loggers.Logger'Class);
 
 private
 

@@ -149,6 +149,24 @@ package body Util.Serialize.Mappers is
                           Map  : in Mapper_Access) is
       Node     : Mapper_Access;
       Last_Pos : Natural;
+
+      procedure Copy (To   : in Mapper_Access;
+                      From : in Mapper_Access) is
+         N   : Mapper_Access;
+         Src : Mapper_Access := From;
+      begin
+         while Src /= null loop
+            N := Src.Clone;
+            N.Is_Clone := True;
+            N.Next_Mapping := To.First_Child;
+            To.First_Child := N;
+            if Src.First_Child /= null then
+               Copy (N, Src.First_Child);
+            end if;
+            Src := Src.Next_Mapping;
+         end loop;
+      end Copy;
+
    begin
       Log.Info ("Mapping {0} for mapper X", Path);
 
@@ -161,7 +179,7 @@ package body Util.Serialize.Mappers is
       if Node.Mapper /= null then
          Log.Warn ("Overriding the mapping {0} for mapper X", Path);
       end if;
-      Node.Mapper := Map;
+      Copy (Node, Map.First_Child);
    end Add_Mapping;
 
    procedure Add_Mapping (Into : in out Mapper;
@@ -196,6 +214,20 @@ package body Util.Serialize.Mappers is
    end Add_Mapping;
 
    --  -----------------------
+   --  Clone the <b>Handler</b> instance and get a copy of that single object.
+   --  -----------------------
+   function Clone (Handler : in Mapper) return Mapper_Access is
+      Result : constant Mapper_Access := new Mapper;
+   begin
+      Result.Name            := Handler.Name;
+      Result.Mapper          := Handler.Mapper;
+      Result.Mapping         := Handler.Mapping;
+      Result.Is_Proxy_Mapper := Handler.Is_Proxy_Mapper;
+      Result.Is_Clone        := True;
+      return Result;
+   end Clone;
+
+   --  -----------------------
    --  Set the name/value pair on the current object.  For each active mapping,
    --  find whether a rule matches our name and execute it.
    --  -----------------------
@@ -228,6 +260,31 @@ package body Util.Serialize.Mappers is
          Handler.Mapper.Finish_Object (Context, Name);
       end if;
    end Finish_Object;
+
+   --  -----------------------
+   --  Dump the mapping tree on the logger using the INFO log level.
+   --  -----------------------
+   procedure Dump (Handler : in Mapper'Class;
+                   Log     : in Util.Log.Loggers.Logger'Class;
+                   Prefix  : in String := "") is
+      procedure Dump (Map : in Mapper'Class);
+
+      --  -----------------------
+      --  Dump the mapping description
+      --  -----------------------
+      procedure Dump (Map : in Mapper'Class) is
+      begin
+         if Map.Mapping /= null and then Map.Mapping.Is_Attribute then
+            Log.Info (" {0}@{1}", Prefix,
+                      Ada.Strings.Unbounded.To_String (Map.Mapping.Name));
+         else
+            Log.Info (" {0}/{1}", Prefix, Ada.Strings.Unbounded.To_String (Map.Name));
+            Dump (Map, Log, Prefix & "/" & Ada.Strings.Unbounded.To_String (Map.Name));
+         end if;
+      end Dump;
+   begin
+      Iterate (Handler, Dump'Access);
+   end Dump;
 
    procedure Iterate (Controller : in Mapper;
                       Process : not null access procedure (Map : in Mapper'Class)) is
@@ -268,7 +325,11 @@ package body Util.Serialize.Mappers is
          Free (Node);
          Node := Next;
       end loop;
-      Free (Controller.Mapping);
+      if not Controller.Is_Clone then
+         Free (Controller.Mapping);
+      else
+         Controller.Mapping := null;
+      end if;
    end Finalize;
 
 end Util.Serialize.Mappers;
