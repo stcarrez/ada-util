@@ -19,15 +19,14 @@
 with Ada.Unchecked_Deallocation;
 package body Util.Refs is
 
-   package body References is
+   package body Indefinite_References is
 
-      --  ------------------------------
       --  Create an element and return a reference to that element.
-      --  ------------------------------
-      function Create return Ref is
+      function Create (Value : in Element_Access) return Ref is
+         Result : Ref;
       begin
          return Result : Ref do
-            Result.Target := new Element_Type;
+            Result.Target := Value;
             Result.Target.Ref_Counter := Util.Concurrent.Counters.ONE;
          end return;
       end Create;
@@ -101,6 +100,17 @@ package body Util.Refs is
          end if;
       end Adjust;
 
+   end Indefinite_References;
+
+   package body References is
+
+      --  ------------------------------
+      --  Create an element and return a reference to that element.
+      --  ------------------------------
+      function Create return Ref is
+      begin
+         return IR.Create (new Element_Type);
+      end Create;
    end References;
 
 end Util.Refs;
