@@ -258,8 +258,6 @@ package body Util.Tests is
       use GNAT.Command_Line;
       use Ada.Text_IO;
 
-      function Runner is new AUnit.Run.Test_Runner_With_Status (Suite);
-
       procedure Help;
 
       procedure Help is
@@ -318,6 +316,9 @@ package body Util.Tests is
       Initialize (Test_Properties);
 
       declare
+
+         function Runner is new AUnit.Run.Test_Runner_With_Status (Suite);
+
          S  : Util.Measures.Stamp;
          O  : AUnit.Options.AUnit_Options := AUnit.Options.Default_Options;
       begin
