@@ -18,6 +18,7 @@
 
 with AUnit.Test_Suites;
 with AUnit.Test_Fixtures;
+with AUnit.Assertions;
 with Ada.Strings.Unbounded;
 with Ada.Calendar;
 
@@ -50,7 +51,7 @@ package Util.Tests is
 
    --  Check that two files are equal.  This is intended to be used by
    --  tests that create files that are then checked against patterns.
-   procedure Assert_Equal_Files (T       : in Test'Class;
+   procedure Assert_Equal_Files (T       : in AUnit.Assertions.Test'Class;
                                  Expect  : in String;
                                  Test    : in String;
                                  Message : in String := "Test failed";
