@@ -76,6 +76,7 @@ package body Util.Serialize.Contexts is
             if Old = Content then
                return;
             end if;
+            Old.Finalize;
             Free (Old);
          end;
          Ctx.Data.Replace_Element (Position => Pos, New_Item => Content);
@@ -96,6 +97,7 @@ package body Util.Serialize.Contexts is
          Pos := Ctx.Data.First;
          exit when not Data_Map.Has_Element (Pos);
          Content := Data_Map.Element (Pos);
+         Content.Finalize;
          Free (Content);
          Ctx.Data.Delete (Pos);
       end loop;

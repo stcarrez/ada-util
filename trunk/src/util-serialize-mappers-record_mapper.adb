@@ -15,6 +15,8 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Ada.Unchecked_Deallocation;
+
 with Util.Serialize.Contexts;
 with Util.Strings.Transforms;
 with Util.Log.Loggers;
@@ -37,13 +39,31 @@ package body Util.Serialize.Mappers.Record_Mapper is
    end Get_Element;
 
    --  -----------------------
-   --  Set the element object.
+   --  Set the element object.  When <b>Release</b> is set, the element <b>Element</b>
+   --  will be freed when the reader context is deleted (by <b>Finalize</b>).
    --  -----------------------
    procedure Set_Element (Data    : in out Element_Data;
-                          Element : in Element_Type_Access) is
+                          Element : in Element_Type_Access;
+                          Release : in Boolean := False) is
    begin
       Data.Element := Element;
+      Data.Release := Release;
    end Set_Element;
+
+   --  -----------------------
+   --  Finalize the object when it is removed from the reader context.
+   --  If the
+   --  -----------------------
+   overriding
+   procedure Finalize (Data : in out Element_Data) is
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Object => Element_Type,
+                                         Name   => Element_Type_Access);
+   begin
+      if Data.Release then
+         Free (Data.Element);
+      end if;
+   end Finalize;
 
    --  -----------------------
    --  Execute the mapping operation on the object associated with the current context.
@@ -126,7 +146,8 @@ package body Util.Serialize.Mappers.Record_Mapper is
 
    --  -----------------------
    --  Set the attribute member described by the <b>Attr</b> mapping
-   --  into the value passed in <b>Element</b>.
+   --  into the value passed in <b>Element</b>.  This operation will call
+   --  the package parameter function of the same name.
    --  -----------------------
    procedure Set_Member (Attr    : in Mapping'Class;
                          Element : in out Element_Type;
@@ -140,13 +161,16 @@ package body Util.Serialize.Mappers.Record_Mapper is
    end Set_Member;
 
    --  -----------------------
-   --  Set the element in the context.
+   --  Set the element in the context.  When <b>Release</b> is set, the element <b>Element</b>
+   --  will be freed when the reader context is deleted (by <b>Finalize</b>).
    --  -----------------------
    procedure Set_Context (Ctx     : in out Util.Serialize.Contexts.Context'Class;
-                          Element : in Element_Type_Access) is
+                          Element : in Element_Type_Access;
+                          Release : in Boolean := False) is
       Data_Context : constant Element_Data_Access := new Element_Data;
    begin
       Data_Context.Element := Element;
+      Data_Context.Release := Release;
       Ctx.Set_Data (Key => Key, Content => Data_Context.all'Unchecked_Access);
    end Set_Context;
 

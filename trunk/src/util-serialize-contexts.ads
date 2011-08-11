@@ -36,6 +36,9 @@ package Util.Serialize.Contexts is
    type Data is tagged limited private;
    type Data_Access is access all Data'Class;
 
+   --  Finalize the data object when it is removed from the reader context.
+   procedure Finalize (Object : in out Data) is null;
+
    --  ------------------------------
    --  Reader context
    --  ------------------------------
