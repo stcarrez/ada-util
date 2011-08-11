@@ -21,6 +21,13 @@ generic
    type Element_Type is limited private;
    type Element_Type_Access is access all Element_Type;
    type Fields is (<>);
+
+   --  The <b>Set_Member</b> procedure will be called by the mapper when a mapping associated
+   --  with <b>Field</b> is recognized.  The <b>Value</b> holds the value that was extracted
+   --  according to the mapping.  The <b>Set_Member</b> procedure should save in the target
+   --  object <b>Into</b> the value.  If an error is detected, the procedure can raise the
+   --  <b>Util.Serialize.Mappers.Field_Error</b> exception.  The exception message will be
+   --  reported by the IO reader as an error.
    with procedure Set_Member (Into   : in out Element_Type;
                               Field  : in Fields;
                               Value  : in Util.Beans.Objects.Object);
@@ -53,7 +60,8 @@ package Util.Serialize.Mappers.Record_Mapper is
                      Value   : in Util.Beans.Objects.Object);
 
    --  Set the attribute member described by the <b>Attr</b> mapping
-   --  into the value passed in <b>Element</b>.
+   --  into the value passed in <b>Element</b>.  This operation will call
+   --  the package parameter function of the same name.
    procedure Set_Member (Attr    : in Mapping'Class;
                          Element : in out Element_Type;
                          Value   : in Util.Beans.Objects.Object);
@@ -68,9 +76,16 @@ package Util.Serialize.Mappers.Record_Mapper is
    --  Get the element object.
    function Get_Element (Data : in Element_Data) return Element_Type_Access;
 
-   --  Set the element object.
+   --  Set the element object.  When <b>Release</b> is set, the element <b>Element</b>
+   --  will be freed when the reader context is deleted (by <b>Finalize</b>).
    procedure Set_Element (Data    : in out Element_Data;
-                          Element : in Element_Type_Access);
+                          Element : in Element_Type_Access;
+                          Release : in Boolean := False);
+
+   --  Finalize the object when it is removed from the reader context.
+   --  If the <b>Release</b> parameter was set, the target element will be freed.
+   overriding
+   procedure Finalize (Data : in out Element_Data);
 
    --  -----------------------
    --  Record mapper
@@ -113,9 +128,11 @@ package Util.Serialize.Mappers.Record_Mapper is
 
    function Get_Getter (From : in Mapper) return Get_Member_Access;
 
-   --  Set the element in the context.
+   --  Set the element in the context.  When <b>Release</b> is set, the element <b>Element</b>
+   --  will be freed when the reader context is deleted (by <b>Finalize</b>).
    procedure Set_Context (Ctx     : in out Util.Serialize.Contexts.Context'Class;
-                          Element : in Element_Type_Access);
+                          Element : in Element_Type_Access;
+                          Release : in Boolean := False);
 
    --  Build a default mapping based on the <b>Fields</b> enumeration.
    --  The enumeration name is used for the mapping name with the optional <b>FIELD_</b>
@@ -137,6 +154,7 @@ private
 
    type Element_Data is new Util.Serialize.Contexts.Data with record
       Element : Element_Type_Access;
+      Release : Boolean;
    end record;
 
    type Mapper is new Util.Serialize.Mappers.Mapper with record
