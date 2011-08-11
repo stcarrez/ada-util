@@ -70,9 +70,8 @@ package Util.Serialize.IO.JSON is
    procedure Parse (Handler : in out Parser;
                     Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class);
 
-   --  Report an error while parsing the JSON stream.
-   procedure Error (Handler : in out Parser;
-                    Message : in String);
+   --  Get the current location (file and line) to report an error message.
+   function Get_Location (Handler : in Parser) return String;
 
 private
 

@@ -72,6 +72,10 @@ package Util.Serialize.IO is
    --  Returns true if the <b>Parse</b> operation detected at least one error.
    function Has_Error (Handler : in Parser) return Boolean;
 
+   --  Set the error logger to report messages while parsing and reading the input file.
+   procedure Set_Logger (Handler : in out Parser;
+                         Log     : in Util.Log.Loggers.Logger_Access);
+
    --  Start a new object associated with the given name.  This is called when
    --  the '{' is reached.  The reader must be updated so that the next
    --  <b>Set_Member</b> procedure will associate the name/value pair on the
@@ -97,7 +101,12 @@ package Util.Serialize.IO is
                          Value     : in Util.Beans.Objects.Object;
                          Attribute : in Boolean := False);
 
-   --  Report an error while parsing the JSON stream.
+   --  Get the current location (file and line) to report an error message.
+   function Get_Location (Handler : in Parser) return String;
+
+   --  Report an error while parsing the input stream.  The error message will be reported
+   --  on the logger associated with the parser.  The parser will be set as in error so that
+   --  the <b>Has_Error</b> function will return True after parsing the whole file.
    procedure Error (Handler : in out Parser;
                     Message : in String);
 
@@ -128,9 +137,6 @@ private
       --  The object mapper being process.
       Object_Mapper : Util.Serialize.Mappers.Mapper_Access;
 
-      --  The current inner mapper within the object mapper.
---        Mapper        : Util.Serialize.Mappers.Mapper_Access;
-
       --  The active mapping nodes.
       Active_Nodes : Mapper_Access_Array;
    end record;
@@ -144,6 +150,9 @@ private
       Stack          : Context_Stack.Stack;
       Mapping_Tree   : aliased Mappers.Mapper;
       Current_Mapper : Util.Serialize.Mappers.Mapper_Access;
+
+      --  The logger which is used to report error messages when parsing an input file.
+      Error_Logger   : Util.Log.Loggers.Logger_Access := null;
    end record;
 
 end Util.Serialize.IO;

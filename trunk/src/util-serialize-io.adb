@@ -18,7 +18,15 @@
 with Util.Streams.Files;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
+with Ada.Exceptions;
 package body Util.Serialize.IO is
+
+   use Util.Log;
+   use type Util.Log.Loggers.Logger_Access;
+
+   --  The logger
+   Log : aliased constant Loggers.Logger := Loggers.Create ("Util.Serialize.IO",
+                                                            Util.Log.WARN_LEVEL);
 
    --  ------------------------------
    --  Read the file and parse it using the JSON parser.
@@ -28,12 +36,22 @@ package body Util.Serialize.IO is
       Stream     : aliased Util.Streams.Files.File_Stream;
       Buffer     : Util.Streams.Buffered.Buffered_Stream;
    begin
+      if Handler.Error_Logger = null then
+         Handler.Error_Logger := Log'Access;
+      end if;
       Buffer.Initialize (Output => null,
                          Input  => Stream'Unchecked_Access,
                          Size   => 1024);
       Stream.Open (Mode => Ada.Streams.Stream_IO.In_File, Name => File);
       Context_Stack.Clear (Handler.Stack);
       Parser'Class (Handler).Parse (Buffer);
+
+   exception
+      when Util.Serialize.Mappers.Field_Fatal_Error =>
+         null;
+
+      when E : others =>
+         Parser'Class (Handler).Error ("Exception " & Ada.Exceptions.Exception_Name (E));
    end Parse;
 
    --  ------------------------------
@@ -43,9 +61,19 @@ package body Util.Serialize.IO is
                            Content : in String) is
       Stream : aliased Util.Streams.Buffered.Buffered_Stream;
    begin
+      if Handler.Error_Logger = null then
+         Handler.Error_Logger := Log'Access;
+      end if;
       Stream.Initialize (Content  => Content);
       Context_Stack.Clear (Handler.Stack);
       Parser'Class (Handler).Parse (Stream);
+
+   exception
+      when Util.Serialize.Mappers.Field_Fatal_Error =>
+         null;
+
+      when E : others =>
+         Handler.Error_Logger.Error ("Exception " & Ada.Exceptions.Exception_Name (E), E);
    end Parse_String;
 
    --  ------------------------------
@@ -55,6 +83,15 @@ package body Util.Serialize.IO is
    begin
       return Handler.Error_Flag;
    end Has_Error;
+
+   --  ------------------------------
+   --  Set the error logger to report messages while parsing and reading the input file.
+   --  ------------------------------
+   procedure Set_Logger (Handler : in out Parser;
+                         Log     : in Util.Log.Loggers.Logger_Access) is
+   begin
+      Handler.Error_Logger := Log;
+   end Set_Logger;
 
    --  ------------------------------
    --  Push the current context when entering in an element.
@@ -107,7 +144,6 @@ package body Util.Serialize.IO is
                Child : Mappers.Mapper_Access;
             begin
                exit when Node = null;
---                 Node.Start_Object (Handler, Name);
                Child := Node.Find_Mapper (Name => Name);
                if Child /= null then
                   Child.Start_Object (Handler, Name);
@@ -191,18 +227,47 @@ package body Util.Serialize.IO is
                                 Value     => Value,
                                 Attribute => Attribute,
                                 Context   => Handler);
+
+            exception
+               when E : Util.Serialize.Mappers.Field_Error =>
+                  Handler.Error (Message => Ada.Exceptions.Exception_Message (E));
+
+               when E : Util.Serialize.Mappers.Field_Fatal_Error =>
+                  Handler.Error (Message => Ada.Exceptions.Exception_Message (E));
+                  raise;
+
+                  --  For other exception, report an error with the field name and value.
+               when E : others =>
+                  Handler.Error (Message => "Cannot set field '" & Name & "' to '"
+                                 & Util.Beans.Objects.To_String (Value) & "': "
+                                 & Ada.Exceptions.Exception_Message (E));
+                  raise;
             end;
          end loop;
       end if;
    end Set_Member;
 
    --  ------------------------------
-   --  Report an error while parsing the JSON stream.
+   --  Get the current location (file and line) to report an error message.
+   --  ------------------------------
+   function Get_Location (Handler : in Parser) return String is
+      pragma Unreferenced (Handler);
+   begin
+      return "";
+   end Get_Location;
+
+   --  ------------------------------
+   --  Report an error while parsing the input stream.  The error message will be reported
+   --  on the logger associated with the parser.  The parser will be set as in error so that
+   --  the <b>Has_Error</b> function will return True after parsing the whole file.
    --  ------------------------------
    procedure Error (Handler : in out Parser;
                     Message : in String) is
    begin
-      raise Parse_Error with Message;
+      Handler.Error_Logger.Error ("{0}: {1}",
+                                  Parser'Class (Handler).Get_Location,
+                                  Message);
+      Handler.Error_Flag := True;
    end Error;
 
    procedure Add_Mapping (Handler : in out Parser;

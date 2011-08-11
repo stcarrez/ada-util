@@ -20,6 +20,7 @@ with Unicode;
 with Unicode.CES.Utf8;
 
 with Util.Log.Loggers;
+with Util.Strings;
 package body Util.Serialize.IO.XML is
 
    use Util.Log;
@@ -46,7 +47,7 @@ package body Util.Serialize.IO.XML is
                       Except  : Sax.Exceptions.Sax_Parse_Exception'Class) is
       pragma Warnings (Off, Handler);
    begin
-      Log.Warn ("{0}: {1}", Get_Location (Except), Get_Message (Except));
+      Log.Warn ("{0}", Get_Message (Except));
    end Warning;
 
    --  ------------------------------
@@ -55,9 +56,16 @@ package body Util.Serialize.IO.XML is
    overriding
    procedure Error (Handler : in out Xhtml_Reader;
                     Except  : in Sax.Exceptions.Sax_Parse_Exception'Class) is
-      pragma Warnings (Off, Handler);
+      Msg : constant String := Get_Message (Except);
+      Pos : constant Natural := Util.Strings.Index (Msg, ' ');
    begin
-      Log.Error ("{0}: {1}", Get_Location (Except), Get_Message (Except));
+      --  The SAX error message contains the line+file name.  Remove it because this part
+      --  will be added by the <b>Error</b> procedure.
+      if Pos > Msg'First and then Msg (Pos - 1) = ':' then
+         Handler.Handler.Error (Msg (Pos + 1 .. Msg'Last));
+      else
+         Handler.Handler.Error (Msg);
+      end if;
    end Error;
 
    --  ------------------------------
@@ -66,9 +74,8 @@ package body Util.Serialize.IO.XML is
    overriding
    procedure Fatal_Error (Handler : in out Xhtml_Reader;
                           Except  : in Sax.Exceptions.Sax_Parse_Exception'Class) is
-      pragma Unreferenced (Handler);
    begin
-      Log.Error ("{0}: {1}", Get_Location (Except), Get_Message (Except));
+      Handler.Error (Except);
    end Fatal_Error;
 
    --  ------------------------------
@@ -78,7 +85,7 @@ package body Util.Serialize.IO.XML is
    procedure Set_Document_Locator (Handler : in out Xhtml_Reader;
                                    Loc     : in out Sax.Locators.Locator) is
    begin
-      Handler.Locator := Loc;
+      Handler.Handler.Locator := Loc;
    end Set_Document_Locator;
 
    --  ------------------------------
@@ -133,9 +140,6 @@ package body Util.Serialize.IO.XML is
 
       Attr_Count : Natural;
    begin
---        Handler.Line.Line   := Sax.Locators.Get_Line_Number (Handler.Locator);
---        Handler.Line.Column := Sax.Locators.Get_Column_Number (Handler.Locator);
-
       Log.Debug ("Start object {0}", Local_Name);
 
       Handler.Handler.Start_Object (Local_Name);
@@ -230,6 +234,7 @@ package body Util.Serialize.IO.XML is
    overriding
    procedure Start_Cdata (Handler : in out Xhtml_Reader) is
       pragma Unmodified (Handler);
+      pragma Unreferenced (Handler);
    begin
       Log.Info ("Start CDATA");
    end Start_Cdata;
@@ -240,6 +245,7 @@ package body Util.Serialize.IO.XML is
    overriding
    procedure End_Cdata (Handler : in out Xhtml_Reader) is
       pragma Unmodified (Handler);
+      pragma Unreferenced (Handler);
    begin
       Log.Info ("End CDATA");
    end End_Cdata;
@@ -285,6 +291,14 @@ package body Util.Serialize.IO.XML is
    begin
       Reader.Ignore_Empty_Lines := Value;
    end Set_Ignore_Empty_Lines;
+
+   --  ------------------------------
+   --  Get the current location (file and line) to report an error message.
+   --  ------------------------------
+   function Get_Location (Handler : in Parser) return String is
+   begin
+      return Sax.Locators.To_String (Handler.Locator);
+   end Get_Location;
 
    --  ------------------------------
    --  Parse an XML stream, and calls the appropriate SAX callbacks for each
@@ -370,6 +384,14 @@ package body Util.Serialize.IO.XML is
       Xml_Parser.Ignore_White_Spaces := Handler.Ignore_White_Spaces;
       Xml_Parser.Ignore_Empty_Lines  := Handler.Ignore_Empty_Lines;
       Sax.Readers.Reader (Xml_Parser).Parse (Input);
+
+      --  Ignore the Program_Error exception that SAX could raise if we know that the
+      --  error was reported.
+   exception
+      when Program_Error =>
+         if not Handler.Has_Error then
+            raise;
+         end if;
    end Parse;
 
    --  Close the current XML entity if an entity was started
