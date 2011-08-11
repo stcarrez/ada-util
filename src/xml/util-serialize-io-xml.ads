@@ -45,6 +45,9 @@ package Util.Serialize.IO.XML is
    procedure Set_Ignore_Empty_Lines (Reader : in out Parser;
                                      Value  : in Boolean);
 
+   --  Get the current location (file and line) to report an error message.
+   function Get_Location (Handler : in Parser) return String;
+
    type Xhtml_Reader is new Sax.Readers.Reader with private;
 
 
@@ -175,7 +178,6 @@ private
                            Content : Unicode.CES.Byte_Sequence);
 
    type Xhtml_Reader is new Sax.Readers.Reader with record
-      Locator : Sax.Locators.Locator;
       Stack_Pos  : Natural := 0;
       Handler    : access Parser'Class;
 
@@ -189,15 +191,16 @@ private
    end record;
 
    type Parser is new Util.Serialize.IO.Parser with record
-      Line_Number      : Natural  := 1;
-      Has_Pending_Char : Boolean := False;
-      Pending_Char     : Character;
+      --  The SAX locator to find the current file and line number.
+      Locator             : Sax.Locators.Locator;
+      Has_Pending_Char   : Boolean := False;
+      Pending_Char       : Character;
 
       --  Whether white spaces can be ignored.
       Ignore_White_Spaces : Boolean := True;
 
       --  Whether empty lines should be ignored (when white spaces are kept).
-      Ignore_Empty_Lines : Boolean := True;
+      Ignore_Empty_Lines  : Boolean := True;
    end record;
 
    type Output_Stream is

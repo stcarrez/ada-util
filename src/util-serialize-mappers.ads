@@ -25,6 +25,16 @@ package Util.Serialize.Mappers is
 
    Mapping_Error : exception;
 
+   --  The <b>Field_Error</b> exception can be raised by a mapper to indicate that the field
+   --  that was extracted is invalid.  The exception message will be reported as an error message
+   --  and the IO reader will be marked as in error.  The IO reader will continue to read and
+   --  process the mappings.
+   Field_Error   : exception;
+
+   --  The <b>Field_Fatal_Error</b> exception is similar to the <b>Field_Error</b> exception.
+   --  However the IO reader will report the error and immediately stop.
+   Field_Fatal_Error   : exception;
+
    --  ------------------------------
    --  Mapping
    --  ------------------------------

@@ -45,7 +45,7 @@ package body Util.Serialize.IO.JSON.Tests is
          P : Parser;
       begin
          P.Parse_String (Content);
-         Log.Error ("No exception raised for: " & Content);
+         Log.Error ("No exception raised for: {0}", Content);
 
       exception
          when Parse_Error =>

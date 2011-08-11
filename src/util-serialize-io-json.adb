@@ -19,6 +19,7 @@
 with Ada.Characters.Latin_1;
 with Ada.IO_Exceptions;
 
+with Util.Strings;
 with Util.Streams;
 with Util.Streams.Buffered;
 package body Util.Serialize.IO.JSON is
@@ -177,11 +178,13 @@ package body Util.Serialize.IO.JSON is
       Stream.Write (']');
    end End_Array;
 
-   procedure Error (Handler : in out Parser;
-                    Message : in String) is
+   --  -----------------------
+   --  Get the current location (file and line) to report an error message.
+   --  -----------------------
+   function Get_Location (Handler : in Parser) return String is
    begin
-      raise Parse_Error with Natural'Image (Handler.Line_Number) & ":" & Message;
-   end Error;
+      return Util.Strings.Image (Handler.Line_Number);
+   end Get_Location;
 
    procedure Parse (Handler : in out Parser;
                     Stream : in out Util.Streams.Buffered.Buffered_Stream'Class) is
