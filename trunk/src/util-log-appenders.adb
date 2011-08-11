@@ -16,10 +16,11 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Calendar.Formatting;
-with Util.Strings.Transforms;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 
+with Util.Strings.Transforms;
+with Util.Log.Loggers;
 package body Util.Log.Appenders is
 
    use Ada;
@@ -100,7 +101,7 @@ package body Util.Log.Appenders is
          when FULL =>
             return "[" & Calendar.Formatting.Image (Event.Time) & "] "
               & Get_Level_Name (Event.Level) & " - "
-              & To_String (Event.Logger) & " - "
+              & Loggers.Get_Logger_Name (Event.Logger.all) & " - "
               & To_String (Event.Message);
 
       end case;

@@ -1,6 +1,8 @@
 Version 1.3
   - Added concurrent object pools
   - Support XmlAda 4.1 (GNAT 2011)
+  - Better support to report errors in the serialization framework
+  - Optimize Util.Log implementation
 
 Version 1.2	- May 2011
   - Integrates the Ada EL beans framework
