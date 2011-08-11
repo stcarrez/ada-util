@@ -20,6 +20,7 @@ with Ada.Strings.Unbounded;
 with Ada.Calendar;
 with Ada.Finalization;
 with Util.Properties;
+limited with Util.Log.Loggers;
 
 --  The log <b>Appender</b> will handle the low level operations to write
 --  the log content to a file, the console, a database.
@@ -43,7 +44,7 @@ package Util.Log.Appenders is
       Level   : Level_Type;
 
       --  The logger
-      Logger  : Unbounded_String;
+      Logger  : access Util.Log.Loggers.Logger_Info;
    end record;
 
    --  The layout type to indicate how to format the message.

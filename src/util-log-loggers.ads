@@ -31,7 +31,7 @@ package Util.Log.Loggers is
    --  which can be printed in the log outputs.  The logger instance
    --  contains a log level which can be used to control the level of
    --  logs.
-   type Logger is tagged limited private;
+   type Logger (<>) is tagged limited private;
    type Logger_Access is access constant Logger'Class;
 
    --  Create a logger with the given name.
@@ -118,25 +118,30 @@ package Util.Log.Loggers is
    --  Initialize the log environment with the properties.
    procedure Initialize (Properties : in Util.Properties.Manager);
 
+   type Logger_Info (<>) is limited private;
+
+   --  Get the logger name.
+   function Get_Logger_Name (Log : in Logger_Info) return String;
+
 private
 
-   type Logger_Info;
    type Logger_Info_Access is access all Logger_Info;
 
-   type Logger_Info is record
+   type Logger_Info (Len : Positive) is record
       Next_Logger : Logger_Info_Access;
       Prev_Logger : Logger_Info_Access;
       Level       : Level_Type := INFO_LEVEL;
-      Name        : Unbounded_String;
       Appender    : Util.Log.Appenders.Appender_Access;
+      Name        : String (1 .. Len);
    end record;
 
-   type Logger is new Ada.Finalization.Limited_Controlled with record
-      Name     : Unbounded_String;
+   type Logger (Len : Positive) is new Ada.Finalization.Limited_Controlled with record
       Instance : Logger_Info_Access;
+      Name     : String (1 .. Len);
    end record;
 
    --  Finalize the logger and flush the associated appender
+   overriding
    procedure Finalize (Log : in out Logger);
 
 end Util.Log.Loggers;

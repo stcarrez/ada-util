@@ -131,6 +131,14 @@ package body Util.Log.Loggers is
       Manager.Initialize (Properties);
    end Initialize;
 
+   --  ------------------------------
+   --  Get the logger name.
+   --  ------------------------------
+   function Get_Logger_Name (Log : in Logger_Info) return String is
+   begin
+      return Log.Name;
+   end Get_Logger_Name;
+
    protected body Log_Manager is
 
       --  ------------------------------
@@ -153,7 +161,7 @@ package body Util.Log.Loggers is
                Event.Time    := Ada.Calendar.Clock;
                Event.Level   := WARN_LEVEL;
                Event.Message := Format ("Log configuration file {0} not found", Name, "", "");
-               Event.Logger  := Ada.Strings.Unbounded.To_Unbounded_String ("Init");
+--                 Event.Logger  := Ada.Strings.Unbounded.To_Unbounded_String ("Init"); SCz
                if Default_Appender = null then
                   Default_Appender := new Console_Appender;
                end if;
@@ -206,8 +214,7 @@ package body Util.Log.Loggers is
       --  and creating the appender
       --  ------------------------------
       procedure Initialize (Log : in out Logger_Info) is
-         Name : constant String := To_String (Log.Name);
-         Prop : constant String := Get_Logger_Property (Config, Name);
+         Prop : constant String := Get_Logger_Property (Config, Log.Name);
       begin
          Log.Level := Get_Level (Prop, Default_Level);
          Find_Appender (Prop, Log.Appender);
@@ -219,8 +226,8 @@ package body Util.Log.Loggers is
       procedure Create (Name : in String;
                         Log  : out Logger_Info_Access) is
       begin
-         Log       := new Logger_Info;
-         Log.Name  := To_Unbounded_String (Name);
+         Log       := new Logger_Info (Len => Name'Length);
+         Log.Name  := Name;
          Initialize (Log.all);
 
          Log.Next_Logger := First_Logger;
@@ -386,7 +393,8 @@ package body Util.Log.Loggers is
 --           Log.Appender.Append (Event);
 --        end;
       return Logger '(Ada.Finalization.Limited_Controlled with
-                      Name     => To_Unbounded_String (Name),
+                        Len => Name'Length,
+                      Name     => Name,
                       Instance => Log);
    end Create;
 
@@ -398,7 +406,8 @@ package body Util.Log.Loggers is
       Manager.Create (Name, Log);
       Log.Level := Level;
       return Logger '(Ada.Finalization.Limited_Controlled with
-                      Name     => To_Unbounded_String (Name),
+                        Len => Name'Length,
+                      Name     => Name,
                       Instance => Log);
    end Create;
 
@@ -489,7 +498,7 @@ package body Util.Log.Loggers is
             Event.Time    := Ada.Calendar.Clock;
             Event.Level   := Level;
             Event.Message := Format (Message, Arg1, Arg2, Arg3);
-            Event.Logger  := Log.Name;
+            Event.Logger  := Log.Instance;
             Log.Instance.Appender.Append (Event);
          end;
       end if;
