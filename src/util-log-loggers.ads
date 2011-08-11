@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Logs -- Utility Log Package
---  Copyright (C) 2006, 2008, 2009 Free Software Foundation, Inc.
+--  Copyright (C) 2006, 2008, 2009, 2011 Free Software Foundation, Inc.
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +32,7 @@ package Util.Log.Loggers is
    --  contains a log level which can be used to control the level of
    --  logs.
    type Logger is tagged limited private;
+   type Logger_Access is access constant Logger'Class;
 
    --  Create a logger with the given name.
    function Create (Name : in String) return Logger;
