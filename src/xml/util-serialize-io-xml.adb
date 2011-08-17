@@ -297,7 +297,11 @@ package body Util.Serialize.IO.XML is
    --  ------------------------------
    function Get_Location (Handler : in Parser) return String is
    begin
-      return Sax.Locators.To_String (Handler.Locator);
+      if Handler.Locator = Sax.Locators.No_Locator then
+         return "";
+      else
+         return Sax.Locators.To_String (Handler.Locator);
+      end if;
    end Get_Location;
 
    --  ------------------------------
@@ -384,11 +388,13 @@ package body Util.Serialize.IO.XML is
       Xml_Parser.Ignore_White_Spaces := Handler.Ignore_White_Spaces;
       Xml_Parser.Ignore_Empty_Lines  := Handler.Ignore_Empty_Lines;
       Sax.Readers.Reader (Xml_Parser).Parse (Input);
+      Handler.Locator := Sax.Locators.No_Locator;
 
       --  Ignore the Program_Error exception that SAX could raise if we know that the
       --  error was reported.
    exception
       when Program_Error =>
+         Handler.Locator := Sax.Locators.No_Locator;
          if not Handler.Has_Error then
             raise;
          end if;
