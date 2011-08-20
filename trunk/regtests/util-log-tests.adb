@@ -131,6 +131,7 @@ package body Util.Log.Tests is
       begin
          L.Debug ("Writing a debug message");
          L.Debug ("{0}: {1}", "Parameter", "Value");
+         L.Debug ("Done");
       end;
 
       --  Check that we have non empty log files (up to test8.log).
