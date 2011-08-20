@@ -393,8 +393,6 @@ package body Util.Log.Loggers is
 --           Log.Appender.Append (Event);
 --        end;
       return Logger '(Ada.Finalization.Limited_Controlled with
-                        Len => Name'Length,
-                      Name     => Name,
                       Instance => Log);
    end Create;
 
@@ -406,8 +404,6 @@ package body Util.Log.Loggers is
       Manager.Create (Name, Log);
       Log.Level := Level;
       return Logger '(Ada.Finalization.Limited_Controlled with
-                        Len => Name'Length,
-                      Name     => Name,
                       Instance => Log);
    end Create;
 
@@ -600,7 +596,6 @@ package body Util.Log.Loggers is
    --  ------------------------------
    procedure Finalize (Log : in out Logger) is
    begin
-      Log.Debug ("Finalize logger {0}", Log.Name);
       if Log.Instance.Appender /= null then
          Log.Instance.Appender.Flush;
       end if;

@@ -31,8 +31,8 @@ package Util.Log.Loggers is
    --  which can be printed in the log outputs.  The logger instance
    --  contains a log level which can be used to control the level of
    --  logs.
-   type Logger (<>) is tagged limited private;
-   type Logger_Access is access constant Logger'Class;
+   type Logger is tagged limited private;
+   type Logger_Access is access constant Logger;
 
    --  Create a logger with the given name.
    function Create (Name : in String) return Logger;
@@ -135,9 +135,8 @@ private
       Name        : String (1 .. Len);
    end record;
 
-   type Logger (Len : Positive) is new Ada.Finalization.Limited_Controlled with record
+   type Logger is new Ada.Finalization.Limited_Controlled with record
       Instance : Logger_Info_Access;
-      Name     : String (1 .. Len);
    end record;
 
    --  Finalize the logger and flush the associated appender

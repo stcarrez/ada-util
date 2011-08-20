@@ -21,11 +21,11 @@ with Ada.Streams.Stream_IO;
 with Ada.Exceptions;
 package body Util.Serialize.IO is
 
-   use Util.Log;
+   --  use Util.Log;
    use type Util.Log.Loggers.Logger_Access;
 
    --  The logger
-   Log : aliased constant Loggers.Logger := Loggers.Create ("Util.Serialize.IO",
+   Log : aliased constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Serialize.IO",
                                                             Util.Log.WARN_LEVEL);
 
    --  ------------------------------
@@ -88,9 +88,9 @@ package body Util.Serialize.IO is
    --  Set the error logger to report messages while parsing and reading the input file.
    --  ------------------------------
    procedure Set_Logger (Handler : in out Parser;
-                         Log     : in Util.Log.Loggers.Logger_Access) is
+                         Logger  : in Util.Log.Loggers.Logger_Access) is
    begin
-      Handler.Error_Logger := Log;
+      Handler.Error_Logger := Logger;
    end Set_Logger;
 
    --  ------------------------------
@@ -281,9 +281,9 @@ package body Util.Serialize.IO is
    --  Dump the mapping tree on the logger using the INFO log level.
    --  ------------------------------
    procedure Dump (Handler : in Parser'Class;
-                   Log     : in Util.Log.Loggers.Logger'Class) is
+                   Logger  : in Util.Log.Loggers.Logger'Class) is
    begin
-      Util.Serialize.Mappers.Dump (Handler.Mapping_Tree, Log, "Mapping ");
+      Util.Serialize.Mappers.Dump (Handler.Mapping_Tree, Logger, "Mapping ");
    end Dump;
 
 end Util.Serialize.IO;
