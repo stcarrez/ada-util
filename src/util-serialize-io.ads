@@ -74,7 +74,7 @@ package Util.Serialize.IO is
 
    --  Set the error logger to report messages while parsing and reading the input file.
    procedure Set_Logger (Handler : in out Parser;
-                         Log     : in Util.Log.Loggers.Logger_Access);
+                         Logger  : in Util.Log.Loggers.Logger_Access);
 
    --  Start a new object associated with the given name.  This is called when
    --  the '{' is reached.  The reader must be updated so that the next
@@ -116,7 +116,7 @@ package Util.Serialize.IO is
 
    --  Dump the mapping tree on the logger using the INFO log level.
    procedure Dump (Handler : in Parser'Class;
-                   Log     : in Util.Log.Loggers.Logger'Class);
+                   Logger  : in Util.Log.Loggers.Logger'Class);
 
 private
 
