@@ -515,7 +515,7 @@ package body Util.Log.Loggers is
                     Arg2    : in String := "";
                     Arg3    : in String := "") is
    begin
-      if Log.Instance.Level >= DEBUG_LEVEL then
+      if Log.Instance /= null and then Log.Instance.Level >= DEBUG_LEVEL then
          Print (Log, DEBUG_LEVEL, Message, To_String (Arg1), Arg2, Arg3);
       end if;
    end Debug;
@@ -526,7 +526,7 @@ package body Util.Log.Loggers is
                     Arg2    : in Unbounded_String;
                     Arg3    : in String := "") is
    begin
-      if Log.Instance.Level >= DEBUG_LEVEL then
+      if Log.Instance /= null and then Log.Instance.Level >= DEBUG_LEVEL then
          Print (Log, DEBUG_LEVEL, Message, To_String (Arg1), To_String (Arg2), Arg3);
       end if;
    end Debug;
@@ -546,7 +546,7 @@ package body Util.Log.Loggers is
                    Arg2    : in String := "";
                    Arg3    : in String := "") is
    begin
-      if Log.Instance.Level >= INFO_LEVEL then
+      if Log.Instance /= null and then Log.Instance.Level >= INFO_LEVEL then
          Print (Log, INFO_LEVEL, Message, To_String (Arg1), Arg2, Arg3);
       end if;
    end Info;
@@ -557,7 +557,7 @@ package body Util.Log.Loggers is
                    Arg2    : in String := "";
                    Arg3    : in String := "") is
    begin
-      if Log.Instance.Level >= WARN_LEVEL then
+      if Log.Instance /= null and then Log.Instance.Level >= WARN_LEVEL then
          Print (Log, WARN_LEVEL, Message, Arg1, Arg2, Arg3);
       end if;
    end Warn;
