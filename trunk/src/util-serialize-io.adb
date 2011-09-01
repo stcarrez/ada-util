@@ -39,6 +39,8 @@ package body Util.Serialize.IO is
       if Handler.Error_Logger = null then
          Handler.Error_Logger := Log'Access;
       end if;
+      Handler.Error_Logger.Info ("Reading file {0}", File);
+
       Buffer.Initialize (Output => null,
                          Input  => Stream'Unchecked_Access,
                          Size   => 1024);
