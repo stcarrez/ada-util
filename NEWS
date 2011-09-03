@@ -1,4 +1,4 @@
-Version 1.3
+Version 1.3     - Sep 2011
   - Added concurrent object pools
   - Support XmlAda 4.1 (GNAT 2011)
   - Better support to report errors in the serialization framework
