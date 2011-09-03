@@ -110,6 +110,7 @@ install:
 	$(MKDIR) -p ${projectdir}/
 	${MKDIR} -p ${alidir}/testutil
 	${MKDIR} -p ${alidir}/util
+	${MKDIR} -p ${libdir}
 	${CP} testutil/*.ad[bs] ${includedir}/testutil
 	${CP} src/*.ad[bs] ${includedir}/util
 	if test T${XML_SRC_DIR} != T ; then \
