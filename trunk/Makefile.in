@@ -26,6 +26,7 @@ top_builddir = .
 
 includedir=${prefix}/share/ada/adainclude
 projectdir=${prefix}/share/ada/adainclude
+bindir=${prefix}/bin
 libdir=${prefix}/lib
 alidir=${prefix}/share/ada/adainclude
 
@@ -76,7 +77,7 @@ DISTFILES=README LICENSE.txt NOTICE.txt NEWS CHANGES ChangeLog config.guess conf
 configure.in Makefile.in install-sh \
 util.gpr.in testutil.gpr tests.gpr samples.gpr config.gpr \
 src samples regtests testutil \
-bin obj lib distrib
+bin obj lib distrib support
 
 dist:
 	-rm -rf $(distdir)
@@ -122,6 +123,11 @@ install:
 	${CP} lib/util/*.ali ${alidir}/util
 	${CP} lib/util/libadautil.a ${libdir}/
 	${CP} lib/testutil/libadatestutil.a ${libdir}/
+
+install-support:
+	$(MKDIR) -p ${bindir}
+	${CP} support/*.sh ${bindir}
+	${CP} support/*.xsl ${bindir}
 
 uninstall:
 	rm -rf ${includedir}/testutil
