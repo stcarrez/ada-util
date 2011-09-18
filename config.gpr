@@ -13,7 +13,7 @@ project Config is
           when "debug" => 
              for Default_Switches ("Ada") use ("-g", "-gnat05", "-j" & Processors);
           when others =>
-             for Default_Switches ("Ada") use ("-O2", "-gnat05", "-j" & Processors);
+             for Default_Switches ("Ada") use ("-g", "-O2", "-gnat05", "-j" & Processors);
        end case;
    end Builder;
 
