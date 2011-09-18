@@ -157,6 +157,22 @@ package body Util.Streams.Buffered is
    end Write;
 
    --  ------------------------------
+   --  Write a raw string on the stream.
+   --  ------------------------------
+   procedure Write (Stream : in out Buffered_Stream;
+                    Item   : in Ada.Strings.Wide_Wide_Unbounded.Unbounded_Wide_Wide_String) is
+      Count : constant Natural := Ada.Strings.Wide_Wide_Unbounded.Length (Item);
+      C     : Wide_Wide_Character;
+   begin
+      if Count > 0 then
+         for I in 1 .. Count loop
+            C := Ada.Strings.Wide_Wide_Unbounded.Element (Item, I);
+            Stream.Write (Char => Character'Val (Wide_Wide_Character'Pos (C)));
+         end loop;
+      end if;
+   end Write;
+
+   --  ------------------------------
    --  Write the buffer array to the output stream.
    --  ------------------------------
    procedure Write (Stream : in out Buffered_Stream;

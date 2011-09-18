@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Strings.Unbounded;
+with Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Finalization;
 package Util.Streams.Buffered is
 
@@ -64,6 +65,10 @@ package Util.Streams.Buffered is
    --  Write a raw string on the stream.
    procedure Write (Stream : in out Buffered_Stream;
                     Item   : in Ada.Strings.Unbounded.Unbounded_String);
+
+   --  Write a raw string on the stream.
+   procedure Write (Stream : in out Buffered_Stream;
+                    Item   : in Ada.Strings.Wide_Wide_Unbounded.Unbounded_Wide_Wide_String);
 
    --  Write the buffer array to the output stream.
    procedure Write (Stream : in out Buffered_Stream;
