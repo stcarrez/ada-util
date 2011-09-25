@@ -24,6 +24,7 @@ with Ada.Calendar;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Unchecked_Deallocation;
 with Ada.IO_Exceptions;
+with GNAT.Traceback.Symbolic;
 with Util.Strings;
 package body Util.Log.Loggers is
 
@@ -89,7 +90,8 @@ package body Util.Log.Loggers is
    function Format (Message : in String;
                     Arg1    : in String;
                     Arg2    : in String;
-                    Arg3    : in String) return Unbounded_String;
+                    Arg3    : in String;
+                    Arg4    : in String) return Unbounded_String;
 
    --  Get the logger property associated with a given logger
    function Get_Logger_Property (Properties : in Util.Properties.Manager;
@@ -160,7 +162,7 @@ package body Util.Log.Loggers is
             begin
                Event.Time    := Ada.Calendar.Clock;
                Event.Level   := WARN_LEVEL;
-               Event.Message := Format ("Log configuration file {0} not found", Name, "", "");
+               Event.Message := Format ("Log configuration file {0} not found", Name, "", "", "");
 --                 Event.Logger  := Ada.Strings.Unbounded.To_Unbounded_String ("Init"); SCz
                if Default_Appender = null then
                   Default_Appender := new Console_Appender;
@@ -448,7 +450,8 @@ package body Util.Log.Loggers is
    function Format (Message : in String;
                     Arg1    : in String;
                     Arg2    : in String;
-                    Arg3    : in String) return Unbounded_String is
+                    Arg3    : in String;
+                    Arg4    : in String) return Unbounded_String is
       Result : Unbounded_String := To_Unbounded_String (Message);
       Pos    : Natural := 1;
       C      : Character;
@@ -472,6 +475,10 @@ package body Util.Log.Loggers is
                Replace_Slice (Result, Pos, Pos + 2, Arg3);
                Pos := Pos + Arg3'Length;
 
+            when '3' =>
+               Replace_Slice (Result, Pos, Pos + 2, Arg4);
+               Pos := Pos + Arg3'Length;
+
             when others =>
                Replace_Slice (Result, Pos, Pos + 2, "?");
                Pos := Pos + 2;
@@ -485,7 +492,8 @@ package body Util.Log.Loggers is
                     Message : in String;
                     Arg1    : in String := "";
                     Arg2    : in String := "";
-                    Arg3    : in String := "") is
+                    Arg3    : in String := "";
+                    Arg4    : in String := "") is
    begin
       if Log.Instance /= null and then Log.Instance.Level >= Level then
          declare
@@ -493,7 +501,7 @@ package body Util.Log.Loggers is
          begin
             Event.Time    := Ada.Calendar.Clock;
             Event.Level   := Level;
-            Event.Message := Format (Message, Arg1, Arg2, Arg3);
+            Event.Message := Format (Message, Arg1, Arg2, Arg3, Arg4);
             Event.Logger  := Log.Instance;
             Log.Instance.Appender.Append (Event);
          end;
@@ -573,13 +581,24 @@ package body Util.Log.Loggers is
 
    procedure Error (Log     : in Logger'Class;
                     Message : in String;
-                    E       : in Exception_Occurrence) is
+                    E       : in Exception_Occurrence;
+                    Trace   : in Boolean := False) is
    begin
-      Print (Log, ERROR_LEVEL,
-             "{0}: Exception {1}: {2}",
-             Message,
-             Exception_Name (E),
-             Exception_Message (E));
+
+      if Trace then
+         Print (Log, ERROR_LEVEL,
+                "{0}: Exception {1}: {2} at {3}",
+                Message,
+                Exception_Name (E),
+                Exception_Message (E),
+                GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
+      else
+         Print (Log, ERROR_LEVEL,
+                "{0}: Exception {1}: {2}",
+                Message,
+                Exception_Name (E),
+                Exception_Message (E));
+      end if;
    end Error;
 
    --  ------------------------------
