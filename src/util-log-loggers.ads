@@ -60,7 +60,8 @@ package Util.Log.Loggers is
                     Message : in String;
                     Arg1    : in String := "";
                     Arg2    : in String := "";
-                    Arg3    : in String := "");
+                    Arg3    : in String := "";
+                    Arg4    : in String := "");
 
    procedure Debug (Log     : in Logger'Class;
                     Message : in String;
@@ -106,7 +107,8 @@ package Util.Log.Loggers is
 
    procedure Error (Log     : in Logger'Class;
                     Message : in String;
-                    E       : in Exception_Occurrence);
+                    E       : in Exception_Occurrence;
+                    Trace   : in Boolean := False);
 
    --  Set the appender that will handle the log events
    procedure Set_Appender (Log      : in out Logger'Class;
