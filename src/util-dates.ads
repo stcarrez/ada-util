@@ -23,6 +23,7 @@ package Util.Dates is
 
    --  The Unix equivalent of 'struct tm'.
    type Date_Record is record
+      Date        : Ada.Calendar.Time;
       Year        : Ada.Calendar.Year_Number;
       Month       : Ada.Calendar.Month_Number;
       Month_Day   : Ada.Calendar.Day_Number;
@@ -31,6 +32,7 @@ package Util.Dates is
       Minute      : Ada.Calendar.Formatting.Minute_Number;
       Second      : Ada.Calendar.Formatting.Second_Number;
       Sub_Second  : Ada.Calendar.Formatting.Second_Duration;
+      Time_Zone   : Ada.Calendar.Time_Zones.Time_Offset;
       Leap_Second : Boolean;
    end record;
 
