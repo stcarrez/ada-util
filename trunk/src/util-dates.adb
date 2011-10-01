@@ -25,6 +25,8 @@ package body Util.Dates is
                     Date       : in Ada.Calendar.Time;
                     Time_Zone  : in Ada.Calendar.Time_Zones.Time_Offset := 0) is
    begin
+      Into.Date      := Date;
+      Into.Time_Zone := Time_Zone;
       Ada.Calendar.Formatting.Split (Date        => Date,
                                      Year        => Into.Year,
                                      Month       => Into.Month,
