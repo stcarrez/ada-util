@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-events -- Events
---  Copyright (C) 2001, 2002, 2003, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@
 with Ada.Calendar;
 package Util.Events is
 
-   type Event is tagged private;
+   type Event is tagged limited private;
 
    --  Get the time identifying when the event was created.
    function Get_Time (Ev : Event) return Ada.Calendar.Time;
@@ -27,7 +27,7 @@ package Util.Events is
 
 private
 
-   type Event is tagged record
+   type Event is tagged limited record
       Date : Ada.Calendar.Time := Ada.Calendar.Clock;
    end record;
 
