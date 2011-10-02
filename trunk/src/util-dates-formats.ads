@@ -100,7 +100,7 @@ package Util.Dates.Formats is
    DATE_TIME_LOCALE_NAME     : constant String := "util.datetime.pattern";
 
    --  The default date pattern for %c (English).
-   DATE_TIME_DEFAULT_PATTERN : constant String := "%a %b %d %T %Y";
+   DATE_TIME_DEFAULT_PATTERN : constant String := "%a %b %_d %T %Y";
 
    --  The date pattern to be used for the %x representation.
    --  This property name is searched in the bundle to find the localized date pattern.
