@@ -25,6 +25,20 @@ package body Util.Dates.Formats is
 
    use Ada.Strings.Unbounded;
 
+   function Get_Label (Bundle : in Util.Properties.Manager'Class;
+                       Prefix : in String;
+                       Index  : in Natural;
+                       Short  : in Boolean) return String is
+      Num  : constant String := Natural'Image (Index);
+      Name : constant String := Prefix & Num (Num'First + 1 .. Num'Last);
+   begin
+      if Short then
+         return Bundle.Get (Name & SHORT_SUFFIX, "");
+      else
+         return Bundle.Get (Name & LONG_SUFFIX, "");
+      end if;
+   end Get_Label;
+
    --  ------------------------------
    --  Append the localized month string in the <b>Into</b> string.
    --  The month string is found in the resource bundle under the name:
@@ -36,13 +50,49 @@ package body Util.Dates.Formats is
                            Month  : in Ada.Calendar.Month_Number;
                            Bundle : in Util.Properties.Manager'Class;
                            Short  : in Boolean := True) is
-      Num  : constant String := Ada.Calendar.Month_Number'Image (Month);
-      Name : constant String := MONTH_NAME_PREFIX & Num (Num'First + 1 .. Num'Last);
+      Value : constant String := Get_Label (Bundle, MONTH_NAME_PREFIX, Natural (Month), Short);
    begin
-      if Short then
-         Append (Into, Bundle.Get (Name & SHORT_SUFFIX, Num));
+      if Value'Length > 0 then
+         Append (Into, Value);
       else
-         Append (Into, Bundle.Get (Name & LONG_SUFFIX, Num));
+         --  If the resource bundle is empty, fallback to hard-coded English values.
+         case Month is
+         when 1 =>
+            Append (Into, "January");
+
+         when 2 =>
+            Append (Into, "February");
+
+         when 3 =>
+            Append (Into, "March");
+
+         when 4 =>
+            Append (Into, "April");
+
+         when 5 =>
+            Append (Into, "May");
+
+         when 6 =>
+            Append (Into, "June");
+
+         when 7 =>
+            Append (Into, "July");
+
+         when 8 =>
+            Append (Into, "August");
+
+         when 9 =>
+            Append (Into, "September");
+
+         when 10 =>
+            Append (Into, "October");
+
+         when 11 =>
+            Append (Into, "November");
+
+         when 12 =>
+            Append (Into, "December");
+         end case;
       end if;
    end Append_Month;
 
@@ -58,13 +108,28 @@ package body Util.Dates.Formats is
                          Bundle : in Util.Properties.Manager'Class;
                          Short  : in Boolean := True) is
       use Ada.Calendar.Formatting;
-      Num  : constant String := Natural'Image (Day_Name'Pos (Day));
-      Name : constant String := DAY_NAME_PREFIX & Num (Num'First + 1 .. Num'Last);
+      Value : constant String := Get_Label (Bundle, DAY_NAME_PREFIX, Day_Name'Pos (Day), Short);
    begin
-      if Short then
-         Append (Into, Bundle.Get (Name & SHORT_SUFFIX, Num));
+      if Value'Length > 0 then
+         Append (Into, Value);
       else
-         Append (Into, Bundle.Get (Name & LONG_SUFFIX, Num));
+         --  If the resource bundle is empty, fallback to hard-coded English values.
+         case Day is
+         when Monday =>
+            Append (Into, "Monday");
+         when Tuesday =>
+            Append (Into, "Tuesday");
+         when Wednesday =>
+            Append (Into, "Wednesday");
+         when Thursday =>
+            Append (Into, "Thursday");
+         when Friday =>
+            Append (Into, "Friday");
+         when Saturday =>
+            Append (Into, "Saturday");
+         when Sunday =>
+            Append (Into, "Sunday");
+         end case;
       end if;
    end Append_Day;
 
@@ -364,6 +429,15 @@ package body Util.Dates.Formats is
             Pos := Pos + 1;
          end if;
       end loop;
+   end Format;
+
+   function Format (Pattern   : in String;
+                    Date      : in Ada.Calendar.Time;
+                    Bundle    : in Util.Properties.Manager'Class) return String is
+      Result : Unbounded_String;
+   begin
+      Format (Result, Pattern, Date, Bundle);
+      return To_String (Result);
    end Format;
 
 end Util.Dates.Formats;
