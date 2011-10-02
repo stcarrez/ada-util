@@ -140,6 +140,10 @@ package Util.Dates.Formats is
                      Date      : in Ada.Calendar.Time;
                      Bundle    : in Util.Properties.Manager'Class);
 
+   function Format (Pattern   : in String;
+                    Date      : in Ada.Calendar.Time;
+                    Bundle    : in Util.Properties.Manager'Class) return String;
+
    --  Append the localized month string in the <b>Into</b> string.
    --  The month string is found in the resource bundle under the name:
    --    util.month<month number>.short
