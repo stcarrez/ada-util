@@ -25,6 +25,7 @@ with Util.Dates.Formats;
 with Util.Properties.Bundles;
 procedure Date is
 
+   use type Ada.Calendar.Time;
    use Util.Log.Loggers;
    use Ada.Strings.Unbounded;
    use Util.Properties.Bundles;
@@ -37,17 +38,12 @@ procedure Date is
    Bundle  : Util.Properties.Bundles.Manager;
 
    Locale  : Unbounded_String := To_Unbounded_String ("en");
-   Result  : Ada.Strings.Unbounded.Unbounded_String;
+   Date    : Ada.Calendar.Time := Ada.Calendar.Clock;
+
 begin
    --  Load the bundles from the current directory
    Initialize (Factory, "samples/;bundles");
-   begin
-      Load_Bundle (Factory, "dates", To_String (Locale), Bundle);
 
-   exception
-      when NO_BUNDLE =>
-         Log.Error ("There is no bundle: {0}", "dates");
-   end;
    loop
       case Getopt ("h l: locale: help") is
          when ASCII.NUL =>
@@ -61,17 +57,22 @@ begin
             return;
       end case;
    end loop;
+   begin
+      Load_Bundle (Factory, "dates", To_String (Locale), Bundle);
+
+   exception
+      when NO_BUNDLE =>
+         Log.Error ("There is no bundle: {0}", "dates");
+   end;
    loop
       declare
          Pattern : constant String := Get_Argument;
       begin
          exit when Pattern = "";
 
-         Util.Dates.Formats.Format (Pattern => Pattern,
-                                    Date    => Ada.Calendar.Clock,
-                                    Bundle  => Bundle,
-                                    Into    => Result);
-         Ada.Text_IO.Put_Line (Ada.Strings.Unbounded.To_String (Result));
+         Ada.Text_IO.Put_Line (Util.Dates.Formats.Format (Pattern => Pattern,
+                                                          Date    => Date,
+                                                          Bundle  => Bundle));
       end;
    end loop;
 end Date;
