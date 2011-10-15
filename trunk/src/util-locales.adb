@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Locales -- Locale
---  Copyright (C) 2001, 2002, 2003, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,8 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Ada.Containers.Indefinite_Hashed_Sets;
-with Util.Concurrent.Locks;
+
+with Ada.Strings.Hash;
 
 --  The <b>Locales</b> package defines the <b>Locale</b> type to represent
 --  the language, country and variant.
@@ -34,128 +34,160 @@ with Util.Concurrent.Locks;
 --  The <b>Locales</b> package tries to follow the Java <b>Locale</b> class.
 package body Util.Locales is
 
-   package Locale_Set is new Ada.Containers.Indefinite_Hashed_Sets
-     (Element_Type    => Locale,
-      Hash            => Hash,
-      Equivalent_Elements => "=");
-   use Locale_Set;
-
-   Locales : Locale_Set.Set;
-   Lock    : Util.Concurrent.Locks.RW_Lock;
+   EMPTY_STR : constant String := "";
 
    --  ------------------------------
    --  Get the lowercase two-letter ISO-639 code.
    --  ------------------------------
-   function Get_Language (Loc : Locale) return String is
+   function Get_Language (Loc : in Locale) return String is
    begin
-      return Loc.Language.all;
+      if Loc = null then
+         return "";
+      else
+         return Loc (1 .. 2);
+      end if;
    end Get_Language;
+
+   --  ------------------------------
+   --  Get the ISO 639-2 language code.
+   --  ------------------------------
+   function Get_ISO3_Language (Loc : in Locale) return String is
+   begin
+      if Loc = null or else Loc'Length <= 3 then
+         return "";
+      end if;
+      if Loc'Length <= 6 then
+         return Loc (4 .. 6);
+      end if;
+      return Loc (7 .. 9);
+   end Get_ISO3_Language;
 
    --  ------------------------------
    --  Get the uppercase two-letter ISO-3166 code.
    --  ------------------------------
-   function Get_Country (Loc : Locale) return String is
+   function Get_Country (Loc : in Locale) return String is
    begin
-      return Loc.Country.all;
+      if Loc = null or else Loc'Length <= 2 or else Loc (3) /= '_' then
+         return "";
+      else
+         return Loc (4 .. 5);
+      end if;
    end Get_Country;
+
+   --  ------------------------------
+   --  Get the ISO-3166-2 country code.
+   --  ------------------------------
+   function Get_ISO3_Country (Loc : in Locale) return String is
+   begin
+      if Loc = null or else Loc'Length <= 5 then
+         return "";
+      else
+         return Loc (10 .. Loc'Last);
+      end if;
+   end Get_ISO3_Country;
 
    --  ------------------------------
    --  Get the variant code
    --  ------------------------------
-   function Get_Variant (Loc : Locale) return String is
+   function Get_Variant (Loc : in Locale) return String is
    begin
-      return Loc.Variant.all;
+      if Loc = null or else Loc'Length <= 13 then
+         return "";
+      else
+         return Loc (7 .. 8);
+      end if;
    end Get_Variant;
 
    --  ------------------------------
    --  Get the locale for the given language code
    --  ------------------------------
-   function Get_Locale (Language : String) return Locale is
+   function Get_Locale (Language : in String) return Locale is
+      Length : constant Natural := Language'Length;
+      Lower  : Natural := Locales'First;
+      Upper  : Natural := Locales'Last;
+      Pos    : Natural;
+      Result : Locale;
    begin
-      return Get_Locale (Language, EMPTY_STR, EMPTY_STR);
+      while Lower <= Upper loop
+         Pos := (Lower + Upper) / 2;
+         Result := Locales (Pos);
+         if Result'Length < Length then
+            if Result.all < Language (Language'First .. Language'First + Result'Length - 1) then
+               Lower := Pos + 1;
+            else
+               Upper := Pos - 1;
+            end if;
+         elsif Result'Length > Length and then Result (Length + 1) = '.'
+           and then Result (1 .. Length) = Language then
+            return Result;
+         elsif Result (1 .. Length) < Language then
+            Lower := Pos + 1;
+         else
+            Upper := Pos - 1;
+         end if;
+      end loop;
+      return NULL_LOCALE;
    end Get_Locale;
 
    --  ------------------------------
    --  Get the locale for the given language and country code
    --  ------------------------------
-   function Get_Locale (Language : String;
-                        Country  : String) return Locale is
+   function Get_Locale (Language : in String;
+                        Country  : in String) return Locale is
    begin
-      return Get_Locale (Language, Country, EMPTY_STR);
+      if Language'Length /= 2 or else (Country'Length /= 0 and Country'Length /= 2) then
+         return NULL_LOCALE;
+      elsif Country'Length = 0 then
+         return Get_Locale (Language);
+      else
+         return Get_Locale (Language & "_" & Country);
+      end if;
    end Get_Locale;
 
    --  ------------------------------
    --  Get the locale for the given language, country and variant code
    --  ------------------------------
-   function Get_Locale (Language : String;
-                        Country  : String;
-                        Variant  : String) return Locale is
-      Loc : Locale := (Language => Language'Unrestricted_Access,
-                       Country  => Country'Unrestricted_Access,
-                       Variant  => Variant'Unrestricted_Access);
-      Pos : Cursor;
+   function Get_Locale (Language : in String;
+                        Country  : in String;
+                        Variant  : in String) return Locale is
    begin
-      loop
-         --  Get the locale from our set.
-         Lock.Read;
-         Pos := Locales.Find (Loc);
-         if Has_Element (Pos) then
-            Loc := Element (Pos);
-            Lock.Release_Read;
-            return Loc;
-         end if;
-         Lock.Release_Read;
-
-         --  Insert the new locale in our set.
-         Lock.Write;
-         Pos := Locales.Find (Loc);
-         if not Has_Element (Pos) then
-            Loc.Country := new String '(Country);
-            Loc.Language := new String '(Language);
-            Loc.Variant  := new String '(Variant);
-            Locales.Insert (Loc);
-         end if;
-         Lock.Release_Write;
-      end loop;
+      if Language'Length /= 2
+        or else (Country'Length /= 0 and Country'Length /= 2)
+        or else (Variant'Length /= 0 and Variant'Length /= 2) then
+         return NULL_LOCALE;
+      end if;
+      if Country'Length = 0 and Variant'Length = 0 then
+         return Get_Locale (Language);
+      elsif Variant'Length = 0 then
+         return Get_Locale (Language, Country);
+      else
+         return Get_Locale (Language & "_" & Country & "_" & Variant);
+      end if;
    end Get_Locale;
 
    --  ------------------------------
-   --  Check whether two locales are the same.
+   --  Get the locale code in the form <i>language</i>_<i>country</i>_<i>variant</i>.
    --  ------------------------------
-   function "=" (Left, Right : Locale) return Boolean is
+   function To_String (Loc : in Locale) return String is
    begin
-      --  Check pointer comparison first
-      if Left.Language /= Right.Language
-        and then Left.Language.all /= Right.Language.all then
-         return False;
+      if Loc = null then
+         return "";
+      elsif Loc'Length > 3 and Loc (3) = '.' then
+         return Loc (1 .. 2);
+      elsif Loc'Length > 6 and Loc (6) = '.' then
+         return Loc (1 .. 5);
+      else
+         return Loc (1 .. 8);
       end if;
-      if Left.Country /= Right.Country
-        and then Left.Country.all /= Right.Country.all then
-         return False;
-      end if;
-      return Left.Variant = Right.Variant
-        or else Left.Variant.all = Right.Variant.all;
-   end "=";
+   end To_String;
 
    --  ------------------------------
    --  Compute the hash value of the locale.
    --  ------------------------------
-   function Hash (Loc : Locale) return Ada.Containers.Hash_Type is
+   function Hash (Loc : in Locale) return Ada.Containers.Hash_Type is
       use type Ada.Containers.Hash_Type;
    begin
-      return Hash (Loc.Country) xor Hash (Loc.Language) xor Hash (Loc.Variant);
+      return Ada.Strings.Hash (Loc.all);
    end Hash;
 
-begin
-   Locales.Insert (FRENCH);
-   Locales.Insert (ENGLISH);
-   Locales.Insert (ITALIAN);
-   Locales.Insert (GERMAN);
-
-   Locales.Insert (FRANCE);
-   Locales.Insert (CANADA);
-   Locales.Insert (GERMANY);
-   Locales.Insert (ITALY);
-   Locales.Insert (UK);
-   Locales.Insert (US);
 end Util.Locales;
