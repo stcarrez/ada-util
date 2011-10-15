@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  locales.tests -- Unit tests for Locales
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 
 with AUnit.Test_Suites;
-with AUnit.Test_Fixtures;
 with Util.Tests;
 
 package Util.Locales.Tests is
@@ -27,9 +26,8 @@ package Util.Locales.Tests is
    type Test is new Util.Tests.Test with null record;
 
    procedure Test_Get_Locale (T : in out Test);
---     procedure Test_Get_Country (T : in out Test);
---     procedure Test_Get_Language (T : in out Test);
    procedure Test_Hash_Locale (T : in out Test);
    procedure Test_Compare_Locale (T : in out Test);
+   procedure Test_Get_Locales (T : in out Test);
 
 end Util.Locales.Tests;
