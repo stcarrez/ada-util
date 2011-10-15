@@ -19,12 +19,13 @@ with Util.Streams.Files;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
 with Ada.Exceptions;
+with Ada.IO_Exceptions;
 package body Util.Serialize.IO is
 
    --  use Util.Log;
    use type Util.Log.Loggers.Logger_Access;
 
-   --  The logger
+   --  The logger'
    Log : aliased constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Serialize.IO",
                                                             Util.Log.WARN_LEVEL);
 
@@ -51,6 +52,9 @@ package body Util.Serialize.IO is
    exception
       when Util.Serialize.Mappers.Field_Fatal_Error =>
          null;
+
+      when Ada.IO_Exceptions.Name_Error =>
+         Parser'Class (Handler).Error ("File '" & File & "' does not exist.");
 
       when E : others =>
          Parser'Class (Handler).Error ("Exception " & Ada.Exceptions.Exception_Name (E));
