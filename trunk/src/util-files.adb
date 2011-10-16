@@ -164,8 +164,7 @@ package body Util.Files is
             Sep_Pos := Sep_Pos - 1;
          end if;
          declare
-            Dir  : constant String := Paths (Pos .. Sep_Pos);
-            Path : constant String := Dir & "/" & Name;
+            Path : constant String := Util.Files.Compose (Paths (Pos .. Sep_Pos), Name);
          begin
             if Exists (Path) and then Kind (Path) = Ordinary_File then
                return Path;
@@ -309,9 +308,13 @@ package body Util.Files is
    function Compose (Directory : in String;
                      Name      : in String) return String is
    begin
-      if Directory'Length = 0 then
+      if Name'Length = 0 then
+         return Directory;
+      elsif Directory'Length = 0 then
          return Name;
-      elsif Directory (Directory'Last) = '/' then
+      elsif Directory (Directory'Last) = '/' and Name (Name'First) = '/' then
+         return Directory & Name (Name'First + 1 .. Name'Last);
+      elsif Directory (Directory'Last) = '/' or Name (Name'First) = '/' then
          return Directory & Name;
       else
          return Directory & "/" & Name;
