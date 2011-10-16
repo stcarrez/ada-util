@@ -42,6 +42,7 @@ package body Util.Serialize.IO is
       end if;
       Handler.Error_Logger.Info ("Reading file {0}", File);
 
+      Handler.File := Ada.Strings.Unbounded.To_Unbounded_String (File);
       Buffer.Initialize (Output => null,
                          Input  => Stream'Unchecked_Access,
                          Size   => 1024);
@@ -70,6 +71,7 @@ package body Util.Serialize.IO is
       if Handler.Error_Logger = null then
          Handler.Error_Logger := Log'Access;
       end if;
+      Handler.File := Ada.Strings.Unbounded.To_Unbounded_String ("<inline>");
       Stream.Initialize (Content  => Content);
       Context_Stack.Clear (Handler.Stack);
       Parser'Class (Handler).Parse (Stream);
@@ -257,9 +259,8 @@ package body Util.Serialize.IO is
    --  Get the current location (file and line) to report an error message.
    --  ------------------------------
    function Get_Location (Handler : in Parser) return String is
-      pragma Unreferenced (Handler);
    begin
-      return "";
+      return Ada.Strings.Unbounded.To_String (Handler.File);
    end Get_Location;
 
    --  ------------------------------

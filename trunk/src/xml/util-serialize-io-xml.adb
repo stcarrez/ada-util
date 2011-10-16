@@ -296,11 +296,12 @@ package body Util.Serialize.IO.XML is
    --  Get the current location (file and line) to report an error message.
    --  ------------------------------
    function Get_Location (Handler : in Parser) return String is
+      File : constant String := Util.Serialize.IO.Parser (Handler).Get_Location;
    begin
       if Handler.Locator = Sax.Locators.No_Locator then
-         return "";
+         return File;
       else
-         return Sax.Locators.To_String (Handler.Locator);
+         return File & Sax.Locators.To_String (Handler.Locator);
       end if;
    end Get_Location;
 
