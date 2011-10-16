@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Containers;
+with Ada.Strings.Unbounded;
 
 with Util.Beans.Objects;
 with Util.Streams;
@@ -150,6 +151,9 @@ private
       Stack          : Context_Stack.Stack;
       Mapping_Tree   : aliased Mappers.Mapper;
       Current_Mapper : Util.Serialize.Mappers.Mapper_Access;
+
+      --  The file name to use when reporting errors.
+      File           : Ada.Strings.Unbounded.Unbounded_String;
 
       --  The logger which is used to report error messages when parsing an input file.
       Error_Logger   : Util.Log.Loggers.Logger_Access := null;
