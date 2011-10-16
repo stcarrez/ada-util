@@ -90,11 +90,12 @@ package body Util.Locales.Tests is
             T.Assert (Loc = Locales (I), "Invalid locale at " & Positive'Image (I)
                       & " " & Loc.all);
             if Variant'Length > 0 then
-               Assert (T, Name, Language & "_" & Country & "_" & Variant, "Invalid To_String");
+               Assert_Equals (T, Name, Language & "_" & Country & "_" & Variant,
+                              "Invalid To_String");
             elsif Country'Length > 0 then
-               Assert (T, Name, Language & "_" & Country, "Invalid To_String");
+               Assert_Equals (T, Name, Language & "_" & Country, "Invalid To_String");
             else
-               Assert (T, Name, Language, "Invalid To_String");
+               Assert_Equals (T, Name, Language, "Invalid To_String");
             end if;
          end;
       end loop;
