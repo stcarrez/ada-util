@@ -32,5 +32,6 @@ package Util.Files.Tests is
    procedure Test_Write_File (T : in out Test);
    procedure Test_Find_File_Path (T : in out Test);
    procedure Test_Iterate_Path (T : in out Test);
+   procedure Test_Compose_Path (T : in out Test);
 
 end Util.Files.Tests;
