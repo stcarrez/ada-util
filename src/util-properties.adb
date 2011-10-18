@@ -189,6 +189,18 @@ package body Util.Properties is
    end Remove;
 
    --  ------------------------------
+   --  Iterate over the properties and execute the given procedure passing the
+   --  property name and its value.
+   --  ------------------------------
+   procedure Iterate (Self    : in Manager'Class;
+                      Process : access procedure (Name, Item : Value)) is
+   begin
+      if Self.Impl /= null then
+         Self.Impl.Iterate (Process);
+      end if;
+   end Iterate;
+
+   --  ------------------------------
    --  Return the name of the properties defined in the manager.
    --  When a prefix is specified, only the properties starting with
    --  the prefix are returned.

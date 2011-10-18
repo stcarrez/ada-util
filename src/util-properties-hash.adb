@@ -86,6 +86,27 @@ package body Util.Properties.Hash is
    end Remove;
 
    --  -----------------------
+   --  Iterate over the properties and execute the given procedure passing the
+   --  property name and its value.
+   --  -----------------------
+   procedure Iterate (Self    : in Manager;
+                      Process : access procedure (Name, Item : Value)) is
+      procedure Do_Process (Name, Item : in Value);
+
+      procedure Do_Process (Name, Item : in Value) is
+      begin
+         Process.all (Name, Item);
+      end Do_Process;
+
+      Iter : PropertyMap.Cursor := Self.Content.First;
+   begin
+      while PropertyMap.Has_Element (Iter) loop
+         PropertyMap.Query_Element (Iter, Do_Process'Access);
+         PropertyMap.Next (Iter);
+      end loop;
+   end Iterate;
+
+   --  -----------------------
    --  Deep copy of properties stored in 'From' to 'To'.
    --  -----------------------
    function Create_Copy (Self : in Manager) return Interface_P.Manager_Access is

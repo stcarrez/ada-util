@@ -60,6 +60,11 @@ package body Util.Properties.Bundles is
       --  Remove the property given its name.
       procedure Remove (Self : in out Manager; Name : in Value);
 
+      --  Iterate over the properties and execute the given procedure passing the
+      --  property name and its value.
+      procedure Iterate (Self    : in Manager;
+                         Process : access procedure (Name, Item : Value));
+
       procedure Load_Properties (Self : in out Manager;
                                  File : in String);
 
@@ -384,6 +389,14 @@ package body Util.Properties.Bundles is
       begin
          raise NOT_WRITEABLE with "Bundle is readonly";
       end Remove;
+
+      --  Iterate over the properties and execute the given procedure passing the
+      --  property name and its value.
+      procedure Iterate (Self    : in Manager;
+                         Process : access procedure (Name, Item : Value)) is
+      begin
+         raise Program_Error with "Iterate is not implemented on Bundle";
+      end Iterate;
 
       --  ------------------------------
       --  Deep copy of properties stored in 'From' to 'To'.
