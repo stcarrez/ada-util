@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  files.tests -- Unit tests for files
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,6 +38,8 @@ package body Util.Files.Tests is
                        Test_Iterate_Path'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Find_File_Path",
                        Test_Find_File_Path'Access);
+      Caller.Add_Test (Suite, "Test Util.Files.Compose_Path",
+                       Test_Compose_Path'Access);
    end Add_Tests;
 
    --  Test reading a file into a string
@@ -128,5 +130,16 @@ package body Util.Files.Tests is
       Assert_Equals (T, "b", Last, "Invalid last path");
 
    end Test_Iterate_Path;
+
+   --  ------------------------------
+   --  Test the Compose_Path operation
+   --  ------------------------------
+   procedure Test_Compose_Path (T : in out Test) is
+   begin
+      Assert_Equals (T, "/usr/bin;/usr/local/bin;/usr/bin",
+                     Compose_Path ("/usr;/usr/local;/usr", "bin"),
+                     "Invalid path composition");
+   end Test_Compose_Path;
+
 
 end Util.Files.Tests;
