@@ -97,6 +97,11 @@ package Util.Properties is
    procedure Remove (Self : in out Manager'Class;
                      Name : in Value);
 
+   --  Iterate over the properties and execute the given procedure passing the
+   --  property name and its value.
+   procedure Iterate (Self    : in Manager'Class;
+                      Process : access procedure (Name, Item : Value));
+
    type Name_Array is array (Natural range <>) of Value;
 
    --  Return the name of the properties defined in the manager.
@@ -163,6 +168,11 @@ private
 
       --  Remove the property given its name.
       procedure Remove (Self : in out Manager; Name : in Value) is abstract;
+
+      --  Iterate over the properties and execute the given procedure passing the
+      --  property name and its value.
+      procedure Iterate (Self    : in Manager;
+                         Process : access procedure (Name, Item : Value)) is abstract;
 
       --  Deep copy of properties stored in 'From' to 'To'.
       function Create_Copy (Self : in Manager)

@@ -44,6 +44,11 @@ private package Util.Properties.Hash is
    --  Remove the property given its name.
    procedure Remove (Self : in out Manager; Name : in Value);
 
+   --  Iterate over the properties and execute the given procedure passing the
+   --  property name and its value.
+   procedure Iterate (Self    : in Manager;
+                      Process : access procedure (Name, Item : Value));
+
    --  Deep copy of properties stored in 'From' to 'To'.
    function Create_Copy (Self : in Manager) return Interface_P.Manager_Access;
 
