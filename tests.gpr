@@ -7,7 +7,7 @@ project Tests is
 
    for Languages use ("Ada", "Project file");
 
-   Mains := ("util_harness.adb");
+   Mains := ("util_harness.adb", "util_test_process.adb");
 
    for Source_Dirs use ("regtests/");
 --   for Source_Files use ("util_harness.adb");
