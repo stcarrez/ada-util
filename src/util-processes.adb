@@ -162,6 +162,7 @@ package body Util.Processes is
       Proc.Argv (Argc + 1) := Interfaces.C.Strings.Null_Ptr;
 
       --  System specific spawn
+      Proc.Exit_Value := -1;
       Util.Processes.Os.Spawn (Proc, Mode);
    end Spawn;
 
@@ -194,10 +195,10 @@ package body Util.Processes is
    --  ------------------------------
    --  Get the process exit status.
    --  ------------------------------
-   function Get_Exit_Value (Proc : in Process) return Integer is
+   function Get_Exit_Status (Proc : in Process) return Integer is
    begin
       return Proc.Exit_Value;
-   end Get_Exit_Value;
+   end Get_Exit_Status;
 
    --  ------------------------------
    --  Get the process identifier.

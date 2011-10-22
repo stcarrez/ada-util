@@ -45,7 +45,7 @@ package Util.Streams.Pipes is
    procedure Close (Stream : in out Pipe_Stream);
 
    --  Get the process exit status.
-   function Get_Exit_Value (Stream : in Pipe_Stream) return Integer;
+   function Get_Exit_Status (Stream : in Pipe_Stream) return Integer;
 
    --  Write the buffer array to the output stream.
    procedure Write (Stream : in out Pipe_Stream;

@@ -32,16 +32,21 @@ package body Util.Processes.Os is
    begin
       Wpid := Sys_Waitpid (Integer (Pid), Result'Address, 0);
       if Wpid = Integer (Pid) then
-         Status := Result;
+         Status := Result / 256;
       end if;
    end Waitpid;
 
+   --  ------------------------------
+   --  Create the output stream to read/write on the process input/output.
+   --  Setup the file to be closed on exec.
+   --  ------------------------------
    function Create_Stream (File : in Util.Streams.Raw.File_Type)
                            return Util.Streams.Raw.Raw_Stream_Access is
       Stream : constant Util.Streams.Raw.Raw_Stream_Access := new Util.Streams.Raw.Raw_Stream;
       Status : constant Integer := Sys_Fcntl (File, F_SETFL, FD_CLOEXEC);
+      pragma Unreferenced (Status);
    begin
-      Stream.Open (File);
+      Stream.Initialize (File);
       return Stream;
    end Create_Stream;
 
@@ -57,6 +62,8 @@ package body Util.Processes.Os is
       pragma Suppress (All_Checks);
 
       Result : Integer;
+      pragma Unreferenced (Result);
+
       Pipes  : aliased array (0 .. 1) of File_Type := (others => NO_FILE);
    begin
       --  Since checks are disabled, verify by hand that the argv table is correct.
@@ -66,7 +73,7 @@ package body Util.Processes.Os is
 
       if Mode /= NONE then
          if Sys_Pipe (Pipes'Address) /= 0 then
-            raise Process_Error;
+            raise Process_Error with "Cannot create pipe";
          end if;
       end if;
 
@@ -107,7 +114,7 @@ package body Util.Processes.Os is
             Result := Sys_Close (Pipes (0));
             Result := Sys_Close (Pipes (1));
          end if;
-         raise Process_Error;
+         raise Process_Error with "Cannot create process";
       end if;
 
       case Mode is

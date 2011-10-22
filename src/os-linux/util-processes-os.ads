@@ -41,7 +41,7 @@ private
 
    --  Fork a new process (vfork implementation)
    function Sys_VFork return Process_Identifier;
-   pragma Import (C, Sys_VFork, "vfork");
+   pragma Import (C, Sys_VFork, "fork");
 
    --  Execute a process with the given arguments.
    function Sys_Execvp (File : in Ptr;
@@ -71,6 +71,11 @@ private
                        Cmd   : in Integer;
                        Flags : in Integer) return Integer;
    pragma Import (C, Sys_Fcntl, "fcntl");
+
+   --  Create the output stream to read/write on the process input/output.
+   --  Setup the file to be closed on exec.
+   function Create_Stream (File : in Util.Streams.Raw.File_Type)
+                           return Util.Streams.Raw.Raw_Stream_Access;
 
 end Util.Processes.Os;
 
