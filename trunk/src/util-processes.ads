@@ -69,7 +69,7 @@ package Util.Processes is
    procedure Wait (Proc : in out Process);
 
    --  Get the process exit status.
-   function Get_Exit_Value (Proc : in Process) return Integer;
+   function Get_Exit_Status (Proc : in Process) return Integer;
 
    --  Get the process identifier.
    function Get_Pid (Proc : in Process) return Process_Identifier;

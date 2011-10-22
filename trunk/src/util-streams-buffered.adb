@@ -313,14 +313,14 @@ package body Util.Streams.Buffered is
       Avail : Stream_Element_Offset;
    begin
       loop
-         Avail := Stream.Write_Pos - Pos;
+         Avail := Stream.Write_Pos - Pos + 1;
          if Avail = 0 then
             Stream.Fill;
             if Stream.Eof then
                return;
             end if;
             Pos   := Stream.Read_Pos;
-            Avail := Stream.Write_Pos - Pos;
+            Avail := Stream.Write_Pos - Pos + 1;
          end if;
          for I in 1 .. Avail loop
             Ada.Strings.Unbounded.Append (Into, Character'Val (Stream.Buffer (Pos)));

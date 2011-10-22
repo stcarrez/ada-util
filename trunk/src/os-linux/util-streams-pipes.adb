@@ -41,10 +41,10 @@ package body Util.Streams.Pipes is
    --  -----------------------
    --  Get the process exit status.
    --  -----------------------
-   function Get_Exit_Value (Stream : in Pipe_Stream) return Integer is
+   function Get_Exit_Status (Stream : in Pipe_Stream) return Integer is
    begin
-      return Util.Processes.Get_Exit_Value (Stream.Proc);
-   end Get_Exit_Value;
+      return Util.Processes.Get_Exit_Status (Stream.Proc);
+   end Get_Exit_Status;
 
    --  -----------------------
    --  Write the buffer array to the output stream.
@@ -74,7 +74,9 @@ package body Util.Streams.Pipes is
       Input.Read (Into, Last);
    end Read;
 
+   --  -----------------------
    --  Flush the stream and release the buffer.
+   --  -----------------------
    procedure Finalize (Object : in out Pipe_Stream) is
    begin
       null;
