@@ -18,6 +18,8 @@
 with Ada.Unchecked_Deallocation;
 
 with Util.Log.Loggers;
+with Util.Strings;
+with Util.Processes.Os;
 package body Util.Processes is
 
    use Util.Log;
@@ -88,19 +90,105 @@ package body Util.Processes is
    procedure Spawn (Proc      : in out Process;
                     Command   : in String;
                     Arguments : in Argument_List) is
+      use type Interfaces.C.size_t;
+
+      Argc : Interfaces.C.size_t := 0;
    begin
+      if Is_Running (Proc) then
+         raise Invalid_State with "A process is running";
+      end if;
+
       Log.Info ("Starting process {0}", Command);
-      Log.Error ("Spawn not implemented");
-      raise Invalid_State with "Spawn not implemented";
+      Free (Proc.Argv);
+
+      --  Build the argc/argv table, terminate by NULL
+      Proc.Argv := new Ptr_Array (0 .. Arguments'Length + 2);
+      Proc.Argv (0) := Interfaces.C.Strings.New_String (Command);
+      for I in Arguments'Range loop
+         Argc := Argc + 1;
+         Proc.Argv (Argc) := Interfaces.C.Strings.New_String (Arguments (I).all);
+      end loop;
+      Proc.Argv (Argc + 1) := Interfaces.C.Strings.Null_Ptr;
+
+      --  System specific spawn
+      Util.Processes.Os.Spawn (Proc);
    end Spawn;
+
+   procedure Free_Ptr_Ptr_Array is
+     new Ada.Unchecked_Deallocation (Name => Ptr_Ptr_Array, Object => Ptr_Array);
+
+   --  ------------------------------
+   --  Spawn a new process with the given command and its arguments.  The standard input, output
+   --  and error streams are either redirected to a file or to a stream object.
+   --  ------------------------------
+   procedure Spawn (Proc      : in out Process;
+                    Command   : in String;
+                    Mode      : in Pipe_Mode := NONE) is
+      use type Interfaces.C.size_t;
+
+      Argc : Interfaces.C.size_t := 0;
+      Max  : Interfaces.C.size_t := 10;
+      Pos  : Natural := Command'First;
+      N    : Natural;
+   begin
+      if Is_Running (Proc) then
+         raise Invalid_State with "A process is running";
+      end if;
+
+      Log.Info ("Starting process {0}", Command);
+      Free (Proc.Argv);
+
+      --  Build the argc/argv table, terminate by NULL
+      Proc.Argv := new Ptr_Array (0 .. Max + 1);
+      while Pos < Command'Last loop
+         N := Util.Strings.Index (Command, ' ', Pos);
+         if N = 0 then
+            N := Command'Last + 1;
+         end if;
+         if Argc = Max then
+            declare
+               Old : Ptr_Ptr_Array := Proc.Argv;
+            begin
+               Max := Max * 2;
+               Proc.Argv := new Ptr_Array (0 .. Max + 1);
+               Proc.Argv (Old.all'Range) := Old.all;
+               Free_Ptr_Ptr_Array (Old);
+            end;
+         end if;
+         Proc.Argv (Argc) := Interfaces.C.Strings.New_String (Command (Pos .. N - 1));
+         Pos := N + 1;
+         Argc := Argc + 1;
+      end loop;
+      Proc.Argv (Argc + 1) := Interfaces.C.Strings.Null_Ptr;
+
+      --  System specific spawn
+      Util.Processes.Os.Spawn (Proc, Mode);
+   end Spawn;
+
+   --  ------------------------------
+   --  Free the argv table
+   --  ------------------------------
+   procedure Free (Argv : in out Ptr_Ptr_Array) is
+   begin
+      if Argv /= null then
+         for I in Argv'Range loop
+            Interfaces.C.Strings.Free (Argv (I));
+         end loop;
+         Free_Ptr_Ptr_Array (Argv);
+      end if;
+   end Free;
 
    --  ------------------------------
    --  Wait for the process to terminate.
    --  ------------------------------
    procedure Wait (Proc : in out Process) is
    begin
-      Log.Error ("Wait not implemented");
-      raise Invalid_State with "Wait not implemented";
+      if not Is_Running (Proc) then
+         return;
+      end if;
+
+      Log.Info ("Waiting for process {0}", Process_Identifier'Image (Proc.Pid));
+      Util.Processes.Os.Waitpid (Proc.Pid, Proc.Exit_Value);
    end Wait;
 
    --  ------------------------------
@@ -124,7 +212,7 @@ package body Util.Processes is
    --  ------------------------------
    function Is_Running (Proc : in Process) return Boolean is
    begin
-      return Proc.Pid > 0 and Proc.Exit_Value >= 0;
+      return Proc.Pid > 0 and Proc.Exit_Value < 0;
    end Is_Running;
 
    --  ------------------------------
@@ -163,6 +251,7 @@ package body Util.Processes is
       Free (Proc.Input);
       Free (Proc.Output);
       Free (Proc.Error);
+      Free (Proc.Argv);
    end Finalize;
 
 end Util.Processes;

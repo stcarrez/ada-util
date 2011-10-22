@@ -17,11 +17,17 @@
 -----------------------------------------------------------------------
 with Util.Streams;
 
+with Interfaces.C;
+with Interfaces.C.Strings;
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
 package Util.Processes is
 
    Invalid_State : exception;
+
+   Process_Error : exception;
+
+   type Pipe_Mode is (NONE, READ, WRITE);
 
    subtype String_Access is Ada.Strings.Unbounded.String_Access;
 
@@ -55,6 +61,10 @@ package Util.Processes is
                     Command   : in String;
                     Arguments : in Argument_List);
 
+   procedure Spawn (Proc      : in out Process;
+                    Command   : in String;
+                    Mode      : in Pipe_Mode := NONE);
+
    --  Wait for the process to terminate.
    procedure Wait (Proc : in out Process);
 
@@ -78,13 +88,18 @@ package Util.Processes is
 
 private
 
+   subtype Ptr is Interfaces.C.Strings.chars_ptr;
+   subtype Ptr_Array is Interfaces.C.Strings.chars_ptr_array;
+   type Ptr_Ptr_Array is access all Ptr_Array;
+
    type Process is new Ada.Finalization.Limited_Controlled with record
+      Pid        : Process_Identifier := -1;
+      Exit_Value : Integer := -1;
+      Argv       : Ptr_Ptr_Array := null;
       Dir        : Ada.Strings.Unbounded.Unbounded_String;
       In_File    : Ada.Strings.Unbounded.Unbounded_String;
       Out_File   : Ada.Strings.Unbounded.Unbounded_String;
       Err_File   : Ada.Strings.Unbounded.Unbounded_String;
-      Pid        : Process_Identifier := -1;
-      Exit_Value : Integer := -1;
       Output     : Util.Streams.Input_Stream_Access := null;
       Input      : Util.Streams.Output_Stream_Access := null;
       Error      : Util.Streams.Input_Stream_Access := null;
@@ -92,6 +107,9 @@ private
 
    overriding
    procedure Finalize (Proc : in out Process);
+
+   --  Free the argv table
+   procedure Free (Argv : in out Ptr_Ptr_Array);
 
 end Util.Processes;
 
