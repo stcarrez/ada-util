@@ -40,6 +40,9 @@ package body Util.Streams.Buffered is
       Stream.Input     := Input;
       Stream.Write_Pos := 1;
       Stream.Read_Pos  := 2;
+      if Output = null then
+         Stream.Read_Pos := Stream.Write_Pos;
+      end if;
       Stream.No_Flush  := False;
    end Initialize;
 
@@ -309,20 +312,22 @@ package body Util.Streams.Buffered is
       Pos   : Stream_Element_Offset := Stream.Read_Pos;
       Avail : Stream_Element_Offset;
    begin
-      Avail := Stream.Write_Pos - Pos;
-      if Avail = 0 then
-         Stream.Fill;
-         if Stream.Eof then
-            return;
-         end if;
-         Pos   := Stream.Read_Pos;
+      loop
          Avail := Stream.Write_Pos - Pos;
-      end if;
-      for I in 1 .. Avail loop
-         Ada.Strings.Unbounded.Append (Into, Character'Val (Stream.Buffer (Pos)));
-         Pos := Pos + 1;
+         if Avail = 0 then
+            Stream.Fill;
+            if Stream.Eof then
+               return;
+            end if;
+            Pos   := Stream.Read_Pos;
+            Avail := Stream.Write_Pos - Pos;
+         end if;
+         for I in 1 .. Avail loop
+            Ada.Strings.Unbounded.Append (Into, Character'Val (Stream.Buffer (Pos)));
+            Pos := Pos + 1;
+         end loop;
+         Stream.Read_Pos := Pos;
       end loop;
-      Stream.Read_Pos := Pos;
    end Read;
 
    --  ------------------------------
