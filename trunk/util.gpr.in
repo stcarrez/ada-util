@@ -10,6 +10,7 @@ project Util is
    Xml_Version : Xml_Version_Type := "@UTIL_XML_VERSION@";
    Xml_Src_Dir := "@UTIL_XML_DIR@";
    Asm_Src_Dir := "@UTIL_ASM_DIR@";
+   Os_Src_Dir  := "@UTIL_OS_DIR@";
 
    package Naming is
       case Xml_Version is
@@ -26,7 +27,7 @@ project Util is
       end case;
    end Naming;
 
-   for Source_Dirs use ("src", Asm_Src_Dir, Xml_Src_Dir);
+   for Source_Dirs use ("src", Asm_Src_Dir, Xml_Src_Dir, Os_Src_Dir);
 
    for Library_Dir use "lib/util";
    for Library_Name use "adautil";
