@@ -52,19 +52,38 @@ UTIL_LIBDIR="lib"
 AC_SUBST(UTIL_LIBDIR)
 
 
-case "${host}" in
+AC_MSG_CHECKING([specific operating system sources])
+case "${target_os}" in
+     linux|linux-*|solaris*|sysv-*)
+	src_os='src/os-linux'
+	;;
+
+     mingw32*|cygwin*)
+	src_os='src/os-none'
+	;;
+
+     *)
+	src_os='src/os-none'
+	;;
+esac
+AC_MSG_RESULT(using $src_os)
+UTIL_OS_DIR=$src_os
+AC_SUBST(UTIL_OS_DIR)
+
+AC_MSG_CHECKING([specific processor support])
+case "${target}" in
   ## Intel 386 machines where we don't care about the manufacturer
   i[[3456]]86-*-* )
-    src_asm='asm-x86'
+    src_asm='src/asm-x86'
     ;;
 
   *)
-    src_asm='asm-none'
+    src_asm='src/asm-none'
     ;;
 
 esac
-
-UTIL_ASM_DIR="src/$src_asm"
+AC_MSG_RESULT(using $src_asm)
+UTIL_ASM_DIR="$src_asm"
 AC_SUBST(UTIL_ASM_DIR)
 
 ##########################################
