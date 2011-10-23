@@ -25,6 +25,7 @@ package Util.Streams.Files.Tests is
 
    type Test is new Util.Tests.Test with null record;
 
+   --  Test reading and writing on a buffered stream with various buffer sizes
    procedure Test_Read_Write (T : in out Test);
    procedure Test_Write (T : in out Test);
 

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.buffered.tests -- Unit tests for buffered streams
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +18,15 @@
 
 with Util.Test_Caller;
 
-with Util.Tests;
+with Util.Log.Loggers;
 package body Util.Streams.Buffered.Tests is
 
    use Util.Tests;
+
+   use Util.Log;
+
+   --  The logger
+   Log : constant Loggers.Logger := Loggers.Create ("Util.Streams.Buffered.Tests");
 
    package Caller is new Util.Test_Caller (Test);
 
@@ -29,8 +34,10 @@ package body Util.Streams.Buffered.Tests is
    begin
       Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Write, Read",
                        Test_Read_Write'Access);
-      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Write, Flush",
+      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Write, Flush (String)",
                        Test_Write'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Write, Flush (Stream_Array)",
+                       Test_Write_Stream'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -97,5 +104,49 @@ package body Util.Streams.Buffered.Tests is
          end;
       end loop;
    end Test_Write;
+
+   --  ------------------------------
+   --  Write on a buffer and force regular flush on a larger buffer
+   --  ------------------------------
+   procedure Test_Write_Stream (T : in out Test) is
+      Big_Stream : aliased Buffered_Stream;
+      Stream     : Buffered_Stream;
+      Size       : Stream_Element_Offset := 0;
+      Count      : constant Stream_Element_Offset := 200;
+      Max_Size   : constant Stream_Element_Offset := 5728500;
+   begin
+      Big_Stream.Initialize (Size => Natural (Max_Size));
+      for Buf_Size in 1 .. 19 loop
+         Stream.Initialize (Output => Big_Stream'Unchecked_Access,
+                            Input  => Big_Stream'Unchecked_Access, Size => Buf_Size);
+
+         for I in 1 .. Count loop
+            for Repeat in 1 .. 5 loop
+               declare
+                  S : Stream_Element_Array (1 .. I);
+               begin
+                  for J in S'Range loop
+                     S (J) := Stream_Element'Val (J mod 255);
+                  end loop;
+
+                  for J in 1 .. Repeat loop
+                     Stream.Write (S);
+                  end loop;
+                  Stream.Flush;
+
+                  Size := Size +  (I) * Stream_Element_Offset (Repeat);
+                  Assert_Equals (T, 1, Integer (Stream.Write_Pos), "Stream must be flushed");
+
+                  --  Verify that 'Big_Stream' holds the expected number of bytes.
+                  Assert_Equals (T, Integer (Size), Integer (Big_Stream.Write_Pos) - 1,
+                                 "Target stream has an invalid write position at "
+                                 & Stream_Element_Offset'Image (I) & " with buffer "
+                                 & Natural'Image (Buf_Size) & " repeat " & Natural'Image (Repeat));
+               end;
+            end loop;
+         end loop;
+      end loop;
+      Assert_Equals (T, Integer (Max_Size), Integer (Big_Stream.Get_Size), "Invalid final size");
+   end Test_Write_Stream;
 
 end Util.Streams.Buffered.Tests;

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.files.tests -- Unit tests for buffered streams
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,27 +37,32 @@ package body Util.Streams.Files.Tests is
                        Test_Write'Access);
    end Add_Tests;
 
+   --  ------------------------------
+   --  Test reading and writing on a buffered stream with various buffer sizes
+   --  ------------------------------
    procedure Test_Read_Write (T : in out Test) is
       Stream     : aliased File_Stream;
       Buffer     : Util.Streams.Buffered.Buffered_Stream;
    begin
-      Buffer.Initialize (Output => Stream'Unchecked_Access,
-                         Input  => null,
-                         Size   => 1024);
-      Stream.Create (Mode => Out_File, Name => "test-stream.txt");
-      Buffer.Write ("abcd");
-      Buffer.Write (" fghij");
-      Buffer.Flush;
-      Stream.Close;
+      for I in 1 .. 32 loop
+         Buffer.Initialize (Output => Stream'Unchecked_Access,
+                            Input  => null,
+                            Size   => I);
+         Stream.Create (Mode => Out_File, Name => "test-stream.txt");
+         Buffer.Write ("abcd");
+         Buffer.Write (" fghij");
+         Buffer.Flush;
+         Stream.Close;
 
-      declare
-         Content : Ada.Strings.Unbounded.Unbounded_String;
-      begin
-         Util.Files.Read_File (Path     => "test-stream.txt",
-                               Into     => Content,
-                               Max_Size => 10000);
-         Assert_Equals (T, "abcd fghij", Content, "Invalid content written to the file stream");
-      end;
+         declare
+            Content : Ada.Strings.Unbounded.Unbounded_String;
+         begin
+            Util.Files.Read_File (Path     => "test-stream.txt",
+                                  Into     => Content,
+                                  Max_Size => 10000);
+            Assert_Equals (T, "abcd fghij", Content, "Invalid content written to the file stream");
+         end;
+      end loop;
    end Test_Read_Write;
 
    procedure Test_Write (T : in out Test) is
