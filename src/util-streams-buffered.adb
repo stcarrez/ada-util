@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Streams.Buffered -- Buffered streams Stream utilities
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,10 +39,7 @@ package body Util.Streams.Buffered is
       Stream.Output    := Output;
       Stream.Input     := Input;
       Stream.Write_Pos := 1;
-      Stream.Read_Pos  := 2;
-      if Output = null then
-         Stream.Read_Pos := Stream.Write_Pos;
-      end if;
+      Stream.Read_Pos  := 1;
       Stream.No_Flush  := False;
    end Initialize;
 
@@ -57,7 +54,7 @@ package body Util.Streams.Buffered is
       Stream.Buffer    := new Stream_Element_Array (1 .. Content'Length);
       Stream.Output    := null;
       Stream.Input     := null;
-      Stream.Write_Pos := Stream.Last;
+      Stream.Write_Pos := Stream.Last + 1;
       Stream.Read_Pos  := 1;
       Stream.No_Flush  := False;
       for I in Content'Range loop
@@ -202,6 +199,7 @@ package body Util.Streams.Buffered is
          Stream.Buffer (Pos .. Pos + Size - 1) := Buffer (Start .. Start + Size - 1);
          Start := Start + Size;
          Pos   := Pos + Size;
+         Stream.Write_Pos := Pos;
 
          --  If we have still more data that the buffer size, flush and write
          --  the buffer directly.
@@ -210,7 +208,6 @@ package body Util.Streams.Buffered is
             Stream.Output.Write (Buffer (Start .. Buffer'Last));
             return;
          end if;
-         Stream.Write_Pos := Pos;
       end loop;
    end Write;
 
@@ -241,6 +238,9 @@ package body Util.Streams.Buffered is
       else
          Stream.Input.Read (Stream.Buffer (1 .. Stream.Last - 1), Stream.Write_Pos);
          Stream.Eof := Stream.Write_Pos < 1;
+         if not Stream.Eof then
+            Stream.Write_Pos := Stream.Write_Pos + 1;
+         end if;
          Stream.Read_Pos := 1;
       end if;
    end Fill;
@@ -251,7 +251,7 @@ package body Util.Streams.Buffered is
    procedure Read (Stream : in out Buffered_Stream;
                    Char   : out Character) is
    begin
-      if Stream.Read_Pos > Stream.Write_Pos then
+      if Stream.Read_Pos >= Stream.Write_Pos then
          Stream.Fill;
          if Stream.Eof then
             raise Ada.IO_Exceptions.Data_Error with "End of buffer";
@@ -290,14 +290,6 @@ package body Util.Streams.Buffered is
          Start := Start + Size;
          Pos   := Pos + Size;
          Total := Total + Size;
-
-         --  If we have still more data that the buffer size, flush and write
-         --  the buffer directly.
---           if Start < Buffer'Last and then Buffer'Last - Start > Stream.Buffer'Length then
---              Stream.Flush;
---              Stream.Output.Write (Buffer (Start .. Buffer'Last));
---              return;
---           end if;
          Stream.Read_Pos := Pos;
       end loop;
       Last := Total;
@@ -313,14 +305,14 @@ package body Util.Streams.Buffered is
       Avail : Stream_Element_Offset;
    begin
       loop
-         Avail := Stream.Write_Pos - Pos + 1;
+         Avail := Stream.Write_Pos - Pos;
          if Avail = 0 then
             Stream.Fill;
             if Stream.Eof then
                return;
             end if;
             Pos   := Stream.Read_Pos;
-            Avail := Stream.Write_Pos - Pos + 1;
+            Avail := Stream.Write_Pos - Pos;
          end if;
          for I in 1 .. Avail loop
             Ada.Strings.Unbounded.Append (Into, Character'Val (Stream.Buffer (Pos)));
