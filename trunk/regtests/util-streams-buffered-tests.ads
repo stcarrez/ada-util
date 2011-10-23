@@ -31,5 +31,7 @@ package Util.Streams.Buffered.Tests is
 --     procedure Test_Read_File_Truncate (T : in out Test);
 --     procedure Test_Write_File (T : in out Test);
 --     procedure Test_Find_File_Path (T : in out Test);
+--  Write on a buffer and force regular flush on a larger buffer
+   procedure Test_Write_Stream (T : in out Test);
 
 end Util.Streams.Buffered.Tests;
