@@ -27,6 +27,8 @@
 with Util.Strings;
 with Util.Strings.Transforms;
 
+with AUnit.Time_Measure;
+
 --  Very simple reporter to console
 package body Util.Tests.Reporter is
 
@@ -52,9 +54,30 @@ package body Util.Tests.Reporter is
                   I    : in Integer);
 
    procedure Put (File : in Ada.Text_IO.File_Type;
+                  T    : in AUnit.Time_Measure.Time);
+
+   procedure Put (File : in Ada.Text_IO.File_Type;
                   I    : in Integer) is
    begin
       Ada.Text_IO.Put (File, Util.Strings.Image (I));
+   end Put;
+
+   procedure Put (File : in Ada.Text_IO.File_Type;
+                  T    : in AUnit.Time_Measure.Time) is
+      use Ada.Calendar;
+
+      D   : constant Duration := T.Stop - T.Start;
+      S   : constant String   := Duration'Image (D);
+      Pos : Natural := S'Last;
+   begin
+      while Pos > S'First and S (Pos) = '0' loop
+         Pos := Pos - 1;
+      end loop;
+      if D >= 0.0 then
+         Put (File, S (S'First + 1 .. Pos));
+      else
+         Put (File, S (S'First .. Pos));
+      end if;
    end Put;
 
    ----------------------
@@ -139,17 +162,13 @@ package body Util.Tests.Reporter is
          Put (File, S);
       end Put;
 
-      procedure Put_Measure is new AUnit.Time_Measure.Gen_Put_Measure;
-
    begin
       Put_Line (File, "<?xml version='1.0' encoding='utf-8' ?>");
       Put      (File, "<TestRun");
 
       if Elapsed  (R) /= AUnit.Time_Measure.Null_Time then
-         T := AUnit.Time_Measure.Get_Measure (Elapsed (R));
-
          Put (File, " elapsed='");
-         Put_Measure (T);
+         Put (File, Elapsed (R));
          Put_Line (File, "'>");
       else
          Put_Line (File, ">");
@@ -208,6 +227,7 @@ package body Util.Tests.Reporter is
                           Test : in Test_Result) is
 
       use Util.Strings.Transforms;
+      use type Ada.Calendar.Time;
 
       procedure Put (I : in Integer);
       procedure Put (S : in String);
@@ -230,10 +250,8 @@ package body Util.Tests.Reporter is
    begin
       Put (File, "    <Test");
       if Test.Elapsed /= AUnit.Time_Measure.Null_Time then
-         T := AUnit.Time_Measure.Get_Measure (Test.Elapsed);
-
          Put (File, " elapsed='");
-         Put_Measure (T);
+         Put (File, Test.Elapsed);
          Put_Line (File, "'>");
       else
          Put_Line (File, ">");

@@ -26,7 +26,6 @@
 
 with AUnit.Reporter;
 with AUnit.Test_Results;
-with AUnit.Time_Measure;
 
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
