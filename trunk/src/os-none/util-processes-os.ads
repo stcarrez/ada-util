@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  util-processes-os -- System specific and low level operations
+--  util-processes-os -- Dummy system specific and low level operations
 --  Copyright (C) 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
