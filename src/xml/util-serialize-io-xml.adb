@@ -399,6 +399,10 @@ package body Util.Serialize.IO.XML is
          if not Handler.Has_Error then
             raise;
          end if;
+
+      when others =>
+         Handler.Locator := Sax.Locators.No_Locator;
+         raise;
    end Parse;
 
    --  Close the current XML entity if an entity was started
