@@ -87,11 +87,12 @@ package body Util.Log.Loggers is
 
    function Get_Appender (Value : in String) return String;
 
-   function Format (Message : in String;
-                    Arg1    : in String;
-                    Arg2    : in String;
-                    Arg3    : in String;
-                    Arg4    : in String) return Unbounded_String;
+   procedure Format (Result  : in out Unbounded_String;
+                     Message : in String;
+                     Arg1    : in String;
+                     Arg2    : in String;
+                     Arg3    : in String;
+                     Arg4    : in String);
 
    --  Get the logger property associated with a given logger
    function Get_Logger_Property (Properties : in Util.Properties.Manager;
@@ -162,8 +163,7 @@ package body Util.Log.Loggers is
             begin
                Event.Time    := Ada.Calendar.Clock;
                Event.Level   := WARN_LEVEL;
-               Event.Message := Format ("Log configuration file {0} not found", Name, "", "", "");
---                 Event.Logger  := Ada.Strings.Unbounded.To_Unbounded_String ("Init"); SCz
+               Format (Event.Message, "Log configuration file {0} not found", Name, "", "", "");
                if Default_Appender = null then
                   Default_Appender := new Console_Appender;
                end if;
@@ -447,44 +447,47 @@ package body Util.Log.Loggers is
    --  ------------------------------
    --  Format the message with the arguments
    --  ------------------------------
-   function Format (Message : in String;
-                    Arg1    : in String;
-                    Arg2    : in String;
-                    Arg3    : in String;
-                    Arg4    : in String) return Unbounded_String is
-      Result : Unbounded_String := To_Unbounded_String (Message);
-      Pos    : Natural := 1;
+   procedure Format (Result  : in out Unbounded_String;
+                     Message : in String;
+                     Arg1    : in String;
+                     Arg2    : in String;
+                     Arg3    : in String;
+                     Arg4    : in String) is
+      Pos    : Natural := Message'First;
       C      : Character;
    begin
       --  Replace {N} with arg1, arg2, arg3 or ?
-      loop
-         Pos := Index (Result, "{", Pos);
-         exit when Pos = 0 or Pos + 2 > Length (Result)
-           or Element (Result, Pos + 2) /= '}';
-         C := Element (Result, Pos + 1);
-         case C is
-            when '0' =>
-               Replace_Slice (Result, Pos, Pos + 2, Arg1);
-               Pos := Pos + Arg1'Length;
-
-            when '1' =>
-               Replace_Slice (Result, Pos, Pos + 2, Arg2);
-               Pos := Pos + Arg2'Length;
-
-            when '2' =>
-               Replace_Slice (Result, Pos, Pos + 2, Arg3);
-               Pos := Pos + Arg3'Length;
-
-            when '3' =>
-               Replace_Slice (Result, Pos, Pos + 2, Arg4);
-               Pos := Pos + Arg3'Length;
-
-            when others =>
-               Replace_Slice (Result, Pos, Pos + 2, "?");
+      while Pos <= Message'Last loop
+         C := Message (Pos);
+         if C = '{' then
+            if Pos + 2 > Message'Last or else Message (Pos + 2) /= '}' then
+               Append (Result, C);
+            else
+               C := Message (Pos + 1);
                Pos := Pos + 2;
-         end case;
+               case C is
+               when '0' =>
+                  Append (Result, Arg1);
+
+               when '1' =>
+                  Append (Result, Arg2);
+
+               when '2' =>
+                  Append (Result, Arg3);
+
+               when '3' =>
+                  Append (Result, Arg4);
+
+               when others =>
+                  Append (Result, "?");
+               end case;
+            end if;
+
+         else
+            Append (Result, C);
+         end if;
+         Pos := Pos + 1;
       end loop;
-      return Result;
    end Format;
 
    procedure Print (Log     : in Logger;
@@ -501,8 +504,8 @@ package body Util.Log.Loggers is
          begin
             Event.Time    := Ada.Calendar.Clock;
             Event.Level   := Level;
-            Event.Message := Format (Message, Arg1, Arg2, Arg3, Arg4);
             Event.Logger  := Log.Instance;
+            Format (Event.Message, Message, Arg1, Arg2, Arg3, Arg4);
             Log.Instance.Appender.Append (Event);
          end;
       end if;
