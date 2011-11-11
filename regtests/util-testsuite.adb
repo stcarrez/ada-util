@@ -32,6 +32,7 @@ with Util.Beans.Objects.Discretes;
 with Util.Beans.Objects.Record_Tests;
 with Util.Serialize.IO.JSON.Tests;
 with Util.Serialize.IO.XML.Tests;
+with Util.Serialize.IO.CSV.Tests;
 with Util.Processes.Tests;
 package body Util.Testsuite is
 
@@ -56,6 +57,7 @@ package body Util.Testsuite is
       Util.Beans.Objects.Record_Tests.Add_Tests (Result);
       Util.Serialize.IO.JSON.Tests.Add_Tests (Result);
       Util.Serialize.IO.XML.Tests.Add_Tests (Result);
+      Util.Serialize.IO.CSV.Tests.Add_Tests (Result);
       Util.Processes.Tests.Add_Tests (Result);
       return Result;
    end Suite;
