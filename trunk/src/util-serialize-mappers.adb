@@ -168,7 +168,7 @@ package body Util.Serialize.Mappers is
       end Copy;
 
    begin
-      Log.Info ("Mapping {0} for mapper X", Path);
+      Log.Info ("Mapping '{0}' for mapper X", Path);
 
       --  Find or build the mapping tree.
       Into.Build_Path (Path, Last_Pos, Node);
