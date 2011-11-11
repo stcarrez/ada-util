@@ -5,7 +5,8 @@ project Samples is
 
    Mains := ("measures.adb", "properties.adb", "log.adb",
    "bundles.adb", "escape.adb", "encodes.adb", "json.adb", "popen.adb",
-   "multipro.adb", "multipro_refs.adb", "xmlrd.adb", "date.adb");
+   "multipro.adb", "multipro_refs.adb", "xmlrd.adb", "date.adb",
+   "csv_city.adb", "csv_reader.adb");
 
    for Main use Mains;
 

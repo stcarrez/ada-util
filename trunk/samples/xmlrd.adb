@@ -21,6 +21,7 @@ with Ada.Command_Line;
 with Ada.Containers;
 with Ada.Containers.Vectors;
 
+with Util.Log.Loggers;
 with Util.Beans;
 with Util.Beans.Objects;
 with Util.Streams.Texts;
@@ -137,6 +138,8 @@ procedure Xmlrd is
    Service_Vector_Mapping : aliased Service_Vector_Mapper.Mapper;
 
 begin
+   Util.Log.Loggers.Initialize ("samples/log4j.properties");
+
    if Count = 0 then
       Ada.Text_IO.Put_Line ("Usage: xmlrd file...");
       return;
