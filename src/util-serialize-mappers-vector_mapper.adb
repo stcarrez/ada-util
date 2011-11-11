@@ -15,10 +15,16 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Util.Log.Loggers;
 
 package body Util.Serialize.Mappers.Vector_Mapper is
 
    use Vectors;
+   use Util.Log;
+
+   --  The logger
+   Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.Mappers.Vector_Mapper",
+                                                    Util.Log.WARN_LEVEL);
 
    Key : Util.Serialize.Contexts.Data_Key;
 
@@ -79,6 +85,8 @@ package body Util.Serialize.Mappers.Vector_Mapper is
 
       D : constant Contexts.Data_Access := Ctx.Get_Data (Key);
    begin
+      Log.Debug ("Updating vector element");
+
       if not (D.all in Vector_Data'Class) then
          raise Util.Serialize.Contexts.No_Data;
       end if;
@@ -131,6 +139,8 @@ package body Util.Serialize.Mappers.Vector_Mapper is
       end Set_Context;
 
    begin
+      Log.Debug ("Creating vector element {0}", Name);
+
       if not (D.all in Vector_Data'Class) then
          raise Util.Serialize.Contexts.No_Data;
       end if;

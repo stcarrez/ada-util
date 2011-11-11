@@ -27,7 +27,7 @@ package body Util.Serialize.IO is
 
    --  The logger'
    Log : aliased constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Serialize.IO",
-                                                            Util.Log.WARN_LEVEL);
+                                                                              Util.Log.WARN_LEVEL);
 
    --  ------------------------------
    --  Read the file and parse it using the JSON parser.
@@ -81,7 +81,7 @@ package body Util.Serialize.IO is
          null;
 
       when E : others =>
-         Handler.Error_Logger.Error ("Exception " & Ada.Exceptions.Exception_Name (E), E);
+         Parser'Class (Handler).Error ("Exception " & Ada.Exceptions.Exception_Name (E));
    end Parse_String;
 
    --  ------------------------------
@@ -140,6 +140,8 @@ package body Util.Serialize.IO is
       Next    : Element_Context_Access;
       Pos     : Positive;
    begin
+      Log.Debug ("Start object {0}", Name);
+
       Context_Stack.Push (Handler.Stack);
       Next := Context_Stack.Current (Handler.Stack);
       if Current /= null then
@@ -178,6 +180,7 @@ package body Util.Serialize.IO is
 
       use type Util.Serialize.Mappers.Mapper_Access;
    begin
+      Log.Debug ("Finish object {0}", Name);
 
       declare
          Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
@@ -223,6 +226,8 @@ package body Util.Serialize.IO is
 
       Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
    begin
+      Log.Debug ("Set member {0}", Name);
+
       if Current /= null then
 
          --  Look each active mapping node.
