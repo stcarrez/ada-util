@@ -73,6 +73,21 @@ package Util.Serialize.IO.CSV is
                        Row     : in Row_Type;
                        Column  : in Column_Type);
 
+   --  Set the field separator.  The default field separator is the comma (',').
+   procedure Set_Field_Separator (Handler   : in out Parser;
+                                  Separator : in Character);
+
+   --  Get the field separator.
+   function Get_Field_Separator (Handler : in Parser) return Character;
+
+   --  Set the comment separator.  When a comment separator is defined, a line which starts
+   --  with the comment separator will be ignored.  The row number will not be incremented.
+   procedure Set_Comment_Separator (Handler   : in out Parser;
+                                    Separator : in Character);
+
+   --  Get the comment separator.  Returns ASCII.NUL if comments are not supported.
+   function Get_Comment_Separator (Handler   : in Parser) return Character;
+
    --  Parse the stream using the CSV parser.
    overriding
    procedure Parse (Handler : in out Parser;
@@ -96,6 +111,8 @@ private
       Line_Number : Natural  := 1;
       Row         : Row_Type := 0;
       Headers     : Util.Strings.Vectors.Vector;
+      Separator   : Character := ',';
+      Comment     : Character := ASCII.NUL;
    end record;
 
 end Util.Serialize.IO.CSV;
