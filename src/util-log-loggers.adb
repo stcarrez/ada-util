@@ -160,9 +160,13 @@ package body Util.Log.Loggers is
          when Ada.IO_Exceptions.Name_Error =>
             declare
                Event : Util.Log.Appenders.Log_Event;
+               Log   : aliased Logger_Info := Logger_Info '(Len    => 8,
+                                                            Name   => "Util.Log",
+                                                            others => <>);
             begin
                Event.Time    := Ada.Calendar.Clock;
                Event.Level   := WARN_LEVEL;
+               Event.Logger  := Log'Unchecked_Access;
                Format (Event.Message, "Log configuration file {0} not found", Name, "", "", "");
                if Default_Appender = null then
                   Default_Appender := new Console_Appender;
