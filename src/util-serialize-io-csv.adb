@@ -178,6 +178,41 @@ package body Util.Serialize.IO.CSV is
    end Set_Cell;
 
    --  ------------------------------
+   --  Set the field separator.  The default field separator is the comma (',').
+   --  ------------------------------
+   procedure Set_Field_Separator (Handler   : in out Parser;
+                                  Separator : in Character) is
+   begin
+      Handler.Separator := Separator;
+   end Set_Field_Separator;
+
+   --  ------------------------------
+   --  Get the field separator.
+   --  ------------------------------
+   function Get_Field_Separator (Handler : in Parser) return Character is
+   begin
+      return Handler.Separator;
+   end Get_Field_Separator;
+
+   --  ------------------------------
+   --  Set the comment separator.  When a comment separator is defined, a line which starts
+   --  with the comment separator will be ignored.  The row number will not be incremented.
+   --  ------------------------------
+   procedure Set_Comment_Separator (Handler   : in out Parser;
+                                    Separator : in Character) is
+   begin
+      Handler.Comment := Separator;
+   end Set_Comment_Separator;
+
+   --  ------------------------------
+   --  Get the comment separator.  Returns ASCII.NUL if comments are not supported.
+   --  ------------------------------
+   function Get_Comment_Separator (Handler : in Parser) return Character is
+   begin
+      return Handler.Comment;
+   end Get_Comment_Separator;
+
+   --  ------------------------------
    --  Parse the stream using the CSV parser.
    --  Call <b>Set_Cell</b> for each cell that has been parsed indicating the row and
    --  column numbers as well as the cell value.
@@ -193,6 +228,7 @@ package body Util.Serialize.IO.CSV is
       Row            : Row_Type  := 0;
       In_Quote_Token : Boolean := False;
       In_Escape      : Boolean := False;
+      Ignore_Row     : Boolean := False;
       Context        : Element_Context_Access;
    begin
       Context_Stack.Push (Handler.Stack);
@@ -205,19 +241,23 @@ package body Util.Serialize.IO.CSV is
             if C = Ada.Characters.Latin_1.LF then
                Handler.Line_Number := Handler.Line_Number + 1;
             end if;
-            if In_Quote_Token and not In_Escape then
-               Append (Token, C);
+            if not Ignore_Row then
+               if In_Quote_Token and not In_Escape then
+                  Append (Token, C);
 
-            elsif Column > 1 or Length (Token) > 0 then
-               Parser'Class (Handler).Set_Cell (To_String (Token), Row, Column);
-               Set_Unbounded_String (Token, "");
-               Row            := Row + 1;
-               Column         := 1;
-               In_Quote_Token := False;
-               In_Escape      := False;
+               elsif Column > 1 or else Length (Token) > 0 then
+                  Parser'Class (Handler).Set_Cell (To_String (Token), Row, Column);
+                  Set_Unbounded_String (Token, "");
+                  Row            := Row + 1;
+                  Column         := 1;
+                  In_Quote_Token := False;
+                  In_Escape      := False;
+               end if;
+            else
+               Ignore_Row := False;
             end if;
 
-         elsif C = ',' then
+         elsif C = Handler.Separator and not Ignore_Row then
             if In_Quote_Token and not In_Escape then
                Append (Token, C);
 
@@ -229,7 +269,7 @@ package body Util.Serialize.IO.CSV is
                In_Escape      := False;
             end if;
 
-         elsif C = '"' then
+         elsif C = '"' and not Ignore_Row then
             if In_Quote_Token then
                In_Escape := True;
 
@@ -244,9 +284,14 @@ package body Util.Serialize.IO.CSV is
                Append (Token, C);
             end if;
 
-         else
+         elsif C = Handler.Comment and Handler.Comment /= ASCII.NUL
+           and Column = 1 and Length (Token) = 0 then
+            Ignore_Row := True;
+
+         elsif not Ignore_Row then
             Append (Token, C);
             In_Escape := False;
+
          end if;
 
       end loop;
