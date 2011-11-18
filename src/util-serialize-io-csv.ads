@@ -88,6 +88,11 @@ package Util.Serialize.IO.CSV is
    --  Get the comment separator.  Returns ASCII.NUL if comments are not supported.
    function Get_Comment_Separator (Handler   : in Parser) return Character;
 
+   --  Setup the CSV parser and mapper to use the default column header names.
+   --  When activated, the first row is assumed to contain the first item to de-serialize.
+   procedure Set_Default_Headers (Handler : in out Parser;
+                                  Mode    : in Boolean := True);
+
    --  Parse the stream using the CSV parser.
    overriding
    procedure Parse (Handler : in out Parser;
@@ -113,6 +118,7 @@ private
       Headers     : Util.Strings.Vectors.Vector;
       Separator   : Character := ',';
       Comment     : Character := ASCII.NUL;
+      Use_Default_Headers : Boolean := False;
    end record;
 
 end Util.Serialize.IO.CSV;

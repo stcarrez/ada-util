@@ -213,6 +213,16 @@ package body Util.Serialize.IO.CSV is
    end Get_Comment_Separator;
 
    --  ------------------------------
+   --  Setup the CSV parser and mapper to use the default column header names.
+   --  When activated, the first row is assumed to contain the first item to de-serialize.
+   --  ------------------------------
+   procedure Set_Default_Headers (Handler : in out Parser;
+                                  Mode    : in Boolean := True) is
+   begin
+      Handler.Use_Default_Headers := Mode;
+   end Set_Default_Headers;
+
+   --  ------------------------------
    --  Parse the stream using the CSV parser.
    --  Call <b>Set_Cell</b> for each cell that has been parsed indicating the row and
    --  column numbers as well as the cell value.
@@ -234,6 +244,10 @@ package body Util.Serialize.IO.CSV is
       Context_Stack.Push (Handler.Stack);
       Context := Context_Stack.Current (Handler.Stack);
       Context.Active_Nodes (1) := Handler.Mapping_Tree'Unchecked_Access;
+      if Handler.Use_Default_Headers then
+         Row := 1;
+      end if;
+      Handler.Headers.Clear;
       loop
          Stream.Read (Char => C);
 
