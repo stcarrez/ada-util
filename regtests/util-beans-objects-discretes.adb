@@ -27,6 +27,13 @@ package body Util.Beans.Objects.Discretes is
 
    use Ada.Calendar;
 
+   function "-" (Left, Right : Ada.Calendar.Time) return Ada.Calendar.Time;
+   function "+" (Left, Right : Ada.Calendar.Time) return Ada.Calendar.Time;
+   function Time_Value (S : String) return Ada.Calendar.Time;
+
+   function "-" (Left, Right : Boolean) return Boolean;
+   function "+" (Left, Right : Boolean) return Boolean;
+
    package Test_Integer is new
      Util.Beans.Objects.Discrete_Tests (Test_Type      => Integer,
                                         To_Type        => Util.Beans.Objects.To_Integer,
@@ -72,6 +79,8 @@ package body Util.Beans.Objects.Discretes is
    type Color is (WHITE, BLACK, RED, GREEN, BLUE, YELLOW);
 
    package Color_Object is new Util.Beans.Objects.Enums (Color, ROUND_VALUE => True);
+   function "-" (Left, Right : Color) return Color;
+   function "+" (Left, Right : Color) return Color;
 
    function "-" (Left, Right : Color) return Color is
       N : constant Integer := Color'Pos (Left) - Color'Pos (Right);
@@ -156,7 +165,7 @@ package body Util.Beans.Objects.Discretes is
                                 Test_Name      => "Long_Long_Float",
                                 Test_Values    => "1.2,3.3,-3.3");
 
-   procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
+   procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
       Test_Boolean.Add_Tests (Suite);
       Test_Integer.Add_Tests (Suite);

@@ -20,7 +20,6 @@ with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded.Hash;
 with Util.Test_Caller;
-with Util.Tests;
 with Util.Strings.Transforms;
 with Util.Strings.Maps;
 with Ada.Streams;
@@ -33,7 +32,7 @@ package body Util.Strings.Tests is
 
    package Caller is new Util.Test_Caller (Test);
 
-   procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
+   procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
       Caller.Add_Test (Suite, "Test Util.Strings.Transforms.Escape_Javascript",
                        Test_Escape_Javascript'Access);
@@ -243,7 +242,7 @@ package body Util.Strings.Tests is
       --  (the fastest hash)
       declare
          St  : Util.Measures.Stamp;
-         Pos : constant Util.Strings.String_Access_Map.Cursor := Ptr_Map.Find (KEY'Unchecked_Access);
+         Pos : constant Strings.String_Access_Map.Cursor := Ptr_Map.Find (KEY'Unchecked_Access);
          Val : constant Name_Access := Util.Strings.String_Access_Map.Element (Pos);
       begin
          Util.Measures.Report (St, "Util.Strings.String_Access_Maps.Find+Element");

@@ -19,7 +19,6 @@
 with Ada.Calendar.Conversions;
 with Ada.Calendar.Formatting;
 with Util.Test_Caller;
-with AUnit.Test_Suites;
 with Util.Tests;
 with Util.Properties.Bundles;
 with Interfaces.C;
@@ -30,7 +29,7 @@ package body Util.Dates.Formats.Tests is
 
    package Caller is new Util.Test_Caller (Test);
 
-   procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
+   procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
       Caller.Add_Test (Suite, "Test Util.Dates.Formats.Format",
                        Test_Format'Access);

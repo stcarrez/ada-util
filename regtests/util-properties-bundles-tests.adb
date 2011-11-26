@@ -81,7 +81,7 @@ package body Util.Properties.Bundles.Tests is
 
    package Caller is new Util.Test_Caller (Test);
 
-   procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
+   procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
       Caller.Add_Test (Suite, "Test Util.Properties.Bundles",
                        Test_Bundle'Access);

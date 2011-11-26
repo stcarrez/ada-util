@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with AUnit.Test_Suites; use AUnit.Test_Suites;
 with Util.Tests;
 
 generic
@@ -36,6 +35,6 @@ package Util.Beans.Objects.Discrete_Tests is
       I2 : Integer;
    end record;
 
-   procedure Add_Tests (Suite : Access_Test_Suite);
+   procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite);
 
 end Util.Beans.Objects.Discrete_Tests;
