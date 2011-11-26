@@ -4,9 +4,7 @@ with "util";
 
 project Testutil is
 
-   XUNIT_SRC_DIR := "@UTIL_XUNIT_DIR@";
-
-   for Source_Dirs use ("testutil", XUNIT_SRC_DIR, "testutil/ahven/unix");
+   for Source_Dirs use ("testutil", @UTIL_XUNIT_DIR@);
    for Library_Dir use Util.Library_Dir & "/testutil";
    for Library_Name use "adatestutil";
    for Library_Kind use "static";
