@@ -146,22 +146,6 @@ package body Util.Tests.Reporter is
                      R      : in out Result'Class)
    is
       pragma Unreferenced (Engine);
-
-      procedure Put (I : in Integer);
-      procedure Put (S : in String);
-
-      T   : AUnit.Time_Measure.AUnit_Duration;
-
-      procedure Put (I : in Integer) is
-      begin
-         Ada.Text_IO.Put (File, Util.Strings.Image (I));
-      end Put;
-
-      procedure Put (S : in String) is
-      begin
-         Put (File, S);
-      end Put;
-
    begin
       Put_Line (File, "<?xml version='1.0' encoding='utf-8' ?>");
       Put      (File, "<TestRun");
@@ -229,24 +213,7 @@ package body Util.Tests.Reporter is
       use Util.Strings.Transforms;
       use type Ada.Calendar.Time;
 
-      procedure Put (I : in Integer);
-      procedure Put (S : in String);
-
       Is_Assert : Boolean;
-      T : AUnit.Time_Measure.AUnit_Duration;
-
-      procedure Put (I : in Integer) is
-      begin
-         Put (File, I);
-      end Put;
-
-      procedure Put (S : in String) is
-      begin
-         Put (File, S);
-      end Put;
-
-      procedure Put_Measure is new AUnit.Time_Measure.Gen_Put_Measure;
-
    begin
       Put (File, "    <Test");
       if Test.Elapsed /= AUnit.Time_Measure.Null_Time then
@@ -293,7 +260,7 @@ package body Util.Tests.Reporter is
          if Is_Assert then
             Put_Line (File, "      <Location>");
             Put      (File, "        <File>");
-            Put      (File, Escape_XML (Test.Failure.Source_Name.all));
+            Put      (File, Escape_Xml (Test.Failure.Source_Name.all));
             Put_Line (File, "</File>");
             Put      (File, "        <Line>");
             Put      (File, Test.Failure.Line);

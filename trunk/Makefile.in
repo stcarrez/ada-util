@@ -13,6 +13,7 @@ DIST_FILE=ada-util-@UTIL_VERSION@.tar.gz
 
 XML_SRC_DIR=@UTIL_XML_DIR@
 ASM_SRC_DIR=@UTIL_ASM_DIR@
+AUNIT_SRC_DIR=@UTIL_AUNIT_DIR@
 
 MKDIR=mkdir
 CP=cp
@@ -50,6 +51,7 @@ autobuild:
 # Clean the root project of all build products.
 clean:	clean_test
 	$(GNATCLEAN) -q -P "$(GPRPATH)"
+	$(GNATCLEAN) -q -Ptestutil
 	$(GNATCLEAN) -q -Ptests
 	$(GNATCLEAN) -q -Psamples
 
@@ -120,6 +122,9 @@ install:
 	fi
 	if test T${ASM_SRC_DIR} != T ; then \
 	   ${CP} ${ASM_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
+	fi
+	if test T${AUNIT_SRC_DIR} != T ; then \
+	   ${CP} ${AUNIT_SRC_DIR}/*.ad[bs] ${includedir}/testutil ; \
 	fi
 	sed -e "s,INSTALL,${prefix},g" < distrib/util.gpr > ${projectdir}/util.gpr
 	sed -e "s,INSTALL,${prefix},g" < distrib/testutil.gpr > ${projectdir}/testutil.gpr

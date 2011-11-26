@@ -18,7 +18,7 @@
 
 package body Util.Test_Caller is
 
-   procedure Add_Test (Suite  : in AUnit.Test_Suites.Access_Test_Suite;
+   procedure Add_Test (Suite  : in Util.Tests.Access_Test_Suite;
                        Name   : in String;
                        Method : in Caller.Test_Method) is
    begin

@@ -1,10 +1,12 @@
 with "config";
 with "util";
-with "aunit";
+@WITH_AUNIT@
 
 project Testutil is
 
-   for Source_Dirs use ("testutil");
+   XUNIT_SRC_DIR := "@UTIL_XUNIT_DIR@";
+
+   for Source_Dirs use ("testutil", XUNIT_SRC_DIR, "testutil/ahven/unix");
    for Library_Dir use Util.Library_Dir & "/testutil";
    for Library_Name use "adatestutil";
    for Library_Kind use "static";

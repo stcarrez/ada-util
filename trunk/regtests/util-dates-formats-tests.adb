@@ -16,16 +16,12 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Ada.Calendar.Conversions;
 with Ada.Calendar.Formatting;
 with Util.Test_Caller;
-with Util.Tests;
 with Util.Properties.Bundles;
-with Interfaces.C;
 package body Util.Dates.Formats.Tests is
    use Util.Tests;
    use Ada.Strings.Unbounded;
-   use Interfaces.C;
 
    package Caller is new Util.Test_Caller (Test);
 
@@ -37,6 +33,9 @@ package body Util.Dates.Formats.Tests is
 
    procedure Test_Format (T : in out Test) is
       Bundle  : Util.Properties.Bundles.Manager;
+      procedure Check (Pattern : in String;
+                       Date    : in Ada.Calendar.Time;
+                       Expect  : in String);
 
       procedure Check (Pattern : in String;
                        Date    : in Ada.Calendar.Time;
@@ -51,9 +50,9 @@ package body Util.Dates.Formats.Tests is
                                    "Invalid result for: " & Pattern);
       end Check;
 
-      T1 : Ada.Calendar.Time := Ada.Calendar.Formatting.Time_Of (1980, 1, 2, 10, 30, 23);
-      T2 : Ada.Calendar.Time := Ada.Calendar.Formatting.Time_Of (2011, 11, 19, 0, 0, 0);
-      T3 : Ada.Calendar.Time := Ada.Calendar.Formatting.Time_Of (2011, 11, 19, 23, 0, 0);
+      T1 : constant Ada.Calendar.Time := Ada.Calendar.Formatting.Time_Of (1980, 1, 2, 10, 30, 23);
+      T2 : constant Ada.Calendar.Time := Ada.Calendar.Formatting.Time_Of (2011, 11, 19, 0, 0, 0);
+      T3 : constant Ada.Calendar.Time := Ada.Calendar.Formatting.Time_Of (2011, 11, 19, 23, 0, 0);
    begin
       Check ("%H", T1, "10");
       Check ("%H", T2, "00");

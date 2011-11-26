@@ -17,12 +17,6 @@
 -----------------------------------------------------------------------
 with GNAT.Command_Line;
 
-with AUnit.Options;
-with AUnit.Reporter.Text;
-with AUnit.Test_Results;
-with AUnit.Run;
-with AUnit.Assertions;
-
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.IO_Exceptions;
@@ -33,10 +27,8 @@ with Util.Strings;
 with Util.Measures;
 with Util.Files;
 with Util.Log.Loggers;
-with Util.Tests.Reporter;
+--  with Util.Tests.Reporter;
 package body Util.Tests is
-
-   use AUnit.Assertions;
 
    Test_Properties : Util.Properties.Manager;
 
@@ -127,18 +119,18 @@ package body Util.Tests is
    --  ------------------------------
    --  Check that the value matches what we expect.
    --  ------------------------------
-   procedure Assert (T         : in Test'Class;
-                     Condition : in Boolean;
-                     Message   : in String := "Test failed";
-                     Source    : String := GNAT.Source_Info.File;
-                     Line      : Natural := GNAT.Source_Info.Line) is
-      pragma Unreferenced (T);
-   begin
-      AUnit.Assertions.Assert (Condition => Condition,
-                               Message   => Message,
-                               Source    => Source,
-                               Line      => Line);
-   end Assert;
+--     procedure Assert (T         : in Test'Class;
+--                       Condition : in Boolean;
+--                       Message   : in String := "Test failed";
+--                       Source    : String := GNAT.Source_Info.File;
+--                       Line      : Natural := GNAT.Source_Info.Line) is
+--        pragma Unreferenced (T);
+--     begin
+--        Assert (T, Condition => Condition,
+--                                 Message   => Message,
+--                                 Source    => Source,
+--                                 Line      => Line);
+--     end Assert;
 
    --  ------------------------------
    --  Check that the value matches what we expect.
@@ -196,7 +188,7 @@ package body Util.Tests is
    --  Check that two files are equal.  This is intended to be used by
    --  tests that create files that are then checked against patterns.
    --  ------------------------------
-   procedure Assert_Equal_Files (T       : in AUnit.Assertions.Test'Class;
+   procedure Assert_Equal_Files (T       : in Test'Class;
                                  Expect  : in String;
                                  Test    : in String;
                                  Message : in String := "Test failed";
@@ -210,7 +202,7 @@ package body Util.Tests is
    begin
       begin
          if not Ada.Directories.Exists (Expect) then
-            Assert (False, "Expect file '" & Expect & "' does not exist",
+            Assert (T, False, "Expect file '" & Expect & "' does not exist",
                     Source => Source, Line => Line);
          end if;
          Read_File (Path => Expect,
@@ -254,9 +246,9 @@ package body Util.Tests is
    --  according to the testsuite execution status.
    --  ------------------------------
    procedure Harness (Name : in String) is
-      use type AUnit.Status;
       use GNAT.Command_Line;
       use Ada.Text_IO;
+      use type Util.XUnit.Status;
 
       procedure Help;
 
@@ -274,7 +266,7 @@ package body Util.Tests is
       end Help;
 
       Perf     : aliased Util.Measures.Measure_Set;
-      Result   : AUnit.Status;
+      Result   : Util.XUnit.Status;
       XML      : Boolean := False;
       Output   : Ada.Strings.Unbounded.Unbounded_String;
    begin
@@ -317,34 +309,18 @@ package body Util.Tests is
 
       declare
 
-         function Runner is new AUnit.Run.Test_Runner_With_Status (Suite);
+         procedure Runner is new Util.XUnit.Harness (Suite);
 
          S  : Util.Measures.Stamp;
-         O  : AUnit.Options.AUnit_Options := AUnit.Options.Default_Options;
       begin
-         O.Global_Timer    := True;
-         O.Test_Case_Timer := True;
          Util.Measures.Set_Current (Perf'Unchecked_Access);
-         if XML then
-            declare
-               Reporter : Util.Tests.Reporter.XML_Reporter;
-            begin
-               Reporter.File := Output;
-               Result := Runner (Reporter, O);
-            end;
-         else
-            declare
-               Reporter : AUnit.Reporter.Text.Text_Reporter;
-            begin
-               Result := Runner (Reporter, O);
-            end;
-         end if;
+         Runner (Output, XML, Result);
          Util.Measures.Report (Perf, S, "Testsuite execution");
          Util.Measures.Write (Perf, "Test measures", Name);
       end;
 
       --  Program exit status reflects the testsuite result
-      if Result /= AUnit.Success then
+      if Result /= Util.XUnit.Success then
          Ada.Command_Line.Set_Exit_Status (1);
       else
          Ada.Command_Line.Set_Exit_Status (0);
