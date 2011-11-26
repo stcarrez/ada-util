@@ -20,7 +20,6 @@ with Ada.Strings.Unbounded;
 with Util.Test_Caller;
 
 with Util.Files;
-with Util.Tests;
 with Util.Streams.Buffered;
 package body Util.Streams.Files.Tests is
 
@@ -29,7 +28,7 @@ package body Util.Streams.Files.Tests is
 
    package Caller is new Util.Test_Caller (Test);
 
-   procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
+   procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
       Caller.Add_Test (Suite, "Test Util.Streams.Files.Create, Write, Flush, Close",
                        Test_Read_Write'Access);

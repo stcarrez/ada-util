@@ -127,7 +127,7 @@ package body Util.Serialize.Mappers.Vector_Mapper is
    procedure Start_Object (Handler : in Mapper;
                            Context : in out Util.Serialize.Contexts.Context'Class;
                            Name    : in String) is
-      pragma Unreferenced (Handler, Name);
+      pragma Unreferenced (Handler);
 
       procedure Set_Context (Item : in out Element_Type);
 

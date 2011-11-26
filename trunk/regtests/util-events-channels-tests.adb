@@ -24,7 +24,7 @@ package body Util.Events.Channels.Tests is
 
    package Caller is new Util.Test_Caller (Test);
 
-   procedure Add_Tests (Suite : AUnit.Test_Suites.Access_Test_Suite) is
+   procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
       Caller.Add_Test (Suite, "Test Util.Events.Channels.Post_Event",
                        Test_Post_Event'Access);

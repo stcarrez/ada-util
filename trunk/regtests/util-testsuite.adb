@@ -36,10 +36,10 @@ with Util.Serialize.IO.CSV.Tests;
 with Util.Processes.Tests;
 package body Util.Testsuite is
 
-   Tests : aliased Test_Suite;
+   Tests : aliased Util.Tests.Test_Suite;
 
-   function Suite return Access_Test_Suite is
-      Result : constant Access_Test_Suite := Tests'Access;
+   function Suite return Util.Tests.Access_Test_Suite is
+      Result : constant Util.Tests.Access_Test_Suite := Tests'Access;
    begin
       Util.Properties.Tests.Add_Tests (Result);
       Util.Properties.Bundles.Tests.Add_Tests (Result);

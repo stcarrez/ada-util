@@ -31,6 +31,9 @@ package Util.Tests is
    use Ada.Strings.Unbounded;
    use AUnit.Test_Suites;
 
+   subtype Test_Suite is AUnit.Test_Suites.Test_Suite;
+   subtype Access_Test_Suite is AUnit.Test_Suites.Access_Test_Suite;
+
    type Test is new AUnit.Test_Fixtures.Test_Fixture with null record;
 
    --  Get a path to access a test file.

@@ -50,6 +50,8 @@ autobuild:
 # Clean the root project of all build products.
 clean:	clean_test
 	$(GNATCLEAN) -q -P "$(GPRPATH)"
+	$(GNATCLEAN) -q -Ptests
+	$(GNATCLEAN) -q -Psamples
 
 # Clean the files produced by the unit tests
 clean_test:
