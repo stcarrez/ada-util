@@ -154,7 +154,7 @@ WITH_AUNIT=
 AC_MSG_CHECKING(whether AUnit support is enabled)
 if test x$ac_enable_aunit = 'xyes'; then
   UTIL_AUNIT_DIR=testutil/aunit
-  UTIL_XUNIT_DIR=testutil/aunit
+  UTIL_XUNIT_DIR='"testutil/aunit"'
   WITH_AUNIT="with \"aunit\";"
 fi
 AC_MSG_RESULT($ac_enable_aunit)
