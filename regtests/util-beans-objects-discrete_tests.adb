@@ -243,7 +243,7 @@ package body Util.Beans.Objects.Discrete_Tests is
    end Test_Perf;
    procedure Test_Perf is new Test_Basic_Object (Test_Perf);
 
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Objects");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

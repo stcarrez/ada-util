@@ -1,5 +1,5 @@
 with "util";
-with "aunit";
+@WITH_AUNIT@
 
 project Testutil is
    Version := "1.2.0";

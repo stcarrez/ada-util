@@ -1,4 +1,4 @@
-with "xmlada";
+@WITH_XML_ADA@
 
 project Util is
    Version := "1.2.0";

@@ -134,6 +134,33 @@ AC_SUBST(WITH_XML_ADA)
 AC_SUBST(UTIL_XML_DIR)
 AC_SUBST(UTIL_XML_VERSION)
 
+##########################################
+# Test framework selection: aunit or ahven
+##########################################
+
+ac_enable_aunit=no
+AC_ARG_ENABLE(aunit,
+[  --enable-aunit          Enable AUnit support for testutil library and Ada util unit tests],
+[case "${enableval}" in
+  no|none)  ac_enable_aunit= ;;
+  *)        ac_enable_aunit=yes ;;
+esac])dnl
+
+UTIL_XUNIT_DIR=
+UTIL_AUNIT_DIR=
+WITH_AUNIT=
+
+AC_MSG_CHECKING(whether AUnit support is enabled)
+if test x$ac_enable_aunit = 'xyes'; then
+  UTIL_AUNIT_DIR=testutil/aunit
+  UTIL_XUNIT_DIR=testutil/aunit
+  WITH_AUNIT="with \"aunit\";"
+fi
+AC_SUBST(WITH_AUNIT)
+AC_SUBST(UTIL_AUNIT_DIR)
+AC_SUBST(UTIL_XUNIT_DIR)
+AC_MSG_RESULT($ac_enable_aunit)
+
 AC_OUTPUT(
-Makefile util.gpr
+Makefile util.gpr testutil.gpr distrib/testutil.gpr distrib/util.gpr
 )

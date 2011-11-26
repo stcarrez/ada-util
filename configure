@@ -556,6 +556,9 @@ PACKAGE_URL=
 ac_unique_file="src/util.ads"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+UTIL_XUNIT_DIR
+UTIL_AUNIT_DIR
+WITH_AUNIT
 UTIL_XML_VERSION
 UTIL_XML_DIR
 WITH_XML_ADA
@@ -633,6 +636,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 with_xml
+enable_aunit
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1250,6 +1254,12 @@ fi
 if test -n "$ac_init_help"; then
 
   cat <<\_ACEOF
+
+Optional Features:
+  --disable-option-checking  ignore unrecognized --enable/--with options
+  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-aunit          Enable AUnit support for testutil library and Ada util unit tests
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -2995,7 +3005,37 @@ $as_echo "${WITH_XML}" >&6; }
 
 
 
-ac_config_files="$ac_config_files Makefile util.gpr"
+##########################################
+# Test framework selection: aunit or ahven
+##########################################
+
+ac_enable_aunit=no
+# Check whether --enable-aunit was given.
+if test "${enable_aunit+set}" = set; then :
+  enableval=$enable_aunit; case "${enableval}" in
+  no|none)  ac_enable_aunit= ;;
+  *)        ac_enable_aunit=yes ;;
+esac
+fi
+
+UTIL_XUNIT_DIR=
+UTIL_AUNIT_DIR=
+WITH_AUNIT=
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether AUnit support is enabled" >&5
+$as_echo_n "checking whether AUnit support is enabled... " >&6; }
+if test x$ac_enable_aunit = 'xyes'; then
+  UTIL_AUNIT_DIR=testutil/aunit
+  UTIL_XUNIT_DIR=testutil/aunit
+  WITH_AUNIT="with \"aunit\";"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_enable_aunit" >&5
+$as_echo "$ac_enable_aunit" >&6; }
+
+ac_config_files="$ac_config_files Makefile util.gpr testutil.gpr distrib/testutil.gpr distrib/util.gpr"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -3698,6 +3738,9 @@ do
   case $ac_config_target in
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "util.gpr") CONFIG_FILES="$CONFIG_FILES util.gpr" ;;
+    "testutil.gpr") CONFIG_FILES="$CONFIG_FILES testutil.gpr" ;;
+    "distrib/testutil.gpr") CONFIG_FILES="$CONFIG_FILES distrib/testutil.gpr" ;;
+    "distrib/util.gpr") CONFIG_FILES="$CONFIG_FILES distrib/util.gpr" ;;
 
   *) as_fn_error "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
