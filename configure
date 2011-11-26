@@ -3009,7 +3009,7 @@ $as_echo "${WITH_XML}" >&6; }
 # Test framework selection: aunit or ahven
 ##########################################
 
-ac_enable_aunit=no
+ac_enable_aunit=yes
 # Check whether --enable-aunit was given.
 if test "${enable_aunit+set}" = set; then :
   enableval=$enable_aunit; case "${enableval}" in
