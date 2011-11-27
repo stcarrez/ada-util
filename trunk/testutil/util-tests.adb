@@ -27,7 +27,6 @@ with Util.Strings;
 with Util.Measures;
 with Util.Files;
 with Util.Log.Loggers;
---  with Util.Tests.Reporter;
 package body Util.Tests is
 
    Test_Properties : Util.Properties.Manager;
@@ -188,7 +187,7 @@ package body Util.Tests is
    --  Check that two files are equal.  This is intended to be used by
    --  tests that create files that are then checked against patterns.
    --  ------------------------------
-   procedure Assert_Equal_Files (T       : in Test'Class;
+   procedure Assert_Equal_Files (T       : in Test_Case'Class;
                                  Expect  : in String;
                                  Test    : in String;
                                  Message : in String := "Test failed";
@@ -202,8 +201,9 @@ package body Util.Tests is
    begin
       begin
          if not Ada.Directories.Exists (Expect) then
-            Assert (T, False, "Expect file '" & Expect & "' does not exist",
-                    Source => Source, Line => Line);
+            T.Assert (Condition => False,
+                      Message => "Expect file '" & Expect & "' does not exist",
+                      Source  => Source, Line => Line);
          end if;
          Read_File (Path => Expect,
                     Into => Expect_File);

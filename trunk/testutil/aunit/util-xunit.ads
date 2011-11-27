@@ -22,8 +22,11 @@ with AUnit.Test_Suites;
 with AUnit.Test_Fixtures;
 with Ada.Strings.Unbounded;
 
+with GNAT.Source_Info;
+
 --  The <b>Util.XUnit</b> package exposes a common package definition used by the Ada testutil
 --  library.  It is intended to hide the details of the AUnit implementation.
+--  A quite identical package exist for Ahven implementation.
 package Util.XUnit is
 
    use Ada.Strings.Unbounded;
@@ -35,14 +38,19 @@ package Util.XUnit is
    Failure : constant Status := AUnit.Failure;
 
    subtype Message_String is AUnit.Message_String;
-   subtype Test_Case is AUnit.Simple_Test_Cases.Test_Case;
    subtype Test is AUnit.Test_Fixtures.Test_Fixture;
    subtype Test_Suite is AUnit.Test_Suites.Test_Suite;
    subtype Access_Test_Suite is AUnit.Test_Suites.Access_Test_Suite;
 
    function Format (S : in String) return Message_String renames AUnit.Format;
 
-   type Test_Fixture is new AUnit.Test_Fixtures.Test_Fixture with null record;
+   type Test_Case is abstract new AUnit.Simple_Test_Cases.Test_Case with null record;
+
+   procedure Assert (T         : in Test_Case;
+                     Condition : in Boolean;
+                     Message   : in String := "Test failed";
+                     Source    : in String := GNAT.Source_Info.File;
+                     Line      : in Natural := GNAT.Source_Info.Line);
 
    --  The main testsuite program.  This launches the tests, collects the
    --  results, create performance logs and set the program exit status
