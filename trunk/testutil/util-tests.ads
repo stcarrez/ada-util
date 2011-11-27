@@ -43,6 +43,9 @@ package Util.Tests is
    --  Get a path to create a test file.
    function Get_Test_Path (File : String) return String;
 
+   --  Get the timeout for the test execution.
+   function Get_Test_Timeout (Name : in String) return Duration;
+
    --  Get a test configuration parameter.
    function Get_Parameter (Name    : String;
                            Default : String := "") return String;

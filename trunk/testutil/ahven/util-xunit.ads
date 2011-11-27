@@ -17,18 +17,19 @@
 -----------------------------------------------------------------------
 
 with Ahven;
-with Ahven.Runner;
 with Ahven.Framework;
+with Ahven.Results;
 
 with Ada.Strings.Unbounded;
 with Ada.Calendar;
 
 with GNAT.Source_Info;
 
-with Util.Assertions;
-
 --  The <b>Util.XUnit</b> package exposes a common package definition used by the Ada testutil
---  library.  It is intended to hide the details of the AUnit implementation.
+--  library.  This implementation exposes an implementation on top of Ahven.
+--
+--  Ahven is written by Tero Koskinen and licensed under permissive ISC license.
+--  See http://ahven.stronglytyped.org/
 package Util.XUnit is
 
    use Ada.Strings.Unbounded;
@@ -36,8 +37,6 @@ package Util.XUnit is
    type Status is (Success, Failure);
 
    subtype Message_String is String;
-   subtype Test_Case is Ahven.Framework.Test_Case;
-   type Test is new Ahven.Framework.Test_Case with null record;
    subtype Test_Suite is Ahven.Framework.Test_Suite;
    type Access_Test_Suite is access all Test_Suite;
 
@@ -51,9 +50,32 @@ package Util.XUnit is
       Next : Test_Object_Access;
    end record;
 
+   --  Register a test object in the test suite.
    procedure Register (T : in Test_Object_Access);
 
+   --  Build a message from a string (Adaptation for AUnit API).
    function Format (S : in String) return Message_String;
+
+   --  Build a message with the source and line number.
+   function Build_Message (Message   : in String;
+                           Source    : in String;
+                           Line      : in Natural) return String;
+
+   --  ------------------------------
+   --  A simple test case
+   --  ------------------------------
+   type Test_Case is abstract new Ahven.Framework.Test_Case with null record;
+
+   procedure Assert (T         : in Test_Case;
+                     Condition : in Boolean;
+                     Message   : in String := "Test failed";
+                     Source    : in String := GNAT.Source_Info.File;
+                     Line      : in Natural := GNAT.Source_Info.Line);
+
+   --  ------------------------------
+   --  A test with fixture
+   --  ------------------------------
+   type Test is new Ahven.Framework.Test_Case with null record;
 
    --  Check that the value matches what we expect.
    procedure Assert (T         : in Test;
@@ -61,26 +83,6 @@ package Util.XUnit is
                      Message   : in String := "Test failed";
                      Source    : String := GNAT.Source_Info.File;
                      Line      : Natural := GNAT.Source_Info.Line);
-
-   --  Check that two files are equal.  This is intended to be used by
-   --  tests that create files that are then checked against patterns.
-   procedure Assert_Equal_Files (T       : in Test'Class;
-                                 Expect  : in String;
-                                 Test    : in String;
-                                 Message : in String := "Test failed";
-                                 Source  : String := GNAT.Source_Info.File;
-                                 Line    : Natural := GNAT.Source_Info.Line);
-
-   --  Check that the value matches what we expect.
-   procedure Assert_Equals is new Assertions.Assert_Equals_T (Value_Type => Integer);
-   procedure Assert_Equals is new Assertions.Assert_Equals_T (Value_Type => Character);
---
---     --  Check that the value matches what we expect.
---     procedure Assert (T         : in Test'Class;
---                       Condition : in Boolean;
---                       Message   : in String := "Test failed";
---                       Source    : String := GNAT.Source_Info.File;
---                       Line      : Natural := GNAT.Source_Info.Line);
 
    --  Check that the value matches what we expect.
    procedure Assert_Equals (T         : in Test'Class;
@@ -103,6 +105,10 @@ package Util.XUnit is
                             Message : in String := "Test failed";
                             Source    : String := GNAT.Source_Info.File;
                             Line      : Natural := GNAT.Source_Info.Line);
+
+   --  Report passes, skips, failures, and errors from the result collection.
+   procedure Report_Results (Result  : in Ahven.Results.Result_Collection;
+                             Time    : in Duration);
 
    --  The main testsuite program.  This launches the tests, collects the
    --  results, create performance logs and set the program exit status

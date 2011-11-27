@@ -39,6 +39,9 @@ package body Util.Tests is
    --  Of course, using this mode means the test does not validate anything.
    Update_Test_Files : Boolean := False;
 
+   --  The default timeout for a test case execution.
+   Default_Timeout   : Duration := 60.0;
+
    --  ------------------------------
    --  Get a path to access a test file.
    --  ------------------------------
@@ -56,6 +59,21 @@ package body Util.Tests is
    begin
       return Dir & "/" & File;
    end Get_Test_Path;
+
+   --  ------------------------------
+   --  Get the timeout for the test execution.
+   --  ------------------------------
+   function Get_Test_Timeout (Name : in String) return Duration is
+      Prop_Name : constant String := "test.timeout." & Name;
+      Value     : constant String := Test_Properties.Get (Prop_Name,
+                                                          Duration'Image (Default_Timeout));
+   begin
+      return Duration'Value (Value);
+
+   exception
+      when Constraint_Error =>
+         return Default_Timeout;
+   end Get_Test_Timeout;
 
    --  ------------------------------
    --  Get a test configuration parameter.
@@ -255,10 +273,11 @@ package body Util.Tests is
       procedure Help is
       begin
          Put_Line ("Test harness: " & Name);
-         Put ("Usage: harness [-xml result.xml] [-config file.properties] ");
+         Put ("Usage: harness [-xml result.xml] [-t timeout] [-config file.properties] ");
          Put_Line ("[-update]");
          Put_Line ("-xml file      Produce an XML test report");
          Put_Line ("-config file   Specify a test configuration file");
+         Put_Line ("-t timeout     Test execution timeout in seconds");
          Put_Line ("-update        Update the test reference files if a file");
          Put_Line ("               is missing or the test generates another output");
          Put_Line ("               (See Asset_Equals_File)");
@@ -271,7 +290,7 @@ package body Util.Tests is
       Output   : Ada.Strings.Unbounded.Unbounded_String;
    begin
       loop
-         case Getopt ("hux: c: config: update help xml:") is
+         case Getopt ("hux: t: c: config: update help xml: timeout:") is
             when ASCII.NUL =>
                exit;
 
@@ -280,6 +299,9 @@ package body Util.Tests is
                   Name : constant String := Parameter;
                begin
                   Test_Properties.Load_Properties (Name);
+
+                  Default_Timeout := Get_Test_Timeout ("default");
+
                exception
                   when Ada.IO_Exceptions.Name_Error =>
                      Ada.Text_IO.Put_Line ("Cannot find configuration file: " & Name);
@@ -289,6 +311,17 @@ package body Util.Tests is
 
             when 'u' =>
                Update_Test_Files := True;
+
+            when 't' =>
+               begin
+                  Default_Timeout := Duration'Value (Parameter);
+
+               exception
+                  when Constraint_Error =>
+                     Ada.Text_IO.Put_Line ("Invalid timeout: " & Parameter);
+                     Ada.Command_Line.Set_Exit_Status (2);
+                     return;
+               end;
 
             when 'x' =>
                XML := True;
