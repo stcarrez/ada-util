@@ -67,7 +67,7 @@ package body Ahven.XML_Runner is
    function Create_Name (Dir : String; Name : String) return String;
 
    function Filter_String (Str : String) return String is
-      Result : String (Str'First .. 6 * Str'Last);
+      Result : String (Str'First .. Str'First + 6 * Str'Length);
       Pos    : Natural := Str'First;
    begin
       for I in Str'Range loop
