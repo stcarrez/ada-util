@@ -20,23 +20,28 @@
 --  with AUnit.Reporter.Text;
 --  with AUnit.Run;
 
-with Ada.Directories;
 with Ada.Calendar.Formatting;
+with Ada.Directories;
+with Ada.IO_Exceptions;
+with Ada.Text_IO;
 
+with Ahven.Listeners.Basic;
 with Ahven.XML_Runner;
-with Ahven.Text_Runner;
 
-with Util.Files;
---  with Util.Tests.Reporter;
+with Util.Tests;
 package body Util.XUnit is
 
---     use AUnit.Assertions;
-
+   --  ------------------------------
+   --  Build a message from a string (Adaptation for AUnit API).
+   --  ------------------------------
    function Format (S : in String) return Message_String is
    begin
       return S;
    end Format;
 
+   --  ------------------------------
+   --  Build a message with the source and line number.
+   --  ------------------------------
    function Build_Message (Message   : in String;
                            Source    : in String;
                            Line      : in Natural) return String is
@@ -45,23 +50,19 @@ package body Util.XUnit is
       return Source & ":" & L (2 .. L'Last) & ": " & Message;
    end Build_Message;
 
-   --  ------------------------------
-   --  Check that the value matches what we expect.
-   --  ------------------------------
-   --     procedure Assert_Equals (T       : in AUnit.Assertions.Test'Class;
-   --                              Expect, Value : in Integer;
-   --                              Message : in String := "Test failed";
-   --                              Source    : String := GNAT.Source_Info.File;
-   --                              Line      : Natural := GNAT.Source_Info.Line) is
-   --     begin
-   --        T.Assert (Condition => Expect = Value,
-   --                  Message   => Message & ": expecting '"
-   --                  & Integer'Image (Expect) & "'"
-   --                  & " value was '"
-   --                  & Integer'Image (Value) & "'",
-   --                  Source    => Source,
-   --                  Line      => Line);
-   --     end Assert_Equals;
+   --  maybe_overriding
+   procedure Assert (T         : in Test_Case;
+                     Condition : in Boolean;
+                     Message   : in String := "Test failed";
+                     Source    : in String := GNAT.Source_Info.File;
+                     Line      : in Natural := GNAT.Source_Info.Line) is
+      pragma Unreferenced (T);
+   begin
+      Ahven.Assert (Condition => Condition,
+                    Message   => Build_Message (Message => Message,
+                                                Source  => Source,
+                                                Line    => Line));
+   end Assert;
 
    --  ------------------------------
    --  Check that the value matches what we expect.
@@ -131,62 +132,34 @@ package body Util.XUnit is
                      Line    => Line);
    end Assert_Equals;
 
-   --  ------------------------------
-   --  Check that two files are equal.  This is intended to be used by
-   --  tests that create files that are then checked against patterns.
-   --  ------------------------------
-   procedure Assert_Equal_Files (T       : in Test'Class;
-                                 Expect  : in String;
-                                 Test    : in String;
-                                 Message : in String := "Test failed";
-                                 Source  : String := GNAT.Source_Info.File;
-                                 Line    : Natural := GNAT.Source_Info.Line) is
-      use Util.Files;
-
-      Expect_File : Unbounded_String;
-      Test_File   : Unbounded_String;
-      Same        : Boolean;
-   begin
-      begin
-         if not Ada.Directories.Exists (Expect) then
-            T.Assert (False, "Expect file '" & Expect & "' does not exist",
-                      Source => Source, Line => Line);
-         end if;
-         Read_File (Path => Expect,
-                    Into => Expect_File);
-         Read_File (Path => Test,
-                    Into => Test_File);
-
-      exception
-         when others =>
-            --              if Update_Test_Files then
-            --                 Ada.Directories.Copy_File (Source_Name => Test,
-            --                                            Target_Name => Expect);
-            --              end if;
-            null;
-      end;
-
-      --  Check file sizes
-      Assert_Equals (T       => T,
-                     Expect  => Length (Expect_File),
-                     Value   => Length (Test_File),
-                     Message => Message & ": Invalid file sizes",
-                     Source  => Source,
-                     Line    => Line);
-
-      Same := Expect_File = Test_File;
-      if Same then
-         return;
-      end if;
-   end Assert_Equal_Files;
-
    First_Test : Test_Object_Access := null;
 
+   --  ------------------------------
+   --  Register a test object in the test suite.
+   --  ------------------------------
    procedure Register (T : in Test_Object_Access) is
    begin
       T.Next := First_Test;
       First_Test := T;
    end Register;
+
+   --  ------------------------------
+   -- Report passes, skips, failures, and errors from the result collection.
+   --  ------------------------------
+   procedure Report_Results (Result  : in Ahven.Results.Result_Collection;
+                             Time    : in Duration) is
+      T_Count : constant Integer := Ahven.Results.Test_Count (Result);
+      F_Count : constant Integer := Ahven.Results.Failure_Count (Result);
+      S_Count : constant Integer := Ahven.Results.Skipped_Count (Result);
+      E_Count : constant Integer := Ahven.Results.Error_Count (Result);
+   begin
+      Ada.Text_IO.Put_Line ("Tests run:" & Integer'Image (T_Count - S_Count)
+                            & ", Failures:" & Integer'Image (F_Count)
+                            & ", Errors:" & Integer'Image (E_Count)
+                            & ", Skipped:" & Integer'Image (S_Count)
+                            & ", Time elapsed:" & Duration'Image (Time));
+
+   end Report_Results;
 
    --  ------------------------------
    --  The main testsuite program.  This launches the tests, collects the
@@ -196,36 +169,45 @@ package body Util.XUnit is
    procedure Harness (Output : in Ada.Strings.Unbounded.Unbounded_String;
                       XML    : in Boolean;
                       Result : out Status) is
+      use Ahven.Listeners.Basic;
+      use Ahven.Framework;
+      use Ahven.Results;
+      use type Ada.Calendar.Time;
 
-      Tests : constant Access_Test_Suite := Suite;
-      T     : Test_Object_Access := First_Test;
---        O  : AUnit.Options.AUnit_Options := AUnit.Options.Default_Options;
+      Tests    : constant Access_Test_Suite := Suite;
+      T        : Test_Object_Access := First_Test;
+      Listener : Ahven.Listeners.Basic.Basic_Listener;
+      Timeout  : constant Test_Duration := Test_Duration (Util.Tests.Get_Test_Timeout ("all"));
+      Out_Dir  : constant String := Util.Tests.Get_Test_Path ("regtests/result");
+      Start    : Ada.Calendar.Time;
    begin
       while T /= null loop
          Ahven.Framework.Add_Static_Test (Tests.all, T.Test.all);
          T := T.Next;
       end loop;
-
---        O.Global_Timer    := True;
---        O.Test_Case_Timer := True;
-      if XML then
---           declare
---              Reporter : Util.Tests.Reporter.XML_Reporter;
-         begin
---              Reporter.File := Output;
-            Ahven.Text_Runner.Run (Tests.all);
-            --              Result := Runner (Reporter, O);
-            Result := Success;
-         end;
-      else
---           declare
---              Reporter : AUnit.Reporter.Text.Text_Reporter;
-         begin
-            Ahven.XML_Runner.Run (Tests.all);
-            Result := Success;
---              Result := Runner (Reporter, O);
-         end;
+      Set_Output_Capture (Listener, True);
+      if not Ada.Directories.Exists (Out_Dir) then
+         Ada.Directories.Create_Path (Out_Dir);
       end if;
+
+      Start := Ada.Calendar.Clock;
+      Ahven.Framework.Execute (Tests.all, Listener, Timeout);
+      Report_Results (Listener.Main_Result, Ada.Calendar.Clock - Start);
+
+      Ahven.XML_Runner.Report_Results (Listener.Main_Result, Out_Dir);
+
+      if (Error_Count (Listener.Main_Result) > 0) or
+        (Failure_Count (Listener.Main_Result) > 0) then
+         Result := Failure;
+      else
+         Result := Success;
+      end if;
+
+   exception
+      when Ada.IO_Exceptions.Name_Error =>
+         Ada.Text_IO.Put_Line ("Cannot create file");
+         Result := Failure;
+
    end Harness;
 
 end Util.XUnit;
