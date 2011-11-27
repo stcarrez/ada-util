@@ -79,7 +79,7 @@ version:
 # Files to package in source distribution
 DISTFILES=README LICENSE.txt NOTICE.txt NEWS CHANGES ChangeLog config.guess configure config.sub \
 configure.in Makefile.in install-sh \
-util.gpr.in testutil.gpr tests.gpr samples.gpr config.gpr \
+util.gpr.in testutil.gpr.in tests.gpr samples.gpr config.gpr \
 src samples regtests testutil \
 distrib support
 
