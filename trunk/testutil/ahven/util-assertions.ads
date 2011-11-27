@@ -25,7 +25,7 @@ package Util.Assertions is
    --  Check that the value matches what we expect.
    generic
       type Value_Type is (<>);
-   procedure Assert_Equals_T (T       : in Ahven.Framework.Test_Case'Class;
+   procedure Assert_Equals_T (T       : in Ahven.Framework.Test'Class;
                               Expect  : in Value_Type;
                               Value   : in Value_Type;
                               Message : in String := "Test failed";

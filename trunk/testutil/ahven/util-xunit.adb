@@ -19,6 +19,7 @@
 with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Text_IO;
+with Ada.Calendar;
 
 with Ahven.Listeners.Basic;
 with Ahven.XML_Runner;
@@ -45,6 +46,28 @@ package body Util.XUnit is
    begin
       return Source & ":" & L (2 .. L'Last) & ": " & Message;
    end Build_Message;
+
+   procedure Run_Test_Case (T : in out Ahven.Framework.Test_Case'Class);
+
+   procedure Run_Test_Case (T : in out Ahven.Framework.Test_Case'Class) is
+   begin
+      Test_Case'Class (T).Run_Test;
+   end Run_Test_Case;
+
+   overriding
+   procedure Initialize (T : in out Test_Case) is
+   begin
+      Ahven.Framework.Add_Test_Routine (T, Run_Test_Case'Access, "Test case");
+   end Initialize;
+
+   --  ------------------------------
+   --  Return the name of the test case.
+   --  ------------------------------
+   overriding
+   function Get_Name (T : Test_Case) return String is
+   begin
+      return Test_Case'Class (T).Name;
+   end Get_Name;
 
    --  maybe_overriding
    procedure Assert (T         : in Test_Case;
@@ -88,7 +111,7 @@ package body Util.XUnit is
    end Register;
 
    --  ------------------------------
-   -- Report passes, skips, failures, and errors from the result collection.
+   --  Report passes, skips, failures, and errors from the result collection.
    --  ------------------------------
    procedure Report_Results (Result  : in Ahven.Results.Result_Collection;
                              Time    : in Duration) is
@@ -119,6 +142,8 @@ package body Util.XUnit is
    procedure Harness (Output : in Ada.Strings.Unbounded.Unbounded_String;
                       XML    : in Boolean;
                       Result : out Status) is
+      pragma Unreferenced (XML, Output);
+
       use Ahven.Listeners.Basic;
       use Ahven.Framework;
       use Ahven.Results;
