@@ -33,6 +33,15 @@ package body Util.XUnit is
       AUnit.Assertions.Assert (Condition, Message, Source, Line);
    end Assert;
 
+   procedure Assert (T         : in Test;
+                     Condition : in Boolean;
+                     Message   : in String := "Test failed";
+                     Source    : in String := GNAT.Source_Info.File;
+                     Line      : in Natural := GNAT.Source_Info.Line) is
+   begin
+      AUnit.Assertions.Assert (Condition, Message, Source, Line);
+   end Assert;
+
    --  ------------------------------
    --  The main testsuite program.  This launches the tests, collects the
    --  results, create performance logs and set the program exit status
