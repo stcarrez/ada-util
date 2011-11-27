@@ -38,7 +38,6 @@ package Util.XUnit is
    Failure : constant Status := AUnit.Failure;
 
    subtype Message_String is AUnit.Message_String;
-   subtype Test is AUnit.Test_Fixtures.Test_Fixture;
    subtype Test_Suite is AUnit.Test_Suites.Test_Suite;
    subtype Access_Test_Suite is AUnit.Test_Suites.Access_Test_Suite;
 
@@ -46,7 +45,17 @@ package Util.XUnit is
 
    type Test_Case is abstract new AUnit.Simple_Test_Cases.Test_Case with null record;
 
+   --  maybe_overriding
    procedure Assert (T         : in Test_Case;
+                     Condition : in Boolean;
+                     Message   : in String := "Test failed";
+                     Source    : in String := GNAT.Source_Info.File;
+                     Line      : in Natural := GNAT.Source_Info.Line);
+
+   type Test is abstract new AUnit.Test_Fixtures.Test_Fixture with null record;
+
+   --  maybe_overriding
+   procedure Assert (T         : in Test;
                      Condition : in Boolean;
                      Message   : in String := "Test failed";
                      Source    : in String := GNAT.Source_Info.File;
