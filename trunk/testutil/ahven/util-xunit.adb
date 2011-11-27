@@ -16,17 +16,13 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
---  with AUnit.Options;
---  with AUnit.Reporter.Text;
---  with AUnit.Run;
-
-with Ada.Calendar.Formatting;
 with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Text_IO;
 
 with Ahven.Listeners.Basic;
 with Ahven.XML_Runner;
+with Ahven.Text_Runner;
 
 with Util.Tests;
 package body Util.XUnit is
@@ -101,6 +97,12 @@ package body Util.XUnit is
       S_Count : constant Integer := Ahven.Results.Skipped_Count (Result);
       E_Count : constant Integer := Ahven.Results.Error_Count (Result);
    begin
+      if F_Count > 0 then
+         Ahven.Text_Runner.Print_Failures (Result, 0);
+      end if;
+      if E_Count > 0 then
+         Ahven.Text_Runner.Print_Errors (Result, 0);
+      end if;
       Ada.Text_IO.Put_Line ("Tests run:" & Integer'Image (T_Count - S_Count)
                             & ", Failures:" & Integer'Image (F_Count)
                             & ", Errors:" & Integer'Image (E_Count)

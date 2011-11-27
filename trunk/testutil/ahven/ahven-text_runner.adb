@@ -37,15 +37,6 @@ package body Ahven.Text_Runner is
                          Level  : Natural;
                          Result : String);
 
-   procedure Print_Failures (Result : Result_Collection;
-                             Level  : Natural);
-
-   procedure Print_Skips (Result : Result_Collection;
-                          Level  : Natural);
-
-   procedure Print_Errors (Result : Result_Collection;
-                           Level  : Natural);
-
    procedure Print_Passes (Result : Result_Collection;
                            Level  : Natural);
 
