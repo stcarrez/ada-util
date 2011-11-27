@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  AUnit utils - Helper for writing unit tests
+--  util-xunit - Unit tests on top of AUnit
 --  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -19,9 +19,19 @@
 with AUnit.Options;
 with AUnit.Reporter.Text;
 with AUnit.Run;
+with AUnit.Assertions;
 
 with Util.Tests.Reporter;
 package body Util.XUnit is
+
+   procedure Assert (T         : in Test_Case;
+                     Condition : in Boolean;
+                     Message   : in String := "Test failed";
+                     Source    : in String := GNAT.Source_Info.File;
+                     Line      : in Natural := GNAT.Source_Info.Line) is
+   begin
+      AUnit.Assertions.Assert (Condition, Message, Source, Line);
+   end Assert;
 
    --  ------------------------------
    --  The main testsuite program.  This launches the tests, collects the
