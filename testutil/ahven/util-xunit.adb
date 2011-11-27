@@ -80,58 +80,6 @@ package body Util.XUnit is
                                                 Line    => Line));
    end Assert;
 
-   --  ------------------------------
-   --  Check that the value matches what we expect.
-   --  ------------------------------
-   procedure Assert_Equals (T         : in Test'Class;
-                            Expect, Value : in Ada.Calendar.Time;
-                            Message   : in String := "Test failed";
-                            Source    : String := GNAT.Source_Info.File;
-                            Line      : Natural := GNAT.Source_Info.Line) is
-      use Ada.Calendar.Formatting;
-      use Ada.Calendar;
-   begin
-      T.Assert (Condition => Image (Expect) = Image (Value),
-                Message   => Message & ": expecting '" & Image (Expect) & "'"
-                & " value was '" & Image (Value) & "'",
-                Source    => Source,
-                Line      => Line);
-   end Assert_Equals;
-
-   --  ------------------------------
-   --  Check that the value matches what we expect.
-   --  ------------------------------
-   procedure Assert_Equals (T         : in Test'Class;
-                            Expect, Value : in String;
-                            Message   : in String := "Test failed";
-                            Source    : String := GNAT.Source_Info.File;
-                            Line      : Natural := GNAT.Source_Info.Line) is
-   begin
-      T.Assert (Condition => Expect = Value,
-                Message   => Message & ": expecting '" & Expect & "'"
-                & " value was '" & Value & "'",
-                Source    => Source,
-                Line      => Line);
-   end Assert_Equals;
-
-   --  ------------------------------
-   --  Check that the value matches what we expect.
-   --  ------------------------------
-   procedure Assert_Equals (T       : in Test'Class;
-                            Expect  : in String;
-                            Value   : in Unbounded_String;
-                            Message : in String := "Test failed";
-                            Source  : String := GNAT.Source_Info.File;
-                            Line    : Natural := GNAT.Source_Info.Line) is
-   begin
-      Assert_Equals (T      => T,
-                     Expect => Expect,
-                     Value  => To_String (Value),
-                     Message => Message,
-                     Source  => Source,
-                     Line    => Line);
-   end Assert_Equals;
-
    First_Test : Test_Object_Access := null;
 
    --  ------------------------------

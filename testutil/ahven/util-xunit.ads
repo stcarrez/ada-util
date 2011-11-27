@@ -84,28 +84,6 @@ package Util.XUnit is
                      Source    : String := GNAT.Source_Info.File;
                      Line      : Natural := GNAT.Source_Info.Line);
 
-   --  Check that the value matches what we expect.
-   procedure Assert_Equals (T         : in Test'Class;
-                            Expect, Value : in Ada.Calendar.Time;
-                            Message   : in String := "Test failed";
-                            Source    : String := GNAT.Source_Info.File;
-                            Line      : Natural := GNAT.Source_Info.Line);
-
-   --  Check that the value matches what we expect.
-   procedure Assert_Equals (T         : in Test'Class;
-                            Expect, Value : in String;
-                            Message   : in String := "Test failed";
-                            Source    : String := GNAT.Source_Info.File;
-                            Line      : Natural := GNAT.Source_Info.Line);
-
-   --  Check that the value matches what we expect.
-   procedure Assert_Equals (T       : in Test'Class;
-                            Expect  : in String;
-                            Value   : in Unbounded_String;
-                            Message : in String := "Test failed";
-                            Source    : String := GNAT.Source_Info.File;
-                            Line      : Natural := GNAT.Source_Info.Line);
-
    --  Report passes, skips, failures, and errors from the result collection.
    procedure Report_Results (Result  : in Ahven.Results.Result_Collection;
                              Time    : in Duration);
