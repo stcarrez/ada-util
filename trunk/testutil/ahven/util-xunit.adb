@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  AUnit utils - Helper for writing unit tests
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  util-xunit - Unit tests on top of AHven
+--  Copyright (C) 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
