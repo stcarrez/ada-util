@@ -557,6 +557,8 @@ ac_unique_file="src/util.ads"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 UTIL_XUNIT_DIR
+UTIL_AHVEN_OS_DIR
+UTIL_AHVEN_DIR
 UTIL_AUNIT_DIR
 WITH_AUNIT
 UTIL_XML_VERSION
@@ -3051,17 +3053,22 @@ if test x$ac_enable_ahven = 'xyes'; then
   case "${target_os}" in
      linux|linux-*|solaris*|sysv-*)
         UTIL_XUNIT_DIR='"testutil/ahven", "testutil/ahven/unix"'
+	UTIL_AHVEN_OS_DIR="testutil/ahven/unix"
 	;;
 
      mingw32*|cygwin*)
         UTIL_XUNIT_DIR='"testutil/ahven", "testutil/ahven/windows"'
+	UTIL_AHVEN_OS_DIR="testutil/ahven/windows"
 	;;
 
      *)
         UTIL_XUNIT_DIR='"testutil/ahven", "testutil/ahven/unix"'
+	UTIL_AHVEN_OS_DIR="testutil/ahven/unix"
 	;;
   esac
 fi
+
+
 
 
 
