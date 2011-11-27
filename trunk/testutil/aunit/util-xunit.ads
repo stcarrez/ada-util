@@ -20,13 +20,7 @@ with AUnit;
 with AUnit.Simple_Test_Cases;
 with AUnit.Test_Suites;
 with AUnit.Test_Fixtures;
-with AUnit.Assertions;
 with Ada.Strings.Unbounded;
-with Ada.Calendar;
-
-with GNAT.Source_Info;
-
-with Util.Assertions;
 
 --  The <b>Util.XUnit</b> package exposes a common package definition used by the Ada testutil
 --  library.  It is intended to hide the details of the AUnit implementation.
@@ -49,48 +43,6 @@ package Util.XUnit is
    function Format (S : in String) return Message_String renames AUnit.Format;
 
    type Test_Fixture is new AUnit.Test_Fixtures.Test_Fixture with null record;
-
-   --  Check that two files are equal.  This is intended to be used by
-   --  tests that create files that are then checked against patterns.
-   procedure Assert_Equal_Files (T       : in AUnit.Assertions.Test'Class;
-                                 Expect  : in String;
-                                 Test    : in String;
-                                 Message : in String := "Test failed";
-                                 Source  : String := GNAT.Source_Info.File;
-                                 Line    : Natural := GNAT.Source_Info.Line);
-
-   --  Check that the value matches what we expect.
-   procedure Assert_Equals is new Assertions.Assert_Equals_T (Value_Type => Integer);
-   procedure Assert_Equals is new Assertions.Assert_Equals_T (Value_Type => Character);
-
-   --  Check that the value matches what we expect.
-   procedure Assert (T         : in Test'Class;
-                     Condition : in Boolean;
-                     Message   : in String := "Test failed";
-                     Source    : String := GNAT.Source_Info.File;
-                     Line      : Natural := GNAT.Source_Info.Line);
-
-   --  Check that the value matches what we expect.
-   procedure Assert_Equals (T         : in Test'Class;
-                            Expect, Value : in Ada.Calendar.Time;
-                            Message   : in String := "Test failed";
-                            Source    : String := GNAT.Source_Info.File;
-                            Line      : Natural := GNAT.Source_Info.Line);
-
-   --  Check that the value matches what we expect.
-   procedure Assert_Equals (T         : in Test'Class;
-                            Expect, Value : in String;
-                            Message   : in String := "Test failed";
-                            Source    : String := GNAT.Source_Info.File;
-                            Line      : Natural := GNAT.Source_Info.Line);
-
-   --  Check that the value matches what we expect.
-   procedure Assert_Equals (T       : in Test'Class;
-                            Expect  : in String;
-                            Value   : in Unbounded_String;
-                            Message : in String := "Test failed";
-                            Source    : String := GNAT.Source_Info.File;
-                            Line      : Natural := GNAT.Source_Info.Line);
 
    --  The main testsuite program.  This launches the tests, collects the
    --  results, create performance logs and set the program exit status
