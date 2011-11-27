@@ -21,7 +21,6 @@ with Ahven.Framework;
 with Ahven.Results;
 
 with Ada.Strings.Unbounded;
-with Ada.Calendar;
 
 with GNAT.Source_Info;
 
@@ -66,11 +65,24 @@ package Util.XUnit is
    --  ------------------------------
    type Test_Case is abstract new Ahven.Framework.Test_Case with null record;
 
+   overriding
+   procedure Initialize (T : in out Test_Case);
+
    procedure Assert (T         : in Test_Case;
                      Condition : in Boolean;
                      Message   : in String := "Test failed";
                      Source    : in String := GNAT.Source_Info.File;
                      Line      : in Natural := GNAT.Source_Info.Line);
+
+   --  Return the name of the test case.
+   overriding
+   function Get_Name (T : Test_Case) return String;
+
+   --  Test case name (this is the AUnit function that must be implemented).
+   function Name (T : in Test_Case) return Message_String is abstract;
+
+   --  Perform the test (AUnit function to implement).
+   procedure Run_Test (T : in out Test_Case) is abstract;
 
    --  ------------------------------
    --  A test with fixture
