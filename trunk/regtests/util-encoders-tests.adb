@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encodes-tests - Test for encoding
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,13 +17,11 @@
 -----------------------------------------------------------------------
 
 with Util.Test_Caller;
-with Util.Tests;
 with Util.Measures;
 with Util.Strings.Transforms;
 with Ada.Text_IO;
 with Util.Encoders.SHA1;
 with Util.Encoders.HMAC.SHA1;
---  with Util.Log.Loggers;
 package body Util.Encoders.Tests is
 
    use Util.Tests;
@@ -31,7 +29,12 @@ package body Util.Encoders.Tests is
 --
 --     Log : constant Loggers.Logger := Loggers.Create ("Util.Encoders.Tests");
 
-   package Caller is new Util.Test_Caller (Test);
+   procedure Check_HMAC (T      : in out Test'Class;
+                         Key    : in String;
+                         Value  : in String;
+                         Expect : in String);
+
+   package Caller is new Util.Test_Caller (Test, "Encoders");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
@@ -112,7 +115,7 @@ package body Util.Encoders.Tests is
    procedure Test_Hex (T : in out Test) is
       C : Util.Encoders.Encoder := Create ("hex");
    begin
-      Assert_Equals (T, "41424344", Util.Encoders.Encode(C, "ABCD"));
+      Assert_Equals (T, "41424344", Util.Encoders.Encode (C, "ABCD"));
       Assert_Equals (T, "ABCD", Util.Encoders.Decode (C, "41424344"));
       Test_Encoder (T, C);
    end Test_Hex;
@@ -133,6 +136,9 @@ package body Util.Encoders.Tests is
    end Test_Base64_Benchmark;
 
    procedure Test_SHA1_Encode (T : in out Test) is
+      procedure Check_Hash (Value  : in String;
+                            Expect : in String);
+
       C    : Util.Encoders.SHA1.Context;
       Hash : Util.Encoders.SHA1.Digest;
 
@@ -232,7 +238,8 @@ package body Util.Encoders.Tests is
 
    procedure Test_HMAC_SHA1_RFC2202_T4 (T : in out Test) is
       C    : constant Util.Encoders.Encoder := Create ("hex");
-      Key  : constant String := Util.Encoders.Decode (C, "0102030405060708090a0b0c0d0e0f10111213141516171819");
+      Key  : constant String := Util.Encoders.Decode (C, "0102030405060708090a0b0c0d0e0f"
+                                                      & "10111213141516171819");
       Data : constant String (1 .. 50) := (others => Character'Val (16#cd#));
    begin
       Check_HMAC (T, Key, Data,
