@@ -27,6 +27,17 @@ package Ahven.Text_Runner is
 
    procedure Run (Suite : Framework.Test_Suite_Access);
    -- Run the suite and print the results.
+
+   procedure Print_Failures (Result : Results.Result_Collection;
+                             Level  : Natural);
+   -- Print the test failures (SCz: move to spec for Ada Util).
+
+   procedure Print_Skips (Result : Results.Result_Collection;
+                          Level  : Natural);
+
+   procedure Print_Errors (Result : Results.Result_Collection;
+                           Level  : Natural);
+
 private
    procedure Do_Report (Test_Results : Results.Result_Collection;
                         Args         : Parameters.Parameter_Info);
