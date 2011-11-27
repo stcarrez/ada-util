@@ -67,17 +67,29 @@ package body Ahven.XML_Runner is
    function Create_Name (Dir : String; Name : String) return String;
 
    function Filter_String (Str : String) return String is
-      Result : String (Str'Range);
+      Result : String (Str'First .. 6 * Str'Last);
+      Pos    : Natural := Str'First;
    begin
       for I in Str'Range loop
          if Str (I) = ''' then
-            Result (I) := '_';
+            Result (Pos .. Pos + 6 - 1) := "&apos;";
+            Pos := Pos + 6;
+         elsif Str (I) = '<' then
+            Result (Pos .. Pos + 4 - 1) := "&lt;";
+            Pos := Pos + 4;
+         elsif Str (I) = '>' then
+            Result (Pos .. Pos + 4 - 1) := "&gt;";
+            Pos := Pos + 4;
+         elsif Str (I) = '&' then
+            Result (Pos .. Pos + 5 - 1) := "&amp;";
+            Pos := Pos + 5;
          else
-            Result (I) := Str (I);
+            Result (Pos) := Str (I);
+            Pos := Pos + 1;
          end if;
       end loop;
 
-      return Result;
+      return Result (Result'First .. Pos - 1);
    end Filter_String;
 
    function Filter_String
