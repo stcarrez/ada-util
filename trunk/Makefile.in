@@ -14,6 +14,8 @@ DIST_FILE=ada-util-@UTIL_VERSION@.tar.gz
 XML_SRC_DIR=@UTIL_XML_DIR@
 ASM_SRC_DIR=@UTIL_ASM_DIR@
 AUNIT_SRC_DIR=@UTIL_AUNIT_DIR@
+AHVEN_SRC_DIR=@UTIL_AHVEN_DIR@
+AHVEN_SRC_OS_DIR=@UTIL_AHVEN_OS_DIR@
 
 MKDIR=mkdir
 CP=cp
@@ -125,6 +127,10 @@ install:
 	fi
 	if test T${AUNIT_SRC_DIR} != T ; then \
 	   ${CP} ${AUNIT_SRC_DIR}/*.ad[bs] ${includedir}/testutil ; \
+	fi
+	if test T${AHVEN_SRC_DIR} != T ; then \
+	   ${CP} ${AHVEN_SRC_DIR}/*.ad[bs] ${includedir}/testutil ; \
+	   ${CP} ${AHVEN_SRC_OS_DIR}/*.ad[bs] ${includedir}/testutil ; \
 	fi
 	sed -e "s,INSTALL,${prefix},g" < distrib/util.gpr > ${projectdir}/util.gpr
 	sed -e "s,INSTALL,${prefix},g" < distrib/testutil.gpr > ${projectdir}/testutil.gpr
