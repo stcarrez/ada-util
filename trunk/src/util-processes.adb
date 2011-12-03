@@ -110,8 +110,10 @@ package body Util.Processes is
       end loop;
       Proc.Argv (Argc + 1) := Interfaces.C.Strings.Null_Ptr;
 
+      Proc.Proc := new Util.Processes.Os.System_Process;
       --  System specific spawn
-      Util.Processes.Os.Spawn (Proc);
+      --        Util.Processes.Os.Spawn (Proc);
+      Proc.Proc.Spawn (Proc);
    end Spawn;
 
    procedure Free_Ptr_Ptr_Array is
@@ -161,9 +163,12 @@ package body Util.Processes is
       end loop;
       Proc.Argv (Argc + 1) := Interfaces.C.Strings.Null_Ptr;
 
+      Proc.Proc := new Util.Processes.Os.System_Process;
+
       --  System specific spawn
       Proc.Exit_Value := -1;
-      Util.Processes.Os.Spawn (Proc, Mode);
+      Proc.Proc.Spawn (Proc, Mode);
+--        Util.Processes.Os.Spawn (Proc, Mode);
    end Spawn;
 
    --  ------------------------------
@@ -189,7 +194,8 @@ package body Util.Processes is
       end if;
 
       Log.Info ("Waiting for process {0}", Process_Identifier'Image (Proc.Pid));
-      Util.Processes.Os.Waitpid (Proc.Pid, Proc.Exit_Value);
+      Proc.Proc.Wait (Proc, -1.0);
+--        Util.Processes.Os.Waitpid (Proc.Pid, Proc.Exit_Value);
    end Wait;
 
    --  ------------------------------
@@ -248,11 +254,15 @@ package body Util.Processes is
       procedure Free is
          new Ada.Unchecked_Deallocation (Object => Util.Streams.Output_Stream'Class,
                                          Name   => Util.Streams.Output_Stream_Access);
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Object => Util.Processes.System_Process'Class,
+                                         Name   => Util.Processes.System_Process_Access);
    begin
       Free (Proc.Input);
       Free (Proc.Output);
       Free (Proc.Error);
       Free (Proc.Argv);
+      Free (Proc.Proc);
    end Finalize;
 
 end Util.Processes;
