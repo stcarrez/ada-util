@@ -36,9 +36,9 @@ package body Util.Streams.Pipes is
    procedure Close (Stream : in out Pipe_Stream) is
       Output : constant Streams.Output_Stream_Access := Processes.Get_Input_Stream (Stream.Proc);
    begin
-      if Output /= null then
-         Output.Close;
-      end if;
+--        if Output /= null then
+--           Output.Close;
+--        end if;
       Util.Processes.Wait (Stream.Proc);
    end Close;
 
