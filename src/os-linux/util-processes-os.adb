@@ -16,17 +16,19 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Ada.Unchecked_Deallocation;
+
+with Util.Systems.Os;
 package body Util.Processes.Os is
 
-   --  The following values should be externalized.  They are valid for GNU/Linux.
-   F_SETFL    : constant Integer := 4;
-   FD_CLOEXEC : constant Integer := 1;
+   use Util.Systems.Os;
+   use type Interfaces.C.Size_T;
 
    --  ------------------------------
    --  Create the output stream to read/write on the process input/output.
    --  Setup the file to be closed on exec.
    --  ------------------------------
-   function Create_Stream (File : in Util.Streams.Raw.File_Type)
+   function Create_Stream (File : in File_Type)
                            return Util.Streams.Raw.Raw_Stream_Access is
       Stream : constant Util.Streams.Raw.Raw_Stream_Access := new Util.Streams.Raw.Raw_Stream;
       Status : constant Integer := Sys_Fcntl (File, F_SETFL, FD_CLOEXEC);
@@ -71,7 +73,7 @@ package body Util.Processes.Os is
       Pipes  : aliased array (0 .. 1) of File_Type := (others => NO_FILE);
    begin
       --  Since checks are disabled, verify by hand that the argv table is correct.
-      if Proc.Argv = null or else Proc.Argv'Length < 1 or else Proc.Argv (0) = Null_Ptr then
+      if Sys.Argv = null or else Sys.Argc < 1 or else Sys.Argv (0) = Null_Ptr then
          raise Program_Error with "Invalid process argument list";
       end if;
 
@@ -108,7 +110,7 @@ package body Util.Processes.Os is
 
          end case;
 
-         Result := Sys_Execvp (Proc.Argv (0), Proc.Argv.all);
+         Result := Sys_Execvp (Sys.Argv (0), Sys.Argv.all);
          Sys_Exit (255);
       end if;
 
@@ -135,6 +137,47 @@ package body Util.Processes.Os is
 
       end case;
    end Spawn;
+
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Name => Ptr_Ptr_Array, Object => Ptr_Array);
+
+   --  ------------------------------
+   --  Append the argument to the process argument list.
+   --  ------------------------------
+   overriding
+   procedure Append_Argument (Sys : in out System_Process;
+                              Arg : in String) is
+   begin
+      if Sys.Argv = null then
+         Sys.Argv := new Ptr_Array (0 .. 10);
+      elsif Sys.Argc = Sys.Argv'Last - 1 then
+         declare
+            N : Ptr_Ptr_Array := new Ptr_Array (0 .. Sys.Argc + 32);
+         begin
+            N (0 .. Sys.Argc) := Sys.Argv (0 .. Sys.Argc);
+            Free (Sys.Argv);
+            Sys.Argv := N;
+         end;
+      end if;
+
+      Sys.Argv (Sys.Argc) := Interfaces.C.Strings.New_String (Arg);
+      Sys.Argc := Sys.Argc + 1;
+      Sys.Argv (Sys.Argc) := Interfaces.C.Strings.Null_Ptr;
+   end Append_Argument;
+
+   --  ------------------------------
+   --  Deletes the storage held by the system process.
+   --  ------------------------------
+   overriding
+   procedure Finalize (Sys : in out System_Process) is
+   begin
+      if Sys.Argv /= null then
+         for I in Sys.Argv'Range loop
+            Interfaces.C.Strings.Free (Sys.Argv (I));
+         end loop;
+         Free (Sys.Argv);
+      end if;
+   end Finalize;
 
 end Util.Processes.Os;
 

@@ -15,12 +15,18 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with System;
+
 with Util.Streams.Raw;
+with Util.Systems.Os;
+with Interfaces.C;
+with Interfaces.C.Strings;
 
 private package Util.Processes.Os is
 
-   type System_Process is new Util.Processes.System_Process with null record;
+   type System_Process is new Util.Processes.System_Process with record
+      Argv  : Util.Systems.Os.Ptr_Ptr_Array := null;
+      Argc  : Interfaces.C.size_t := 0;
+   end record;
 
    --  Wait for the process to exit.
    overriding
@@ -34,53 +40,20 @@ private package Util.Processes.Os is
                     Proc : in out Process'Class;
                     Mode : in Pipe_Mode := NONE);
 
+   --  Append the argument to the process argument list.
+   overriding
+   procedure Append_Argument (Sys : in out System_Process;
+                              Arg : in String);
+
+   --  Deletes the storage held by the system process.
+   overriding
+   procedure Finalize (Sys : in out System_Process);
+
 private
-
-   --  System exit without any process cleaning.
-   --  (destructors, finalizers, atexit are not called)
-   procedure Sys_Exit (Code : in Integer);
-   pragma Import (C, Sys_Exit, "_exit");
-
-   --  Fork a new process
-   function Sys_Fork return Process_Identifier;
-   pragma Import (C, Sys_Fork, "fork");
-
-   --  Fork a new process (vfork implementation)
-   function Sys_VFork return Process_Identifier;
-   pragma Import (C, Sys_VFork, "fork");
-
-   --  Execute a process with the given arguments.
-   function Sys_Execvp (File : in Ptr;
-                        Args : in Ptr_Array) return Integer;
-   pragma Import (C, Sys_Execvp, "execvp");
-
-   --  Wait for the process <b>Pid</b> to finish and return
-   function Sys_Waitpid (Pid     : in Integer;
-                         Status  : in System.Address;
-                         Options : in Integer) return Integer;
-   pragma Import (C, Sys_Waitpid, "waitpid");
-
-   --  Create a bi-directional pipe
-   function Sys_Pipe (Fds : in System.Address) return Integer;
-   pragma Import (C, Sys_Pipe, "pipe");
-
-   --  Make <b>fd2</b> the copy of <b>fd1</b>
-   function Sys_Dup2 (Fd1, Fd2 : in Util.Streams.Raw.File_Type) return Integer;
-   pragma Import (C, Sys_Dup2, "dup2");
-
-   --  Close a file
-   function Sys_Close (Fd : in Util.Streams.Raw.File_Type) return Integer;
-   pragma Import (C, Sys_Close, "close");
-
-   --  Change the file settings
-   function Sys_Fcntl (Fd    : in Util.Streams.Raw.File_Type;
-                       Cmd   : in Integer;
-                       Flags : in Integer) return Integer;
-   pragma Import (C, Sys_Fcntl, "fcntl");
 
    --  Create the output stream to read/write on the process input/output.
    --  Setup the file to be closed on exec.
-   function Create_Stream (File : in Util.Streams.Raw.File_Type)
+   function Create_Stream (File : in Util.Systems.Os.File_Type)
                            return Util.Streams.Raw.Raw_Stream_Access;
 
 end Util.Processes.Os;

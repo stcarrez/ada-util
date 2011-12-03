@@ -18,12 +18,16 @@
 with Util.Streams.Raw;
 
 with Util.Systems.Os;
+with Interfaces.C;
 private package Util.Processes.Os is
 
    use Util.Systems.Os;
 
+   type Wchar_Ptr is access all Interfaces.C.wchar_array;
+
    type System_Process is new Util.Processes.System_Process with record
       Process_Info : aliased Util.Systems.Os.PROCESS_INFORMATION;
+      Command      : Wchar_Ptr;
    end record;
 
    --  Wait for the process to exit.
@@ -37,6 +41,15 @@ private package Util.Processes.Os is
    procedure Spawn (Sys  : in out System_Process;
                     Proc : in out Process'Class;
                     Mode : in Pipe_Mode := NONE);
+
+   --  Append the argument to the process argument list.
+   overriding
+   procedure Append_Argument (Sys : in out System_Process;
+                              Arg : in String);
+
+   --  Deletes the storage held by the system process.
+   overriding
+   procedure Finalize (Sys : in out System_Process);
 
    --  Build the output pipe redirection to read the process output.
    procedure Build_Output_Pipe (Proc : in out Process'Class;

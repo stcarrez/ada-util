@@ -17,11 +17,15 @@
 -----------------------------------------------------------------------
 with System;
 with Interfaces.C;
+with Interfaces.C.Strings;
 
+with Ada.Unchecked_Deallocation;
 with Ada.Characters.Conversions;
 
 with Util.Log.Loggers;
 package body Util.Processes.Os is
+
+   use type Interfaces.C.Size_T;
 
    --  The logger
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Processes.Os");
@@ -76,40 +80,35 @@ package body Util.Processes.Os is
       R          : BOOL;
    begin
       --  Since checks are disabled, verify by hand that the argv table is correct.
-      if Proc.Argv = null or else Proc.Argv'Length < 1 or else Proc.Argv (0) = Null_Ptr then
+      if Sys.Command = null or else Sys.Command'Length < 1 then
          raise Program_Error with "Invalid process argument list";
       end if;
 
-      for I in Proc.Argv.all'Range loop
-         exit when Proc.Argv (I) = Interfaces.C.Strings.Null_Ptr;
-         Size := Size + Natural (Interfaces.C.Strings.Strlen (Proc.Argv (I))) + 4;
-      end loop;
-
       declare
-         S   : Wide_String (1 .. Size);
+--           S   : Wide_String (1 .. Size);
          Pos : Natural := 1;
-         Len : Natural;
-         S1  : aliased wchar_array (1 .. size_t (Size));
+--           Len : Natural;
+--           S1  : aliased wchar_array (1 .. size_t (Size));
       begin
-         for I in Proc.Argv.all'Range loop
-            exit when Proc.Argv (I) = Interfaces.C.Strings.Null_Ptr;
-            Len := Natural (Interfaces.C.Strings.Strlen (Proc.Argv (I)));
-            if Len = 0 then
-               S (Pos .. Pos + 1) := "''";
-               Pos := Pos + 2;
-            else
-               S (Pos .. Pos + Len - 1) := To_Wide_String (Value (Proc.Argv (I)));
-               Pos := Pos + Len;
-            end if;
-            if I /= Proc.Argv.all'Last then
-               S (Pos) := ' ';
-               Pos := Pos + 1;
-            end if;
-         end loop;
-         for I in S'First .. Pos loop
-            S1 (Interfaces.C.size_t (I)) := Interfaces.C.To_C (S (I));
-         end loop;
-         S1 (Interfaces.C.size_t (Pos)) := Interfaces.C.wide_nul;
+--           for I in Proc.Argv.all'Range loop
+--              exit when Proc.Argv (I) = Interfaces.C.Strings.Null_Ptr;
+--              Len := Natural (Interfaces.C.Strings.Strlen (Proc.Argv (I)));
+--              if Len = 0 then
+--                 S (Pos .. Pos + 1) := "''";
+--                 Pos := Pos + 2;
+--              else
+--                 S (Pos .. Pos + Len - 1) := To_Wide_String (Value (Proc.Argv (I)));
+--                 Pos := Pos + Len;
+--              end if;
+--              if I /= Proc.Argv.all'Last then
+--                 S (Pos) := ' ';
+--                 Pos := Pos + 1;
+--              end if;
+--           end loop;
+--           for I in S'First .. Pos loop
+--              S1 (Interfaces.C.size_t (I)) := Interfaces.C.To_C (S (I));
+--           end loop;
+--           S1 (Interfaces.C.size_t (Pos)) := Interfaces.C.wide_nul;
 
          Startup.hStdInput := Get_Std_Handle (STD_INPUT_HANDLE);
          Startup.hStdOutput := Get_Std_Handle (STD_OUTPUT_HANDLE);
@@ -121,7 +120,7 @@ package body Util.Processes.Os is
 
          --  Start the child process.
          Result := Create_Process (System.Null_Address,
-                                   S1'Address,
+                                   Sys.Command.all'Address,
                                    null,
                                    null,
                                    True,
@@ -160,8 +159,6 @@ package body Util.Processes.Os is
    function Create_Stream (File : in Util.Streams.Raw.File_Type)
                            return Util.Streams.Raw.Raw_Stream_Access is
       Stream : constant Util.Streams.Raw.Raw_Stream_Access := new Util.Streams.Raw.Raw_Stream;
---        Status : constant Integer := Sys_Fcntl (File, F_SETFL, FD_CLOEXEC);
---        pragma Unreferenced (Status);
    begin
       Stream.Initialize (File);
       return Stream;
@@ -220,6 +217,53 @@ package body Util.Processes.Os is
       Into.hStdError  := Error_Handle;
       Proc.Output     := Create_Stream (Read_Pipe_Handle).all'Access;
    end Build_Output_Pipe;
+
+   procedure Free is
+      new Ada.Unchecked_Deallocation (Object => Interfaces.C.wchar_array,
+                                      Name   => Wchar_Ptr);
+
+   --  ------------------------------
+   --  Append the argument to the process argument list.
+   --  ------------------------------
+   overriding
+   procedure Append_Argument (Sys : in out System_Process;
+                              Arg : in String) is
+      Len : Interfaces.C.Size_T := Arg'Length;
+      Pos : Interfaces.C.size_t;
+   begin
+      if Sys.Command /= null then
+         Len := Len + Sys.Command'Length + 2;
+         Pos := Sys.Command'Last;
+         declare
+            S : Wchar_Ptr := new Interfaces.C.Wchar_Array (0 .. Len);
+         begin
+            S (Sys.Command'Range) := Sys.Command.all;
+            Free (Sys.Command);
+            Sys.Command := S;
+         end;
+         Sys.Command (Pos) := Interfaces.C.To_C (' ');
+         Pos := Pos + 1;
+
+      else
+         Sys.Command := new Interfaces.C.Wchar_Array (0 .. Len);
+         Pos := 0;
+      end if;
+      for I in Arg'Range loop
+         Sys.Command (Pos)
+           := Interfaces.C.To_C (Ada.Characters.Conversions.To_Wide_Character (Arg (I)));
+         Pos := Pos + 1;
+      end loop;
+      Sys.Command (Pos) := Interfaces.C.wide_nul;
+   end Append_Argument;
+
+   --  ------------------------------
+   --  Deletes the storage held by the system process.
+   --  ------------------------------
+   overriding
+   procedure Finalize (Sys : in out System_Process) is
+   begin
+      Free (Sys.Command);
+   end Finalize;
 
 end Util.Processes.Os;
 

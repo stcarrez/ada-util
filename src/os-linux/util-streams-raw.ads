@@ -17,19 +17,11 @@
 -----------------------------------------------------------------------
 with Ada.Finalization;
 
+with Util.Systems.Os;
+
 --  The <b>Util.Streams.Raw</b> package provides a stream directly on top of
 --  file system operations <b>read</b> and <b>write</b>.
 package Util.Streams.Raw is
-
-   type File_Type is new Integer;
-
-   --  Standard file streams Posix, X/Open standard values.
-   STDIN_FILENO  : constant File_Type := 0;
-   STDOUT_FILENO : constant File_Type := 1;
-   STDERR_FILENO : constant File_Type := 2;
-
-   --  File is not opened
-   NO_FILE       : constant File_Type := -1;
 
    --  -----------------------
    --  File stream
@@ -42,7 +34,7 @@ package Util.Streams.Raw is
 
    --  Initialize the raw stream to read and write on the given file descriptor.
    procedure Initialize (Stream  : in out Raw_Stream;
-                         File    : in File_Type);
+                         File    : in Util.Systems.Os.File_Type);
 
    --  Close the stream.
    procedure Close (Stream : in out Raw_Stream);
@@ -66,7 +58,7 @@ private
 
    type Raw_Stream is new Ada.Finalization.Limited_Controlled
      and Output_Stream and Input_Stream with record
-      File : File_Type := NO_FILE;
+      File : Util.Systems.Os.File_Type := Util.Systems.Os.NO_FILE;
    end record;
 
 end Util.Streams.Raw;

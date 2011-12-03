@@ -82,6 +82,19 @@ package body Util.Processes is
       Proc.Dir := To_Unbounded_String (Path);
    end Set_Working_Directory;
 
+   --  ------------------------------
+   --  Append the argument to the current process argument list.
+   --  Raises <b>Invalid_State</b> if the process is running.
+   --  ------------------------------
+   procedure Append_Argument (Proc : in out Process;
+                              Arg  : in String) is
+   begin
+      if Proc.Is_Running then
+         Log.Error ("Cannot add argument '{0}' while process is running", Arg);
+         raise Invalid_State with "Process is running";
+      end if;
+      Proc.Sys.Append_Argument (Arg);
+   end Append_Argument;
 
    --  ------------------------------
    --  Spawn a new process with the given command and its arguments.  The standard input, output
@@ -90,34 +103,21 @@ package body Util.Processes is
    procedure Spawn (Proc      : in out Process;
                     Command   : in String;
                     Arguments : in Argument_List) is
-      use type Interfaces.C.size_t;
-
-      Argc : Interfaces.C.size_t := 0;
    begin
       if Is_Running (Proc) then
          raise Invalid_State with "A process is running";
       end if;
 
       Log.Info ("Starting process {0}", Command);
-      Free (Proc.Argv);
 
       --  Build the argc/argv table, terminate by NULL
-      Proc.Argv := new Ptr_Array (0 .. Arguments'Length + 2);
-      Proc.Argv (0) := Interfaces.C.Strings.New_String (Command);
       for I in Arguments'Range loop
-         Argc := Argc + 1;
-         Proc.Argv (Argc) := Interfaces.C.Strings.New_String (Arguments (I).all);
+         Proc.Sys.Append_Argument (Arguments (I).all);
       end loop;
-      Proc.Argv (Argc + 1) := Interfaces.C.Strings.Null_Ptr;
 
-      Proc.Proc := new Util.Processes.Os.System_Process;
       --  System specific spawn
-      --        Util.Processes.Os.Spawn (Proc);
-      Proc.Proc.Spawn (Proc);
+      Proc.Sys.Spawn (Proc);
    end Spawn;
-
-   procedure Free_Ptr_Ptr_Array is
-     new Ada.Unchecked_Deallocation (Name => Ptr_Ptr_Array, Object => Ptr_Array);
 
    --  ------------------------------
    --  Spawn a new process with the given command and its arguments.  The standard input, output
@@ -126,10 +126,6 @@ package body Util.Processes is
    procedure Spawn (Proc      : in out Process;
                     Command   : in String;
                     Mode      : in Pipe_Mode := NONE) is
-      use type Interfaces.C.size_t;
-
-      Argc : Interfaces.C.size_t := 0;
-      Max  : Interfaces.C.size_t := 10;
       Pos  : Natural := Command'First;
       N    : Natural;
    begin
@@ -138,51 +134,21 @@ package body Util.Processes is
       end if;
 
       Log.Info ("Starting process {0}", Command);
-      Free (Proc.Argv);
 
-      --  Build the argc/argv table, terminate by NULL
-      Proc.Argv := new Ptr_Array (0 .. Max + 1);
+      --  Build the argc/argv table
       while Pos < Command'Last loop
          N := Util.Strings.Index (Command, ' ', Pos);
          if N = 0 then
             N := Command'Last + 1;
          end if;
-         if Argc = Max then
-            declare
-               Old : Ptr_Ptr_Array := Proc.Argv;
-            begin
-               Max := Max * 2;
-               Proc.Argv := new Ptr_Array (0 .. Max + 1);
-               Proc.Argv (Old.all'Range) := Old.all;
-               Free_Ptr_Ptr_Array (Old);
-            end;
-         end if;
-         Proc.Argv (Argc) := Interfaces.C.Strings.New_String (Command (Pos .. N - 1));
+         Proc.Sys.Append_Argument (Command (Pos .. N - 1));
          Pos := N + 1;
-         Argc := Argc + 1;
       end loop;
-      Proc.Argv (Argc + 1) := Interfaces.C.Strings.Null_Ptr;
-
-      Proc.Proc := new Util.Processes.Os.System_Process;
 
       --  System specific spawn
       Proc.Exit_Value := -1;
-      Proc.Proc.Spawn (Proc, Mode);
---        Util.Processes.Os.Spawn (Proc, Mode);
+      Proc.Sys.Spawn (Proc, Mode);
    end Spawn;
-
-   --  ------------------------------
-   --  Free the argv table
-   --  ------------------------------
-   procedure Free (Argv : in out Ptr_Ptr_Array) is
-   begin
-      if Argv /= null then
-         for I in Argv'Range loop
-            Interfaces.C.Strings.Free (Argv (I));
-         end loop;
-         Free_Ptr_Ptr_Array (Argv);
-      end if;
-   end Free;
 
    --  ------------------------------
    --  Wait for the process to terminate.
@@ -194,8 +160,7 @@ package body Util.Processes is
       end if;
 
       Log.Info ("Waiting for process {0}", Process_Identifier'Image (Proc.Pid));
-      Proc.Proc.Wait (Proc, -1.0);
---        Util.Processes.Os.Waitpid (Proc.Pid, Proc.Exit_Value);
+      Proc.Sys.Wait (Proc, -1.0);
    end Wait;
 
    --  ------------------------------
@@ -246,6 +211,18 @@ package body Util.Processes is
       return Proc.Error;
    end Get_Error_Stream;
 
+   --  ------------------------------
+   --  Initialize the process instance.
+   --  ------------------------------
+   overriding
+   procedure Initialize (Proc : in out Process) is
+   begin
+      Proc.Sys := new Util.Processes.Os.System_Process;
+   end Initialize;
+
+   --  ------------------------------
+   --  Deletes the process instance.
+   --  ------------------------------
    overriding
    procedure Finalize (Proc : in out Process) is
       procedure Free is
@@ -258,11 +235,13 @@ package body Util.Processes is
          new Ada.Unchecked_Deallocation (Object => Util.Processes.System_Process'Class,
                                          Name   => Util.Processes.System_Process_Access);
    begin
+      if Proc.Sys /= null then
+         Proc.Sys.Finalize;
+         Free (Proc.Sys);
+      end if;
       Free (Proc.Input);
       Free (Proc.Output);
       Free (Proc.Error);
-      Free (Proc.Argv);
-      Free (Proc.Proc);
    end Finalize;
 
 end Util.Processes;
