@@ -17,8 +17,6 @@
 -----------------------------------------------------------------------
 with Util.Streams;
 
-with Interfaces.C;
-with Interfaces.C.Strings;
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
 package Util.Processes is
@@ -27,6 +25,13 @@ package Util.Processes is
 
    Process_Error : exception;
 
+   --  The optional process pipes:
+   --  <ul>
+   --    <li>NONE: the process will inherit the standard input, output and error.
+   --    <li>READ: a pipe is created to read the process standard output.
+   --    <li>READ_ALL: similar to READ the same pipe is used for the process standard error.
+   --    <li>WRITE: a pipe is created to write on the process standard input.
+   --  </ul>
    type Pipe_Mode is (NONE, READ, WRITE);
 
    subtype String_Access is Ada.Strings.Unbounded.String_Access;
@@ -35,18 +40,24 @@ package Util.Processes is
 
    type Process_Identifier is new Integer;
 
+   --  ------------------------------
+   --  Process
+   --  ------------------------------
    type Process is limited private;
 
    --  Before launching the process, redirect the input stream of the process
    --  to the specified file.
+   --  Raises <b>Invalid_State</b> if the process is running.
    procedure Set_Input_Stream (Proc : in out Process;
                                File : in String);
 
    --  Set the output stream of the process
+   --  Raises <b>Invalid_State</b> if the process is running.
    procedure Set_Output_Stream (Proc : in out Process;
                                 File : in String);
 
    --  Set the error stream of the process
+   --  Raises <b>Invalid_State</b> if the process is running.
    procedure Set_Error_Stream (Proc : in out Process;
                                File : in String);
 
@@ -54,6 +65,11 @@ package Util.Processes is
    --  The directory must exist or the <b>Invalid_Directory</b> exception will be raised.
    procedure Set_Working_Directory (Proc : in out Process;
                                     Path : in String);
+
+   --  Append the argument to the current process argument list.
+   --  Raises <b>Invalid_State</b> if the process is running.
+   procedure Append_Argument (Proc : in out Process;
+                              Arg  : in String);
 
    --  Spawn a new process with the given command and its arguments.  The standard input, output
    --  and error streams are either redirected to a file or to a stream object.
@@ -88,10 +104,6 @@ package Util.Processes is
 
 private
 
-   subtype Ptr is Interfaces.C.Strings.chars_ptr;
-   subtype Ptr_Array is Interfaces.C.Strings.chars_ptr_array;
-   type Ptr_Ptr_Array is access all Ptr_Array;
-
    --  The <b>System_Process</b> interface is specific to the system.  On Unix, it holds the
    --  process identifier.  On Windows, more information is necessary, including the process
    --  and thread handles.  It's a little bit overkill to setup an interface for this but
@@ -101,9 +113,8 @@ private
 
    type Process is new Ada.Finalization.Limited_Controlled with record
       Pid        : Process_Identifier := -1;
-      Proc       : System_Process_Access := null;
+      Sys        : System_Process_Access := null;
       Exit_Value : Integer := -1;
-      Argv       : Ptr_Ptr_Array := null;
       Dir        : Ada.Strings.Unbounded.Unbounded_String;
       In_File    : Ada.Strings.Unbounded.Unbounded_String;
       Out_File   : Ada.Strings.Unbounded.Unbounded_String;
@@ -113,11 +124,13 @@ private
       Error      : Util.Streams.Input_Stream_Access := null;
    end record;
 
+   --  Initialize the process instance.
+   overriding
+   procedure Initialize (Proc : in out Process);
+
+   --  Deletes the process instance.
    overriding
    procedure Finalize (Proc : in out Process);
-
-   --  Free the argv table
-   procedure Free (Argv : in out Ptr_Ptr_Array);
 
    --  Wait for the process to exit.
    procedure Wait (Sys     : in out System_Process;
@@ -128,6 +141,13 @@ private
    procedure Spawn (Sys  : in out System_Process;
                     Proc : in out Process'Class;
                     Mode : in Pipe_Mode := NONE) is abstract;
+
+   --  Append the argument to the process argument list.
+   procedure Append_Argument (Sys : in out System_Process;
+                              Arg : in String) is abstract;
+
+   --  Deletes the storage held by the system process.
+   procedure Finalize (Sys : in out System_Process) is abstract;
 
 end Util.Processes;
 

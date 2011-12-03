@@ -22,23 +22,7 @@ with System;
 
 package body Util.Streams.Raw is
 
-   type Size_T is mod 2 ** Standard'Address_Size;
-
-   type Ssize_T is range -(2 ** (Standard'Address_Size - 1))
-     .. +(2 ** (Standard'Address_Size - 1)) - 1;
-
-   function Close (Fd : in File_Type) return Integer;
-   pragma Import (C, Close, "close");
-
-   function Read (Fd   : in File_Type;
-                  Buf  : in System.Address;
-                  Size : in Size_T) return Ssize_T;
-   pragma Import (C, Read, "read");
-
-   function Write (Fd   : in File_Type;
-                   Buf  : in System.Address;
-                   Size : in Size_T) return Ssize_T;
-   pragma Import (C, Write, "write");
+   use Util.Systems.Os;
 
    --  -----------------------
    --  Initialize the raw stream to read and write on the given file descriptor.
@@ -99,6 +83,5 @@ package body Util.Streams.Raw is
    begin
       Close (Object);
    end Finalize;
-
 
 end Util.Streams.Raw;

@@ -1,6 +1,6 @@
 Version 1.4     -
   - Support for localized date format
-  - Support for process creation and pipe streams
+  - Support for process creation and pipe streams (on Unix and Windows)
   - Support for CSV in the serialization framework
   - Integrate Ahven 2.1 for the unit tests (activate with --enable-ahven)
 
