@@ -92,8 +92,16 @@ private
    subtype Ptr_Array is Interfaces.C.Strings.chars_ptr_array;
    type Ptr_Ptr_Array is access all Ptr_Array;
 
+   --  The <b>System_Process</b> interface is specific to the system.  On Unix, it holds the
+   --  process identifier.  On Windows, more information is necessary, including the process
+   --  and thread handles.  It's a little bit overkill to setup an interface for this but
+   --  it looks cleaner than having specific system fields here.
+   type System_Process is limited interface;
+   type System_Process_Access is access all System_Process'Class;
+
    type Process is new Ada.Finalization.Limited_Controlled with record
       Pid        : Process_Identifier := -1;
+      Proc       : System_Process_Access := null;
       Exit_Value : Integer := -1;
       Argv       : Ptr_Ptr_Array := null;
       Dir        : Ada.Strings.Unbounded.Unbounded_String;
@@ -110,6 +118,16 @@ private
 
    --  Free the argv table
    procedure Free (Argv : in out Ptr_Ptr_Array);
+
+   --  Wait for the process to exit.
+   procedure Wait (Sys     : in out System_Process;
+                   Proc    : in out Process'Class;
+                   Timeout : in Duration) is abstract;
+
+   --  Spawn a new process.
+   procedure Spawn (Sys  : in out System_Process;
+                    Proc : in out Process'Class;
+                    Mode : in Pipe_Mode := NONE) is abstract;
 
 end Util.Processes;
 
