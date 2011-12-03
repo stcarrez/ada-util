@@ -19,7 +19,6 @@ with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Finalization;
 
-with Util.Tests;
 with Util.Concurrent.Counters;
 with Util.Test_Caller;
 with Util.Measures;
@@ -117,7 +116,7 @@ package body Util.Concurrent.Tests is
    procedure Test_Concurrent_Pool (T : in out Test) is
       use Ada.Strings.Unbounded;
 
-      Count_By_Task : constant Natural := 100_001;
+      Count_By_Task : constant Natural := 10_001;
       Task_Count    : constant Natural := 17;
       Capacity      : constant Natural := 5;
 
@@ -174,7 +173,8 @@ package body Util.Concurrent.Tests is
 
          --  Leaving the Worker task scope means we are waiting for our tasks to finish.
       end;
-      Util.Measures.Report (S, "Executed Get+Release " & Natural'Image (Count_By_Task * Task_Count));
+      Util.Measures.Report (S, "Executed Get+Release "
+                            & Natural'Image (Count_By_Task * Task_Count));
       declare
          Total : Natural := 0;
       begin

@@ -16,6 +16,8 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Ada.Finalization;
+
 --  The <b>Util.Concurrent.Pools</b> generic defines a pool of objects which
 --  can be shared by multiple threads.  First, the pool is configured to have
 --  a number of objects by using the <b>Set_Size</b> procedure.  Then, a thread
@@ -28,12 +30,38 @@ generic
    type Element_Type is private;
 package Util.Concurrent.Pools is
 
-   type Element_Array_Access is private;
+   --  Pool of objects
+   type Pool is new Ada.Finalization.Limited_Controlled with private;
 
-   Null_Element_Array : constant Element_Array_Access;
+   --  Get an element instance from the pool.
+   --  Wait until one instance gets available.
+   procedure Get_Instance (From : in out Pool;
+                           Item : out Element_Type);
+
+   --  Put the element back to the pool.
+   procedure Release (Into : in out Pool;
+                      Item : in Element_Type);
+
+   --  Set the pool size.
+   procedure Set_Size (Into : in out Pool;
+                       Capacity : in Positive);
+
+   --  Release the pool elements.
+   overriding
+   procedure Finalize (Object : in out Pool);
+
+private
+
+   --  To store the pool elements, we use an array which is allocated dynamically
+   --  by the <b>Set_Size</b> protected operation.  The generated code is smaller
+   --  compared to the use of Ada vectors container.
+   type Element_Array is array (Positive range <>) of Element_Type;
+   type Element_Array_Access is access all Element_Array;
+
+   Null_Element_Array : constant Element_Array_Access := null;
 
    --  Pool of objects
-   protected type Pool is
+   protected type Protected_Pool is
 
       --  Get an element instance from the pool.
       --  Wait until one instance gets available.
@@ -43,16 +71,15 @@ package Util.Concurrent.Pools is
       procedure Release (Item : in Element_Type);
 
       --  Set the pool size.
-      procedure Set_Size (Capacity : in Positive);
+      procedure Set_Size (Capacity : in Natural);
 
    private
       Available     : Natural := 0;
       Elements      : Element_Array_Access := Null_Element_Array;
-   end Pool;
+   end Protected_Pool;
 
-private
-   type Element_Array is array (Positive range <>) of Element_Type;
-   type Element_Array_Access is access all Element_Array;
+   type Pool is new Ada.Finalization.Limited_Controlled with record
+      List : Protected_Pool;
+   end record;
 
-   Null_Element_Array : constant Element_Array_Access := null;
 end Util.Concurrent.Pools;
