@@ -23,7 +23,6 @@ with Ada.Text_IO;
 with Util.Refs;
 with Ada.Strings.Hash;
 with Ada.Containers.Indefinite_Hashed_Maps;
-with GNAT.Traceback.Symbolic;
 procedure Multipro_Refs is
 
    use Util.Log;
@@ -48,6 +47,12 @@ procedure Multipro_Refs is
    end record;
    type Cache_Access is access all Cache;
    package Hash_Ref is new Util.Refs.References (Cache, Cache_Access);
+
+   procedure Set_Reference (O : in Data_Ref.Ref);
+   function Exists (Key : in String) return Boolean;
+   function Find (Key : in String) return String;
+   procedure Add (Key : in String; Value : in String);
+   function Get_Reference return Data_Ref.Ref;
 
    R : Hash_Ref.Atomic_Ref;
 
@@ -141,7 +146,7 @@ begin
                              Ident : in Integer) do
                   Cnt := Count;
                   Id  := Ident;
-               end;
+               end Start;
 
                --  Get the data, compute something and change the reference.
                for I in 1 .. Cnt loop
@@ -162,18 +167,19 @@ begin
                      end if;
                      declare
                         S : constant String := Find (Key);
+                        pragma Unreferenced (S);
                      begin
                         null;
                      exception
                         when others =>
-                           Log.Info ("Find did not found the key: {0}", Key);
+                           Log.Info ("{0}: Find did not found the key: {1}",
+                                     Integer'Image (Id), Key);
                      end;
                   end;
                end loop;
             exception
                when E : others =>
-                  Log.Error ("Exception raised: {0}",
-                             GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
+                  Log.Error ("Exception raised: ", E, True);
             end Worker;
 
             type Worker_Array is array (1 .. Task_Count) of Worker;

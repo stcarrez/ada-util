@@ -18,18 +18,14 @@
 with Ada.Text_IO;
 with Ada.Command_Line;
 
-with Util.Log.Loggers;
 with Util.Serialize.IO.CSV;
 
 --  This example shows how to read a CSV file.  Unlike <b>csv_city</b>, the CSV cells
 --  are collected directly by overriding the <b>Set_Cell</b> parser procedure.
 procedure CSV_Reader is
 
-   use Util.Log.Loggers;
    use Ada.Text_IO;
    use Util.Serialize.IO.CSV;
-
-   Log     : constant Logger := Create ("log", "samples/log4j.properties");
 
    Prev_Row : Row_Type;
 
@@ -46,6 +42,7 @@ procedure CSV_Reader is
                        Value  : in String;
                        Row    : in Util.Serialize.IO.CSV.Row_Type;
                        Column : in Util.Serialize.IO.CSV.Column_Type) is
+      pragma Unreferenced (Parser, Column);
    begin
       if Prev_Row /= Row then
          Ada.Text_IO.New_Line;
