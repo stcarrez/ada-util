@@ -60,6 +60,7 @@ clean:	clean_test
 # Clean the files produced by the unit tests
 clean_test:
 	rm -f test?.log test.log test-stream.txt test-write.txt util-tests.xml
+	rm -rf regtests/result
 
 # Clean root project and all imported projects too.
 clean_tree:
@@ -79,7 +80,8 @@ version:
 		  src/util.gpb src/util.ads
 
 # Files to package in source distribution
-DISTFILES=README LICENSE.txt NOTICE.txt NEWS CHANGES ChangeLog config.guess configure config.sub \
+DISTFILES=README LICENSE.txt LICENSE.Ahven NOTICE.txt NEWS CHANGES ChangeLog \
+config.guess configure config.sub \
 configure.in Makefile.in install-sh \
 util.gpr.in testutil.gpr.in tests.gpr samples.gpr config.gpr \
 src samples regtests testutil \
