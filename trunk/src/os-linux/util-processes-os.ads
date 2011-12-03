@@ -20,12 +20,18 @@ with Util.Streams.Raw;
 
 private package Util.Processes.Os is
 
-   --  Wait for the process <b>Pid</b> to finish and return the process exit status.
-   procedure Waitpid (Pid    : in Process_Identifier;
-                      Status : out Integer);
+   type System_Process is new Util.Processes.System_Process with null record;
 
-   --  Spawn a process
-   procedure Spawn (Proc : in out Process;
+   --  Wait for the process to exit.
+   overriding
+   procedure Wait (Sys     : in out System_Process;
+                   Proc    : in out Process'Class;
+                   Timeout : in Duration);
+
+   --  Spawn a new process.
+   overriding
+   procedure Spawn (Sys  : in out System_Process;
+                    Proc : in out Process'Class;
                     Mode : in Pipe_Mode := NONE);
 
 private

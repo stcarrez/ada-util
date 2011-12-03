@@ -23,20 +23,6 @@ package body Util.Processes.Os is
    FD_CLOEXEC : constant Integer := 1;
 
    --  ------------------------------
-   --  Wait for the process <b>Pid</b> to finish and return the process exit status.
-   --  ------------------------------
-   procedure Waitpid (Pid    : in Process_Identifier;
-                      Status : out Integer) is
-      Result : Integer;
-      Wpid   : Integer;
-   begin
-      Wpid := Sys_Waitpid (Integer (Pid), Result'Address, 0);
-      if Wpid = Integer (Pid) then
-         Status := Result / 256;
-      end if;
-   end Waitpid;
-
-   --  ------------------------------
    --  Create the output stream to read/write on the process input/output.
    --  Setup the file to be closed on exec.
    --  ------------------------------
@@ -51,9 +37,27 @@ package body Util.Processes.Os is
    end Create_Stream;
 
    --  ------------------------------
-   --  Spawn a process
+   --  Wait for the process to exit.
    --  ------------------------------
-   procedure Spawn (Proc : in out Process;
+   overriding
+   procedure Wait (Sys     : in out System_Process;
+                   Proc    : in out Process'Class;
+                   Timeout : in Duration) is
+      Result : Integer;
+      Wpid   : Integer;
+   begin
+      Wpid := Sys_Waitpid (Integer (Proc.Pid), Result'Address, 0);
+      if Wpid = Integer (Proc.Pid) then
+         Proc.Exit_Value := Result / 256;
+      end if;
+   end Wait;
+
+   --  ------------------------------
+   --  Spawn a new process.
+   --  ------------------------------
+   overriding
+   procedure Spawn (Sys  : in out System_Process;
+                    Proc : in out Process'Class;
                     Mode : in Pipe_Mode := NONE) is
       use Util.Streams.Raw;
       use Interfaces.C.Strings;
