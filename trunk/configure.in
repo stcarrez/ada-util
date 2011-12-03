@@ -59,7 +59,7 @@ case "${target_os}" in
 	;;
 
      mingw32*|cygwin*)
-	src_os='src/os-none'
+	src_os='src/os-win32'
 	;;
 
      *)
