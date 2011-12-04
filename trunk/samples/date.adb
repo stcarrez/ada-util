@@ -31,15 +31,13 @@ procedure Date is
    use Util.Properties.Bundles;
    use GNAT.Command_Line;
 
-   Log     : constant Logger := Create ("log", "samples/log4j.properties");
+   Log         : constant Logger := Create ("log", "samples/log4j.properties");
 
-   Factory : Util.Properties.Bundles.Loader;
-
-   Bundle  : Util.Properties.Bundles.Manager;
-
-   Locale  : Unbounded_String := To_Unbounded_String ("en");
-   Date    : Ada.Calendar.Time := Ada.Calendar.Clock;
-
+   Factory     : Util.Properties.Bundles.Loader;
+   Bundle      : Util.Properties.Bundles.Manager;
+   Locale      : Unbounded_String := To_Unbounded_String ("en");
+   Date        : constant Ada.Calendar.Time := Ada.Calendar.Clock;
+   Use_Default : Boolean := True;
 begin
    --  Load the bundles from the current directory
    Initialize (Factory, "samples/;bundles");
@@ -53,8 +51,7 @@ begin
             Locale := To_Unbounded_String (Parameter);
 
          when others =>
-            Log.Info ("Usage: date -l locale format");
-            return;
+            raise GNAT.Command_Line.Invalid_Switch;
       end case;
    end loop;
    begin
@@ -70,9 +67,19 @@ begin
       begin
          exit when Pattern = "";
 
+         Use_Default := False;
          Ada.Text_IO.Put_Line (Util.Dates.Formats.Format (Pattern => Pattern,
                                                           Date    => Date,
                                                           Bundle  => Bundle));
       end;
    end loop;
+   if Use_Default then
+      Ada.Text_IO.Put_Line (Util.Dates.Formats.Format (Pattern => "%a %b %_d %T %Y",
+                                                       Date    => Date,
+                                                       Bundle  => Bundle));
+   end if;
+
+exception
+   when GNAT.Command_Line.Invalid_Switch =>
+      Log.Error ("Usage: date -l locale format");
 end Date;

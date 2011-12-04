@@ -116,7 +116,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
       M.Mapper  := Map;
       M.Execute := Proxy;
       M.Is_Proxy_Mapper := True;
-      Into.Add_Mapping (Path, M.all'Access);
+      Into.Add_Mapping (Path, M.all'Unchecked_Access);
    end Add_Mapping;
 
    --
@@ -275,7 +275,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
       Result.Is_Proxy_Mapper := Handler.Is_Proxy_Mapper;
       Result.Get_Member      := Handler.Get_Member;
       Result.Execute         := Handler.Execute;
-      return Result.all'Access;
+      return Result.all'Unchecked_Access;
    end Clone;
 
 begin

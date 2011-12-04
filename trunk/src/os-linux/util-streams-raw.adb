@@ -18,8 +18,6 @@
 
 with Ada.IO_Exceptions;
 
-with System;
-
 package body Util.Streams.Raw is
 
    use Util.Systems.Os;
