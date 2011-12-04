@@ -1,9 +1,25 @@
 Utility Language
 
 This Ada05 library contains various utility packages for building
-Ada05 applications.
+Ada05 applications.  This includes:
 
-Build with the following commands:
+ o A logging framework close to Java log4j framework,
+ o Support for properties
+ o A serialization/deserialization framework for XML, JSON, CSV
+ o Ada beans framework
+ o Encoding/decoding framework (Base16, Base64, SHA, HMAC-SHA)
+ o A composing stream framework (raw, files, buffers, pipes)
+ o Several concurrency tools (reference counters, counters, pools)
+ o Process creation and pipes
+
+Ada Util also provides a small test utility library on top of
+Ahven or AUnit to help in writing unit tests.
+To use Ahven testing framework, configure as follows:
+
+   ./configure --enable-ahven
+   make
+
+To use AUnit, build with the following commands:
 
    ./configure
    make
@@ -23,7 +39,7 @@ Or manually build with:
    gnatmake -Ptests
 
 
-And unit tests are executed with (145 success, 0 failed):
+And unit tests are executed with (163 success, 0 failed):
 
    bin/util_harness
 
