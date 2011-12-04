@@ -51,6 +51,10 @@ package Util.Streams.Buffered is
    procedure Initialize (Stream  : in out Buffered_Stream;
                          Content : in String);
 
+   --  Close the sink.
+   overriding
+   procedure Close (Stream : in out Buffered_Stream);
+
    --  Get the direct access to the buffer.
    function Get_Buffer (Stream : in Buffered_Stream) return Buffer_Access;
 

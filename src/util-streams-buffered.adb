@@ -75,6 +75,18 @@ package body Util.Streams.Buffered is
    end Initialize;
 
    --  ------------------------------
+   --  Close the sink.
+   --  ------------------------------
+   overriding
+   procedure Close (Stream : in out Buffered_Stream) is
+   begin
+      if Stream.Output /= null then
+         Buffered_Stream'Class (Stream).Flush;
+         Stream.Output.Close;
+      end if;
+   end Close;
+
+   --  ------------------------------
    --  Get the direct access to the buffer.
    --  ------------------------------
    function Get_Buffer (Stream : in Buffered_Stream) return Buffer_Access is
