@@ -22,6 +22,8 @@ package body Util.Encoders.Base16 is
 
       type Code is mod 2**32;
 
+      function To_Output_Char (Ch : Input_Char) return Code;
+
       type Conv_Table is array (0 .. 15) of Output_Char;
 
       Conversion : constant Conv_Table :=

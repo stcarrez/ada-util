@@ -224,6 +224,9 @@ package body Util.Properties.Bundles is
       use Util.Strings.String_Set;
       use Bundle_Map;
 
+      procedure Process_File (Name      : in String;
+                              File_Path : in String);
+
       Path    : constant String := To_String (Factory.Path);
       Pattern : constant String := Name & "*.properties";
       Names   : Util.Strings.String_Set.Set;

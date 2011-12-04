@@ -21,9 +21,10 @@ package body Util.Refs is
 
    package body Indefinite_References is
 
+      --  ------------------------------
       --  Create an element and return a reference to that element.
+      --  ------------------------------
       function Create (Value : in Element_Access) return Ref is
-         Result : Ref;
       begin
          return Result : Ref do
             Result.Target := Value;
