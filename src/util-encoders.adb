@@ -215,7 +215,7 @@ package body Util.Encoders is
             E.Decode := new Util.Encoders.Base64.Decoder;
          end return;
       end if;
-      raise Storage_Error;
+      raise Not_Supported with "Invalid encoder: " & Name;
    end Create;
 
    --  ------------------------------
