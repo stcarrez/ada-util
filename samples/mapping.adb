@@ -22,6 +22,21 @@ package body Mapping is
    type Property_Fields is (FIELD_NAME, FIELD_VALUE);
    type Property_Access is access all Property;
 
+   type Address_Fields is (FIELD_CITY, FIELD_STREET, FIELD_COUNTRY, FIELD_ZIP);
+   type Address_Access is access all Address;
+
+   procedure Proxy_Address (Attr    : in Util.Serialize.Mappers.Mapping'Class;
+                            Element : in out Person;
+                            Value   : in Util.Beans.Objects.Object);
+   function Get_Address_Member (Addr  : in Address;
+                                Field : in Address_Fields) return Util.Beans.Objects.Object;
+   procedure Set_Member (Addr  : in out Address;
+                         Field : in Address_Fields;
+                         Value : in Util.Beans.Objects.Object);
+   procedure Set_Member (P : in out Property;
+                         Field : in Property_Fields;
+                         Value : in Util.Beans.Objects.Object);
+
    procedure Set_Member (P : in out Property;
                          Field : in Property_Fields;
                          Value : in Util.Beans.Objects.Object) is
@@ -35,19 +50,6 @@ package body Mapping is
 
       end case;
    end Set_Member;
-
-   function Get_Member (P : in Property;
-                        Field : in Property_Fields) return Util.Beans.Objects.Object is
-   begin
-      case Field is
-         when FIELD_NAME =>
-            return To_Object (P.Name);
-
-         when FIELD_VALUE =>
-            return To_Object (P.Value);
-
-      end case;
-   end Get_Member;
 
    package Property_Mapper is
      new Util.Serialize.Mappers.Record_Mapper (Element_Type        => Property,
@@ -94,9 +96,6 @@ package body Mapping is
       end case;
    end Get_Person_Member;
 
-   type Address_Fields is (FIELD_CITY, FIELD_STREET, FIELD_COUNTRY, FIELD_ZIP);
-   type Address_Access is access all Address;
-
    --  ------------------------------
    --  Set the name/value pair on the current object.
    --  ------------------------------
@@ -104,7 +103,7 @@ package body Mapping is
                          Field : in Address_Fields;
                          Value : in Util.Beans.Objects.Object) is
    begin
-       case Field is
+      case Field is
          when FIELD_CITY =>
             Addr.City := To_Unbounded_String (Value);
 
@@ -120,8 +119,8 @@ package body Mapping is
       end case;
    end Set_Member;
 
-   function Get_Member (Addr  : in Address;
-                        Field : in Address_Fields) return Util.Beans.Objects.Object is
+   function Get_Address_Member (Addr  : in Address;
+                                Field : in Address_Fields) return Util.Beans.Objects.Object is
    begin
       case Field is
          when FIELD_CITY =>
@@ -137,7 +136,7 @@ package body Mapping is
             return Util.Beans.Objects.To_Object (Addr.Zip);
 
       end case;
-   end Get_Member;
+   end Get_Address_Member;
 
    package Address_Mapper is
      new Util.Serialize.Mappers.Record_Mapper (Element_Type        => Address,
@@ -184,13 +183,6 @@ package body Mapping is
    --  ------------------------------
    --  Helper to give access to the <b>Address</b> member of a <b>Person</b>.
    --  ------------------------------
-   procedure Proxy_Info (Attr    : in Util.Serialize.Mappers.Mapping'Class;
-                         Element : in out Address;
-                         Value   : in Util.Beans.Objects.Object) is
-   begin
-      Property_Mapper.Set_Member (Attr, Element.Info, Value);
-   end Proxy_Info;
-
    procedure Proxy_Address (Attr    : in Util.Serialize.Mappers.Mapping'Class;
                             Element : in out Person;
                             Value   : in Util.Beans.Objects.Object) is
@@ -207,7 +199,7 @@ begin
    --  <street>Champs de Mars</street>     "street" : "Champs de Mars"
    --  <country>France</country>           "country" : "France"
    --  <zip>75</zip>                       "zip" : 75
-   Address_Mapping.Bind (Get_Member'Access);
+   Address_Mapping.Bind (Get_Address_Member'Access);
 --     Address_Mapping.Add_Mapping ("info", Property_Mapping'Access, Proxy_Info'Access);
    Address_Mapping.Add_Default_Mapping;
 
@@ -230,7 +222,7 @@ begin
    Person_Mapping.Add_Mapping ("address", Address_Mapping'Access, Proxy_Address'Access);
    Person_Mapping.Add_Mapping ("name", FIELD_FIRST_NAME);
    Person_Mapping.Add_Default_Mapping;
-  --   Person_Mapper.Add_Mapping ("info/*");
+   --  Person_Mapper.Add_Mapping ("info/*");
    --  Person_Mapper.Add_Mapping ("address/street/@number");
 
    Person_Vector_Mapping.Set_Mapping (Person_Mapping'Access);

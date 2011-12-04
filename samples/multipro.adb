@@ -60,7 +60,7 @@ begin
             begin
                accept Start (Count : in Natural) do
                   Cnt := Count;
-               end;
+               end Start;
                --  Increment the two counters as many times as necessary.
                for I in 1 .. Cnt loop
                   Util.Concurrent.Counters.Increment (Counter);
@@ -89,7 +89,8 @@ begin
          --  Unsafe will be equal to Counter if Task_Count = 1 or if the host is mono-processor.
          --  On dual/quad core, the Unsafe value becomes random and gets lower each time
          --  the number of tasks increases.
-         Log.Info ("Expected value at the end      : " & Integer'Image (Increment_By_Task * Task_Count));
+         Log.Info ("Expected value at the end      : "
+                   & Integer'Image (Increment_By_Task * Task_Count));
          Log.Info ("Counter value at the end       : " & Integer'Image (Value (Counter)));
          Log.Info ("Unprotected counter at the end : " & Integer'Image (Unsafe));
       end;
