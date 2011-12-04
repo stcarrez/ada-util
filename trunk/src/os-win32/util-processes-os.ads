@@ -27,7 +27,8 @@ private package Util.Processes.Os is
 
    type System_Process is new Util.Processes.System_Process with record
       Process_Info : aliased Util.Systems.Os.PROCESS_INFORMATION;
-      Command      : Wchar_Ptr;
+      Command      : Wchar_Ptr := null;
+      Pos          : Interfaces.C.size_t := 0;
    end record;
 
    --  Wait for the process to exit.

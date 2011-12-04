@@ -16,16 +16,15 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with System;
-with Interfaces.C;
-with Interfaces.C.Strings;
 
 with Ada.Unchecked_Deallocation;
 with Ada.Characters.Conversions;
+--  with Interfaces.C.Strings;
 
 with Util.Log.Loggers;
 package body Util.Processes.Os is
 
-   use type Interfaces.C.Size_T;
+   use type Interfaces.C.size_t;
 
    --  The logger
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Processes.Os");
@@ -37,11 +36,19 @@ package body Util.Processes.Os is
    procedure Wait (Sys     : in out System_Process;
                    Proc    : in out Process'Class;
                    Timeout : in Duration) is
+
+      use type Util.Streams.Output_Stream_Access;
+
       Result : DWORD;
       T      : DWORD;
       Code   : aliased DWORD;
       Status : BOOL;
    begin
+      --  Close the input stream pipe if there is one.
+      if Proc.Input /= null then
+         Util.Streams.Raw.Raw_Stream'Class (Proc.Input.all).Close;
+      end if;
+
       if Timeout < 0.0 then
          T := DWORD'Last;
       else
@@ -69,68 +76,37 @@ package body Util.Processes.Os is
                     Proc : in out Process'Class;
                     Mode : in Pipe_Mode := NONE) is
       use Util.Streams.Raw;
-      use Interfaces.C.Strings;
       use Ada.Characters.Conversions;
       use Interfaces.C;
 
-      Result : Integer;
-
+      Result  : Integer;
       Startup : aliased Startup_Info;
-      Size       : Natural := 0;
-      R          : BOOL;
+      R       : BOOL;
    begin
       --  Since checks are disabled, verify by hand that the argv table is correct.
       if Sys.Command = null or else Sys.Command'Length < 1 then
          raise Program_Error with "Invalid process argument list";
       end if;
 
-      declare
---           S   : Wide_String (1 .. Size);
-         Pos : Natural := 1;
---           Len : Natural;
---           S1  : aliased wchar_array (1 .. size_t (Size));
-      begin
---           for I in Proc.Argv.all'Range loop
---              exit when Proc.Argv (I) = Interfaces.C.Strings.Null_Ptr;
---              Len := Natural (Interfaces.C.Strings.Strlen (Proc.Argv (I)));
---              if Len = 0 then
---                 S (Pos .. Pos + 1) := "''";
---                 Pos := Pos + 2;
---              else
---                 S (Pos .. Pos + Len - 1) := To_Wide_String (Value (Proc.Argv (I)));
---                 Pos := Pos + Len;
---              end if;
---              if I /= Proc.Argv.all'Last then
---                 S (Pos) := ' ';
---                 Pos := Pos + 1;
---              end if;
---           end loop;
---           for I in S'First .. Pos loop
---              S1 (Interfaces.C.size_t (I)) := Interfaces.C.To_C (S (I));
---           end loop;
---           S1 (Interfaces.C.size_t (Pos)) := Interfaces.C.wide_nul;
+      Startup.hStdInput  := Get_Std_Handle (STD_INPUT_HANDLE);
+      Startup.hStdOutput := Get_Std_Handle (STD_OUTPUT_HANDLE);
+      Startup.hStdError  := Get_Std_Handle (STD_ERROR_HANDLE);
+      if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL then
+         Build_Output_Pipe (Proc, Startup);
+      end if;
+      Startup.cb := Startup'Size / 8;
 
-         Startup.hStdInput := Get_Std_Handle (STD_INPUT_HANDLE);
-         Startup.hStdOutput := Get_Std_Handle (STD_OUTPUT_HANDLE);
-         Startup.hStdError := Get_Std_Handle (STD_ERROR_HANDLE);
-         if Mode = READ then
-            Build_Output_Pipe (Proc, Startup);
-         end if;
-         Startup.cb := Startup'Size / 8;
-
-         --  Start the child process.
-         Result := Create_Process (System.Null_Address,
-                                   Sys.Command.all'Address,
-                                   null,
-                                   null,
-                                   True,
-                                   16#0#,
-                                   System.Null_Address,
-                                   System.Null_Address,
-                                   Startup'Unchecked_Access,
-                                   Sys.Process_Info'Unchecked_Access);
-
-      end;
+      --  Start the child process.
+      Result := Create_Process (System.Null_Address,
+                                Sys.Command.all'Address,
+                                null,
+                                null,
+                                True,
+                                16#0#,
+                                System.Null_Address,
+                                System.Null_Address,
+                                Startup'Unchecked_Access,
+                                Sys.Process_Info'Unchecked_Access);
 
       if Result /= 1 then
          Result := Get_Last_Error;
@@ -228,32 +204,30 @@ package body Util.Processes.Os is
    overriding
    procedure Append_Argument (Sys : in out System_Process;
                               Arg : in String) is
-      Len : Interfaces.C.Size_T := Arg'Length;
-      Pos : Interfaces.C.size_t;
+      Len : Interfaces.C.size_t := Arg'Length;
    begin
       if Sys.Command /= null then
          Len := Len + Sys.Command'Length + 2;
-         Pos := Sys.Command'Last;
          declare
-            S : Wchar_Ptr := new Interfaces.C.Wchar_Array (0 .. Len);
+            S : constant Wchar_Ptr := new Interfaces.C.wchar_array (0 .. Len);
          begin
             S (Sys.Command'Range) := Sys.Command.all;
             Free (Sys.Command);
             Sys.Command := S;
          end;
-         Sys.Command (Pos) := Interfaces.C.To_C (' ');
-         Pos := Pos + 1;
+         Sys.Command (Sys.Pos) := Interfaces.C.To_C (' ');
+         Sys.Pos := Sys.Pos + 1;
 
       else
-         Sys.Command := new Interfaces.C.Wchar_Array (0 .. Len);
-         Pos := 0;
+         Sys.Command := new Interfaces.C.wchar_array (0 .. Len + 1);
+         Sys.Pos := 0;
       end if;
       for I in Arg'Range loop
-         Sys.Command (Pos)
+         Sys.Command (Sys.Pos)
            := Interfaces.C.To_C (Ada.Characters.Conversions.To_Wide_Character (Arg (I)));
-         Pos := Pos + 1;
+         Sys.Pos := Sys.Pos + 1;
       end loop;
-      Sys.Command (Pos) := Interfaces.C.wide_nul;
+      Sys.Command (Sys.Pos) := Interfaces.C.wide_nul;
    end Append_Argument;
 
    --  ------------------------------
