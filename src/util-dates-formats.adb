@@ -28,6 +28,11 @@ package body Util.Dates.Formats is
    function Get_Label (Bundle : in Util.Properties.Manager'Class;
                        Prefix : in String;
                        Index  : in Natural;
+                       Short  : in Boolean) return String;
+
+   function Get_Label (Bundle : in Util.Properties.Manager'Class;
+                       Prefix : in String;
+                       Index  : in Natural;
                        Short  : in Boolean) return String is
       Num  : constant String := Natural'Image (Index);
       Name : constant String := Prefix & Num (Num'First + 1 .. Num'Last);

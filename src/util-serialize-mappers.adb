@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 
 with Util.Strings;
-with Util.Log.Loggers;
 with Ada.Unchecked_Deallocation;
 package body Util.Serialize.Mappers is
 
@@ -147,6 +146,9 @@ package body Util.Serialize.Mappers is
    procedure Add_Mapping (Into : in out Mapper;
                           Path : in String;
                           Map  : in Mapper_Access) is
+      procedure Copy (To   : in Mapper_Access;
+                      From : in Mapper_Access);
+
       Node     : Mapper_Access;
       Last_Pos : Natural;
 

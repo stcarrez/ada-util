@@ -34,8 +34,6 @@ with Ada.Strings.Hash;
 --  The <b>Locales</b> package tries to follow the Java <b>Locale</b> class.
 package body Util.Locales is
 
-   EMPTY_STR : constant String := "";
-
    --  ------------------------------
    --  Get the lowercase two-letter ISO-639 code.
    --  ------------------------------
