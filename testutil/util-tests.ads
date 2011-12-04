@@ -98,6 +98,22 @@ package Util.Tests is
                             Source    : String := GNAT.Source_Info.File;
                             Line      : Natural := GNAT.Source_Info.Line);
 
+   --  Check that the value matches the regular expression
+   procedure Assert_Matches (T       : in Test'Class;
+                             Pattern : in String;
+                             Value   : in Unbounded_String;
+                             Message : in String := "Test failed";
+                             Source  : String := GNAT.Source_Info.File;
+                             Line    : Natural := GNAT.Source_Info.Line);
+
+   --  Check that the value matches the regular expression
+   procedure Assert_Matches (T       : in Test'Class;
+                             Pattern : in String;
+                             Value   : in String;
+                             Message : in String := "Test failed";
+                             Source  : String := GNAT.Source_Info.File;
+                             Line    : Natural := GNAT.Source_Info.Line);
+
    --  Default initialization procedure.
    procedure Initialize_Test (Props : in Util.Properties.Manager);
 
