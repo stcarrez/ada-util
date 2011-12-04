@@ -26,13 +26,24 @@ package Util.Processes is
    Process_Error : exception;
 
    --  The optional process pipes:
-   --  <ul>
-   --    <li>NONE: the process will inherit the standard input, output and error.
-   --    <li>READ: a pipe is created to read the process standard output.
-   --    <li>READ_ALL: similar to READ the same pipe is used for the process standard error.
-   --    <li>WRITE: a pipe is created to write on the process standard input.
-   --  </ul>
-   type Pipe_Mode is (NONE, READ, WRITE);
+   --  <dl>
+   --    <dt>NONE</dt>
+   --    <dd>the process will inherit the standard input, output and error.</dd>
+   --    <dt>READ</dt>
+   --    <dd>a pipe is created to read the process standard output.</dd>
+   --    <dt>READ_ERROR</dt>
+   --    <dd>a pipe is created to read the process standard error.  The output and input are
+   --    inherited.</dd>
+   --    <dt>READ_ALL</dt>
+   --    <dd>similar to READ the same pipe is used for the process standard error.</dd>
+   --    <dt>WRITE</dt>
+   --    <dd>a pipe is created to write on the process standard input.</dd>
+   --    <dt>READ_WRITE</dt>
+   --    <dd>Combines the <b>READ</b> and <b>WRITE</b> modes.</dd>
+   --    <dt>READ_WRITE_ALL</dt>
+   --    <dd>Combines the <b>READ_ALL</b> and <b>WRITE</b> modes.</dd>
+   --  </dl>
+   type Pipe_Mode is (NONE, READ, READ_ERROR, READ_ALL, WRITE, READ_WRITE, READ_WRITE_ALL);
 
    subtype String_Access is Ada.Strings.Unbounded.String_Access;
 

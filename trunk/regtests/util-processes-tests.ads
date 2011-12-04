@@ -29,6 +29,12 @@ package Util.Processes.Tests is
    --  Test executing a process
    procedure Test_Spawn (T : in out Test);
 
+   --  Test output pipe redirection: read the process standard output
+   procedure Test_Output_Pipe (T : in out Test);
+
+   --  Test input pipe redirection: write the process standard input
+   procedure Test_Input_Pipe (T : in out Test);
+
    --  Test launching several processes through pipes in several threads.
    procedure Test_Multi_Spawn (T : in out Test);
 

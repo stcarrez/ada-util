@@ -22,15 +22,25 @@ procedure Util_Test_Process is
    use Ada.Command_Line;
 
    Count : constant Natural := Ada.Command_Line.Argument_Count;
+   C     : Character;
 begin
    if Count < 3 then
-      Ada.Text_IO.Put_Line ("Usage: test <exit-code> <data>");
+      Ada.Text_IO.Put_Line ("Usage: test <exit-code> <mode> <data>");
       Ada.Command_Line.Set_Exit_Status (2);
       return;
    end if;
    Ada.Command_Line.Set_Exit_Status (Exit_Status'Value (Argument (1)));
 
-   for I in 1 .. Count loop
+   --  Read the standard input and write it on the output.
+   if Argument (2) = "read" then
+      while not Ada.Text_IO.End_Of_File loop
+         Ada.Text_IO.Get (C);
+         Ada.Text_IO.Put (C);
+      end loop;
+   end if;
+
+   --  Write the command arguments on the output.
+   for I in 3 .. Count loop
       declare
          Arg : constant String := Ada.Command_Line.Argument (I);
       begin

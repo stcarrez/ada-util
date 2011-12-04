@@ -19,7 +19,6 @@
 with Util.Streams.Raw;
 with Util.Systems.Os;
 with Interfaces.C;
-with Interfaces.C.Strings;
 
 private package Util.Processes.Os is
 

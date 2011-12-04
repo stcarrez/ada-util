@@ -20,6 +20,7 @@ with Util.Log.Loggers;
 with Util.Test_Caller;
 with Util.Streams.Pipes;
 with Util.Streams.Buffered;
+with Util.Streams.Texts;
 package body Util.Processes.Tests is
 
    use Util.Log;
@@ -27,7 +28,7 @@ package body Util.Processes.Tests is
    --  The logger
    Log : constant Loggers.Logger := Loggers.Create ("Util.Processes.Tests");
 
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Processes");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
@@ -35,6 +36,10 @@ package body Util.Processes.Tests is
                        Test_No_Process'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn/Wait/Get_Exit_Status",
                        Test_Spawn'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Spawn(READ pipe)",
+                       Test_Output_Pipe'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Spawn(WRITE pipe)",
+                       Test_Input_Pipe'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Open/Read/Close (Multi spawn)",
                        Test_Multi_Spawn'Access);
 
@@ -65,13 +70,66 @@ package body Util.Processes.Tests is
       Util.Tests.Assert_Equals (T, 2, P.Get_Exit_Status, "Invalid exit status");
 
       --  Launch the test process => exit code 0
-      P.Spawn ("bin/util_test_process 0 b c d e f");
+      P.Spawn ("bin/util_test_process 0 write b c d e f");
       T.Assert (P.Is_Running, "Process is running");
       P.Wait;
       T.Assert (not P.Is_Running, "Process has stopped");
       T.Assert (P.Get_Pid > 0, "Invalid process id");
       Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Invalid exit status");
    end Test_Spawn;
+
+   --  ------------------------------
+   --  Test output pipe redirection: read the process standard output
+   --  ------------------------------
+   procedure Test_Output_Pipe (T : in out Test) is
+      P : aliased Util.Streams.Pipes.Pipe_Stream;
+   begin
+      P.Open ("bin/util_test_process 0 write b c d e f test_marker");
+      declare
+         Buffer  : Util.Streams.Buffered.Buffered_Stream;
+         Content : Ada.Strings.Unbounded.Unbounded_String;
+      begin
+         Buffer.Initialize (null, P'Unchecked_Access, 19);
+         Buffer.Read (Content);
+         P.Close;
+         Util.Tests.Assert_Matches (T, "b\sc\sd\se\sf\stest_marker\s", Content,
+                                    "Invalid content");
+      end;
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Invalid exit status");
+   end Test_Output_Pipe;
+
+   --  ------------------------------
+   --  Test input pipe redirection: write the process standard input
+   --  At the same time, read the process standard output.
+   --  ------------------------------
+   procedure Test_Input_Pipe (T : in out Test) is
+      P : aliased Util.Streams.Pipes.Pipe_Stream;
+   begin
+      P.Open ("bin/util_test_process 0 read -", READ_WRITE);
+      declare
+         Buffer  : Util.Streams.Buffered.Buffered_Stream;
+         Content : Ada.Strings.Unbounded.Unbounded_String;
+         Print   : Util.Streams.Texts.Print_Stream;
+      begin
+         --  Write on the process input stream.
+         Print.Initialize (P'Unchecked_Access);
+         Print.Write ("Write test on the input pipe");
+         Print.Close;
+
+         --  Read the output.
+         Buffer.Initialize (null, P'Unchecked_Access, 19);
+         Buffer.Read (Content);
+
+         --  Wait for the process to finish.
+         P.Close;
+
+         Util.Tests.Assert_Matches (T, "Write test on the input pipe-\s", Content,
+                                    "Invalid content");
+      end;
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Invalid exit status");
+   end Test_Input_Pipe;
 
    --  ------------------------------
    --  Test launching several processes through pipes in several threads.
@@ -106,7 +164,7 @@ package body Util.Processes.Tests is
                --  They will print their arguments on stdout, one by one on each line.
                --  The expected exit status is the first argument.
                for I in 1 .. Cnt loop
-                  Pipes (I).Open ("bin/util_test_process 0 b c d e f test_marker");
+                  Pipes (I).Open ("bin/util_test_process 0 write b c d e f test_marker");
                end loop;
 
                --  Read their output

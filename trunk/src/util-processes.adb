@@ -28,6 +28,10 @@ package body Util.Processes is
    --  The logger
    Log : constant Loggers.Logger := Loggers.Create ("Util.Processes");
 
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Object => Util.Processes.System_Process'Class,
+                                     Name   => Util.Processes.System_Process_Access);
+
    --  ------------------------------
    --  Before launching the process, redirect the input stream of the process
    --  to the specified file.
@@ -110,12 +114,16 @@ package body Util.Processes is
 
       Log.Info ("Starting process {0}", Command);
 
+      Free (Proc.Sys);
+      Proc.Sys := new Util.Processes.Os.System_Process;
+
       --  Build the argc/argv table, terminate by NULL
       for I in Arguments'Range loop
          Proc.Sys.Append_Argument (Arguments (I).all);
       end loop;
 
       --  System specific spawn
+      Proc.Exit_Value := -1;
       Proc.Sys.Spawn (Proc);
    end Spawn;
 
@@ -135,8 +143,11 @@ package body Util.Processes is
 
       Log.Info ("Starting process {0}", Command);
 
+      Free (Proc.Sys);
+      Proc.Sys := new Util.Processes.Os.System_Process;
+
       --  Build the argc/argv table
-      while Pos < Command'Last loop
+      while Pos <= Command'Last loop
          N := Util.Strings.Index (Command, ' ', Pos);
          if N = 0 then
             N := Command'Last + 1;
@@ -231,9 +242,6 @@ package body Util.Processes is
       procedure Free is
          new Ada.Unchecked_Deallocation (Object => Util.Streams.Output_Stream'Class,
                                          Name   => Util.Streams.Output_Stream_Access);
-      procedure Free is
-         new Ada.Unchecked_Deallocation (Object => Util.Processes.System_Process'Class,
-                                         Name   => Util.Processes.System_Process_Access);
    begin
       if Proc.Sys /= null then
          Proc.Sys.Finalize;

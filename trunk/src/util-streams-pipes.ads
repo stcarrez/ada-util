@@ -26,7 +26,7 @@ package Util.Streams.Pipes is
 
    use Util.Processes;
 
-   subtype Pipe_Mode is Util.Processes.Pipe_Mode range READ .. WRITE;
+   subtype Pipe_Mode is Util.Processes.Pipe_Mode range READ .. READ_WRITE;
 
    --  -----------------------
    --  Pipe stream
@@ -46,6 +46,9 @@ package Util.Streams.Pipes is
 
    --  Get the process exit status.
    function Get_Exit_Status (Stream : in Pipe_Stream) return Integer;
+
+   --  Returns True if the process is running.
+   function Is_Running (Stream : in Pipe_Stream) return Boolean;
 
    --  Write the buffer array to the output stream.
    procedure Write (Stream : in out Pipe_Stream;
