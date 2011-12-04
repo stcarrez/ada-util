@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with GNAT.Command_Line;
+with GNAT.Regpat;
 
 with Ada.Command_Line;
 with Ada.Directories;
@@ -200,6 +201,45 @@ package body Util.Tests is
                      Source  => Source,
                      Line    => Line);
    end Assert_Equals;
+
+   --  ------------------------------
+   --  Check that the value matches the regular expression
+   --  ------------------------------
+   procedure Assert_Matches (T       : in Test'Class;
+                             Pattern : in String;
+                             Value   : in Unbounded_String;
+                             Message : in String := "Test failed";
+                             Source  : String := GNAT.Source_Info.File;
+                             Line    : Natural := GNAT.Source_Info.Line) is
+   begin
+      Assert_Matches (T       => T,
+                      Pattern => Pattern,
+                      Value   => To_String (Value),
+                      Message => Message,
+                      Source  => Source,
+                      Line    => Line);
+   end Assert_Matches;
+
+   --  ------------------------------
+   --  Check that the value matches the regular expression
+   --  ------------------------------
+   procedure Assert_Matches (T       : in Test'Class;
+                             Pattern : in String;
+                             Value   : in String;
+                             Message : in String := "Test failed";
+                             Source  : String := GNAT.Source_Info.File;
+                             Line    : Natural := GNAT.Source_Info.Line) is
+      use GNAT.Regpat;
+
+      Regexp  : constant Pattern_Matcher := Compile (Expression => Pattern,
+                                                     Flags      => Multiple_Lines);
+   begin
+      T.Assert (Condition => Match (Regexp, Value),
+                Message   => Message & ". Value '" & Value & "': Does not Match '"
+                & Pattern & "'",
+                Source    => Source,
+                Line      => Line);
+   end Assert_Matches;
 
    --  ------------------------------
    --  Check that two files are equal.  This is intended to be used by
