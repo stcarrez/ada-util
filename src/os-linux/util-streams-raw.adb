@@ -39,6 +39,7 @@ package body Util.Streams.Raw is
    --  -----------------------
    --  Close the stream.
    --  -----------------------
+   overriding
    procedure Close (Stream : in out Raw_Stream) is
    begin
       if Stream.File /= NO_FILE then

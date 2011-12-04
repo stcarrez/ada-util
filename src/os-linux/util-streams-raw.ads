@@ -37,6 +37,7 @@ package Util.Streams.Raw is
                          File    : in Util.Systems.Os.File_Type);
 
    --  Close the stream.
+   overriding
    procedure Close (Stream : in out Raw_Stream);
 
    --  Write the buffer array to the output stream.

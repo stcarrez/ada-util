@@ -17,12 +17,15 @@
 -----------------------------------------------------------------------
 
 with Ada.Unchecked_Deallocation;
+with Interfaces.C.Strings;
 
-with Util.Systems.Os;
 package body Util.Processes.Os is
 
    use Util.Systems.Os;
-   use type Interfaces.C.Size_T;
+   use type Interfaces.C.size_t;
+
+   type Pipe_Type is array (0 .. 1) of File_Type;
+   procedure Close (Pipes : in out Pipe_Type);
 
    --  ------------------------------
    --  Create the output stream to read/write on the process input/output.
@@ -45,14 +48,43 @@ package body Util.Processes.Os is
    procedure Wait (Sys     : in out System_Process;
                    Proc    : in out Process'Class;
                    Timeout : in Duration) is
+      pragma Unreferenced (Sys, Timeout);
+
+      use type Util.Streams.Output_Stream_Access;
+
       Result : Integer;
       Wpid   : Integer;
    begin
+      --  Close the input stream pipe if there is one.
+      if Proc.Input /= null then
+         Util.Streams.Raw.Raw_Stream'Class (Proc.Input.all).Close;
+      end if;
+
       Wpid := Sys_Waitpid (Integer (Proc.Pid), Result'Address, 0);
       if Wpid = Integer (Proc.Pid) then
          Proc.Exit_Value := Result / 256;
+         if Result mod 256 /= 0 then
+            Proc.Exit_Value := (Result mod 256) * 1000;
+         end if;
       end if;
    end Wait;
+
+   --  ------------------------------
+   --  Close both ends of the pipe (used to cleanup in case or error).
+   --  ------------------------------
+   procedure Close (Pipes : in out Pipe_Type) is
+      Result : Integer;
+      pragma Unreferenced (Result);
+   begin
+      if Pipes (0) /= NO_FILE then
+         Result := Sys_Close (Pipes (0));
+         Pipes (0) := NO_FILE;
+      end if;
+      if Pipes (1) /= NO_FILE then
+         Result := Sys_Close (Pipes (1));
+         Pipes (1) := NO_FILE;
+      end if;
+   end Close;
 
    --  ------------------------------
    --  Spawn a new process.
@@ -64,22 +96,47 @@ package body Util.Processes.Os is
       use Util.Streams.Raw;
       use Interfaces.C.Strings;
 
+      procedure Cleanup;
+
       --  Suppress all checks to make sure the child process will not raise any exception.
       pragma Suppress (All_Checks);
 
       Result : Integer;
       pragma Unreferenced (Result);
 
-      Pipes  : aliased array (0 .. 1) of File_Type := (others => NO_FILE);
+      Stdin_Pipes   : aliased Pipe_Type := (others => NO_FILE);
+      Stdout_Pipes  : aliased Pipe_Type := (others => NO_FILE);
+      Stderr_Pipes  : aliased Pipe_Type := (others => NO_FILE);
+
+      procedure Cleanup is
+      begin
+         Close (Stdin_Pipes);
+         Close (Stdout_Pipes);
+         Close (Stderr_Pipes);
+      end Cleanup;
+
    begin
       --  Since checks are disabled, verify by hand that the argv table is correct.
       if Sys.Argv = null or else Sys.Argc < 1 or else Sys.Argv (0) = Null_Ptr then
          raise Program_Error with "Invalid process argument list";
       end if;
 
-      if Mode /= NONE then
-         if Sys_Pipe (Pipes'Address) /= 0 then
-            raise Process_Error with "Cannot create pipe";
+      --  Setup the pipes.
+      if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL then
+         if Sys_Pipe (Stdout_Pipes'Address) /= 0 then
+            raise Process_Error with "Cannot create stdout pipe";
+         end if;
+      end if;
+      if Mode = WRITE or Mode = READ_WRITE or Mode = READ_WRITE_ALL then
+         if Sys_Pipe (Stdin_Pipes'Address) /= 0 then
+            Cleanup;
+            raise Process_Error with "Cannot create stdin pipe";
+         end if;
+      end if;
+      if Mode = READ_ERROR then
+         if Sys_Pipe (Stderr_Pipes'Address) /= 0 then
+            Cleanup;
+            raise Process_Error with "Cannot create stderr pipe";
          end if;
       end if;
 
@@ -90,25 +147,33 @@ package body Util.Processes.Os is
       if Proc.Pid = 0 then
 
          --  Do not use any Ada type while in the child process.
-         case Mode is
-            when READ =>
-               if Pipes (1) /= STDOUT_FILENO then
-                  Result := Sys_Dup2 (Pipes (1), STDOUT_FILENO);
-                  Result := Sys_Close (Pipes (1));
-               end if;
-               Result := Sys_Close (Pipes (0));
+         if Mode = READ_ALL or Mode = READ_WRITE_ALL then
+            Result := Sys_Dup2 (Stdout_Pipes (1), STDERR_FILENO);
+         end if;
 
-            when WRITE =>
-               if Pipes (0) /= STDIN_FILENO then
-                  Result := Sys_Dup2 (Pipes (0), STDIN_FILENO);
-                  Result := Sys_Close (Pipes (0));
-               end if;
-               Result := Sys_Close (Pipes (1));
+         if Stderr_Pipes (1) /= NO_FILE then
+            if Stderr_Pipes (1) /= STDERR_FILENO then
+               Result := Sys_Dup2 (Stderr_Pipes (1), STDERR_FILENO);
+               Result := Sys_Close (Stderr_Pipes (1));
+            end if;
+            Result := Sys_Close (Stderr_Pipes (0));
+         end if;
 
-            when others =>
-               null;
+         if Stdout_Pipes (1) /= NO_FILE then
+            if Stdout_Pipes (1) /= STDOUT_FILENO then
+               Result := Sys_Dup2 (Stdout_Pipes (1), STDOUT_FILENO);
+               Result := Sys_Close (Stdout_Pipes (1));
+            end if;
+            Result := Sys_Close (Stdout_Pipes (0));
+         end if;
 
-         end case;
+         if Stdin_Pipes (0) /= NO_FILE then
+            if Stdin_Pipes (0) /= STDIN_FILENO then
+               Result := Sys_Dup2 (Stdin_Pipes (0), STDIN_FILENO);
+               Result := Sys_Close (Stdin_Pipes (0));
+            end if;
+            Result := Sys_Close (Stdin_Pipes (1));
+         end if;
 
          Result := Sys_Execvp (Sys.Argv (0), Sys.Argv.all);
          Sys_Exit (255);
@@ -116,26 +181,25 @@ package body Util.Processes.Os is
 
       --  Process creation failed, cleanup and raise an exception.
       if Proc.Pid < 0 then
-         if Mode /= NONE then
-            Result := Sys_Close (Pipes (0));
-            Result := Sys_Close (Pipes (1));
-         end if;
+         Cleanup;
          raise Process_Error with "Cannot create process";
       end if;
 
-      case Mode is
-         when READ =>
-            Result := Sys_Close (Pipes (1));
-            Proc.Output := Create_Stream (Pipes (0)).all'Access;
+      if Stdin_Pipes (1) /= NO_FILE then
+         Result := Sys_Close (Stdin_Pipes (0));
+         Proc.Input := Create_Stream (Stdin_Pipes (1)).all'Access;
+      end if;
 
-         when WRITE =>
-            Result := Sys_Close (Pipes (0));
-            Proc.Input := Create_Stream (Pipes (1)).all'Access;
+      if Stdout_Pipes (0) /= NO_FILE then
+         Result := Sys_Close (Stdout_Pipes (1));
+         Proc.Output := Create_Stream (Stdout_Pipes (0)).all'Access;
+      end if;
 
-         when NONE =>
-            null;
+      if Stderr_Pipes (0) /= NO_FILE then
+         Result := Sys_Close (Stderr_Pipes (1));
+         Proc.Error := Create_Stream (Stderr_Pipes (0)).all'Access;
+      end if;
 
-      end case;
    end Spawn;
 
    procedure Free is
@@ -152,7 +216,7 @@ package body Util.Processes.Os is
          Sys.Argv := new Ptr_Array (0 .. 10);
       elsif Sys.Argc = Sys.Argv'Last - 1 then
          declare
-            N : Ptr_Ptr_Array := new Ptr_Array (0 .. Sys.Argc + 32);
+            N : constant Ptr_Ptr_Array := new Ptr_Array (0 .. Sys.Argc + 32);
          begin
             N (0 .. Sys.Argc) := Sys.Argv (0 .. Sys.Argc);
             Free (Sys.Argv);

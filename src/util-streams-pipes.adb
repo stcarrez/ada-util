@@ -34,11 +34,7 @@ package body Util.Streams.Pipes is
    --  Close the pipe and wait for the external process to terminate.
    --  -----------------------
    procedure Close (Stream : in out Pipe_Stream) is
-      Output : constant Streams.Output_Stream_Access := Processes.Get_Input_Stream (Stream.Proc);
    begin
---        if Output /= null then
---           Output.Close;
---        end if;
       Util.Processes.Wait (Stream.Proc);
    end Close;
 
@@ -49,6 +45,14 @@ package body Util.Streams.Pipes is
    begin
       return Util.Processes.Get_Exit_Status (Stream.Proc);
    end Get_Exit_Status;
+
+   --  -----------------------
+   --  Returns True if the process is running.
+   --  -----------------------
+   function Is_Running (Stream : in Pipe_Stream) return Boolean is
+   begin
+      return Util.Processes.Is_Running (Stream.Proc);
+   end Is_Running;
 
    --  -----------------------
    --  Write the buffer array to the output stream.
