@@ -36,6 +36,9 @@ package Util.Streams is
    --  Flush the buffer (if any) to the sink.
    procedure Flush (Stream : in out Output_Stream) is null;
 
+   --  Close the sink.
+   procedure Close (Stream : in out Output_Stream) is null;
+
    --  -----------------------
    --  Input stream
    --  -----------------------
