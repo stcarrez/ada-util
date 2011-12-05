@@ -144,8 +144,8 @@ package Util.Systems.Os is
    type Startup_Info_Access is access all Startup_Info;
 
    type PROCESS_INFORMATION is record
-      hProcess : HANDLE;
-      hThread  : HANDLE;
+      hProcess    : HANDLE := NO_FILE;
+      hThread     : HANDLE := NO_FILE;
       dwProcessId : DWORD;
       dwThreadId  : DWORD;
    end record;

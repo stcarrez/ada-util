@@ -56,6 +56,10 @@ private package Util.Processes.Os is
    procedure Build_Output_Pipe (Proc : in out Process'Class;
                                 Into : in out Startup_Info);
 
+   --  Build the input pipe redirection to write the process standard input.
+   procedure Build_Input_Pipe (Proc : in out Process'Class;
+                               Into : in out Startup_Info);
+
 private
 
    --  Create the output stream to read/write on the process input/output.
