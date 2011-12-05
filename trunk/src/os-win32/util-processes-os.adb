@@ -19,7 +19,6 @@ with System;
 
 with Ada.Unchecked_Deallocation;
 with Ada.Characters.Conversions;
---  with Interfaces.C.Strings;
 
 with Util.Log.Loggers;
 package body Util.Processes.Os is
@@ -78,6 +77,7 @@ package body Util.Processes.Os is
       use Util.Streams.Raw;
       use Ada.Characters.Conversions;
       use Interfaces.C;
+      use type System.Address;
 
       Result  : Integer;
       Startup : aliased Startup_Info;
@@ -88,13 +88,16 @@ package body Util.Processes.Os is
          raise Program_Error with "Invalid process argument list";
       end if;
 
+      Startup.cb         := Startup'Size / 8;
       Startup.hStdInput  := Get_Std_Handle (STD_INPUT_HANDLE);
       Startup.hStdOutput := Get_Std_Handle (STD_OUTPUT_HANDLE);
       Startup.hStdError  := Get_Std_Handle (STD_ERROR_HANDLE);
       if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL then
          Build_Output_Pipe (Proc, Startup);
       end if;
-      Startup.cb := Startup'Size / 8;
+      if Mode = WRITE or Mode = READ_WRITE or Mode = READ_WRITE_ALL then
+         Build_Input_Pipe (Proc, Startup);
+      end if;
 
       --  Start the child process.
       Result := Create_Process (System.Null_Address,
@@ -108,23 +111,22 @@ package body Util.Processes.Os is
                                 Startup'Unchecked_Access,
                                 Sys.Process_Info'Unchecked_Access);
 
+      --  Close the handles which are not necessary.
+      if Startup.hStdInput /= Get_Std_Handle (STD_INPUT_HANDLE) then
+         R := Close_Handle (Startup.hStdInput);
+      end if;
+      if Startup.hStdOutput /= Get_Std_Handle (STD_OUTPUT_HANDLE) then
+         R := Close_Handle (Startup.hStdOutput);
+      end if;
+      if Startup.hStdError /= Get_Std_Handle (STD_ERROR_HANDLE) then
+         R := Close_Handle (Startup.hStdError);
+      end if;
       if Result /= 1 then
          Result := Get_Last_Error;
          Log.Error ("Process creation failed: {0}", Integer'Image (Result));
          raise Process_Error with "Cannot create process";
       end if;
-      if Mode = READ then
-         R := Close_Handle (Startup.hStdOutput);
-         if R = 0 then
-            Result := Get_Last_Error;
-            Log.Info ("Closing stdout handle: {0}", Integer'Image (Result));
-         end if;
-         R := Close_Handle (Startup.hStdError);
-         if R = 0 then
-            Result := Get_Last_Error;
-            Log.Info ("Closing stderr handle: {0}", Integer'Image (Result));
-         end if;
-      end if;
+
       Proc.Pid := Process_Identifier (Sys.Process_Info.dwProcessId);
    end Spawn;
 
@@ -194,6 +196,48 @@ package body Util.Processes.Os is
       Proc.Output     := Create_Stream (Read_Pipe_Handle).all'Access;
    end Build_Output_Pipe;
 
+   --  ------------------------------
+   --  Build the input pipe redirection to write the process standard input.
+   --  ------------------------------
+   procedure Build_Input_Pipe (Proc : in out Process'Class;
+                               Into : in out Startup_Info) is
+      Sec               : aliased Security_Attributes;
+      Read_Handle       : aliased HANDLE;
+      Write_Handle      : aliased HANDLE;
+      Write_Pipe_Handle : aliased HANDLE;
+      Result            : BOOL;
+      Current_Proc      : constant HANDLE := Get_Current_Process;
+   begin
+      Sec.Length  := Sec'Size / 8;
+      Sec.Inherit := True;
+      Sec.Security_Descriptor := System.Null_Address;
+
+      Result := Create_Pipe (Read_Handle  => Read_Handle'Unchecked_Access,
+                             Write_Handle => Write_Handle'Unchecked_Access,
+                             Attributes   => Sec'Unchecked_Access,
+                             Buf_Size     => 0);
+      if Result = 0 then
+         Log.Error ("Cannot create pipe: {0}", Integer'Image (Get_Last_Error));
+         raise Program_Error with "Cannot create pipe";
+      end if;
+
+      Result := Duplicate_Handle (SourceProcessHandle => Current_Proc,
+                                  SourceHandle        => Write_Handle,
+                                  TargetProcessHandle => Current_Proc,
+                                  TargetHandle        => Write_Pipe_Handle'Unchecked_Access,
+                                  DesiredAccess       => 0,
+                                  InheritHandle       => 0,
+                                  Options             => 2);
+      if Result = 0 then
+         raise Program_Error with "Cannot create pipe";
+      end if;
+      Result := Close_Handle (Write_Handle);
+
+      Into.dwFlags   := 16#100#;
+      Into.hStdInput := Read_Handle;
+      Proc.Input     := Create_Stream (Write_Pipe_Handle).all'Access;
+   end Build_Input_Pipe;
+
    procedure Free is
       new Ada.Unchecked_Deallocation (Object => Interfaces.C.wchar_array,
                                       Name   => Wchar_Ptr);
@@ -235,7 +279,19 @@ package body Util.Processes.Os is
    --  ------------------------------
    overriding
    procedure Finalize (Sys : in out System_Process) is
+      use type System.Address;
+
+      Result : BOOL;
+      pragma Unreferenced (Result);
    begin
+      if Sys.Process_Info.hProcess /= NO_FILE then
+         Result := Close_Handle (Sys.Process_Info.hProcess);
+         Sys.Process_Info.hProcess := NO_FILE;
+      end if;
+      if Sys.Process_Info.hThread /= NO_FILE then
+         Result := Close_Handle (Sys.Process_Info.hThread);
+         Sys.Process_Info.hThread := NO_FILE;
+      end if;
       Free (Sys.Command);
    end Finalize;
 
