@@ -142,7 +142,8 @@ package body Util.Log.Tests is
          begin
             T.Assert (Ada.Directories.Exists (Path), "Log file " & Path & " not found");
             if I > 5 then
-               T.Assert (Ada.Directories.Size (Path) < 100, "Log file " & Path & " should be empty");
+               T.Assert (Ada.Directories.Size (Path) < 100, "Log file "
+                         & Path & " should be empty");
             else
                T.Assert (Ada.Directories.Size (Path) > 100, "Log file " & Path & " is empty");
             end if;
@@ -150,7 +151,7 @@ package body Util.Log.Tests is
       end loop;
    end Test_List_Appender;
 
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Log");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

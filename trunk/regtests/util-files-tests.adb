@@ -17,12 +17,11 @@
 -----------------------------------------------------------------------
 
 with Util.Test_Caller;
-with Util.Tests;
 package body Util.Files.Tests is
 
    use Util.Tests;
 
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Files");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
@@ -108,6 +107,8 @@ package body Util.Files.Tests is
    --  Check Iterate_Path
    --  ------------------------------
    procedure Test_Iterate_Path (T : in out Test) is
+      procedure Check_Path (Dir : in String;
+                            Done : out Boolean);
 
       Last : Unbounded_String;
 

@@ -18,17 +18,11 @@
 
 with Util.Test_Caller;
 
-with Util.Log.Loggers;
 package body Util.Streams.Buffered.Tests is
 
    use Util.Tests;
 
-   use Util.Log;
-
-   --  The logger
-   Log : constant Loggers.Logger := Loggers.Create ("Util.Streams.Buffered.Tests");
-
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Streams.Buffered");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

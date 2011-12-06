@@ -39,7 +39,7 @@ package body Util.Concurrent.Tests is
 
    package Connection_Pool is new Util.Concurrent.Pools (Connection);
 
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Concurrent");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

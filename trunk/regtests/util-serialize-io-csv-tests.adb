@@ -17,16 +17,11 @@
 -----------------------------------------------------------------------
 
 with Util.Test_Caller;
-with Util.Log.Loggers;
 
 with Util.Serialize.Mappers.Tests;
 package body Util.Serialize.IO.CSV.Tests is
 
-   use Util.Log;
-
-   Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.IO.CSV");
-
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Serialize.IO.CSV");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

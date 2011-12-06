@@ -23,7 +23,7 @@ package body Util.Dates.Formats.Tests is
    use Util.Tests;
    use Ada.Strings.Unbounded;
 
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Dates.Formats");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

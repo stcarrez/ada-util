@@ -36,7 +36,7 @@ package body Util.Properties.Tests is
    procedure Test_Property (T : in out Test) is
       Props : Properties.Manager;
    begin
-      T.Assert (Exists (Props, "test") = false,
+      T.Assert (Exists (Props, "test") = False,
                 "Invalid properties");
       Props.Set ("test", "toto");
       T.Assert (Exists (Props, "test"),
@@ -146,7 +146,7 @@ package body Util.Properties.Tests is
       end;
    end Test_Copy_Property;
 
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Properties");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
