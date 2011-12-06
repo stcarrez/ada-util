@@ -46,6 +46,12 @@ package Util.Tests is
    --  Get the timeout for the test execution.
    function Get_Test_Timeout (Name : in String) return Duration;
 
+   --  Get the testsuite harness prefix.  This prefix is added to the test class name.
+   --  By default it is empty.  It is allows to execute the test harness on different
+   --  environment (ex: MySQL or SQLlite) and be able to merge and collect the two result
+   --  sets together.
+   function Get_Harness_Prefix return String;
+
    --  Get a test configuration parameter.
    function Get_Parameter (Name    : String;
                            Default : String := "") return String;
