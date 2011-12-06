@@ -28,7 +28,7 @@ package Util.Test_Caller is
 
    package Caller is new AUnit.Test_Caller (Test_Fixture);
 
-   procedure Add_Test (Suite  : in Util.Tests.Access_Test_Suite;
-                       Name   : in String;
-                       Method : in Caller.Test_Method);
+   procedure Add_Test (Suite     : in Util.Tests.Access_Test_Suite;
+                       Test_Name : in String;
+                       Method    : in Caller.Test_Method);
 end Util.Test_Caller;

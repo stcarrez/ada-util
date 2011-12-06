@@ -30,9 +30,9 @@ package body Util.Test_Caller is
 
    Added : Boolean := False;
 
-   procedure Add_Test (Suite  : in Util.Tests.Access_Test_Suite;
-                       Name   : in String;
-                       Method : in Test_Method) is
+   procedure Add_Test (Suite     : in Util.Tests.Access_Test_Suite;
+                       Test_Name : in String;
+                       Method    : in Test_Method) is
       pragma Unreferenced (Suite);
    begin
       if not Added then
@@ -41,7 +41,7 @@ package body Util.Test_Caller is
          Util.XUnit.Register (Test'Access);
          Added := True;
       end if;
-      Ahven.Framework.Add_Test_Routine (Instance, To_X (Method), Name);
+      Ahven.Framework.Add_Test_Routine (Instance, To_X (Method), Test_Name);
    end Add_Test;
 
 end Util.Test_Caller;

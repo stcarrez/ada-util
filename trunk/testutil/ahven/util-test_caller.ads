@@ -27,7 +27,7 @@ package Util.Test_Caller is
 
    type Test_Method is access procedure (T : in out Test_Fixture);
 
-   procedure Add_Test (Suite  : in Util.Tests.Access_Test_Suite;
-                       Name   : in String;
-                       Method : in Test_Method);
+   procedure Add_Test (Suite       : in Util.Tests.Access_Test_Suite;
+                       Test_Name   : in String;
+                       Method      : in Test_Method);
 end Util.Test_Caller;
