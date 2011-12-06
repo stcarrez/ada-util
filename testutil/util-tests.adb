@@ -43,6 +43,12 @@ package body Util.Tests is
    --  The default timeout for a test case execution.
    Default_Timeout   : Duration := 60.0;
 
+   --  A prefix that is added to the test class names.  Adding a prefix is useful when
+   --  the same testsuite is executed several times with different configurations.  It allows
+   --  to track and identify the tests in different environments and have a global view
+   --  in Jenkins.  See option '-p prefix'.
+   Harness_Prefix    : Unbounded_String;
+
    --  ------------------------------
    --  Get a path to access a test file.
    --  ------------------------------
@@ -75,6 +81,17 @@ package body Util.Tests is
       when Constraint_Error =>
          return Default_Timeout;
    end Get_Test_Timeout;
+
+   --  ------------------------------
+   --  Get the testsuite harness prefix.  This prefix is added to the test class name.
+   --  By default it is empty.  It is allows to execute the test harness on different
+   --  environment (ex: MySQL or SQLlite) and be able to merge and collect the two result
+   --  sets together.
+   --  ------------------------------
+   function Get_Harness_Prefix return String is
+   begin
+      return To_String (Harness_Prefix);
+   end Get_Harness_Prefix;
 
    --  ------------------------------
    --  Get a test configuration parameter.
@@ -313,11 +330,13 @@ package body Util.Tests is
       procedure Help is
       begin
          Put_Line ("Test harness: " & Name);
-         Put ("Usage: harness [-xml result.xml] [-t timeout] [-config file.properties] ");
+         Put ("Usage: harness [-xml result.xml] [-t timeout] [-p prefix] "
+              & "[-config file.properties] ");
          Put_Line ("[-update]");
          Put_Line ("-xml file      Produce an XML test report");
          Put_Line ("-config file   Specify a test configuration file");
          Put_Line ("-t timeout     Test execution timeout in seconds");
+         Put_Line ("-p prefix      Add the prefix to the test class names");
          Put_Line ("-update        Update the test reference files if a file");
          Put_Line ("               is missing or the test generates another output");
          Put_Line ("               (See Asset_Equals_File)");
@@ -330,7 +349,7 @@ package body Util.Tests is
       Output   : Ada.Strings.Unbounded.Unbounded_String;
    begin
       loop
-         case Getopt ("hux: t: c: config: update help xml: timeout:") is
+         case Getopt ("hux: t: p: c: config: update help xml: timeout:") is
             when ASCII.NUL =>
                exit;
 
@@ -362,6 +381,9 @@ package body Util.Tests is
                      Ada.Command_Line.Set_Exit_Status (2);
                      return;
                end;
+
+            when 'p' =>
+               Harness_Prefix := To_Unbounded_String (Parameter & " ");
 
             when 'x' =>
                XML := True;

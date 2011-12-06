@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 
 with Util.XUnit;
-with Ahven.Framework;
 with Ada.Unchecked_Conversion;
 package body Util.Test_Caller is
 
@@ -36,7 +35,7 @@ package body Util.Test_Caller is
       pragma Unreferenced (Suite);
    begin
       if not Added then
-         Instance.Set_Name (Name);
+         Instance.Set_Name (Util.Tests.Get_Harness_Prefix & Name);
          Test.Test := Instance'Access;
          Util.XUnit.Register (Test'Access);
          Added := True;
