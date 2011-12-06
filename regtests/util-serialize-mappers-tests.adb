@@ -18,8 +18,6 @@
 
 package body Util.Serialize.Mappers.Tests is
 
-   use Ada.Strings.Unbounded;
-
    procedure Set_Member (P     : in out Map_Test;
                          Field : in Map_Test_Fields;
                          Value : in Util.Beans.Objects.Object) is

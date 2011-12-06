@@ -25,7 +25,7 @@ package body Util.Serialize.IO.JSON.Tests is
 
    Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.IO.JSON");
 
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Serialize.IO.JSON");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
@@ -40,6 +40,7 @@ package body Util.Serialize.IO.JSON.Tests is
    --  ------------------------------
    procedure Test_Parse_Error (T : in out Test) is
       pragma Unreferenced (T);
+      procedure Check_Parse_Error (Content : in String);
 
       procedure Check_Parse_Error (Content : in String) is
          P : Parser;
@@ -71,6 +72,7 @@ package body Util.Serialize.IO.JSON.Tests is
    --  ------------------------------
    procedure Test_Parser (T : in out Test) is
       pragma Unreferenced (T);
+      procedure Check_Parse (Content : in String);
 
       procedure Check_Parse (Content : in String) is
          P : Parser;

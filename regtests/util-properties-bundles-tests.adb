@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util -- Utilities
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 
 with Util.Test_Caller;
-with Util.Tests;
 with Util.Properties.Bundles;
 with Util.Properties.Basic;
 
@@ -79,7 +78,7 @@ package body Util.Properties.Bundles.Tests is
 
    end Test_Bundle_Loader;
 
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Properties.Bundles");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

@@ -30,7 +30,7 @@ package body Util.Strings.Tests is
    use Util.Tests;
    use Util.Strings.Transforms;
 
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Strings");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

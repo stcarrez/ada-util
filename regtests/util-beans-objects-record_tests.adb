@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 
 with Util.Test_Caller;
-with Util.Tests;
 
 with Util.Strings;
 with Util.Beans.Basic;
@@ -27,7 +26,7 @@ package body Util.Beans.Objects.Record_Tests is
 
    use Util.Tests;
 
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Objects.Records");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

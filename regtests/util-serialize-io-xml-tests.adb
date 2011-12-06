@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 with Ada.Strings.Unbounded;
 with Util.Test_Caller;
-with Util.Tests;
 with Util.Log.Loggers;
 with Util.Streams.Buffered;
 with Util.Serialize.IO.XML;
@@ -39,6 +38,11 @@ package body Util.Serialize.IO.XML.Tests is
    type Map_Test_Access is access all Map_Test;
 
    type Map_Test_Fields is (FIELD_VALUE, FIELD_BOOL, FIELD_NAME, FIELD_NODE);
+   function Get_Member (P : in Map_Test;
+                        Field : in Map_Test_Fields) return Util.Beans.Objects.Object;
+   procedure Set_Member (P     : in out Map_Test;
+                         Field : in Map_Test_Fields;
+                         Value : in Util.Beans.Objects.Object);
 
 
    procedure Set_Member (P     : in out Map_Test;
@@ -91,7 +95,7 @@ package body Util.Serialize.IO.XML.Tests is
                                                Fields              => Map_Test_Fields,
                                                Set_Member          => Set_Member);
 
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Serialize.IO.XML");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
@@ -251,6 +255,8 @@ package body Util.Serialize.IO.XML.Tests is
    --  ------------------------------
    procedure Test_Writer (T : in out Test) is
       use Util.Streams.Buffered;
+      function Serialize (Value : in Map_Test) return String;
+
       Mapping : aliased Map_Test_Mapper.Mapper;
       Result  : aliased Map_Test;
 
@@ -280,6 +286,7 @@ package body Util.Serialize.IO.XML.Tests is
          XML : constant String := Serialize (Result);
       begin
          Log.Info ("Serialize XML: {0}", XML);
+         T.Assert (XML'Length > 0, "Invalid XML serialization");
       end;
    end Test_Writer;
 

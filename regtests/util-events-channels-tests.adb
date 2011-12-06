@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  events.tests -- Unit tests for event channels
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,12 +17,11 @@
 -----------------------------------------------------------------------
 
 with Util.Test_Caller;
-with Util.Tests;
 package body Util.Events.Channels.Tests is
 
    use Util.Tests;
 
-   package Caller is new Util.Test_Caller (Test);
+   package Caller is new Util.Test_Caller (Test, "Events.Channels");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
