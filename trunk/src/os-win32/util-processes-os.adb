@@ -53,12 +53,12 @@ package body Util.Processes.Os is
       else
          T := DWORD (Timeout * 1000.0);
       end if;
-      Log.Info ("Waiting {0}", DWORD'Image (T));
+      Log.Debug ("Waiting {0}", DWORD'Image (T));
 
       Result := Wait_For_Single_Object (H    => Sys.Process_Info.hProcess,
                                         Time => T);
 
-      Log.Info ("Status {0}", DWORD'Image (Result));
+      Log.Debug ("Status {0}", DWORD'Image (Result));
 
       Status := Get_Exit_Code_Process (Proc => Sys.Process_Info.hProcess,
                                        Code => Code'Unchecked_Access);
@@ -66,7 +66,7 @@ package body Util.Processes.Os is
          Log.Error ("Process is still running.  Error {0}", Integer'Image (Get_Last_Error));
       end if;
       Proc.Exit_Value := Integer (Code);
-      Log.Info ("Process exit is: {0}", Integer'Image (Proc.Exit_Value));
+      Log.Debug ("Process exit is: {0}", Integer'Image (Proc.Exit_Value));
    end Wait;
 
    --  Spawn a new process.
