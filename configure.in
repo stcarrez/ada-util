@@ -58,6 +58,10 @@ case "${target_os}" in
 	src_os='src/os-linux'
 	;;
 
+     netbsdelf*)
+	src_os='src/os-linux'
+	;;
+
      mingw32*|cygwin*)
 	src_os='src/os-win32'
 	;;
