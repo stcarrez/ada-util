@@ -47,6 +47,14 @@ package body Util.Beans.Basic.Ranges is
    end Get_Last;
 
    --  ------------------------------
+   --  Get the current value within the first/last bounds.
+   --  ------------------------------
+   function Get_Current (From : in Range_Bean) return T is
+   begin
+      return From.Current;
+   end Get_Current;
+
+   --  ------------------------------
    --  Get the value identified by the name.
    --  If the name cannot be found, the method should return the Null object.
    --  ------------------------------

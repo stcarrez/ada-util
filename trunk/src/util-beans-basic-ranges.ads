@@ -44,6 +44,9 @@ package Util.Beans.Basic.Ranges is
    --  Get the range upper bound.
    function Get_Last (From : in Range_Bean) return T;
 
+   --  Get the current value within the first/last bounds.
+   function Get_Current (From : in Range_Bean) return T;
+
    --  Get the value identified by the name.
    --  If the name cannot be found, the method should return the Null object.
    overriding
