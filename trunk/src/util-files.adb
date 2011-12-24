@@ -19,6 +19,7 @@ with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
+with Ada.Text_IO;
 package body Util.Files is
 
    --  ------------------------------
@@ -62,6 +63,23 @@ package body Util.Files is
             Close (F);
          end if;
          raise;
+   end Read_File;
+
+   --  ------------------------------
+   --  Read the file with the given path, one line at a time and execute the <b>Process</b>
+   --  procedure with each line as argument.
+   --  ------------------------------
+   procedure Read_File (Path     : in String;
+                        Process  : not null access procedure (Line : in String)) is
+      File : Ada.Text_IO.File_Type;
+   begin
+      Ada.Text_IO.Open (File => File,
+                        Mode => Ada.Text_IO.In_File,
+                        Name => Path);
+      while not Ada.Text_IO.End_Of_File (File) loop
+         Process (Ada.Text_IO.Get_Line (File));
+      end loop;
+      Ada.Text_IO.Close (File);
    end Read_File;
 
    --  ------------------------------
