@@ -27,6 +27,11 @@ package Util.Files is
                         Into     : out Unbounded_String;
                         Max_Size : in Natural := 0);
 
+   --  Read the file with the given path, one line at a time and execute the <b>Process</b>
+   --  procedure with each line as argument.
+   procedure Read_File (Path     : in String;
+                        Process  : not null access procedure (Line : in String));
+
    --  Save the string into a file creating the file if necessary
    procedure Write_File (Path    : in String;
                          Content : in String);
