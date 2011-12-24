@@ -44,4 +44,7 @@ package Util.Strings.Tests is
    --  Test String_Ref creation
    procedure Test_String_Ref (T : in out Test);
 
+   --  Test perfect hash (samples/gperfhash)
+   procedure Test_Perfect_Hash (T : in out Test);
+
 end Util.Strings.Tests;

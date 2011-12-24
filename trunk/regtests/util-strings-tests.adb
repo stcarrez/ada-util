@@ -22,6 +22,7 @@ with Ada.Strings.Unbounded.Hash;
 with Util.Test_Caller;
 with Util.Strings.Transforms;
 with Util.Strings.Maps;
+with Util.Perfect_Hash;
 with Ada.Streams;
 with Util.Measures;
 package body Util.Strings.Tests is
@@ -56,6 +57,9 @@ package body Util.Strings.Tests is
                        Test_Measure_Hash'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.String_Ref",
                        Test_String_Ref'Access);
+      Caller.Add_Test (Suite, "Test perfect hash",
+                       Test_Perfect_Hash'Access);
+
    end Add_Tests;
 
    procedure Test_Escape_Javascript (T : in out Test) is
@@ -305,5 +309,23 @@ package body Util.Strings.Tests is
          end;
       end loop;
    end Test_String_Ref;
+
+   --  Test perfect hash (samples/gperfhash)
+   procedure Test_Perfect_Hash (T : in out Test) is
+   begin
+      for I in Util.Perfect_Hash.Keywords'Range loop
+         declare
+            K : constant String := Util.Perfect_Hash.Keywords (I).all;
+         begin
+            Assert_Equals (T, I, Util.Perfect_Hash.Hash (K),
+                           "Invalid hash");
+            Assert_Equals (T, I, Util.Perfect_Hash.Hash (To_Lower_Case (K)),
+                           "Invalid hash");
+            Assert (T, Util.Perfect_Hash.Is_Keyword (K), "Keyword " & K & " is not a keyword");
+            Assert (T, Util.Perfect_Hash.Is_Keyword (To_Lower_Case (K)),
+                    "Keyword " & K & " is not a keyword");
+         end;
+      end loop;
+   end Test_Perfect_Hash;
 
 end Util.Strings.Tests;
