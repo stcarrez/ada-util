@@ -18,8 +18,9 @@
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-
+with Ada.IO_Exceptions;
 with Ada.Command_Line;
+
 with GNAT.Command_Line;
 with GNAT.Perfect_Hash_Generators;
 
@@ -31,6 +32,12 @@ with Util.Strings.Transforms;
 --  This simple utility is an Ada perfect hash generator.  Given a fixed set of keywords,
 --  it generates an Ada package (spec and body) which provides a perfect hash function.
 --  The perfect hash algorithm is in fact provided by GNAT Perfect_Hash_Generators package.
+--
+--  Usage: gperfhash [-i] [-p package] keyword-file
+--
+--  -i           Generate a perfect hash which ignores the case
+--  -p package   Use <b>package</b> as the name of package (default is <b>gphash</b>)
+--  keyword-file The file which contains the keywords, one keyword on each line
 procedure Gperfhash is
 
    use Util.Log.Loggers;
@@ -157,6 +164,9 @@ procedure Gperfhash is
       --  Read the generated body file.
       procedure Read_Body (Line : in String);
 
+      --  Re-generate the char position table to ignore the case.
+      procedure Generate_Char_Position;
+
       Path  : constant String := To_File_Name (Name) & ".adb";
       File  : Ada.Text_IO.File_Type;
       Count : Natural;
@@ -170,6 +180,9 @@ procedure Gperfhash is
          Lines.Append (Line);
       end Read_Body;
 
+      --  ------------------------------
+      --  Re-generate the char position table to ignore the case.
+      --  ------------------------------
       procedure Generate_Char_Position is
          use GNAT.Perfect_Hash_Generators;
 
@@ -209,7 +222,8 @@ procedure Gperfhash is
          declare
             L : constant String := Lines.Element (I);
          begin
-
+            --  Replace the char position table by ours.  The lower case letter are just
+            --  mapped to the corresponding upper case letter.
             if Ignore_Case and I >= 6 and I <= 16 then
                if I = 6 then
                   Generate_Char_Position;
@@ -310,8 +324,7 @@ begin
       Count := Natural (Names.Length);
       if Count = 0 then
          Log.Error ("There is no keyword.");
-         Ada.Command_Line.Set_Exit_Status (1);
-         return;
+         raise GNAT.Command_Line.Invalid_Switch;
       end if;
 
       --  Generate the perfect hash package.
@@ -332,9 +345,18 @@ begin
       --  Override what GNAT generates to have a list of keywords and other operations.
       Generate_Specs (Pkg);
       Generate_Body (Pkg);
+
+   exception
+      when Ada.IO_Exceptions.Name_Error =>
+         Log.Error ("Cannot read the keyword file.");
+         Ada.Command_Line.Set_Exit_Status (1);
    end;
 
 exception
    when GNAT.Command_Line.Invalid_Switch =>
       Log.Error ("Usage: gperfhash -i -p package keyword-file");
+      Log.Error ("-i           Generate a perfect hash which ignores the case");
+      Log.Error ("-p package   Use 'package' as the name of package (default is 'gphash')");
+      Log.Error ("keyword-file The file which contains the keywords, one keyword on each line");
+      Ada.Command_Line.Set_Exit_Status (1);
 end Gperfhash;
