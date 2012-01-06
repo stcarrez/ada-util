@@ -1,7 +1,7 @@
 @WITH_XML_ADA@
 
 project Util is
-   Version := "1.2.0";
+   Version := "@UTIL_VERSION@";
 
    for Library_Name use "adautil";
    for Library_Dir use "INSTALL/lib";
