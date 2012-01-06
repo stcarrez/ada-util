@@ -2,7 +2,7 @@ with "util";
 @WITH_AUNIT@
 
 project Testutil is
-   Version := "1.2.0";
+   Version := "@UTIL_VERSION@";
 
    for Library_Name use "adatestutil";
    for Library_Dir use "INSTALL/lib";
