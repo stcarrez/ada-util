@@ -11,8 +11,12 @@ project Testutil is
 
    for Object_Dir use "obj/testutil";
 
+   package compiler is
+      --  Disable some comment style checks to avoid several warnings in Ahven files.
+      for Default_Switches ("Ada") use Config.Compiler'Default_Switches ("Ada") & ("-gnaty-cs");
+   end compiler;
+
    package Binder renames Config.Binder;
    package Builder renames Config.Builder;
-   package Compiler renames Config.Compiler;
 
 end Testutil;
