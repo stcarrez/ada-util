@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  files.tests -- Unit tests for files
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Ada.Directories;
 with Util.Test_Caller;
 package body Util.Files.Tests is
 
@@ -137,9 +138,17 @@ package body Util.Files.Tests is
    --  ------------------------------
    procedure Test_Compose_Path (T : in out Test) is
    begin
-      Assert_Equals (T, "/usr/bin;/usr/local/bin;/usr/bin",
-                     Compose_Path ("/usr;/usr/local;/usr", "bin"),
+      Assert_Equals (T, "src/os-none",
+                     Compose_Path ("src;regtests", "os-none"),
                      "Invalid path composition");
+      Assert_Equals (T, "regtests/bundles",
+                     Compose_Path ("src;regtests", "bundles"),
+                     "Invalid path composition");
+      if Ada.Directories.Exists ("/usr/bin") then
+         Assert_Equals (T, "/usr/bin;/usr/local/bin;/usr/bin",
+                        Compose_Path ("/usr;/usr/local;/usr", "bin"),
+                        "Invalid path composition");
+      end if;
    end Test_Compose_Path;
 
 
