@@ -1,5 +1,5 @@
 Utility Library
-Copyright 2001-2011 Stephane Carrez
+Copyright 2001-2012 Stephane Carrez
 
 This product includes software developed by:
 Stephane Carrez (http://blog.vacs.fr/).
