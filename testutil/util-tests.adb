@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  AUnit utils - Helper for writing unit tests
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -136,40 +136,6 @@ package body Util.Tests is
    --  ------------------------------
    --  Check that the value matches what we expect.
    --  ------------------------------
---     procedure Assert_Equals (T       : in AUnit.Assertions.Test'Class;
---                              Expect, Value : in Integer;
---                              Message : in String := "Test failed";
---                              Source    : String := GNAT.Source_Info.File;
---                              Line      : Natural := GNAT.Source_Info.Line) is
---     begin
---        T.Assert (Condition => Expect = Value,
---                  Message   => Message & ": expecting '"
---                  & Integer'Image (Expect) & "'"
---                  & " value was '"
---                  & Integer'Image (Value) & "'",
---                  Source    => Source,
---                  Line      => Line);
---     end Assert_Equals;
-
-   --  ------------------------------
-   --  Check that the value matches what we expect.
-   --  ------------------------------
---     procedure Assert (T         : in Test'Class;
---                       Condition : in Boolean;
---                       Message   : in String := "Test failed";
---                       Source    : String := GNAT.Source_Info.File;
---                       Line      : Natural := GNAT.Source_Info.Line) is
---        pragma Unreferenced (T);
---     begin
---        Assert (T, Condition => Condition,
---                                 Message   => Message,
---                                 Source    => Source,
---                                 Line      => Line);
---     end Assert;
-
-   --  ------------------------------
-   --  Check that the value matches what we expect.
-   --  ------------------------------
    procedure Assert_Equals (T         : in Test'Class;
                             Expect, Value : in Ada.Calendar.Time;
                             Message   : in String := "Test failed";
@@ -290,6 +256,8 @@ package body Util.Tests is
             if Update_Test_Files then
                Ada.Directories.Copy_File (Source_Name => Test,
                                           Target_Name => Expect);
+            else
+               raise;
             end if;
       end;
 
