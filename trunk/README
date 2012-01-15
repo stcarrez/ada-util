@@ -1,4 +1,4 @@
-Utility Language
+Ada Utility Library
 
 This Ada05 library contains various utility packages for building
 Ada05 applications.  This includes:
@@ -39,7 +39,7 @@ Or manually build with:
    gnatmake -Ptests
 
 
-And unit tests are executed with (163 success, 0 failed):
+And unit tests are executed with (166 success, 0 failed):
 
    bin/util_harness
 
