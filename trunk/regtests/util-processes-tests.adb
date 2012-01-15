@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-tests - Test for processes
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -92,7 +92,7 @@ package body Util.Processes.Tests is
          Buffer.Initialize (null, P'Unchecked_Access, 19);
          Buffer.Read (Content);
          P.Close;
-         Util.Tests.Assert_Matches (T, "b\sc\sd\se\sf\stest_marker\s", Content,
+         Util.Tests.Assert_Matches (T, "b\s+c\s+d\s+e\s+f\s+test_marker\s+", Content,
                                     "Invalid content");
       end;
       T.Assert (not P.Is_Running, "Process has stopped");
