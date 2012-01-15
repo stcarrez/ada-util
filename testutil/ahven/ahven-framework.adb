@@ -17,6 +17,7 @@
 with Ada.Strings;
 with Ada.Unchecked_Deallocation;
 with Ada.Exceptions;
+with Util.Measures;
 
 package body Ahven.Framework is
    use Ahven.AStrings;
@@ -205,6 +206,11 @@ package body Ahven.Framework is
 
       Result : Test_Results;
 
+      --  In order to collect all the performance measures in a same set, use the same
+      --  measure set on the test running task and on the main task.  This allows us to
+      --  save all the measures together in an XML result file at the end.
+      Perf   : constant Util.Measures.Measure_Set_Access := Util.Measures.Get_Current;
+
       task type Command_Task is
          entry Start_Command;
          entry End_Command;
@@ -212,6 +218,7 @@ package body Ahven.Framework is
 
       procedure Run_A_Command is
       begin
+         Util.Measures.Set_Current (Perf);
          begin
             Run (Command, T);
             Result.Set_Status (TEST_PASS);
