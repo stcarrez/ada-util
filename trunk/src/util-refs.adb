@@ -28,7 +28,7 @@ package body Util.Refs is
       begin
          return Result : Ref do
             Result.Target := Value;
-            Result.Target.Ref_Counter := Util.Concurrent.Counters.ONE;
+            Util.Concurrent.Counters.Increment (Result.Target.Ref_Counter);
          end return;
       end Create;
 
