@@ -2944,7 +2944,7 @@ UTIL_OS_DIR=$src_os
 $as_echo_n "checking specific processor support... " >&6; }
 case "${target}" in
   ## Intel 386 machines where we don't care about the manufacturer
-  i[3456]86-*-* )
+  i[34567]86-*-* )
     src_asm='src/asm-x86'
     ;;
 
