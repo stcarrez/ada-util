@@ -76,7 +76,7 @@ AC_SUBST(UTIL_OS_DIR)
 AC_MSG_CHECKING([specific processor support])
 case "${target}" in
   ## Intel 386 machines where we don't care about the manufacturer
-  i[[34567]]86-*-* )
+  i[[34567]]86-*-* | x86_* | x86-*)
     src_asm='src/asm-x86'
     ;;
 
