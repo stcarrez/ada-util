@@ -74,6 +74,7 @@ package Util.Tests is
    --  Check that the value matches what we expect.
    procedure Assert_Equals is new Assertions.Assert_Equals_T (Value_Type => Integer);
    procedure Assert_Equals is new Assertions.Assert_Equals_T (Value_Type => Character);
+   procedure Assert_Equals is new Assertions.Assert_Equals_T (Value_Type => Long_Long_Integer);
 
    --  Check that the value matches what we expect.
 --     procedure Assert (T         : in Test'Class;
