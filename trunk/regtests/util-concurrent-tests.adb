@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  concurrency.tests -- Unit tests for concurrency package
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,7 @@ with Util.Test_Caller;
 with Util.Measures;
 with Util.Concurrent.Copies;
 with Util.Concurrent.Pools;
+with Util.Concurrent.Fifos;
 package body Util.Concurrent.Tests is
 
    use Util.Tests;
@@ -38,6 +39,8 @@ package body Util.Concurrent.Tests is
    procedure Finalize (C : in out Connection);
 
    package Connection_Pool is new Util.Concurrent.Pools (Connection);
+
+   package Connection_Fifo is new Util.Concurrent.Fifos (Connection, 7);
 
    package Caller is new Util.Test_Caller (Test, "Concurrent");
 
@@ -55,6 +58,10 @@ package body Util.Concurrent.Tests is
                        Test_Pool'Access);
       Caller.Add_Test (Suite, "Test Util.Concurrent.Pools (concurrent test)",
                        Test_Concurrent_Pool'Access);
+      Caller.Add_Test (Suite, "Test Util.Concurrent.Fifos",
+                       Test_Fifo'Access);
+      Caller.Add_Test (Suite, "Test Util.Concurrent.Fifos (concurrent test)",
+                       Test_Concurrent_Fifo'Access);
    end Add_Tests;
 
    overriding
@@ -302,5 +309,153 @@ package body Util.Concurrent.Tests is
                       D.Get.S = "8901234567" or D.Get.S = "9012345678",
               "Invalid result: " & D.Get.S);
    end Test_Copy;
+
+   --  ------------------------------
+   --  Test fifo
+   --  ------------------------------
+   procedure Test_Fifo (T : in out Test) is
+      Q   : Connection_Fifo.Fifo;
+      Val : Connection;
+      Res : Connection;
+      Cnt : Natural;
+   begin
+      for I in 1 .. 100 loop
+         Cnt := I mod 8;
+         for J in 1 .. Cnt loop
+            Val.Name  := Ada.Strings.Unbounded.To_Unbounded_String (Natural'Image (I));
+            Val.Value := I * J;
+            Q.Enqueue (Val);
+            Util.Tests.Assert_Equals (T, J, Q.Get_Count, "Invalid queue size");
+         end loop;
+         for J in 1 .. Cnt loop
+            Q.Dequeue (Res);
+            Util.Tests.Assert_Equals (T, I * J, Res.Value, "Invalid dequeue at "
+                                      & Natural'Image (I) & " - " & Natural'Image (J));
+            Util.Tests.Assert_Equals (T, Natural'Image (I), Val.Name, "Invalid dequeue at "
+                                      & Natural'Image (I) & " - " & Natural'Image (J));
+         end loop;
+         declare
+            S : Util.Measures.Stamp;
+         begin
+            for J in 1 .. 7 loop
+               Q.Enqueue (Val);
+            end loop;
+            Util.Measures.Report (S, "Enqueue 7 elements ");
+         end;
+         declare
+            S : Util.Measures.Stamp;
+         begin
+            for J in 1 .. 7 loop
+               Q.Dequeue (Val);
+            end loop;
+            Util.Measures.Report (S, "Dequeue 7 elements ");
+         end;
+      end loop;
+      for I in 1 .. 100 loop
+         Q.Set_Size (I);
+      end loop;
+   end Test_Fifo;
+
+   --  Test concurrent aspects of fifo.
+   procedure Test_Concurrent_Fifo (T : in out Test) is
+      Count_By_Task : constant Natural := 60_001;
+      Task_Count    : constant Natural := 17;
+      Q : Connection_Fifo.Fifo;
+      S : Util.Measures.Stamp;
+   begin
+      Q.Set_Size (23);
+      declare
+
+         --  A task that adds elements in the shared queue.
+         task type Producer is
+            entry Start (Count : in Natural);
+         end Producer;
+
+         --  A task that consumes the elements.
+         task type Consumer is
+            entry Start (Count : in Natural);
+            entry Get (Result : out Natural);
+         end Consumer;
+
+         task body Producer is
+            Cnt : Natural;
+         begin
+            accept Start (Count : in Natural) do
+               Cnt := Count;
+            end Start;
+            --  Send Cnt values in the queue.
+            for I in 1 .. Cnt loop
+               declare
+                  C : Connection;
+               begin
+                  C.Value := I;
+                  Q.Enqueue (C);
+               end;
+            end loop;
+         exception
+            when others =>
+               Ada.Text_IO.Put_Line ("Exception raised.");
+
+         end Producer;
+
+         task body Consumer is
+            Cnt : Natural;
+            Tot : Natural := 0;
+         begin
+            accept Start (Count : in Natural) do
+               Cnt := Count;
+            end Start;
+            --  Get an object from the pool, increment the value and put it back in the pool.
+            for I in 1 .. Cnt loop
+               declare
+                  C : Connection;
+               begin
+                  Q.Dequeue (C);
+--                    if C.Value /= I then
+--                       Ada.Text_IO.Put_Line ("Value: " & Natural'Image (C.Value)
+--                                             & " instead of " & Natural'Image (I));
+--                    end if;
+                  Tot := Tot + C.Value;
+               end;
+            end loop;
+--              Ada.Text_IO.Put_Line ("Total: " & Natural'Image (Tot));
+            accept Get (Result : out Natural) do
+               Result := Tot;
+            end Get;
+         exception
+            when others =>
+               Ada.Text_IO.Put_Line ("Exception raised.");
+
+         end Consumer;
+
+         type Worker_Array is array (1 .. Task_Count) of Producer;
+
+         type Consummer_Array is array (1 .. Task_Count) of Consumer;
+
+         Producers : Worker_Array;
+         Consumers : Consummer_Array;
+         Value     : Natural;
+         Total     : Long_Long_Integer := 0;
+         Expect    : Long_Long_Integer;
+      begin
+         for I in Producers'Range loop
+            Producers (I).Start (Count_By_Task);
+         end loop;
+         for I in Consumers'Range loop
+            Consumers (I).Start (Count_By_Task);
+         end loop;
+
+         for I in Consumers'Range loop
+            Consumers (I).Get (Value);
+            Total := Total + Long_Long_Integer (Value);
+         end loop;
+         Expect := Long_Long_Integer ((Count_By_Task * (Count_By_Task + 1)) / 2);
+         Expect := Expect * Long_Long_Integer (Task_Count);
+         Assert_Equals (T, Expect, Total, "Invalid computation");
+      end;
+      Util.Measures.Report (S, "Executed Queue+Dequeue "
+                            & Natural'Image (Count_By_Task * Task_Count)
+                           & " task count: " & Natural'Image (Task_Count));
+   end Test_Concurrent_Fifo;
 
 end Util.Concurrent.Tests;
