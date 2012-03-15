@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Files -- Various File Utility Packages
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -328,7 +328,7 @@ package body Util.Files is
    begin
       if Name'Length = 0 then
          return Directory;
-      elsif Directory'Length = 0 then
+      elsif Directory'Length = 0 or Directory = "." or Directory = "./" then
          return Name;
       elsif Directory (Directory'Last) = '/' and Name (Name'First) = '/' then
          return Directory & Name (Name'First + 1 .. Name'Last);
