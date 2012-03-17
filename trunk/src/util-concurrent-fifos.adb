@@ -142,7 +142,11 @@ package body Util.Concurrent.Fifos is
          end if;
          First := First + 1;
          if First > Elements'Last then
-            First := Elements'First;
+            if Clear_On_Dequeue then
+               First := Elements'First + 1;
+            else
+               First := Elements'First;
+            end if;
          end if;
       end Dequeue;
 
