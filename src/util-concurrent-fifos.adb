@@ -114,7 +114,11 @@ package body Util.Concurrent.Fifos is
          Elements (Last) := Item;
          Last := Last + 1;
          if Last > Elements'Last then
-            Last := Elements'First;
+            if Clear_On_Dequeue then
+               Last := Elements'First + 1;
+            else
+               Last := Elements'First;
+            end if;
          end if;
          Count := Count + 1;
       end Enqueue;
