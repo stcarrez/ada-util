@@ -287,6 +287,11 @@ package body Util.Tests is
    --  The main testsuite program.  This launches the tests, collects the
    --  results, create performance logs and set the program exit status
    --  according to the testsuite execution status.
+   --
+   --  The <b>Initialize</b> procedure is called before launching the unit tests.  It is intended
+   --  to configure the tests according to some external environment (paths, database access).
+   --
+   --  The <b>Finish</b> procedure is called after the test suite has executed.
    --  ------------------------------
    procedure Harness (Name : in String) is
       use GNAT.Command_Line;
@@ -381,6 +386,8 @@ package body Util.Tests is
          Util.Measures.Report (Perf, S, "Testsuite execution");
          Util.Measures.Write (Perf, "Test measures", Name);
       end;
+
+      Finish (Result);
 
       --  Program exit status reflects the testsuite result
       if Result /= Util.XUnit.Success then

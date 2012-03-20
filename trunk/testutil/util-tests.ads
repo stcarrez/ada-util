@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  AUnit utils - Helper for writing unit tests
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -127,9 +127,15 @@ package Util.Tests is
    --  The main testsuite program.  This launches the tests, collects the
    --  results, create performance logs and set the program exit status
    --  according to the testsuite execution status.
+   --
+   --  The <b>Initialize</b> procedure is called before launching the unit tests.  It is intended
+   --  to configure the tests according to some external environment (paths, database access).
+   --
+   --  The <b>Finish</b> procedure is called after the test suite has executed.
    generic
       with function Suite return Access_Test_Suite;
       with procedure Initialize (Props : in Util.Properties.Manager) is Initialize_Test;
+      with procedure Finish (Status : in Util.XUnit.Status) is null;
    procedure Harness (Name : in String);
 
 end Util.Tests;
