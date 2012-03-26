@@ -373,12 +373,13 @@ package body Util.Files is
 
          end if;
       end loop;
-      if To'Last = From'Last then
+      if To'Last = From'Last or (To'Last = From'Last + 1
+                                 and (To (To'Last) = '/' or To (To'Last) = '\')) then
          return ".";
       elsif Last = 0 then
          return To;
       elsif To (From'Last + 1) = '/' or To (From'Last + 1) = '\' then
-         return "../" & To (Last .. To'Last);
+         return To (From'Last + 2 .. To'Last);
       else
          return To (Last .. To'Last);
       end if;
