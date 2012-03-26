@@ -185,8 +185,11 @@ package body Util.Files.Tests is
       Assert_Equals (T, "/home/john",
                      Get_Relative_Path ("home/john/src/asf", "/home/john"),
                      "Invalid relative path");
-      Assert_Equals (T, "../asfe",
+      Assert_Equals (T, "e",
                      Get_Relative_Path ("/home/john/src/asf", "/home/john/src/asf/e"),
+                     "Invalid relative path");
+      Assert_Equals (T, ".",
+                     Get_Relative_Path ("/home/john/src/asf", "/home/john/src/asf/"),
                      "Invalid relative path");
    end Test_Get_Relative_Path;
 
