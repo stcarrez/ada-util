@@ -40,10 +40,14 @@ package body Util.Files.Tests is
                        Test_Find_File_Path'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Compose_Path",
                        Test_Compose_Path'Access);
+      Caller.Add_Test (Suite, "Test Util.Files.Get_Relative_Path",
+                       Test_Get_Relative_Path'Access);
    end Add_Tests;
 
+   --  ------------------------------
    --  Test reading a file into a string
    --  Reads this ada source file and checks we have read it correctly
+   --  ------------------------------
    procedure Test_Read_File (T : in out Test) is
       Result : Unbounded_String;
    begin
@@ -77,7 +81,9 @@ package body Util.Files.Tests is
                 "Content returned by Read_File is not correct");
    end Test_Read_File_Truncate;
 
+   --  ------------------------------
    --  Check writing a file
+   --  ------------------------------
    procedure Test_Write_File (T : in out Test) is
       Path   : constant String := Util.Tests.Get_Test_Path ("test-write.txt");
       Content : constant String := "Testing Util.Files.Write_File" & ASCII.LF;
@@ -89,7 +95,9 @@ package body Util.Files.Tests is
                      "Invalid content written or read");
    end Test_Write_File;
 
+   --  ------------------------------
    --  Check Find_File_Path
+   --  ------------------------------
    procedure Test_Find_File_Path (T : in out Test) is
       Dir   : constant String := Util.Tests.Get_Path ("regtests");
       Paths : constant String := ".;" & Dir;
@@ -151,5 +159,35 @@ package body Util.Files.Tests is
       end if;
    end Test_Compose_Path;
 
+   --  ------------------------------
+   --  Test the Get_Relative_Path operation.
+   --  ------------------------------
+   procedure Test_Get_Relative_Path (T : in out Test) is
+   begin
+      Assert_Equals (T, "../util",
+                     Get_Relative_Path ("/home/john/src/asf", "/home/john/src/util"),
+                     "Invalid relative path");
+      Assert_Equals (T, "../util",
+                     Get_Relative_Path ("/home/john/src/asf/", "/home/john/src/util"),
+                     "Invalid relative path");
+      Assert_Equals (T, "../util/b",
+                     Get_Relative_Path ("/home/john/src/asf", "/home/john/src/util/b"),
+                     "Invalid relative path");
+      Assert_Equals (T, "../as",
+                     Get_Relative_Path ("/home/john/src/asf", "/home/john/src/as"),
+                     "Invalid relative path");
+      Assert_Equals (T, "../../",
+                     Get_Relative_Path ("/home/john/src/asf", "/home/john"),
+                     "Invalid relative path");
+      Assert_Equals (T, "/usr/share/admin",
+                     Get_Relative_Path ("/home/john/src/asf", "/usr/share/admin"),
+                     "Invalid absolute path");
+      Assert_Equals (T, "/home/john",
+                     Get_Relative_Path ("home/john/src/asf", "/home/john"),
+                     "Invalid relative path");
+      Assert_Equals (T, "../asfe",
+                     Get_Relative_Path ("/home/john/src/asf", "/home/john/src/asf/e"),
+                     "Invalid relative path");
+   end Test_Get_Relative_Path;
 
 end Util.Files.Tests;
