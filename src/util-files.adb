@@ -339,4 +339,49 @@ package body Util.Files is
       end if;
    end Compose;
 
+   --  ------------------------------
+   --  Returns a relative path whose origin is defined by <b>From</b> and which refers
+   --  to the absolute path referenced by <b>To</b>.  Both <b>From</b> and <b>To</b> are
+   --  assumed to be absolute pathes.  Returns the absolute path <b>To</b> if the relative
+   --  path could not be found.  Both paths must have at least one root component in common.
+   --  ------------------------------
+   function Get_Relative_Path (From : in String;
+                               To   : in String) return String is
+      Result : Unbounded_String;
+      Last   : Natural := 0;
+   begin
+      for I in From'Range loop
+         if I > To'Last or else From (I) /= To (I) then
+            --  Nothing in common, return the absolute path <b>To</b>.
+            if Last <= From'First + 1 then
+               return To;
+            end if;
+
+            for J in Last .. From'Last - 1 loop
+               if From (J) = '/' or From (J) = '\' then
+                  Append (Result, "../");
+               end if;
+            end loop;
+            if Last <= To'Last and From (I) /= '/' and From (I) /= '\' then
+               Append (Result, "../");
+               Append (Result, To (Last .. To'Last));
+            end if;
+            return To_String (Result);
+
+         elsif I < From'Last and then (From (I) = '/' or From (I) = '\') then
+            Last := I + 1;
+
+         end if;
+      end loop;
+      if To'Last = From'Last then
+         return ".";
+      elsif Last = 0 then
+         return To;
+      elsif To (From'Last + 1) = '/' or To (From'Last + 1) = '\' then
+         return "../" & To (Last .. To'Last);
+      else
+         return To (Last .. To'Last);
+      end if;
+   end Get_Relative_Path;
+
 end Util.Files;
