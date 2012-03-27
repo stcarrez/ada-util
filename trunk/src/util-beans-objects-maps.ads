@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Maps -- Object maps
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,10 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
-with Ada.Containers.Hashed_Maps;
-with Ada.Strings.Unbounded.Hash;
-package Util.Beans.Objects.Maps is new
-Ada.Containers.Hashed_Maps (Key_Type        => Unbounded_String,
-                            Element_Type    => Object,
-                            Hash            => Ada.Strings.Unbounded.Hash,
-                            Equivalent_Keys => "=");
+with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Strings.Hash;
+package Util.Beans.Objects.Maps is
+  new Ada.Containers.Indefinite_Hashed_Maps (Key_Type        => String,
+                                             Element_Type    => Object,
+                                             Hash            => Ada.Strings.Hash,
+                                             Equivalent_Keys => "=");
