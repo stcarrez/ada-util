@@ -1,5 +1,6 @@
 Version 1.5     -
   - Added concurrent fifo queues
+  - Changed Objects.Maps to use a String instead of an Unbounded_String as the key
 
 Version 1.4     - Jan 2011
   - Support for localized date format
