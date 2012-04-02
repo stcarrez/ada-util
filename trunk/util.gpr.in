@@ -12,6 +12,8 @@ project Util is
    Asm_Src_Dir := "@UTIL_ASM_DIR@";
    Os_Src_Dir  := "@UTIL_OS_DIR@";
 
+   Has_Gnat_Traceback : Config.Yes_No := "@UTIL_GNAT_TRACEBACK@";
+   
    package Naming is
       case Xml_Version is
          when "4" =>
@@ -25,13 +27,23 @@ project Util is
 	 when "none" =>
 
       end case;
+      case Has_Gnat_Traceback is
+         when "yes" =>
+	    for Implementation ("Util.Log.Loggers.Traceback")
+               use "util-log-loggers-traceback-gnat.adb";
+
+         when "no" =>
+	    for Implementation ("Util.Log.Loggers.Traceback")
+               use "util-log-loggers-traceback-none.adb";
+
+      end case;
    end Naming;
 
    for Source_Dirs use ("src", Asm_Src_Dir, Xml_Src_Dir, Os_Src_Dir);
 
    for Library_Dir use "lib/util";
    for Library_Name use "adautil";
-   for Library_Kind use "static";
+   for Library_Kind use Config.Library_Type;
 
    for Object_Dir use "obj/util";
 

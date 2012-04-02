@@ -6,7 +6,7 @@ project Testutil is
 
    for Library_Name use "adatestutil";
    for Library_Dir use "INSTALL/lib";
-   for Library_Kind use "static";
+   for Library_Kind use "@UTIL_SHARED@";
 
    for Source_Dirs use ("INSTALL/share/ada/adainclude/testutil");
    for Library_ALI_Dir use "INSTALL/share/ada/adainclude/testutil";

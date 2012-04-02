@@ -101,10 +101,12 @@ AS_HELP_STRING([--with-xmlada=], [Enable XML serialization]),
   ac_xml_ada=${withval}/xmlada-config
   WITH_XML_ADA="with \"${withval}\";";
   UTIL_XML_DIR='src/xml';
+  UTIL_HAVE_XML='yes';
 ],
 [
   WITH_XML_ADA='';
   UTIL_XML_DIR='src';
+  UTIL_HAVE_XML='no';
 ])
 
 ac_xml_version=`$ac_xml_ada --version 2>/dev/null | sed -e 's, ,-,g'`
@@ -136,6 +138,41 @@ AC_MSG_RESULT(${WITH_XML})
 AC_SUBST(WITH_XML_ADA)
 AC_SUBST(UTIL_XML_DIR)
 AC_SUBST(UTIL_XML_VERSION)
+AC_SUBST(UTIL_HAVE_XML)
+
+##########################################
+# Check to enable/disable shared library
+##########################################
+
+AC_MSG_CHECKING([library type])
+ac_enable_shared=relocatable
+AC_ARG_ENABLE(shared,
+[  --enable-shared         Enable the shared libraries (disabled)],
+[case "${enableval}" in
+  no|none)  ac_enable_shared=static ;;
+  *)        ac_enable_shared=relocatable ;;
+esac])dnl
+
+AC_MSG_RESULT(${ac_enable_shared})
+UTIL_SHARED=$ac_enable_shared
+AC_SUBST(UTIL_SHARED)
+
+##########################################
+# Check for GNAT traceback in Util.Log.Loggers
+##########################################
+
+AC_MSG_CHECKING([traceback in log exceptions])
+ac_enable_traceback=yes
+AC_ARG_ENABLE(traceback,
+[  --enable-traceback      Enable the symbolic traceback dump in logged exceptions (enabled)],
+[case "${enableval}" in
+  no|none)  ac_enable_traceback=no ;;
+  *)        ac_enable_traceback=yes ;;
+esac])dnl
+
+AC_MSG_RESULT(${ac_enable_traceback})
+UTIL_GNAT_TRACEBACK=$ac_enable_traceback
+AC_SUBST(UTIL_GNAT_TRACEBACK)
 
 ##########################################
 # Test framework selection: aunit or ahven
@@ -145,7 +182,7 @@ ac_enable_aunit=yes
 
 ac_enable_ahven=no
 AC_ARG_ENABLE(ahven,
-[  --enable-ahven          Enable internal Ahven support for testutil library and Ada util unit tests],
+[  --enable-ahven          Enable internal Ahven support for testutil library and Ada util unit tests (disabled)],
 [case "${enableval}" in
   no|none)  ac_enable_ahven= ;;
   *)        ac_enable_ahven=yes
@@ -153,7 +190,7 @@ AC_ARG_ENABLE(ahven,
 esac])dnl
 
 AC_ARG_ENABLE(aunit,
-[  --enable-aunit          Enable AUnit support for testutil library and Ada util unit tests],
+[  --enable-aunit          Enable AUnit support for testutil library and Ada util unit tests (enabled)],
 [case "${enableval}" in
   no|none)  ac_enable_aunit=no ;;
   *)        ac_enable_aunit=yes ;;
@@ -205,5 +242,5 @@ AC_SUBST(UTIL_AHVEN_OS_DIR)
 AC_SUBST(UTIL_XUNIT_DIR)
 
 AC_OUTPUT(
-Makefile util.gpr testutil.gpr distrib/testutil.gpr distrib/util.gpr
+Makefile util.gpr config.gpr testutil.gpr distrib/testutil.gpr distrib/util.gpr
 )
