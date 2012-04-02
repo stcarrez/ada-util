@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Logs -- Utility Log Package
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,6 @@ with Ada.Calendar;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Unchecked_Deallocation;
 with Ada.IO_Exceptions;
-with GNAT.Traceback.Symbolic;
 with Util.Strings;
 package body Util.Log.Loggers is
 
@@ -37,6 +36,11 @@ package body Util.Log.Loggers is
    package Appender_Maps is new Ada.Containers.Indefinite_Hashed_Maps
      (String, Log.Appenders.Appender_Access, Ada.Strings.Hash, "=");
 
+   --  Return a printable traceback that correspond to the exception.
+   function Traceback (E : in Exception_Occurrence) return String;
+
+   function Traceback (E : in Exception_Occurrence) return String is separate;
+   
    --  The log manager controls the configuration of loggers.
    --  The log appenders are shared by loggers and they are created by
    --  the log manager when a logger is created.
@@ -598,7 +602,7 @@ package body Util.Log.Loggers is
                 Message,
                 Exception_Name (E),
                 Exception_Message (E),
-                GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
+                Traceback (E));
       else
          Print (Log, ERROR_LEVEL,
                 "{0}: Exception {1}: {2}",
