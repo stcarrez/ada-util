@@ -2,6 +2,10 @@ project Config is
    for Source_Dirs use ();
 
    type Yes_No is ("yes", "no");
+
+   type Library_Type_Type is ("relocatable", "static");
+   Library_Type : Library_Type_Type := external ("LIBRARY_TYPE", "@UTIL_SHARED@");
+
    type Mode_Type is ("distrib", "debug", "optimize", "profile");
    Mode : Mode_Type := external ("MODE", "debug");
 
@@ -77,4 +81,8 @@ project Config is
       end case;
    end linker;        
  
+   package Ide is
+      for VCS_Kind use "Subversion";
+   end Ide;
+
 end Config;

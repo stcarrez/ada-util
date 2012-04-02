@@ -5,7 +5,7 @@ project Util is
 
    for Library_Name use "adautil";
    for Library_Dir use "INSTALL/lib";
-   for Library_Kind use "static";
+   for Library_Kind use "@UTIL_SHARED@";
 
    for Source_Dirs use ("INSTALL/share/ada/adainclude/util");
    for Library_ALI_Dir use "INSTALL/share/ada/adainclude/util";
