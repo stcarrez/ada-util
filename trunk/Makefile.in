@@ -17,6 +17,8 @@ AUNIT_SRC_DIR=@UTIL_AUNIT_DIR@
 AHVEN_SRC_DIR=@UTIL_AHVEN_DIR@
 AHVEN_SRC_OS_DIR=@UTIL_AHVEN_OS_DIR@
 
+HAVE_XML=@UTIL_HAVE_XML@
+
 MKDIR=mkdir
 CP=cp
 
@@ -39,9 +41,12 @@ build:
 	$(GNATMAKE) -XMODE=${MODE} -XPROCESSORS=4 -p -P "$(TESTUTIL_GPRPATH)"
 
 # Build and run the unit tests
-test:	build
+test:	build regtests/util-testsuite.adb
 	$(GNATMAKE) -p -Ptests
 	bin/util_harness -xml util-aunit.xml
+
+regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile
+	gnatprep -DHAVE_XML=$(HAVE_XML) regtests/util-testsuite.gpb $@
 
 # Not intended for manual invocation.
 # Invoked if automatic builds are enabled.
@@ -119,27 +124,27 @@ install:
 	${MKDIR} -p ${alidir}/testutil
 	${MKDIR} -p ${alidir}/util
 	${MKDIR} -p ${libdir}
-	${CP} testutil/*.ad[bs] ${includedir}/testutil
-	${CP} src/*.ad[bs] ${includedir}/util
+	${CP} -p testutil/*.ad[bs] ${includedir}/testutil
+	${CP} -p src/*.ad[bs] ${includedir}/util
 	if test T${XML_SRC_DIR} != T ; then \
-	   ${CP} ${XML_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
+	   ${CP} -p ${XML_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
 	fi
 	if test T${ASM_SRC_DIR} != T ; then \
-	   ${CP} ${ASM_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
+	   ${CP} -p ${ASM_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
 	fi
 	if test T${AUNIT_SRC_DIR} != T ; then \
-	   ${CP} ${AUNIT_SRC_DIR}/*.ad[bs] ${includedir}/testutil ; \
+	   ${CP} -p ${AUNIT_SRC_DIR}/*.ad[bs] ${includedir}/testutil ; \
 	fi
 	if test T${AHVEN_SRC_DIR} != T ; then \
-	   ${CP} ${AHVEN_SRC_DIR}/*.ad[bs] ${includedir}/testutil ; \
-	   ${CP} ${AHVEN_SRC_OS_DIR}/*.ad[bs] ${includedir}/testutil ; \
+	   ${CP} -p ${AHVEN_SRC_DIR}/*.ad[bs] ${includedir}/testutil ; \
+	   ${CP} -p ${AHVEN_SRC_OS_DIR}/*.ad[bs] ${includedir}/testutil ; \
 	fi
 	sed -e "s,INSTALL,${prefix},g" < distrib/util.gpr > ${projectdir}/util.gpr
 	sed -e "s,INSTALL,${prefix},g" < distrib/testutil.gpr > ${projectdir}/testutil.gpr
-	${CP} lib/testutil/*.ali ${alidir}/testutil
-	${CP} lib/util/*.ali ${alidir}/util
-	${CP} lib/util/libadautil.a ${libdir}/
-	${CP} lib/testutil/libadatestutil.a ${libdir}/
+	${CP} -p lib/testutil/*.ali ${alidir}/testutil
+	${CP} -p lib/util/*.ali ${alidir}/util
+	${CP} -p lib/util/libadautil.a ${libdir}/
+	${CP} -p lib/testutil/libadatestutil.a ${libdir}/
 
 install-support:
 	$(MKDIR) -p ${bindir}
