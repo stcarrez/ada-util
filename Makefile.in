@@ -88,7 +88,7 @@ version:
 DISTFILES=README LICENSE.txt LICENSE.Ahven NOTICE.txt NEWS CHANGES ChangeLog \
 config.guess configure config.sub \
 configure.in Makefile.in install-sh \
-util.gpr.in testutil.gpr.in tests.gpr samples.gpr config.gpr \
+util.gpr.in config.gpr.in testutil.gpr.in tests.gpr samples.gpr config.gpr \
 src samples regtests testutil \
 distrib support
 
