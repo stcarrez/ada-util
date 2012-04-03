@@ -3,11 +3,13 @@ with "util";
 @WITH_AUNIT@
 
 project Testutil is
+   Version := "@UTIL_VERSION@";
 
    for Source_Dirs use ("testutil", @UTIL_XUNIT_DIR@);
    for Library_Dir use Util.Library_Dir & "/testutil";
    for Library_Name use "adatestutil";
    for Library_Kind use Config.Library_Type;
+   for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
    for Object_Dir use "obj/testutil";
 

@@ -570,7 +570,7 @@ UTIL_AHVEN_DIR
 UTIL_AUNIT_DIR
 WITH_AUNIT
 UTIL_GNAT_TRACEBACK
-UTIL_SHARED
+LIB_SHARED
 UTIL_HAVE_XML
 UTIL_XML_VERSION
 UTIL_XML_DIR
@@ -3057,7 +3057,7 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_enable_shared}" >&5
 $as_echo "${ac_enable_shared}" >&6; }
-UTIL_SHARED=$ac_enable_shared
+LIB_SHARED=$ac_enable_shared
 
 
 ##########################################
