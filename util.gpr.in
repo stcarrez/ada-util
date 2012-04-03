@@ -44,6 +44,7 @@ project Util is
    for Library_Dir use "lib/util";
    for Library_Name use "adautil";
    for Library_Kind use Config.Library_Type;
+   for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
    for Object_Dir use "obj/util";
 

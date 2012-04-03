@@ -7,6 +7,8 @@ GPRPATH=util.gpr
 SVN=svn
 TESTUTIL_GPRPATH=testutil.gpr
 
+version=@UTIL_VERSION@
+
 distdir=ada-util-@UTIL_VERSION@
 
 DIST_FILE=ada-util-@UTIL_VERSION@.tar.gz
@@ -21,6 +23,7 @@ HAVE_XML=@UTIL_HAVE_XML@
 
 MKDIR=mkdir
 CP=cp
+LN=ln -s
 
 srcdir = .
 top_srcdir = @top_srcdir@
@@ -61,6 +64,8 @@ clean:	clean_test
 	$(GNATCLEAN) -q -Ptestutil
 	$(GNATCLEAN) -q -Ptests
 	$(GNATCLEAN) -q -Psamples
+	-rm -f lib/util/*.a lib/util/*.so
+	-rm -f lib/testutil/*.a lib/testutil/*.so
 
 # Clean the files produced by the unit tests
 clean_test:
@@ -143,8 +148,17 @@ install:
 	sed -e "s,INSTALL,${prefix},g" < distrib/testutil.gpr > ${projectdir}/testutil.gpr
 	${CP} -p lib/testutil/*.ali ${alidir}/testutil
 	${CP} -p lib/util/*.ali ${alidir}/util
-	${CP} -p lib/util/libadautil.a ${libdir}/
-	${CP} -p lib/testutil/libadatestutil.a ${libdir}/
+	if test T@LIB_SHARED@ != Trelocatable ; then \
+	   ${CP} -p lib/util/libadautil.a ${libdir}/ && \
+	   ${CP} -p lib/testutil/libadatestutil.a ${libdir}/ ; \
+	else \
+	   ${CP} -p lib/util/libadautil.so.${version} ${libdir}/ && \
+	   ${CP} -p lib/testutil/libadatestutil.so.${version} ${libdir}/ && \
+	   cd ${libdir} && \
+	   rm -f libadautil.so libadatestutil.so && \
+	   ${LN} libadautil.so.${version} libadautil.so && \
+	   ${LN} libadatestutil.so.${version} libadatestutil.so; \
+	fi
 
 install-support:
 	$(MKDIR) -p ${bindir}
