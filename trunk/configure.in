@@ -20,7 +20,6 @@ AC_INIT(src/util.ads)
 
 AC_CANONICAL_SYSTEM
 dnl AM_MAINTAINER_MODE
-AC_EXEEXT
 
 # Current release settings
 UTIL_MAJOR_VERSION=1
@@ -28,11 +27,13 @@ UTIL_MINOR_VERSION=5
 UTIL_MICRO_VERSION=0
 UTIL_VERSION=$UTIL_MAJOR_VERSION.$UTIL_MINOR_VERSION.$UTIL_MICRO_VERSION
 
+AC_CHECK_PROGS(GNATMAKE, gnatmake, "")
+
 # checking for local tools
 AC_PROG_CC
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
-AC_PROG_RANLIB
+AC_PROG_LN_S
 
 # Set the version number of Ada Util
 AC_SUBST(UTIL_VERSION)
@@ -116,6 +117,7 @@ case $ac_xml_version in
       WITH_XML_ADA="with \"xmlada\";";
       UTIL_XML_DIR='src/xml';
       UTIL_XML_VERSION='3';
+      UTIL_HAVE_XML='yes';
       ;;
 
   XmlAda-4.*)
@@ -123,6 +125,7 @@ case $ac_xml_version in
       WITH_XML_ADA="with \"xmlada\";";
       UTIL_XML_DIR='src/xml';
       UTIL_XML_VERSION='4';
+      UTIL_HAVE_XML='yes';
       ;;
 
   *)
@@ -130,6 +133,7 @@ case $ac_xml_version in
       WITH_XML_ADA='';
       UTIL_XML_DIR='src';
       UTIL_XML_VERSION='none';
+      UTIL_HAVE_XML='no';
       ;;
 
 esac
@@ -145,17 +149,17 @@ AC_SUBST(UTIL_HAVE_XML)
 ##########################################
 
 AC_MSG_CHECKING([library type])
-ac_enable_shared=relocatable
+ac_enable_shared=no
 AC_ARG_ENABLE(shared,
 [  --enable-shared         Enable the shared libraries (disabled)],
 [case "${enableval}" in
-  no|none)  ac_enable_shared=static ;;
-  *)        ac_enable_shared=relocatable ;;
+  no|none)  ac_enable_shared=no ;;
+  *)        ac_enable_shared=yes ;;
 esac])dnl
 
 AC_MSG_RESULT(${ac_enable_shared})
-LIB_SHARED=$ac_enable_shared
-AC_SUBST(LIB_SHARED)
+BUILDS_SHARED=$ac_enable_shared
+AC_SUBST(BUILDS_SHARED)
 
 ##########################################
 # Check for GNAT traceback in Util.Log.Loggers
