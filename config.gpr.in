@@ -4,7 +4,6 @@ project Config is
    type Yes_No is ("yes", "no");
 
    type Library_Type_Type is ("relocatable", "static");
-   Library_Type : Library_Type_Type := external ("LIBRARY_TYPE", "@LIB_SHARED@");
 
    type Mode_Type is ("distrib", "debug", "optimize", "profile");
    Mode : Mode_Type := external ("MODE", "debug");
@@ -54,7 +53,8 @@ project Config is
             for Default_Switches ("Ada") use ("-E");
 
 	 when others =>
-	    null;
+            for Default_Switches ("Ada") use ("-E");
+
       end case;
    end binder;
 

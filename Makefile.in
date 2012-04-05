@@ -1,11 +1,20 @@
+## The type of library we want to build. Possible values:
+##   relocatable
+##   static
+LIBRARY_TYPE=static
+
 # You may edit this makefile as long as you keep these original 
 # target names defined.
 MODE=distrib
-GNATMAKE=gnatmake
+GNATMAKE=@GNATMAKE@
 GNATCLEAN=gnatclean
-GPRPATH=util.gpr
 SVN=svn
+INSTALL=@INSTALL@
+
+GPRPATH=util.gpr
 TESTUTIL_GPRPATH=testutil.gpr
+
+BUILDS_SHARED=@BUILDS_SHARED@
 
 version=@UTIL_VERSION@
 
@@ -21,9 +30,18 @@ AHVEN_SRC_OS_DIR=@UTIL_AHVEN_OS_DIR@
 
 HAVE_XML=@UTIL_HAVE_XML@
 
+LN_S=@LN_S@
 MKDIR=mkdir
 CP=cp
 LN=ln -s
+
+ifeq (${OS},Windows_NT)
+LIBEXT=dll
+LIBVER=dll
+else
+LIBEXT=so
+LIBVER=so.$(version)
+endif
 
 srcdir = .
 top_srcdir = @top_srcdir@
@@ -36,12 +54,28 @@ includedir=${prefix}/share/ada/adainclude
 projectdir=${prefix}/share/ada/adainclude
 bindir=${prefix}/bin
 libdir=${prefix}/lib
-alidir=${prefix}/share/ada/adainclude
+alidir=${libdir}/ada/adalib/
+
+MAKE_ARGS=-XMODE=${MODE} -XLIBRARY_TYPE=${LIBRARY_TYPE} -XPROCESSORS=4
+
+ifeq (${BUILDS_SHARED},yes)
+all:     static shared
+install: install_static install_shared
+else
+all:     static
+install: install_static
+endif
 
 # Build executables for all mains defined by the project.
 build:
-	$(GNATMAKE) -XMODE=${MODE} -XPROCESSORS=4 -p -P "$(GPRPATH)"
-	$(GNATMAKE) -XMODE=${MODE} -XPROCESSORS=4 -p -P "$(TESTUTIL_GPRPATH)"
+	$(GNATMAKE) -m -p -P"$(GPRPATH)" $(MAKE_ARGS)
+	$(GNATMAKE) -m -p -P"$(TESTUTIL_GPRPATH)" $(MAKE_ARGS)
+
+static:
+	$(MAKE) LIBRARY_TYPE=static build
+
+shared:
+	$(MAKE) LIBRARY_TYPE=relocatable build
 
 # Build and run the unit tests
 test:	build regtests/util-testsuite.adb
@@ -60,12 +94,14 @@ autobuild:
 
 # Clean the root project of all build products.
 clean:	clean_test
-	$(GNATCLEAN) -q -P "$(GPRPATH)"
-	$(GNATCLEAN) -q -Ptestutil
+	$(GNATCLEAN) -q -P "$(GPRPATH)" -XLIBRARY_TYPE=static
+	$(GNATCLEAN) -q -P "$(GPRPATH)" -XLIBRARY_TYPE=relocatable
+	$(GNATCLEAN) -q -Ptestutil -XLIBRARY_TYPE=static
+	$(GNATCLEAN) -q -Ptestutil -XLIBRARY_TYPE=relocatable
 	$(GNATCLEAN) -q -Ptests
 	$(GNATCLEAN) -q -Psamples
-	-rm -f lib/util/*.a lib/util/*.so
-	-rm -f lib/testutil/*.a lib/testutil/*.so
+	-rm -f lib/util/*.a lib/util/*.$(DLLEXT)
+	-rm -f lib/testutil/*.a lib/testutil/*.$(DLLEXT)
 
 # Clean the files produced by the unit tests
 clean_test:
@@ -121,13 +157,18 @@ dist:
 	    --exclude="*.log" --exclude="*.a" \
 	    -cvzf $(DIST_FILE) $(distdir)
 
+install_static:
+	$(MAKE) LIBRARY_TYPE=static install_lib
 
-install:
+install_shared:
+	$(MAKE) LIBRARY_TYPE=relocatable install_lib
+
+install_lib:
 	$(MKDIR) -p ${includedir}/util
 	$(MKDIR) -p ${includedir}/testutil
 	$(MKDIR) -p ${projectdir}/
-	${MKDIR} -p ${alidir}/testutil
-	${MKDIR} -p ${alidir}/util
+	${MKDIR} -p ${alidir}/testutil/$(LIBRARY_TYPE)
+	${MKDIR} -p ${alidir}/util/$(LIBRARY_TYPE)
 	${MKDIR} -p ${libdir}
 	${CP} -p testutil/*.ad[bs] ${includedir}/testutil
 	${CP} -p src/*.ad[bs] ${includedir}/util
@@ -144,21 +185,21 @@ install:
 	   ${CP} -p ${AHVEN_SRC_DIR}/*.ad[bs] ${includedir}/testutil ; \
 	   ${CP} -p ${AHVEN_SRC_OS_DIR}/*.ad[bs] ${includedir}/testutil ; \
 	fi
-	sed -e "s,INSTALL,${prefix},g" < distrib/util.gpr > ${projectdir}/util.gpr
-	sed -e "s,INSTALL,${prefix},g" < distrib/testutil.gpr > ${projectdir}/testutil.gpr
-	${CP} -p lib/testutil/*.ali ${alidir}/testutil
-	${CP} -p lib/util/*.ali ${alidir}/util
-	if test T@LIB_SHARED@ != Trelocatable ; then \
-	   ${CP} -p lib/util/libadautil.a ${libdir}/ && \
-	   ${CP} -p lib/testutil/libadatestutil.a ${libdir}/ ; \
-	else \
-	   ${CP} -p lib/util/libadautil.so.${version} ${libdir}/ && \
-	   ${CP} -p lib/testutil/libadatestutil.so.${version} ${libdir}/ && \
-	   cd ${libdir} && \
-	   rm -f libadautil.so libadatestutil.so && \
-	   ${LN} libadautil.so.${version} libadautil.so && \
-	   ${LN} libadatestutil.so.${version} libadatestutil.so; \
-	fi
+	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/util.gpr > ${projectdir}/util.gpr
+	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/testutil.gpr > ${projectdir}/testutil.gpr
+	${CP} -p lib/testutil/$(LIBRARY_TYPE)/*.ali ${alidir}/testutil/$(LIBRARY_TYPE)
+	${CP} -p lib/util/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)
+ifeq ($(LIBRARY_TYPE),static)
+	${CP} -p lib/util/$(LIBRARY_TYPE)/libadautil.a ${libdir}/
+	${CP} -p lib/testutil/$(LIBRARY_TYPE)/libadatestutil.a ${libdir}/
+else
+	${CP} -p lib/util/$(LIBRARY_TYPE)/libadautil.$(LIBVER) ${libdir}/
+	${CP} -p lib/testutil/$(LIBRARY_TYPE)/libadatestutil.$(LIBVER) ${libdir}/
+	cd ${libdir} && \
+	rm -f libadautil.$(LIBEXT) libadatestutil.$(LIBEXT) && \
+	${LN} libadautil.$(LIBVER) libadautil.$(LIBEXT) && \
+	${LN} libadatestutil.$(LIBVER) libadatestutil.$(LIBEXT)
+endif
 
 install-support:
 	$(MKDIR) -p ${bindir}
@@ -166,10 +207,12 @@ install-support:
 	${CP} support/*.xsl ${bindir}
 
 uninstall:
-	rm -rf ${includedir}/testutil
-	rm -rf ${includedir}/util
+	rm -rf ${includedir}/util ${includedir}/testutil
+	rm -rf ${alidir}/util ${alidir}/testutil
 	rm -f ${libdir}/libadautil.a
 	rm -f ${libdir}/libadatestutil.a
+	rm -f ${libdir}/libadautil.so.${version}
+	rm -f ${libdir}/libadatestutil.so.${version}
 	rm -f ${projectdir}/testutil.gpr
 	rm -f ${projectdir}/util.gpr
 

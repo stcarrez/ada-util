@@ -11,6 +11,7 @@ project Util is
    Xml_Src_Dir := "@UTIL_XML_DIR@";
    Asm_Src_Dir := "@UTIL_ASM_DIR@";
    Os_Src_Dir  := "@UTIL_OS_DIR@";
+   Library_Type : Config.Library_Type_Type := external ("LIBRARY_TYPE", "static");
 
    Has_Gnat_Traceback : Config.Yes_No := "@UTIL_GNAT_TRACEBACK@";
    
@@ -37,19 +38,31 @@ project Util is
                use "util-log-loggers-traceback-none.adb";
 
       end case;
+
+      --  The GNAT traceback is not available for shared libraries.
+      case Library_Type is
+         when "relocatable" =>
+	    for Implementation ("Util.Log.Loggers.Traceback")
+               use "util-log-loggers-traceback-none.adb";
+	 
+	 when others =>
+	      null;
+
+      end case;
    end Naming;
 
    for Source_Dirs use ("src", Asm_Src_Dir, Xml_Src_Dir, Os_Src_Dir);
 
-   for Library_Dir use "lib/util";
    for Library_Name use "adautil";
-   for Library_Kind use Config.Library_Type;
+   for Library_Kind use Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
-   for Object_Dir use "obj/util";
+   for Library_Dir use "lib/util/" & Project'Library_Kind;
+   for Object_Dir use "obj/util/" & Project'Library_Kind;
 
    package Builder  renames Config.Builder;
    package Compiler renames Config.Compiler;
    package Binder   renames Config.Binder;
+   package Ide      renames Config.Ide;
 
 end Util;
