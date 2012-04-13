@@ -94,12 +94,12 @@ autobuild:
 
 # Clean the root project of all build products.
 clean:	clean_test
-	$(GNATCLEAN) -q -P "$(GPRPATH)" -XLIBRARY_TYPE=static
-	$(GNATCLEAN) -q -P "$(GPRPATH)" -XLIBRARY_TYPE=relocatable
-	$(GNATCLEAN) -q -Ptestutil -XLIBRARY_TYPE=static
-	$(GNATCLEAN) -q -Ptestutil -XLIBRARY_TYPE=relocatable
-	$(GNATCLEAN) -q -Ptests
-	$(GNATCLEAN) -q -Psamples
+	-$(GNATCLEAN) -q -P "$(GPRPATH)" -XLIBRARY_TYPE=static
+	-$(GNATCLEAN) -q -P "$(GPRPATH)" -XLIBRARY_TYPE=relocatable
+	-$(GNATCLEAN) -q -Ptestutil -XLIBRARY_TYPE=static
+	-$(GNATCLEAN) -q -Ptestutil -XLIBRARY_TYPE=relocatable
+	-$(GNATCLEAN) -q -Ptests
+	-$(GNATCLEAN) -q -Psamples
 	-rm -f lib/util/*.a lib/util/*.$(DLLEXT)
 	-rm -f lib/testutil/*.a lib/testutil/*.$(DLLEXT)
 
