@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes -- Process creation and control
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,15 +62,17 @@ package Util.Processes is
    procedure Set_Input_Stream (Proc : in out Process;
                                File : in String);
 
-   --  Set the output stream of the process
+   --  Set the output stream of the process.
    --  Raises <b>Invalid_State</b> if the process is running.
-   procedure Set_Output_Stream (Proc : in out Process;
-                                File : in String);
+   procedure Set_Output_Stream (Proc   : in out Process;
+                                File   : in String;
+                                Append : in Boolean := False);
 
-   --  Set the error stream of the process
+   --  Set the error stream of the process.
    --  Raises <b>Invalid_State</b> if the process is running.
-   procedure Set_Error_Stream (Proc : in out Process;
-                               File : in String);
+   procedure Set_Error_Stream (Proc   : in out Process;
+                               File   : in String;
+                               Append : in Boolean := False);
 
    --  Set the working directory that the process will use once it is created.
    --  The directory must exist or the <b>Invalid_Directory</b> exception will be raised.
@@ -130,6 +132,8 @@ private
       In_File    : Ada.Strings.Unbounded.Unbounded_String;
       Out_File   : Ada.Strings.Unbounded.Unbounded_String;
       Err_File   : Ada.Strings.Unbounded.Unbounded_String;
+      Out_Append : Boolean := False;
+      Err_Append : Boolean := False;
       Output     : Util.Streams.Input_Stream_Access := null;
       Input      : Util.Streams.Output_Stream_Access := null;
       Error      : Util.Streams.Input_Stream_Access := null;
@@ -156,6 +160,14 @@ private
    --  Append the argument to the process argument list.
    procedure Append_Argument (Sys : in out System_Process;
                               Arg : in String) is abstract;
+
+   --  Set the process input, output and error streams to redirect and use specified files.
+   procedure Set_Streams (Sys           : in out System_Process;
+                          Input         : in String;
+                          Output        : in String;
+                          Error         : in String;
+                          Append_Output : in Boolean;
+                          Append_Error  : in Boolean) is abstract;
 
    --  Deletes the storage held by the system process.
    procedure Finalize (Sys : in out System_Process) is abstract;

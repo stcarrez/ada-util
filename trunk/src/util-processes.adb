@@ -47,29 +47,33 @@ package body Util.Processes is
    end Set_Input_Stream;
 
    --  ------------------------------
-   --  Set the output stream of the process
+   --  Set the output stream of the process.
    --  ------------------------------
-   procedure Set_Output_Stream (Proc : in out Process;
-                                File : in String) is
+   procedure Set_Output_Stream (Proc   : in out Process;
+                                File   : in String;
+                                Append : in Boolean := False) is
    begin
       if Proc.Is_Running then
          Log.Error ("Cannot set output stream to {0} while process is running", File);
          raise Invalid_State with "Process is running";
       end if;
-      Proc.Out_File := To_Unbounded_String (File);
+      Proc.Out_File   := To_Unbounded_String (File);
+      Proc.Out_Append := Append;
    end Set_Output_Stream;
 
    --  ------------------------------
-   --  Set the error stream of the process
+   --  Set the error stream of the process.
    --  ------------------------------
-   procedure Set_Error_Stream (Proc : in out Process;
-                               File : in String) is
+   procedure Set_Error_Stream (Proc   : in out Process;
+                               File   : in String;
+                               Append : in Boolean := False) is
    begin
       if Proc.Is_Running then
          Log.Error ("Cannot set error stream to {0} while process is running", File);
          raise Invalid_State with "Process is running";
       end if;
-      Proc.Err_File := To_Unbounded_String (File);
+      Proc.Err_File   := To_Unbounded_String (File);
+      Proc.Err_Append := Append;
    end Set_Error_Stream;
 
    --  ------------------------------
@@ -122,6 +126,13 @@ package body Util.Processes is
          Proc.Sys.Append_Argument (Arguments (I).all);
       end loop;
 
+      --  Prepare to redirect the input/output/error streams.
+      Proc.Sys.Set_Streams (Input         => To_String (Proc.In_File),
+                            Output        => To_String (Proc.Out_File),
+                            Error         => To_String (Proc.Err_File),
+                            Append_Output => Proc.Out_Append,
+                            Append_Error  => Proc.Err_Append);
+
       --  System specific spawn
       Proc.Exit_Value := -1;
       Proc.Sys.Spawn (Proc);
@@ -155,6 +166,14 @@ package body Util.Processes is
          Proc.Sys.Append_Argument (Command (Pos .. N - 1));
          Pos := N + 1;
       end loop;
+
+      --  Prepare to redirect the input/output/error streams.
+      --  The pipe mode takes precedence and will override these redirections.
+      Proc.Sys.Set_Streams (Input         => To_String (Proc.In_File),
+                            Output        => To_String (Proc.Out_File),
+                            Error         => To_String (Proc.Err_File),
+                            Append_Output => Proc.Out_Append,
+                            Append_Error  => Proc.Err_Append);
 
       --  System specific spawn
       Proc.Exit_Value := -1;

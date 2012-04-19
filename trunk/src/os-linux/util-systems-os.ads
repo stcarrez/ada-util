@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-system-os -- Unix system operations
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,6 +42,15 @@ package Util.Systems.Os is
    --  The following values should be externalized.  They are valid for GNU/Linux.
    F_SETFL    : constant Integer := 4;
    FD_CLOEXEC : constant Integer := 1;
+
+   --  These values are specific to Linux.
+   O_RDONLY   : constant Interfaces.C.int := 8#000#;
+   O_WRONLY   : constant Interfaces.C.int := 8#001#;
+   O_RDWR     : constant Interfaces.C.int := 8#002#;
+   O_CREAT    : constant Interfaces.C.int := 8#100#;
+   O_EXCL     : constant Interfaces.C.int := 8#200#;
+   O_TRUNC    : constant Interfaces.C.int := 8#1000#;
+   O_APPEND   : constant Interfaces.C.int := 8#2000#;
 
    type Size_T is mod 2 ** Standard'Address_Size;
 
@@ -96,6 +105,12 @@ package Util.Systems.Os is
    --  Close a file
    function Sys_Close (Fd : in File_Type) return Integer;
    pragma Import (C, Sys_Close, "close");
+
+   --  Open a file
+   function Sys_Open (Path  : in Ptr;
+                      Flags : in Interfaces.C.int;
+                      Mode  : in Interfaces.C.int) return File_Type;
+   pragma Import (C, Sys_Open, "open");
 
    --  Change the file settings
    function Sys_Fcntl (Fd    : in File_Type;
