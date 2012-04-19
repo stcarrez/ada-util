@@ -95,6 +95,7 @@ package body Util.Processes.Os is
                     Mode : in Pipe_Mode := NONE) is
       use Util.Streams.Raw;
       use Interfaces.C.Strings;
+      use type Interfaces.C.int;
 
       procedure Cleanup;
 
@@ -157,6 +158,23 @@ package body Util.Processes.Os is
                Result := Sys_Close (Stderr_Pipes (1));
             end if;
             Result := Sys_Close (Stderr_Pipes (0));
+
+         elsif Sys.Err_File /= Null_Ptr then
+            --  Redirect the process error to a file.
+            declare
+               Fd : File_Type;
+            begin
+               if Sys.Err_Append then
+                  Fd := Sys_Open (Sys.Err_File, O_CREAT + O_WRONLY + O_APPEND, 8#644#);
+               else
+                  Fd := Sys_Open (Sys.Err_File, O_CREAT + O_WRONLY + O_TRUNC, 8#644#);
+               end if;
+               if Fd < 0 then
+                  Sys_Exit (254);
+               end if;
+               Result := Sys_Dup2 (Fd, STDOUT_FILENO);
+               Result := Sys_Close (Fd);
+            end;
          end if;
 
          if Stdout_Pipes (1) /= NO_FILE then
@@ -165,6 +183,23 @@ package body Util.Processes.Os is
                Result := Sys_Close (Stdout_Pipes (1));
             end if;
             Result := Sys_Close (Stdout_Pipes (0));
+
+         elsif Sys.Out_File /= Null_Ptr then
+            --  Redirect the process output to a file.
+            declare
+               Fd : File_Type;
+            begin
+               if Sys.Out_Append then
+                  Fd := Sys_Open (Sys.Out_File, O_CREAT + O_WRONLY + O_APPEND, 8#644#);
+               else
+                  Fd := Sys_Open (Sys.Out_File, O_CREAT + O_WRONLY + O_TRUNC, 8#644#);
+               end if;
+               if Fd < 0 then
+                  Sys_Exit (254);
+               end if;
+               Result := Sys_Dup2 (Fd, STDOUT_FILENO);
+               Result := Sys_Close (Fd);
+            end;
          end if;
 
          if Stdin_Pipes (0) /= NO_FILE then
@@ -173,6 +208,19 @@ package body Util.Processes.Os is
                Result := Sys_Close (Stdin_Pipes (0));
             end if;
             Result := Sys_Close (Stdin_Pipes (1));
+
+         elsif Sys.In_File /= Null_Ptr then
+            --  Redirect the process input to a file.
+            declare
+               Fd : File_Type;
+            begin
+               Fd := Sys_Open (Sys.Out_File, O_RDONLY, 8#644#);
+               if Fd < 0 then
+                  Sys_Exit (254);
+               end if;
+               Result := Sys_Dup2 (Fd, STDIN_FILENO);
+               Result := Sys_Close (Fd);
+            end;
          end if;
 
          Result := Sys_Execvp (Sys.Argv (0), Sys.Argv.all);
@@ -230,6 +278,30 @@ package body Util.Processes.Os is
    end Append_Argument;
 
    --  ------------------------------
+   --  Set the process input, output and error streams to redirect and use specified files.
+   --  ------------------------------
+   overriding
+   procedure Set_Streams (Sys           : in out System_Process;
+                          Input         : in String;
+                          Output        : in String;
+                          Error         : in String;
+                          Append_Output : in Boolean;
+                          Append_Error  : in Boolean) is
+   begin
+      if Input'Length > 0 then
+         Sys.In_File := Interfaces.C.Strings.New_String (Input);
+      end if;
+      if Output'Length > 0 then
+         Sys.Out_File   := Interfaces.C.Strings.New_String (Output);
+         Sys.Out_Append := Append_Output;
+      end if;
+      if Error'Length > 0 then
+         Sys.Err_File   := Interfaces.C.Strings.New_String (Error);
+         Sys.Err_Append := Append_Error;
+      end if;
+   end Set_Streams;
+
+   --  ------------------------------
    --  Deletes the storage held by the system process.
    --  ------------------------------
    overriding
@@ -241,6 +313,9 @@ package body Util.Processes.Os is
          end loop;
          Free (Sys.Argv);
       end if;
+      Interfaces.C.Strings.Free (Sys.In_File);
+      Interfaces.C.Strings.Free (Sys.Out_File);
+      Interfaces.C.Strings.Free (Sys.Err_File);
    end Finalize;
 
 end Util.Processes.Os;
