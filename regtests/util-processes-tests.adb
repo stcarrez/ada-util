@@ -18,6 +18,7 @@
 
 with Util.Log.Loggers;
 with Util.Test_Caller;
+with Util.Files;
 with Util.Streams.Pipes;
 with Util.Streams.Buffered;
 with Util.Streams.Texts;
@@ -40,6 +41,9 @@ package body Util.Processes.Tests is
                        Test_Output_Pipe'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn(WRITE pipe)",
                        Test_Input_Pipe'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Spawn(OUTPUT redirect)",
+                       Test_Output_Redirect'Access);
+
       Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Open/Read/Close (Multi spawn)",
                        Test_Multi_Spawn'Access);
 
@@ -215,5 +219,37 @@ package body Util.Processes.Tests is
          T.Assert (States (I), "Task " & Natural'Image (I) & " failed");
       end loop;
    end Test_Multi_Spawn;
+
+   --  ------------------------------
+   --  Test output file redirection.
+   --  ------------------------------
+   procedure Test_Output_Redirect (T : in out Test) is
+      P       : Process;
+      Path    : String := Util.Tests.Get_Test_Path ("proc-output.txt");
+      Content : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      Util.Processes.Set_Output_Stream (P, Path);
+      Util.Processes.Spawn (P, "bin/util_test_process 0 write b c d e f test_marker");
+      Util.Processes.Wait (P);
+
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Process failed");
+
+      Util.Files.Read_File (Path, Content);
+      Util.Tests.Assert_Matches (T, ".*test_marker", Content,
+                                 "Invalid content");
+
+      Util.Processes.Set_Output_Stream (P, Path, True);
+      Util.Processes.Spawn (P, "bin/util_test_process 0 write appended_text");
+      Util.Processes.Wait (P);
+
+      Content := Ada.Strings.Unbounded.Null_Unbounded_String;
+      Util.Files.Read_File (Path, Content);
+      Util.Tests.Assert_Matches (T, ".*appended_text", Content,
+                                 "Invalid content");
+      Util.Tests.Assert_Matches (T, ".*test_marker.*", Content,
+                                 "Invalid content");
+
+   end Test_Output_Redirect;
 
 end Util.Processes.Tests;

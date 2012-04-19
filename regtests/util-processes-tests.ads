@@ -38,4 +38,7 @@ package Util.Processes.Tests is
    --  Test launching several processes through pipes in several threads.
    procedure Test_Multi_Spawn (T : in out Test);
 
+   --  Test output file redirection.
+   procedure Test_Output_Redirect (T : in out Test);
+
 end Util.Processes.Tests;
