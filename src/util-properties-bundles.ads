@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties-bundles -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,7 +55,10 @@ private
 
    type Manager is new Util.Properties.Manager with null record;
 
+   overriding
    procedure Initialize (Object : in out Manager);
+
+   overriding
    procedure Adjust (Object : in out Manager);
 
    package Bundle_Map is
@@ -72,6 +75,7 @@ private
    end record;
 
    --  Finalize the bundle loader and clear the cache
+   overriding
    procedure Finalize (Factory : in out Loader);
 
    --  Clear the cache bundle
