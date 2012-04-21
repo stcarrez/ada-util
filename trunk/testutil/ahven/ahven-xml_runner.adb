@@ -164,6 +164,28 @@ package body Ahven.XML_Runner is
       End_Testcase_Tag (File);
    end Print_Test_Pass;
 
+   procedure Print_Test_Skipped (File : File_Type;
+                                 Parent_Test : String;
+                                 Info : Result_Info) is
+      Exec_Time : constant String :=
+        Trim (Duration'Image (Get_Execution_Time (Info)), Ada.Strings.Both);
+   begin
+      Start_Testcase_Tag
+        (File           => File,
+         Parent         => Parent_Test,
+         Name           => Get_Routine_Name (Info),
+         Execution_Time => Exec_Time);
+
+      Put (File, "<skipped ");
+
+      Print_Attribute (File, "message",
+        Trim (Get_Message (Info), Ada.Strings.Both));
+      Put (File, ">");
+      Put_Line (File, Get_Message (Info));
+      Put_Line (File, "</skipped>");
+      End_Testcase_Tag (File);
+   end Print_Test_Skipped;
+
    procedure Print_Test_Failure (File : File_Type;
                                  Parent_Test : String;
                                  Info : Result_Info) is
@@ -239,6 +261,8 @@ package body Ahven.XML_Runner is
          Put (Output, " ");
          Print_Attribute (Output, "failures", Img (Failure_Count (Result)));
          Put (Output, " ");
+         Print_Attribute (Output, "skips", Img (Skipped_Count (Result)));
+         Put (Output, " ");
          Print_Attribute (Output, "tests", Img (Test_Count (Result)));
          Put (Output, " ");
          Print_Attribute (Output, "time",
@@ -275,6 +299,17 @@ package body Ahven.XML_Runner is
               To_String (Get_Test_Name (Result)), Data (Position));
             Position := Next (Position);
          end loop Pass_Loop;
+
+         Position := First_Skipped (Result);
+         Skip_Loop:
+         loop
+            exit Skip_Loop when not Is_Valid (Position);
+
+            Print_Test_Skipped (Output,
+              To_String (Get_Test_Name (Result)), Data (Position));
+            Position := Next (Position);
+         end loop Skip_Loop;
+
          Put_Line (Output, "</testsuite>");
       end Print;
 

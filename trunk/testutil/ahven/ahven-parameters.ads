@@ -59,10 +59,13 @@ private
       Verbose_Output : Boolean := True;
       Xml_Output     : Boolean := False;
       Capture_Output : Boolean := False;
+
       Test_Name      : Natural := 0;
       -- Position of test name in the argument array
+
       Result_Dir     : Natural := 0;
       -- Position of results dir in the argument array
+
       Timeout        : Framework.Test_Duration := 0.0;
    end record;
 end Ahven.Parameters;
