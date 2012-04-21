@@ -18,6 +18,7 @@ with Ada.Strings;
 with Ada.Unchecked_Deallocation;
 with Ada.Exceptions;
 with Util.Measures;
+with Util.Log.Loggers;
 
 package body Ahven.Framework is
    use Ahven.AStrings;
@@ -239,7 +240,7 @@ package body Ahven.Framework is
                  (Source => Ada.Exceptions.Exception_Name (E),
                   Drop   => Ada.Strings.Right));
                Result.Set_Long_Message (To_Bounded_String
-                 (Source => Ada.Exceptions.Exception_Message (E),
+                 (Source => Ada.Exceptions.Exception_Message (E) & Util.Log.Loggers.Traceback (E),
                   Drop   => Ada.Strings.Right));
          end;
       end Run_A_Command;

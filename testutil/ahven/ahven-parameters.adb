@@ -1,5 +1,5 @@
 --
--- Copyright (c) 2008 Tero Koskinen <tero.koskinen@iki.fi>
+-- Copyright (c) 2008-2011 Tero Koskinen <tero.koskinen@iki.fi>
 --
 -- Permission to use, copy, modify, and distribute this software for any
 -- purpose with or without fee is hereby granted, provided that the above
@@ -81,8 +81,8 @@ package body Ahven.Parameters is
                                   Index :        Positive);
       -- Parse one parameter and update P if necessary.
 
-      Files_Only : Boolean := False;
-      Dir_Next   : Boolean := False;
+      Files_Only  : Boolean := False;
+      Dir_Next    : Boolean := False;
       Timeout_Next : Boolean := False;
 
       procedure Handle_Parameter (P     : in out Parameter_Info;
