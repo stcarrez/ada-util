@@ -125,6 +125,9 @@ package Util.Log.Loggers is
    --  Get the logger name.
    function Get_Logger_Name (Log : in Logger_Info) return String;
 
+   --  Return a printable traceback that correspond to the exception.
+   function Traceback (E : in Exception_Occurrence) return String;
+
 private
 
    type Logger_Info_Access is access all Logger_Info;

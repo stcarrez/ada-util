@@ -36,11 +36,8 @@ package body Util.Log.Loggers is
    package Appender_Maps is new Ada.Containers.Indefinite_Hashed_Maps
      (String, Log.Appenders.Appender_Access, Ada.Strings.Hash, "=");
 
-   --  Return a printable traceback that correspond to the exception.
-   function Traceback (E : in Exception_Occurrence) return String;
-
    function Traceback (E : in Exception_Occurrence) return String is separate;
-   
+
    --  The log manager controls the configuration of loggers.
    --  The log appenders are shared by loggers and they are created by
    --  the log manager when a logger is created.
