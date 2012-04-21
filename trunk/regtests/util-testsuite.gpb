@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util testsuite - Util Testsuite
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,7 @@ with Util.Dates.Formats.Tests;
 with Util.Encoders.Tests;
 with Util.Streams.Buffered.Tests;
 with Util.Streams.Files.Tests;
+with Util.Streams.Texts.Tests;
 with Util.Beans.Objects.Discretes;
 with Util.Beans.Objects.Record_Tests;
 with Util.Beans.Ranges.Tests;
@@ -56,6 +57,7 @@ package body Util.Testsuite is
       Util.Encoders.Tests.Add_Tests (Result);
       Util.Streams.Buffered.Tests.Add_Tests (Result);
       Util.Streams.Files.Tests.Add_Tests (Result);
+      Util.Streams.Texts.Tests.Add_Tests (Result);
       Util.Beans.Objects.Discretes.Add_Tests (Result);
       Util.Beans.Objects.Record_Tests.Add_Tests (Result);
       Util.Beans.Ranges.Tests.Add_Tests (Result);
