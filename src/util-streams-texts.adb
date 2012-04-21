@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Streams.Files -- File Stream utilities
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-
+with Ada.IO_Exceptions;
 package body Util.Streams.Texts is
 
    procedure Initialize (Stream : in out Print_Stream;
@@ -87,5 +87,40 @@ package body Util.Streams.Texts is
       end loop;
       return Result;
    end To_String;
+
+   --  ------------------------------
+   --  Initialize the reader to read the input from the input stream given in <b>From</b>.
+   --  ------------------------------
+   procedure Initialize (Stream : in out Reader_Stream;
+                         From   : in Input_Stream_Access) is
+   begin
+      Stream.Initialize (Output => null, Input => From, Size => 4096);
+   end Initialize;
+
+   --  ------------------------------
+   --  Read an input line from the input stream.  The line is terminated by ASCII.LF.
+   --  When <b>Strip</b> is set, the line terminators (ASCII.CR, ASCII.LF) are removed.
+   --  ------------------------------
+   procedure Read_Line (Stream : in out Reader_Stream;
+                        Into   : out Ada.Strings.Unbounded.Unbounded_String;
+                        Strip  : in Boolean := False) is
+      C : Character;
+   begin
+      while not Stream.Is_Eof loop
+         Stream.Read (C);
+         if C = ASCII.LF then
+            if not Strip then
+               Ada.Strings.Unbounded.Append (Into, C);
+            end if;
+            return;
+         elsif C /= ASCII.CR or not Strip then
+            Ada.Strings.Unbounded.Append (Into, C);
+         end if;
+      end loop;
+
+   exception
+      when Ada.IO_Exceptions.Data_Error =>
+         return;
+   end Read_Line;
 
 end Util.Streams.Texts;

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Streams.Files -- File Stream utilities
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,8 +65,29 @@ package Util.Streams.Texts is
                                 To_Lower => Ada.Characters.Handling.To_Lower,
                                 To_Input => To_String);
 
+   --  -----------------------
+   --  Reader stream
+   --  -----------------------
+   --  The <b>Reader_Stream</b> is an input stream which provides helper methods
+   --  for reading text streams.
+   type Reader_Stream is new Buffered.Buffered_Stream with private;
+   type Reader_Stream_Access is access all Reader_Stream'Class;
+
+   --  Initialize the reader to read the input from the input stream given in <b>From</b>.
+   procedure Initialize (Stream : in out Reader_Stream;
+                         From   : in Input_Stream_Access);
+
+   --  Read an input line from the input stream.  The line is terminated by ASCII.LF.
+   --  When <b>Strip</b> is set, the line terminators (ASCII.CR, ASCII.LF) are removed.
+   procedure Read_Line (Stream : in out Reader_Stream;
+                        Into   : out Ada.Strings.Unbounded.Unbounded_String;
+                        Strip  : in Boolean := False);
+
+
 private
 
    type Print_Stream is new Buffered.Buffered_Stream with null record;
+
+   type Reader_Stream is new Buffered.Buffered_Stream with null record;
 
 end Util.Streams.Texts;
