@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- Dummy system specific and low level operations
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,9 @@
 -----------------------------------------------------------------------
 
 private package Util.Processes.Os is
+
+   --  The directory separator.
+   Directory_Separator : constant Character := '/';
 
    type System_Process is new Util.Processes.System_Process with null record;
 

@@ -25,6 +25,9 @@ with Util.Processes;
 --  to the OS (Unix).
 package Util.Systems.Os is
 
+   --  The directory separator.
+   Directory_Separator : constant Character := '/';
+
    subtype Ptr is Interfaces.C.Strings.chars_ptr;
    subtype Ptr_Array is Interfaces.C.Strings.chars_ptr_array;
    type Ptr_Ptr_Array is access all Ptr_Array;
