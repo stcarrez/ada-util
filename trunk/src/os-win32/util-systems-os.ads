@@ -24,6 +24,9 @@ with Interfaces.C.Strings;
 --  to the OS (Windows).
 package Util.Systems.Os is
 
+   --  The directory separator.
+   Directory_Separator : constant Character := '\';
+
    --  Defines several windows specific types.
    type BOOL is mod 8;
 
