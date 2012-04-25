@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- Windows specific and low level operations
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,6 +47,15 @@ private package Util.Processes.Os is
    overriding
    procedure Append_Argument (Sys : in out System_Process;
                               Arg : in String);
+
+   --  Set the process input, output and error streams to redirect and use specified files.
+   overriding
+   procedure Set_Streams (Sys           : in out System_Process;
+                          Input         : in String;
+                          Output        : in String;
+                          Error         : in String;
+                          Append_Output : in Boolean;
+                          Append_Error  : in Boolean);
 
    --  Deletes the storage held by the system process.
    overriding
