@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util -- Utilities
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,5 +26,8 @@ package Util.Properties.Bundles.Tests is
 
    procedure Test_Bundle (T : in out Test);
    procedure Test_Bundle_Loader (T : in out Test);
+
+   --  Test overloading some bundle definition by having incomplete files.
+   procedure Test_Bundle_Overload (T : in out Test);
 
 end Util.Properties.Bundles.Tests;
