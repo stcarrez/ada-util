@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -287,7 +287,7 @@ package body Util.Properties is
       loop
          Load_Property (Name, Value, File, Prefix, Strip);
          exit when Name = Null_Unbounded_String;
-         Set (Self, To_String (Name), To_String (Value));
+         Set (Self, Name, Value);
       end loop;
 
    exception
