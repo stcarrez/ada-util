@@ -43,21 +43,25 @@ package Util.Files is
    --  Iterate over the search directories defined in <b>Path</b> and execute
    --  <b>Process</b> with each directory until it returns <b>True</b> in <b>Done</b>
    --  or the last search directory is found.  Each search directory
-   --  is separated by ';' (yes, even on Unix).
-   procedure Iterate_Path (Path   : in String;
-                           Process : not null access procedure (Dir  : in String;
-                                                                Done : out Boolean));
+   --  is separated by ';' (yes, even on Unix).  When <b>Going</b> is set to Backward, the
+   --  directories are searched in reverse order.
+   procedure Iterate_Path (Path     : in String;
+                           Process  : not null access procedure (Dir  : in String;
+                                                                 Done : out Boolean);
+                           Going    : in Ada.Strings.Direction := Ada.Strings.Forward);
 
    --  Iterate over the search directories defined in <b>Path</b> and search
    --  for files matching the pattern defined by <b>Pattern</b>.  For each file,
    --  execute <b>Process</b> with the file basename and the full file path.
    --  Stop iterating when the <b>Process</b> procedure returns True.
-   --  Each search directory is separated by ';'.
-   procedure Iterate_Files_Path (Pattern : in String;
-                                 Path    : in String;
-                                 Process : not null access procedure (Name : in String;
-                                                                      File : in String;
-                                                                      Done : out Boolean));
+   --  Each search directory is separated by ';'.  When <b>Going</b> is set to Backward, the
+   --  directories are searched in reverse order.
+   procedure Iterate_Files_Path (Pattern  : in String;
+                                 Path     : in String;
+                                 Process  : not null access procedure (Name : in String;
+                                                                       File : in String;
+                                                                       Done : out Boolean);
+                                 Going    : in Ada.Strings.Direction := Ada.Strings.Forward);
 
    --  Find the file in one of the search directories.  Each search directory
    --  is separated by ';' (yes, even on Unix).

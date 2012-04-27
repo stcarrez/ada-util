@@ -129,34 +129,61 @@ package body Util.Files is
    --  Iterate over the search directories defined in <b>Paths</b> and execute
    --  <b>Process</b> with each directory until it returns <b>True</b> in <b>Done</b>
    --  or the last search directory is found.  Each search directory
-   --  is separated by ';' (yes, even on Unix).
+   --  is separated by ';' (yes, even on Unix).  When <b>Going</b> is set to Backward, the
+   --  directories are searched in reverse order.
    --  ------------------------------
-   procedure Iterate_Path (Path   : in String;
-                           Process : not null access procedure (Dir  : in String;
-                                                                Done : out Boolean)) is
+   procedure Iterate_Path (Path     : in String;
+                           Process  : not null access procedure (Dir  : in String;
+                                                                 Done : out Boolean);
+                           Going    : in Ada.Strings.Direction := Ada.Strings.Forward) is
       use Ada.Directories;
+      use Ada.Strings;
       use Ada.Strings.Fixed;
 
       Sep_Pos : Natural;
-      Pos     : Positive := Path'First;
+      Pos     : Natural;
       Last    : constant Natural := Path'Last;
    begin
-      while Pos <= Last loop
-         Sep_Pos := Index (Path, ";", Pos);
-         if Sep_Pos = 0 then
-            Sep_Pos := Last;
-         else
-            Sep_Pos := Sep_Pos - 1;
-         end if;
-         declare
-            Dir  : constant String := Path (Pos .. Sep_Pos);
-            Done : Boolean;
-         begin
-            Process (Dir => Dir, Done => Done);
-            exit when Done;
-         end;
-         Pos := Sep_Pos + 2;
-      end loop;
+      case Going is
+         when Forward =>
+            Pos := Path'First;
+            while Pos <= Last loop
+               Sep_Pos := Index (Path, ";", Pos);
+               if Sep_Pos = 0 then
+                  Sep_Pos := Last;
+               else
+                  Sep_Pos := Sep_Pos - 1;
+               end if;
+               declare
+                  Dir  : constant String := Path (Pos .. Sep_Pos);
+                  Done : Boolean;
+               begin
+                  Process (Dir => Dir, Done => Done);
+                  exit when Done;
+               end;
+               Pos := Sep_Pos + 2;
+            end loop;
+
+         when Backward =>
+            Pos := Path'Last;
+            while Pos >= Path'First loop
+               Sep_Pos := Index (Path, ";", Pos, Backward);
+               if Sep_Pos = 0 then
+                  Sep_Pos := Path'First;
+               else
+                  Sep_Pos := Sep_Pos + 1;
+               end if;
+               declare
+                  Dir  : constant String := Path (Sep_Pos .. Pos);
+                  Done : Boolean;
+               begin
+                  Process (Dir => Dir, Done => Done);
+                  exit when Done or Sep_Pos = Path'First;
+               end;
+               Pos := Sep_Pos - 2;
+            end loop;
+
+      end case;
    end Iterate_Path;
 
    --  ------------------------------
@@ -201,15 +228,17 @@ package body Util.Files is
    --  for files matching the pattern defined by <b>Pattern</b>.  For each file,
    --  execute <b>Process</b> with the file basename and the full file path.
    --  Stop iterating when the <b>Process</b> procedure returns True.
-   --  Each search directory is separated by ';'.
+   --  Each search directory is separated by ';'.  When <b>Going</b> is set to Backward, the
+   --  directories are searched in reverse order.
    --  ------------------------------
-   procedure Iterate_Files_Path (Pattern : in String;
-                                 Path    : in String;
-                                 Process : not null access procedure (Name : in String;
-                                                                      File : in String;
-                                                                      Done : out Boolean)) is
+   procedure Iterate_Files_Path (Pattern  : in String;
+                                 Path     : in String;
+                                 Process  : not null access procedure (Name : in String;
+                                                                       File : in String;
+                                                                       Done : out Boolean);
+                                 Going    : in Ada.Strings.Direction := Ada.Strings.Forward) is
 
-      procedure Find_Files (Dir : in String;
+      procedure Find_Files (Dir  : in String;
                             Done : out Boolean);
 
       --  ------------------------------
@@ -239,7 +268,7 @@ package body Util.Files is
       end Find_Files;
 
    begin
-      Iterate_Path (Path => Path, Process => Find_Files'Access);
+      Iterate_Path (Path => Path, Process => Find_Files'Access, Going => Going);
    end Iterate_Files_Path;
 
    --  ------------------------------
