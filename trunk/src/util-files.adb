@@ -135,7 +135,7 @@ package body Util.Files is
    procedure Iterate_Path (Path     : in String;
                            Process  : not null access procedure (Dir  : in String;
                                                                  Done : out Boolean);
-                           Going    : in Ada.Strings.Direction := Ada.Strings.Forward) is
+                           Going    : in Direction := Ada.Strings.Forward) is
       use Ada.Directories;
       use Ada.Strings;
       use Ada.Strings.Fixed;
@@ -236,7 +236,7 @@ package body Util.Files is
                                  Process  : not null access procedure (Name : in String;
                                                                        File : in String;
                                                                        Done : out Boolean);
-                                 Going    : in Ada.Strings.Direction := Ada.Strings.Forward) is
+                                 Going    : in Direction := Ada.Strings.Forward) is
 
       procedure Find_Files (Dir  : in String;
                             Done : out Boolean);

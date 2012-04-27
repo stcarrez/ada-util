@@ -21,6 +21,8 @@ package Util.Files is
 
    use Ada.Strings.Unbounded;
 
+   subtype Direction is Ada.Strings.Direction;
+
    --  Read a complete file into a string.
    --  The <b>Max_Size</b> parameter indicates the maximum size that is read.
    procedure Read_File (Path     : in String;
@@ -48,7 +50,7 @@ package Util.Files is
    procedure Iterate_Path (Path     : in String;
                            Process  : not null access procedure (Dir  : in String;
                                                                  Done : out Boolean);
-                           Going    : in Ada.Strings.Direction := Ada.Strings.Forward);
+                           Going    : in Direction := Ada.Strings.Forward);
 
    --  Iterate over the search directories defined in <b>Path</b> and search
    --  for files matching the pattern defined by <b>Pattern</b>.  For each file,
@@ -61,7 +63,7 @@ package Util.Files is
                                  Process  : not null access procedure (Name : in String;
                                                                        File : in String;
                                                                        Done : out Boolean);
-                                 Going    : in Ada.Strings.Direction := Ada.Strings.Forward);
+                                 Going    : in Direction := Ada.Strings.Forward);
 
    --  Find the file in one of the search directories.  Each search directory
    --  is separated by ';' (yes, even on Unix).
