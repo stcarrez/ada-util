@@ -78,6 +78,37 @@ package body Util.Properties.Bundles.Tests is
 
    end Test_Bundle_Loader;
 
+   --  Test overloading some bundle definition by having incomplete files.
+   procedure Test_Bundle_Overload (T : in out Test) is
+      Factory : Loader;
+      Bundle  : Util.Properties.Bundles.Manager;
+      P1      : constant String := Util.Tests.Get_Test_Path ("regtests/bundles");
+      P2      : constant String := Util.Tests.Get_Test_Path ("bundles");
+   begin
+      Initialize (Factory, P1 & ";" & P2);
+      Load_Bundle (Factory, "dates", "fr", Bundle);
+
+      --  Overloaded by regtests/bundles/dates.properties
+      Assert_Equals (T, "New", String '(Bundle.Get ("util.test_variable")),
+                     "Load fr bundle failed (not defined)");
+
+      Assert_Equals (T, "Jan", String '(Bundle.Get ("util.month1.short")),
+                     "Load fr bundle failed (should not be overloaded)");
+
+      --  Not overloaded, value comes from bundles/dates_fr.properties
+      Assert_Equals (T, "Mar", String '(Bundle.Get ("util.month3.short")),
+                     "Load fr bundle failed");
+
+      Load_Bundle (Factory, "dates", "en_GB", Bundle);
+
+      Assert_Equals (T, "Jan_Overloaded", String '(Bundle.Get ("util.month1.short")),
+                     "Load en_GB bundle failed (should be overloaded)");
+
+      --  Not overloaded, value comes from bundles/dates_fr.properties
+      Assert_Equals (T, "Mar", String '(Bundle.Get ("util.month3.short")),
+                     "Load en_GB bundle failed");
+   end Test_Bundle_Overload;
+
    package Caller is new Util.Test_Caller (Test, "Properties.Bundles");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -87,6 +118,9 @@ package body Util.Properties.Bundles.Tests is
 
       Caller.Add_Test (Suite, "Test Util.Properties.Bundles.Load_Bundle",
                        Test_Bundle_Loader'Access);
+
+      Caller.Add_Test (Suite, "Test Util.Properties.Bundles.Load_Bundle (overloading)",
+                       Test_Bundle_Overload'Access);
    end Add_Tests;
 
 end Util.Properties.Bundles.Tests;
