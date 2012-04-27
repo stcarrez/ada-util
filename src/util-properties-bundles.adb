@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -225,44 +225,49 @@ package body Util.Properties.Bundles is
       use Bundle_Map;
 
       procedure Process_File (Name      : in String;
-                              File_Path : in String);
+                              File_Path : in String;
+                              Done      : out Boolean);
 
       Path    : constant String := To_String (Factory.Path);
       Pattern : constant String := Name & "*.properties";
       Names   : Util.Strings.String_Set.Set;
-      Files   : Util.Strings.Maps.Map;
-      Iter    : Util.Strings.Maps.Cursor;
 
       procedure Process_File (Name      : in String;
-                              File_Path : in String) is
-         Bundle      : constant Bundle_Manager_Access := new Manager;
-         Bundle_Name : constant Name_Access
-           := new String '(Name (Name'First .. Name'Last - 11));
+                              File_Path : in String;
+                              Done      : out Boolean) is
+         subtype Cursor is Bundle_Map.Cursor;
+
+         Base_Name   : aliased constant String := Name (Name'First .. Name'Last - 11);
+         Pos         : constant Cursor := Factory.Bundles.Find (Base_Name'Unchecked_Access);
+         Bundle_Name : Name_Access;
+         Bundle      : Bundle_Manager_Access;
       begin
          Log.Debug ("Loading file {0}", File_Path);
 
+         if Bundle_Map.Has_Element (Pos) then
+            Bundle := Bundle_Map.Element (Pos);
+         else
+            Bundle := new Manager;
+            Bundle_Name := new String '(Base_Name);
+            Factory.Bundles.Include (Key => Bundle_Name, New_Item => Bundle);
+            Names.Insert (Bundle_Name);
+         end if;
          Interface_P.Manager'Class (Bundle.Impl.all).Load_Properties (File_Path);
-         Factory.Bundles.Include (Key => Bundle_Name, New_Item => Bundle);
          Found := True;
-         Names.Insert (Bundle_Name);
+         Done := False;
       end Process_File;
 
    begin
       Log.Info ("Reading bundle {1} in directory {0}", Path, Name);
 
       Found := False;
-      Util.Files.Find_Files_Path (Pattern => Pattern,
-                                  Path    => Path,
-                                  Into    => Files);
-
       Factory.Lock.Write;
 
       begin
-         Iter := Files.First;
-         while Util.Strings.Maps.Has_Element (Iter) loop
-            Util.Strings.Maps.Query_Element (Iter, Process_File'Access);
-            Util.Strings.Maps.Next (Iter);
-         end loop;
+         Util.Files.Iterate_Files_Path (Pattern => Pattern,
+                                        Path    => Path,
+                                        Process => Process_File'Access,
+                                        Going   => Ada.Strings.Backward);
 
          --  Link the property files to implement the localization default rules.
          while Names.Length > 0 loop
