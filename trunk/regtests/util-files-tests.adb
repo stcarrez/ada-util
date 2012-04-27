@@ -128,8 +128,8 @@ package body Util.Files.Tests is
             Done := False;
          else
             Done := True;
-            Last := To_Unbounded_String (Dir);
          end if;
+         Last := To_Unbounded_String (Dir);
       end Check_Path;
 
    begin
@@ -138,6 +138,9 @@ package body Util.Files.Tests is
 
       Iterate_Path ("de;bc;de;b", Check_Path'Access);
       Assert_Equals (T, "b", Last, "Invalid last path");
+
+      Iterate_Path ("de;bc;de;a", Check_Path'Access, Ada.Strings.Backward);
+      Assert_Equals (T, "de", Last, "Invalid last path");
 
    end Test_Iterate_Path;
 
