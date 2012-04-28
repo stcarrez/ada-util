@@ -25,6 +25,7 @@ with Util.Measures;
 with Util.Concurrent.Copies;
 with Util.Concurrent.Pools;
 with Util.Concurrent.Fifos;
+with Util.Concurrent.Arrays;
 package body Util.Concurrent.Tests is
 
    use Util.Tests;
@@ -41,6 +42,8 @@ package body Util.Concurrent.Tests is
    package Connection_Pool is new Util.Concurrent.Pools (Connection);
 
    package Connection_Fifo is new Util.Concurrent.Fifos (Connection, 7);
+
+   package Connection_Arrays is new Util.Concurrent.Arrays (Connection);
 
    package Caller is new Util.Test_Caller (Test, "Concurrent");
 
@@ -62,6 +65,8 @@ package body Util.Concurrent.Tests is
                        Test_Fifo'Access);
       Caller.Add_Test (Suite, "Test Util.Concurrent.Fifos (concurrent test)",
                        Test_Concurrent_Fifo'Access);
+      Caller.Add_Test (Suite, "Test Util.Concurrent.Arrays",
+                       Test_Array'Access);
    end Add_Tests;
 
    overriding
@@ -457,5 +462,58 @@ package body Util.Concurrent.Tests is
                             & Natural'Image (Count_By_Task * Task_Count)
                            & " task count: " & Natural'Image (Task_Count));
    end Test_Concurrent_Fifo;
+
+   --  ------------------------------
+   --  Test concurrent arrays.
+   --  ------------------------------
+   procedure Test_Array (T : in out Test) is
+      procedure Sum_All (C : in Connection);
+
+      List : Connection_Arrays.Vector;
+      L    : Connection_Arrays.Ref;
+      Val  : Connection;
+      Sum  : Natural;
+
+      procedure Sum_All (C : in Connection) is
+      begin
+         Sum := Sum + C.Value;
+      end Sum_All;
+
+   begin
+      L := List.Get;
+      T.Assert (L.Is_Empty, "List should be empty");
+
+      Val.Value := 1;
+      List.Append (Val);
+      T.Assert (L.Is_Empty, "List should be empty");
+
+      L := List.Get;
+      T.Assert (not L.Is_Empty, "List should not be empty");
+
+      Sum := 0;
+      L.Iterate (Sum_All'Access);
+      Util.Tests.Assert_Equals (T, 1, Sum, "List iterate failed");
+
+      for I in 1 .. 100 loop
+         Val.Value := I;
+         List.Append (Val);
+      end loop;
+
+      --  The list refered to by 'L' should not change.
+      Sum := 0;
+      L.Iterate (Sum_All'Access);
+      Util.Tests.Assert_Equals (T, 1, Sum, "List iterate failed");
+
+      --  After getting the list again, we should see the new elements.
+      L := List.Get;
+      Sum := 0;
+      L.Iterate (Sum_All'Access);
+      Util.Tests.Assert_Equals (T, 5051, Sum, "List iterate failed");
+
+      Sum := 0;
+      L.Reverse_Iterate (Sum_All'Access);
+      Util.Tests.Assert_Equals (T, 5051, Sum, "List reverse iterate failed");
+
+   end Test_Array;
 
 end Util.Concurrent.Tests;
