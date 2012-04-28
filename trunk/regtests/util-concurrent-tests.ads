@@ -42,4 +42,7 @@ package Util.Concurrent.Tests is
    --  Test concurrent aspects of fifo.
    procedure Test_Concurrent_Fifo (T : in out Test);
 
+   --  Test concurrent arrays.
+   procedure Test_Array (T : in out Test);
+
 end Util.Concurrent.Tests;
