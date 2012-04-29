@@ -118,7 +118,10 @@ package body Util.Processes is
 
       Log.Info ("Starting process {0}", Command);
 
-      Free (Proc.Sys);
+      if Proc.Sys /= null then
+         Proc.Sys.Finalize;
+         Free (Proc.Sys);
+      end if;
       Proc.Sys := new Util.Processes.Os.System_Process;
 
       --  Build the argc/argv table, terminate by NULL
@@ -154,7 +157,10 @@ package body Util.Processes is
 
       Log.Info ("Starting process {0}", Command);
 
-      Free (Proc.Sys);
+      if Proc.Sys /= null then
+         Proc.Sys.Finalize;
+         Free (Proc.Sys);
+      end if;
       Proc.Sys := new Util.Processes.Os.System_Process;
 
       --  Build the argc/argv table
