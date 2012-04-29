@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Concurrent.Arrays -- Concurrent Arrays
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -134,10 +134,7 @@ package body Util.Concurrent.Arrays is
       --  Get a readonly reference to the vector.
       --  ------------------------------
       function Get return Ref is
---           Result : Ref;
       begin
---           Result.Target := Elements;
---           Util.Concurrent.Counters.Increment (Elements.Ref_Counter);
          return Elements;
       end Get;
 
@@ -164,10 +161,37 @@ package body Util.Concurrent.Arrays is
          Elements.Target := New_Items;
       end Append;
 
+      --  ------------------------------
       --  Remove the element from the vector.
+      --  ------------------------------
       procedure Remove (Item : in Element_Type) is
+         New_Items : Vector_Record_Access;
+         Items     : constant Vector_Record_Access := Elements.Target;
       begin
-         null;
+         if Items = null then
+            return;
+         end if;
+         for I in Items.List'Range loop
+            if Items.List (I) = Item then
+               if Items.Len = 0 then
+                  Finalize (Elements);
+                  Elements.Target := null;
+               else
+                  New_Items := new Vector_Record (Len => Items.Len - 1);
+                  if I > 1 then
+                     New_Items.List (1 .. I - 1) := Items.List (1 .. I - 1);
+                  end if;
+                  if I <= New_Items.List'Last then
+                     New_Items.List (I .. New_Items.List'Last)
+                       := Items.List (I + 1 .. Items.List'Last);
+                  end if;
+                  Finalize (Elements);
+                  Util.Concurrent.Counters.Increment (New_Items.Ref_Counter);
+                  Elements.Target := New_Items;
+               end if;
+               return;
+            end if;
+         end loop;
       end Remove;
 
    end Protected_Vector;

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Concurrent.Arrays -- Concurrent Arrays
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,7 +53,10 @@ with Util.Concurrent.Counters;
 --  o The implementation does not use the Ada container for performance and size reasons.
 --  o The Iterate and Reverse_Iterate operation give a direct access to the element
 generic
+--     type Index_Type is range <>;
    type Element_Type is private;
+
+   with function "=" (Left, Right : in Element_Type) return Boolean is <>;
 package Util.Concurrent.Arrays is
 
    --  The reference to the read-only vector elements.
