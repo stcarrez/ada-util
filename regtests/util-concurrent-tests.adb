@@ -36,8 +36,15 @@ package body Util.Concurrent.Tests is
       Value : Natural := 0;
    end record;
 
+   function "=" (Left, Right : in Connection) return Boolean;
+
    overriding
    procedure Finalize (C : in out Connection);
+
+   function "=" (Left, Right : in Connection) return Boolean is
+   begin
+      return Left.Value = Right.Value;
+   end "=";
 
    package Connection_Pool is new Util.Concurrent.Pools (Connection);
 
@@ -513,6 +520,33 @@ package body Util.Concurrent.Tests is
       Sum := 0;
       L.Reverse_Iterate (Sum_All'Access);
       Util.Tests.Assert_Equals (T, 5051, Sum, "List reverse iterate failed");
+
+      --  Remove last value.
+      Val.Value := 100;
+      List.Remove (Val);
+
+      L := List.Get;
+      Sum := 0;
+      L.Iterate (Sum_All'Access);
+      Util.Tests.Assert_Equals (T, 5051 - 100, Sum, "List iterate failed");
+
+      --  Remove first value.
+      Val.Value := 1;
+      List.Remove (Val);
+
+      L := List.Get;
+      Sum := 0;
+      L.Iterate (Sum_All'Access);
+      Util.Tests.Assert_Equals (T, 5051 - 100 - 1, Sum, "List iterate failed");
+
+      --  Remove middle value.
+      Val.Value := 50;
+      List.Remove (Val);
+
+      L := List.Get;
+      Sum := 0;
+      L.Iterate (Sum_All'Access);
+      Util.Tests.Assert_Equals (T, 5051 - 100 - 1 - 50, Sum, "List iterate failed");
 
    end Test_Array;
 
