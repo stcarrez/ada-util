@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Ada.Unchecked_Deallocation;
 with Util.Test_Caller;
 package body Util.Events.Channels.Tests is
 
@@ -37,7 +38,11 @@ package body Util.Events.Channels.Tests is
    end Receive_Event;
 
    procedure Test_Post_Event (T : in out Test) is
-      C  : constant Channel_Access := Create ("test", "direct");
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Object => Channel'Class,
+                                         Name   => Channel_Access);
+
+      C  : Channel_Access := Create ("test", "direct");
       E  : Event;
       T1 : aliased Test;
       T2 : aliased Test;
@@ -58,6 +63,8 @@ package body Util.Events.Channels.Tests is
       C.Post (E);
       Assert_Equals (T, 2, T1.Count, "Invalid number of received events");
       Assert_Equals (T, 2, T2.Count, "Invalid number of events");
+
+      Free (C);
    end Test_Post_Event;
 
 end Util.Events.Channels.Tests;
