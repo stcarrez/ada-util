@@ -173,7 +173,7 @@ package body Util.Concurrent.Arrays is
          end if;
          for I in Items.List'Range loop
             if Items.List (I) = Item then
-               if Items.Len = 0 then
+               if Items.Len = 1 then
                   Finalize (Elements);
                   Elements.Target := null;
                else
