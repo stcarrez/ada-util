@@ -131,7 +131,7 @@ config.guess configure config.sub \
 configure.in Makefile.in install-sh \
 util.gpr.in config.gpr.in testutil.gpr.in tests.gpr samples.gpr \
 src samples regtests testutil \
-distrib support
+distrib support bundles
 
 dist:
 	-rm -rf $(distdir)
