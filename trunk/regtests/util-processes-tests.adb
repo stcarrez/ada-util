@@ -225,7 +225,7 @@ package body Util.Processes.Tests is
    --  ------------------------------
    procedure Test_Output_Redirect (T : in out Test) is
       P       : Process;
-      Path    : String := Util.Tests.Get_Test_Path ("proc-output.txt");
+      Path    : constant String := Util.Tests.Get_Test_Path ("proc-output.txt");
       Content : Ada.Strings.Unbounded.Unbounded_String;
    begin
       Util.Processes.Set_Output_Stream (P, Path);
