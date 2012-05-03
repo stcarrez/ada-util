@@ -139,6 +139,8 @@ package body Ahven.Tap_Runner is
    procedure Report_Not_Ok (Listener : in out Tap_Listener;
                             Info     :        Context;
                             Severity :        String) is
+      pragma Unreferenced (Severity);
+
       use Ada.Strings;
       use Ada.Strings.Fixed;
    begin
@@ -205,6 +207,8 @@ package body Ahven.Tap_Runner is
 
    procedure End_Test (Listener : in out Tap_Listener;
                        Info     :        Context) is
+      pragma Unreferenced (Info);
+
       Handle : Ada.Text_IO.File_Type;
    begin
       if Listener.Capture_Output then

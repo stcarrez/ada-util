@@ -168,7 +168,7 @@ package body Ahven.Text_Runner is
          Put_Line (To_String (Get_Test_Name (Result)) & ":");
       end if;
 
-      Test_Loop:
+      Test_Loop :
       loop
          exit Test_Loop when not Is_Valid (Position);
          Print_Test (Data (Position), Level, Status);
