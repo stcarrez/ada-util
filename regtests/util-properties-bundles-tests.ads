@@ -30,4 +30,7 @@ package Util.Properties.Bundles.Tests is
    --  Test overloading some bundle definition by having incomplete files.
    procedure Test_Bundle_Overload (T : in out Test);
 
+   --  Test bundle resolution perf.
+   procedure Test_Bundle_Perf (T : in out Test);
+
 end Util.Properties.Bundles.Tests;

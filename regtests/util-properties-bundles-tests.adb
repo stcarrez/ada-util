@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util -- Utilities
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@
 with Util.Test_Caller;
 with Util.Properties.Bundles;
 with Util.Properties.Basic;
+with Util.Measures;
 
 package body Util.Properties.Bundles.Tests is
 
@@ -109,6 +110,42 @@ package body Util.Properties.Bundles.Tests is
                      "Load en_GB bundle failed");
    end Test_Bundle_Overload;
 
+   --  ------------------------------
+   --  Test bundle resolution perf.
+   --  ------------------------------
+   procedure Test_Bundle_Perf (T : in out Test) is
+      Factory : Loader;
+      Bundle  : Util.Properties.Bundles.Manager;
+      P1      : constant String := Util.Tests.Get_Test_Path ("regtests/bundles");
+      P2      : constant String := Util.Tests.Get_Test_Path ("bundles");
+   begin
+      Initialize (Factory, P1 & ";" & P2);
+      declare
+         S1      : Util.Measures.Stamp;
+      begin
+         Load_Bundle (Factory, "dates", "fr", Bundle);
+         Util.Measures.Report (S1, "Load_Bundle (first time)");
+      end;
+      declare
+         S1      : Util.Measures.Stamp;
+      begin
+         Load_Bundle (Factory, "dates", "fr", Bundle);
+         Util.Measures.Report (S1, "Load_Bundle (second time)");
+      end;
+      declare
+         S1      : Util.Measures.Stamp;
+      begin
+         for I in 1 .. 1000 loop
+            Load_Bundle (Factory, "dates", "fr", Bundle);
+         end loop;
+         Util.Measures.Report (S1, "Load_Bundle (1000)");
+      end;
+
+      --  Not overloaded, value comes from bundles/dates_fr.properties
+      Assert_Equals (T, "Mar", String '(Bundle.Get ("util.month3.short")),
+                     "Load fr bundle failed");
+   end Test_Bundle_Perf;
+
    package Caller is new Util.Test_Caller (Test, "Properties.Bundles");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -121,6 +158,9 @@ package body Util.Properties.Bundles.Tests is
 
       Caller.Add_Test (Suite, "Test Util.Properties.Bundles.Load_Bundle (overloading)",
                        Test_Bundle_Overload'Access);
+
+      Caller.Add_Test (Suite, "Test Util.Properties.Bundles.Load_Bundle (perf)",
+                       Test_Bundle_Perf'Access);
    end Add_Tests;
 
 end Util.Properties.Bundles.Tests;
