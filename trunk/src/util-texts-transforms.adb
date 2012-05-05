@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util-texts -- Various Text Transformation Utilities
---  Copyright (C) 2001, 2002, 2003, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -241,7 +241,7 @@ package body Util.Texts.Transforms is
             Put (Into, '\');
             Put (Into, Character'Val (C));
 
-         elsif C > 16#80# then
+         elsif C >= 16#100# then
             To_Hex (Into, C);
 
          else
