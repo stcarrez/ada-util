@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  strings.tests -- Unit tests for strings
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -72,7 +72,7 @@ package body Util.Strings.Tests is
       Result := To_Unbounded_String ("");
       Escape_Javascript (Content => ASCII.ESC & "[m " & Character'Val (255),
                          Into    => Result);
-      Assert_Equals (T, "\u001B[m \u00FF", Result);
+      Assert_Equals (T, "\u001B[m " & Character'Val (255), Result);
    end Test_Escape_Javascript;
 
    procedure Test_Escape_Xml (T : in out Test) is
