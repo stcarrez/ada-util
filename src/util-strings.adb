@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util-strings -- Various String Utility
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Ada.Strings.Fixed;
 with Ada.Strings.Hash;
 with Ada.Unchecked_Deallocation;
 package body Util.Strings is
@@ -228,6 +229,17 @@ package body Util.Strings is
          end if;
       end loop;
       return 0;
+   end Index;
+
+   --  ------------------------------
+   --  Search for the first occurrence of the pattern in the string.
+   --  ------------------------------
+   function Index (Source  : in String;
+                   Pattern : in String;
+                   From    : in Positive;
+                   Going   : in Ada.Strings.Direction := Ada.Strings.Forward) return Natural is
+   begin
+      return Ada.Strings.Fixed.Index (Source, Pattern, From, Going);
    end Index;
 
    --  ------------------------------
