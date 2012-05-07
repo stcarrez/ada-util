@@ -20,6 +20,7 @@ with Ada.Strings.Fixed;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
 with Ada.Text_IO;
+with Util.Strings.Tokenizers;
 package body Util.Files is
 
    --  ------------------------------
@@ -136,54 +137,11 @@ package body Util.Files is
                            Process  : not null access procedure (Dir  : in String;
                                                                  Done : out Boolean);
                            Going    : in Direction := Ada.Strings.Forward) is
-      use Ada.Directories;
-      use Ada.Strings;
-      use Ada.Strings.Fixed;
-
-      Sep_Pos : Natural;
-      Pos     : Natural;
-      Last    : constant Natural := Path'Last;
    begin
-      case Going is
-         when Forward =>
-            Pos := Path'First;
-            while Pos <= Last loop
-               Sep_Pos := Index (Path, ";", Pos);
-               if Sep_Pos = 0 then
-                  Sep_Pos := Last;
-               else
-                  Sep_Pos := Sep_Pos - 1;
-               end if;
-               declare
-                  Dir  : constant String := Path (Pos .. Sep_Pos);
-                  Done : Boolean;
-               begin
-                  Process (Dir => Dir, Done => Done);
-                  exit when Done;
-               end;
-               Pos := Sep_Pos + 2;
-            end loop;
-
-         when Backward =>
-            Pos := Path'Last;
-            while Pos >= Path'First loop
-               Sep_Pos := Index (Path, ";", Pos, Backward);
-               if Sep_Pos = 0 then
-                  Sep_Pos := Path'First;
-               else
-                  Sep_Pos := Sep_Pos + 1;
-               end if;
-               declare
-                  Dir  : constant String := Path (Sep_Pos .. Pos);
-                  Done : Boolean;
-               begin
-                  Process (Dir => Dir, Done => Done);
-                  exit when Done or Sep_Pos = Path'First;
-               end;
-               Pos := Sep_Pos - 2;
-            end loop;
-
-      end case;
+      Util.Strings.Tokenizers.Iterate_Tokens (Content => Path,
+                                              Pattern => ";",
+                                              Process => Process,
+                                              Going   => Going);
    end Iterate_Path;
 
    --  ------------------------------
