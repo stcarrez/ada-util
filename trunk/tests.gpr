@@ -5,14 +5,10 @@ with "testutil";
 project Tests is
 
    for Languages use ("Ada", "Project file");
-
    Mains := ("util_harness.adb", "util_test_process.adb");
-
    for Source_Dirs use ("regtests/");
---   for Source_Files use ("util_harness.adb");
 
    for Main use Mains;
-
    for Object_Dir use "./" & Config'Object_Dir & "/obj";
    for Exec_Dir use "./" & Config'Exec_Dir & "/bin";
 
@@ -23,5 +19,10 @@ project Tests is
    package Compiler renames Config.Compiler;
 
    package Linker renames Config.Linker;
+
+   package Ide is
+      for Compiler_Command ("ada") use "gnatmake";
+      for Compiler_Command ("c") use "gcc";
+   end Ide;
 
 end Tests;
