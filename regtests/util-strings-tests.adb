@@ -23,6 +23,7 @@ with Util.Test_Caller;
 with Util.Strings.Transforms;
 with Util.Strings.Maps;
 with Util.Perfect_Hash;
+with Util.Strings.Tokenizers;
 with Ada.Streams;
 with Util.Measures;
 package body Util.Strings.Tests is
@@ -59,6 +60,8 @@ package body Util.Strings.Tests is
                        Test_String_Ref'Access);
       Caller.Add_Test (Suite, "Test perfect hash",
                        Test_Perfect_Hash'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Tokenizers.Iterate_Token",
+                       Test_Iterate_Token'Access);
 
    end Add_Tests;
 
@@ -327,5 +330,43 @@ package body Util.Strings.Tests is
          end;
       end loop;
    end Test_Perfect_Hash;
+
+   --  ------------------------------
+   --  Test the token iteration.
+   --  ------------------------------
+   procedure Test_Iterate_Token (T : in out Test) is
+      procedure Process_Token (Token : in String;
+                               Done  : out Boolean);
+
+      Called : Natural := 0;
+
+      procedure Process_Token (Token : in String;
+                               Done  : out Boolean) is
+      begin
+         T.Assert (Token = "one" or Token = "two" or Token = "three"
+                   or Token = "four five" or Token = "six seven",
+                   "Invalid token: [" & Token & "]");
+
+         Called := Called + 1;
+         Done   := False;
+      end Process_Token;
+
+   begin
+      Util.Strings.Tokenizers.Iterate_Tokens (Content => "one two three",
+                                              Pattern => " ",
+                                              Process => Process_Token'Access);
+      Util.Tests.Assert_Equals (T, 3, Called, "Iterate_Tokens calls Process incorrectly");
+
+      Util.Strings.Tokenizers.Iterate_Tokens (Content => "one two three",
+                                              Pattern => " ",
+                                              Process => Process_Token'Access,
+                                              Going   => Ada.Strings.Backward);
+      Util.Tests.Assert_Equals (T, 6, Called, "Iterate_Tokens calls Process incorrectly");
+
+      Util.Strings.Tokenizers.Iterate_Tokens (Content => "four five blob six seven",
+                                              Pattern => " blob ",
+                                              Process => Process_Token'Access);
+      Util.Tests.Assert_Equals (T, 8, Called, "Iterate_Tokens calls Process incorrectly");
+   end Test_Iterate_Token;
 
 end Util.Strings.Tests;

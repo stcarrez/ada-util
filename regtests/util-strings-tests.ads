@@ -47,4 +47,7 @@ package Util.Strings.Tests is
    --  Test perfect hash (samples/gperfhash)
    procedure Test_Perfect_Hash (T : in out Test);
 
+   --  Test the token iteration.
+   procedure Test_Iterate_Token (T : in out Test);
+
 end Util.Strings.Tests;
