@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util-strings -- Various String Utility
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,7 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Ada.Strings;
 with Ada.Strings.Unbounded;
 with Ada.Containers;
 with Ada.Containers.Hashed_Maps;
@@ -48,6 +49,12 @@ package Util.Strings is
    function Rindex (Source : in String;
                     Ch     : in Character;
                     From   : in Natural := 0) return Natural;
+
+   --  Search for the first occurrence of the pattern in the string.
+   function Index (Source  : in String;
+                   Pattern : in String;
+                   From    : in Positive;
+                   Going   : in Ada.Strings.Direction := Ada.Strings.Forward) return Natural;
 
    --  Returns Integer'Image (Value) with the possible space stripped.
    function Image (Value : in Integer) return String;
