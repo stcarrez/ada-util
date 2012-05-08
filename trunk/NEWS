@@ -1,11 +1,11 @@
-Version 1.5     -
+Version 1.5     - May 2012
   - Added concurrent fifo queues and arrays
   - Changed Objects.Maps to use a String instead of an Unbounded_String as the key
   - Support for shared or static build configuration
   - Implement input/output/error redirection to a file for process launch
   - Added a string tokenizer
 
-Version 1.4     - Jan 2011
+Version 1.4     - Jan 2012
   - Support for localized date format
   - Support for process creation and pipe streams (on Unix and Windows)
   - Support for CSV in the serialization framework
