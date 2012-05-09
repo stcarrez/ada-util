@@ -22,6 +22,7 @@ with Util.Files;
 with Util.Streams.Pipes;
 with Util.Streams.Buffered;
 with Util.Streams.Texts;
+with Util.Systems.Os;
 package body Util.Processes.Tests is
 
    use Util.Log;
@@ -41,8 +42,10 @@ package body Util.Processes.Tests is
                        Test_Output_Pipe'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn(WRITE pipe)",
                        Test_Input_Pipe'Access);
-      Caller.Add_Test (Suite, "Test Util.Processes.Spawn(OUTPUT redirect)",
-                       Test_Output_Redirect'Access);
+      if Util.Systems.Os.Directory_Separator /= '\' then
+         Caller.Add_Test (Suite, "Test Util.Processes.Spawn(OUTPUT redirect)",
+                          Test_Output_Redirect'Access);
+      end if;
 
       Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Open/Read/Close (Multi spawn)",
                        Test_Multi_Spawn'Access);
