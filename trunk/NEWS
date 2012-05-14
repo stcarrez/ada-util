@@ -1,3 +1,5 @@
+Version 1.6     -
+
 Version 1.5     - May 2012
   - Added concurrent fifo queues and arrays
   - Changed Objects.Maps to use a String instead of an Unbounded_String as the key
