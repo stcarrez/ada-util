@@ -281,7 +281,7 @@ package body Util.Serialize.IO.JSON is
                if Token /= T_RIGHT_BRACKET then
                   Put_Back (P, Token);
                   loop
-                     Parse_Value (P, "");
+                     Parse_Value (P, Name);
                      Peek (P, Token);
                      exit when Token = T_RIGHT_BRACKET;
                      if Token /= T_COMMA then
