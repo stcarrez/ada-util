@@ -3105,7 +3105,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile util.gpr util_http.gpr config.gpr testutil.gpr distrib/testutil.gpr distrib/util.gpr"
+ac_config_files="$ac_config_files Makefile util.gpr util_http.gpr config.gpr testutil.gpr distrib/testutil.gpr distrib/util.gpr distrib/util_http.gpr"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -3813,6 +3813,7 @@ do
     "testutil.gpr") CONFIG_FILES="$CONFIG_FILES testutil.gpr" ;;
     "distrib/testutil.gpr") CONFIG_FILES="$CONFIG_FILES distrib/testutil.gpr" ;;
     "distrib/util.gpr") CONFIG_FILES="$CONFIG_FILES distrib/util.gpr" ;;
+    "distrib/util_http.gpr") CONFIG_FILES="$CONFIG_FILES distrib/util_http.gpr" ;;
 
   *) as_fn_error "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

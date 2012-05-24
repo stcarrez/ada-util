@@ -100,6 +100,8 @@ clean:	clean_test
 	-$(GNATCLEAN) -q -P "$(GPRPATH)" -XLIBRARY_TYPE=relocatable
 	-$(GNATCLEAN) -q -Ptestutil -XLIBRARY_TYPE=static
 	-$(GNATCLEAN) -q -Ptestutil -XLIBRARY_TYPE=relocatable
+	-$(GNATCLEAN) -q -Putil_http -XLIBRARY_TYPE=static
+	-$(GNATCLEAN) -q -Putil_http -XLIBRARY_TYPE=relocatable
 	-$(GNATCLEAN) -q -Ptests
 	-$(GNATCLEAN) -q -Psamples
 	-rm -f lib/util/*.a lib/util/*.$(DLLEXT)
@@ -131,7 +133,7 @@ version:
 DISTFILES=README LICENSE.txt LICENSE.Ahven NOTICE.txt NEWS CHANGES ChangeLog \
 config.guess configure config.sub \
 configure.in Makefile.in install-sh \
-util.gpr.in config.gpr.in testutil.gpr.in tests.gpr samples.gpr \
+util.gpr.in util_http.gpr.in config.gpr.in testutil.gpr.in tests.gpr samples.gpr \
 src samples regtests testutil \
 distrib support bundles
 
@@ -166,14 +168,15 @@ install_shared:
 	$(MAKE) LIBRARY_TYPE=relocatable install_lib
 
 install_lib:
-	$(MKDIR) -p ${includedir}/util
+	$(MKDIR) -p ${includedir}/util/http
 	$(MKDIR) -p ${includedir}/testutil
 	$(MKDIR) -p ${projectdir}/
 	${MKDIR} -p ${alidir}/testutil/$(LIBRARY_TYPE)
-	${MKDIR} -p ${alidir}/util/$(LIBRARY_TYPE)
+	${MKDIR} -p ${alidir}/util/$(LIBRARY_TYPE)/http
 	${MKDIR} -p ${libdir}
 	${CP} -p testutil/*.ad[bs] ${includedir}/testutil
 	${CP} -p src/*.ad[bs] ${includedir}/util
+	${CP} -p src/http/*.ad[bs] ${includedir}/util/http
 	if test T${XML_SRC_DIR} != T ; then \
 	   ${CP} -p ${XML_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
 	fi
@@ -189,17 +192,22 @@ install_lib:
 	fi
 	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/util.gpr > ${projectdir}/util.gpr
 	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/testutil.gpr > ${projectdir}/testutil.gpr
+	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/util_http.gpr > ${projectdir}/util_http.gpr
 	${CP} -p lib/testutil/$(LIBRARY_TYPE)/*.ali ${alidir}/testutil/$(LIBRARY_TYPE)
 	${CP} -p lib/util/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)
+	${CP} -p lib/util-http/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)/http
 ifeq ($(LIBRARY_TYPE),static)
 	${CP} -p lib/util/$(LIBRARY_TYPE)/libadautil.a ${libdir}/
+	${CP} -p lib/util-http/$(LIBRARY_TYPE)/libada-util-http.a ${libdir}/
 	${CP} -p lib/testutil/$(LIBRARY_TYPE)/libadatestutil.a ${libdir}/
 else
 	${CP} -p lib/util/$(LIBRARY_TYPE)/libadautil.$(LIBVER) ${libdir}/
+	${CP} -p lib/util-http/$(LIBRARY_TYPE)/libada-util-http.$(LIBVER) ${libdir}/
 	${CP} -p lib/testutil/$(LIBRARY_TYPE)/libadatestutil.$(LIBVER) ${libdir}/
 	cd ${libdir} && \
-	rm -f libadautil.$(LIBEXT) libadatestutil.$(LIBEXT) && \
+	rm -f libadautil.$(LIBEXT) libadatestutil.$(LIBEXT) libada-util-http.$(LIBEXT) && \
 	${LN} libadautil.$(LIBVER) libadautil.$(LIBEXT) && \
+	${LN} libada-util-http.$(LIBVER) libada-util-http.$(LIBEXT) && \
 	${LN} libadatestutil.$(LIBVER) libadatestutil.$(LIBEXT)
 endif
 
@@ -212,6 +220,7 @@ uninstall:
 	rm -rf ${includedir}/util ${includedir}/testutil
 	rm -rf ${alidir}/util ${alidir}/testutil
 	rm -f ${libdir}/libadautil.a
+	rm -f ${libdir}/libada-util-http.a
 	rm -f ${libdir}/libadatestutil.a
 	rm -f ${libdir}/libadautil.so.${version}
 	rm -f ${libdir}/libadatestutil.so.${version}
