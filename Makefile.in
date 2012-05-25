@@ -82,7 +82,7 @@ shared:
 # Build and run the unit tests
 test:	build regtests/util-testsuite.adb
 	$(GNATMAKE) -p -Ptests
-	bin/util_harness -xml util-aunit.xml
+	-bin/util_harness -xml util-aunit.xml
 
 regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile
 	gnatprep -DHAVE_XML=$(HAVE_XML) regtests/util-testsuite.gpb $@
