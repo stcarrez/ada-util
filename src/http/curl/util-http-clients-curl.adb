@@ -45,7 +45,7 @@ package body Util.Http.Clients.Curl is
    begin
       if Code /= CURLE_OK then
          declare
-            Error : constant Interfaces.C.Strings.Chars_Ptr := Curl_Easy_Strerror (Code);
+            Error : constant Chars_Ptr := Curl_Easy_Strerror (Code);
             Msg   : constant String := Interfaces.C.Strings.Value (Error);
          begin
             Log.Error ("{0}: {1}", Message, Msg);
@@ -176,56 +176,6 @@ package body Util.Http.Clients.Curl is
       end if;
       Interfaces.C.Strings.Free (Request.URL);
    end Finalize;
-
-   --  Returns a boolean indicating whether the named request header has already
-   --  been set.
-   function Contains_Header (Http : in Curl_Http_Request;
-                             Name : in String) return Boolean is
-   begin
-      return False;
-   end Contains_Header;
-
-   --  Returns the value of the specified response header as a String. If the response
-   --  did not include a header of the specified name, this method returns null.
-   --  If there are multiple headers with the same name, this method returns the
-   --  first head in the request. The header name is case insensitive. You can use
-   --  this method with any response header.
-   overriding
-   function Get_Header (Reply  : in Curl_Http_Request;
-                        Name   : in String) return String is
-   begin
-      return "";
-   end Get_Header;
-
-   --  Sets a request header with the given name and value. If the header had already
-   --  been set, the new value overwrites the previous one. The containsHeader
-   --  method can be used to test for the presence of a header before setting its value.
-   procedure Set_Header (Http  : in out Curl_Http_Request;
-                         Name  : in String;
-                         Value : in String) is
-   begin
-      null;
-   end Set_Header;
-
-
-   --  Adds a request header with the given name and value.
-   --  This method allows request headers to have multiple values.
-   procedure Add_Header (Http  : in out Curl_Http_Request;
-                         Name  : in String;
-                         Value : in String) is
-   begin
-      null;
-   end Add_Header;
-
-   --  Iterate over the message headers and executes the <b>Process</b> procedure.
-   overriding
-   procedure Iterate_Headers (Http : in Curl_Http_Request;
-                              Process : not null access
-                                procedure (Name  : in String;
-                                           Value : in String)) is
-   begin
-      null;
-   end Iterate_Headers;
 
    --  ------------------------------
    --  Get the response body as a string.
