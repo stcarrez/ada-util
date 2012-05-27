@@ -134,12 +134,18 @@ package Util.Http.Clients is
                   URL      : in String;
                   Reply    : out Response'Class);
 
+   --  Execute an http POST request on the given URL.  The post data is passed in <b>Data</b>.
+   --  Additional request cookies and headers should have been set on the client object.
+   procedure Post (Request : in out Client;
+                   URL     : in String;
+                   Data    : in String;
+                   Reply   : out Response'Class);
+
 --     procedure Head (Http : in out Client;
 --                     URI  : in String;
 --                     Reply : out Response'Class);
 
-   --  Execute an http POST request on the given URL.  Additional request parameters,
-   --  cookies and headers should have been set on the client object.
+   --  Execute an http POST request on the given URL.
 --     procedure Put (Http  : in out Client;
 --                    URI   : in String;
 --                    Reply : out Response'Class);
