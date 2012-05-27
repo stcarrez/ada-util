@@ -38,6 +38,7 @@ with Util.Serialize.IO.XML.Tests;
 # end if;
 with Util.Serialize.IO.CSV.Tests;
 with Util.Processes.Tests;
+with Util.Http.Cookies.Tests;
 package body Util.Testsuite is
 
    Tests : aliased Util.Tests.Test_Suite;
@@ -67,6 +68,7 @@ package body Util.Testsuite is
 #end if;
       Util.Serialize.IO.CSV.Tests.Add_Tests (Result);
       Util.Processes.Tests.Add_Tests (Result);
+      Util.Http.Cookies.Tests.Add_Tests (Result);
       return Result;
    end Suite;
 
