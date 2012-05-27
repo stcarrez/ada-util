@@ -212,13 +212,13 @@ package body Util.Http.Clients is
    end Get;
 
    --  ------------------------------
-   --  Execute an http POST request on the given URL.  Additional request parameters,
-   --  cookies and headers should have been set on the client object.
+   --  Execute an http POST request on the given URL.  The post data is passed in <b>Data</b>.
+   --  Additional request cookies and headers should have been set on the client object.
    --  ------------------------------
-   procedure Post (request  : in out Client;
-                   URL      : in String;
-                   Data     : in String;
-                   Reply    : out Response'Class) is
+   procedure Post (Request : in out Client;
+                   URL     : in String;
+                   Data    : in String;
+                   Reply   : out Response'Class) is
    begin
       Request.Manager.Do_Post (Request, URL, Data, Reply);
    end Post;
