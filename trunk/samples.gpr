@@ -1,5 +1,6 @@
 with "config";
 with "util";
+with "util_http";
 
 project Samples is
 
@@ -7,7 +8,7 @@ project Samples is
    "bundles.adb", "escape.adb", "encodes.adb", "json.adb", "popen.adb",
    "multipro.adb", "multipro_refs.adb", "xmlrd.adb", "date.adb",
    "csv_city.adb", "csv_reader.adb", "launch.adb", "gperfhash.adb",
-   "cut.adb");
+   "cut.adb", "wget.adb");
 
    for Main use Mains;
 
