@@ -18,6 +18,49 @@
 with Ada.Calendar;
 package Util.Http is
 
+   --  Standard codes returned in HTTP responses.
+   SC_CONTINUE                        : constant Natural := 100;
+   SC_SWITCHING_PROTOCOLS             : constant Natural := 101;
+   SC_OK                              : constant Natural := 200;
+   SC_CREATED                         : constant Natural := 201;
+   SC_ACCEPTED                        : constant Natural := 202;
+   SC_NON_AUTHORITATIVE_INFORMATION   : constant Natural := 203;
+   SC_NO_CONTENT                      : constant Natural := 204;
+   SC_RESET_CONTENT                   : constant Natural := 205;
+   SC_PARTIAL_CONTENT                 : constant Natural := 206;
+   SC_MULTIPLE_CHOICES                : constant Natural := 300;
+   SC_MOVED_PERMANENTLY               : constant Natural := 301;
+   SC_MOVED_TEMPORARILY               : constant Natural := 302;
+   SC_FOUND                           : constant Natural := 302;
+   SC_SEE_OTHER                       : constant Natural := 303;
+   SC_NOT_MODIFIED                    : constant Natural := 304;
+   SC_USE_PROXY                       : constant Natural := 305;
+   SC_TEMPORARY_REDIRECT              : constant Natural := 307;
+   SC_BAD_REQUEST                     : constant Natural := 400;
+   SC_UNAUTHORIZED                    : constant Natural := 401;
+   SC_PAYMENT_REQUIRED                : constant Natural := 402;
+   SC_FORBIDDEN                       : constant Natural := 403;
+   SC_NOT_FOUND                       : constant Natural := 404;
+   SC_METHOD_NOT_ALLOWED              : constant Natural := 405;
+   SC_NOT_ACCEPTABLE                  : constant Natural := 406;
+   SC_PROXY_AUTHENTICATION_REQUIRED   : constant Natural := 407;
+   SC_REQUEST_TIMEOUT                 : constant Natural := 408;
+   SC_CONFLICT                        : constant Natural := 409;
+   SC_GONE                            : constant Natural := 410;
+   SC_LENGTH_REQUIRED                 : constant Natural := 411;
+   SC_PRECONDITION_FAILED             : constant Natural := 412;
+   SC_REQUEST_ENTITY_TOO_LARGE        : constant Natural := 413;
+   SC_REQUEST_URI_TOO_LONG            : constant Natural := 414;
+   SC_UNSUPPORTED_MEDIA_TYPE          : constant Natural := 415;
+   SC_REQUESTED_RANGE_NOT_SATISFIABLE : constant Natural := 416;
+   SC_EXPECTATION_FAILED              : constant Natural := 417;
+   SC_INTERNAL_SERVER_ERROR           : constant Natural := 500;
+   SC_NOT_IMPLEMENTED                 : constant Natural := 501;
+   SC_BAD_GATEWAY                     : constant Natural := 502;
+   SC_SERVICE_UNAVAILABLE             : constant Natural := 503;
+   SC_GATEWAY_TIMEOUT                 : constant Natural := 504;
+   SC_HTTP_VERSION_NOT_SUPPORTED      : constant Natural := 505;
+
    --  ------------------------------
    --  Abstract Message
    --  ------------------------------
