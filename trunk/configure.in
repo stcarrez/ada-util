@@ -239,6 +239,13 @@ if test x$ac_enable_ahven = 'xyes'; then
   esac
 fi
 
+UTIL_HAS_CURL=No
+UTIL_CURL_LIB=curl
+AC_CHECK_LIB($UTIL_CURL_LIB,curl_easy_perform,[
+UTIL_HAS_CURL=Yes
+])
+
+AC_SUBST(UTIL_HAS_CURL)
 AC_SUBST(WITH_AUNIT)
 AC_SUBST(UTIL_AUNIT_DIR)
 AC_SUBST(UTIL_AHVEN_DIR)
