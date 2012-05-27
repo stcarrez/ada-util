@@ -5,7 +5,7 @@ project Util_Http is
    Version := "@UTIL_VERSION@";
    Library_Dir := "@UTIL_LIBDIR@";
 
-   Has_Curl : Config.Yes_No := "yes";
+   Has_Curl : Config.Yes_No := "@UTIL_HAS_CURL@";
    
    Library_Type : Config.Library_Type_Type := external ("LIBRARY_TYPE", "static");
 
