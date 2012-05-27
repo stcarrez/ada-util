@@ -3146,7 +3146,7 @@ if test x$ac_enable_ahven = 'xyes'; then
   esac
 fi
 
-UTIL_HAS_CURL=No
+UTIL_HAS_CURL=no
 UTIL_CURL_LIB=curl
 
 as_ac_Lib=`$as_echo "ac_cv_lib_$UTIL_CURL_LIB''_curl_easy_perform" | $as_tr_sh`
@@ -3190,7 +3190,7 @@ $as_echo "$ac_res" >&6; }
 eval as_val=\$$as_ac_Lib
    if test "x$as_val" = x""yes; then :
 
-UTIL_HAS_CURL=Yes
+UTIL_HAS_CURL=yes
 
 fi
 
