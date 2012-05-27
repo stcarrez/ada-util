@@ -5,10 +5,21 @@ project Util_Http is
    Version := "@UTIL_VERSION@";
    Library_Dir := "@UTIL_LIBDIR@";
 
+   Has_Curl : Config.Yes_No := "yes";
+   
    Library_Type : Config.Library_Type_Type := external ("LIBRARY_TYPE", "static");
 
    for Source_Dirs use ("src/http");
 
+   case Has_Curl is
+      when "yes" =>
+         for Source_Dirs use Project'Source_Dirs & ("src/http/curl");
+	    
+      when "no" =>
+         null;
+	    
+   end case;
+   
    for Library_Name use "ada-util-http";
    for Library_Kind use Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
