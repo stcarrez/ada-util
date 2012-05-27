@@ -103,4 +103,7 @@ package Util.Http is
    --  Get the response status code.
    function Get_Status (Response : in Abstract_Response) return Natural is abstract;
 
+   --  Get the response body as a string.
+   function Get_Body (Response : in Abstract_Response) return String is abstract;
+
 end Util.Http;
