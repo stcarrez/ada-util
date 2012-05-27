@@ -20,7 +20,7 @@ with System;
 with Interfaces.C;
 with Interfaces.C.Strings;
 with Ada.Strings.Unbounded;
-
+with Util.Strings.Maps;
 package Util.Http.Clients.Curl is
 
    --  Register the CURL Http manager.
@@ -31,17 +31,23 @@ private
    package C renames Interfaces.C;
    package Strings renames Interfaces.C.Strings;
 
+   --  Define 'Int' and 'Chars_Ptr' with capitals to avoid GNAT warnings due
+   --  to Eclipse capitalization.
+   subtype Int is C.int;
+   subtype Chars_Ptr is Strings.chars_ptr;
+   subtype Size_T is C.size_t;
+
    subtype CURL is System.Address;
 
    type CURL_Code is new Interfaces.C.int;
 
    CURLE_OK               : constant CURL_Code := 0;
 
-   type CURL_Info is new Interfaces.C.Int;
+   type CURL_Info is new Int;
 
    CURLINFO_RESPONSE_CODE : constant CURL_Info := 2097154;
 
-   type Curl_Option is new Interfaces.C.Int;
+   type Curl_Option is new Int;
 
    CURLOPT_URL            : constant Curl_Option := 10002;
    CURLOPT_READFUNCTION   : constant Curl_Option := 20012;
@@ -52,12 +58,13 @@ private
    CURLOPT_HTTPAUTH       : constant Curl_Option := 107;
    CURLOPT_MAXFILESIZE    : constant Curl_Option := 114;
    CURLOPT_WRITEDATA      : constant Curl_Option := 10001;
+   CURLOPT_HEADER         : constant Curl_Option := 42;
 
    type CURL_Slist;
    type CURL_Slist_Access is access CURL_Slist;
 
    type CURL_Slist is record
-      Data : Strings.Chars_Ptr;
+      Data : Chars_Ptr;
       Next : CURL_Slist_Access;
    end record;
 
@@ -86,7 +93,7 @@ private
 
    type Curl_Http_Request is new Ada.Finalization.Limited_Controlled and Http_Request with record
       Data    : CURL := System.Null_Address;
-      URL     : Interfaces.C.Strings.Chars_Ptr := Interfaces.C.Strings.Null_Ptr;
+      URL     : Chars_Ptr := Interfaces.C.Strings.Null_Ptr;
       Headers : CURL_Slist_Access := null;
    end record;
    type Curl_Http_Request_Access is access all Curl_Http_Request'Class;
@@ -135,7 +142,8 @@ private
       C : CURL;
       Content : Ada.Strings.Unbounded.Unbounded_String;
       Status  : Natural;
-      Headers : CURL_Slist_Access := null;
+      Parsing_Body : Boolean := False;
+      Headers : Util.Strings.Maps.Map;
    end record;
    type Curl_Http_Response_Access is access all Curl_Http_Response'Class;
 
@@ -186,7 +194,7 @@ private
 
    --  Add a string to a CURL slist.
    function Curl_Slist_Append (List  : in CURL_Slist_Access;
-                               Value : in Interfaces.C.Strings.Chars_Ptr) return CURL_Slist_Access;
+                               Value : in Chars_Ptr) return CURL_Slist_Access;
    pragma Import (C, Curl_Slist_Append, "curl_slist_append");
 
    --  Free an entrire CURL slist.
@@ -206,19 +214,25 @@ private
    pragma Import (C, Curl_Easy_Perform, "curl_easy_perform");
 
    --  Return the error message which correspond to the given CURL error code.
-   function Curl_Easy_Strerror (Code : in CURL_Code) return Interfaces.C.Strings.Chars_Ptr;
+   function Curl_Easy_Strerror (Code : in CURL_Code) return Chars_Ptr;
    pragma Import (C, Curl_Easy_Strerror, "curl_easy_strerror");
 
    --  Set options for a curl easy handle.
    function Curl_Easy_Setopt_String (Handle : in CURL;
                                      Option : in Curl_Option;
-                                     Value  : in Interfaces.C.Strings.Chars_Ptr) return CURL_Code;
+                                     Value  : in Chars_Ptr) return CURL_Code;
    pragma Import (C, Curl_Easy_Setopt_String, "curl_easy_setopt");
+
+   --  Set options for a curl easy handle.
+   function Curl_Easy_Setopt_Long (Handle : in CURL;
+                                     Option : in Curl_Option;
+                                     Value  : in Interfaces.C.long) return CURL_Code;
+   pragma Import (C, Curl_Easy_Setopt_Long, "curl_easy_setopt");
 
    --  Get information from a CURL handle for an option returning a String.
    function Curl_Easy_Getinfo_String (Handle : in CURL;
                                       Option : in CURL_Info;
-                                      Value  : access Strings.Chars_Ptr) return CURL_Code;
+                                      Value  : access Chars_Ptr) return CURL_Code;
    pragma Import (C, Curl_Easy_Getinfo_String, "curl_easy_getinfo");
 
    --  Get information from a CURL handle for an option returning a Long.
@@ -230,10 +244,10 @@ private
    function Curl_Easy_Setopt_Write_Callback
      (Handle : in CURL;
       Option : in Curl_Option;
-      Func : access function (Data : in Interfaces.C.Strings.Chars_Ptr;
-                              Size : in Interfaces.C.Size_T;
-                              Nmemb : in Interfaces.C.Size_T;
-                              Ptr   : in Curl_Http_Response_Access) return Interfaces.C.Size_T)
+      Func : access function (Data  : in Chars_Ptr;
+                              Size  : in Size_T;
+                              Nmemb : in Size_T;
+                              Ptr   : in Curl_Http_Response_Access) return Size_T)
       return CURL_Code;
    pragma Import (C, Curl_Easy_Setopt_Write_Callback, "curl_easy_setopt");
 

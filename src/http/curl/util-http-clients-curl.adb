@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 --
-with System;
 with Util.Log.Loggers;
 
 package body Util.Http.Clients.Curl is
@@ -25,7 +24,7 @@ package body Util.Http.Clients.Curl is
 
    pragma Linker_Options ("-lcurl");
 
-   Log     : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Http.Clients.Curl");
+   Log   : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Http.Clients.Curl");
 
    Manager : aliased Curl_Http_Manager;
 
@@ -90,10 +89,36 @@ package body Util.Http.Clients.Curl is
 
       Total : Interfaces.C.Size_T := Size * Nmemb;
       Ptr   : Interfaces.C.Strings.Chars_Ptr := Data;
+      Line  : constant String := Interfaces.C.Strings.Value (Data, Total);
    begin
       Log.Info ("Read response, size {0} - {1}", Interfaces.C.Size_T'Image (Size),
                 Interfaces.C.Size_T'Image (Nmemb));
-      Ada.Strings.Unbounded.Append (Response.Content, Interfaces.C.Strings.Value (Data, Total));
+
+      if Response.Parsing_Body then
+         Ada.Strings.Unbounded.Append (Response.Content, Line);
+
+      elsif Total = 2 and then Line (1) = ASCII.CR and then Line (2) = ASCII.LF then
+         Response.Parsing_Body := True;
+      else
+         declare
+            Pos   : constant Natural := Util.Strings.Index (Line, ':');
+            Start : Natural;
+            Last  : Natural;
+         begin
+            if Pos > 0 then
+               Start := Pos + 1;
+               while Start <= Line'Last and Line (Start) = ' ' loop
+                  Start := Start + 1;
+               end loop;
+               Last := Line'Last;
+               while Last >= Start and (Line (Last) = ASCII.CR or Line (Last) = ASCII.LF) loop
+                  Last := Last - 1;
+               end loop;
+               Response.Add_Header (Name  => Line (Line'First .. Pos - 1),
+                                    Value => Line (Start .. Last));
+            end if;
+         end;
+      end if;
       return Total;
    end Read_Response;
 
@@ -116,6 +141,9 @@ package body Util.Http.Clients.Curl is
 
       Interfaces.C.Strings.Free (Req.URL);
       Req.URL := Strings.New_String (URI);
+
+      Result := Curl_Easy_Setopt_Long (Req.Data, CURLOPT_HEADER, 1);
+      Check_Code (Result, "set header");
 
       Result := Curl_Easy_Setopt_String (Req.Data, CURLOPT_URL, Req.URL);
       Check_Code (Result, "set url");
@@ -206,54 +234,73 @@ package body Util.Http.Clients.Curl is
       null;
    end Iterate_Headers;
 
+   --  ------------------------------
    --  Returns a boolean indicating whether the named response header has already
    --  been set.
+   --  ------------------------------
    function Contains_Header (Reply : in Curl_Http_Response;
                              Name  : in String) return Boolean is
    begin
-      return False;
+      return Reply.Headers.Contains (Name);
    end Contains_Header;
 
+   --  ------------------------------
    --  Returns the value of the specified response header as a String. If the response
    --  did not include a header of the specified name, this method returns null.
    --  If there are multiple headers with the same name, this method returns the
    --  first head in the request. The header name is case insensitive. You can use
    --  this method with any response header.
+   --  ------------------------------
    function Get_Header (Reply  : in Curl_Http_Response;
                         Name   : in String) return String is
+      Pos : constant Util.Strings.Maps.Cursor := Reply.Headers.Find (Name);
    begin
-      return "";
+      if Util.Strings.Maps.Has_Element (Pos) then
+         return Util.Strings.Maps.Element (Pos);
+      else
+         return "";
+      end if;
    end Get_Header;
 
+   --  ------------------------------
    --  Sets a message header with the given name and value. If the header had already
    --  been set, the new value overwrites the previous one. The containsHeader
    --  method can be used to test for the presence of a header before setting its value.
+   --  ------------------------------
    overriding
    procedure Set_Header (Reply    : in out Curl_Http_Response;
                          Name     : in String;
                          Value    : in String) is
    begin
-      null;
+      Reply.Headers.Include (Name, Value);
    end Set_Header;
 
+   --  ------------------------------
    --  Adds a request header with the given name and value.
    --  This method allows request headers to have multiple values.
+   --  ------------------------------
    overriding
    procedure Add_Header (Reply   : in out Curl_Http_Response;
                          Name    : in String;
                          Value   : in String) is
    begin
-      null;
+      Reply.Headers.Include (Name, Value);
    end Add_Header;
 
+   --  ------------------------------
    --  Iterate over the response headers and executes the <b>Process</b> procedure.
+   --  ------------------------------
    overriding
    procedure Iterate_Headers (Reply   : in Curl_Http_Response;
                               Process : not null access
                                 procedure (Name  : in String;
                                            Value : in String)) is
+      Iter : Util.Strings.Maps.Cursor := Reply.Headers.First;
    begin
-      null;
+      while Util.Strings.Maps.Has_Element (Iter) loop
+         Util.Strings.Maps.Query_Element (Iter, Process);
+         Util.Strings.Maps.Next (Iter);
+      end loop;
    end Iterate_Headers;
 
    --  ------------------------------
