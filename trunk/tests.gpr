@@ -1,6 +1,7 @@
 with "config";
 with "util";
 with "testutil";
+with "util_http";
 
 project Tests is
 
