@@ -78,7 +78,7 @@ private
                       Data     : in String;
                       Reply    : out Response'Class);
 
-   type Curl_Http_Request is new Http_Request with record
+   type Curl_Http_Request is new Ada.Finalization.Limited_Controlled and Http_Request with record
       Data    : CURL := System.Null_Address;
       URL     : Interfaces.C.Strings.Chars_Ptr := Interfaces.C.Strings.Null_Ptr;
       Headers : CURL_List := System.Null_Address;
@@ -90,30 +90,51 @@ private
 
    --  Returns a boolean indicating whether the named request header has already
    --  been set.
+   overriding
    function Contains_Header (Http : in Curl_Http_Request;
                              Name : in String) return Boolean;
+
+   --  Returns the value of the specified response header as a String. If the response
+   --  did not include a header of the specified name, this method returns null.
+   --  If there are multiple headers with the same name, this method returns the
+   --  first head in the request. The header name is case insensitive. You can use
+   --  this method with any response header.
+   overriding
+   function Get_Header (Reply  : in Curl_Http_Request;
+                        Name   : in String) return String;
 
    --  Sets a request header with the given name and value. If the header had already
    --  been set, the new value overwrites the previous one. The containsHeader
    --  method can be used to test for the presence of a header before setting its value.
+   overriding
    procedure Set_Header (Http  : in out Curl_Http_Request;
                          Name  : in String;
                          Value : in String);
 
    --  Adds a request header with the given name and value.
    --  This method allows request headers to have multiple values.
+   overriding
    procedure Add_Header (Http  : in out Curl_Http_Request;
                          Name  : in String;
                          Value : in String);
 
-   type Curl_Http_Response is new Http_Response with record
+   --  Iterate over the message headers and executes the <b>Process</b> procedure.
+   overriding
+   procedure Iterate_Headers (Http : in Curl_Http_Request;
+                              Process : not null access
+                                procedure (Name  : in String;
+                                           Value : in String));
+
+   type Curl_Http_Response is new Ada.Finalization.Limited_Controlled and Http_Response with record
       C : CURL;
       Content : Ada.Strings.Unbounded.Unbounded_String;
+      Status  : Natural;
    end record;
    type Curl_Http_Response_Access is access all Curl_Http_Response'Class;
 
    --  Returns a boolean indicating whether the named response header has already
    --  been set.
+   overriding
    function Contains_Header (Reply : in Curl_Http_Response;
                              Name  : in String) return Boolean;
 
@@ -122,11 +143,38 @@ private
    --  If there are multiple headers with the same name, this method returns the
    --  first head in the request. The header name is case insensitive. You can use
    --  this method with any response header.
+   overriding
    function Get_Header (Reply  : in Curl_Http_Response;
                         Name   : in String) return String;
 
+   --  Sets a message header with the given name and value. If the header had already
+   --  been set, the new value overwrites the previous one. The containsHeader
+   --  method can be used to test for the presence of a header before setting its value.
+   overriding
+   procedure Set_Header (Reply    : in out Curl_Http_Response;
+                         Name     : in String;
+                         Value    : in String);
+
+   --  Adds a request header with the given name and value.
+   --  This method allows request headers to have multiple values.
+   overriding
+   procedure Add_Header (Reply   : in out Curl_Http_Response;
+                         Name    : in String;
+                         Value   : in String);
+
+   --  Iterate over the response headers and executes the <b>Process</b> procedure.
+   overriding
+   procedure Iterate_Headers (Reply   : in Curl_Http_Response;
+                              Process : not null access
+                                procedure (Name  : in String;
+                                           Value : in String));
+
    --  Get the response body as a string.
    function Get_Body (Reply : in Curl_Http_Response) return String;
+
+   --  Get the response status code.
+   overriding
+   function Get_Status (Reply : in Curl_Http_Response) return Natural;
 
    --  Add a string to a CURL slist.
    function Curl_Slist_Append (List  : in CURL_List;
