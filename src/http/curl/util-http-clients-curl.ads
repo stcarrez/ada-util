@@ -20,7 +20,6 @@ with System;
 with Interfaces.C;
 with Interfaces.C.Strings;
 with Ada.Strings.Unbounded;
-with Util.Strings.Maps;
 with Util.Http.Mockups;
 package Util.Http.Clients.Curl is
 

@@ -15,9 +15,9 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
---
-with Util.Log.Loggers;
 
+with Util.Strings;
+with Util.Log.Loggers;
 package body Util.Http.Clients.Curl is
 
    use System;
