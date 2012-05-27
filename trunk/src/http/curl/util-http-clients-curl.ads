@@ -21,6 +21,7 @@ with Interfaces.C;
 with Interfaces.C.Strings;
 with Ada.Strings.Unbounded;
 with Util.Strings.Maps;
+with Util.Http.Mockups;
 package Util.Http.Clients.Curl is
 
    --  Register the CURL Http manager.
@@ -141,51 +142,13 @@ private
                                 procedure (Name  : in String;
                                            Value : in String));
 
-   type Curl_Http_Response is new Ada.Finalization.Limited_Controlled and Http_Response with record
+   type Curl_Http_Response is new Util.Http.Mockups.Mockup_Response with record
       C : CURL;
       Content : Ada.Strings.Unbounded.Unbounded_String;
       Status  : Natural;
       Parsing_Body : Boolean := False;
-      Headers : Util.Strings.Maps.Map;
    end record;
    type Curl_Http_Response_Access is access all Curl_Http_Response'Class;
-
-   --  Returns a boolean indicating whether the named response header has already
-   --  been set.
-   overriding
-   function Contains_Header (Reply : in Curl_Http_Response;
-                             Name  : in String) return Boolean;
-
-   --  Returns the value of the specified response header as a String. If the response
-   --  did not include a header of the specified name, this method returns null.
-   --  If there are multiple headers with the same name, this method returns the
-   --  first head in the request. The header name is case insensitive. You can use
-   --  this method with any response header.
-   overriding
-   function Get_Header (Reply  : in Curl_Http_Response;
-                        Name   : in String) return String;
-
-   --  Sets a message header with the given name and value. If the header had already
-   --  been set, the new value overwrites the previous one. The containsHeader
-   --  method can be used to test for the presence of a header before setting its value.
-   overriding
-   procedure Set_Header (Reply    : in out Curl_Http_Response;
-                         Name     : in String;
-                         Value    : in String);
-
-   --  Adds a request header with the given name and value.
-   --  This method allows request headers to have multiple values.
-   overriding
-   procedure Add_Header (Reply   : in out Curl_Http_Response;
-                         Name    : in String;
-                         Value   : in String);
-
-   --  Iterate over the response headers and executes the <b>Process</b> procedure.
-   overriding
-   procedure Iterate_Headers (Reply   : in Curl_Http_Response;
-                              Process : not null access
-                                procedure (Name  : in String;
-                                           Value : in String));
 
    --  Get the response body as a string.
    overriding
