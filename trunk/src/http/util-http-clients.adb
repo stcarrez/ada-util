@@ -23,10 +23,15 @@ package body Util.Http.Clients is
    --  Returns a boolean indicating whether the named response header has already
    --  been set.
    --  ------------------------------
+   overriding
    function Contains_Header (Reply : in Response;
                              Name  : in String) return Boolean is
    begin
-      return Reply.Data.Contains_Header (Name);
+      if Reply.Delegate = null then
+         return False;
+      else
+         return Reply.Delegate.Contains_Header (Name);
+      end if;
    end Contains_Header;
 
    --  ------------------------------
@@ -36,18 +41,63 @@ package body Util.Http.Clients is
    --  first head in the request. The header name is case insensitive. You can use
    --  this method with any response header.
    --  ------------------------------
+   overriding
    function Get_Header (Reply  : in Response;
                         Name   : in String) return String is
    begin
-      return Reply.Data.Get_Header (Name);
+      if Reply.Delegate = null then
+         return "";
+      else
+         return Reply.Delegate.Get_Header (Name);
+      end if;
    end Get_Header;
+
+   --  ------------------------------
+   --  Sets a message header with the given name and value. If the header had already
+   --  been set, the new value overwrites the previous one. The containsHeader
+   --  method can be used to test for the presence of a header before setting its value.
+   --  ------------------------------
+   overriding
+   procedure Set_Header (Reply    : in out Response;
+                         Name     : in String;
+                         Value    : in String) is
+   begin
+      if Reply.Delegate = null then
+         null;
+      end if;
+      Reply.Delegate.Set_Header (Name, Value);
+   end Set_Header;
+
+   --  ------------------------------
+   --  Adds a request header with the given name and value.
+   --  This method allows request headers to have multiple values.
+   --  ------------------------------
+   overriding
+   procedure Add_Header (Reply   : in out Response;
+                         Name    : in String;
+                         Value   : in String) is
+   begin
+      Reply.Delegate.Add_Header (Name, Value);
+   end Add_Header;
+
+   --  ------------------------------
+   --  Iterate over the response headers and executes the <b>Process</b> procedure.
+   --  ------------------------------
+   overriding
+   procedure Iterate_Headers (Reply   : in Response;
+                              Process : not null access
+                                procedure (Name  : in String;
+                                           Value : in String)) is
+   begin
+      Reply.Delegate.Iterate_Headers (Process);
+   end Iterate_Headers;
 
    --  ------------------------------
    --  Get the response body as a string.
    --  ------------------------------
    function Get_Body (Reply : in Response) return String is
    begin
-      return Reply.Data.Get_Body;
+      return "";  --  Reply.Delegate.Get_Body;
    end Get_Body;
 
    --  ------------------------------
@@ -55,69 +105,60 @@ package body Util.Http.Clients is
    --  ------------------------------
    function Get_Status (Reply : in Response) return Natural is
    begin
-      return Reply.Status;
+      return Reply.Delegate.Get_Status;
    end Get_Status;
 
-   --  Sets a header with the given name and date-value.
-   --  The date is specified in terms of milliseconds since the epoch.
-   --  If the header had already been set, the new value overwrites the previous one.
-   --  The containsHeader method can be used to test for the presence of a header
-   --  before setting its value.
-   procedure Set_Date_Header (Request  : in out Client;
-                              Name     : in String;
-                              Date     : in Ada.Calendar.Time) is
+   --  Returns a boolean indicating whether the named response header has already
+   --  been set.
+   overriding
+   function Contains_Header (Request : in Client;
+                             Name    : in String) return Boolean is
    begin
-      null;
-   end Set_Date_Header;
+      return Request.Delegate.Contains_Header (Name);
+   end Contains_Header;
 
-   --  Adds a header with the given name and date-value. The date is specified
-   --  in terms of milliseconds since the epoch. This method allows response headers
-   --  to have multiple values.
-   procedure Add_Date_Header (Request : in out Client;
-                              Name    : in String;
-                              Date    : in Ada.Calendar.Time) is
+   --  Returns the value of the specified request header as a String. If the request
+   --  did not include a header of the specified name, this method returns null.
+   --  If there are multiple headers with the same name, this method returns the
+   --  first head in the request. The header name is case insensitive. You can use
+   --  this method with any response header.
+   overriding
+   function Get_Header (Request : in Client;
+                        Name    : in String) return String is
    begin
-      null;
-   end Add_Date_Header;
+      return Request.Delegate.Get_Header (Name);
+   end Get_Header;
 
    --  Sets a header with the given name and value. If the header had already
    --  been set, the new value overwrites the previous one. The containsHeader
    --  method can be used to test for the presence of a header before setting its value.
---     procedure Set_Header (Request  : in out Client;
---                           Name     : in String;
---                           Value    : in String) is
---     begin
---        null;
---     end Set_Header;
+   overriding
+   procedure Set_Header (Request  : in out Client;
+                         Name     : in String;
+                         Value    : in String) is
+   begin
+      Request.Delegate.Set_Header (Name, Value);
+   end Set_Header;
 
    --  Adds a header with the given name and value.
    --  This method allows headers to have multiple values.
---     procedure Add_Header (Request  : in out Client;
---                           Name     : in String;
---                           Value    : in String) is
---     begin
---        null;
---     end Add_Header;
-
-   --  Sets a header with the given name and integer value.
-   --  If the header had already been set, the new value overwrites the previous one.
-   --  The containsHeader  method can be used to test for the presence of a header
-   --  before setting its value.
-   procedure Set_Int_Header (Request  : in out Client;
-                             Name     : in String;
-                             Value    : in Integer) is
+   overriding
+   procedure Add_Header (Request  : in out Client;
+                         Name     : in String;
+                         Value    : in String) is
    begin
-      null;
-   end Set_Int_Header;
+      Request.Delegate.Add_Header (Name, Value);
+   end Add_Header;
 
-   --  Adds a header with the given name and integer value. This method
-   --  allows headers to have multiple values.
-   procedure Add_Int_Header (Request  : in out Client;
-                             Name     : in String;
-                             Value    : in Integer) is
+   --  Iterate over the request headers and executes the <b>Process</b> procedure.
+   overriding
+   procedure Iterate_Headers (Request : in Client;
+                              Process : not null access
+                                procedure (Name  : in String;
+                                           Value : in String)) is
    begin
-      null;
-   end Add_Int_Header;
+      Request.Delegate.Iterate_Headers (Process);
+   end Iterate_Headers;
 
    --  Removes all headers with the given name.
    procedure Remove_Header (Request : in out Client;
@@ -139,7 +180,7 @@ package body Util.Http.Clients is
    overriding
    procedure Initialize (Http : in out Client) is
    begin
-      Http.Request  := null;
+      Http.Delegate := null;
       Http.Manager  := Default_Http_Manager;
       Http.Manager.Create (Http);
    end Initialize;
@@ -149,7 +190,7 @@ package body Util.Http.Clients is
       procedure Free is new Ada.Unchecked_Deallocation (Http_Request'Class,
                                                         Http_Request_Access);
    begin
-      Free (Http.Request);
+      Free (Http.Delegate);
    end Finalize;
 
    --  ------------------------------
@@ -186,39 +227,6 @@ package body Util.Http.Clients is
    end Add_Cookie;
 
    --  ------------------------------
-   --  Returns a boolean indicating whether the named request header has already
-   --  been set.
-   --  ------------------------------
-   function Contains_Header (Request : in Client;
-                             Name    : in String) return Boolean is
-   begin
-      return Request.Request.Contains_Header (Name);
-   end Contains_Header;
-
-   --  ------------------------------
-   --  Sets a request header with the given name and value. If the header had already
-   --  been set, the new value overwrites the previous one. The containsHeader
-   --  method can be used to test for the presence of a header before setting its value.
-   --  ------------------------------
-   procedure Set_Header (Request : in out Client;
-                         Name    : in String;
-                         Value   : in String) is
-   begin
-      Request.Request.Set_Header (Name, Value);
-   end Set_Header;
-
-   --  ------------------------------
-   --  Adds a request header with the given name and value.
-   --  This method allows request headers to have multiple values.
-   --  ------------------------------
-   procedure Add_Header (Request : in out Client;
-                         Name    : in String;
-                         Value   : in String) is
-   begin
-      Request.Request.Add_Header (Name, Value);
-   end Add_Header;
-
-   --  ------------------------------
    --  Free the resource used by the response.
    --  ------------------------------
    overriding
@@ -226,7 +234,7 @@ package body Util.Http.Clients is
       procedure Free is new Ada.Unchecked_Deallocation (Http_Response'Class,
                                                         Http_Response_Access);
    begin
-      Free (Reply.Data);
+      Free (Reply.Delegate);
    end Finalize;
 
 end Util.Http.Clients;
