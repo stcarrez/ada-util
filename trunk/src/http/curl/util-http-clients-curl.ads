@@ -31,6 +31,9 @@ private
    package C renames Interfaces.C;
    package Strings renames Interfaces.C.Strings;
 
+   use type C.size_t;
+   use type C.int;
+
    --  Define 'Int' and 'Chars_Ptr' with capitals to avoid GNAT warnings due
    --  to Eclipse capitalization.
    subtype Int is C.int;
@@ -256,5 +259,10 @@ private
                                    Option : in Curl_Option;
                                    Value  : in Curl_Http_Response_Access) return CURL_Code;
    pragma Import (C, Curl_Easy_Setopt_Data, "curl_easy_setopt");
+
+   function Read_Response (Data     : in Chars_Ptr;
+                           Size     : in Size_T;
+                           Nmemb    : in Size_T;
+                           Response : in Curl_Http_Response_Access) return Size_T;
 
 end Util.Http.Clients.Curl;
