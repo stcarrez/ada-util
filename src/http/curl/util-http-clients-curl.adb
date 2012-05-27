@@ -76,29 +76,23 @@ package body Util.Http.Clients.Curl is
       return Curl_Http_Request'Class (Http.Delegate.all)'Access;
    end Get_Request;
 
-   function Read_Response (Data : in Interfaces.C.Strings.Chars_Ptr;
-                           Size : in Interfaces.C.Size_T;
-                           Nmemb : in Interfaces.C.Size_T;
-                           Response : in Curl_Http_Response_Access) return Interfaces.C.Size_T;
+   --  ------------------------------
+   --  This function is called by CURL when a response line was read.
+   --  ------------------------------
+   function Read_Response (Data     : in Chars_Ptr;
+                           Size     : in Size_T;
+                           Nmemb    : in Size_T;
+                           Response : in Curl_Http_Response_Access) return Size_T is
 
-   function Read_Response (Data  : in Interfaces.C.Strings.Chars_Ptr;
-                           Size  : in Interfaces.C.Size_T;
-                           Nmemb : in Interfaces.C.Size_T;
-                           Response : in Curl_Http_Response_Access) return Interfaces.C.Size_T is
-      use type Interfaces.C.Size_T;
-
-      Total : Interfaces.C.Size_T := Size * Nmemb;
-      Ptr   : Interfaces.C.Strings.Chars_Ptr := Data;
+      Total : constant Size_T := Size * Nmemb;
       Line  : constant String := Interfaces.C.Strings.Value (Data, Total);
    begin
-      Log.Info ("Read response, size {0} - {1}", Interfaces.C.Size_T'Image (Size),
-                Interfaces.C.Size_T'Image (Nmemb));
-
       if Response.Parsing_Body then
          Ada.Strings.Unbounded.Append (Response.Content, Line);
 
       elsif Total = 2 and then Line (1) = ASCII.CR and then Line (2) = ASCII.LF then
          Response.Parsing_Body := True;
+
       else
          declare
             Pos   : constant Natural := Util.Strings.Index (Line, ':');
@@ -171,7 +165,6 @@ package body Util.Http.Clients.Curl is
 
    overriding
    procedure Finalize (Request : in out Curl_Http_Request) is
-      use type System.Address;
    begin
       if Request.Data /= System.Null_Address then
          Curl_Easy_Cleanup (Request.Data);
@@ -283,8 +276,18 @@ package body Util.Http.Clients.Curl is
    procedure Add_Header (Reply   : in out Curl_Http_Response;
                          Name    : in String;
                          Value   : in String) is
+
+      Pos : constant Util.Strings.Maps.Cursor := Reply.Headers.Find (Name);
    begin
-      Reply.Headers.Include (Name, Value);
+      if Util.Strings.Maps.Has_Element (Pos) then
+         declare
+            Header : constant String := Util.Strings.Maps.Element (Pos);
+         begin
+            Reply.Headers.Replace_Element (Pos, Header & ASCII.CR & ASCII.LF & Value);
+         end;
+      else
+         Reply.Headers.Include (Name, Value);
+      end if;
    end Add_Header;
 
    --  ------------------------------
