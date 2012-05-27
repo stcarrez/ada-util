@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  asf-clients-web -- HTTP Clients with AWS implementation
---  Copyright (C) 2011 Stephane Carrez
+--  util-http-clients-curl -- HTTP Clients with CURL
+--  Copyright (C) 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,8 +19,6 @@
 with System;
 with Util.Log.Loggers;
 
---  private with AWS.Headers;
---  private with AWS.Response;
 package body Util.Http.Clients.Curl is
 
    use System;
@@ -151,9 +149,9 @@ package body Util.Http.Clients.Curl is
          Curl_Easy_Cleanup (Request.Data);
          Request.Data := System.Null_Address;
       end if;
-      if Request.Headers /= System.Null_Address then
+      if Request.Headers /= null then
          Curl_Slist_Free_All (Request.Headers);
-         Request.Headers := System.Null_Address;
+         Request.Headers := null;
       end if;
       Interfaces.C.Strings.Free (Request.URL);
    end Finalize;
@@ -258,7 +256,10 @@ package body Util.Http.Clients.Curl is
       null;
    end Iterate_Headers;
 
+   --  ------------------------------
    --  Get the response body as a string.
+   --  ------------------------------
+   overriding
    function Get_Body (Reply : in Curl_Http_Response) return String is
    begin
       return Ada.Strings.Unbounded.To_String (Reply.Content);

@@ -89,15 +89,22 @@ package body Util.Http.Clients is
                                 procedure (Name  : in String;
                                            Value : in String)) is
    begin
-      Reply.Delegate.Iterate_Headers (Process);
+      if Reply.Delegate /= null then
+         Reply.Delegate.Iterate_Headers (Process);
+      end if;
    end Iterate_Headers;
 
    --  ------------------------------
    --  Get the response body as a string.
    --  ------------------------------
+   overriding
    function Get_Body (Reply : in Response) return String is
    begin
-      return "";  --  Reply.Delegate.Get_Body;
+      if Reply.Delegate = null then
+         return "";
+      else
+         return Reply.Delegate.Get_Body;
+      end if;
    end Get_Body;
 
    --  ------------------------------

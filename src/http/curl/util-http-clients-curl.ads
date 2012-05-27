@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  asf-clients-web -- HTTP Clients with AWS implementation
---  Copyright (C) 2011 Stephane Carrez
+--  util-http-clients-curl -- HTTP Clients with CURL
+--  Copyright (C) 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,8 +33,6 @@ private
 
    subtype CURL is System.Address;
 
-   subtype CURL_List is System.Address;
-
    type CURL_Code is new Interfaces.C.int;
 
    CURLE_OK               : constant CURL_Code := 0;
@@ -54,6 +52,14 @@ private
    CURLOPT_HTTPAUTH       : constant Curl_Option := 107;
    CURLOPT_MAXFILESIZE    : constant Curl_Option := 114;
    CURLOPT_WRITEDATA      : constant Curl_Option := 10001;
+
+   type CURL_Slist;
+   type CURL_Slist_Access is access CURL_Slist;
+
+   type CURL_Slist is record
+      Data : Strings.Chars_Ptr;
+      Next : CURL_Slist_Access;
+   end record;
 
    --  Check the CURL result code and report and exception and a log message if
    --  the CURL code indicates an error.
@@ -81,7 +87,7 @@ private
    type Curl_Http_Request is new Ada.Finalization.Limited_Controlled and Http_Request with record
       Data    : CURL := System.Null_Address;
       URL     : Interfaces.C.Strings.Chars_Ptr := Interfaces.C.Strings.Null_Ptr;
-      Headers : CURL_List := System.Null_Address;
+      Headers : CURL_Slist_Access := null;
    end record;
    type Curl_Http_Request_Access is access all Curl_Http_Request'Class;
 
@@ -129,6 +135,7 @@ private
       C : CURL;
       Content : Ada.Strings.Unbounded.Unbounded_String;
       Status  : Natural;
+      Headers : CURL_Slist_Access := null;
    end record;
    type Curl_Http_Response_Access is access all Curl_Http_Response'Class;
 
@@ -170,6 +177,7 @@ private
                                            Value : in String));
 
    --  Get the response body as a string.
+   overriding
    function Get_Body (Reply : in Curl_Http_Response) return String;
 
    --  Get the response status code.
@@ -177,12 +185,12 @@ private
    function Get_Status (Reply : in Curl_Http_Response) return Natural;
 
    --  Add a string to a CURL slist.
-   function Curl_Slist_Append (List  : in CURL_List;
-                               Value : in Interfaces.C.Strings.Chars_Ptr) return CURL_List;
+   function Curl_Slist_Append (List  : in CURL_Slist_Access;
+                               Value : in Interfaces.C.Strings.Chars_Ptr) return CURL_Slist_Access;
    pragma Import (C, Curl_Slist_Append, "curl_slist_append");
 
    --  Free an entrire CURL slist.
-   procedure Curl_Slist_Free_All (List : in CURL_List);
+   procedure Curl_Slist_Free_All (List : in CURL_Slist_Access);
    pragma Import (C, Curl_Slist_Free_All, "curl_slist_free_all");
 
    --  Start a libcurl easy session.

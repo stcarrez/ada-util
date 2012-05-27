@@ -68,6 +68,7 @@ package Util.Http.Clients is
                                            Value : in String));
 
    --  Get the response body as a string.
+   overriding
    function Get_Body (Reply : in Response) return String;
 
    --  Get the response status code.
@@ -172,7 +173,6 @@ private
 
    type Response is new Ada.Finalization.Limited_Controlled and Abstract_Response with record
       Delegate : Abstract_Response_Access;
-      Status   : Natural := 0;
    end record;
 
    --  Free the resource used by the response.
