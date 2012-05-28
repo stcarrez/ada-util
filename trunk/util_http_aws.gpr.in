@@ -1,0 +1,36 @@
+with "config";
+with "util";
+@WITH_SERVER@
+
+project Util_Http_Aws is
+   Version     := Util.Version;
+   Library_Dir := Util.Library_Dir;
+
+   Has_Aws     : Config.Yes_No := "@UTIL_HAVE_AWS@";
+   
+   Library_Type : Config.Library_Type_Type := external ("LIBRARY_TYPE", "static");
+
+   for Source_Dirs use ();
+
+   case Has_Aws is
+      when "yes" =>
+         for Source_Dirs use Project'Source_Dirs & ("src/http/aws");
+	    
+      when "no" =>
+         null;
+	    
+   end case;
+   
+   for Library_Name use "ada-util-aws";
+   for Library_Kind use Library_Type;
+   for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
+
+   for Library_Dir use "lib/util-aws/" & Project'Library_Kind;
+   for Object_Dir use "obj/util-aws/" & Project'Library_Kind;
+
+   package Builder  renames Config.Builder;
+   package Compiler renames Config.Compiler;
+   package Binder   renames Config.Binder;
+   package Ide      renames Config.Ide;
+
+end Util_Http_Aws;
