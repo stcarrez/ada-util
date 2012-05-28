@@ -17,13 +17,22 @@
 -----------------------------------------------------------------------
 
 with Util.Tests;
-
 package Util.Http.Clients.Tests is
 
    type Test is new Util.Tests.Test with null record;
 
    --  Test the http Get operation.
    procedure Test_Http_Get (T : in out Test);
+
+   --  Test the http POST operation.
+   procedure Test_Http_Post (T : in out Test);
+
+   overriding
+   procedure Set_Up (T : in out Test);
+
+   overriding
+   procedure Tear_Down (T : in out Test);
+
 
    --  The <b>Http_Tests</b> package must be instantiated with one of the HTTP implementation.
    --  The <b>Register</b> procedure configures the Http.Client to use the given HTTP
