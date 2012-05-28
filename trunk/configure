@@ -561,7 +561,12 @@ UTIL_AHVEN_OS_DIR
 UTIL_AHVEN_DIR
 UTIL_AUNIT_DIR
 WITH_AUNIT
-UTIL_HAS_CURL
+WITH_UTIL_CURL
+UTIL_HAVE_CURL
+WITH_SERVER
+WITH_UTIL_AWS
+UTIL_HAVE_AWS
+AWS_DIR
 UTIL_GNAT_TRACEBACK
 BUILDS_SHARED
 UTIL_HAVE_XML
@@ -647,6 +652,7 @@ enable_shared
 enable_traceback
 enable_ahven
 enable_aunit
+with_aws
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1278,6 +1284,8 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-xmlada=          Enable XML serialization
+  --with-aws=x            Path for the Ada Web Server library
+                          (http://libre.adacore.com/libre/tools/aws/)
 
 Some influential environment variables:
   CC          C compiler command
@@ -3146,7 +3154,8 @@ if test x$ac_enable_ahven = 'xyes'; then
   esac
 fi
 
-UTIL_HAS_CURL=no
+UTIL_HAVE_CURL=no
+WITH_UTIL_CURL=""
 UTIL_CURL_LIB=curl
 
 as_ac_Lib=`$as_echo "ac_cv_lib_$UTIL_CURL_LIB''_curl_easy_perform" | $as_tr_sh`
@@ -3190,11 +3199,64 @@ $as_echo "$ac_res" >&6; }
 eval as_val=\$$as_ac_Lib
    if test "x$as_val" = x""yes; then :
 
-UTIL_HAS_CURL=yes
+   UTIL_HAVE_CURL=yes
+   WITH_UTIL_CURL="with \"util_http_curl\";";
 
 fi
 
 
+##########################################
+# Ada Web Server
+##########################################
+
+ASF_SERVER=aws
+UTIL_HAVE_AWS=no
+WITH_SERVER=
+WITH_UTIL_AWS=
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Ada Web Server library (http://libre.adacore.com/libre/tools/aws/)" >&5
+$as_echo_n "checking Ada Web Server library (http://libre.adacore.com/libre/tools/aws/)... " >&6; }
+
+# Check whether --with-aws was given.
+if test "${with_aws+set}" = set; then :
+  withval=$with_aws;
+  WITH_SERVER="with \"${withval}\";";
+  AWS_DIR=${withval}/
+
+else
+
+  echo "with \"aws\"; project t is for Source_Dirs use (); end t;" > t.gpr
+  gnatmake -p -Pt >/dev/null 2>/dev/null
+  if test $? -eq 0; then
+    AWS_DIR=
+    UTIL_HAVE_AWS=no
+    WITH_SERVER="";
+    WITH_UTIL_AWS="";
+  else
+    AWS_DIR=../aws/
+    UTIL_HAVE_AWS=yes
+    WITH_SERVER="with \"aws\";";
+  fi;
+  rm -f t.gpr
+
+fi
+
+echo "with \"${AWS_DIR}aws\"; project t is for Source_Dirs use (); end t;" > t.gpr
+gnatmake -p -Pt >/dev/null 2>/dev/null
+if test $? -ne 0 ; then
+   rm -f t.gpr
+   # AC_MSG_ERROR([Ada Web Server not found in ${AWS_DIR}])
+   AWS_DIR=
+   WITH_SERVER="";
+   WITH_UTIL_AWS="";
+   UTIL_HAVE_AWS=no
+else
+   WITH_SERVER="with \"${AWS_DIR}aws\";";
+   WITH_UTIL_AWS="with \"util_http_aws\";";
+   UTIL_HAVE_AWS=yes
+fi
+rm -f t.gpr
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${AWS_DIR}" >&5
+$as_echo "${AWS_DIR}" >&6; }
 
 
 
@@ -3202,7 +3264,13 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile util.gpr util_http.gpr config.gpr testutil.gpr distrib/testutil.gpr distrib/util.gpr distrib/util_http.gpr"
+
+
+
+
+
+
+ac_config_files="$ac_config_files Makefile util.gpr util_http.gpr config.gpr testutil.gpr util_http_curl.gpr util_http_aws.gpr distrib/testutil.gpr distrib/util.gpr distrib/util_http.gpr distrib/util_http_curl.gpr distrib/util_http_aws.gpr"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -3908,9 +3976,13 @@ do
     "util_http.gpr") CONFIG_FILES="$CONFIG_FILES util_http.gpr" ;;
     "config.gpr") CONFIG_FILES="$CONFIG_FILES config.gpr" ;;
     "testutil.gpr") CONFIG_FILES="$CONFIG_FILES testutil.gpr" ;;
+    "util_http_curl.gpr") CONFIG_FILES="$CONFIG_FILES util_http_curl.gpr" ;;
+    "util_http_aws.gpr") CONFIG_FILES="$CONFIG_FILES util_http_aws.gpr" ;;
     "distrib/testutil.gpr") CONFIG_FILES="$CONFIG_FILES distrib/testutil.gpr" ;;
     "distrib/util.gpr") CONFIG_FILES="$CONFIG_FILES distrib/util.gpr" ;;
     "distrib/util_http.gpr") CONFIG_FILES="$CONFIG_FILES distrib/util_http.gpr" ;;
+    "distrib/util_http_curl.gpr") CONFIG_FILES="$CONFIG_FILES distrib/util_http_curl.gpr" ;;
+    "distrib/util_http_aws.gpr") CONFIG_FILES="$CONFIG_FILES distrib/util_http_aws.gpr" ;;
 
   *) as_fn_error "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
