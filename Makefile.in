@@ -87,7 +87,8 @@ test:	build regtests/util-testsuite.adb
 	-bin/util_harness -xml util-aunit.xml
 
 regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile
-	gnatprep -DHAVE_XML=$(HAVE_XML) regtests/util-testsuite.gpb $@
+	gnatprep -DHAVE_XML=$(HAVE_XML) -DHAVE_CURL=$(HAVE_CURL) \
+                 -DHAVE_AWS=$(HAVE_AWS) regtests/util-testsuite.gpb $@
 
 # Not intended for manual invocation.
 # Invoked if automatic builds are enabled.
