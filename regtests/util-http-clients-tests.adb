@@ -20,23 +20,25 @@ with Util.Test_Caller;
 
 with Util.Strings.Transforms;
 with Util.Http.Tools;
-with Util.Http.Clients.Curl;
 package body Util.Http.Clients.Tests is
 
-   package Caller is new Util.Test_Caller (Test, "Http");
+   package body Http_Tests is
+      package Caller is new Util.Test_Caller (Http_Test, "Http-" & NAME);
 
-   procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
-   begin
-      Caller.Add_Test (Suite, "Test Util.Http.Clients.Get",
-                       Test_Http_Get'Access);
-   end Add_Tests;
+      procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
+      begin
+         Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Get",
+                          Test_Http_Get'Access);
+      end Add_Tests;
 
-   overriding
-   procedure Set_Up (T : in out Test) is
-      pragma Unreferenced (T);
-   begin
-      Util.Http.Clients.Curl.Register;
-   end Set_Up;
+      overriding
+      procedure Set_Up (T : in out Http_Test) is
+         pragma Unreferenced (T);
+      begin
+         Register;
+      end Set_Up;
+
+   end Http_Tests;
 
    --  ------------------------------
    --  Test the http Get operation.
