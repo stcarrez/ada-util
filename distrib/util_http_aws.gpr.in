@@ -1,0 +1,13 @@
+with "util";
+
+project Util_Http_Aws is
+   Version := "@UTIL_VERSION@";
+
+   for Library_Name use "ada-util-aws";
+   for Library_Dir use "INSTALL/lib";
+   for Library_Kind use "LIBRARY_TYPE";
+
+   for Source_Dirs use ("INSTALL/share/ada/adainclude/util/http/aws");
+   for Library_ALI_Dir use "INSTALL/lib/ada/adalib/util/" & Project'Library_Kind & "/http/aws";
+   for Externally_Built use "true";
+end Util_Http_Aws;

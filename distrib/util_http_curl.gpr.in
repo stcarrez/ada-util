@@ -1,0 +1,13 @@
+with "util";
+
+project Util_Http_Curl is
+   Version := "@UTIL_VERSION@";
+
+   for Library_Name use "ada-util-curl";
+   for Library_Dir use "INSTALL/lib";
+   for Library_Kind use "LIBRARY_TYPE";
+
+   for Source_Dirs use ("INSTALL/share/ada/adainclude/util/http/curl");
+   for Library_ALI_Dir use "INSTALL/lib/ada/adalib/util/" & Project'Library_Kind & "/http/curl";
+   for Externally_Built use "true";
+end Util_Http_Curl;
