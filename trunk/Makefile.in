@@ -199,18 +199,18 @@ install_lib:
 	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/util.gpr > ${projectdir}/util.gpr
 	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/testutil.gpr > ${projectdir}/testutil.gpr
 	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/util_http.gpr > ${projectdir}/util_http.gpr
-	test T${HAVE_CURL} = T || \
+	test T${HAVE_CURL} = Tno || \
 	     sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
 		 < distrib/util_http_curl.gpr > ${projectdir}/util_http_curl.gpr
-	test T${HAVE_AWS} = T || \
+	test T${HAVE_AWS} = Tno || \
 	     sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
 		 < distrib/util_http_aws.gpr > ${projectdir}/util_http_aws.gpr
-	test T${HAVE_CURL} = T || \
+	test T${HAVE_CURL} = Tno || \
 	  (${MKDIR} -p ${includedir}/util/http/curl && \
            ${MKDIR} -p ${alidir}/util/$(LIBRARY_TYPE)/http/curl && \
 	   ${CP} -p src/http/curl/*.ad[bs] ${includedir}/util/http/curl && \
 	   ${CP} -p lib/util-curl/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)/http/curl)
-	test T${HAVE_AWS} = T || \
+	test T${HAVE_AWS} = Tno || \
 	  (${MKDIR} -p ${includedir}/util/http/aws && \
            ${MKDIR} -p ${alidir}/util/$(LIBRARY_TYPE)/http/aws && \
 	   ${CP} -p src/http/aws/*.ad[bs] ${includedir}/util/http/curl && \
