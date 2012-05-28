@@ -97,6 +97,12 @@ package Util.Processes is
    --  Wait for the process to terminate.
    procedure Wait (Proc : in out Process);
 
+   --  Terminate the process by sending a signal on Unix and exiting the process on Windows.
+   --  This operation is not portable and has a different behavior between Unix and Windows.
+   --  Its intent is to stop the process.
+   procedure Stop (Proc   : in out Process;
+                   Signal : in Positive := 15);
+
    --  Get the process exit status.
    function Get_Exit_Status (Proc : in Process) return Integer;
 
@@ -151,6 +157,13 @@ private
    procedure Wait (Sys     : in out System_Process;
                    Proc    : in out Process'Class;
                    Timeout : in Duration) is abstract;
+
+   --  Terminate the process by sending a signal on Unix and exiting the process on Windows.
+   --  This operation is not portable and has a different behavior between Unix and Windows.
+   --  Its intent is to stop the process.
+   procedure Stop (Sys    : in out System_Process;
+                   Proc   : in out Process'Class;
+                   Signal : in Positive := 15) is abstract;
 
    --  Spawn a new process.
    procedure Spawn (Sys  : in out System_Process;
