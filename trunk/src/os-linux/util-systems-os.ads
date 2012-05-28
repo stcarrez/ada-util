@@ -121,4 +121,8 @@ package Util.Systems.Os is
                        Flags : in Integer) return Integer;
    pragma Import (C, Sys_Fcntl, "fcntl");
 
+   function Sys_Kill (Pid : in Integer;
+                      Signal : in Integer) return Integer;
+   pragma Import (C, Sys_Kill, "kill");
+
 end Util.Systems.Os;

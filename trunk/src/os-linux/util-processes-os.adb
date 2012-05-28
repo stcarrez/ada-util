@@ -70,6 +70,21 @@ package body Util.Processes.Os is
    end Wait;
 
    --  ------------------------------
+   --  Terminate the process by sending a signal on Unix and exiting the process on Windows.
+   --  This operation is not portable and has a different behavior between Unix and Windows.
+   --  Its intent is to stop the process.
+   --  ------------------------------
+   overriding
+   procedure Stop (Sys    : in out System_Process;
+                   Proc   : in out Process'Class;
+                   Signal : in Positive := 15) is
+      pragma Unreferenced (Sys);
+      Result : Integer;
+   begin
+      Result := Sys_Kill (Integer (Proc.Pid), Integer (Signal));
+   end Stop;
+
+   --  ------------------------------
    --  Close both ends of the pipe (used to cleanup in case or error).
    --  ------------------------------
    procedure Close (Pipes : in out Pipe_Type) is
