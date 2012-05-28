@@ -200,6 +200,19 @@ package body Util.Processes is
    end Wait;
 
    --  ------------------------------
+   --  Terminate the process by sending a signal on Unix and exiting the process on Windows.
+   --  This operation is not portable and has a different behavior between Unix and Windows.
+   --  Its intent is to stop the process.
+   --  ------------------------------
+   procedure Stop (Proc   : in out Process;
+                   Signal : in Positive := 15) is
+   begin
+      if Is_Running (Proc) then
+         Proc.Sys.Stop (Proc, Signal);
+      end if;
+   end Stop;
+
+   --  ------------------------------
    --  Get the process exit status.
    --  ------------------------------
    function Get_Exit_Status (Proc : in Process) return Integer is
