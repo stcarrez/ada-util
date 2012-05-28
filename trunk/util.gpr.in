@@ -51,7 +51,7 @@ project Util is
       end case;
    end Naming;
 
-   for Source_Dirs use ("src", Asm_Src_Dir, Xml_Src_Dir, Os_Src_Dir);
+   for Source_Dirs use ("src", "src/http", Asm_Src_Dir, Xml_Src_Dir, Os_Src_Dir);
 
    for Library_Name use "adautil";
    for Library_Kind use Library_Type;
