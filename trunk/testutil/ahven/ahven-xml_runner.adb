@@ -83,6 +83,9 @@ package body Ahven.XML_Runner is
          elsif Str (I) = '&' then
             Result (Pos .. Pos + 5 - 1) := "&amp;";
             Pos := Pos + 5;
+         elsif Str (I) = '"' then
+            Result (Pos) := ''';
+            Pos := Pos + 1;
          else
             Result (Pos) := Str (I);
             Pos := Pos + 1;
