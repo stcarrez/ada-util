@@ -108,6 +108,8 @@ clean:	clean_test
 	-$(GNATCLEAN) -q -Ptests
 	-$(GNATCLEAN) -q -Psamples
 	-rm -f lib/util/*.a lib/util/*.$(DLLEXT)
+	-rm -f lib/util-curl/*/*.a lib/util-curl/*/*.$(DLLEXT)
+	-rm -f lib/util-aws/*/*.a lib/util-aws/*/*.$(DLLEXT)
 	-rm -f lib/testutil/*.a lib/testutil/*.$(DLLEXT)
 
 # Clean the files produced by the unit tests
@@ -137,6 +139,7 @@ DISTFILES=README LICENSE.txt LICENSE.Ahven NOTICE.txt NEWS CHANGES ChangeLog \
 config.guess configure config.sub \
 configure.in Makefile.in install-sh \
 util.gpr.in util_http.gpr.in config.gpr.in testutil.gpr.in tests.gpr samples.gpr \
+util_http_aws.gpr.in util_http_curl.gpr.in \
 src samples regtests testutil \
 distrib support bundles
 
@@ -196,6 +199,17 @@ install_lib:
 	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/util.gpr > ${projectdir}/util.gpr
 	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/testutil.gpr > ${projectdir}/testutil.gpr
 	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/util_http.gpr > ${projectdir}/util_http.gpr
+	test T${HAVE_CURL} = T || \
+	     sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
+		 < distrib/util_http_curl.gpr > ${projectdir}/util_http_curl.gpr
+	test T${HAVE_AWS} = T || \
+	     sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
+		 < distrib/util_http_aws.gpr > ${projectdir}/util_http_aws.gpr
+	test T${HAVE_CURL} = T || \
+	  (${MKDIR} -p ${includedir}/util/http/curl && \
+           ${MKDIR} -p ${alidir}/util/$(LIBRARY_TYPE)/http/curl && \
+	   ${CP} -p src/http/curl/*.ad[bs] ${includedir}/util/http/curl && \
+	   ${CP} -p lib/util-curl/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)/http/curl)
 	${CP} -p lib/testutil/$(LIBRARY_TYPE)/*.ali ${alidir}/testutil/$(LIBRARY_TYPE)
 	${CP} -p lib/util/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)
 	${CP} -p lib/util-http/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)/http
@@ -214,6 +228,7 @@ else
 	${LN} libadatestutil.$(LIBVER) libadatestutil.$(LIBEXT)
 endif
 
+
 install-support:
 	$(MKDIR) -p ${bindir}
 	${CP} support/*.sh ${bindir}
@@ -223,7 +238,8 @@ uninstall:
 	rm -rf ${includedir}/util ${includedir}/testutil
 	rm -rf ${alidir}/util ${alidir}/testutil
 	rm -f ${libdir}/libadautil.a
-	rm -f ${libdir}/libada-util-http.a
+	rm -f ${libdir}/libada-util-curl.a
+	rm -f ${libdir}/libada-util-aws.a
 	rm -f ${libdir}/libadatestutil.a
 	rm -f ${libdir}/libadautil.so.${version}
 	rm -f ${libdir}/libadatestutil.so.${version}
