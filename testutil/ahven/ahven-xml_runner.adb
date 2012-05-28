@@ -179,7 +179,7 @@ package body Ahven.XML_Runner is
       Put (File, "<skipped ");
 
       Print_Attribute (File, "message",
-        Trim (Get_Message (Info), Ada.Strings.Both));
+                       Filter_String (Trim (Get_Message (Info), Ada.Strings.Both)));
       Put (File, ">");
       Put_Line (File, Get_Message (Info));
       Put_Line (File, "</skipped>");
@@ -200,7 +200,7 @@ package body Ahven.XML_Runner is
 
       Put (File, "<failure ");
       Print_Attribute (File, "type",
-        Trim (Get_Message (Info), Ada.Strings.Both));
+                       Filter_String (Trim (Get_Message (Info), Ada.Strings.Both)));
       Put (File, ">");
       Put_Line (File, Get_Message (Info));
       Put_Line (File, "</failure>");
