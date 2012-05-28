@@ -184,7 +184,7 @@ package body Ahven.XML_Runner is
       Print_Attribute (File, "message",
                        Filter_String (Trim (Get_Message (Info), Ada.Strings.Both)));
       Put (File, ">");
-      Put_Line (File, Get_Message (Info));
+      Put_Line (File, Filter_String (Get_Message (Info)));
       Put_Line (File, "</skipped>");
       End_Testcase_Tag (File);
    end Print_Test_Skipped;
@@ -205,7 +205,7 @@ package body Ahven.XML_Runner is
       Print_Attribute (File, "type",
                        Filter_String (Trim (Get_Message (Info), Ada.Strings.Both)));
       Put (File, ">");
-      Put_Line (File, Get_Message (Info));
+      Put_Line (File, Filter_String (Get_Message (Info)));
       Put_Line (File, "</failure>");
       if Length (Get_Output_File (Info)) > 0 then
          Put (File, "<system-out>");
@@ -229,9 +229,9 @@ package body Ahven.XML_Runner is
 
       Put (File, "<error ");
       Print_Attribute (File, "type",
-        Trim (Get_Message (Info), Ada.Strings.Both));
+                       Filter_String (Trim (Get_Message (Info), Ada.Strings.Both)));
       Put (File, ">");
-      Put_Line (File, Get_Message (Info));
+      Put_Line (File, Filter_String (Get_Message (Info)));
       Put_Line (File, "</error>");
       if Length (Get_Output_File (Info)) > 0 then
          Put (File, "<system-out>");
