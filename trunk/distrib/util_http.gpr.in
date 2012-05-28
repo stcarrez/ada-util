@@ -1,13 +1,11 @@
 with "util";
+@WITH_UTIL_CURL@
+@WITH_UTIL_AWS@
 
-project Util_Http is
+abstract project Util_Http is
    Version := "@UTIL_VERSION@";
 
-   for Library_Name use "ada-util-http";
-   for Library_Dir use "INSTALL/lib";
-   for Library_Kind use "LIBRARY_TYPE";
+   Has_Curl    : Config.Yes_No := "@UTIL_HAVE_CURL@";
+   Has_AWS     : Config.Yes_No := "@UTIL_HAVE_AWS@";
 
-   for Source_Dirs use ("INSTALL/share/ada/adainclude/util/http");
-   for Library_ALI_Dir use "INSTALL/lib/ada/adalib/util/" & Project'Library_Kind & "/http";
-   for Externally_Built use "true";
 end Util_Http;
