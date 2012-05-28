@@ -20,6 +20,8 @@ with Util.Test_Caller;
 
 with Util.Strings.Transforms;
 with Util.Http.Tools;
+with Util.Processes;
+
 package body Util.Http.Clients.Tests is
 
    package body Http_Tests is
@@ -29,6 +31,8 @@ package body Util.Http.Clients.Tests is
       begin
          Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Get",
                           Test_Http_Get'Access);
+         Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Post",
+                          Test_Http_Post'Access);
       end Add_Tests;
 
       overriding
@@ -39,6 +43,20 @@ package body Util.Http.Clients.Tests is
       end Set_Up;
 
    end Http_Tests;
+
+   Server : Util.Processes.Process;
+
+   overriding
+   procedure Set_Up (T : in out Test) is
+   begin
+      Util.Processes.Spawn (Server, "python support/test_server.py");
+   end Set_Up;
+
+   overriding
+   procedure Tear_Down (T : in out Test) is
+   begin
+      Util.Processes.Stop (Server, 9);
+   end Tear_Down;
 
    --  ------------------------------
    --  Test the http Get operation.
@@ -67,5 +85,17 @@ package body Util.Http.Clients.Tests is
          Util.Tests.Assert_Matches (T, ".*text/html.*", Content, "Invalid content type");
       end;
    end Test_Http_Get;
+
+   --  Test the http POST operation.
+   procedure Test_Http_Post (T : in out Test) is
+      Request : Client;
+      Reply   : Response;
+   begin
+      Request.Post ("http://localhost:8080/post",
+                    "p1=1", Reply);
+
+      Util.Tests.Assert_Equals (T, "<html><body>", Reply.Get_Body, "Invalid response");
+      Util.Http.Tools.Save_Response (Util.Tests.Get_Test_Path ("http_post.txt"), Reply, True);
+   end Test_Http_Post;
 
 end Util.Http.Clients.Tests;
