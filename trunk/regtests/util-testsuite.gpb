@@ -39,7 +39,12 @@ with Util.Serialize.IO.XML.Tests;
 with Util.Serialize.IO.CSV.Tests;
 with Util.Processes.Tests;
 with Util.Http.Cookies.Tests;
-with Util.Http.Clients.Tests;
+#if HAVE_CURL = "yes"
+with Util.Http.Clients.Curl.Tests;
+# end if;
+#if HAVE_AWS = "yes"
+with Util.Http.Clients.Web.Tests;
+# end if;
 package body Util.Testsuite is
 
    Tests : aliased Util.Tests.Test_Suite;
@@ -70,7 +75,12 @@ package body Util.Testsuite is
       Util.Serialize.IO.CSV.Tests.Add_Tests (Result);
       Util.Processes.Tests.Add_Tests (Result);
       Util.Http.Cookies.Tests.Add_Tests (Result);
-      Util.Http.Clients.Tests.Add_Tests (Result);
+#if HAVE_CURL = "yes"
+      Util.Http.Clients.Curl.Tests.Add_Tests (Result);
+#end if;
+#if HAVE_AWS = "yes"
+      Util.Http.Clients.Web.Tests.Add_Tests (Result);
+#end if;
       return Result;
    end Suite;
 
