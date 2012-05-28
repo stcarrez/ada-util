@@ -219,9 +219,9 @@ install_lib:
 	${CP} -p lib/util/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)
 	${CP} -p lib/util-http/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)/http
 ifeq ($(LIBRARY_TYPE),static)
-	test T${HAVE_AWS} = T || \
+	test T${HAVE_AWS} = Tno || \
 	   ${CP} -p lib/util-aws/$(LIBRARY_TYPE)/libada-util-aws.a ${libdir}/
-	test T${HAVE_CURL} = T || \
+	test T${HAVE_CURL} = Tno || \
 	   ${CP} -p lib/util-curl/$(LIBRARY_TYPE)/libada-util-curl.a ${libdir}/
 	${CP} -p lib/util/$(LIBRARY_TYPE)/libadautil.a ${libdir}/
 	${CP} -p lib/util-http/$(LIBRARY_TYPE)/libada-util-http.a ${libdir}/
