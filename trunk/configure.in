@@ -286,13 +286,14 @@ if test $? -ne 0 ; then
    WITH_SERVER="";
    WITH_UTIL_AWS="";
    UTIL_HAVE_AWS=no
+   AC_MSG_RESULT(Not found)
 else
    WITH_SERVER="with \"${AWS_DIR}aws\";";
    WITH_UTIL_AWS="with \"util_http_aws\";";
    UTIL_HAVE_AWS=yes
+   AC_MSG_RESULT(${AWS_DIR})
 fi
 rm -f t.gpr
-AC_MSG_RESULT(${AWS_DIR})
 AC_SUBST(AWS_DIR)
 AC_SUBST(UTIL_HAVE_AWS)
 AC_SUBST(WITH_UTIL_AWS)
