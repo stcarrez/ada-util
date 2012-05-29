@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-system-os -- Windows system operations
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -172,6 +172,11 @@ package Util.Systems.Os is
                             Startup_Info       : in Startup_Info_Access;
                             Process_Info       : in Process_Information_Access) return Integer;
    pragma Import (Stdcall, Create_Process, "CreateProcessW");
+
+   --  Terminate the windows process and all its threads.
+   function Terminate_Process (Proc : in HANDLE;
+                               Code : in DWORD) return Integer;
+   pragma Import (Stdcall, Terminate_Process, "TerminateProcess");
 
 private
 
