@@ -81,6 +81,10 @@ package Util.Http.Mockups is
    procedure Set_Status (Reply  : in out Mockup_Response;
                          Status : in Natural);
 
+   --  Set the response body.
+   procedure Set_Body (Reply   : in out Mockup_Response;
+                       Content : in String);
+
 private
 
    type Mockup_Message is new AF.Limited_Controlled and Abstract_Message with record
