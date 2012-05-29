@@ -77,6 +77,10 @@ package Util.Http.Mockups is
    overriding
    function Get_Status (Reply : in Mockup_Response) return Natural;
 
+   --  Set the response status code.
+   procedure Set_Status (Reply  : in out Mockup_Response;
+                         Status : in Natural);
+
 private
 
    type Mockup_Message is new AF.Limited_Controlled and Abstract_Message with record

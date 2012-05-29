@@ -116,4 +116,13 @@ package body Util.Http.Mockups is
       return Reply.Status;
    end Get_Status;
 
+   --  ------------------------------
+   --  Set the response status code.
+   --  ------------------------------
+   procedure Set_Status (Reply  : in out Mockup_Response;
+                         Status : in Natural) is
+   begin
+      Reply.Status := Status;
+   end Set_Status;
+
 end Util.Http.Mockups;
