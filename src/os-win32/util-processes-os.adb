@@ -69,6 +69,20 @@ package body Util.Processes.Os is
       Log.Debug ("Process exit is: {0}", Integer'Image (Proc.Exit_Value));
    end Wait;
 
+   --  ------------------------------
+   --  Terminate the process by sending a signal on Unix and exiting the process on Windows.
+   --  This operation is not portable and has a different behavior between Unix and Windows.
+   --  Its intent is to stop the process.
+   --  ------------------------------
+   overriding
+   procedure Stop (Sys    : in out System_Process;
+                   Proc   : in out Process'Class;
+                   Signal : in Positive := 15) is
+      Result : Integer;
+   begin
+      Result := Terminate_Process (Sys.Process_Info.hProcess, DWORD (Signal));
+   end Stop;
+
    --  Spawn a new process.
    overriding
    procedure Spawn (Sys  : in out System_Process;
