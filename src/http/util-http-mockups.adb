@@ -125,4 +125,13 @@ package body Util.Http.Mockups is
       Reply.Status := Status;
    end Set_Status;
 
+   --  ------------------------------
+   --  Set the response body.
+   --  ------------------------------
+   procedure Set_Body (Reply   : in out Mockup_Response;
+                       Content : in String) is
+   begin
+      Reply.Content := Ada.Strings.Unbounded.To_Unbounded_String (Content);
+   end Set_Body;
+
 end Util.Http.Mockups;
