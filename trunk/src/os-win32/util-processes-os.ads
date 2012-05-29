@@ -43,6 +43,14 @@ private package Util.Processes.Os is
                     Proc : in out Process'Class;
                     Mode : in Pipe_Mode := NONE);
 
+   --  Terminate the process by sending a signal on Unix and exiting the process on Windows.
+   --  This operation is not portable and has a different behavior between Unix and Windows.
+   --  Its intent is to stop the process.
+   overriding
+   procedure Stop (Sys    : in out System_Process;
+                   Proc   : in out Process'Class;
+                   Signal : in Positive := 15);
+
    --  Append the argument to the process argument list.
    overriding
    procedure Append_Argument (Sys : in out System_Process;
