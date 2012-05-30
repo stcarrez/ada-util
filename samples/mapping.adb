@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  mapping -- Example of serialization mappings
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,33 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Util.Log.Loggers;
+with Util.Http.Clients;
+with Util.Http.Clients.Web;
+with Util.Serialize.IO.JSON;
+
 package body Mapping is
 
    use Util.Beans.Objects;
+
+   Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Mapping");
+   
+   procedure Rest_Get (URI     : in String;
+		       Mapping : in Util.Serialize.Mappers.Mapper_Access;
+		       Into    : in Element_Type_Access) is
+      Http     : Util.Http.Clients.Client;
+      Reader   : Util.Serialize.IO.JSON.Parser;
+      Response : Util.Http.Clients.Response;
+   begin
+      Reader.Add_Mapping ("", Mapping);
+      Set_Context (Reader, Into);
+      Http.Get (URI, Response);
+      declare
+	 Content : constant String := Response.Get_Body;
+      begin
+	 Reader.Parse_String (Content);
+      end;
+   end Rest_Get;
 
    type Property_Fields is (FIELD_NAME, FIELD_VALUE);
    type Property_Access is access all Property;
@@ -64,6 +88,7 @@ package body Mapping is
                          Field : in Person_Fields;
                          Value : in Util.Beans.Objects.Object) is
    begin
+      Log.Debug ("Person field {0} - {0}", Person_Fields'Image (Field), To_String (Value));
       case Field is
          when FIELD_FIRST_NAME =>
             P.First_Name := To_Unbounded_String (Value);
@@ -73,6 +98,21 @@ package body Mapping is
 
          when FIELD_AGE =>
             P.Age := To_Integer (Value);
+
+         when FIELD_ID =>
+            P.Id := To_Long_Long_Integer (Value);
+
+         when FIELD_NAME =>
+            P.Name := To_Unbounded_String (Value);
+
+         when FIELD_USER_NAME =>
+            P.Username := To_Unbounded_String (Value);
+
+         when FIELD_GENDER =>
+            P.Gender := To_Unbounded_String (Value);
+
+         when FIELD_LINK =>
+            P.Link := To_Unbounded_String (Value);
 
       end case;
    end Set_Member;
@@ -92,6 +132,21 @@ package body Mapping is
 
          when FIELD_AGE =>
             return Util.Beans.Objects.To_Object (From.Age);
+
+         when FIELD_NAME =>
+            return Util.Beans.Objects.To_Object (From.Name);
+
+         when FIELD_USER_NAME =>
+            return Util.Beans.Objects.To_Object (From.Username);
+
+         when FIELD_LINK =>
+            return Util.Beans.Objects.To_Object (From.Link);
+
+         when FIELD_GENDER =>
+            return Util.Beans.Objects.To_Object (From.Gender);
+
+         when FIELD_ID =>
+            return Util.Beans.Objects.To_Object (From.Id);
 
       end case;
    end Get_Person_Member;
@@ -220,7 +275,6 @@ begin
    --  Person_Mapper.Add_Mapping ("@id");
    Person_Mapping.Bind (Get_Person_Member'Access);
    Person_Mapping.Add_Mapping ("address", Address_Mapping'Access, Proxy_Address'Access);
-   Person_Mapping.Add_Mapping ("name", FIELD_FIRST_NAME);
    Person_Mapping.Add_Default_Mapping;
    --  Person_Mapper.Add_Mapping ("info/*");
    --  Person_Mapper.Add_Mapping ("address/street/@number");

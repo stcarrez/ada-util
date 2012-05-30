@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  mapping -- Example of serialization mappings
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,9 +22,20 @@ with Util.Serialize.Mappers.Record_Mapper;
 with Util.Serialize.Mappers.Vector_Mapper;
 with Util.Serialize.Mappers;
 with Ada.Containers.Vectors;
+with Util.Serialize.Contexts;
 package Mapping is
 
    use Ada.Strings.Unbounded;
+   
+   generic
+      type Element_Type is private;
+      type Element_Type_Access is access all Element_Type;
+      with procedure Set_Context (Reader : in out Util.Serialize.Contexts.Context'Class;
+				  Data   : in Element_Type_Access;
+				  Release : in Boolean := False);
+   procedure Rest_Get (URI     : in String;
+		       Mapping : in Util.Serialize.Mappers.Mapper_Access;
+		       Into    : in Element_Type_Access);
 
    type Property is record
       Name     : Unbounded_String;
@@ -40,15 +51,22 @@ package Mapping is
    end record;
 
    type Person is record
+      Name       : Unbounded_String;
       First_Name : Unbounded_String;
       Last_Name  : Unbounded_String;
+      Username   : Unbounded_String;
+      Gender     : Unbounded_String;
+      Link       : Unbounded_String;
       Age        : Natural := 0;
       Addr       : Address;
+      Id         : Long_Long_Integer := 0;
    end record;
 
    type Person_Access is access all Person;
 
-   type Person_Fields is (FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_AGE);
+   type Person_Fields is (FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_AGE,
+                          FIELD_NAME, FIELD_USER_NAME, FIELD_GENDER,
+                          FIELD_LINK, FIELD_ID);
 
    --  Set the name/value pair on the current object.
    procedure Set_Member (P     : in out Person;
