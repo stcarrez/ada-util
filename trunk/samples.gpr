@@ -8,9 +8,27 @@ project Samples is
    "bundles.adb", "escape.adb", "encodes.adb", "json.adb", "popen.adb",
    "multipro.adb", "multipro_refs.adb", "xmlrd.adb", "date.adb",
    "csv_city.adb", "csv_reader.adb", "launch.adb", "gperfhash.adb",
-   "cut.adb", "wget.adb", "facebook.adb");
+   "cut.adb");
 
    for Main use Mains;
+
+   case Util_Http.Has_Curl is
+      when "yes" =>
+         for Main use Mains & ("wget.adb");
+
+      when others =>
+         null;
+
+   end case;
+
+   case Util_Http.Has_Aws is
+      when "yes" =>
+         for Main use Mains & ("facebook.adb");
+
+      when others =>
+         null;
+
+   end case;
 
    for Source_Dirs use ("samples");
 
