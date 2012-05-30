@@ -367,7 +367,7 @@ package body Util.Serialize.IO.JSON is
                   Stream.Read (Char => C1);
                   case C1 is
                      when '"' | '\' | '/' =>
-                        C := C1;
+                        null;
 
                      when 'b' =>
                         C1 := Ada.Characters.Latin_1.BS;
@@ -513,7 +513,9 @@ package body Util.Serialize.IO.JSON is
       end Peek;
 
    begin
+      Parser'Class (Handler).Start_Object ("");
       Parse (Handler);
+      Parser'Class (Handler).Finish_Object ("");
    end Parse;
 
 end Util.Serialize.IO.JSON;
