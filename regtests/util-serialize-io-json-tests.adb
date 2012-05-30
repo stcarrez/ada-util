@@ -89,6 +89,7 @@ package body Util.Serialize.IO.JSON.Tests is
       Check_Parse ("{ ""person"":23}");
       Check_Parse ("{ }");
       Check_Parse ("{""person"":""asf""}");
+      Check_Parse ("{""person"":""asf"",""age"":""2""}");
    end Test_Parser;
 
 end Util.Serialize.IO.JSON.Tests;
