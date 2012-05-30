@@ -19,28 +19,22 @@ with Util.Log.Loggers;
 with Util.Http.Clients;
 with Util.Http.Clients.Web;
 with Util.Serialize.IO.JSON;
-
+with Util.Http.Rest;
 package body Mapping is
 
    use Util.Beans.Objects;
 
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Mapping");
-   
+
    procedure Rest_Get (URI     : in String;
-		       Mapping : in Util.Serialize.Mappers.Mapper_Access;
-		       Into    : in Element_Type_Access) is
-      Http     : Util.Http.Clients.Client;
+                       Mapping : in Util.Serialize.Mappers.Mapper_Access;
+                       Into    : in Element_Type_Access) is
+      Http     : Util.Http.Rest.Client;
       Reader   : Util.Serialize.IO.JSON.Parser;
-      Response : Util.Http.Clients.Response;
    begin
       Reader.Add_Mapping ("", Mapping);
       Set_Context (Reader, Into);
-      Http.Get (URI, Response);
-      declare
-	 Content : constant String := Response.Get_Body;
-      begin
-	 Reader.Parse_String (Content);
-      end;
+      Http.Get (URI, Reader);
    end Rest_Get;
 
    type Property_Fields is (FIELD_NAME, FIELD_VALUE);
