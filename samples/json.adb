@@ -39,6 +39,7 @@ procedure Json is
 
    procedure Print (P : in Mapping.Person) is
    begin
+      Ada.Text_IO.Put_Line ("Name       : " & To_String (P.Name));
       Ada.Text_IO.Put_Line ("first_name : " & To_String (P.First_Name));
       Ada.Text_IO.Put_Line ("last_name  : " & To_String (P.Last_Name));
       Ada.Text_IO.Put_Line ("Age        : " & Natural'Image (P.Age));
@@ -61,8 +62,8 @@ begin
       return;
    end if;
 
-   Reader.Add_Mapping ("list", Mapping.Get_Person_Vector_Mapper.all'Access);
-   Reader.Add_Mapping ("person", Mapping.Get_Person_Mapper.all'Access);
+   Reader.Add_Mapping ("/list", Mapping.Get_Person_Vector_Mapper.all'Access);
+   Reader.Add_Mapping ("/person", Mapping.Get_Person_Mapper.all'Access);
    for I in 1 .. Count loop
       declare
          S    : constant String := Ada.Command_Line.Argument (I);
