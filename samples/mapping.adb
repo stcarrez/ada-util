@@ -16,26 +16,11 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Log.Loggers;
-with Util.Http.Clients;
-with Util.Http.Clients.Web;
-with Util.Serialize.IO.JSON;
-with Util.Http.Rest;
 package body Mapping is
 
    use Util.Beans.Objects;
 
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Mapping");
-
-   procedure Rest_Get (URI     : in String;
-                       Mapping : in Util.Serialize.Mappers.Mapper_Access;
-                       Into    : in Element_Type_Access) is
-      Http     : Util.Http.Rest.Client;
-      Reader   : Util.Serialize.IO.JSON.Parser;
-   begin
-      Reader.Add_Mapping ("", Mapping);
-      Set_Context (Reader, Into);
-      Http.Get (URI, Reader);
-   end Rest_Get;
 
    type Property_Fields is (FIELD_NAME, FIELD_VALUE);
    type Property_Access is access all Property;
