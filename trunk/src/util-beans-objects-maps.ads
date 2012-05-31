@@ -39,6 +39,10 @@ package Util.Beans.Objects.Maps is
    procedure Include (Container : in out Map;
                       Key : in String;
                       New_Item : in Object) renames Maps.Include;
+   procedure Query_Element (Position : in Cursor;
+                            Process  : not null access procedure (Key     : String;
+                                                                  Element : Object))
+                            renames Maps.Query_Element;
 
    function Has_Element (Position : Cursor) return Boolean renames Maps.Has_Element;
    function Element (Position : Cursor) return Object renames Maps.Element;
