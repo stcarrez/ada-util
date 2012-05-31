@@ -23,6 +23,7 @@ with Util.Strings;
 with Util.Beans.Objects;
 with Util.Http.Clients;
 with Util.Http.Clients.Web;
+with Util.Http.Rest;
 with Util.Serialize.IO.JSON;
 
 with Mapping;
@@ -43,6 +44,8 @@ procedure Facebook is
       Ada.Text_IO.Put_Line ("Gender     : " & To_String (P.Gender));
       Ada.Text_IO.Put_Line ("Link       : " & To_String (P.Link));
    end Print;
+
+   procedure Get_User is new Util.Http.Rest.Rest_Get (Mapping.Person_Mapper);
 
    Count : constant Natural := Ada.Command_Line.Argument_Count;
 
@@ -66,13 +69,11 @@ begin
       declare
          URI      : constant String := Ada.Command_Line.Argument (I);
          P        : aliased Mapping.Person;
-	 
-	 procedure Get_User is
-	    new Mapping.Rest_Get (Mapping.Person, Mapping.Person_Access,
-				  Mapping.Person_Mapper.Set_Context);
       begin
-	 Get_User ("https://graph.facebook.com/" & URI, Person_Mapping'Unchecked_Access, P'Unchecked_Access);
-	 Print (P);
+         Get_User ("https://graph.facebook.com/" & URI,
+                   Person_Mapping'Unchecked_Access,
+                   P'Unchecked_Access);
+         Print (P);
       end;
    end loop;
 end Facebook;
