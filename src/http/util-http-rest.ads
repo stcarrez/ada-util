@@ -18,6 +18,7 @@
 
 with Util.Serialize.IO;
 with Util.Http.Clients;
+with Util.Serialize.Mappers.Record_Mapper;
 
 --  The <b>Util.Http.Rest</b> package defines a REST client type which helps in writing
 --  REST client APIs.  A REST client is similar to an HTTP client but it provides additional
@@ -35,6 +36,17 @@ package Util.Http.Rest is
    procedure Get (Http   : in out Client;
                   URI    : in String;
                   Parser : in out Util.Serialize.IO.Parser'Class);
+
+   --  Execute an HTTP GET operation on the given <b>URI</b> and parse the JSON response
+   --  into the target object refered to by <b>Into</b> by using the mapping described
+   --  in <b>Mapping</b>.
+   generic
+      --  Package that maps the element into a record.
+      with package Element_Mapper is
+        new Util.Serialize.Mappers.Record_Mapper (<>);
+   procedure Rest_Get (URI     : in String;
+                       Mapping : in Util.Serialize.Mappers.Mapper_Access;
+                       Into    : in Element_Mapper.Element_Type_Access);
 
 private
 

@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Util.Serialize.IO.JSON;
 package body Util.Http.Rest is
 
    --  -----------------------
@@ -37,5 +38,21 @@ package body Util.Http.Rest is
          Parser.Parse_String (Content);
       end;
    end Get;
+
+   --  -----------------------
+   --  Execute an HTTP GET operation on the given <b>URI</b> and parse the JSON response
+   --  into the target object refered to by <b>Into</b> by using the mapping described
+   --  in <b>Mapping</b>.
+   --  -----------------------
+   procedure Rest_Get (URI     : in String;
+                       Mapping : in Util.Serialize.Mappers.Mapper_Access;
+                       Into    : in Element_Mapper.Element_Type_Access) is
+      Http     : Util.Http.Rest.Client;
+      Reader   : Util.Serialize.IO.JSON.Parser;
+   begin
+      Reader.Add_Mapping ("", Mapping.all'Access);
+      Element_Mapper.Set_Context (Reader, Into);
+      Http.Get (URI, Reader);
+   end Rest_Get;
 
 end Util.Http.Rest;
