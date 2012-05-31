@@ -26,16 +26,6 @@ with Util.Serialize.Contexts;
 package Mapping is
 
    use Ada.Strings.Unbounded;
-   
-   generic
-      type Element_Type is private;
-      type Element_Type_Access is access all Element_Type;
-      with procedure Set_Context (Reader : in out Util.Serialize.Contexts.Context'Class;
-				  Data   : in Element_Type_Access;
-				  Release : in Boolean := False);
-   procedure Rest_Get (URI     : in String;
-		       Mapping : in Util.Serialize.Mappers.Mapper_Access;
-		       Into    : in Element_Type_Access);
 
    type Property is record
       Name     : Unbounded_String;
