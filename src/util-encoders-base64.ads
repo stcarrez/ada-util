@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base64 -- Encode/Decode a stream in Base64
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,6 +50,15 @@ package Util.Encoders.Base64 is
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset);
 
+   --  Set the encoder to use the base64 URL alphabet when <b>Mode</b> is True.
+   --  The URL alphabet uses the '-' and '_' instead of the '+' and '/' characters.
+   procedure Set_URL_Mode (E    : in out Encoder;
+                           Mode : in Boolean);
+
+   --  Create a base64 encoder using the URL alphabet.
+   --  The URL alphabet uses the '-' and '_' instead of the '+' and '/' characters.
+   function Create_URL_Encoder return Transformer_Access;
+
    --  ------------------------------
    --  Base64 decoder
    --  ------------------------------
@@ -74,6 +83,15 @@ package Util.Encoders.Base64 is
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset);
+
+   --  Set the decoder to use the base64 URL alphabet when <b>Mode</b> is True.
+   --  The URL alphabet uses the '-' and '_' instead of the '+' and '/' characters.
+   procedure Set_URL_Mode (E    : in out Decoder;
+                           Mode : in Boolean);
+
+   --  Create a base64 decoder using the URL alphabet.
+   --  The URL alphabet uses the '-' and '_' instead of the '+' and '/' characters.
+   function Create_URL_Decoder return Transformer_Access;
 
 private
 
@@ -116,7 +134,7 @@ private
       Character'Pos ('w'), Character'Pos ('x'), Character'Pos ('y'), Character'Pos ('z'),
       Character'Pos ('0'), Character'Pos ('1'), Character'Pos ('2'), Character'Pos ('3'),
       Character'Pos ('4'), Character'Pos ('5'), Character'Pos ('6'), Character'Pos ('7'),
-      Character'Pos ('8'), Character'Pos ('9'), Character'Pos ('+'), Character'Pos ('/'));
+      Character'Pos ('8'), Character'Pos ('9'), Character'Pos ('-'), Character'Pos ('_'));
 
    type Encoder is new Util.Encoders.Transformer with record
       Alphabet : Alphabet_Access := BASE64_ALPHABET'Access;
@@ -179,7 +197,7 @@ private
       Character'Pos ('e') => 30, Character'Pos ('f') => 31,
       Character'Pos ('g') => 32, Character'Pos ('h') => 33,
       Character'Pos ('i') => 34, Character'Pos ('j') => 35,
-      Character'Pos ('k') => 35, Character'Pos ('l') => 37,
+      Character'Pos ('k') => 36, Character'Pos ('l') => 37,
       Character'Pos ('m') => 38, Character'Pos ('n') => 39,
       Character'Pos ('o') => 40, Character'Pos ('p') => 41,
       Character'Pos ('q') => 42, Character'Pos ('r') => 43,

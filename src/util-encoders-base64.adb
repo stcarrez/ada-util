@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base64 -- Encode/Decode a stream in base64adecimal
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -93,6 +93,29 @@ package body Util.Encoders.Base64 is
    end Transform;
 
    --  ------------------------------
+   --  Set the encoder to use the base64 URL alphabet when <b>Mode</b> is True.
+   --  The URL alphabet uses the '-' and '_' instead of the '+' and '/' characters.
+   --  ------------------------------
+   procedure Set_URL_Mode (E    : in out Encoder;
+                           Mode : in Boolean) is
+   begin
+      if Mode then
+         E.Alphabet := BASE64_URL_ALPHABET'Access;
+      else
+         E.Alphabet := BASE64_ALPHABET'Access;
+      end if;
+   end Set_URL_Mode;
+
+   --  ------------------------------
+   --  Create a base64 encoder using the URL alphabet.
+   --  The URL alphabet uses the '-' and '_' instead of the '+' and '/' characters.
+   --  ------------------------------
+   function Create_URL_Encoder return Transformer_Access is
+   begin
+      return new Encoder '(Alphabet => BASE64_URL_ALPHABET'Access);
+   end Create_URL_Encoder;
+
+   --  ------------------------------
    --  Decodes the base64 input stream represented by <b>Data</b> into
    --  the binary output stream <b>Into</b>.
    --
@@ -167,7 +190,7 @@ package body Util.Encoders.Base64 is
          Val2 := Values (C2);
          if (Val2 and 16#C0#) /= 0 then
             if C2 /= Character'Pos ('=') then
-               raise Encoding_Error with "Invalid character '" & Character'Val (C1) & "'";
+               raise Encoding_Error with "Invalid character '" & Character'Val (C2) & "'";
             end if;
             Encoded := I + 3;
             Last    := Pos + 1;
@@ -181,5 +204,28 @@ package body Util.Encoders.Base64 is
       Last    := Pos - 1;
       Encoded := Data'Last;
    end Transform;
+
+   --  ------------------------------
+   --  Set the decoder to use the base64 URL alphabet when <b>Mode</b> is True.
+   --  The URL alphabet uses the '-' and '_' instead of the '+' and '/' characters.
+   --  ------------------------------
+   procedure Set_URL_Mode (E    : in out Decoder;
+                           Mode : in Boolean) is
+   begin
+      if Mode then
+         E.Values := BASE64_URL_VALUES'Access;
+      else
+         E.Values := BASE64_VALUES'Access;
+      end if;
+   end Set_URL_Mode;
+
+   --  ------------------------------
+   --  Create a base64 decoder using the URL alphabet.
+   --  The URL alphabet uses the '-' and '_' instead of the '+' and '/' characters.
+   --  ------------------------------
+   function Create_URL_Decoder return Transformer_Access is
+   begin
+      return new Decoder '(Values => BASE64_URL_VALUES'Access);
+   end Create_URL_Decoder;
 
 end Util.Encoders.Base64;
