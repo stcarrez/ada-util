@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encodes-tests - Test for encoding
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,6 +46,10 @@ package body Util.Encoders.Tests is
                        Test_Base64_Encode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Decode",
                        Test_Base64_Decode'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Encode (URL)",
+                       Test_Base64_URL_Encode'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Decode (URL)",
+                       Test_Base64_URL_Decode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Benchmark",
                        Test_Base64_Benchmark'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.SHA1.Encode",
@@ -87,6 +91,27 @@ package body Util.Encoders.Tests is
       Test_Encoder (T, C);
    end Test_Base64_Decode;
 
+   procedure Test_Base64_URL_Encode (T : in out Test) is
+      C : constant Util.Encoders.Encoder := Create ("base64url");
+   begin
+      Assert_Equals (T, "YQ==", Util.Encoders.Encode (C, "a"));
+      Assert_Equals (T, "fA==", Util.Encoders.Encode (C, "|"));
+      Assert_Equals (T, "fHw=", Util.Encoders.Encode (C, "||"));
+      Assert_Equals (T, "fH5-", Util.Encoders.Encode (C, "|~~"));
+      Assert_Equals (T, "fH5_", Util.Encoders.Encode (C, "|~" & ASCII.DEL));
+   end Test_Base64_URL_Encode;
+
+   procedure Test_Base64_URL_Decode (T : in out Test) is
+      C : Util.Encoders.Encoder := Create ("base64url");
+   begin
+      Assert_Equals (T, "a", Util.Encoders.Decode (C, "YQ=="));
+      Assert_Equals (T, "|", Util.Encoders.Decode (C, "fA=="));
+      Assert_Equals (T, "||", Util.Encoders.Decode (C, "fHw="));
+      Assert_Equals (T, "|~~", Util.Encoders.Decode (C, "fH5-"));
+      Assert_Equals (T, "|~" & ASCII.DEL, Util.Encoders.Decode (C, "fH5_"));
+      Test_Encoder (T, C);
+   end Test_Base64_URL_Decode;
+
    procedure Test_Encoder (T : in out Test;
                            C : in out Util.Encoders.Encoder) is
    begin
@@ -102,7 +127,7 @@ package body Util.Encoders.Tests is
                D : constant String := Util.Encoders.Decode (C, E);
             begin
                Assert_Equals (T, Pattern, D, "Encoding failed for length "
-                              & Integer'Image (I));
+                              & Integer'Image (I) & " code: " & E);
             end;
          exception
             when others =>
