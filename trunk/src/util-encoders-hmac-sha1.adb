@@ -51,15 +51,19 @@ package body Util.Encoders.HMAC.SHA1 is
       return Result;
    end Sign;
 
+   --  ------------------------------
    --  Sign the data string with the key and return the HMAC-SHA1 code as base64 string.
+   --  When <b>URL</b> is True, use the base64 URL alphabet to encode in base64.
+   --  ------------------------------
    function Sign_Base64 (Key  : in String;
-                         Data : in String) return Util.Encoders.SHA1.Base64_Digest is
+                         Data : in String;
+                         URL  : in Boolean := False) return Util.Encoders.SHA1.Base64_Digest is
       Ctx    : Context;
       Result : Util.Encoders.SHA1.Base64_Digest;
    begin
       Set_Key (Ctx, Key);
       Update (Ctx, Data);
-      Finish_Base64 (Ctx, Result);
+      Finish_Base64 (Ctx, Result, URL);
       return Result;
    end Sign_Base64;
 
@@ -179,10 +183,14 @@ package body Util.Encoders.HMAC.SHA1 is
       B.Transform (Data => H, Into => Buf, Last => Last, Encoded => Encoded);
    end Finish;
 
+   --  ------------------------------
    --  Computes the HMAC-SHA1 with the private key and the data collected by
    --  the <b>Update</b> procedures.  Returns the base64 hash in <b>Hash</b>.
+   --  When <b>URL</b> is True, use the base64 URL alphabet to encode in base64.
+   --  ------------------------------
    procedure Finish_Base64 (E    : in out Context;
-                            Hash : out Util.Encoders.SHA1.Base64_Digest) is
+                            Hash : out Util.Encoders.SHA1.Base64_Digest;
+                            URL  : in Boolean := False) is
       Buf : Ada.Streams.Stream_Element_Array (1 .. Hash'Length);
       for Buf'Address use Hash'Address;
       pragma Import (Ada, Buf);
@@ -193,6 +201,7 @@ package body Util.Encoders.HMAC.SHA1 is
       Encoded : Ada.Streams.Stream_Element_Offset;
    begin
       Finish (E, H);
+      B.Set_URL_Mode (URL);
       B.Transform (Data => H, Into => Buf, Last => Last, Encoded => Encoded);
    end Finish_Base64;
 
