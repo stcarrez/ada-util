@@ -65,6 +65,9 @@ package body Util.Serialize.IO.JSON.Tests is
       Check_Parse_Error ("{ ""person"":""asf");
       Check_Parse_Error ("{ ""person"":""asf""");
       Check_Parse_Error ("{ ""person"":""asf"",");
+      Check_Parse_Error ("{ ""person"":""\uze""}");
+      Check_Parse_Error ("{ ""person"":""\u012-""}");
+      Check_Parse_Error ("{ ""person"":""\u012G""}");
    end Test_Parse_Error;
 
    --  ------------------------------
@@ -90,6 +93,12 @@ package body Util.Serialize.IO.JSON.Tests is
       Check_Parse ("{ }");
       Check_Parse ("{""person"":""asf""}");
       Check_Parse ("{""person"":""asf"",""age"":""2""}");
+      Check_Parse ("{ ""person"":""\u0123""}");
+      Check_Parse ("{ ""person"":""\u4567""}");
+      Check_Parse ("{ ""person"":""\u89ab""}");
+      Check_Parse ("{ ""person"":""\ucdef""}");
+      Check_Parse ("{ ""person"":""\u1CDE""}");
+      Check_Parse ("{ ""person"":""\u2ABF""}");
    end Test_Parser;
 
 end Util.Serialize.IO.JSON.Tests;
