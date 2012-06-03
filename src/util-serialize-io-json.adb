@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,8 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+
+with Interfaces;
 
 with Ada.Characters.Latin_1;
 with Ada.IO_Exceptions;
@@ -197,6 +199,8 @@ package body Util.Serialize.IO.JSON is
       procedure Peek (P     : in out Parser'Class;
                       Token : out Token_Type);
 
+      function Hexdigit (C : in Character) return Interfaces.Unsigned_32;
+
       --  Parse a list of members
       --  members ::= pair | pair ',' members
       --  pair    ::= string ':' value
@@ -254,6 +258,20 @@ package body Util.Serialize.IO.JSON is
             end if;
          end loop;
       end Parse_Pairs;
+
+      function Hexdigit (C : in Character) return Interfaces.Unsigned_32 is
+         use type Interfaces.Unsigned_32;
+      begin
+         if C >= '0' and C <= '9' then
+            return Character'Pos (C) - Character'Pos ('0');
+         elsif C >= 'a' and C <= 'f' then
+            return Character'Pos (C) - Character'Pos ('a') + 10;
+         elsif C >= 'A' and C <= 'F' then
+            return Character'Pos (C) - Character'Pos ('A') + 10;
+         else
+            raise Constraint_Error with "Invalid hexdigit: " & C;
+         end if;
+      end Hexdigit;
 
       --  ------------------------------
       --  Parse a value
@@ -385,7 +403,36 @@ package body Util.Serialize.IO.JSON is
                         C1 := Ada.Characters.Latin_1.HT;
 
                      when 'u' =>
-                        null;
+                        declare
+                           use Interfaces;
+
+                           C2, C3, C4 : Character;
+                           Val : Interfaces.Unsigned_32;
+                        begin
+                           Stream.Read (Char => C1);
+                           Stream.Read (Char => C2);
+                           Stream.Read (Char => C3);
+                           Stream.Read (Char => C4);
+                           Val := Interfaces.Shift_Left (Hexdigit (C1), 12);
+                           Val := Val + Interfaces.Shift_Left (Hexdigit (C2), 8);
+                           Val := Val + Interfaces.Shift_Left (Hexdigit (C3), 4);
+                           Val := Val + Hexdigit (C4);
+
+                           --  Encode the value as an UTF-8 string.
+                           if Val >= 16#1000# then
+                              Append (P.Token, Character'Val (16#E0# or Shift_Right (Val, 12)));
+                              Val := Val and 16#0fff#;
+                              Append (P.Token, Character'Val (16#80# or Shift_Right (Val, 6)));
+                              Val := Val and 16#03f#;
+                              C1 := Character'Val (16#80# or Val);
+                           elsif Val >= 16#80# then
+                              Append (P.Token, Character'Val (16#C0# or Shift_Right (Val, 6)));
+                              Val := Val and 16#03f#;
+                              C1 := Character'Val (16#80# or Val);
+                           else
+                              C1 := Character'Val (Val);
+                           end if;
+                        end;
 
                      when others =>
                         P.Error ("Invalid character '" & C1 & "' in \x sequence");
