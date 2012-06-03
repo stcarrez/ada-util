@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Basic.Lists -- List bean given access to a vector
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,7 @@ package Util.Beans.Basic.Lists is
    --  type holds the real implementation with the private parts.
    type Abstract_List_Bean is abstract new Ada.Finalization.Controlled
      and Util.Beans.Basic.List_Bean with record
-      List : Vectors.Vector;
+      List : aliased Vectors.Vector;
    end record;
 
    --  ------------------------------
