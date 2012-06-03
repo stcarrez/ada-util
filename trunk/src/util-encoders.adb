@@ -205,8 +205,8 @@ package body Util.Encoders is
 
       elsif Name = BASE_64_URL then
          return E : Encoder do
-            E.Encode := new Util.Encoders.Base64.Encoder;
-            E.Decode := new Util.Encoders.Base64.Decoder;
+            E.Encode := Util.Encoders.Base64.Create_URL_Encoder;
+            E.Decode := Util.Encoders.Base64.Create_URL_Decoder;
          end return;
 
       elsif Name = HASH_SHA1 then
