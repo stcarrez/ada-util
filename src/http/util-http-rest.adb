@@ -55,4 +55,21 @@ package body Util.Http.Rest is
       Http.Get (URI, Reader);
    end Rest_Get;
 
+   --  -----------------------
+   --  Execute an HTTP GET operation on the given <b>URI</b> and parse the JSON response
+   --  into the target object refered to by <b>Into</b> by using the mapping described
+   --  in <b>Mapping</b>.
+   --  -----------------------
+   procedure Rest_Get_Vector (URI     : in String;
+                              Mapping : in Util.Serialize.Mappers.Mapper_Access;
+                              Path    : in String := "";
+                              Into    : in Vector_Mapper.Vector_Type_Access) is
+      Http     : Util.Http.Rest.Client;
+      Reader   : Util.Serialize.IO.JSON.Parser;
+   begin
+      Reader.Add_Mapping (Path, Mapping.all'Access);
+      Vector_Mapper.Set_Context (Reader, Into);
+      Http.Get (URI, Reader);
+   end Rest_Get_Vector;
+
 end Util.Http.Rest;
