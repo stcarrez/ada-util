@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-hmac-sha1 -- Compute HMAC-SHA1 authentication code
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,8 +34,10 @@ package Util.Encoders.HMAC.SHA1 is
                   Data : in String) return Util.Encoders.SHA1.Digest;
 
    --  Sign the data string with the key and return the HMAC-SHA1 code as base64 string.
+   --  When <b>URL</b> is True, use the base64 URL alphabet to encode in base64.
    function Sign_Base64 (Key  : in String;
-                         Data : in String) return Util.Encoders.SHA1.Base64_Digest;
+                         Data : in String;
+                         URL  : in Boolean := False) return Util.Encoders.SHA1.Base64_Digest;
 
    --  ------------------------------
    --  HMAC-SHA1 Context
@@ -72,8 +74,10 @@ package Util.Encoders.HMAC.SHA1 is
 
    --  Computes the HMAC-SHA1 with the private key and the data collected by
    --  the <b>Update</b> procedures.  Returns the base64 hash in <b>Hash</b>.
+   --  When <b>URL</b> is True, use the base64 URL alphabet to encode in base64.
    procedure Finish_Base64 (E    : in out Context;
-                            Hash : out Util.Encoders.SHA1.Base64_Digest);
+                            Hash : out Util.Encoders.SHA1.Base64_Digest;
+                            URL  : in Boolean := False);
 
    --  ------------------------------
    --  HMAC-SHA1 encoder
