@@ -213,7 +213,7 @@ install_lib:
 	test T${HAVE_AWS} = Tno || \
 	  (${MKDIR} -p ${includedir}/util/http/aws && \
            ${MKDIR} -p ${alidir}/util/$(LIBRARY_TYPE)/http/aws && \
-	   ${CP} -p src/http/aws/*.ad[bs] ${includedir}/util/http/curl && \
+	   ${CP} -p src/http/aws/*.ad[bs] ${includedir}/util/http/aws && \
 	   ${CP} -p lib/util-aws/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)/http/aws)
 	${CP} -p lib/testutil/$(LIBRARY_TYPE)/*.ali ${alidir}/testutil/$(LIBRARY_TYPE)
 	${CP} -p lib/util/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)
