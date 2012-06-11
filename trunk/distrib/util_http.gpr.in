@@ -5,7 +5,9 @@ with "util";
 abstract project Util_Http is
    Version := "@UTIL_VERSION@";
 
-   Has_Curl    : Config.Yes_No := "@UTIL_HAVE_CURL@";
-   Has_AWS     : Config.Yes_No := "@UTIL_HAVE_AWS@";
+   type Yes_No is ("yes", "no");
+
+   Has_Curl    : Yes_No := "@UTIL_HAVE_CURL@";
+   Has_AWS     : Yes_No := "@UTIL_HAVE_AWS@";
 
 end Util_Http;
