@@ -217,23 +217,19 @@ install_lib:
 	   ${CP} -p lib/util-aws/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)/http/aws)
 	${CP} -p lib/testutil/$(LIBRARY_TYPE)/*.ali ${alidir}/testutil/$(LIBRARY_TYPE)
 	${CP} -p lib/util/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)
-	${CP} -p lib/util-http/$(LIBRARY_TYPE)/*.ali ${alidir}/util/$(LIBRARY_TYPE)/http
 ifeq ($(LIBRARY_TYPE),static)
 	test T${HAVE_AWS} = Tno || \
 	   ${CP} -p lib/util-aws/$(LIBRARY_TYPE)/libada-util-aws.a ${libdir}/
 	test T${HAVE_CURL} = Tno || \
 	   ${CP} -p lib/util-curl/$(LIBRARY_TYPE)/libada-util-curl.a ${libdir}/
 	${CP} -p lib/util/$(LIBRARY_TYPE)/libadautil.a ${libdir}/
-	${CP} -p lib/util-http/$(LIBRARY_TYPE)/libada-util-http.a ${libdir}/
 	${CP} -p lib/testutil/$(LIBRARY_TYPE)/libadatestutil.a ${libdir}/
 else
 	${CP} -p lib/util/$(LIBRARY_TYPE)/libadautil.$(LIBVER) ${libdir}/
-	${CP} -p lib/util-http/$(LIBRARY_TYPE)/libada-util-http.$(LIBVER) ${libdir}/
 	${CP} -p lib/testutil/$(LIBRARY_TYPE)/libadatestutil.$(LIBVER) ${libdir}/
 	cd ${libdir} && \
-	rm -f libadautil.$(LIBEXT) libadatestutil.$(LIBEXT) libada-util-http.$(LIBEXT) && \
+	rm -f libadautil.$(LIBEXT) libadatestutil.$(LIBEXT) && \
 	${LN} libadautil.$(LIBVER) libadautil.$(LIBEXT) && \
-	${LN} libada-util-http.$(LIBVER) libada-util-http.$(LIBEXT) && \
 	${LN} libadatestutil.$(LIBVER) libadatestutil.$(LIBEXT)
 endif
 
