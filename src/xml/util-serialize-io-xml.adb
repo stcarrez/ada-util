@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-xml -- XML Serialization Driver
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -431,6 +431,35 @@ package body Util.Serialize.IO.XML is
    end Write_String;
 
    --  ------------------------------
+   --  Write the value as a XML string.  Special characters are escaped using the XML
+   --  escape rules.
+   --  ------------------------------
+   procedure Write_String (Stream : in out Output_Stream;
+                           Value  : in Util.Beans.Objects.Object) is
+      use Util.Beans.Objects;
+   begin
+      Close_Current (Stream);
+      case Util.Beans.Objects.Get_Type (Value) is
+         when TYPE_NULL =>
+            null;
+
+         when TYPE_BOOLEAN =>
+            if Util.Beans.Objects.To_Boolean (Value) then
+               Stream.Write ("true");
+            else
+               Stream.Write ("false");
+            end if;
+
+         when TYPE_INTEGER =>
+            Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
+
+         when others =>
+            Stream.Write_String (Util.Beans.Objects.To_String (Value));
+
+      end case;
+   end Write_String;
+
+   --  ------------------------------
    --  Start a new XML object.
    --  ------------------------------
    procedure Start_Entity (Stream : in out Output_Stream;
@@ -497,25 +526,8 @@ package body Util.Serialize.IO.XML is
       Close_Current (Stream);
       Stream.Write ('<');
       Stream.Write (Name);
-      Stream.Write ('>');
-      case Util.Beans.Objects.Get_Type (Value) is
-         when TYPE_NULL =>
-            null;
-
-         when TYPE_BOOLEAN =>
-            if Util.Beans.Objects.To_Boolean (Value) then
-               Stream.Write ("true");
-            else
-               Stream.Write ("false");
-            end if;
-
-         when TYPE_INTEGER =>
-            Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
-
-         when others =>
-            Stream.Write_String (Util.Beans.Objects.To_String (Value));
-
-      end case;
+      Stream.Close_Start := True;
+      Stream.Write_String (Value);
       Stream.Write ("</");
       Stream.Write (Name);
       Stream.Write ('>');
