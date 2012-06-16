@@ -117,14 +117,16 @@ package body Util.Serialize.Tools is
       Parser  : Util.Serialize.IO.JSON.Parser;
       Context : aliased Object_Mapper_Context;
    begin
-      Context.Map := Result'Unchecked_Access;
-      Parser.Add_Mapping ("params", Object_Mapping'Access);
-      Object_Mapper.Set_Context (Parser, Context'Unchecked_Access);
-      Parser.Parse (Content);
+      if Content'Length > 0 then
+         Context.Map := Result'Unchecked_Access;
+         Parser.Add_Mapping ("/params", Object_Mapping'Access);
+         Object_Mapper.Set_Context (Parser, Context'Unchecked_Access);
+         Parser.Parse_String (Content);
+      end if;
       return Result;
    end From_JSON;
 
 begin
-   Object_Mapping.Add_Mapping ("param/@name", FIELD_NAME);
-   Object_Mapping.Add_Mapping ("param", FIELD_VALUE);
+   Object_Mapping.Add_Mapping ("name", FIELD_NAME);
+   Object_Mapping.Add_Mapping ("value", FIELD_VALUE);
 end Util.Serialize.Tools;
