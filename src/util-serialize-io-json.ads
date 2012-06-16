@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,12 @@ package Util.Serialize.IO.JSON is
    --  The stream object takes care of the JSON escape rules.
    type Output_Stream is
      new Util.Streams.Texts.Print_Stream and Util.Serialize.IO.Output_Stream with private;
+
+   --  Start a JSON document.  This operation writes the initial JSON marker ('{').
+   procedure Start_Document (Stream : in out Output_Stream);
+
+   --  Finish a JSON document by writing the final JSON marker ('}').
+   procedure End_Document (Stream : in out Output_Stream);
 
    --  Write the value as a JSON string.  Special characters are escaped using the JSON
    --  escape rules.
@@ -58,7 +64,9 @@ package Util.Serialize.IO.JSON is
                            Value  : in Util.Beans.Objects.Object);
 
    --  Starts a JSON array.
+   --  Example:  "list": [
    procedure Start_Array (Stream : in out Output_Stream;
+                          Name   : in String;
                           Length : in Ada.Containers.Count_Type);
 
    --  Terminates a JSON array.
