@@ -37,6 +37,7 @@ with Util.Serialize.IO.JSON.Tests;
 with Util.Serialize.IO.XML.Tests;
 # end if;
 with Util.Serialize.IO.CSV.Tests;
+with Util.Serialize.Tools.Tests;
 with Util.Processes.Tests;
 with Util.Http.Cookies.Tests;
 #if HAVE_CURL = "yes"
@@ -73,6 +74,7 @@ package body Util.Testsuite is
       Util.Serialize.IO.XML.Tests.Add_Tests (Result);
 #end if;
       Util.Serialize.IO.CSV.Tests.Add_Tests (Result);
+      Util.Serialize.Tools.Tests.Add_Tests (Result);
       Util.Processes.Tests.Add_Tests (Result);
       Util.Http.Cookies.Tests.Add_Tests (Result);
 #if HAVE_CURL = "yes"
