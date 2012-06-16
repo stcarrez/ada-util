@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-xml -- XML Serialization Driver
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,6 +63,11 @@ package Util.Serialize.IO.XML is
    --  escape rules.
    procedure Write_String (Stream : in out Output_Stream;
                            Value  : in String);
+
+   --  Write the value as a XML string.  Special characters are escaped using the XML
+   --  escape rules.
+   procedure Write_String (Stream : in out Output_Stream;
+                           Value  : in Util.Beans.Objects.Object);
 
    --  Start a new XML object.
    procedure Start_Entity (Stream : in out Output_Stream;
