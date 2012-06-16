@@ -19,7 +19,6 @@ with Ada.Containers;
 
 with Util.Streams.Texts;
 with Util.Streams.Buffered;
-with Util.Serialize.IO.JSON;
 with Util.Serialize.Mappers.Record_Mapper;
 package body Util.Serialize.Tools is
 
@@ -31,6 +30,10 @@ package body Util.Serialize.Tools is
       Name : Util.Beans.Objects.Object;
    end record;
    type Object_Mapper_Context_Access is access all Object_Mapper_Context;
+
+   procedure Set_Member (Into  : in out Object_Mapper_Context;
+                         Field : in Object_Field;
+                         Value : in Util.Beans.Objects.Object);
 
    procedure Set_Member (Into  : in out Object_Mapper_Context;
                          Field : in Object_Field;
@@ -53,11 +56,19 @@ package body Util.Serialize.Tools is
                                            Fields              => Object_Field,
                                            Set_Member          => Set_Member);
 
-   Object_Mapping : aliased Object_Mapper.Mapper;
+   JSON_Mapping : aliased Object_Mapper.Mapper;
 
+   --  -----------------------
+   --  Serialize the objects defined in the object map <b>Map</b> into the <b>Output</b>
+   --  JSON stream.  Use the <b>Name</b> as the name of the JSON object.
+   --  -----------------------
    procedure To_JSON (Output : in out Util.Serialize.IO.JSON.Output_Stream;
-                     Map    : in Util.Beans.Objects.Maps.Map) is
+                      Name   : in String;
+                      Map    : in Util.Beans.Objects.Maps.Map) is
       use type Ada.Containers.Count_Type;
+
+      procedure Write (Name  : in String;
+                       Value : in Util.Beans.Objects.Object);
 
       procedure Write (Name  : in String;
                        Value : in Util.Beans.Objects.Object) is
@@ -75,7 +86,7 @@ package body Util.Serialize.Tools is
          declare
             Iter : Util.Beans.Objects.Maps.Cursor := Map.First;
          begin
-            Output.Start_Array (Name   => "params",
+            Output.Start_Array (Name   => Name,
                                 Length => Map.Length);
             while Util.Beans.Objects.Maps.Has_Element (Iter) loop
                Util.Beans.Objects.Maps.Query_Element (Iter, Write'Access);
@@ -101,7 +112,7 @@ package body Util.Serialize.Tools is
       begin
          Output.Initialize (Size => 10000);
          Output.Start_Document;
-         To_JSON (Output, Map);
+         To_JSON (Output, "params", Map);
          Output.End_Document;
          return Util.Streams.Texts.To_String (Util.Streams.Buffered.Buffered_Stream (Output));
       end;
@@ -109,24 +120,35 @@ package body Util.Serialize.Tools is
 
    --  -----------------------
    --  Deserializes the JSON content passed in <b>Content</b> and restore the object map
-   --  which their values.
-   --  Returns the object map that was restored.
+   --  with their values.  The object map passed in <b>Map</b> can contain existing values.
+   --  They will be overriden by the JSON values.
    --  -----------------------
-   function From_JSON (Content : in String) return Util.Beans.Objects.Maps.Map is
-      Result  : aliased Util.Beans.Objects.Maps.Map;
+   procedure From_JSON (Content : in String;
+                        Map     : in out Util.Beans.Objects.Maps.Map) is
       Parser  : Util.Serialize.IO.JSON.Parser;
       Context : aliased Object_Mapper_Context;
    begin
       if Content'Length > 0 then
-         Context.Map := Result'Unchecked_Access;
-         Parser.Add_Mapping ("/params", Object_Mapping'Access);
+         Context.Map := Map'Unchecked_Access;
+         Parser.Add_Mapping ("/params", JSON_Mapping'Access);
          Object_Mapper.Set_Context (Parser, Context'Unchecked_Access);
          Parser.Parse_String (Content);
       end if;
+   end From_JSON;
+
+   --  -----------------------
+   --  Deserializes the JSON content passed in <b>Content</b> and restore the object map
+   --  with their values.
+   --  Returns the object map that was restored.
+   --  -----------------------
+   function From_JSON (Content : in String) return Util.Beans.Objects.Maps.Map is
+      Result  : Util.Beans.Objects.Maps.Map;
+   begin
+      From_JSON (Content, Result);
       return Result;
    end From_JSON;
 
 begin
-   Object_Mapping.Add_Mapping ("name", FIELD_NAME);
-   Object_Mapping.Add_Mapping ("value", FIELD_VALUE);
+   JSON_Mapping.Add_Mapping ("name", FIELD_NAME);
+   JSON_Mapping.Add_Mapping ("value", FIELD_VALUE);
 end Util.Serialize.Tools;
