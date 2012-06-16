@@ -29,6 +29,22 @@ package body Util.Serialize.IO.JSON is
    use Ada.Strings.Unbounded;
 
    --  -----------------------
+   --  Start a JSON document.  This operation writes the initial JSON marker ('{').
+   --  -----------------------
+   procedure Start_Document (Stream : in out Output_Stream) is
+   begin
+      Stream.Write ('{');
+   end Start_Document;
+
+   --  -----------------------
+   --  Finish a JSON document by writing the final JSON marker ('}').
+   --  -----------------------
+   procedure End_Document (Stream : in out Output_Stream) is
+   begin
+      Stream.Write ('}');
+   end End_Document;
+
+   --  -----------------------
    --  Write the string as a quoted JSON string
    --  -----------------------
    procedure Write_String (Stream : in out Output_Stream;
@@ -162,12 +178,25 @@ package body Util.Serialize.IO.JSON is
 
    --  -----------------------
    --  Start an array that will contain the specified number of elements
+   --  Example:  "list": [
    --  -----------------------
    procedure Start_Array (Stream : in out Output_Stream;
+                          Name   : in String;
                           Length : in Ada.Containers.Count_Type) is
       pragma Unreferenced (Length);
+
+      Current : access Node_Info := Node_Info_Stack.Current (Stream.Stack);
    begin
+      if Current /= null then
+         if Current.Has_Fields then
+            Stream.Write (',');
+         else
+            Current.Has_Fields := True;
+         end if;
+      end if;
       Node_Info_Stack.Push (Stream.Stack);
+      Stream.Write_String (Name);
+      Stream.Write (':');
       Stream.Write ('[');
    end Start_Array;
 
