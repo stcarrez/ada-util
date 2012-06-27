@@ -137,7 +137,7 @@ package body Util.Beans.Objects.Record_Tests is
                --  Check the bean access.
                P := To_Bean (Value);
                T.Assert (P /= null, "To_Bean returned null");
-               Bean := Bean_Type'Class (P.all)'Access;
+               Bean := Bean_Type'Class (P.all)'Unchecked_Access;
 
                --  Check we have the good bean object.
                if I = J then
