@@ -44,8 +44,9 @@ private
    end Server_Task;
 
    type Server is new Ada.Finalization.Limited_Controlled with record
-      Port   : Natural := 0;
-      Server : Server_Task;
+      Port          : Natural := 0;
+      Need_Shutdown : Boolean := False;
+      Server        : Server_Task;
    end record;
 
 end Util.Tests.Servers;

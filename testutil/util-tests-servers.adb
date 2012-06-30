@@ -59,10 +59,15 @@ package body Util.Tests.Servers is
       Instance : Server_Access := null;
    begin
       Address.Port := 51432;
-      accept Start (S : in Server_Access) do
-         Instance := S;
-         Instance.Port := Natural (Address.Port);
-      end Start;
+      select
+         accept Start (S : in Server_Access) do
+            Instance := S;
+            Instance.Port := Natural (Address.Port);
+         end Start;
+      or
+         terminate;
+      end select;
+
       Address.Addr := Addresses (Get_Host_By_Name (Host_Name), 1);
       Log.Info ("Internal HTTP server started at port {0}", Port_Type'Image (Address.Port));
 
@@ -72,7 +77,7 @@ package body Util.Tests.Servers is
                          (Reuse_Address, True));
       Bind_Socket (Server, Address);
       Listen_Socket (Server);
-      loop
+      while not Instance.Need_Shutdown loop
          Accept_Socket (Server, Socket, Address);
 
          Log.Info ("Accepted connection");
@@ -98,6 +103,7 @@ package body Util.Tests.Servers is
          Close_Socket (Socket);
       end loop;
 
+      GNAT.Sockets.Close_Socket (Server);
    exception
       when E : others =>
          Log.Error ("Exception", E);
