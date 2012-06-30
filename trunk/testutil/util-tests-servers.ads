@@ -26,6 +26,10 @@ package Util.Tests.Servers is
    --  Get the server port.
    function Get_Port (From : in Server) return Natural;
 
+   --  Process the line received by the server.
+   procedure Process_Line (Into : in out Server;
+                           Line : in Ada.Strings.Unbounded.Unbounded_String);
+
    --  Start the server task.
    procedure Start (S : in out Server);
 
@@ -35,7 +39,7 @@ private
    --  responses.  This server is intended to be used by unit tests and not to serve
    --  real pages.
    task type Server_Task is
-      entry Start;
+      entry Start (S : in Server_Access);
       --        entry Stop;
    end Server_Task;
 

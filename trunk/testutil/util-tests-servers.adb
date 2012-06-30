@@ -25,16 +25,30 @@ package body Util.Tests.Servers is
 
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Tests.Server");
 
+   --  ------------------------------
    --  Get the server port.
+   --  ------------------------------
    function Get_Port (From : in Server) return Natural is
    begin
       return From.Port;
    end Get_Port;
 
+   --  ------------------------------
    --  Start the server task.
+   --  ------------------------------
    procedure Start (S : in out Server) is
    begin
+      S.Server.Start (S'Unchecked_Access);
    end Start;
+
+   --  ------------------------------
+   --  Process the line received by the server.
+   --  ------------------------------
+   procedure Process_Line (Into : in out Server;
+                           Line : in Ada.Strings.Unbounded.Unbounded_String) is
+   begin
+      null;
+   end Process_Line;
 
    task body Server_Task is
       use GNAT.Sockets;
@@ -42,11 +56,14 @@ package body Util.Tests.Servers is
       Address  : Sock_Addr_Type;
       Server   : Socket_Type;
       Socket   : Socket_Type;
-      Channel  : Stream_Access;
+      Instance : Server_Access := null;
    begin
-      accept Start;
-      Address.Addr := Addresses (Get_Host_By_Name (Host_Name), 1);
       Address.Port := 51432;
+      accept Start (S : in Server_Access) do
+         Instance := S;
+         Instance.Port := Natural (Address.Port);
+      end Start;
+      Address.Addr := Addresses (Get_Host_By_Name (Host_Name), 1);
       Log.Info ("Internal HTTP server started at port {0}", Port_Type'Image (Address.Port));
 
       Create_Socket (Server);
@@ -57,7 +74,6 @@ package body Util.Tests.Servers is
       Listen_Socket (Server);
       loop
          Accept_Socket (Server, Socket, Address);
-         Channel := Stream (Socket);
 
          Log.Info ("Accepted connection");
          declare
@@ -72,12 +88,14 @@ package body Util.Tests.Servers is
                exit when Ada.Strings.Unbounded.Length (Line) = 0;
                Log.Info ("Received: {0}", Line);
 
-            exception
-               when E : others =>
-                  Log.Error ("Exception: ", E);
+               Instance.Process_Line (Line);
             end loop;
-            Close_Socket (Socket);
+
+         exception
+            when E : others =>
+               Log.Error ("Exception: ", E);
          end;
+         Close_Socket (Socket);
       end loop;
 
    exception
