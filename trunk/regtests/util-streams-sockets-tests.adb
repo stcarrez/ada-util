@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 
 with Ada.Strings.Unbounded;
+with Ada.IO_Exceptions;
 
 with Util.Test_Caller;
 
@@ -39,7 +40,9 @@ package body Util.Streams.Sockets.Tests is
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
-      Caller.Add_Test (Suite, "Test Util.Streams.Texts.Open, Read_Line, Close",
+      Caller.Add_Test (Suite, "Test Util.Streams.Initialize,Connect",
+                       Test_Socket_Init'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Connect,Read,Write",
                        Test_Socket_Read'Access);
    end Add_Tests;
 
@@ -60,9 +63,7 @@ package body Util.Streams.Sockets.Tests is
    --  ------------------------------
    procedure Test_Socket_Read (T : in out Test) is
       Stream : aliased Sockets.Socket_Stream;
-      Reader : Util.Streams.Texts.Reader_Stream;
       Writer : Util.Streams.Texts.Print_Stream;
-      Count  : Natural := 0;
       Server : Test_Server;
       Addr   : GNAT.Sockets.Sock_Addr_Type;
    begin
@@ -73,7 +74,10 @@ package body Util.Streams.Sockets.Tests is
                GNAT.Sockets.Addresses (GNAT.Sockets.Get_Host_By_Name (GNAT.Sockets.Host_Name), 1),
                GNAT.Sockets.Port_Type (Server.Get_Port));
 
+      --  Let the server start.
       delay 0.1;
+
+      --  Get a connection and write 10 lines.
       Stream.Connect (Server => Addr);
       Writer.Initialize (Output => Stream'Unchecked_Access,
                          Input  => null,
@@ -85,8 +89,33 @@ package body Util.Streams.Sockets.Tests is
       end loop;
       Writer.Close;
 
+      --  Stop the server and verify that 10 lines were received.
       Server.Stop;
       Util.Tests.Assert_Equals (T, 10, Server.Count, "Invalid number of lines received");
    end Test_Socket_Read;
+
+   --  ------------------------------
+   --  Test socket initialization.
+   --  ------------------------------
+   procedure Test_Socket_Init (T : in out Test) is
+      Stream : aliased Sockets.Socket_Stream;
+      Fd     : GNAT.Sockets.Socket_Type;
+      Addr   : GNAT.Sockets.Sock_Addr_Type;
+   begin
+      Addr := (GNAT.Sockets.Family_Inet,
+               GNAT.Sockets.Addresses (GNAT.Sockets.Get_Host_By_Name (GNAT.Sockets.Host_Name), 1),
+               80);
+
+      GNAT.Sockets.Create_Socket (Fd);
+      Stream.Open (Fd);
+      begin
+         Stream.Connect (Addr);
+         T.Assert (False, "No exception was raised");
+
+      exception
+         when Ada.IO_Exceptions.Use_Error =>
+            null;
+      end;
+   end Test_Socket_Init;
 
 end Util.Streams.Sockets.Tests;

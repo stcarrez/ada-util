@@ -27,4 +27,7 @@ package Util.Streams.Sockets.Tests is
    --  Test reading and writing on a socket stream.
    procedure Test_Socket_Read (T : in out Test);
 
+   --  Test socket initialization.
+   procedure Test_Socket_Init (T : in out Test);
+
 end Util.Streams.Sockets.Tests;
