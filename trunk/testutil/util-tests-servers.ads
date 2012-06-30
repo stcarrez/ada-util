@@ -34,6 +34,9 @@ package Util.Tests.Servers is
    --  Start the server task.
    procedure Start (S : in out Server);
 
+   --  Stop the server task.
+   procedure Stop (S : in out Server);
+
 private
 
    --  A small server that listens to HTTP requests and replies with fake
