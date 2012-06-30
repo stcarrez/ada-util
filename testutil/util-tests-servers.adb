@@ -42,6 +42,21 @@ package body Util.Tests.Servers is
    end Start;
 
    --  ------------------------------
+   --  Stop the server task.
+   --  ------------------------------
+   procedure Stop (S : in out Server) is
+   begin
+      S.Need_Shutdown := True;
+      for I in 1 .. 10 loop
+         delay 0.1;
+         if S.Server'Terminated then
+            return;
+         end if;
+      end loop;
+      abort S.Server;
+   end Stop;
+
+   --  ------------------------------
    --  Process the line received by the server.
    --  ------------------------------
    procedure Process_Line (Into : in out Server;
@@ -84,16 +99,19 @@ package body Util.Tests.Servers is
          declare
             Stream   : aliased Util.Streams.Sockets.Socket_Stream;
             Input    : Util.Streams.Texts.Reader_Stream;
-            Line     : Ada.Strings.Unbounded.Unbounded_String;
          begin
             Stream.Open (Socket);
             Input.Initialize (From => Stream'Unchecked_Access);
-            loop
-               Input.Read_Line (Into  => Line, Strip => True);
-               exit when Ada.Strings.Unbounded.Length (Line) = 0;
-               Log.Info ("Received: {0}", Line);
+            while not Input.Is_Eof loop
+               declare
+                  Line     : Ada.Strings.Unbounded.Unbounded_String;
+               begin
+                  Input.Read_Line (Into  => Line, Strip => True);
+                  exit when Ada.Strings.Unbounded.Length (Line) = 0;
+                  Log.Info ("Received: {0}", Line);
 
-               Instance.Process_Line (Line);
+                  Instance.Process_Line (Line);
+               end;
             end loop;
 
          exception
