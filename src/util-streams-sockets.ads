@@ -32,6 +32,10 @@ package Util.Streams.Sockets is
    procedure Open (Stream  : in out Socket_Stream;
                    Socket  : in GNAT.Sockets.Socket_Type);
 
+   --  Initialize the socket stream by opening a connection to the server defined in <b>Server</b>.
+   procedure Connect (Stream : in out Socket_Stream;
+                      Server : in GNAT.Sockets.Sock_Addr_Type);
+
    --  Close the socket stream.
    procedure Close (Stream : in out Socket_Stream);
 
