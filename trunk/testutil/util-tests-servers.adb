@@ -18,25 +18,23 @@
 
 with GNAT.Sockets;
 with Ada.Streams;
-
+with Util.Streams.Sockets;
+with Util.Streams.Texts;
 with Util.Log.Loggers;
 package body Util.Tests.Servers is
 
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Tests.Server");
 
-   function Read_Line (Sock : in GNAT.Sockets.Socket_Type) return String is
-      use Ada.Streams;
-
-      Data   : Ada.Streams.Stream_Element_Array (1 .. 256);
-      Last   : Ada.Streams.Stream_Element_Offset;
-      Result : String (1 .. 256);
+   --  Get the server port.
+   function Get_Port (From : in Server) return Natural is
    begin
-      GNAT.Sockets.Receive_Socket (Sock, Data, Last);
-      for I in 1 .. Last loop
-         Result (Natural (I)) := Character'Val (Data (I));
-      end loop;
-      return Result (1 .. Natural (Last));
-   end Read_Line;
+      return From.Port;
+   end Get_Port;
+
+   --  Start the server task.
+   procedure Start (S : in out Server) is
+   begin
+   end Start;
 
    task body Server_Task is
       use GNAT.Sockets;
@@ -62,21 +60,24 @@ package body Util.Tests.Servers is
          Channel := Stream (Socket);
 
          Log.Info ("Accepted connection");
-         loop
-            begin
-               declare
-                  Line : constant String := Read_Line (Socket);
-               begin
-                  exit when Line'Length = 0;
-                  Log.Info ("Received: {0}", Line);
-               end;
+         declare
+            Stream   : aliased Util.Streams.Sockets.Socket_Stream;
+            Input    : Util.Streams.Texts.Reader_Stream;
+            Line     : Ada.Strings.Unbounded.Unbounded_String;
+         begin
+            Stream.Open (Socket);
+            Input.Initialize (From => Stream'Unchecked_Access);
+            loop
+               Input.Read_Line (Into  => Line, Strip => True);
+               exit when Ada.Strings.Unbounded.Length (Line) = 0;
+               Log.Info ("Received: {0}", Line);
 
             exception
                when E : others =>
                   Log.Error ("Exception: ", E);
-            end;
-         end loop;
-         Close_Socket (Socket);
+            end loop;
+            Close_Socket (Socket);
+         end;
       end loop;
 
    exception

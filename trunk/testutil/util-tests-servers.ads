@@ -15,15 +15,33 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Ada.Finalization;
 
 package Util.Tests.Servers is
+
+   --  Pool of objects
+   type Server is new Ada.Finalization.Limited_Controlled with private;
+   type Server_Access is access all Server'Class;
+
+   --  Get the server port.
+   function Get_Port (From : in Server) return Natural;
+
+   --  Start the server task.
+   procedure Start (S : in out Server);
+
+private
 
    --  A small server that listens to HTTP requests and replies with fake
    --  responses.  This server is intended to be used by unit tests and not to serve
    --  real pages.
    task type Server_Task is
       entry Start;
---        entry Stop;
+      --        entry Stop;
    end Server_Task;
+
+   type Server is new Ada.Finalization.Limited_Controlled with record
+      Port   : Natural := 0;
+      Server : Server_Task;
+   end record;
 
 end Util.Tests.Servers;
