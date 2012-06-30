@@ -33,6 +33,22 @@ package body Util.Streams.Sockets is
    end Open;
 
    --  -----------------------
+   --  Initialize the socket stream by opening a connection to the server defined in <b>Server</b>.
+   --  -----------------------
+   procedure Connect (Stream : in out Socket_Stream;
+                      Server : in GNAT.Sockets.Sock_Addr_Type) is
+      use type GNAT.Sockets.Socket_Type;
+   begin
+      if Stream.Sock /= GNAT.Sockets.No_Socket then
+         raise Ada.IO_Exceptions.Use_Error with "Socket stream is already opened";
+      end if;
+      GNAT.Sockets.Create_Socket (Socket => Stream.Sock,
+                                  Family => Server.Family);
+      GNAT.Sockets.Connect_Socket (Socket => Stream.Sock,
+                                   Server => Server);
+   end Connect;
+
+   --  -----------------------
    --  Close the socket stream.
    --  -----------------------
    procedure Close (Stream : in out Socket_Stream) is
