@@ -19,12 +19,13 @@ with Ada.Finalization;
 
 package Util.Tests.Servers is
 
-   --  Pool of objects
+   --  A small TCP/IP server for unit tests.
    type Server is new Ada.Finalization.Limited_Controlled with private;
    type Server_Access is access all Server'Class;
 
    --  Get the server port.
    function Get_Port (From : in Server) return Natural;
+
 
    --  Process the line received by the server.
    procedure Process_Line (Into : in out Server;
