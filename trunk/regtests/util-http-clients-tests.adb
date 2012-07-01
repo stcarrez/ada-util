@@ -20,7 +20,6 @@ with Util.Test_Caller;
 
 with Util.Strings.Transforms;
 with Util.Http.Tools;
-with Util.Tests.Servers;
 with Util.Strings;
 with Util.Log.Loggers;
 
@@ -73,11 +72,12 @@ package body Util.Http.Clients.Tests is
    overriding
    procedure Process_Line (Into   : in out Test_Server;
                            Line   : in Ada.Strings.Unbounded.Unbounded_String;
-                           Stream : in out Util.Streams.Texts.Reader_Stream'Class) is
+                           Stream : in out Util.Streams.Texts.Reader_Stream'Class;
+                           Client : in out Util.Streams.Sockets.Socket_Stream'Class) is
       L   : constant String := Ada.Strings.Unbounded.To_String (Line);
       Pos : Natural := Util.Strings.Index (L, ' ');
    begin
-      if Pos > 0 then
+      if Pos > 0 and Into.Method = UNKNOWN then
          if L (L'First .. Pos - 1) = "GET" then
             Into.Method := GET;
          elsif L (L'First .. Pos - 1) = "POST" then
@@ -90,10 +90,29 @@ package body Util.Http.Clients.Tests is
       Pos := Util.Strings.Index (L, ':');
       if Pos > 0 then
          if L (L'First .. Pos) = "Content-Type:" then
-            Into.Content_Type := Ada.Strings.Unbounded.To_Unbounded_String (L (Pos + 1 .. L'Last));
+            Into.Content_Type
+              := Ada.Strings.Unbounded.To_Unbounded_String (L (Pos + 2 .. L'Last - 2));
          elsif L (L'First .. Pos) = "Content-Length:" then
-            Into.Length := Natural'Value (L (Pos + 1 .. L'Last));
+            Into.Length := Natural'Value (L (Pos + 1 .. L'Last - 2));
 
+            for I in 1 .. Into.Length loop
+               declare
+                  C : Character;
+               begin
+                  Stream.Read (C);
+                  Ada.Strings.Unbounded.Append (Into.Result, C);
+               end;
+            end loop;
+            declare
+               Output : Util.Streams.Texts.Print_Stream;
+            begin
+               Output.Initialize (Client'Unchecked_Access);
+               Output.Write ("HTTP/1.1 204 No Content" & ASCII.CR & ASCII.LF);
+               Output.Write ("Content-Length: 4" & ASCII.CR & ASCII.LF);
+               Output.Write (ASCII.CR & ASCII.LF);
+               Output.Write ("OK" & ASCII.CR & ASCII.LF);
+               Output.Flush;
+            end;
          end if;
       end if;
       Log.Info ("Received: {0}", Line);
@@ -136,20 +155,24 @@ package body Util.Http.Clients.Tests is
       end;
    end Test_Http_Get;
 
+   --  ------------------------------
    --  Test the http POST operation.
+   --  ------------------------------
    procedure Test_Http_Post (T : in out Test) is
       Request : Client;
       Reply   : Response;
       Uri     : constant String := T.Get_Uri;
    begin
       Log.Info ("Post on " & Uri);
-      --        delay 20.0;
 
-      T.Server.Method := POST;
+      T.Server.Method := UNKNOWN;
       Request.Post (Uri & "/post",
                     "p1=1", Reply);
 
-      Util.Tests.Assert_Equals (T, "<html><body>", Reply.Get_Body, "Invalid response");
+      T.Assert (T.Server.Method = POST, "Invalid method received by server");
+      Util.Tests.Assert_Equals (T, "application/x-www-form-urlencoded", T.Server.Content_Type,
+                                "Invalid content type received by server");
+      Util.Tests.Assert_Equals (T, "OK" & ASCII.CR & ASCII.LF, Reply.Get_Body, "Invalid response");
       Util.Http.Tools.Save_Response (Util.Tests.Get_Test_Path ("http_post.txt"), Reply, True);
 
    end Test_Http_Post;

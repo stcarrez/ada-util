@@ -20,6 +20,7 @@ with Ada.Strings.Unbounded;
 with Util.Tests;
 with Util.Tests.Servers;
 with Util.Streams.Texts;
+with Util.Streams.Sockets;
 package Util.Http.Clients.Tests is
 
    type Method_Type is (OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT, UNKNOWN);
@@ -36,7 +37,8 @@ package Util.Http.Clients.Tests is
    overriding
    procedure Process_Line (Into   : in out Test_Server;
                            Line   : in Ada.Strings.Unbounded.Unbounded_String;
-                           Stream : in out Util.Streams.Texts.Reader_Stream'Class);
+                           Stream : in out Util.Streams.Texts.Reader_Stream'Class;
+                           Client : in out Util.Streams.Sockets.Socket_Stream'Class);
 
    type Test is new Util.Tests.Test with record
       Server : Test_Server_Access := null;
