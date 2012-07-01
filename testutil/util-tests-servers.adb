@@ -72,53 +72,54 @@ package body Util.Tests.Servers is
       Server   : Socket_Type;
       Socket   : Socket_Type;
       Instance : Server_Access := null;
+      Status   : Selector_Status;
    begin
-      Address.Port := 51432;
+      Address.Port := 0;
+      Address.Addr := Addresses (Get_Host_By_Name (Host_Name), 1);
+      Create_Socket (Server);
       select
          accept Start (S : in Server_Access) do
             Instance := S;
+            Bind_Socket (Server, Address);
+            Address := GNAT.Sockets.Get_Socket_Name (Server);
+            Listen_Socket (Server);
+
             Instance.Port := Natural (Address.Port);
          end Start;
       or
          terminate;
       end select;
 
-      Address.Addr := Addresses (Get_Host_By_Name (Host_Name), 1);
       Log.Info ("Internal HTTP server started at port {0}", Port_Type'Image (Address.Port));
 
-      Create_Socket (Server);
-      Set_Socket_Option (Server,
-                         Socket_Level,
-                         (Reuse_Address, True));
-      Bind_Socket (Server, Address);
-      Listen_Socket (Server);
       while not Instance.Need_Shutdown loop
-         Accept_Socket (Server, Socket, Address);
+         Accept_Socket (Server, Socket, Address, 1.0, null, Status);
+         if Socket /= No_Socket then
+            Log.Info ("Accepted connection");
+            declare
+               Stream   : aliased Util.Streams.Sockets.Socket_Stream;
+               Input    : Util.Streams.Texts.Reader_Stream;
+            begin
+               Stream.Open (Socket);
+               Input.Initialize (From => Stream'Unchecked_Access);
+               while not Input.Is_Eof loop
+                  declare
+                     Line     : Ada.Strings.Unbounded.Unbounded_String;
+                  begin
+                     Input.Read_Line (Into  => Line, Strip => True);
+                     exit when Ada.Strings.Unbounded.Length (Line) = 0;
+                     Log.Info ("Received: {0}", Line);
 
-         Log.Info ("Accepted connection");
-         declare
-            Stream   : aliased Util.Streams.Sockets.Socket_Stream;
-            Input    : Util.Streams.Texts.Reader_Stream;
-         begin
-            Stream.Open (Socket);
-            Input.Initialize (From => Stream'Unchecked_Access);
-            while not Input.Is_Eof loop
-               declare
-                  Line     : Ada.Strings.Unbounded.Unbounded_String;
-               begin
-                  Input.Read_Line (Into  => Line, Strip => True);
-                  exit when Ada.Strings.Unbounded.Length (Line) = 0;
-                  Log.Info ("Received: {0}", Line);
+                     Instance.Process_Line (Line);
+                  end;
+               end loop;
 
-                  Instance.Process_Line (Line);
-               end;
-            end loop;
-
-         exception
-            when E : others =>
-               Log.Error ("Exception: ", E);
-         end;
-         Close_Socket (Socket);
+            exception
+               when E : others =>
+                  Log.Error ("Exception: ", E);
+            end;
+            Close_Socket (Socket);
+         end if;
       end loop;
 
       GNAT.Sockets.Close_Socket (Server);
