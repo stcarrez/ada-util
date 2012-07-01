@@ -15,11 +15,25 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Ada.Strings.Unbounded;
 
 with Util.Tests;
+with Util.Tests.Servers;
 package Util.Http.Clients.Tests is
 
-   type Test is new Util.Tests.Test with null record;
+   type Test_Server is new Util.Tests.Servers.Server with record
+      Result : Ada.Strings.Unbounded.Unbounded_String;
+   end record;
+   type Test_Server_Access is access all Test_Server'Class;
+
+   --  Process the line received by the server.
+   overriding
+   procedure Process_Line (Into : in out Test_Server;
+                           Line : in Ada.Strings.Unbounded.Unbounded_String);
+
+   type Test is new Util.Tests.Test with record
+      Server : Test_Server_Access := null;
+   end record;
 
    --  Test the http Get operation.
    procedure Test_Http_Get (T : in out Test);
@@ -32,6 +46,9 @@ package Util.Http.Clients.Tests is
 
    overriding
    procedure Tear_Down (T : in out Test);
+
+   --  Get the test server base URI.
+   function Get_Uri (T : in Test) return String;
 
 
    --  The <b>Http_Tests</b> package must be instantiated with one of the HTTP implementation.
