@@ -114,7 +114,7 @@ package body Util.Tests.Servers is
                   declare
                      Line     : Ada.Strings.Unbounded.Unbounded_String;
                   begin
-                     Input.Read_Line (Into  => Line, Strip => True);
+                     Input.Read_Line (Into  => Line, Strip => False);
                      exit when Ada.Strings.Unbounded.Length (Line) = 0;
                      Log.Info ("Received: {0}", Line);
 
@@ -126,7 +126,6 @@ package body Util.Tests.Servers is
                when E : others =>
                   Log.Error ("Exception: ", E);
             end;
-            Close_Socket (Socket);
          end if;
       end loop;
 
