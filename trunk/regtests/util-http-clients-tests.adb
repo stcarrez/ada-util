@@ -20,9 +20,14 @@ with Util.Test_Caller;
 
 with Util.Strings.Transforms;
 with Util.Http.Tools;
-with Util.Processes;
+with Util.Tests.Servers;
+with Util.Strings;
+with Util.Log.Loggers;
 
 package body Util.Http.Clients.Tests is
+
+   --  The logger
+   Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Http.Clients.Tests");
 
    package body Http_Tests is
       package Caller is new Util.Test_Caller (Http_Test, "Http-" & NAME);
@@ -37,26 +42,49 @@ package body Util.Http.Clients.Tests is
 
       overriding
       procedure Set_Up (T : in out Http_Test) is
-         pragma Unreferenced (T);
       begin
+         Test (T).Set_Up;
          Register;
       end Set_Up;
 
    end Http_Tests;
 
-   Server : Util.Processes.Process;
-
    overriding
    procedure Set_Up (T : in out Test) is
    begin
-      Util.Processes.Spawn (Server, "python support/test_server.py");
+      Log.Info ("Starting test server");
+      T.Server := new Test_Server;
+      T.Server.Start;
    end Set_Up;
 
    overriding
    procedure Tear_Down (T : in out Test) is
    begin
-      Util.Processes.Stop (Server, 9);
+      if T.Server /= null then
+         Log.Info ("Stopping test server");
+         T.Server.Stop;
+         T.Server := null;
+      end if;
    end Tear_Down;
+
+   --  ------------------------------
+   --  Process the line received by the server.
+   --  ------------------------------
+   overriding
+   procedure Process_Line (Into : in out Test_Server;
+                           Line : in Ada.Strings.Unbounded.Unbounded_String) is
+   begin
+      Log.Info ("Received: {0}", Line);
+   end Process_Line;
+
+   --  ------------------------------
+   --  Get the test server base URI.
+   --  ------------------------------
+   function Get_Uri (T : in Test) return String is
+
+   begin
+      return "http://" & T.Server.Get_Host & ":" & Util.Strings.Image (T.Server.Get_Port);
+   end Get_Uri;
 
    --  ------------------------------
    --  Test the http Get operation.
@@ -90,12 +118,16 @@ package body Util.Http.Clients.Tests is
    procedure Test_Http_Post (T : in out Test) is
       Request : Client;
       Reply   : Response;
+      Uri     : constant String := T.Get_Uri;
    begin
-      Request.Post ("http://localhost:8080/post",
+      Log.Info ("Post on " & Uri);
+      delay 20.0;
+      Request.Post (Uri & "/post",
                     "p1=1", Reply);
 
       Util.Tests.Assert_Equals (T, "<html><body>", Reply.Get_Body, "Invalid response");
       Util.Http.Tools.Save_Response (Util.Tests.Get_Test_Path ("http_post.txt"), Reply, True);
+
    end Test_Http_Post;
 
 end Util.Http.Clients.Tests;
