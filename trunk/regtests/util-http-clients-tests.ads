@@ -19,17 +19,24 @@ with Ada.Strings.Unbounded;
 
 with Util.Tests;
 with Util.Tests.Servers;
+with Util.Streams.Texts;
 package Util.Http.Clients.Tests is
 
+   type Method_Type is (OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT, UNKNOWN);
+
    type Test_Server is new Util.Tests.Servers.Server with record
-      Result : Ada.Strings.Unbounded.Unbounded_String;
+      Method       : Method_Type := UNKNOWN;
+      Result       : Ada.Strings.Unbounded.Unbounded_String;
+      Content_Type : Ada.Strings.Unbounded.Unbounded_String;
+      Length       : Natural := 0;
    end record;
    type Test_Server_Access is access all Test_Server'Class;
 
    --  Process the line received by the server.
    overriding
-   procedure Process_Line (Into : in out Test_Server;
-                           Line : in Ada.Strings.Unbounded.Unbounded_String);
+   procedure Process_Line (Into   : in out Test_Server;
+                           Line   : in Ada.Strings.Unbounded.Unbounded_String;
+                           Stream : in out Util.Streams.Texts.Reader_Stream'Class);
 
    type Test is new Util.Tests.Test with record
       Server : Test_Server_Access := null;
