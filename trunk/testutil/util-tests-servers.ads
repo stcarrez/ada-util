@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with Ada.Finalization;
 
+with Util.Streams.Sockets;
 with Util.Streams.Texts;
 package Util.Tests.Servers is
 
@@ -33,7 +34,8 @@ package Util.Tests.Servers is
    --  Process the line received by the server.
    procedure Process_Line (Into   : in out Server;
                            Line   : in Ada.Strings.Unbounded.Unbounded_String;
-                           Stream : in out Util.Streams.Texts.Reader_Stream'Class);
+                           Stream : in out Util.Streams.Texts.Reader_Stream'Class;
+                           Client : in out Util.Streams.Sockets.Socket_Stream'Class);
 
    --  Start the server task.
    procedure Start (S : in out Server);
@@ -55,6 +57,7 @@ private
       Port          : Natural := 0;
       Need_Shutdown : Boolean := False;
       Server        : Server_Task;
+      Client        : aliased Util.Streams.Sockets.Socket_Stream;
    end record;
 
 end Util.Tests.Servers;
