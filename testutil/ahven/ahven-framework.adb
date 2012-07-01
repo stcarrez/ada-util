@@ -662,7 +662,14 @@ package body Ahven.Framework is
             Command.Simple_Routine.all;
          when OBJECT =>
             Set_Up (T);
-            Command.Object_Routine.all (T);
+            begin
+               Command.Object_Routine.all (T);
+            exception
+               when others =>
+                  --  Make sure Tear_Down is called even if the test failed.
+                  Tear_Down (T);
+                  raise;
+            end;
             Tear_Down (T);
       end case;
    end Run;
