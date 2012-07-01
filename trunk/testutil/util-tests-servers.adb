@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 
 with GNAT.Sockets;
-with Ada.Streams;
 with Util.Streams.Sockets;
 with Util.Streams.Texts;
 with Util.Log.Loggers;
