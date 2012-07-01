@@ -84,11 +84,11 @@ package body Util.Tests.Servers is
       Status   : Selector_Status;
    begin
       Address.Port := 0;
-      Address.Addr := Addresses (Get_Host_By_Name (Host_Name), 1);
       Create_Socket (Server);
       select
          accept Start (S : in Server_Access) do
             Instance := S;
+            Address.Addr := Addresses (Get_Host_By_Name (S.Get_Host), 1);
             Bind_Socket (Server, Address);
             Address := GNAT.Sockets.Get_Socket_Name (Server);
             Listen_Socket (Server);
