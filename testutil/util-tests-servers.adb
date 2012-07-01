@@ -18,7 +18,6 @@
 
 with GNAT.Sockets;
 with Util.Streams.Sockets;
-with Util.Streams.Texts;
 with Util.Log.Loggers;
 package body Util.Tests.Servers is
 
@@ -67,8 +66,10 @@ package body Util.Tests.Servers is
    --  ------------------------------
    --  Process the line received by the server.
    --  ------------------------------
-   procedure Process_Line (Into : in out Server;
-                           Line : in Ada.Strings.Unbounded.Unbounded_String) is
+   procedure Process_Line (Into   : in out Server;
+                           Line   : in Ada.Strings.Unbounded.Unbounded_String;
+                           Stream : in out Util.Streams.Texts.Reader_Stream'Class) is
+      pragma Unreferenced (Into, Line, Stream);
    begin
       null;
    end Process_Line;
@@ -118,7 +119,7 @@ package body Util.Tests.Servers is
                      exit when Ada.Strings.Unbounded.Length (Line) = 0;
                      Log.Info ("Received: {0}", Line);
 
-                     Instance.Process_Line (Line);
+                     Instance.Process_Line (Line, Input);
                   end;
                end loop;
 

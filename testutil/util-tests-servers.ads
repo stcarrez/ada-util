@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with Ada.Finalization;
 
+with Util.Streams.Texts;
 package Util.Tests.Servers is
 
    --  A small TCP/IP server for unit tests.
@@ -30,8 +31,9 @@ package Util.Tests.Servers is
    function Get_Host (From : in Server) return String;
 
    --  Process the line received by the server.
-   procedure Process_Line (Into : in out Server;
-                           Line : in Ada.Strings.Unbounded.Unbounded_String);
+   procedure Process_Line (Into   : in out Server;
+                           Line   : in Ada.Strings.Unbounded.Unbounded_String;
+                           Stream : in out Util.Streams.Texts.Reader_Stream'Class);
 
    --  Start the server task.
    procedure Start (S : in out Server);
