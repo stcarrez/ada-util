@@ -71,9 +71,31 @@ package body Util.Http.Clients.Tests is
    --  Process the line received by the server.
    --  ------------------------------
    overriding
-   procedure Process_Line (Into : in out Test_Server;
-                           Line : in Ada.Strings.Unbounded.Unbounded_String) is
+   procedure Process_Line (Into   : in out Test_Server;
+                           Line   : in Ada.Strings.Unbounded.Unbounded_String;
+                           Stream : in out Util.Streams.Texts.Reader_Stream'Class) is
+      L   : constant String := Ada.Strings.Unbounded.To_String (Line);
+      Pos : Natural := Util.Strings.Index (L, ' ');
    begin
+      if Pos > 0 then
+         if L (L'First .. Pos - 1) = "GET" then
+            Into.Method := GET;
+         elsif L (L'First .. Pos - 1) = "POST" then
+            Into.Method := POST;
+         else
+            Into.Method := UNKNOWN;
+         end if;
+      end if;
+
+      Pos := Util.Strings.Index (L, ':');
+      if Pos > 0 then
+         if L (L'First .. Pos) = "Content-Type:" then
+            Into.Content_Type := Ada.Strings.Unbounded.To_Unbounded_String (L (Pos + 1 .. L'Last));
+         elsif L (L'First .. Pos) = "Content-Length:" then
+            Into.Length := Natural'Value (L (Pos + 1 .. L'Last));
+
+         end if;
+      end if;
       Log.Info ("Received: {0}", Line);
    end Process_Line;
 
@@ -121,7 +143,9 @@ package body Util.Http.Clients.Tests is
       Uri     : constant String := T.Get_Uri;
    begin
       Log.Info ("Post on " & Uri);
-      delay 20.0;
+      --        delay 20.0;
+
+      T.Server.Method := POST;
       Request.Post (Uri & "/post",
                     "p1=1", Reply);
 
