@@ -68,7 +68,8 @@ package body Util.Tests.Servers is
    --  ------------------------------
    procedure Process_Line (Into   : in out Server;
                            Line   : in Ada.Strings.Unbounded.Unbounded_String;
-                           Stream : in out Util.Streams.Texts.Reader_Stream'Class) is
+                           Stream : in out Util.Streams.Texts.Reader_Stream'Class;
+                           Client : in out Util.Streams.Sockets.Socket_Stream'Class) is
       pragma Unreferenced (Into, Line, Stream);
    begin
       null;
@@ -106,11 +107,10 @@ package body Util.Tests.Servers is
          if Socket /= No_Socket then
             Log.Info ("Accepted connection");
             declare
-               Stream   : aliased Util.Streams.Sockets.Socket_Stream;
-               Input    : Util.Streams.Texts.Reader_Stream;
+               Input : Util.Streams.Texts.Reader_Stream;
             begin
-               Stream.Open (Socket);
-               Input.Initialize (From => Stream'Unchecked_Access);
+               Instance.Client.Open (Socket);
+               Input.Initialize (From => Instance.Client'Access);
                while not Input.Is_Eof loop
                   declare
                      Line     : Ada.Strings.Unbounded.Unbounded_String;
@@ -119,7 +119,7 @@ package body Util.Tests.Servers is
                      exit when Ada.Strings.Unbounded.Length (Line) = 0;
                      Log.Info ("Received: {0}", Line);
 
-                     Instance.Process_Line (Line, Input);
+                     Instance.Process_Line (Line, Input, Instance.Client);
                   end;
                end loop;
 
@@ -127,6 +127,7 @@ package body Util.Tests.Servers is
                when E : others =>
                   Log.Error ("Exception: ", E);
             end;
+            Instance.Client.Close;
          end if;
       end loop;
 
