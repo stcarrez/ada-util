@@ -26,6 +26,8 @@ package Util.Tests.Servers is
    --  Get the server port.
    function Get_Port (From : in Server) return Natural;
 
+   --  Get the server name.
+   function Get_Host (From : in Server) return String;
 
    --  Process the line received by the server.
    procedure Process_Line (Into : in out Server;

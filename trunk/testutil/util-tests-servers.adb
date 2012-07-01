@@ -34,6 +34,15 @@ package body Util.Tests.Servers is
    end Get_Port;
 
    --  ------------------------------
+   --  Get the server name.
+   --  ------------------------------
+   function Get_Host (From : in Server) return String is
+      pragma Unreferenced (From);
+   begin
+      return GNAT.Sockets.Host_Name;
+   end Get_Host;
+
+   --  ------------------------------
    --  Start the server task.
    --  ------------------------------
    procedure Start (S : in out Server) is
