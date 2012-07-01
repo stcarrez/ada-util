@@ -37,7 +37,8 @@ package body Util.Streams.Sockets.Tests is
    overriding
    procedure Process_Line (Into   : in out Test_Server;
                            Line   : in Ada.Strings.Unbounded.Unbounded_String;
-                           Stream : in out Util.Streams.Texts.Reader_Stream'Class);
+                           Stream : in out Util.Streams.Texts.Reader_Stream'Class;
+                           Client : in out Util.Streams.Sockets.Socket_Stream'Class);
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
@@ -53,8 +54,9 @@ package body Util.Streams.Sockets.Tests is
    overriding
    procedure Process_Line (Into   : in out Test_Server;
                            Line   : in Ada.Strings.Unbounded.Unbounded_String;
-                           Stream : in out Util.Streams.Texts.Reader_Stream'Class) is
-      pragma Unreferenced (Stream);
+                           Stream : in out Util.Streams.Texts.Reader_Stream'Class;
+                           Client : in out Util.Streams.Sockets.Socket_Stream'Class) is
+      pragma Unreferenced (Stream, Client);
    begin
       if Ada.Strings.Unbounded.Index (Line, "test-" & Natural'Image (Into.Count + 1)) > 0 then
          Into.Count := Into.Count + 1;
