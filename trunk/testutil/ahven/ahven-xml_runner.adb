@@ -18,6 +18,7 @@ with Ada.Text_IO;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Ada.IO_Exceptions;
 
 with Ahven.Runner;
 
@@ -389,20 +390,27 @@ package body Ahven.XML_Runner is
       end State_Change;
    begin
       Open (Handle, In_File, Filename);
-      loop
-         exit when End_Of_File (Handle);
-         Get (Handle, Char);
-         if First then
-            Put (File, "<![CDATA[");
-            First := False;
-         end if;
-         CData_Ending := State_Change (CData_Ending);
+      begin
+         loop
+            exit when End_Of_File (Handle);
+            Get (Handle, Char);
+            if First then
+               Put (File, "<![CDATA[");
+               First := False;
+            end if;
+            CData_Ending := State_Change (CData_Ending);
 
-         Put (File, Char);
-         if End_Of_Line (Handle) then
-            New_Line (File);
-         end if;
-      end loop;
+            Put (File, Char);
+            if End_Of_Line (Handle) then
+               New_Line (File);
+            end if;
+         end loop;
+
+         --  The End_Error exception is sometimes raised.
+      exception
+         when Ada.IO_Exceptions.End_Error =>
+            null;
+      end;
 
       Close (Handle);
       if not First then
