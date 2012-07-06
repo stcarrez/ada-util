@@ -95,27 +95,29 @@ package body Util.Http.Clients.Tests is
          elsif L (L'First .. Pos) = "Content-Length:" then
             Into.Length := Natural'Value (L (Pos + 1 .. L'Last - 2));
 
-            for I in 1 .. Into.Length loop
-               declare
-                  C : Character;
-               begin
-                  Stream.Read (C);
-                  Ada.Strings.Unbounded.Append (Into.Result, C);
-               end;
-            end loop;
-            declare
-               Output : Util.Streams.Texts.Print_Stream;
-            begin
-               Output.Initialize (Client'Unchecked_Access);
-               Output.Write ("HTTP/1.1 204 No Content" & ASCII.CR & ASCII.LF);
-               Output.Write ("Content-Length: 4" & ASCII.CR & ASCII.LF);
-               Output.Write (ASCII.CR & ASCII.LF);
-               Output.Write ("OK" & ASCII.CR & ASCII.LF);
-               Output.Flush;
-            end;
          end if;
       end if;
-      Log.Info ("Received: {0}", Line);
+      if L'Length = 2 and then Into.Length > 0 then
+         for I in 1 .. Into.Length loop
+            declare
+               C : Character;
+            begin
+               Stream.Read (C);
+               Ada.Strings.Unbounded.Append (Into.Result, C);
+            end;
+         end loop;
+         declare
+            Output : Util.Streams.Texts.Print_Stream;
+         begin
+            Output.Initialize (Client'Unchecked_Access);
+            Output.Write ("HTTP/1.1 204 No Content" & ASCII.CR & ASCII.LF);
+            Output.Write ("Content-Length: 4" & ASCII.CR & ASCII.LF);
+            Output.Write (ASCII.CR & ASCII.LF);
+            Output.Write ("OK" & ASCII.CR & ASCII.LF);
+            Output.Flush;
+         end;
+      end if;
+      Log.Info ("Received: {0}", L);
    end Process_Line;
 
    --  ------------------------------
