@@ -159,8 +159,47 @@ package body Util.Http.Clients.Curl is
                       URI      : in String;
                       Data     : in String;
                       Reply    : out Response'Class) is
+      use Interfaces.C;
+
+      Req      : constant Curl_Http_Request_Access := Get_Request (Http);
+      Result   : CURL_Code;
+      Response : Curl_Http_Response_Access;
+      Status   : aliased C.Long;
    begin
-      null;
+      Log.Info ("POST {0}", URI);
+
+      Result := Curl_Easy_Setopt_Write_Callback (Req.Data,  CURLOPT_WRITEUNCTION,
+                                                 Read_Response'Access);
+      Check_Code (Result, "set callback");
+
+      Interfaces.C.Strings.Free (Req.URL);
+      Req.URL := Strings.New_String (URI);
+
+      Interfaces.C.Strings.Free (Req.Content);
+      Req.Content := Strings.New_String (Data);
+
+      Result := Curl_Easy_Setopt_Long (Req.Data, CURLOPT_HEADER, 1);
+      Check_Code (Result, "set header");
+
+      Result := Curl_Easy_Setopt_String (Req.Data, CURLOPT_URL, Req.URL);
+      Check_Code (Result, "set url");
+
+      Result := Curl_Easy_Setopt_String (Req.Data, CURLOPT_POSTFIELDS, Req.Content);
+      Check_Code (Result, "set post data");
+
+      Result := Curl_Easy_Setopt_Long (Req.Data, CURLOPT_POSTFIELDSIZE, Data'Length);
+      Check_Code (Result, "set post data");
+
+      Response := new Curl_Http_Response;
+      Result := Curl_Easy_Setopt_Data (Req.Data, CURLOPT_WRITEDATA, Response);
+      Reply.Delegate := Response.all'Access;
+
+      Result := Curl_Easy_Perform (Req.Data);
+      Check_Code (Result, "get request");
+
+      Result := Curl_Easy_Getinfo_Long (Req.Data, CURLINFO_RESPONSE_CODE, Status'Access);
+      Check_Code (Result, "get response code");
+      Response.Status := Natural (Status);
    end Do_Post;
 
    overriding
@@ -175,6 +214,7 @@ package body Util.Http.Clients.Curl is
          Request.Headers := null;
       end if;
       Interfaces.C.Strings.Free (Request.URL);
+      Interfaces.C.Strings.Free (Request.Content);
    end Finalize;
 
    --  ------------------------------
