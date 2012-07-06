@@ -62,6 +62,8 @@ private
    CURLOPT_MAXFILESIZE    : constant Curl_Option := 114;
    CURLOPT_WRITEDATA      : constant Curl_Option := 10001;
    CURLOPT_HEADER         : constant Curl_Option := 42;
+   CURLOPT_POSTFIELDS     : constant Curl_Option := 10015;
+   CURLOPT_POSTFIELDSIZE  : constant Curl_Option := 60;
 
    type CURL_Slist;
    type CURL_Slist_Access is access CURL_Slist;
@@ -97,6 +99,7 @@ private
    type Curl_Http_Request is new Util.Http.Mockups.Mockup_Request with record
       Data    : CURL := System.Null_Address;
       URL     : Chars_Ptr := Interfaces.C.Strings.Null_Ptr;
+      Content : Chars_Ptr := Interfaces.C.Strings.Null_Ptr;
       Headers : CURL_Slist_Access := null;
    end record;
    type Curl_Http_Request_Access is access all Curl_Http_Request'Class;
