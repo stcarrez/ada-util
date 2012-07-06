@@ -110,7 +110,7 @@ package body Util.Http.Clients.Tests is
             Output : Util.Streams.Texts.Print_Stream;
          begin
             Output.Initialize (Client'Unchecked_Access);
-            Output.Write ("HTTP/1.1 204 No Content" & ASCII.CR & ASCII.LF);
+            Output.Write ("HTTP/1.1 200 Found" & ASCII.CR & ASCII.LF);
             Output.Write ("Content-Length: 4" & ASCII.CR & ASCII.LF);
             Output.Write (ASCII.CR & ASCII.LF);
             Output.Write ("OK" & ASCII.CR & ASCII.LF);
