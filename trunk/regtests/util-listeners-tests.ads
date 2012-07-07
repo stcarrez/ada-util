@@ -27,4 +27,7 @@ package Util.Listeners.Tests is
    --  Test the listeners and the publish operation.
    procedure Test_Publish (T : in out Test);
 
+   --  Performance test for the listeners.
+   procedure Test_Publish_Perf (T : in out Test);
+
 end Util.Listeners.Tests;

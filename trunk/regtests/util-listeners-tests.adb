@@ -16,6 +16,8 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Strings.Unbounded;
+
+with Util.Measures;
 with Util.Test_Caller;
 package body Util.Listeners.Tests is
 
@@ -50,6 +52,8 @@ package body Util.Listeners.Tests is
    begin
       Caller.Add_Test (Suite, "Test Util.Listeners.Publish",
                        Test_Publish'Access);
+      Caller.Add_Test (Suite, "Test Util.Listeners.Publish_Perf",
+                       Test_Publish_Perf'Access);
    end Add_Tests;
 
    overriding
@@ -99,5 +103,38 @@ package body Util.Listeners.Tests is
       Integer_Publishers.Publish (Listeners, 3);
 
    end Test_Publish;
+
+   --  ------------------------------
+   --  Performance test for the listeners.
+   --  ------------------------------
+   procedure Test_Publish_Perf (T : in out Test) is
+      Listeners : Util.Listeners.List;
+      L1        : aliased Integer_Listener;
+
+      procedure Test_Basic (Item : in Integer) is
+      begin
+         Util.Tests.Assert_Equals (T, 3, Item);
+      end Test_Basic;
+
+   begin
+      Listeners.Append (L1'Unchecked_Access);
+      L1.Expect := 3;
+      declare
+         S : Util.Measures.Stamp;
+      begin
+         for I in 1 .. 1_000 loop
+            Integer_Publishers.Publish (Listeners, 3);
+         end loop;
+         Util.Measures.Report (S, "Published 1000 times");
+      end;
+      declare
+         S : Util.Measures.Stamp;
+      begin
+         for I in 1 .. 1_000 loop
+            Test_Basic (3);
+         end loop;
+         Util.Measures.Report (S, "Call basic 1000 times");
+      end;
+   end Test_Publish_Perf;
 
 end Util.Listeners.Tests;
