@@ -19,6 +19,9 @@
 --  The `Lifecycles` package provides a listener interface dedicated to
 --  track lifecycle managements on objects.  It defines a set of procedures to be
 --  notified when an object is created, updated or deleted.
+--
+--  Notes: another implementation can be made by using three different listener lists
+--  that use the simple observer pattern.
 generic
    type Element_Type (<>) is limited private;
 package Util.Listeners.Lifecycles is
