@@ -19,41 +19,48 @@
 with Ada.Finalization;
 with Util.Concurrent.Counters;
 
---  The <b>Util.Concurrent.Vectors</b> generic package defines a vector which provides a
+--  == Introduction ==
+--  The <b>Util.Concurrent.Arrays</b> generic package defines an array which provides a
 --  concurrent read only access and a protected exclusive write access.  This implementation
---  is intended to be used in applications that have to frequently iterate over the vector
---  content.  Adding or removing elements in the vector is assumed to be a not so frequent
---  operation.  Based on these assumptions, updating the vector array is implemented by
+--  is intended to be used in applications that have to frequently iterate over the array
+--  content.  Adding or removing elements in the array is assumed to be a not so frequent
+--  operation.  Based on these assumptions, updating the array is implemented by
 --  using the <tt>copy on write</tt> design pattern.  Read access is provided through a
 --  reference object that can be shared by multiple readers.
 --
+--  == Declaration ==
+--  The package must be instantiated using the element type representing the array element.
+--
+--    package My_Array is new Util.Concurrent.Arrays (Element_Type => Integer);
+--
+--  == Adding Elements ==
 --  The vector instance is declared and elements are added as follows:
 --
---     C : Vector;
+--     C : My_Array.Vector;
 --
 --     C.Append (E1);
 --
+--  == Iterating over the array ==
 --  To read and iterate over the vector, a task will get a reference to the vector array
 --  and it will iterate over it.  The reference will be held until the reference object is
 --  finalized.  While doing so, if another task updates the vector, a new vector array will
 --  be associated with the vector instance (but this will not change the reader's references).
 --
---     R : Ref := C.Get;
+--     R : My_Array.Ref := C.Get;
 --
 --     R.Iterate (Process'Access);
 --     ...
 --     R.Iterate (Process'Access);
 --
---  In the above example, the two <b>Iterate</b> operations will iterate over the same list of
+--  In the above example, the two `Iterate` operations will iterate over the same list of
 --  elements, even if another task appends an element in the middle.
 --
 --  Notes:
---  o This package is close to the Java class <tt>java.util.concurrent.CopyOnWriteArrayList</tt>.
---  o The package implements voluntarily a very small subset of Ada.Containers.Vectors.
---  o The implementation does not use the Ada container for performance and size reasons.
---  o The Iterate and Reverse_Iterate operation give a direct access to the element
+--    * This package is close to the Java class `java.util.concurrent.CopyOnWriteArrayList`.
+--    * The package implements voluntarily a very small subset of `Ada.Containers.Vectors`.
+--    * The implementation does not use the Ada container for performance and size reasons.
+--    * The `Iterate` and `Reverse_Iterate` operation give a direct access to the element.
 generic
---     type Index_Type is range <>;
    type Element_Type is private;
 
    with function "=" (Left, Right : in Element_Type) return Boolean is <>;
@@ -139,7 +146,6 @@ private
 
    private
       Elements : Ref;
---        Elements      : Vector_Record_Access := null;
    end Protected_Vector;
 
    type Vector is new Ada.Finalization.Limited_Controlled with record
