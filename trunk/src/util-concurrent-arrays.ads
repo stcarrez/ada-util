@@ -57,8 +57,11 @@ with Util.Concurrent.Counters;
 --
 --  Notes:
 --    * This package is close to the Java class `java.util.concurrent.CopyOnWriteArrayList`.
+--
 --    * The package implements voluntarily a very small subset of `Ada.Containers.Vectors`.
+--
 --    * The implementation does not use the Ada container for performance and size reasons.
+--
 --    * The `Iterate` and `Reverse_Iterate` operation give a direct access to the element.
 generic
    type Element_Type is private;
