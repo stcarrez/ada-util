@@ -30,4 +30,7 @@ package Util.Listeners.Tests is
    --  Performance test for the listeners.
    procedure Test_Publish_Perf (T : in out Test);
 
+   --  Test the lifecycles listener.
+   procedure Test_Lifecycles (T : in out Test);
+
 end Util.Listeners.Tests;

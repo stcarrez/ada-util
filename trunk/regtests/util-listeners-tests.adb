@@ -19,6 +19,8 @@ with Ada.Strings.Unbounded;
 
 with Util.Measures;
 with Util.Test_Caller;
+with Util.Listeners.Observers;
+with Util.Listeners.Lifecycles;
 package body Util.Listeners.Tests is
 
    use Util.Tests;
@@ -27,23 +29,23 @@ package body Util.Listeners.Tests is
 
    Count     : Natural := 0;
 
-   package String_Publishers is new Util.Listeners.Publishers (String);
-   package Integer_Publishers is new Util.Listeners.Publishers (Integer);
+   package String_Observers is new Util.Listeners.Observers (String);
+   package Integer_Observers is new Util.Listeners.Observers (Integer);
 
-   type String_Listener is new String_Publishers.Listener with record
+   type String_Listener is new String_Observers.Observer with record
       Expect : Ada.Strings.Unbounded.Unbounded_String;
    end record;
 
    overriding
-   procedure Notify (Listener : in String_Listener;
+   procedure Update (Listener : in String_Listener;
                      Item     : in String);
 
-   type Integer_Listener is new Integer_Publishers.Listener with record
+   type Integer_Listener is new Integer_Observers.Observer with record
       Expect : Integer;
    end record;
 
    overriding
-   procedure Notify (Listener : in Integer_Listener;
+   procedure Update (Listener : in Integer_Listener;
                      Item     : in Integer);
 
    package Caller is new Util.Test_Caller (Test, "Listeners");
@@ -54,31 +56,31 @@ package body Util.Listeners.Tests is
                        Test_Publish'Access);
       Caller.Add_Test (Suite, "Test Util.Listeners.Publish_Perf",
                        Test_Publish_Perf'Access);
+      Caller.Add_Test (Suite, "Test Util.Listeners.Lifecycles",
+                       Test_Lifecycles'Access);
    end Add_Tests;
 
    overriding
-   procedure Notify (Listener : in String_Listener;
+   procedure Update (Listener : in String_Listener;
                      Item     : in String) is
       use type Ada.Strings.Unbounded.Unbounded_String;
    begin
       if Item /= Listener.Expect then
          raise Test_Error;
       end if;
---        Util.Tests.Assert_Equals (T, "Hello", Item);
       Count := Count + 1;
-   end Notify;
+   end Update;
 
    overriding
-   procedure Notify (Listener : in Integer_Listener;
+   procedure Update (Listener : in Integer_Listener;
                      Item     : in Integer) is
       use type Ada.Strings.Unbounded.Unbounded_String;
    begin
       if Item /= Listener.Expect then
          raise Test_Error;
       end if;
-      --        Util.Tests.Assert_Equals (T, "Hello", Item);
       Count := Count + 1;
-   end Notify;
+   end Update;
 
    --  ------------------------------
    --  Test the listeners and the publish operation.
@@ -95,12 +97,12 @@ package body Util.Listeners.Tests is
       Listeners.Append (L3'Unchecked_Access);
 
       L1.Expect := Ada.Strings.Unbounded.To_Unbounded_String ("Hello");
-      String_Publishers.Publish (Listeners, "Hello");
+      String_Observers.Notify (Listeners, "Hello");
       Util.Tests.Assert_Equals (T, 1, Count, "Invalid number of calls");
 
       L2.Expect := 3;
       L3.Expect := 3;
-      Integer_Publishers.Publish (Listeners, 3);
+      Integer_Observers.Notify (Listeners, 3);
 
    end Test_Publish;
 
@@ -123,7 +125,7 @@ package body Util.Listeners.Tests is
          S : Util.Measures.Stamp;
       begin
          for I in 1 .. 1_000 loop
-            Integer_Publishers.Publish (Listeners, 3);
+            Integer_Observers.Notify (Listeners, 3);
          end loop;
          Util.Measures.Report (S, "Published 1000 times");
       end;
@@ -136,5 +138,89 @@ package body Util.Listeners.Tests is
          Util.Measures.Report (S, "Call basic 1000 times");
       end;
    end Test_Publish_Perf;
+
+   --  ------------------------------
+   --  Test the lifecycles listener.
+   --  ------------------------------
+   procedure Test_Lifecycles (T : in out Test) is
+      package TL is new Util.Listeners.Lifecycles (Util.Measures.Stamp);
+
+      Create_Count : Natural := 0;
+      Update_Count : Natural := 0;
+      Delete_Count : Natural := 0;
+
+      type Listener is new TL.Listener with null record;
+
+      --  The `On_Create` procedure is called by `Notify_Create` to notify the creation
+      --  of the item.
+      overriding
+      procedure On_Create (Instance : in Listener;
+                           Item     : in Util.Measures.Stamp);
+
+      --  The `On_Update` procedure is called by `Notify_Update` to notify the update of the item.
+      overriding
+      procedure On_Update (Instance : in Listener;
+                           Item     : in Util.Measures.Stamp);
+
+      --  The `On_Delete` procedure is called by `Notify_Delete` to notify the deletion
+      --  of the item.
+      overriding
+      procedure On_Delete (Instance : in Listener;
+                           Item     : in Util.Measures.Stamp);
+
+      --  ------------------------------
+      --  The `On_Create` procedure is called by `Notify_Create` to notify the creation
+      --  of the item.
+      --  ------------------------------
+      overriding
+      procedure On_Create (Instance : in Listener;
+                           Item     : in Util.Measures.Stamp) is
+         pragma Unreferenced (Instance, Item);
+      begin
+         Create_Count := Create_Count + 1;
+      end On_Create;
+
+      --  ------------------------------
+      --  The `On_Update` procedure is called by `Notify_Update` to notify the update of the item.
+      --  ------------------------------
+      overriding
+      procedure On_Update (Instance : in Listener;
+                           Item     : in Util.Measures.Stamp) is
+         pragma Unreferenced (Instance, Item);
+      begin
+         Update_Count := Update_Count + 1;
+      end On_Update;
+
+      --  ------------------------------
+      --  The `On_Delete` procedure is called by `Notify_Delete` to notify the deletion
+      --  of the item.
+      --  ------------------------------
+      overriding
+      procedure On_Delete (Instance : in Listener;
+                           Item     : in Util.Measures.Stamp) is
+         pragma Unreferenced (Instance, Item);
+      begin
+         Delete_Count := Delete_Count + 1;
+      end On_Delete;
+
+      Listeners : Util.Listeners.List;
+      L1        : aliased Integer_Listener;
+      L2        : aliased Listener;
+   begin
+      Listeners.Append (L1'Unchecked_Access);
+      Listeners.Append (L2'Unchecked_Access);
+
+      declare
+         S : Util.Measures.Stamp;
+      begin
+         TL.Notify_Create (Listeners, S);
+         TL.Notify_Update (Listeners, S);
+         TL.Notify_Delete (Listeners, S);
+         Util.Measures.Report (S, "Notify Create, Update, Delete");
+      end;
+      Util.Tests.Assert_Equals (T, 1, Create_Count, "On_Create not called");
+      Util.Tests.Assert_Equals (T, 1, Update_Count, "On_Update not called");
+      Util.Tests.Assert_Equals (T, 1, Delete_Count, "On_Delete not called");
+   end Test_Lifecycles;
 
 end Util.Listeners.Tests;
