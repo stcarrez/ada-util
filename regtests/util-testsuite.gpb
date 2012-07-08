@@ -22,6 +22,7 @@ with Util.Log.Tests;
 with Util.Files.Tests;
 with Util.Concurrent.Tests;
 with Util.Events.Channels.Tests;
+with Util.Listeners.Tests;
 with Util.Locales.Tests;
 with Util.Strings.Tests;
 with Util.Dates.Formats.Tests;
@@ -63,6 +64,7 @@ package body Util.Testsuite is
       Util.Files.Tests.Add_Tests (Result);
       Util.Concurrent.Tests.Add_Tests (Result);
       Util.Events.Channels.Tests.Add_Tests (Result);
+      Util.Listeners.Tests.Add_Tests (Result);
       Util.Encoders.Tests.Add_Tests (Result);
       Util.Streams.Buffered.Tests.Add_Tests (Result);
       Util.Streams.Files.Tests.Add_Tests (Result);
