@@ -20,56 +20,61 @@ with Util.Concurrent.Arrays;
 --  == Introduction ==
 --  The `Listeners` package implements a simple observer/listener design pattern.
 --  A subscriber registers to a list.  When a change is made on an object, the
---  subscribers are called with the object.
+--  application can notify the subscribers which are then called with the object.
 --
---  == Creating the listeners ==
+--  == Creating the listener list ==
 --  The listeners list contains a list of listener interfaces.
 --
 --    L : Util.Listeners.List;
 --
---  == Creating the publishers ==
---  First the `Publishers` package must be instantiated with the type being
+--  The list is heterogeneous meaning that several kinds of listeners could
+--  be registered.
+--
+--  == Creating the observers ==
+--  First the `Observers` package must be instantiated with the type being
 --  observed.  In the example below, we will observe a string:
 --
---    package String_Publishers is new Util.Listeners.Publishers (String);
+--    package String_Observers is new Util.Listeners.Observers (String);
 --
---  == Implementing the listener ==
---  Now we must implement the string listener:
+--  == Implementing the observer ==
+--  Now we must implement the string observer:
 --
---    type String_Listener is new String_Publishers.Listener with null record;
---    procedure Notify (L : in String_Listener; Item : in String);
+--    type String_Observer is new String_Observer.Observer with null record;
+--    procedure Update (List : in String_Observer; Item : in String);
 --
---  == Registering the listener ==
---  An instance of the string listener must now be registered in the list.
+--  == Registering the observer ==
+--  An instance of the string observer must now be registered in the list.
 --
---    L.Append (new String_Listener);
+--    O : aliased String_Observer;
+--    L.Append (O'Access);
 --
 --  == Publishing ==
---  Notifying the listeners is done by invoking the `Publish` operation
---  provided by the `String_Publishers` package:
+--  Notifying the listeners is done by invoking the `Notify` operation
+--  provided by the `String_Observers` package:
 --
---    String_Publishers.Publish (L, "Hello");
+--    String_Observer.Notify (L, "Hello");
 --
 package Util.Listeners is
 
+   --  The listener root interface.
    type Listener is limited interface;
    type Listener_Access is access all Listener'Class;
 
+   --  The multi-task safe list of listeners.
    package Listener_Arrays is new Util.Concurrent.Arrays (Listener_Access);
 
+   --  ------------------------------
+   --  List of listeners
+   --  ------------------------------
+   --  The `List` type is a list of listeners that have been registered and must be
+   --  called when a notification is sent.  The list uses the concurrent arrays thus
+   --  allowing tasks to add or remove listeners while dispatching is also running.
    type List is new Listener_Arrays.Vector with null record;
 
-   generic
-      type Element_Type (<>) is limited private;
-   package Publishers is
-      type Listener is limited interface and Util.Listeners.Listener;
+   procedure Add_Listener (Into : in out Listener_Arrays.Vector;
+                           Item : in Listener_Access) renames Listener_Arrays.Append;
 
-      procedure Notify (Instance : in Listener;
-                        Item     : in Element_Type) is abstract;
-
-      procedure Publish (L : in List;
-                         Item : in Element_Type);
-
-   end Publishers;
+   procedure Remove_Listener (Into : in out Listener_Arrays.Vector;
+                              Item : in Listener_Access) renames Listener_Arrays.Remove;
 
 end Util.Listeners;
