@@ -115,8 +115,10 @@ package body Util.Http.Clients is
       return Reply.Delegate.Get_Status;
    end Get_Status;
 
+   --  ------------------------------
    --  Returns a boolean indicating whether the named response header has already
    --  been set.
+   --  ------------------------------
    overriding
    function Contains_Header (Request : in Client;
                              Name    : in String) return Boolean is
@@ -124,11 +126,13 @@ package body Util.Http.Clients is
       return Request.Delegate.Contains_Header (Name);
    end Contains_Header;
 
+   --  ------------------------------
    --  Returns the value of the specified request header as a String. If the request
    --  did not include a header of the specified name, this method returns null.
    --  If there are multiple headers with the same name, this method returns the
    --  first head in the request. The header name is case insensitive. You can use
    --  this method with any response header.
+   --  ------------------------------
    overriding
    function Get_Header (Request : in Client;
                         Name    : in String) return String is
@@ -136,9 +140,11 @@ package body Util.Http.Clients is
       return Request.Delegate.Get_Header (Name);
    end Get_Header;
 
+   --  ------------------------------
    --  Sets a header with the given name and value. If the header had already
    --  been set, the new value overwrites the previous one. The containsHeader
    --  method can be used to test for the presence of a header before setting its value.
+   --  ------------------------------
    overriding
    procedure Set_Header (Request  : in out Client;
                          Name     : in String;
@@ -147,8 +153,10 @@ package body Util.Http.Clients is
       Request.Delegate.Set_Header (Name, Value);
    end Set_Header;
 
+   --  ------------------------------
    --  Adds a header with the given name and value.
    --  This method allows headers to have multiple values.
+   --  ------------------------------
    overriding
    procedure Add_Header (Request  : in out Client;
                          Name     : in String;
@@ -157,7 +165,9 @@ package body Util.Http.Clients is
       Request.Delegate.Add_Header (Name, Value);
    end Add_Header;
 
+   --  ------------------------------
    --  Iterate over the request headers and executes the <b>Process</b> procedure.
+   --  ------------------------------
    overriding
    procedure Iterate_Headers (Request : in Client;
                               Process : not null access
@@ -167,19 +177,14 @@ package body Util.Http.Clients is
       Request.Delegate.Iterate_Headers (Process);
    end Iterate_Headers;
 
+   --  ------------------------------
    --  Removes all headers with the given name.
+   --  ------------------------------
    procedure Remove_Header (Request : in out Client;
                             Name    : in String) is
    begin
       null;
    end Remove_Header;
-
-   --  Returns a boolean indicating whether the named header has already been set.
---     function Contains_Header (Request : in Client;
---                               Name    : in String) return Boolean is
---     begin
---        return False;
---     end Contains_Header;
 
    --  ------------------------------
    --  Initialize the client
