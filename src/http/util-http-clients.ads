@@ -16,10 +16,31 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Ada.Calendar;
 with Ada.Finalization;
 
 with Util.Http.Cookies;
+
+--  == Client ==
+--  The <tt>Util.Http.Clients</tt> package defines a set of API for an HTTP client to send
+--  requests to an HTTP server.
+--
+--  === GET request ===
+--  To retrieve a content using the HTTP GET operation, a client instance must be created.
+--  The response is returned in a specific object that must therefore be declared:
+--
+--    Http     : Util.Http.Clients.Client;
+--    Response : Util.Http.Clients.Response;
+--
+--  Before invoking the GET operation, the client can setup a number of HTTP headers.
+--
+--    Http.Add_Header ("X-Requested-By", "wget");
+--
+--  The GET operation is performed when the <tt>Get</tt> procedure is called:
+--
+--    Http.Get ("http://www.google.com", Response);
+--
+--  Once the response is received, the <tt>Response</tt> object contains the status of the
+--  HTTP response, the HTTP reply headers and the body.
 package Util.Http.Clients is
 
    Connection_Error : exception;
@@ -140,15 +161,6 @@ package Util.Http.Clients is
                    URL     : in String;
                    Data    : in String;
                    Reply   : out Response'Class);
-
---     procedure Head (Http : in out Client;
---                     URI  : in String;
---                     Reply : out Response'Class);
-
-   --  Execute an http POST request on the given URL.
---     procedure Put (Http  : in out Client;
---                    URI   : in String;
---                    Reply : out Response'Class);
 
 private
 
