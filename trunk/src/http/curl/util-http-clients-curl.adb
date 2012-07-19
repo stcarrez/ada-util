@@ -87,6 +87,7 @@ package body Util.Http.Clients.Curl is
       Total : constant Size_T := Size * Nmemb;
       Line  : constant String := Interfaces.C.Strings.Value (Data, Total);
    begin
+      Log.Info ("RCV: {0}", Line);
       if Response.Parsing_Body then
          Ada.Strings.Unbounded.Append (Response.Content, Line);
 

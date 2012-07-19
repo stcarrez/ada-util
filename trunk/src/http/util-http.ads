@@ -21,7 +21,7 @@ with Ada.Calendar;
 --  The <tt>Util.Http</tt> package provides a set of APIs that allows applications to use
 --  the HTTP protocol.
 --
---  @include "util-http-clients.ads"
+--  @include util-http-clients.ads
 package Util.Http is
 
    --  Standard codes returned in HTTP responses.
