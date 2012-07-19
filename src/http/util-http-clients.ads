@@ -40,7 +40,11 @@ with Util.Http.Cookies;
 --    Http.Get ("http://www.google.com", Response);
 --
 --  Once the response is received, the <tt>Response</tt> object contains the status of the
---  HTTP response, the HTTP reply headers and the body.
+--  HTTP response, the HTTP reply headers and the body.  A response header can be obtained
+--  by using the <tt>Get_Header</tt> function and the body using <tt>Get_Body</tt>:
+--
+--    Body : constant String := Response.Get_Body;
+--
 package Util.Http.Clients is
 
    Connection_Error : exception;
