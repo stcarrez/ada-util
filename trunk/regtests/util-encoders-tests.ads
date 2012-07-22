@@ -45,4 +45,7 @@ package Util.Encoders.Tests is
    procedure Test_HMAC_SHA1_RFC2202_T6 (T : in out Test);
    procedure Test_HMAC_SHA1_RFC2202_T7 (T : in out Test);
 
+   --  Test encoding leb128.
+   procedure Test_LEB128 (T : in out Test);
+
 end Util.Encoders.Tests;

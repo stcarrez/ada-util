@@ -70,6 +70,8 @@ package body Util.Encoders.Tests is
                        Test_HMAC_SHA1_RFC2202_T6'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA1.Sign_SHA1 (RFC2202 test7)",
                        Test_HMAC_SHA1_RFC2202_T7'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Encode_LEB128",
+                       Test_LEB128'Access);
    end Add_Tests;
 
    procedure Test_Base64_Encode (T : in out Test) is
@@ -293,5 +295,48 @@ package body Util.Encoders.Tests is
                     & "Than One Block-Size Data",
                   "e8e99d0f45237d786d6bbaa7965c7808bbff1a91");
    end Test_HMAC_SHA1_RFC2202_T7;
+
+   --  ------------------------------
+   --  Test encoding leb128.
+   --  ------------------------------
+   procedure Test_LEB128 (T : in out Test) is
+      use type Interfaces.Unsigned_64;
+
+      Data : Ada.Streams.Stream_Element_Array (1 .. 100);
+      Last : Ada.Streams.Stream_Element_Offset;
+      Val  : Interfaces.Unsigned_64;
+      Res  : Interfaces.Unsigned_64;
+   begin
+      Encode_LEB128 (Into => Data,
+                     Pos  => Data'First,
+                     Val  => 1,
+                     Last => Last);
+      Util.Tests.Assert_Equals (T, 1, Integer (Last), "Invalid last position");
+      Util.Tests.Assert_Equals (T, 1, Integer (Data (1)), "Invalid value");
+
+      Encode_LEB128 (Into => Data,
+                     Pos  => Data'First,
+                     Val  => 16#80#,
+                     Last => Last);
+      Util.Tests.Assert_Equals (T, 2, Integer (Last), "Invalid last position");
+      Util.Tests.Assert_Equals (T, 16#80#, Integer (Data (1)), "Invalid value");
+      Util.Tests.Assert_Equals (T, 16#01#, Integer (Data (2)), "Invalid value");
+
+      for I in 0 .. 9 loop
+         Val := Interfaces.Shift_Left (1, 7 * I);
+         Encode_LEB128 (Into => Data,
+                        Pos  => Data'First,
+                        Val  => Val,
+                        Last => Last);
+         Util.Tests.Assert_Equals (T, I + 1, Integer (Last), "Invalid last position");
+
+         Decode_LEB128 (From => Data,
+                        Pos  => Data'First,
+                        Val  => Res,
+                        Last => Last);
+         Util.Tests.Assert_Equals (T, I + 2, Integer (Last), "Invalid last position after decode");
+         T.Assert (Val = Res, "Invalid decode with I " & Integer'Image (I));
+      end loop;
+   end Test_LEB128;
 
 end Util.Encoders.Tests;
