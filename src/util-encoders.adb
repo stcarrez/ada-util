@@ -187,6 +187,66 @@ package body Util.Encoders is
    end Transform;
 
    --  ------------------------------
+   --  Encode the value represented by <tt>Val</tt> in the stream array <tt>Into</tt> starting
+   --  at position <tt>Pos</tt> in that array.  The value is encoded using LEB128 format, 7-bits
+   --  at a time until all non zero bits are written.  The <tt>Last</tt> parameter is updated
+   --  to indicate the position of the last valid byte written in <tt>Into</tt>.
+   --  ------------------------------
+   procedure Encode_LEB128 (Into  : in out Ada.Streams.Stream_Element_Array;
+                            Pos   : in Ada.Streams.Stream_Element_Offset;
+                            Val   : in Interfaces.Unsigned_64;
+                            Last  : out Ada.Streams.Stream_Element_Offset) is
+      use type Interfaces.Unsigned_64;
+
+      P    : Ada.Streams.Stream_Element_Offset := Pos;
+      V, U : Interfaces.Unsigned_64;
+   begin
+      V := Val;
+      loop
+         if V < 16#07F# then
+            Into (P) := Ada.Streams.Stream_Element (V);
+            Last := P;
+            return;
+         end if;
+         U := V and 16#07F#;
+         Into (P) := Ada.Streams.Stream_Element (U or 16#80#);
+         P := P + 1;
+         V := Interfaces.Shift_Right (V, 7);
+      end loop;
+   end Encode_LEB128;
+
+   --  ------------------------------
+   --  Decode from the byte array <tt>From</tt> the value represented as LEB128 format starting
+   --  at position <tt>Pos</tt> in that array.  After decoding, the <tt>Last</tt> index is updated
+   --  to indicate the last position in the byte array.
+   --  ------------------------------
+   procedure Decode_LEB128 (From  : in Ada.Streams.Stream_Element_Array;
+                            Pos   : in Ada.Streams.Stream_Element_Offset;
+                            Val   : out Interfaces.Unsigned_64;
+                            Last  : out Ada.Streams.Stream_Element_Offset) is
+      use type Interfaces.Unsigned_64;
+      use type Interfaces.Unsigned_8;
+
+      P     : Ada.Streams.Stream_Element_Offset := Pos;
+      Value : Interfaces.Unsigned_64 := 0;
+      V     : Interfaces.Unsigned_8;
+      Shift : Integer := 0;
+   begin
+      loop
+         V := Interfaces.Unsigned_8 (From (P));
+         if (V and 16#80#) = 0 then
+            Val := Interfaces.Shift_Left (Interfaces.Unsigned_64 (V), Shift) or Value;
+            Last := P + 1;
+            return;
+         end if;
+         V := V and 16#07F#;
+         Value := Interfaces.Shift_Left (Interfaces.Unsigned_64 (V), Shift) or Value;
+         P := P + 1;
+         Shift := Shift + 7;
+      end loop;
+   end Decode_LEB128;
+
+   --  ------------------------------
    --  Create the encoder object for the specified algorithm.
    --  ------------------------------
    function Create (Name : String) return Encoder is

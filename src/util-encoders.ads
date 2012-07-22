@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
 with Ada.Streams;
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
+with Interfaces;
 
 --  The <b>Util.Encoders</b> package defines the <b>Encoder</b> object
 --  which represents a mechanism to transform a stream from one format into
@@ -130,6 +131,23 @@ package Util.Encoders is
    --  cannot be transformed
    function Transform (E    : in Transformer'Class;
                        Data : in Ada.Streams.Stream_Element_Array) return String;
+
+   --  Encode the value represented by <tt>Val</tt> in the stream array <tt>Into</tt> starting
+   --  at position <tt>Pos</tt> in that array.  The value is encoded using LEB128 format, 7-bits
+   --  at a time until all non zero bits are written.  The <tt>Last</tt> parameter is updated
+   --  to indicate the position of the last valid byte written in <tt>Into</tt>.
+   procedure Encode_LEB128 (Into  : in out Ada.Streams.Stream_Element_Array;
+                            Pos   : in Ada.Streams.Stream_Element_Offset;
+                            Val   : in Interfaces.Unsigned_64;
+                            Last  : out Ada.Streams.Stream_Element_Offset);
+
+   --  Decode from the byte array <tt>From</tt> the value represented as LEB128 format starting
+   --  at position <tt>Pos</tt> in that array.  After decoding, the <tt>Last</tt> index is updated
+   --  to indicate the last position in the byte array.
+   procedure Decode_LEB128 (From  : in Ada.Streams.Stream_Element_Array;
+                            Pos   : in Ada.Streams.Stream_Element_Offset;
+                            Val   : out Interfaces.Unsigned_64;
+                            Last  : out Ada.Streams.Stream_Element_Offset);
 
 private
 
