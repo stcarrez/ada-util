@@ -69,7 +69,7 @@ package Util.Listeners is
    --  The `List` type is a list of listeners that have been registered and must be
    --  called when a notification is sent.  The list uses the concurrent arrays thus
    --  allowing tasks to add or remove listeners while dispatching is also running.
-   type List is new Listener_Arrays.Vector with null record;
+   subtype List is Listener_Arrays.Vector;
 
    procedure Add_Listener (Into : in out Listener_Arrays.Vector;
                            Item : in Listener_Access) renames Listener_Arrays.Append;
