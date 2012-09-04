@@ -240,7 +240,8 @@ package body Ahven.Framework is
                  (Source => Ada.Exceptions.Exception_Name (E),
                   Drop   => Ada.Strings.Right));
                Result.Set_Long_Message (To_Bounded_String
-                 (Source => Ada.Exceptions.Exception_Message (E) & Util.Log.Loggers.Traceback (E),
+                 (Source => Ada.Exceptions.Exception_Message (E)
+                     & ASCII.LF & Util.Log.Loggers.Traceback (E),
                   Drop   => Ada.Strings.Right));
          end;
       end Run_A_Command;
