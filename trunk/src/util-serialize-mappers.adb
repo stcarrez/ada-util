@@ -46,6 +46,22 @@ package body Util.Serialize.Mappers is
    end Is_Proxy;
 
    --  -----------------------
+   --  Returns true if the mapper is a wildcard node (matches any element).
+   --  -----------------------
+   function Is_Wildcard (Controller : in Mapper) return Boolean is
+   begin
+      return Controller.Is_Wildcard;
+   end Is_Wildcard;
+
+   --  -----------------------
+   --  Returns the mapping name.
+   --  -----------------------
+   function Get_Name (Controller : in Mapper) return String is
+   begin
+      return Ada.Strings.Unbounded.To_String (Controller.Name);
+   end Get_Name;
+
+   --  -----------------------
    --  Find the mapper associated with the given name.
    --  Returns null if there is no mapper.
    --  -----------------------
@@ -59,6 +75,17 @@ package body Util.Serialize.Mappers is
          return Controller.Mapper.Find_Mapper (Name, Attribute);
       end if;
       while Node /= null loop
+         if Node.Is_Wildcard then
+            declare
+               Result : constant Mapper_Access := Node.Find_Mapper (Name, Attribute);
+            begin
+               if Result /= null then
+                  return Result;
+               else
+                  return Node;
+               end if;
+            end;
+         end if;
          if Node.Name = Name then
             if (Attribute = False and Node.Mapping = null)
               or else not Node.Mapping.Is_Attribute then
@@ -83,11 +110,14 @@ package body Util.Serialize.Mappers is
                                   Result : out Mapper_Access) is
       use Ada.Strings.Unbounded;
 
-      Node : Mapper_Access := From.First_Child;
+      Node     : Mapper_Access := From.First_Child;
+      Previous : Mapper_Access := null;
+      Wildcard : constant Boolean := Name = "*";
    begin
       if Node = null then
          Result := new Mapper;
          Result.Name := To_Unbounded_String (Name);
+         Result.Is_Wildcard := Wildcard;
          From.First_Child := Result;
          return;
       end if;
@@ -99,9 +129,20 @@ package body Util.Serialize.Mappers is
          if Node.Next_Mapping = null then
             Result := new Mapper;
             Result.Name := To_Unbounded_String (Name);
-            Node.Next_Mapping := Result;
+            Result.Is_Wildcard := Wildcard;
+            if Node.Is_Wildcard then
+               Result.Next_Mapping := Node;
+               if Previous = null then
+                  From.First_Child := Result;
+               else
+                  Previous.Next_Mapping := Result;
+               end if;
+            else
+               Node.Next_Mapping := Result;
+            end if;
             return;
          end if;
+         Previous := Node;
          Node := Node.Next_Mapping;
       end loop;
    end Find_Path_Component;
@@ -142,6 +183,7 @@ package body Util.Serialize.Mappers is
    --  Example:
    --     info/first_name    matches:  <info><first_name>...</first_name></info>
    --     info/a/b/name      matches:  <info><a><b><name>...</name></b></a></info>
+   --     */a/b/name         matches:  <i><i><j><a><b><name>...</name></b></a></j></i></i>
    --  -----------------------
    procedure Add_Mapping (Into : in out Mapper;
                           Path : in String;
@@ -230,6 +272,7 @@ package body Util.Serialize.Mappers is
       Result.Mapping         := Handler.Mapping;
       Result.Is_Proxy_Mapper := Handler.Is_Proxy_Mapper;
       Result.Is_Clone        := True;
+      Result.Is_Wildcard     := Handler.Is_Wildcard;
       return Result;
    end Clone;
 

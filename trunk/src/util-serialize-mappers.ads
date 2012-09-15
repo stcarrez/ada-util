@@ -98,6 +98,12 @@ package Util.Serialize.Mappers is
 
    function Is_Proxy (Controller : in Mapper) return Boolean;
 
+   --  Returns true if the mapper is a wildcard node (matches any element).
+   function Is_Wildcard (Controller : in Mapper) return Boolean;
+
+   --  Returns the mapping name.
+   function Get_Name (Controller : in Mapper) return String;
+
    procedure Iterate (Controller : in Mapper;
                       Process : not null access procedure (Map : in Mapper'Class));
 
@@ -136,6 +142,7 @@ private
       Name         : Ada.Strings.Unbounded.Unbounded_String;
       Is_Proxy_Mapper : Boolean := False;
       Is_Clone        : Boolean := False;
+      Is_Wildcard     : Boolean := False;
    end record;
 
    --  Finalize the object and release any mapping.
