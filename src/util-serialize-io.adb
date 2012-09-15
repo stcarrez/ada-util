@@ -155,7 +155,11 @@ package body Util.Serialize.IO is
             begin
                exit when Node = null;
                Child := Node.Find_Mapper (Name => Name);
+               if Child = null and then Node.Is_Wildcard then
+                  Child := Node;
+               end if;
                if Child /= null then
+                  Log.Debug ("{0} is matching {1}", Name, Child.Get_Name);
                   Child.Start_Object (Handler, Name);
                   Next.Active_Nodes (Pos) := Child;
                   Pos := Pos + 1;
