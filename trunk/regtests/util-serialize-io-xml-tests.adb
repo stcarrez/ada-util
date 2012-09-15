@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-xml-tests -- Unit tests for XML serialization
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,8 +30,8 @@ package body Util.Serialize.IO.XML.Tests is
    Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.IO.Tests");
 
    type Map_Test is record
-      Value : Natural;
-      Bool  : Boolean;
+      Value : Natural := 0;
+      Bool  : Boolean := False;
       Name  : Unbounded_String;
       Node  : Util.Beans.Objects.Object;
    end record;
@@ -103,6 +103,8 @@ package body Util.Serialize.IO.XML.Tests is
                        Test_Parser'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.XML.Parser2",
                        Test_Parser2'Access);
+      Caller.Add_Test (Suite, "Test Util.Serialize.IO.XML.Parser Wildcard Mapping",
+                       Test_Parser_Wildcard_Mapping'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.XML.Parser_Error",
                        Test_Parser_Error'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.XML.Write",
@@ -198,6 +200,51 @@ package body Util.Serialize.IO.XML.Tests is
       T.Assert (Result.Bool, "Invalid boolean");
 
    end Test_Parser2;
+
+   --  Test wildcard mapping for serialization.
+   procedure Test_Parser_Wildcard_Mapping (T : in out Test) is
+      use type Util.Beans.Objects.Data_Type;
+
+      Mapping : aliased Map_Test_Mapper.Mapper;
+      Result  : aliased Map_Test;
+
+      Reader  : Util.Serialize.IO.XML.Parser;
+   begin
+      Mapping.Add_Mapping ("node/*/status", FIELD_BOOL);
+      Mapping.Add_Mapping ("node/*/name", FIELD_NAME);
+      Mapping.Add_Mapping ("node/*/value", FIELD_VALUE);
+      Mapping.Add_Mapping ("node/*/name/@bool", FIELD_BOOL);
+      Mapping.Add_Mapping ("node/*/@id", FIELD_VALUE);
+      Mapping.Add_Mapping ("node", FIELD_NODE);
+      Reader.Add_Mapping ("info", Mapping'Unchecked_Access);
+
+      Map_Test_Mapper.Set_Context (Reader, Result'Unchecked_Access);
+
+      Result.Node := Util.Beans.Objects.Null_Object;
+      --  Extract XML and check name, value, status
+      Reader.Parse_String ("<info><node><inner><name>A</name><value>2</value></inner>"
+                           & "<status>1</status></node></info>");
+      T.Assert (not Reader.Has_Error, "The parser indicates an error");
+      Assert_Equals (T, "A", Result.Name, "Invalid name");
+      Assert_Equals (T, 2, Result.Value, "Invalid value");
+      T.Assert (Result.Bool, "Invalid boolean");
+      T.Assert (Util.Beans.Objects.Get_Type (Result.Node) = Util.Beans.Objects.TYPE_STRING,
+                "Invalid node type");
+
+      --  Another extraction.
+      Reader.Parse_String ("<info><node><b><c><d><name>B</name><value>20</value></d></c></b>"
+                           & "<status>0</status></node></info>");
+      Assert_Equals (T, "B", Result.Name, "Invalid name");
+      Assert_Equals (T, 20, Result.Value, "Invalid value");
+      T.Assert (not Result.Bool, "Invalid boolean");
+
+      --  Another extraction using attribute mappings.
+      Reader.Parse_String ("<info><node id='23'><name bool='true'>TOTO</name></node></info>");
+      Assert_Equals (T, "TOTO", Result.Name, "Invalid name");
+      Assert_Equals (T, 23, Result.Value, "Invalid value");
+      T.Assert (Result.Bool, "Invalid boolean");
+
+   end Test_Parser_Wildcard_Mapping;
 
    --  ------------------------------
    --  Test XML de-serialization with some errors.

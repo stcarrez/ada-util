@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-xml-tests -- Unit tests for XML serialization
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,9 @@ package Util.Serialize.IO.XML.Tests is
    procedure Test_Parser (T : in out Test);
 
    procedure Test_Parser2 (T : in out Test);
+
+   --  Test wildcard mapping for serialization.
+   procedure Test_Parser_Wildcard_Mapping (T : in out Test);
 
    --  Test XML de-serialization with some errors.
    procedure Test_Parser_Error (T : in out Test);
