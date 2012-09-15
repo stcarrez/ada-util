@@ -3,6 +3,7 @@ Version 1.6     -
   - Support for REST APIs using JSON
   - New operations To_JSON and From_JSON for easy object map serialization
   - Added a listeners to help implementing the observer/listener design patterns
+  - Added support for wildcard mapping in serializaton framework
 
 Version 1.5     - May 2012
   - Added concurrent fifo queues and arrays
