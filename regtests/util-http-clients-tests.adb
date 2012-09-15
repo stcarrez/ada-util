@@ -15,6 +15,7 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Ada.Unchecked_Deallocation;
 
 with Util.Test_Caller;
 
@@ -58,10 +59,14 @@ package body Util.Http.Clients.Tests is
 
    overriding
    procedure Tear_Down (T : in out Test) is
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Object => Test_Server'Class,
+                                         Name   => Test_Server_Access);
    begin
       if T.Server /= null then
          Log.Info ("Stopping test server");
          T.Server.Stop;
+         Free (T.Server);
          T.Server := null;
       end if;
    end Tear_Down;
