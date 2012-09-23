@@ -105,6 +105,8 @@ package body Util.Serialize.IO.XML.Tests is
                        Test_Parser2'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.XML.Parser Wildcard Mapping",
                        Test_Parser_Wildcard_Mapping'Access);
+      Caller.Add_Test (Suite, "Test Util.Serialize.IO.XML.Parser Deep_Wildcard Mapping",
+                       Test_Parser_Deep_Wildcard_Mapping'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.XML.Parser_Error",
                        Test_Parser_Error'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.XML.Write",
@@ -201,7 +203,9 @@ package body Util.Serialize.IO.XML.Tests is
 
    end Test_Parser2;
 
+   --  -----------------------
    --  Test wildcard mapping for serialization.
+   --  -----------------------
    procedure Test_Parser_Wildcard_Mapping (T : in out Test) is
       use type Util.Beans.Objects.Data_Type;
 
@@ -245,6 +249,55 @@ package body Util.Serialize.IO.XML.Tests is
       T.Assert (Result.Bool, "Invalid boolean");
 
    end Test_Parser_Wildcard_Mapping;
+
+   --  -----------------------
+   --  Test (**) wildcard mapping for serialization.
+   --  -----------------------
+   procedure Test_Parser_Deep_Wildcard_Mapping (T : in out Test) is
+      use type Util.Beans.Objects.Data_Type;
+
+      Mapping : aliased Map_Test_Mapper.Mapper;
+      Result  : aliased Map_Test;
+
+      Reader  : Util.Serialize.IO.XML.Parser;
+   begin
+      Mapping.Add_Mapping ("**/node/@id", FIELD_VALUE);
+      Mapping.Add_Mapping ("**/node/name", FIELD_NAME);
+      Mapping.Add_Mapping ("**/node/name/@bool", FIELD_BOOL);
+      Mapping.Add_Mapping ("**/node", FIELD_NODE);
+      Mapping.Dump (Log);
+
+      Reader.Add_Mapping ("info", Mapping'Unchecked_Access);
+
+      Map_Test_Mapper.Set_Context (Reader, Result'Unchecked_Access);
+
+      Reader.Dump (Log);
+
+      Result.Node := Util.Beans.Objects.Null_Object;
+
+      --  Extract XML and check name, value, status
+      Reader.Parse_String ("<info><node><node id='2'><name bool='1'>A</name>"
+                           & "<value>2</value></node>"
+                           & "<status>1</status></node></info>");
+      T.Assert (not Reader.Has_Error, "The parser indicates an error");
+      Assert_Equals (T, "A", Result.Name, "Invalid name");
+      Assert_Equals (T, 2, Result.Value, "Invalid value");
+      T.Assert (Result.Bool, "Invalid boolean");
+      T.Assert (Util.Beans.Objects.Get_Type (Result.Node) = Util.Beans.Objects.TYPE_STRING,
+                "Invalid node type");
+
+      Reader.Parse_String ("<info><node><a><b><node id='3'><name bool='0'>B</name>"
+                           & "<d><value>2</value></d></node></b></a>"
+                           & "<status>1</status></node></info>");
+      T.Assert (not Reader.Has_Error, "The parser indicates an error");
+      Assert_Equals (T, "B", Result.Name, "Invalid name");
+      Assert_Equals (T, 3, Result.Value, "Invalid value");
+      T.Assert (not Result.Bool, "Invalid boolean");
+      T.Assert (Util.Beans.Objects.Get_Type (Result.Node) = Util.Beans.Objects.TYPE_STRING,
+                "Invalid node type");
+
+   end Test_Parser_Deep_Wildcard_Mapping;
+
 
    --  ------------------------------
    --  Test XML de-serialization with some errors.

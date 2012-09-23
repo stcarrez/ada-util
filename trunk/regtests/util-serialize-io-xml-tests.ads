@@ -29,8 +29,11 @@ package Util.Serialize.IO.XML.Tests is
 
    procedure Test_Parser2 (T : in out Test);
 
-   --  Test wildcard mapping for serialization.
+   --  Test (*) wildcard mapping for serialization.
    procedure Test_Parser_Wildcard_Mapping (T : in out Test);
+
+   --  Test (**) wildcard mapping for serialization.
+   procedure Test_Parser_Deep_Wildcard_Mapping (T : in out Test);
 
    --  Test XML de-serialization with some errors.
    procedure Test_Parser_Error (T : in out Test);
