@@ -214,7 +214,7 @@ package body Util.Serialize.IO.XML.Tests is
       Mapping.Add_Mapping ("node/*/name", FIELD_NAME);
       Mapping.Add_Mapping ("node/*/value", FIELD_VALUE);
       Mapping.Add_Mapping ("node/*/name/@bool", FIELD_BOOL);
-      Mapping.Add_Mapping ("node/*/@id", FIELD_VALUE);
+      Mapping.Add_Mapping ("node/@id", FIELD_VALUE);
       Mapping.Add_Mapping ("node", FIELD_NODE);
       Reader.Add_Mapping ("info", Mapping'Unchecked_Access);
 
