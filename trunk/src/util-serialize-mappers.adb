@@ -75,7 +75,7 @@ package body Util.Serialize.Mappers is
          return Controller.Mapper.Find_Mapper (Name, Attribute);
       end if;
       while Node /= null loop
-         if Node.Is_Wildcard then
+         if not Attribute and Node.Is_Wildcard then
             declare
                Result : constant Mapper_Access := Node.Find_Mapper (Name, Attribute);
             begin
