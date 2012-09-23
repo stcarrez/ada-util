@@ -269,12 +269,14 @@ package body Util.Serialize.Mappers.Record_Mapper is
    function Clone (Handler : in Mapper) return Util.Serialize.Mappers.Mapper_Access is
       Result : Mapper_Access := new Mapper;
    begin
-      Result.Name            := Handler.Name;
-      Result.Mapper          := Handler.Mapper;
-      Result.Mapping         := Handler.Mapping;
-      Result.Is_Proxy_Mapper := Handler.Is_Proxy_Mapper;
-      Result.Get_Member      := Handler.Get_Member;
-      Result.Execute         := Handler.Execute;
+      Result.Name             := Handler.Name;
+      Result.Mapper           := Handler.Mapper;
+      Result.Mapping          := Handler.Mapping;
+      Result.Is_Proxy_Mapper  := Handler.Is_Proxy_Mapper;
+      Result.Is_Wildcard      := Handler.Is_Wildcard;
+      Result.Is_Deep_Wildcard := Handler.Is_Deep_Wildcard;
+      Result.Get_Member       := Handler.Get_Member;
+      Result.Execute          := Handler.Execute;
       return Result.all'Unchecked_Access;
    end Clone;
 

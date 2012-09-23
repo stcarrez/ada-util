@@ -62,6 +62,11 @@ package Util.Serialize.Mappers is
    --  Add a mapping for setting a member.  When the attribute rule defined by <b>Path</b>
    --  is matched, the <b>Set_Member</b> procedure will be called with the value and the
    --  <b>Field</b> identification.
+   --  Example:
+   --     info/first_name    matches:  <info><first_name>...</first_name></info>
+   --     info/a/b/name      matches:  <info><a><b><name>...</name></b></a></info>
+   --     */a/b/name         matches:  <i><i><j><a><b><name>...</name></b></a></j></i></i>
+   --     **/name            matches:  <i><name>...</name></i>, <b><c><name>...</name></c></b>
    procedure Add_Mapping (Into : in out Mapper;
                           Path : in String;
                           Map  : in Mapping_Access);
@@ -118,6 +123,7 @@ private
    --  Mapper_Node is created.
    procedure Find_Path_Component (From   : in out Mapper'Class;
                                   Name   : in String;
+                                  Root   : in out Mapper_Access;
                                   Result : out Mapper_Access);
 
    --  Build the mapping tree that corresponds to the given <b>Path</b>.
@@ -135,14 +141,15 @@ private
    end record;
 
    type Mapper is new Ada.Finalization.Limited_Controlled with record
-      Next_Mapping : Mapper_Access := null;
-      First_Child  : Mapper_Access := null;
-      Mapper       : Mapper_Access := null;
-      Mapping      : Mapping_Access := null;
-      Name         : Ada.Strings.Unbounded.Unbounded_String;
-      Is_Proxy_Mapper : Boolean := False;
-      Is_Clone        : Boolean := False;
-      Is_Wildcard     : Boolean := False;
+      Next_Mapping     : Mapper_Access := null;
+      First_Child      : Mapper_Access := null;
+      Mapper           : Mapper_Access := null;
+      Mapping          : Mapping_Access := null;
+      Name             : Ada.Strings.Unbounded.Unbounded_String;
+      Is_Proxy_Mapper  : Boolean := False;
+      Is_Clone         : Boolean := False;
+      Is_Wildcard      : Boolean := False;
+      Is_Deep_Wildcard : Boolean := False;
    end record;
 
    --  Finalize the object and release any mapping.

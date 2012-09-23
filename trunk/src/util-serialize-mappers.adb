@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-mappers -- Serialize objects in various formats
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,10 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-
+with System.Address_Image;
 with Util.Strings;
+
+with Ada.Tags;
 with Ada.Unchecked_Deallocation;
 package body Util.Serialize.Mappers is
 
@@ -69,22 +71,22 @@ package body Util.Serialize.Mappers is
                          Name       : in String;
                          Attribute  : in Boolean := False) return Mapper_Access is
       use type Ada.Strings.Unbounded.Unbounded_String;
-      Node : Mapper_Access := Controller.First_Child;
+
+      Node    : Mapper_Access := Controller.First_Child;
+      Recurse : Boolean := True;
+      Result  : Mapper_Access := null;
    begin
       if Node = null and Controller.Mapper /= null then
          return Controller.Mapper.Find_Mapper (Name, Attribute);
       end if;
       while Node /= null loop
          if not Attribute and Node.Is_Wildcard then
-            declare
-               Result : constant Mapper_Access := Node.Find_Mapper (Name, Attribute);
-            begin
-               if Result /= null then
-                  return Result;
-               else
-                  return Node;
-               end if;
-            end;
+            Result := Node.Find_Mapper (Name, Attribute);
+            if Result /= null then
+               return Result;
+            else
+               return Node;
+            end if;
          end if;
          if Node.Name = Name then
             if (Attribute = False and Node.Mapping = null)
@@ -95,9 +97,15 @@ package body Util.Serialize.Mappers is
                return Node;
             end if;
          end if;
-         Node := Node.Next_Mapping;
+         if Node.Is_Deep_Wildcard and not Attribute and Node.Mapper /= null and Recurse then
+            Node := Node.Mapper.First_Child;
+            Result := Node.Mapper;
+            Recurse := False;
+         else
+            Node := Node.Next_Mapping;
+         end if;
       end loop;
-      return null;
+      return Result;
    end Find_Mapper;
 
    --  -----------------------
@@ -107,44 +115,70 @@ package body Util.Serialize.Mappers is
    --  -----------------------
    procedure Find_Path_Component (From   : in out Mapper'Class;
                                   Name   : in String;
+                                  Root   : in out Mapper_Access;
                                   Result : out Mapper_Access) is
       use Ada.Strings.Unbounded;
 
-      Node     : Mapper_Access := From.First_Child;
-      Previous : Mapper_Access := null;
-      Wildcard : constant Boolean := Name = "*";
+      Node          : Mapper_Access := From.First_Child;
+      Previous      : Mapper_Access := null;
+      Wildcard      : constant Boolean := Name = "*";
+      Deep_Wildcard : constant Boolean := Name = "**";
    begin
+      if Root = null and Deep_Wildcard then
+         Root := Node;
+      end if;
       if Node = null then
          Result := new Mapper;
-         Result.Name := To_Unbounded_String (Name);
-         Result.Is_Wildcard := Wildcard;
+         Result.Name             := To_Unbounded_String (Name);
+         Result.Is_Wildcard      := Wildcard or Deep_Wildcard;
+         Result.Is_Deep_Wildcard := Deep_Wildcard;
          From.First_Child := Result;
-         return;
-      end if;
-      loop
-         if Node.Name = Name then
-            Result := Node;
-            return;
-         end if;
-         if Node.Next_Mapping = null then
-            Result := new Mapper;
-            Result.Name := To_Unbounded_String (Name);
-            Result.Is_Wildcard := Wildcard;
-            if Node.Is_Wildcard then
-               Result.Next_Mapping := Node;
-               if Previous = null then
-                  From.First_Child := Result;
-               else
-                  Previous.Next_Mapping := Result;
-               end if;
-            else
-               Node.Next_Mapping := Result;
+      else
+         loop
+            if Node.Name = Name then
+               Result := Node;
+               exit;
             end if;
-            return;
+            if Node.Next_Mapping = null then
+               Result := new Mapper;
+               Result.Name             := To_Unbounded_String (Name);
+               Result.Is_Wildcard      := Wildcard or Deep_Wildcard;
+               Result.Is_Deep_Wildcard := Deep_Wildcard;
+               if not Wildcard and not Deep_Wildcard then
+                  Result.Next_Mapping := Node;
+                  if Previous = null then
+                     From.First_Child := Result;
+                  else
+                     Previous.Next_Mapping := Result;
+                  end if;
+               else
+                  Node.Next_Mapping := Result;
+               end if;
+
+               exit;
+            end if;
+            Previous := Node;
+            Node := Node.Next_Mapping;
+         end loop;
+      end if;
+
+      --  For deep wildcard mapping the mapping tree has to somehow redirect and use a
+      --  root node (ie, the '**' node).  Create a proxy node to point to that wildcard root.
+      --  The wildcard nodes must be checked last and therefore appear at end of the mapping list.
+      if Root /= null then
+         Previous := Result;
+         while Previous.Next_Mapping /= null loop
+            Previous := Previous.Next_Mapping;
+         end loop;
+
+         if not Previous.Is_Wildcard and not Previous.Is_Deep_Wildcard then
+            Node := new Mapper;
+            Node.Name             := To_Unbounded_String ("**");
+            Node.Is_Deep_Wildcard := True;
+            Node.Mapper           := Root;
+            Previous.Next_Mapping := Node;
          end if;
-         Previous := Node;
-         Node := Node.Next_Mapping;
-      end loop;
+      end if;
    end Find_Path_Component;
 
    --  -----------------------
@@ -157,6 +191,7 @@ package body Util.Serialize.Mappers is
                          Last_Pos : out Natural;
                          Node     : out Mapper_Access) is
       Pos      : Natural;
+      Root     : Mapper_Access := null;
    begin
       Node     := Into'Unchecked_Access;
       Last_Pos := Path'First;
@@ -166,10 +201,12 @@ package body Util.Serialize.Mappers is
                                     From   => Last_Pos);
          if Pos = 0 then
             Node.Find_Path_Component (Name   => Path (Last_Pos .. Path'Last),
+                                      Root   => Root,
                                       Result => Node);
             Last_Pos := Path'Last + 1;
          else
             Node.Find_Path_Component (Name   => Path (Last_Pos .. Pos - 1),
+                                      Root   => Root,
                                       Result => Node);
             Last_Pos := Pos + 1;
          end if;
@@ -184,15 +221,67 @@ package body Util.Serialize.Mappers is
    --     info/first_name    matches:  <info><first_name>...</first_name></info>
    --     info/a/b/name      matches:  <info><a><b><name>...</name></b></a></info>
    --     */a/b/name         matches:  <i><i><j><a><b><name>...</name></b></a></j></i></i>
+   --     **/name            matches:  <i><name>...</name></i>, <b><c><name>...</name></c></b>
    --  -----------------------
    procedure Add_Mapping (Into : in out Mapper;
                           Path : in String;
                           Map  : in Mapper_Access) is
       procedure Copy (To   : in Mapper_Access;
                       From : in Mapper_Access);
+      procedure Add_Mapper (From, To : in Mapper_Access);
+      function Find_Mapper (From : in Mapper_Access) return Mapper_Access;
+      procedure Append (To   : in Mapper_Access;
+                        Item : in Mapper_Access);
+
+      --  For the support of deep wildcard mapping (**), we must map a proxy node mapper
+      --  to the copy that was made.  We maintain a small list of mapper pairs.
+      --  The implementation is intended to be simple for now...
+      type Mapper_Pair is record
+         First  : Mapper_Access;
+         Second : Mapper_Access;
+      end record;
 
       Node     : Mapper_Access;
       Last_Pos : Natural;
+      Mappers  : array (1 .. 10) of Mapper_Pair;
+
+      procedure Add_Mapper (From, To : in Mapper_Access) is
+      begin
+         for I in Mappers'Range loop
+            if Mappers (I).First = null then
+               Mappers (I).First := From;
+               Mappers (I).Second := To;
+               return;
+            end if;
+         end loop;
+         Log.Error ("Too many wildcard mappers");
+         raise Mapping_Error with "Too many wildcard mapping, mapping is too complex!";
+      end Add_Mapper;
+
+      function Find_Mapper (From : in Mapper_Access) return Mapper_Access is
+      begin
+         for I in Mappers'Range loop
+            if Mappers (I).First = From then
+               return Mappers (I).Second;
+            end if;
+         end loop;
+         Log.Error ("Cannot find mapper {0}", System.Address_Image (From.all'Address));
+         return null;
+      end Find_Mapper;
+
+      procedure Append (To   : in Mapper_Access;
+                        Item : in Mapper_Access) is
+         Node : Mapper_Access := To.First_Child;
+      begin
+         if Node = null then
+            To.First_Child := Item;
+         else
+            while Node.Next_Mapping /= null loop
+               Node := Node.Next_Mapping;
+            end loop;
+            Node.Next_Mapping := Item;
+         end if;
+      end Append;
 
       procedure Copy (To   : in Mapper_Access;
                       From : in Mapper_Access) is
@@ -202,8 +291,19 @@ package body Util.Serialize.Mappers is
          while Src /= null loop
             N := Src.Clone;
             N.Is_Clone := True;
-            N.Next_Mapping := To.First_Child;
-            To.First_Child := N;
+            if N.Is_Deep_Wildcard then
+               if N.Mapper /= null then
+                  N.Mapper := Find_Mapper (N.Mapper);
+               else
+                  Add_Mapper (Src, N);
+               end if;
+               Append (To, N);
+            elsif N.Is_Wildcard then
+               Append (To, N);
+            else
+               N.Next_Mapping := To.First_Child;
+               To.First_Child := N;
+            end if;
             if Src.First_Child /= null then
                Copy (N, Src.First_Child);
             end if;
@@ -211,8 +311,12 @@ package body Util.Serialize.Mappers is
          end loop;
       end Copy;
 
+      use type Util.Log.Level_Type;
    begin
-      Log.Info ("Mapping '{0}' for mapper X", Path);
+      if Log.Get_Level >= Util.Log.INFO_LEVEL then
+         Log.Info ("Mapping '{0}' for mapper {1}",
+                   Path, Ada.Tags.Expanded_Name (Map'Tag));
+      end if;
 
       --  Find or build the mapping tree.
       Into.Build_Path (Path, Last_Pos, Node);
@@ -237,7 +341,10 @@ package body Util.Serialize.Mappers is
       Node     : Mapper_Access;
       Last_Pos : Natural;
    begin
-      Log.Info ("Mapping {0}", Path);
+      if Log.Get_Level >= Util.Log.INFO_LEVEL then
+         Log.Info ("Mapping '{0}' for mapper {1}",
+                   Path, Ada.Tags.Expanded_Name (Map'Tag));
+      end if;
 
       --  Find or build the mapping tree.
       Into.Build_Path (Path, Last_Pos, Node);
@@ -267,12 +374,13 @@ package body Util.Serialize.Mappers is
    function Clone (Handler : in Mapper) return Mapper_Access is
       Result : constant Mapper_Access := new Mapper;
    begin
-      Result.Name            := Handler.Name;
-      Result.Mapper          := Handler.Mapper;
-      Result.Mapping         := Handler.Mapping;
-      Result.Is_Proxy_Mapper := Handler.Is_Proxy_Mapper;
-      Result.Is_Clone        := True;
-      Result.Is_Wildcard     := Handler.Is_Wildcard;
+      Result.Name             := Handler.Name;
+      Result.Mapper           := Handler.Mapper;
+      Result.Mapping          := Handler.Mapping;
+      Result.Is_Proxy_Mapper  := Handler.Is_Proxy_Mapper;
+      Result.Is_Clone         := True;
+      Result.Is_Wildcard      := Handler.Is_Wildcard;
+      Result.Is_Deep_Wildcard := Handler.Is_Deep_Wildcard;
       return Result;
    end Clone;
 
@@ -322,13 +430,14 @@ package body Util.Serialize.Mappers is
       --  Dump the mapping description
       --  -----------------------
       procedure Dump (Map : in Mapper'Class) is
+         Name : constant String := Ada.Strings.Unbounded.To_String (Map.Name);
       begin
          if Map.Mapping /= null and then Map.Mapping.Is_Attribute then
             Log.Info (" {0}@{1}", Prefix,
                       Ada.Strings.Unbounded.To_String (Map.Mapping.Name));
          else
-            Log.Info (" {0}/{1}", Prefix, Ada.Strings.Unbounded.To_String (Map.Name));
-            Dump (Map, Log, Prefix & "/" & Ada.Strings.Unbounded.To_String (Map.Name));
+            Log.Info (" {0}/{1}", Prefix, Name);
+            Dump (Map, Log, Prefix & "/" & Name);
          end if;
       end Dump;
    begin
