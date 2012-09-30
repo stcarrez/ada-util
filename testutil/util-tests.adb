@@ -304,10 +304,11 @@ package body Util.Tests is
       begin
          Put_Line ("Test harness: " & Name);
          Put ("Usage: harness [-xml result.xml] [-t timeout] [-p prefix] "
-              & "[-config file.properties] ");
+              & "[-config file.properties] [-d dir]");
          Put_Line ("[-update]");
          Put_Line ("-xml file      Produce an XML test report");
          Put_Line ("-config file   Specify a test configuration file");
+         Put_Line ("-d dir         Change the current directory to <dir>");
          Put_Line ("-t timeout     Test execution timeout in seconds");
          Put_Line ("-p prefix      Add the prefix to the test class names");
          Put_Line ("-update        Update the test reference files if a file");
@@ -320,9 +321,10 @@ package body Util.Tests is
       Result   : Util.XUnit.Status;
       XML      : Boolean := False;
       Output   : Ada.Strings.Unbounded.Unbounded_String;
+      Chdir    : Ada.Strings.Unbounded.Unbounded_String;
    begin
       loop
-         case Getopt ("hux: t: p: c: config: update help xml: timeout:") is
+         case Getopt ("hux: t: p: c: config: d: update help xml: timeout:") is
             when ASCII.NUL =>
                exit;
 
@@ -340,6 +342,9 @@ package body Util.Tests is
                      Ada.Command_Line.Set_Exit_Status (2);
                      return;
                end;
+
+            when 'd' =>
+               Chdir := To_Unbounded_String (Parameter);
 
             when 'u' =>
                Update_Test_Files := True;
@@ -375,6 +380,17 @@ package body Util.Tests is
 
       Initialize (Test_Properties);
 
+      if Length (Chdir) /= 0 then
+         begin
+            Ada.Directories.Set_Directory (To_String (Chdir));
+
+         exception
+            when Ada.IO_Exceptions.Name_Error =>
+               Put_Line ("Invalid directory " & To_String (Chdir));
+               Ada.Command_Line.Set_Exit_Status (1);
+               return;
+         end;
+      end if;
       declare
 
          procedure Runner is new Util.XUnit.Harness (Suite);
@@ -406,6 +422,7 @@ package body Util.Tests is
          Put_Line ("No parameter for " & Full_Switch);
          Help;
          return;
+
    end Harness;
 
 end Util.Tests;
