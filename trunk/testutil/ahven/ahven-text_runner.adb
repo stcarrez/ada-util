@@ -17,6 +17,7 @@
 with Ada.Text_IO;
 with Ada.Strings.Fixed;
 with Ada.Characters.Latin_1;
+with Ada.IO_Exceptions;
 
 with Ahven.Runner;
 with Ahven.XML_Runner;
@@ -285,18 +286,27 @@ package body Ahven.Text_Runner is
       First  : Boolean := True;
    begin
       Open (Handle, In_File, Filename);
-      loop
-         exit when End_Of_File (Handle);
-         Get (Handle, Char);
-         if First then
-            Put_Line ("===== Output =======");
-            First := False;
-         end if;
-         Put (Char);
-         if End_Of_Line (Handle) then
-            New_Line;
-         end if;
-      end loop;
+      begin
+         loop
+            exit when End_Of_File (Handle);
+            Get (Handle, Char);
+            if First then
+               Put_Line ("===== Output =======");
+               First := False;
+            end if;
+            Put (Char);
+            if End_Of_Line (Handle) then
+               New_Line;
+            end if;
+
+         end loop;
+
+         --  The End_Error exception is sometimes raised.
+      exception
+         when Ada.IO_Exceptions.End_Error =>
+            null;
+
+      end;
       Close (Handle);
       if not First then
          Put_Line ("====================");
