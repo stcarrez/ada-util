@@ -225,6 +225,21 @@ package body Util.Tests is
    end Assert_Matches;
 
    --  ------------------------------
+   --  Check that the file exists.
+   --  ------------------------------
+   procedure Assert_Exists (T        : in Test'Class;
+                            File     : in String;
+                            Message : in String := "Test failed";
+                            Source  : String := GNAT.Source_Info.File;
+                            Line    : Natural := GNAT.Source_Info.Line) is
+   begin
+      T.Assert (Condition => Ada.Directories.Exists (File),
+                Message   => Message & ": file '" & File & "' does not exist",
+                Source    => Source,
+                Line      => Line);
+   end Assert_Exists;
+
+   --  ------------------------------
    --  Check that two files are equal.  This is intended to be used by
    --  tests that create files that are then checked against patterns.
    --  ------------------------------
