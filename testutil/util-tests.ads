@@ -121,6 +121,13 @@ package Util.Tests is
                              Source  : String := GNAT.Source_Info.File;
                              Line    : Natural := GNAT.Source_Info.Line);
 
+   --  Check that the file exists.
+   procedure Assert_Exists (T        : in Test'Class;
+                            File     : in String;
+                            Message : in String := "Test failed";
+                            Source  : String := GNAT.Source_Info.File;
+                            Line    : Natural := GNAT.Source_Info.Line);
+
    --  Default initialization procedure.
    procedure Initialize_Test (Props : in Util.Properties.Manager);
 
