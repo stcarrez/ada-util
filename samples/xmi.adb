@@ -18,6 +18,7 @@
 with Ada.Text_IO;
 with Ada.Command_Line;
 
+with Util.Log.Loggers;
 with Util.Beans;
 with Util.Beans.Objects;
 with Util.Serialize.Mappers.Record_Mapper;
@@ -37,9 +38,13 @@ procedure XMI is
                        FIELD_ATTRIBUTE_NAME,
                        FIELD_PACKAGE_NAME,
                        FIELD_PACKAGE_END,
-                       FIELD_CLASS_VISIBILITY,
+                       FIELD_VISIBILITY,
                        FIELD_DATA_TYPE,
                        FIELD_ENUM_DATA_TYPE,
+                       FIELD_ENUM_NAME,
+                       FIELD_ENUM_END,
+                       FIELD_ENUM_LITERAL,
+                       FIELD_ENUM_LITERAL_END,
                        FIELD_CLASS_END,
                        FIELD_MULTIPLICITY_LOWER,
                        FIELD_MULTIPLICITY_UPPER,
@@ -47,6 +52,7 @@ procedure XMI is
                        FIELD_ASSOCIATION_NAME,
                        FIELD_ASSOCIATION_VISIBILITY,
                        FIELD_ASSOCIATION_END_ID,
+                       FIELD_ASSOCIATION_END,
                        FIELD_TAG_DEFINITION_ID,
                        FIELD_TAG_DEFINITION_NAME,
                        FIELD_OPERATION_NAME,
@@ -81,7 +87,7 @@ procedure XMI is
          Print (P.Indent, "Class " & Util.Beans.Objects.To_String (Value));
          P.Indent := P.Indent + 2;
 
-      when FIELD_CLASS_VISIBILITY =>
+      when FIELD_VISIBILITY =>
          Print (P.Indent, "visibility: " & Util.Beans.Objects.To_String (Value));
 
       when FIELD_CLASS_ID =>
@@ -92,7 +98,8 @@ procedure XMI is
          Ada.Text_IO.Put ("attr: " & Util.Beans.Objects.To_String (Value));
 
       when FIELD_MULTIPLICITY_LOWER =>
-         Ada.Text_IO.Put (" " & Util.Beans.Objects.To_String (Value));
+         Ada.Text_IO.Set_Col (P.Indent);
+         Ada.Text_IO.Put ("  multiplicity: " & Util.Beans.Objects.To_String (Value));
 
       when FIELD_MULTIPLICITY_UPPER =>
          Ada.Text_IO.Put_Line (".." & Util.Beans.Objects.To_String (Value));
@@ -105,15 +112,22 @@ procedure XMI is
 
       when FIELD_ENUM_DATA_TYPE =>
          Print (P.Indent, "  enum-type:" & Util.Beans.Objects.To_String (Value));
+         P.Indent := P.Indent + 2;
 
-      when FIELD_CLASS_END =>
-         P.Indent := P.Indent - 2;
+      when FIELD_ENUM_NAME =>
+         Print (P.Indent, "  enum " & Util.Beans.Objects.To_String (Value));
+         P.Indent := P.Indent + 2;
+
+      when FIELD_ENUM_LITERAL =>
+         Print (P.Indent, "  enum:" & Util.Beans.Objects.To_String (Value));
+         P.Indent := P.Indent + 2;
 
       when FIELD_OPERATION_NAME =>
          Print (P.Indent, "operation:" & Util.Beans.Objects.To_String (Value));
 
       when FIELD_ASSOCIATION_NAME =>
          Print (P.Indent, "association " & Util.Beans.Objects.To_String (Value));
+         P.Indent := P.Indent + 2;
 
       when FIELD_ASSOCIATION_VISIBILITY =>
          Print (P.Indent, "visibility: " & Util.Beans.Objects.To_String (Value));
@@ -128,11 +142,8 @@ procedure XMI is
          Print (P.Indent, "package " & Util.Beans.Objects.To_String (Value));
          P.Indent := P.Indent + 2;
 
-      when FIELD_PACKAGE_END =>
-         P.Indent := P.Indent - 2;
-
       when FIELD_TAGGED_VALUE_VALUE =>
-         Print (P.Indent, "tag-value: " & Util.Beans.Objects.To_String (Value));
+         Print (P.Indent, "-- " & Util.Beans.Objects.To_String (Value));
 
       when FIELD_TAGGED_VALUE_TYPE =>
          Print (P.Indent, "tag-type: " & Util.Beans.Objects.To_String (Value));
@@ -151,10 +162,11 @@ procedure XMI is
 
       when FIELD_COMMENT_CLASS_ID =>
          Print (P.Indent, "   for-id: " & Util.Beans.Objects.To_String (Value));
-         --
-         --        when others =>
-         --           Ada.Text_IO.Put_Line ("  member " & XMI_Fields'Image (Field)
-         --                                 & " to " & Util.Beans.Objects.To_String (Value));
+
+      when FIELD_PACKAGE_END | FIELD_CLASS_END | FIELD_ENUM_END | FIELD_ENUM_LITERAL_END |
+           FIELD_ASSOCIATION_END =>
+         P.Indent := P.Indent - 2;
+
       end case;
    end Set_Member;
 
@@ -167,7 +179,7 @@ procedure XMI is
    XMI_Mapping        : aliased XMI_Mapper.Mapper;
 
 begin
-   --     Util.Log.Loggers.Initialize ("samples/log4j.properties");
+--        Util.Log.Loggers.Initialize ("samples/log4j.properties");
 
    if Count = 0 then
       Ada.Text_IO.Put_Line ("Usage: xmi file...");
@@ -176,62 +188,55 @@ begin
    end if;
 
    --  Define the XMI mapping.
-   XMI_Mapping.Add_Mapping ("Package/*/@name",
-                            FIELD_PACKAGE_NAME);
-   XMI_Mapping.Add_Mapping ("Package",
-                            FIELD_PACKAGE_END);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/@name",
-                            FIELD_CLASS_NAME);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/@xmi.id",
-                            FIELD_CLASS_ID);
-   XMI_Mapping.Add_Mapping ("Package/*/Class",
-                            FIELD_CLASS_END);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/@visibility",
-                            FIELD_CLASS_VISIBILITY);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/Stereotype/@href",
-                            FIELD_STEREOTYPE);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/Attribute/*/@name",
-                            FIELD_ATTRIBUTE_NAME);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/Attribute/*/Stereotype/@href",
-                            FIELD_STEREOTYPE);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/TaggedValue.dataValue",
-                            FIELD_TAGGED_VALUE_VALUE);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/TaggedValue.dataValue/*/TagDefinition/@href",
-                            FIELD_TAGGED_VALUE_TYPE);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/Attribute/*/DataType/@href",
-                            FIELD_DATA_TYPE);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/Attribute/*/Enumeration/@href",
-                            FIELD_ENUM_DATA_TYPE);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/Attribute/*/TaggedValue.dataValue",
-                            FIELD_TAGGED_VALUE_VALUE);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/Attribute/*/TaggedValue.type/*/TagDefinition/@href",
-                            FIELD_TAGGED_VALUE_TYPE);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/Attribute/*/MultiplicityRange/@lower",
-                            FIELD_MULTIPLICITY_LOWER);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/Attribute/*/MultiplicityRange/@upper",
-                            FIELD_MULTIPLICITY_UPPER);
-   XMI_Mapping.Add_Mapping ("Package/*/Class/*/Operation/@name",
-                            FIELD_OPERATION_NAME);
-   XMI_Mapping.Add_Mapping ("Package/*/Association/*/@name",
-                            FIELD_ASSOCIATION_NAME);
-   XMI_Mapping.Add_Mapping ("Package/*/Association/*/@visibility",
-                            FIELD_ASSOCIATION_VISIBILITY);
-   XMI_Mapping.Add_Mapping ("Package/*/Association/*/@aggregation",
-                            FIELD_ASSOCIATION_AGGREGATION);
-   XMI_Mapping.Add_Mapping ("Package/*/Association/*/AssociationEnd.participant/Class/@xmi.idref",
+   XMI_Mapping.Add_Mapping ("**/Package/@name", FIELD_PACKAGE_NAME);
+   XMI_Mapping.Add_Mapping ("**/Package/@visibility", FIELD_VISIBILITY);
+   XMI_Mapping.Add_Mapping ("**/Package", FIELD_PACKAGE_END);
+
+   XMI_Mapping.Add_Mapping ("**/Class/@name", FIELD_CLASS_NAME);
+   XMI_Mapping.Add_Mapping ("**/Class/@xmi.idref", FIELD_CLASS_NAME);
+   XMI_Mapping.Add_Mapping ("**/Class/@xmi.id", FIELD_CLASS_ID);
+   XMI_Mapping.Add_Mapping ("**/Class/@visibility", FIELD_VISIBILITY);
+   XMI_Mapping.Add_Mapping ("**/Class", FIELD_CLASS_END);
+
+   XMI_Mapping.Add_Mapping ("**/Stereotype/@href", FIELD_STEREOTYPE);
+   XMI_Mapping.Add_Mapping ("**/Stereotype/@name", FIELD_STEREOTYPE);
+
+   XMI_Mapping.Add_Mapping ("**/Attribute/@name", FIELD_ATTRIBUTE_NAME);
+   XMI_Mapping.Add_Mapping ("**/Attribute/@visibility", FIELD_VISIBILITY);
+
+   XMI_Mapping.Add_Mapping ("**/TaggedValue.dataValue", FIELD_TAGGED_VALUE_VALUE);
+
+   XMI_Mapping.Add_Mapping ("**/DataType/@href", FIELD_DATA_TYPE);
+
+   XMI_Mapping.Add_Mapping ("**/Enumeration/@href", FIELD_ENUM_NAME);
+   XMI_Mapping.Add_Mapping ("**/Enumeration/@name", FIELD_ENUM_NAME);
+   XMI_Mapping.Add_Mapping ("**/Enumeration", FIELD_ENUM_END);
+
+   XMI_Mapping.Add_Mapping ("**/EnumerationLiteral/@name", FIELD_ENUM_LITERAL);
+   XMI_Mapping.Add_Mapping ("**/EnumerationLiteral", FIELD_ENUM_LITERAL_END);
+
+   XMI_Mapping.Add_Mapping ("**/MultiplicityRange/@lower", FIELD_MULTIPLICITY_LOWER);
+   XMI_Mapping.Add_Mapping ("**/MultiplicityRange/@upper", FIELD_MULTIPLICITY_UPPER);
+
+   XMI_Mapping.Add_Mapping ("**/Operation/@name", FIELD_OPERATION_NAME);
+   XMI_Mapping.Add_Mapping ("**/Operation/@visibility", FIELD_VISIBILITY);
+
+   XMI_Mapping.Add_Mapping ("**/Association/@name", FIELD_ASSOCIATION_NAME);
+   XMI_Mapping.Add_Mapping ("**/Association/@visibility", FIELD_ASSOCIATION_VISIBILITY);
+   XMI_Mapping.Add_Mapping ("**/Association/@aggregation", FIELD_ASSOCIATION_AGGREGATION);
+   XMI_Mapping.Add_Mapping ("**/AssociationEnd.participant/Class/@xmi.idref",
                             FIELD_ASSOCIATION_END_ID);
-   XMI_Mapping.Add_Mapping ("TagDefinition/@name",
-                            FIELD_TAG_DEFINITION_NAME);
-   XMI_Mapping.Add_Mapping ("TagDefinition/@xm.id",
-                            FIELD_TAG_DEFINITION_ID);
-   XMI_Mapping.Add_Mapping ("Package/*/Comment/@name",
-                            FIELD_COMMENT_NAME);
-   XMI_Mapping.Add_Mapping ("Package/*/Comment/@body",
-                            FIELD_COMMENT_BODY);
-   XMI_Mapping.Add_Mapping ("Package/*/Comment/Comment.annotatedElement/*/@xmi.idref",
+   XMI_Mapping.Add_Mapping ("**/Association", FIELD_ASSOCIATION_END);
+
+   XMI_Mapping.Add_Mapping ("**/TagDefinition/@name", FIELD_TAG_DEFINITION_NAME);
+   XMI_Mapping.Add_Mapping ("**/TagDefinition/@xm.id", FIELD_TAG_DEFINITION_ID);
+
+   XMI_Mapping.Add_Mapping ("**/Comment/@name", FIELD_COMMENT_NAME);
+   XMI_Mapping.Add_Mapping ("**/Comment/@body", FIELD_COMMENT_BODY);
+   XMI_Mapping.Add_Mapping ("**/Comment/Comment.annotatedElement/Class/@xmi.idref",
                             FIELD_COMMENT_CLASS_ID);
 
-   Reader.Add_Mapping ("XMI/*/Model/*", XMI_Mapping'Unchecked_Access);
+   Reader.Add_Mapping ("XMI", XMI_Mapping'Unchecked_Access);
 
    for I in 1 .. Count loop
       declare
