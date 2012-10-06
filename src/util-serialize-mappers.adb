@@ -297,13 +297,8 @@ package body Util.Serialize.Mappers is
                else
                   Add_Mapper (Src, N);
                end if;
-               Append (To, N);
-            elsif N.Is_Wildcard then
-               Append (To, N);
-            else
-               N.Next_Mapping := To.First_Child;
-               To.First_Child := N;
             end if;
+            Append (To, N);
             if Src.First_Child /= null then
                Copy (N, Src.First_Child);
             end if;
