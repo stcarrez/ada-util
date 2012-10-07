@@ -87,6 +87,18 @@ package Util.Strings.Transforms is
                           renames TR.Escape_Xml;
 
    function Escape_Xml (Content : String) return String
-                          renames TR.Escape_Xml;
+                        renames TR.Escape_Xml;
+
+   procedure Translate_Xml_Entity (Entity : in String;
+                                   Into   : in out Unbounded_String)
+                                   renames TR.Translate_Xml_Entity;
+
+   procedure Unescape_Xml (Content    : in String;
+                           Translator : not null access
+                             procedure (Entity : in String;
+                                        Into   : in out Unbounded_String)
+                           := Translate_Xml_Entity'Access;
+                           Into       : in out Unbounded_String)
+   renames TR.Unescape_Xml;
 
 end Util.Strings.Transforms;
