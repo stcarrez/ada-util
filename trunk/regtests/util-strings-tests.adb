@@ -40,6 +40,8 @@ package body Util.Strings.Tests is
                        Test_Escape_Javascript'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.Transforms.Escape_Xml",
                        Test_Escape_Xml'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Transforms.Unescape_Xml",
+                       Test_Unescape_Xml'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.Transforms.Capitalize",
                        Test_Capitalize'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.Transforms.To_Upper_Case",
@@ -91,6 +93,31 @@ package body Util.Strings.Tests is
                   Into    => Result);
       Assert_Equals (T, ASCII.ESC & "[m &#255;", Result);
    end Test_Escape_Xml;
+
+   procedure Test_Unescape_Xml (T : in out Test) is
+      Result : Unbounded_String;
+   begin
+      Unescape_Xml (Content    => "&lt;&gt;&amp;&quot; &apos; &#x41;",
+                    Translator => Util.Strings.Transforms.TR.Translate_Xml_Entity'Access,
+                    Into       => Result);
+      Util.Tests.Assert_Equals (T, "<>&"" ' A", Result, "Invalid unescape");
+
+      Set_Unbounded_String (Result, "");
+      Unescape_Xml (Content    => "Test &#65;&#111;&#126; end",
+                    Translator => Util.Strings.Transforms.TR.Translate_Xml_Entity'Access,
+                    Into       => Result);
+      Util.Tests.Assert_Equals (T, "Test Ao~ end", Result, "Invalid decimal unescape");
+
+      Set_Unbounded_String (Result, "");
+      Unescape_Xml (Content    => "Test &#x65;&#xc0;&#x111;&#x126;&#xcb; end",
+                    Translator => Util.Strings.Transforms.TR.Translate_Xml_Entity'Access,
+                    Into       => Result);
+      Util.Tests.Assert_Equals (T, "Test eÀđĦË end", Result, "Invalid Decimal Unescape");
+
+      Unescape_Xml (Content    => "&;&#qsf;&qsd;&#12121212121212121212;; &#41",
+                    Translator => Util.Strings.Transforms.TR.Translate_Xml_Entity'Access,
+                    Into       => Result);
+   end Test_Unescape_Xml;
 
    procedure Test_Capitalize (T : in out Test) is
       Result : Unbounded_String;
