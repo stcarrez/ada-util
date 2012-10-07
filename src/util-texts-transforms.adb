@@ -15,6 +15,7 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Interfaces;
 package body Util.Texts.Transforms is
 
    type Code is mod 2**32;
@@ -295,5 +296,155 @@ package body Util.Texts.Transforms is
          end if;
       end loop;
    end Escape_Xml;
+
+   --  ------------------------------
+   --  Translate the XML entity represented by <tt>Entity</tt> into an UTF-8 sequence
+   --  in the output stream.
+   --  ------------------------------
+   procedure Translate_Xml_Entity (Entity : in Input;
+                                   Into   : in out Stream) is
+   begin
+      if Entity (Entity'First) = Char'Val (Character'Pos ('&'))
+        and then Entity (Entity'Last) = Char'Val (Character'Pos (';')) then
+         case Char'Pos (Entity (Entity'First + 1)) is
+            when Character'Pos ('l') =>
+               if Entity'Length = 4
+                 and then Entity (Entity'First + 2) = Char'Val (Character'Pos ('t')) then
+                  Put (Into, '<');
+                  return;
+               end if;
+
+            when Character'Pos ('g') =>
+               if Entity'Length = 4
+                 and then Entity (Entity'First + 2) = Char'Val (Character'Pos ('t')) then
+                  Put (Into, '>');
+                  return;
+               end if;
+
+            when Character'Pos ('a') =>
+               if Entity'Length = 5
+                 and then Entity (Entity'First + 2) = Char'Val (Character'Pos ('m'))
+                 and then Entity (Entity'First + 3) = Char'Val (Character'Pos ('p')) then
+                  Put (Into, '&');
+                  return;
+               end if;
+               if Entity'Length = 6
+                 and then Entity (Entity'First + 2) = Char'Val (Character'Pos ('p'))
+                 and then Entity (Entity'First + 3) = Char'Val (Character'Pos ('o'))
+                 and then Entity (Entity'First + 4) = Char'Val (Character'Pos ('s')) then
+                  Put (Into, ''');
+                  return;
+               end if;
+
+            when Character'Pos ('q') =>
+               if Entity'Length = 6
+                 and then Entity (Entity'First + 2) = Char'Val (Character'Pos ('u'))
+                 and then Entity (Entity'First + 3) = Char'Val (Character'Pos ('o'))
+                 and then Entity (Entity'First + 4) = Char'Val (Character'Pos ('t')) then
+                  Put (Into, '"');
+                  return;
+               end if;
+
+            when Character'Pos ('#') =>
+               declare
+                  use Interfaces;
+
+                  V : Unsigned_32 := 0;
+                  C : Code;
+               begin
+                  if Entity (Entity'First + 2) = Char'Val (Character'Pos ('x')) then
+                     for I in Entity'First + 3 .. Entity'Last - 1 loop
+                        C := Char'Pos (Entity (I));
+                        if C >= Character'Pos ('0') and C <= Character'Pos ('9') then
+                           V := (V * 16) + Unsigned_32 (C - Character'Pos ('0'));
+                        elsif C >= Character'Pos ('a') and C <= Character'Pos ('z') then
+                           V := (V * 16) + 10 + Unsigned_32 (C - Character'Pos ('a'));
+                        elsif C >= Character'Pos ('A') and C <= Character'Pos ('Z') then
+                           V := (V * 16) + 10 + Unsigned_32 (C - Character'Pos ('A'));
+                        end if;
+                     end loop;
+                  else
+                     for I in Entity'First + 2 .. Entity'Last - 1 loop
+                        C := Char'Pos (Entity (I));
+                        if C >= Character'Pos ('0') and C <= Character'Pos ('9') then
+                           V := (V * 10) + Unsigned_32 (C - Character'Pos ('0'));
+                        end if;
+                     end loop;
+                  end if;
+                  if V <= 16#007F# then
+                     Put (Into, Character'Val (V));
+                     return;
+
+                  elsif V <= 16#07FF# then
+                     Put (Into, Character'Val (16#C0# or Interfaces.Shift_Right (V, 6)));
+                     Put (Into, Character'Val (16#80# or (V and 16#03F#)));
+                     return;
+
+                  elsif V <= 16#0FFFF# then
+                     Put (Into, Character'Val (16#D0# or Shift_Right (V, 12)));
+                     Put (Into, Character'Val (16#80# or (Shift_Right (V, 6) and 16#03F#)));
+                     Put (Into, Character'Val (16#80# or (V and 16#03F#)));
+                     return;
+
+                  elsif V <= 16#10FFFF# then
+                     Put (Into, Character'Val (16#E0# or Shift_Right (V, 18)));
+                     Put (Into, Character'Val (16#80# or (Shift_Right (V, 12) and 16#03F#)));
+                     Put (Into, Character'Val (16#80# or (Shift_Right (V, 6) and 16#03F#)));
+                     Put (Into, Character'Val (16#80# or (V and 16#03F#)));
+                     return;
+
+                  end if;
+               end;
+
+            when others =>
+               null;
+
+         end case;
+      end if;
+
+      --  Invalid entity.
+   end Translate_Xml_Entity;
+
+   --  ------------------------------
+   --  Unescape the XML entities from the content into the result stream.
+   --  For each XML entity found, call the <tt>Translator</tt> procedure who is responsible
+   --  for writing the result in the stream.  The XML entity starts with '&' and ends with ';'.
+   --  The '&' and ';' are part of the entity when given to the translator.  If the trailing
+   --  ';' is not part of the entity, it means the entity was truncated or the end of input
+   --  stream is reached.
+   --  ------------------------------
+   procedure Unescape_Xml (Content    : in Input;
+                           Translator : not null access
+                             procedure (Entity : in Input;
+                                        Into   : in out Stream) := Translate_Xml_Entity'Access;
+                           Into       : in out Stream) is
+      MAX_ENTITY_LENGTH : constant Positive := 30;
+
+      Entity : Input (1 .. MAX_ENTITY_LENGTH);
+      C      : Code;
+      Pos    : Natural := Content'First;
+      Last   : Natural;
+   begin
+      while Pos <= Content'Last loop
+         C := Char'Pos (Content (Pos));
+         Pos := Pos + 1;
+         if C = Character'Pos ('&') then
+            Entity (Entity'First) := Char'Val (C);
+            Last := Entity'First;
+            while Pos <= Content'Last loop
+               C := Char'Pos (Content (Pos));
+               Pos := Pos + 1;
+               if Last < Entity'Last then
+                  Last := Last + 1;
+                  Entity (Last) := Char'Val (C);
+               end if;
+               exit when C = Character'Pos (';');
+            end loop;
+            Translator (Entity (Entity'First .. Last), Into);
+         else
+            Put (Into, Character'Val (C));
+         end if;
+      end loop;
+   end Unescape_Xml;
 
 end Util.Texts.Transforms;

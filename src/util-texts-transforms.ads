@@ -74,6 +74,23 @@ package Util.Texts.Transforms is
                          Into    : in out Stream);
    function Escape_Xml (Content : Input) return Input;
 
+   --  Translate the XML entity represented by <tt>Entity</tt> into an UTF-8 sequence
+   --  in the output stream.
+   procedure Translate_Xml_Entity (Entity : in Input;
+                                   Into   : in out Stream);
+
+   --  Unescape the XML entities from the content into the result stream.
+   --  For each XML entity found, call the <tt>Translator</tt> procedure who is responsible
+   --  for writing the result in the stream.  The XML entity starts with '&' and ends with ';'.
+   --  The '&' and ';' are part of the entity when given to the translator.  If the trailing
+   --  ';' is not part of the entity, it means the entity was truncated or the end of input
+   --  stream is reached.
+   procedure Unescape_Xml (Content    : in Input;
+                           Translator : not null access
+                             procedure (Entity : in Input;
+                                        Into   : in out Stream) := Translate_Xml_Entity'Access;
+                           Into       : in out Stream);
+
 private
    procedure Put (Into  : in out Stream;
                   Value : in String);
