@@ -25,6 +25,7 @@ DIST_FILE=ada-util-@UTIL_VERSION@.tar.gz
 
 XML_SRC_DIR=@UTIL_XML_DIR@
 ASM_SRC_DIR=@UTIL_ASM_DIR@
+OS_SRC_DIR=@UTIL_OS_DIR@
 AUNIT_SRC_DIR=@UTIL_AUNIT_DIR@
 AHVEN_SRC_DIR=@UTIL_AHVEN_DIR@
 AHVEN_SRC_OS_DIR=@UTIL_AHVEN_OS_DIR@
@@ -188,6 +189,9 @@ install_lib:
 	fi
 	if test T${ASM_SRC_DIR} != T ; then \
 	   ${CP} -p ${ASM_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
+	fi
+	if test T${OS_SRC_DIR} != T ; then \
+	   ${CP} -p ${OS_SRC_DIR}/*.ad[bs] ${includedir}/util ; \
 	fi
 	if test T${AUNIT_SRC_DIR} != T ; then \
 	   ${CP} -p ${AUNIT_SRC_DIR}/*.ad[bs] ${includedir}/testutil ; \
