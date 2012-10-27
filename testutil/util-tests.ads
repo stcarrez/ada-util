@@ -62,6 +62,9 @@ package Util.Tests is
    --  Get a new unique string
    function Get_Uuid return String;
 
+   --  Get the verbose flag that can be activated with the <tt>-v</tt> option.
+   function Verbose return Boolean;
+
    --  Check that two files are equal.  This is intended to be used by
    --  tests that create files that are then checked against patterns.
    procedure Assert_Equal_Files (T       : in Test_Case'Class;

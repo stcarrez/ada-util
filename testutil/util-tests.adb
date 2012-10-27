@@ -49,6 +49,9 @@ package body Util.Tests is
    --  in Jenkins.  See option '-p prefix'.
    Harness_Prefix    : Unbounded_String;
 
+   --  Verbose flag activated by the '-v' option.
+   Verbose_Flag      : Boolean := False;
+
    --  ------------------------------
    --  Get a path to access a test file.
    --  ------------------------------
@@ -132,6 +135,14 @@ package body Util.Tests is
         + (Long_Long_Integer (T * 1000));
       return "U" & Util.Strings.Image (V);
    end Get_Uuid;
+
+   --  ------------------------------
+   --  Get the verbose flag that can be activated with the <tt>-v</tt> option.
+   --  ------------------------------
+   function Verbose return Boolean is
+   begin
+      return Verbose_Flag;
+   end Verbose;
 
    --  ------------------------------
    --  Check that the value matches what we expect.
@@ -318,13 +329,14 @@ package body Util.Tests is
       procedure Help is
       begin
          Put_Line ("Test harness: " & Name);
-         Put ("Usage: harness [-xml result.xml] [-t timeout] [-p prefix] "
+         Put ("Usage: harness [-xml result.xml] [-t timeout] [-p prefix] [-v]"
               & "[-config file.properties] [-d dir]");
          Put_Line ("[-update]");
          Put_Line ("-xml file      Produce an XML test report");
          Put_Line ("-config file   Specify a test configuration file");
          Put_Line ("-d dir         Change the current directory to <dir>");
          Put_Line ("-t timeout     Test execution timeout in seconds");
+         Put_Line ("-v             Activate the verbose test flag");
          Put_Line ("-p prefix      Add the prefix to the test class names");
          Put_Line ("-update        Update the test reference files if a file");
          Put_Line ("               is missing or the test generates another output");
@@ -339,7 +351,7 @@ package body Util.Tests is
       Chdir    : Ada.Strings.Unbounded.Unbounded_String;
    begin
       loop
-         case Getopt ("hux: t: p: c: config: d: update help xml: timeout:") is
+         case Getopt ("huvx: t: p: c: config: d: update help xml: timeout:") is
             when ASCII.NUL =>
                exit;
 
@@ -377,6 +389,9 @@ package body Util.Tests is
 
             when 'p' =>
                Harness_Prefix := To_Unbounded_String (Parameter & " ");
+
+            when 'v' =>
+               Verbose_Flag := True;
 
             when 'x' =>
                XML := True;
