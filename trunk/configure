@@ -2963,7 +2963,7 @@ case "${target_os}" in
 	src_os='src/os-linux'
 	;;
 
-     macos*)
+     macos*|darwin*)
 	src_os='src/os-linux'
 	;;
 
