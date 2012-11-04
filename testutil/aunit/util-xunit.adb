@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-xunit - Unit tests on top of AUnit
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,7 @@ package body Util.XUnit is
                      Message   : in String := "Test failed";
                      Source    : in String := GNAT.Source_Info.File;
                      Line      : in Natural := GNAT.Source_Info.Line) is
+      pragma Unreferenced (T);
    begin
       AUnit.Assertions.Assert (Condition, Message, Source, Line);
    end Assert;
@@ -38,6 +39,7 @@ package body Util.XUnit is
                      Message   : in String := "Test failed";
                      Source    : in String := GNAT.Source_Info.File;
                      Line      : in Natural := GNAT.Source_Info.Line) is
+      pragma Unreferenced (T);
    begin
       AUnit.Assertions.Assert (Condition, Message, Source, Line);
    end Assert;
