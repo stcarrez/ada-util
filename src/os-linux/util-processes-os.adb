@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 
 with Ada.Unchecked_Deallocation;
-with Interfaces.C.Strings;
 
 package body Util.Processes.Os is
 
