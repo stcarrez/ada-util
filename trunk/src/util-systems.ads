@@ -18,6 +18,6 @@
 
 package Util.Systems is
 
-   pragma Preelaborate;
+   pragma Pure;
 
 end Util.Systems;
