@@ -73,7 +73,7 @@ install: install_static
 endif
 
 # Build executables for all mains defined by the project.
-build:
+build:	src/util-systems-constants.ads
 	$(GNATMAKE) -m -p -P"$(GPRPATH)" $(MAKE_ARGS)
 	$(GNATMAKE) -m -p -P"$(TESTUTIL_GPRPATH)" $(MAKE_ARGS)
 	$(GNATMAKE) -m -p -P"$(UTIL_HTTP_GPRPATH)" $(MAKE_ARGS)
