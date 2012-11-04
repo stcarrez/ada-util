@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-sha1 -- Compute SHA-1 hash
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -155,10 +155,10 @@ package body Util.Encoders.SHA1 is
 
    function To_Unsigned_32 (C3, C2, C1, C0 : in Character) return Unsigned_32 is
    begin
-      return Unsigned_32 (Character'Pos (C3) or
-                            Shift_Left (Unsigned_32 (Character'Pos (C2)), 8) or
-                            Shift_Left (Unsigned_32 (Character'Pos (C1)), 16) or
-                            Shift_Left (Unsigned_32 (Character'Pos (C0)), 24));
+      return Character'Pos (C3) or
+        Shift_Left (Unsigned_32 (Character'Pos (C2)), 8) or
+        Shift_Left (Unsigned_32 (Character'Pos (C1)), 16) or
+        Shift_Left (Unsigned_32 (Character'Pos (C0)), 24);
    end To_Unsigned_32;
 
    --  ------------------------------
