@@ -22,6 +22,7 @@ with Ada.Finalization;
 with Util.Concurrent.Counters;
 with Util.Test_Caller;
 with Util.Measures;
+with Util.Log.Loggers;
 with Util.Concurrent.Copies;
 with Util.Concurrent.Pools;
 with Util.Concurrent.Fifos;
@@ -30,6 +31,8 @@ package body Util.Concurrent.Tests is
 
    use Util.Tests;
    use Util.Concurrent.Counters;
+
+   Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Concurrent.Tests");
 
    type Connection is new Ada.Finalization.Controlled with record
       Name  : Ada.Strings.Unbounded.Unbounded_String;
@@ -405,7 +408,8 @@ package body Util.Concurrent.Tests is
                end;
             end loop;
          exception
-            when others =>
+            when E : others =>
+               Log.Error ("Exception raised", E);
                Ada.Text_IO.Put_Line ("Exception raised.");
 
          end Producer;
@@ -435,7 +439,8 @@ package body Util.Concurrent.Tests is
                Result := Tot;
             end Get;
          exception
-            when others =>
+            when E : others =>
+               Log.Error ("Exception raised", E);
                Ada.Text_IO.Put_Line ("Exception raised.");
 
          end Consumer;
