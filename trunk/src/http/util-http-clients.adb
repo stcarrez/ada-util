@@ -62,9 +62,6 @@ package body Util.Http.Clients is
                          Name     : in String;
                          Value    : in String) is
    begin
-      if Reply.Delegate = null then
-         null;
-      end if;
       Reply.Delegate.Set_Header (Name, Value);
    end Set_Header;
 
@@ -123,7 +120,11 @@ package body Util.Http.Clients is
    function Contains_Header (Request : in Client;
                              Name    : in String) return Boolean is
    begin
-      return Request.Delegate.Contains_Header (Name);
+      if Request.Delegate = null then
+         return False;
+      else
+         return Request.Delegate.Contains_Header (Name);
+      end if;
    end Contains_Header;
 
    --  ------------------------------
@@ -137,7 +138,11 @@ package body Util.Http.Clients is
    function Get_Header (Request : in Client;
                         Name    : in String) return String is
    begin
-      return Request.Delegate.Get_Header (Name);
+      if Request.Delegate = null then
+         return "";
+      else
+         return Request.Delegate.Get_Header (Name);
+      end if;
    end Get_Header;
 
    --  ------------------------------
