@@ -26,6 +26,7 @@ int main(void)
   printf("with Interfaces.C;\n");
   printf("package Util.Systems.Constants is\n");
   printf("\n");
+  printf("   pragma Preelaborate;\n");
 
   printf("\n   --  Flags used when opening a file with open/creat.\n");
   printf("   O_RDONLY                      : constant Interfaces.C.int := 8#%06o#;\n", O_RDONLY);
