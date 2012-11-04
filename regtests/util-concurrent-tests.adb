@@ -389,7 +389,7 @@ package body Util.Concurrent.Tests is
          --  A task that consumes the elements.
          task type Consumer is
             entry Start (Count : in Natural);
-            entry Get (Result : out Natural);
+            entry Get (Result : out Long_Long_Integer);
          end Consumer;
 
          task body Producer is
@@ -416,7 +416,7 @@ package body Util.Concurrent.Tests is
 
          task body Consumer is
             Cnt : Natural;
-            Tot : Natural := 0;
+            Tot : Long_Long_Integer := 0;
          begin
             accept Start (Count : in Natural) do
                Cnt := Count;
@@ -431,11 +431,11 @@ package body Util.Concurrent.Tests is
 --                       Ada.Text_IO.Put_Line ("Value: " & Natural'Image (C.Value)
 --                                             & " instead of " & Natural'Image (I));
 --                    end if;
-                  Tot := Tot + C.Value;
+                  Tot := Tot + Long_Long_Integer (C.Value);
                end;
             end loop;
 --              Ada.Text_IO.Put_Line ("Total: " & Natural'Image (Tot));
-            accept Get (Result : out Natural) do
+            accept Get (Result : out Long_Long_Integer) do
                Result := Tot;
             end Get;
          exception
@@ -451,7 +451,7 @@ package body Util.Concurrent.Tests is
 
          Producers : Worker_Array;
          Consumers : Consummer_Array;
-         Value     : Natural;
+         Value     : Long_Long_Integer;
          Total     : Long_Long_Integer := 0;
          Expect    : Long_Long_Integer;
       begin
@@ -464,7 +464,7 @@ package body Util.Concurrent.Tests is
 
          for I in Consumers'Range loop
             Consumers (I).Get (Value);
-            Total := Total + Long_Long_Integer (Value);
+            Total := Total + Value;
          end loop;
          Expect := Long_Long_Integer ((Count_By_Task * (Count_By_Task + 1)) / 2);
          Expect := Expect * Long_Long_Integer (Task_Count);
