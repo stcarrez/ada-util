@@ -185,7 +185,7 @@ package body Util.Serialize.IO.JSON is
                           Length : in Ada.Containers.Count_Type) is
       pragma Unreferenced (Length);
 
-      Current : access Node_Info := Node_Info_Stack.Current (Stream.Stack);
+      Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
    begin
       if Current /= null then
          if Current.Has_Fields then
