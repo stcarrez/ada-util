@@ -20,6 +20,7 @@ with System;
 with Interfaces.C;
 with Interfaces.C.Strings;
 with Util.Processes;
+with Util.Systems.Constants;
 
 --  The <b>Util.Systems.Os</b> package defines various types and operations which are specific
 --  to the OS (Unix).
@@ -43,17 +44,17 @@ package Util.Systems.Os is
    NO_FILE       : constant File_Type := -1;
 
    --  The following values should be externalized.  They are valid for GNU/Linux.
-   F_SETFL    : constant Integer := 4;
-   FD_CLOEXEC : constant Integer := 1;
+   F_SETFL    : constant Interfaces.C.int := Util.Systems.Constants.F_SETFL;
+   FD_CLOEXEC : constant Interfaces.C.int := Util.Systems.Constants.FD_CLOEXEC;
 
    --  These values are specific to Linux.
-   O_RDONLY   : constant Interfaces.C.int := 8#000#;
-   O_WRONLY   : constant Interfaces.C.int := 8#001#;
-   O_RDWR     : constant Interfaces.C.int := 8#002#;
-   O_CREAT    : constant Interfaces.C.int := 8#100#;
-   O_EXCL     : constant Interfaces.C.int := 8#200#;
-   O_TRUNC    : constant Interfaces.C.int := 8#1000#;
-   O_APPEND   : constant Interfaces.C.int := 8#2000#;
+   O_RDONLY   : constant Interfaces.C.int := Util.Systems.Constants.O_RDONLY;
+   O_WRONLY   : constant Interfaces.C.int := Util.Systems.Constants.O_WRONLY;
+   O_RDWR     : constant Interfaces.C.int := Util.Systems.Constants.O_RDWR;
+   O_CREAT    : constant Interfaces.C.int := Util.Systems.Constants.O_CREAT;
+   O_EXCL     : constant Interfaces.C.int := Util.Systems.Constants.O_EXCL;
+   O_TRUNC    : constant Interfaces.C.int := Util.Systems.Constants.O_TRUNC;
+   O_APPEND   : constant Interfaces.C.int := Util.Systems.Constants.O_APPEND;
 
    type Size_T is mod 2 ** Standard'Address_Size;
 
@@ -117,8 +118,8 @@ package Util.Systems.Os is
 
    --  Change the file settings
    function Sys_Fcntl (Fd    : in File_Type;
-                       Cmd   : in Integer;
-                       Flags : in Integer) return Integer;
+                       Cmd   : in Interfaces.C.int;
+                       Flags : in Interfaces.C.int) return Integer;
    pragma Import (C, Sys_Fcntl, "fcntl");
 
    function Sys_Kill (Pid : in Integer;
