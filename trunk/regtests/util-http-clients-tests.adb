@@ -142,7 +142,8 @@ package body Util.Http.Clients.Tests is
       Reply   : Response;
    begin
       Request.Get ("http://www.google.com", Reply);
-      T.Assert (Reply.Get_Status = 200 or Reply.Get_Status = 302, "Get status is invalid");
+      T.Assert (Reply.Get_Status = 200 or Reply.Get_Status = 302,
+                "Get status is invalid: " & Natural'Image (Reply.Get_Status));
 
       Util.Http.Tools.Save_Response (Util.Tests.Get_Test_Path ("http_get.txt"), Reply, True);
 
