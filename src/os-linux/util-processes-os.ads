@@ -25,7 +25,7 @@ private package Util.Processes.Os is
 
    type System_Process is new Util.Processes.System_Process with record
       Argv       : Util.Systems.Os.Ptr_Ptr_Array := null;
-      Argc       : Interfaces.C.Size_T := 0;
+      Argc       : Interfaces.C.size_t := 0;
       In_File    : Util.Systems.Os.Ptr := Interfaces.C.Strings.Null_Ptr;
       Out_File   : Util.Systems.Os.Ptr := Interfaces.C.Strings.Null_Ptr;
       Err_File   : Util.Systems.Os.Ptr := Interfaces.C.Strings.Null_Ptr;
