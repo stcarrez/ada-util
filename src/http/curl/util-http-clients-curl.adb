@@ -18,6 +18,7 @@
 
 with Util.Strings;
 with Util.Log.Loggers;
+with Util.Http.Clients.Curl.Constants;
 package body Util.Http.Clients.Curl is
 
    use System;
@@ -25,6 +26,8 @@ package body Util.Http.Clients.Curl is
    pragma Linker_Options ("-lcurl");
 
    Log   : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Http.Clients.Curl");
+
+   function Get_Request (Http : in Client'Class) return Curl_Http_Request_Access;
 
    Manager : aliased Curl_Http_Manager;
 
@@ -59,6 +62,8 @@ package body Util.Http.Clients.Curl is
    --  ------------------------------
    procedure Create (Manager  : in Curl_Http_Manager;
                      Http     : in out Client'Class) is
+      pragma Unreferenced (Manager);
+
       Request : Curl_Http_Request_Access;
       Data    : CURL;
    begin
@@ -121,6 +126,7 @@ package body Util.Http.Clients.Curl is
                      Http     : in Client'Class;
                      URI      : in String;
                      Reply    : out Response'Class) is
+      pragma Unreferenced (Manager);
       use Interfaces.C;
 
       Req      : constant Curl_Http_Request_Access := Get_Request (Http);
@@ -130,27 +136,28 @@ package body Util.Http.Clients.Curl is
    begin
       Log.Info ("GET {0}", URI);
 
-      Result := Curl_Easy_Setopt_Write_Callback (Req.Data,  CURLOPT_WRITEUNCTION,
+      Result := Curl_Easy_Setopt_Write_Callback (Req.Data, Constants.CURLOPT_WRITEUNCTION,
                                                  Read_Response'Access);
       Check_Code (Result, "set callback");
 
       Interfaces.C.Strings.Free (Req.URL);
       Req.URL := Strings.New_String (URI);
 
-      Result := Curl_Easy_Setopt_Long (Req.Data, CURLOPT_HEADER, 1);
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_HEADER, 1);
       Check_Code (Result, "set header");
 
-      Result := Curl_Easy_Setopt_String (Req.Data, CURLOPT_URL, Req.URL);
+      Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_URL, Req.URL);
       Check_Code (Result, "set url");
 
       Response := new Curl_Http_Response;
-      Result := Curl_Easy_Setopt_Data (Req.Data, CURLOPT_WRITEDATA, Response);
+      Result := Curl_Easy_Setopt_Data (Req.Data, Constants.CURLOPT_WRITEDATA, Response);
+      Check_Code (Result, "set write data");
       Reply.Delegate := Response.all'Access;
 
       Result := Curl_Easy_Perform (Req.Data);
       Check_Code (Result, "get request");
 
-      Result := Curl_Easy_Getinfo_Long (Req.Data, CURLINFO_RESPONSE_CODE, Status'Access);
+      Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
       Check_Code (Result, "get response code");
       Response.Status := Natural (Status);
    end Do_Get;
@@ -160,16 +167,17 @@ package body Util.Http.Clients.Curl is
                       URI      : in String;
                       Data     : in String;
                       Reply    : out Response'Class) is
+      pragma Unreferenced (Manager);
       use Interfaces.C;
 
       Req      : constant Curl_Http_Request_Access := Get_Request (Http);
       Result   : CURL_Code;
       Response : Curl_Http_Response_Access;
-      Status   : aliased C.Long;
+      Status   : aliased C.long;
    begin
       Log.Info ("POST {0}", URI);
 
-      Result := Curl_Easy_Setopt_Write_Callback (Req.Data,  CURLOPT_WRITEUNCTION,
+      Result := Curl_Easy_Setopt_Write_Callback (Req.Data, Constants.CURLOPT_WRITEUNCTION,
                                                  Read_Response'Access);
       Check_Code (Result, "set callback");
 
@@ -179,26 +187,27 @@ package body Util.Http.Clients.Curl is
       Interfaces.C.Strings.Free (Req.Content);
       Req.Content := Strings.New_String (Data);
 
-      Result := Curl_Easy_Setopt_Long (Req.Data, CURLOPT_HEADER, 1);
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_HEADER, 1);
       Check_Code (Result, "set header");
 
-      Result := Curl_Easy_Setopt_String (Req.Data, CURLOPT_URL, Req.URL);
+      Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_URL, Req.URL);
       Check_Code (Result, "set url");
 
-      Result := Curl_Easy_Setopt_String (Req.Data, CURLOPT_POSTFIELDS, Req.Content);
+      Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_POSTFIELDS, Req.Content);
       Check_Code (Result, "set post data");
 
-      Result := Curl_Easy_Setopt_Long (Req.Data, CURLOPT_POSTFIELDSIZE, Data'Length);
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_POSTFIELDSIZE, Data'Length);
       Check_Code (Result, "set post data");
 
       Response := new Curl_Http_Response;
-      Result := Curl_Easy_Setopt_Data (Req.Data, CURLOPT_WRITEDATA, Response);
+      Result := Curl_Easy_Setopt_Data (Req.Data, Constants.CURLOPT_WRITEDATA, Response);
+      Check_Code (Result, "set write data");
       Reply.Delegate := Response.all'Access;
 
       Result := Curl_Easy_Perform (Req.Data);
       Check_Code (Result, "get request");
 
-      Result := Curl_Easy_Getinfo_Long (Req.Data, CURLINFO_RESPONSE_CODE, Status'Access);
+      Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
       Check_Code (Result, "get response code");
       Response.Status := Natural (Status);
    end Do_Post;
