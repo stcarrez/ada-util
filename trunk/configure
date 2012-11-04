@@ -660,6 +660,8 @@ enable_shared
 enable_traceback
 enable_ahven
 enable_aunit
+enable_curl
+enable_aws
 with_aws
 '
       ac_precious_vars='build_alias
@@ -1288,6 +1290,8 @@ Optional Features:
   --enable-traceback      Enable the symbolic traceback dump in logged exceptions (enabled)
   --enable-ahven          Enable internal Ahven support for testutil library and Ada util unit tests (disabled)
   --enable-aunit          Enable AUnit support for testutil library and Ada util unit tests (enabled)
+  --enable-curl      Enable the CURL HTTP client support in Ada Util (enabled)
+  --enable-aws      Enable the AWS HTTP client support in Ada Util (enabled)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -3168,9 +3172,28 @@ if test x$ac_enable_ahven = 'xyes'; then
   esac
 fi
 
+##########################################
+# Check for libcurl
+##########################################
+
 UTIL_HAVE_CURL=no
 WITH_UTIL_CURL=""
 UTIL_CURL_LIB=curl
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking curl HTTP client support in Ada Util" >&5
+$as_echo_n "checking curl HTTP client support in Ada Util... " >&6; }
+ac_enable_curl=yes
+# Check whether --enable-curl was given.
+if test "${enable_curl+set}" = set; then :
+  enableval=$enable_curl; case "${enableval}" in
+  no|none)  ac_enable_curl=no ;;
+  *)        ac_enable_curl=yes ;;
+esac
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_enable_curl}" >&5
+$as_echo "${ac_enable_curl}" >&6; }
+if test T$ac_enable_curl = Tyes; then
 
 as_ac_Lib=`$as_echo "ac_cv_lib_$UTIL_CURL_LIB''_curl_easy_perform" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for curl_easy_perform in -l$UTIL_CURL_LIB" >&5
@@ -3212,21 +3235,40 @@ eval ac_res=\$$as_ac_Lib
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
 
-   UTIL_HAVE_CURL=yes
-   WITH_UTIL_CURL="with \"util_http_curl\";";
+    UTIL_HAVE_CURL=yes
+    CFLAGS="$CFLAGS -DHAVE_CURL"
+    WITH_UTIL_CURL="with \"util_http_curl\";";
 
 fi
 
+fi
 
 ##########################################
-# Ada Web Server
+# Check for Ada Web Server
 ##########################################
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking AWS HTTP client support in Ada Util" >&5
+$as_echo_n "checking AWS HTTP client support in Ada Util... " >&6; }
+ac_enable_aws=yes
+# Check whether --enable-aws was given.
+if test "${enable_aws+set}" = set; then :
+  enableval=$enable_aws; case "${enableval}" in
+  no|none)  ac_enable_aws=no ;;
+  *)        ac_enable_aws=yes ;;
+esac
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_enable_aws}" >&5
+$as_echo "${ac_enable_aws}" >&6; }
 
 ASF_SERVER=aws
 UTIL_HAVE_AWS=no
 WITH_SERVER=
 WITH_UTIL_AWS=
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Ada Web Server library (http://libre.adacore.com/libre/tools/aws/)" >&5
+AWS_DIR=
+
+if test T$ac_enable_aws = Tyes; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking Ada Web Server library (http://libre.adacore.com/libre/tools/aws/)" >&5
 $as_echo_n "checking Ada Web Server library (http://libre.adacore.com/libre/tools/aws/)... " >&6; }
 
 # Check whether --with-aws was given.
@@ -3272,6 +3314,9 @@ else
 $as_echo "${AWS_DIR}" >&6; }
 fi
 rm -f t.gpr
+
+fi
+
 
 
 
