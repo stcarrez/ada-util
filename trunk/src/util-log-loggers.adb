@@ -27,7 +27,6 @@ with Ada.IO_Exceptions;
 with Util.Strings;
 package body Util.Log.Loggers is
 
-   use Util;
    use Ada.Text_IO;
    use Ada.Strings;
    use Ada.Strings.Fixed;
