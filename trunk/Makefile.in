@@ -72,8 +72,13 @@ all:     static
 install: install_static
 endif
 
+UTIL_GEN_FILES=src/util-systems-constants.ads
+ifeq (${HAVE_CURL},yes)
+UTIL_GEN_FILES+=src/http/curl/util-http-clients-curl-constants.ads
+endif
+
 # Build executables for all mains defined by the project.
-build:	src/util-systems-constants.ads
+build:	$(UTIL_GEN_FILES)
 	$(GNATMAKE) -m -p -P"$(GPRPATH)" $(MAKE_ARGS)
 	$(GNATMAKE) -m -p -P"$(TESTUTIL_GPRPATH)" $(MAKE_ARGS)
 	$(GNATMAKE) -m -p -P"$(UTIL_HTTP_GPRPATH)" $(MAKE_ARGS)
@@ -267,7 +272,10 @@ prepare-release:
 src/util-systems-constants.ads:	bin/utilgen
 	bin/utilgen > $@
 
+src/http/curl/util-http-clients-curl-constants.ads:	bin/utilgen
+	bin/utilgen curl > $@
+
 # Utility for the generation of util-systems-constants.ads
-bin/utilgen:    support/utilgen.c
+bin/utilgen:    support/utilgen.c Makefile
 	mkdir -p bin
 	$(CC) -o $@ $(CFLAGS) -g support/utilgen.c
