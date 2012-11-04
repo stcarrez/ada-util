@@ -13,6 +13,8 @@ INSTALL=@INSTALL@
 
 GPRPATH=util.gpr
 UTIL_HTTP_GPRPATH=util_http.gpr
+UTIL_HTTP_CURL_GPRPATH=util_http_curl.gpr
+UTIL_HTTP_AWS_GPRPATH=util_http_aws.gpr
 TESTUTIL_GPRPATH=testutil.gpr
 
 BUILDS_SHARED=@BUILDS_SHARED@
@@ -80,6 +82,8 @@ endif
 # Build executables for all mains defined by the project.
 build:	$(UTIL_GEN_FILES)
 	$(GNATMAKE) -m -p -P"$(GPRPATH)" $(MAKE_ARGS)
+	test T${HAVE_CURL} = Tno || $(GNATMAKE) -m -p -P"$(UTIL_HTTP_CURL_GPRPATH)" $(MAKE_ARGS)
+	test T${HAVE_AWS} = Tno || $(GNATMAKE) -m -p -P"$(UTIL_HTTP_AWS_GPRPATH)" $(MAKE_ARGS)
 	$(GNATMAKE) -m -p -P"$(TESTUTIL_GPRPATH)" $(MAKE_ARGS)
 	$(GNATMAKE) -m -p -P"$(UTIL_HTTP_GPRPATH)" $(MAKE_ARGS)
 
@@ -111,8 +115,10 @@ clean:	clean_test
 	-$(GNATCLEAN) -q -P "$(GPRPATH)" -XLIBRARY_TYPE=relocatable
 	-$(GNATCLEAN) -q -Ptestutil -XLIBRARY_TYPE=static
 	-$(GNATCLEAN) -q -Ptestutil -XLIBRARY_TYPE=relocatable
-	-$(GNATCLEAN) -q -Putil_http -XLIBRARY_TYPE=static
-	-$(GNATCLEAN) -q -Putil_http -XLIBRARY_TYPE=relocatable
+	-$(GNATCLEAN) -q -Putil_http_aws -XLIBRARY_TYPE=static
+	-$(GNATCLEAN) -q -Putil_http_aws -XLIBRARY_TYPE=relocatable
+	-$(GNATCLEAN) -q -Putil_http_curl -XLIBRARY_TYPE=static
+	-$(GNATCLEAN) -q -Putil_http_curl -XLIBRARY_TYPE=relocatable
 	-$(GNATCLEAN) -q -Ptests
 	-$(GNATCLEAN) -q -Psamples
 	-rm -f lib/util/*.a lib/util/*.$(DLLEXT)
