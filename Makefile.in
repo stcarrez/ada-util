@@ -38,6 +38,8 @@ LN_S=@LN_S@
 MKDIR=mkdir
 CP=cp
 LN=ln -s
+CC=@CC@
+CFLAGS=@CFLAGS@
 
 ifeq (${OS},Windows_NT)
 LIBEXT=dll
@@ -261,3 +263,11 @@ prepare-release:
 	${SVN} update
 	${SVN} info > CHANGES
 	${SVN} log -v > ChangeLog
+
+src/util-systems-constants.ads:	bin/utilgen
+	bin/utilgen > $@
+
+# Utility for the generation of util-systems-constants.ads
+bin/utilgen:    support/utilgen.c
+	mkdir -p bin
+	$(CC) -o $@ $(CFLAGS) -g support/utilgen.c
