@@ -48,22 +48,7 @@ private
 
    type CURL_Info is new Int;
 
-   CURLINFO_RESPONSE_CODE : constant CURL_Info := 2097154;
-
    type Curl_Option is new Int;
-
-   CURLOPT_URL            : constant Curl_Option := 10002;
-   CURLOPT_READFUNCTION   : constant Curl_Option := 20012;
-   CURLOPT_WRITEUNCTION   : constant Curl_Option := 20011;
-   CURLOPT_HTTPHEADER     : constant Curl_Option := 10023;
-   CURLOPT_INTERFACE      : constant Curl_Option := 10062;
-   CURLOPT_USERPWD        : constant Curl_Option := 10005;
-   CURLOPT_HTTPAUTH       : constant Curl_Option := 107;
-   CURLOPT_MAXFILESIZE    : constant Curl_Option := 114;
-   CURLOPT_WRITEDATA      : constant Curl_Option := 10001;
-   CURLOPT_HEADER         : constant Curl_Option := 42;
-   CURLOPT_POSTFIELDS     : constant Curl_Option := 10015;
-   CURLOPT_POSTFIELDSIZE  : constant Curl_Option := 60;
 
    type CURL_Slist;
    type CURL_Slist_Access is access CURL_Slist;
