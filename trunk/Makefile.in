@@ -111,20 +111,11 @@ autobuild:
 
 # Clean the root project of all build products.
 clean:	clean_test
-	-$(GNATCLEAN) -q -P "$(GPRPATH)" -XLIBRARY_TYPE=static
-	-$(GNATCLEAN) -q -P "$(GPRPATH)" -XLIBRARY_TYPE=relocatable
-	-$(GNATCLEAN) -q -Ptestutil -XLIBRARY_TYPE=static
-	-$(GNATCLEAN) -q -Ptestutil -XLIBRARY_TYPE=relocatable
-	-$(GNATCLEAN) -q -Putil_http_aws -XLIBRARY_TYPE=static
-	-$(GNATCLEAN) -q -Putil_http_aws -XLIBRARY_TYPE=relocatable
-	-$(GNATCLEAN) -q -Putil_http_curl -XLIBRARY_TYPE=static
-	-$(GNATCLEAN) -q -Putil_http_curl -XLIBRARY_TYPE=relocatable
-	-$(GNATCLEAN) -q -Ptests
-	-$(GNATCLEAN) -q -Psamples
-	-rm -f lib/util/*.a lib/util/*.$(DLLEXT)
-	-rm -f lib/util-curl/*/*.a lib/util-curl/*/*.$(DLLEXT)
-	-rm -f lib/util-aws/*/*.a lib/util-aws/*/*.$(DLLEXT)
-	-rm -f lib/testutil/*.a lib/testutil/*.$(DLLEXT)
+	-rm -rf obj/* $(UTIL_GEN_FILES) bin/utilgen
+	-rm -rf lib/util
+	-rm -rf lib/util-curl
+	-rm -rf lib/util-aws
+	-rm -rf lib/testutil
 
 # Clean the files produced by the unit tests
 clean_test:
