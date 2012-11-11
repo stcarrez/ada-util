@@ -65,9 +65,11 @@ int main(int argc, char** argv)
 
     printf("\n");
 
+#ifdef F_SETFL
     printf("   --  Flags used by fcntl\n");
     printf("   F_SETFL                       : constant Interfaces.C.int := %d;\n", F_SETFL);
     printf("   FD_CLOEXEC                    : constant Interfaces.C.int := %d;\n", FD_CLOEXEC);
+#endif
 
     printf("\n");
 
