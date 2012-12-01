@@ -131,6 +131,12 @@ package Util.Tests is
                             Source  : String := GNAT.Source_Info.File;
                             Line    : Natural := GNAT.Source_Info.Line);
 
+   --  Report a test failed.
+   procedure Fail (T       : in Test'Class;
+                   Message : in String := "Test failed";
+                   Source  : in String := GNAT.Source_Info.File;
+                   Line    : in Natural := GNAT.Source_Info.Line);
+
    --  Default initialization procedure.
    procedure Initialize_Test (Props : in Util.Properties.Manager);
 
