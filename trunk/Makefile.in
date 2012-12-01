@@ -165,6 +165,7 @@ dist:
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
+	rm -f $(distdir)/distrib/*.gpr
 	rm -rf $(distdir)/regtests/result
 	mkdir $(distdir)/bin
 	mkdir $(distdir)/obj
