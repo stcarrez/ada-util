@@ -18,7 +18,7 @@
 with Util.Beans.Objects;
 with Util.Serialize.IO;
 generic
-   type Element_Type is limited private;
+   type Element_Type (<>) is limited private;
    type Element_Type_Access is access all Element_Type;
    type Fields is (<>);
 
