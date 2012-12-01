@@ -302,6 +302,17 @@ package body Util.Tests is
    end Assert_Equal_Files;
 
    --  ------------------------------
+   --  Report a test failed.
+   --  ------------------------------
+   procedure Fail (T       : in Test'Class;
+                   Message : in String := "Test failed";
+                   Source  : in String := GNAT.Source_Info.File;
+                   Line    : in Natural := GNAT.Source_Info.Line) is
+   begin
+      T.Assert (False, Message, Source, Line);
+   end Fail;
+
+   --  ------------------------------
    --  Default initialization procedure.
    --  ------------------------------
    procedure Initialize_Test (Props : in Util.Properties.Manager) is
