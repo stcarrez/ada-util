@@ -247,17 +247,17 @@ package body Util.Serialize.IO is
 
             exception
                when E : Util.Serialize.Mappers.Field_Error =>
-                  Handler.Error (Message => Ada.Exceptions.Exception_Message (E));
+                  Parser'Class (Handler).Error (Message => Ada.Exceptions.Exception_Message (E));
 
                when E : Util.Serialize.Mappers.Field_Fatal_Error =>
-                  Handler.Error (Message => Ada.Exceptions.Exception_Message (E));
+                  Parser'Class (Handler).Error (Message => Ada.Exceptions.Exception_Message (E));
                   raise;
 
                   --  For other exception, report an error with the field name and value.
                when E : others =>
-                  Handler.Error (Message => "Cannot set field '" & Name & "' to '"
-                                 & Util.Beans.Objects.To_String (Value) & "': "
-                                 & Ada.Exceptions.Exception_Message (E));
+                  Parser'Class (Handler).Error (Message => "Cannot set field '" & Name & "' to '"
+                                                & Util.Beans.Objects.To_String (Value) & "': "
+                                                & Ada.Exceptions.Exception_Message (E));
                   raise;
             end;
          end loop;
