@@ -19,12 +19,8 @@ with Ada.Text_IO;
 with Ada.Command_Line;
 with Ada.Strings.Unbounded;
 
-with Util.Strings;
-with Util.Beans.Objects;
-with Util.Http.Clients;
 with Util.Http.Clients.Web;
 with Util.Http.Rest;
-with Util.Serialize.IO.JSON;
 
 with Mapping;
 
@@ -32,6 +28,8 @@ with Mapping;
 --  into some Ada record.  It uses the Facebook Graph API which does not need any
 --  authentication (ie, the public Facebook API).
 procedure Facebook is
+
+   procedure Print (P : in Mapping.Person);
 
    procedure Print (P : in Mapping.Person) is
       use Ada.Strings.Unbounded;
