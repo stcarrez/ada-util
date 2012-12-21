@@ -302,6 +302,57 @@ package body Util.Tests is
    end Assert_Equal_Files;
 
    --  ------------------------------
+   --  Check that two files are equal.  This is intended to be used by
+   --  tests that create files that are then checked against patterns.
+   --  ------------------------------
+   procedure Assert_Equal_Files (T       : in Test'Class;
+                                 Expect  : in String;
+                                 Test    : in String;
+                                 Message : in String := "Test failed";
+                                 Source  : String := GNAT.Source_Info.File;
+                                 Line    : Natural := GNAT.Source_Info.Line) is
+      use Util.Files;
+
+      Expect_File : Unbounded_String;
+      Test_File   : Unbounded_String;
+      Same        : Boolean;
+   begin
+      begin
+         if not Ada.Directories.Exists (Expect) then
+            T.Assert (Condition => False,
+                      Message => "Expect file '" & Expect & "' does not exist",
+                      Source  => Source, Line => Line);
+         end if;
+         Read_File (Path => Expect,
+                    Into => Expect_File);
+         Read_File (Path => Test,
+                    Into => Test_File);
+
+      exception
+         when others =>
+            if Update_Test_Files then
+               Ada.Directories.Copy_File (Source_Name => Test,
+                                          Target_Name => Expect);
+            else
+               raise;
+            end if;
+      end;
+
+      --  Check file sizes
+      Assert_Equals (T       => T,
+                     Expect  => Length (Expect_File),
+                     Value   => Length (Test_File),
+                     Message => Message & ": Invalid file sizes",
+                     Source  => Source,
+                     Line    => Line);
+
+      Same := Expect_File = Test_File;
+      if Same then
+         return;
+      end if;
+   end Assert_Equal_Files;
+
+   --  ------------------------------
    --  Report a test failed.
    --  ------------------------------
    procedure Fail (T       : in Test'Class;
@@ -362,7 +413,7 @@ package body Util.Tests is
       Chdir    : Ada.Strings.Unbounded.Unbounded_String;
    begin
       loop
-         case Getopt ("huvx: t: p: c: config: d: update help xml: timeout:") is
+         case Getopt ("h u v x: t: p: c: config: d: update help xml: timeout:") is
             when ASCII.NUL =>
                exit;
 
