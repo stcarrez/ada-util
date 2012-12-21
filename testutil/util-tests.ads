@@ -74,6 +74,15 @@ package Util.Tests is
                                  Source  : String := GNAT.Source_Info.File;
                                  Line    : Natural := GNAT.Source_Info.Line);
 
+   --  Check that two files are equal.  This is intended to be used by
+   --  tests that create files that are then checked against patterns.
+   procedure Assert_Equal_Files (T       : in Test'Class;
+                                 Expect  : in String;
+                                 Test    : in String;
+                                 Message : in String := "Test failed";
+                                 Source  : String := GNAT.Source_Info.File;
+                                 Line    : Natural := GNAT.Source_Info.Line);
+
    --  Check that the value matches what we expect.
    procedure Assert_Equals is new Assertions.Assert_Equals_T (Value_Type => Integer);
    procedure Assert_Equals is new Assertions.Assert_Equals_T (Value_Type => Character);
