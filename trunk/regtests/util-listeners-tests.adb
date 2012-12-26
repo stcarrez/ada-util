@@ -110,6 +110,8 @@ package body Util.Listeners.Tests is
    --  Performance test for the listeners.
    --  ------------------------------
    procedure Test_Publish_Perf (T : in out Test) is
+      procedure Test_Basic (Item : in Integer);
+
       Listeners : Util.Listeners.List;
       L1        : aliased Integer_Listener;
 
