@@ -1,5 +1,5 @@
 dnl Autoconf configure script for Ada Util
-dnl Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012 Stephane Carrez
+dnl Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2013 Stephane Carrez
 dnl Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 dnl
 dnl  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,7 @@ dnl AM_MAINTAINER_MODE
 # Current release settings
 UTIL_MAJOR_VERSION=1
 UTIL_MINOR_VERSION=6
-UTIL_MICRO_VERSION=0
+UTIL_MICRO_VERSION=1
 UTIL_VERSION=$UTIL_MAJOR_VERSION.$UTIL_MINOR_VERSION.$UTIL_MICRO_VERSION
 
 AC_CHECK_PROGS(GNATMAKE, gnatmake, "")
@@ -46,7 +46,6 @@ AC_SUBST(EXEC_PREFIX)
 
 UTIL_LIBDIR="lib"
 AC_SUBST(UTIL_LIBDIR)
-
 
 AC_MSG_CHECKING([specific operating system sources])
 case "${target_os}" in
@@ -138,7 +137,6 @@ case $ac_xml_version in
 
 esac
 
-AC_MSG_RESULT(${WITH_XML})
 AC_SUBST(WITH_XML_ADA)
 AC_SUBST(UTIL_XML_DIR)
 AC_SUBST(UTIL_XML_VERSION)
@@ -148,7 +146,7 @@ AC_SUBST(UTIL_HAVE_XML)
 # Check to enable/disable shared library
 ##########################################
 
-AC_MSG_CHECKING([library type])
+AC_MSG_CHECKING([shared library support])
 ac_enable_shared=no
 AC_ARG_ENABLE(shared,
 [  --enable-shared         Enable the shared libraries (disabled)],
@@ -323,12 +321,30 @@ else
    WITH_SERVER="with \"${AWS_DIR}aws\";";
    WITH_UTIL_AWS="with \"util_http_aws\";";
    UTIL_HAVE_AWS=yes
-   AC_MSG_RESULT(${AWS_DIR})
+   AC_MSG_RESULT(yes ${AWS_DIR})
 fi
 rm -f t.gpr
 
 fi
 
+AC_MSG_CHECKING([for gcc bug compiling Util.Serialize.Mappers.Vector_Mappers (Bug 53737)])
+version=`$GNATMAKE --version | grep GNATMAKE | sed -e 's,GNATMAKE ,,'`
+case "$version" in
+   4.7.0|4.7.1|4.7.2)
+      AC_MSG_RESULT(yes)
+      AC_MSG_WARN(Your compiler is known to fail when compiling a generic package.)
+      AC_MSG_WARN(See Bug 53737: Assert_Failure on a generic package with a package as parameter)
+      AC_MSG_WARN(The Util.Serialize.Mappers.Vector_Mappers and Util.Http.Rest packages are excluded.)
+      UTIL_HAVE_VECTOR_MAPPERS=no
+      ;;
+
+   *)
+      AC_MSG_RESULT(no)
+      UTIL_HAVE_VECTOR_MAPPERS=yes
+      ;;
+esac
+
+AC_SUBST(UTIL_HAVE_VECTOR_MAPPERS)
 AC_SUBST(AWS_DIR)
 AC_SUBST(UTIL_HAVE_AWS)
 AC_SUBST(WITH_UTIL_AWS)
