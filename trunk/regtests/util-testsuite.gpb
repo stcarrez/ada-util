@@ -38,7 +38,9 @@ with Util.Serialize.IO.JSON.Tests;
 #if HAVE_XML = "yes"
 with Util.Serialize.IO.XML.Tests;
 # end if;
+#if HAVE_VECTOR_MAPPERS = "yes"
 with Util.Serialize.IO.CSV.Tests;
+#end if;
 with Util.Serialize.Tools.Tests;
 with Util.Processes.Tests;
 with Util.Http.Cookies.Tests;
@@ -77,7 +79,9 @@ package body Util.Testsuite is
 #if HAVE_XML = "yes"
       Util.Serialize.IO.XML.Tests.Add_Tests (Result);
 #end if;
+#if HAVE_VECTOR_MAPPERS = "yes"
       Util.Serialize.IO.CSV.Tests.Add_Tests (Result);
+#end if;
       Util.Serialize.Tools.Tests.Add_Tests (Result);
       Util.Processes.Tests.Add_Tests (Result);
       Util.Http.Cookies.Tests.Add_Tests (Result);
