@@ -1,3 +1,6 @@
+Version 1.6.1   - 
+  - Fix compilation with gcc 4.7.2 (workarround to avoid gcc bug 53737)
+
 Version 1.6     - Dec 2012
   - Support for HTTP clients (curl, AWS, ...)
   - Support for REST APIs using JSON
