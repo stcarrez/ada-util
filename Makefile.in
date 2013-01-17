@@ -35,6 +35,7 @@ AHVEN_SRC_OS_DIR=@UTIL_AHVEN_OS_DIR@
 HAVE_XML=@UTIL_HAVE_XML@
 HAVE_CURL=@UTIL_HAVE_CURL@
 HAVE_AWS=@UTIL_HAVE_AWS@
+HAVE_VECTOR_MAPPERS=@UTIL_HAVE_VECTOR_MAPPERS@
 
 LN_S=@LN_S@
 MKDIR=mkdir
@@ -100,7 +101,8 @@ test:	build regtests/util-testsuite.adb
 
 regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile
 	gnatprep -DHAVE_XML=$(HAVE_XML) -DHAVE_CURL=$(HAVE_CURL) \
-                 -DHAVE_AWS=$(HAVE_AWS) regtests/util-testsuite.gpb $@
+                 -DHAVE_AWS=$(HAVE_AWS) -DHAVE_VECTOR_MAPPERS=$(HAVE_VECTOR_MAPPERS) \
+		 regtests/util-testsuite.gpb $@
 
 # Not intended for manual invocation.
 # Invoked if automatic builds are enabled.
