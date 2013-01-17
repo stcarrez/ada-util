@@ -575,6 +575,7 @@ WITH_SERVER
 WITH_UTIL_AWS
 UTIL_HAVE_AWS
 AWS_DIR
+UTIL_HAVE_VECTOR_MAPPERS
 UTIL_GNAT_TRACEBACK
 BUILDS_SHARED
 UTIL_HAVE_XML
@@ -1969,7 +1970,7 @@ test -n "$target_alias" &&
 # Current release settings
 UTIL_MAJOR_VERSION=1
 UTIL_MINOR_VERSION=6
-UTIL_MICRO_VERSION=0
+UTIL_MICRO_VERSION=1
 UTIL_VERSION=$UTIL_MAJOR_VERSION.$UTIL_MINOR_VERSION.$UTIL_MICRO_VERSION
 
 for ac_prog in gnatmake
@@ -2955,7 +2956,6 @@ EXEC_PREFIX="$prefix"
 UTIL_LIBDIR="lib"
 
 
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking specific operating system sources" >&5
 $as_echo_n "checking specific operating system sources... " >&6; }
 case "${target_os}" in
@@ -3058,8 +3058,6 @@ $as_echo "no" >&6; }
 
 esac
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${WITH_XML}" >&5
-$as_echo "${WITH_XML}" >&6; }
 
 
 
@@ -3069,8 +3067,8 @@ $as_echo "${WITH_XML}" >&6; }
 # Check to enable/disable shared library
 ##########################################
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking library type" >&5
-$as_echo_n "checking library type... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking shared library support" >&5
+$as_echo_n "checking shared library support... " >&6; }
 ac_enable_shared=no
 # Check whether --enable-shared was given.
 if test "${enable_shared+set}" = set; then :
@@ -3310,12 +3308,36 @@ else
    WITH_SERVER="with \"${AWS_DIR}aws\";";
    WITH_UTIL_AWS="with \"util_http_aws\";";
    UTIL_HAVE_AWS=yes
-   { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${AWS_DIR}" >&5
-$as_echo "${AWS_DIR}" >&6; }
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes ${AWS_DIR}" >&5
+$as_echo "yes ${AWS_DIR}" >&6; }
 fi
 rm -f t.gpr
 
 fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for gcc bug compiling Util.Serialize.Mappers.Vector_Mappers (Bug 53737)" >&5
+$as_echo_n "checking for gcc bug compiling Util.Serialize.Mappers.Vector_Mappers (Bug 53737)... " >&6; }
+version=`$GNATMAKE --version | grep GNATMAKE | sed -e 's,GNATMAKE ,,'`
+case "$version" in
+   4.7.0|4.7.1|4.7.2)
+      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Your compiler is known to fail when compiling a generic package." >&5
+$as_echo "$as_me: WARNING: Your compiler is known to fail when compiling a generic package." >&2;}
+      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: See Bug 53737: Assert_Failure on a generic package with a package as parameter" >&5
+$as_echo "$as_me: WARNING: See Bug 53737: Assert_Failure on a generic package with a package as parameter" >&2;}
+      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: The Util.Serialize.Mappers.Vector_Mappers and Util.Http.Rest packages are excluded." >&5
+$as_echo "$as_me: WARNING: The Util.Serialize.Mappers.Vector_Mappers and Util.Http.Rest packages are excluded." >&2;}
+      UTIL_HAVE_VECTOR_MAPPERS=no
+      ;;
+
+   *)
+      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+      UTIL_HAVE_VECTOR_MAPPERS=yes
+      ;;
+esac
+
 
 
 
