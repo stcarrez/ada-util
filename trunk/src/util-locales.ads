@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Locales -- Locale
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,6 +33,8 @@ with Ada.Containers;
 --
 --  The <b>Locales</b> package tries to follow the Java <b>Locale</b> class.
 package Util.Locales is
+
+   pragma Preelaborate;
 
    type Locale is private;
 
