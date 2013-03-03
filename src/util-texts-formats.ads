@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util-texts-formats -- Text Format ala Java MessageFormat
---  Copyright (C) 2001, 2002, 2003, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,7 @@ generic
    with procedure Put (Buffer : in out Stream; C : in Character);
    with function To_Input (Arg : in Value) return Input;
 package Util.Texts.Formats is
+   pragma Preelaborate;
 
    --  Format the message and replace occurrences of argument patterns by
    --  their associated value.
