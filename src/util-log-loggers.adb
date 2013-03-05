@@ -458,18 +458,19 @@ package body Util.Log.Loggers is
                      Arg3    : in String;
                      Arg4    : in String) is
       Pos    : Natural := Message'First;
+      First  : Natural := Pos;
       C      : Character;
    begin
       --  Replace {N} with arg1, arg2, arg3 or ?
       while Pos <= Message'Last loop
          C := Message (Pos);
-         if C = '{' then
-            if Pos + 2 > Message'Last or else Message (Pos + 2) /= '}' then
-               Append (Result, C);
-            else
-               C := Message (Pos + 1);
-               Pos := Pos + 2;
-               case C is
+         if C = '{' and then Pos + 2 <= Message'Last and then Message (Pos + 2) = '}' then
+            if First /= Pos then
+               Append (Result, Message (First .. Pos - 1));
+            end if;
+            C := Message (Pos + 1);
+            Pos := Pos + 2;
+            case C is
                when '0' =>
                   Append (Result, Arg1);
 
@@ -484,14 +485,14 @@ package body Util.Log.Loggers is
 
                when others =>
                   Append (Result, "?");
-               end case;
-            end if;
-
-         else
-            Append (Result, C);
+            end case;
+            First := Pos + 1;
          end if;
          Pos := Pos + 1;
       end loop;
+      if First /= Pos then
+         Append (Result, Message (First .. Pos - 1));
+      end if;
    end Format;
 
    procedure Print (Log     : in Logger;
