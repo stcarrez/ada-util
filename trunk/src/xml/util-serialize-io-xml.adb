@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-xml -- XML Serialization Driver
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,6 @@ with Util.Log.Loggers;
 with Util.Strings;
 package body Util.Serialize.IO.XML is
 
-   use Util.Log;
    use Sax.Readers;
    use Sax.Exceptions;
    use Sax.Locators;
@@ -33,7 +32,7 @@ package body Util.Serialize.IO.XML is
    use Ada.Strings.Unbounded;
 
    --  The logger
-   Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.IO.XML");
+   Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Serialize.IO.XML");
 
    --  Return the location where the exception was raised.
    function Get_Location (Except : Sax.Exceptions.Sax_Parse_Exception'Class)
@@ -165,12 +164,20 @@ package body Util.Serialize.IO.XML is
                           Local_Name    : in Unicode.CES.Byte_Sequence := "";
                           Qname         : in Unicode.CES.Byte_Sequence := "") is
       pragma Unreferenced (Namespace_URI, Qname);
+
+      Len : constant Natural := Length (Handler.Text);
    begin
       Handler.Handler.Finish_Object (Local_Name);
-      if Length (Handler.Text) > 0 then
-         Log.Debug ("Close object {0} -> {1}", Local_Name, To_String (Handler.Text));
+      if Len > 0 then
+
+         --  Add debug message only when it is active (saves the To_String conversion).
+         if Log.Get_Level >= Util.Log.DEBUG_LEVEL then
+            Log.Debug ("Close object {0} -> {1}", Local_Name, To_String (Handler.Text));
+         end if;
          Handler.Handler.Set_Member (Local_Name, Util.Beans.Objects.To_Object (Handler.Text));
-         Set_Unbounded_String (Handler.Text, "");
+
+         --  Clear the string using Delete so that the buffer is kept.
+         Ada.Strings.Unbounded.Delete (Source => Handler.Text, From => 1, Through => Len);
       else
          Log.Debug ("Close object {0}", Local_Name);
          Handler.Handler.Set_Member (Local_Name, Util.Beans.Objects.To_Object (Handler.Text));
@@ -316,7 +323,9 @@ package body Util.Serialize.IO.XML is
    procedure Parse (Handler : in out Parser;
                     Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class) is
 
-      type String_Access is access all String (1 .. 32);
+      Buffer_Size : constant Positive := 256;
+
+      type String_Access is access all String (1 .. Buffer_Size);
 
       type Stream_Input is new Input_Sources.Input_Source with record
          Index    : Natural;
@@ -378,7 +387,7 @@ package body Util.Serialize.IO.XML is
 
       Input      : Stream_Input;
       Xml_Parser : Xhtml_Reader;
-      Buf        : aliased String (1 .. 32);
+      Buf        : aliased String (1 .. Buffer_Size);
    begin
       Input.Buffer := Buf'Access;
       Input.Index  := 2;
