@@ -116,6 +116,8 @@ private
       Str : String_Record_Access := null;
    end record;
 
+   pragma Finalize_Storage_Only (String_Ref);
+
    --  Increment the reference counter.
    overriding
    procedure Adjust (Object : in out String_Ref);
