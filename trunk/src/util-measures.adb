@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  measure -- Benchmark tools
---  Copyright (C) 2008, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,11 @@ package body Util.Measures is
    package Task_Context is new Ada.Task_Attributes
      (Measure_Set_Access, null);
 
-   function Format (D : Duration) return String;
+   function Format (D : in Duration) return String;
+
+   --  Format the duration in a time in 'ns', 'us', 'ms' or seconds.
+   function Format (D    : in Duration;
+                    Unit : in Unit_Type) return String;
 
    --  ------------------------------
    --  Disable collecting measures on the measure set.
@@ -208,6 +212,24 @@ package body Util.Measures is
       end if;
    end Report;
 
+   --  ------------------------------
+   --  Report the time spent between the stamp creation and this method call.
+   --  The report is written in the file with the given title.  The duration is
+   --  expressed in the unit defined in <tt>Unit</tt>.
+   --  ------------------------------
+   procedure Report (S     : in out Stamp;
+                     File  : in out Ada.Text_IO.File_Type;
+                     Title : in String;
+                     Unit  : in Unit_Type := Microseconds) is
+      use Ada.Calendar;
+
+      D : constant Duration := Ada.Calendar.Clock - S.Start;
+   begin
+      Ada.Text_IO.Put (File, Title);
+      Ada.Text_IO.Put (File, Format (D, Unit));
+      S.Start := Ada.Calendar.Clock;
+   end Report;
+
    protected body Measure_Data is
 
       --  ------------------------------
@@ -272,6 +294,28 @@ package body Util.Measures is
       else
          return Duration'Image (D) & "s";
       end if;
+   end Format;
+
+   --  ------------------------------
+   --  Format the duration in a time in 'ns', 'us', 'ms' or seconds.
+   --  ------------------------------
+   function Format (D    : in Duration;
+                    Unit : in Unit_Type) return String is
+   begin
+      case Unit is
+         when Seconds =>
+            return Duration'Image (D);
+
+         when Milliseconds =>
+            return Duration'Image (D * 1_000);
+
+         when Microseconds =>
+            return Duration'Image (D * 1_000_000);
+
+         when Nanoseconds =>
+            return Duration'Image (D * 1_000_000_000);
+
+      end case;
    end Format;
 
    --  ------------------------------
