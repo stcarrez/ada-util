@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  measure -- Benchmark tools
---  Copyright (C) 2008, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,6 +40,8 @@ with Util.Streams.Texts;
 --  times each measure was made and the sum of their duration.
 --  Measures can be written in an XML file once they are collected.
 package Util.Measures is
+
+   type Unit_Type is (Seconds, Milliseconds, Microseconds, Nanoseconds);
 
    --  ------------------------------
    --  Measure Set
@@ -104,6 +106,14 @@ package Util.Measures is
    procedure Report (Measures : in out Measure_Set;
                      S        : in out Stamp;
                      Title    : in String);
+
+   --  Report the time spent between the stamp creation and this method call.
+   --  The report is written in the file with the given title.  The duration is
+   --  expressed in the unit defined in <tt>Unit</tt>.
+   procedure Report (S     : in out Stamp;
+                     File  : in out Ada.Text_IO.File_Type;
+                     Title : in String;
+                     Unit  : in Unit_Type := Microseconds);
 
 private
 
