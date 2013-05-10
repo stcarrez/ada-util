@@ -1,4 +1,5 @@
 Version 1.7.0   -
+  - Added a text and string builder
 
 Version 1.6.1   - Feb 2013
   - Fix compilation with gcc 4.7.2 (workarround to avoid gcc bug 53737)
