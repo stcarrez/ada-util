@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-rest -- REST API support
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,6 +47,7 @@ package Util.Http.Rest is
         new Util.Serialize.Mappers.Record_Mapper (<>);
    procedure Rest_Get (URI     : in String;
                        Mapping : in Util.Serialize.Mappers.Mapper_Access;
+                       Path    : in String := "";
                        Into    : in Element_Mapper.Element_Type_Access);
 
    --  Execute an HTTP GET operation on the given <b>URI</b> and parse the JSON response

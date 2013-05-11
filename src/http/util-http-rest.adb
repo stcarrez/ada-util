@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-rest -- REST API support
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,11 +46,12 @@ package body Util.Http.Rest is
    --  -----------------------
    procedure Rest_Get (URI     : in String;
                        Mapping : in Util.Serialize.Mappers.Mapper_Access;
+                       Path    : in String := "";
                        Into    : in Element_Mapper.Element_Type_Access) is
       Http     : Util.Http.Rest.Client;
       Reader   : Util.Serialize.IO.JSON.Parser;
    begin
-      Reader.Add_Mapping ("", Mapping.all'Access);
+      Reader.Add_Mapping (Path, Mapping.all'Access);
       Element_Mapper.Set_Context (Reader, Into);
       Http.Get (URI, Reader);
    end Rest_Get;
