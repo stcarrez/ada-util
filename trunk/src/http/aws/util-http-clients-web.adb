@@ -19,7 +19,10 @@
 with AWS.Headers.Set;
 with AWS.Client;
 with AWS.Messages;
+with Util.Log.Loggers;
 package body Util.Http.Clients.Web is
+
+   Log   : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Http.Clients.Web");
 
    Manager : aliased AWS_Http_Manager;
 
@@ -150,6 +153,8 @@ package body Util.Http.Clients.Web is
         := AWS_Http_Request'Class (Http.Delegate.all)'Access;
       Rep     : constant AWS_Http_Response_Access := new AWS_Http_Response;
    begin
+      Log.Info ("Get {0}", URI);
+
       Reply.Delegate := Rep.all'Access;
       Rep.Data       := AWS.Client.Get (URL => URI, Headers => Req.Headers);
    end Do_Get;
@@ -166,6 +171,8 @@ package body Util.Http.Clients.Web is
         := AWS_Http_Request'Class (Http.Delegate.all)'Access;
       Rep     : constant AWS_Http_Response_Access := new AWS_Http_Response;
    begin
+      Log.Info ("Post {0}", URI);
+
       Reply.Delegate := Rep.all'Access;
       Rep.Data       := AWS.Client.Post (URL => URI, Data => Data, Headers => Req.Headers);
    end Do_Post;
