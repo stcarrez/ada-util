@@ -1,0 +1,15 @@
+{
+  "user" :  {
+    "name": "joe",
+    "first_name": "doe",
+    "age": 23,
+    "address": {
+       "street": "somewhere",
+       "town": "nowhere",
+       "country": {
+          "name": "41",
+	  "location": "moon"
+       }
+    }
+  }
+}
