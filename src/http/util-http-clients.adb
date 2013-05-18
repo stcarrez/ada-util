@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients -- HTTP Clients
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,10 @@
 -----------------------------------------------------------------------
 
 with Ada.Unchecked_Deallocation;
+with Util.Log.Loggers;
 package body Util.Http.Clients is
+
+   Log   : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Http.Clients");
 
    --  ------------------------------
    --  Returns a boolean indicating whether the named response header has already
@@ -199,6 +202,10 @@ package body Util.Http.Clients is
    begin
       Http.Delegate := null;
       Http.Manager  := Default_Http_Manager;
+      if Http.Manager = null then
+         Log.Error ("No HTTP manager was defined");
+         raise Program_Error with "No HTTP manager was defined.";
+      end if;
       Http.Manager.Create (Http);
    end Initialize;
 
