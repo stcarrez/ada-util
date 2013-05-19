@@ -116,6 +116,9 @@ package body Util.Properties.JSON is
       P.Separator := Ada.Strings.Unbounded.To_Unbounded_String (Flatten_Separator);
       P.Separator_Length := Flatten_Separator'Length;
       P.Parse_String (Content);
+      if P.Has_Error then
+         raise Util.Serialize.IO.Parse_Error;
+      end if;
    end Parse_JSON;
 
    --  -----------------------
@@ -156,6 +159,9 @@ package body Util.Properties.JSON is
       P.Separator := Ada.Strings.Unbounded.To_Unbounded_String (Flatten_Separator);
       P.Separator_Length := Flatten_Separator'Length;
       P.Parse (Path);
+      if P.Has_Error then
+         raise Util.Serialize.IO.Parse_Error;
+      end if;
    end Read_JSON;
 
 end Util.Properties.JSON;
