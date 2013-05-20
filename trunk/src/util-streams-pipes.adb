@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-raw -- Raw streams for Unix based systems
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,6 +33,7 @@ package body Util.Streams.Pipes is
    --  -----------------------
    --  Close the pipe and wait for the external process to terminate.
    --  -----------------------
+   overriding
    procedure Close (Stream : in out Pipe_Stream) is
    begin
       Util.Processes.Wait (Stream.Proc);
@@ -57,6 +58,7 @@ package body Util.Streams.Pipes is
    --  -----------------------
    --  Write the buffer array to the output stream.
    --  -----------------------
+   overriding
    procedure Write (Stream : in out Pipe_Stream;
                     Buffer : in Ada.Streams.Stream_Element_Array) is
       Output : constant Streams.Output_Stream_Access := Processes.Get_Input_Stream (Stream.Proc);
@@ -71,6 +73,7 @@ package body Util.Streams.Pipes is
    --  Read into the buffer as many bytes as possible and return in
    --  <b>last</b> the position of the last byte read.
    --  -----------------------
+   overriding
    procedure Read (Stream : in out Pipe_Stream;
                    Into   : out Ada.Streams.Stream_Element_Array;
                    Last   : out Ada.Streams.Stream_Element_Offset) is
@@ -85,6 +88,7 @@ package body Util.Streams.Pipes is
    --  -----------------------
    --  Flush the stream and release the buffer.
    --  -----------------------
+   overriding
    procedure Finalize (Object : in out Pipe_Stream) is
    begin
       null;

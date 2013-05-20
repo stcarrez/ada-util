@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-pipes -- Pipe stream to or from a process
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,6 +42,7 @@ package Util.Streams.Pipes is
                    Mode    : in Pipe_Mode := READ);
 
    --  Close the pipe and wait for the external process to terminate.
+   overriding
    procedure Close (Stream : in out Pipe_Stream);
 
    --  Get the process exit status.
@@ -51,11 +52,13 @@ package Util.Streams.Pipes is
    function Is_Running (Stream : in Pipe_Stream) return Boolean;
 
    --  Write the buffer array to the output stream.
+   overriding
    procedure Write (Stream : in out Pipe_Stream;
                     Buffer : in Ada.Streams.Stream_Element_Array);
 
    --  Read into the buffer as many bytes as possible and return in
    --  <b>last</b> the position of the last byte read.
+   overriding
    procedure Read (Stream : in out Pipe_Stream;
                    Into   : out Ada.Streams.Stream_Element_Array;
                    Last   : out Ada.Streams.Stream_Element_Offset);
@@ -64,12 +67,13 @@ private
 
    use Ada.Streams;
 
-   --  Flush the stream and release the buffer.
-   procedure Finalize (Object : in out Pipe_Stream);
-
    type Pipe_Stream is new Ada.Finalization.Limited_Controlled
      and Output_Stream and Input_Stream with record
       Proc   : Util.Processes.Process;
    end record;
+
+   --  Flush the stream and release the buffer.
+   overriding
+   procedure Finalize (Object : in out Pipe_Stream);
 
 end Util.Streams.Pipes;
