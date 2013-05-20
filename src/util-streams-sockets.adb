@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-sockets -- Socket streams
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,6 +51,7 @@ package body Util.Streams.Sockets is
    --  -----------------------
    --  Close the socket stream.
    --  -----------------------
+   overriding
    procedure Close (Stream : in out Socket_Stream) is
    begin
       GNAT.Sockets.Close_Socket (Stream.Sock);
@@ -60,9 +61,11 @@ package body Util.Streams.Sockets is
    --  -----------------------
    --  Write the buffer array to the output stream.
    --  -----------------------
+   overriding
    procedure Write (Stream : in out Socket_Stream;
                     Buffer : in Ada.Streams.Stream_Element_Array) is
       Last : Ada.Streams.Stream_Element_Offset;
+      pragma Unreferenced (Last);
    begin
       GNAT.Sockets.Send_Socket (Stream.Sock, Buffer, Last);
    end Write;
@@ -71,6 +74,7 @@ package body Util.Streams.Sockets is
    --  Read into the buffer as many bytes as possible and return in
    --  <b>last</b> the position of the last byte read.
    --  -----------------------
+   overriding
    procedure Read (Stream : in out Socket_Stream;
                    Into   : out Ada.Streams.Stream_Element_Array;
                    Last   : out Ada.Streams.Stream_Element_Offset) is
@@ -81,6 +85,7 @@ package body Util.Streams.Sockets is
    --  -----------------------
    --  Flush the stream and release the buffer.
    --  -----------------------
+   overriding
    procedure Finalize (Object : in out Socket_Stream) is
       use type GNAT.Sockets.Socket_Type;
    begin
