@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base64 -- Encode/Decode a stream in base64adecimal
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -138,7 +138,6 @@ package body Util.Encoders.Base64 is
 
       use Ada.Streams;
 
-      Size     : constant Streams.Stream_Element_Offset := Data'Length / 4;
       Pos      : Streams.Stream_Element_Offset := Into'First;
       I        : Streams.Stream_Element_Offset := Data'First;
       C1, C2   : Streams.Stream_Element;
@@ -147,9 +146,6 @@ package body Util.Encoders.Base64 is
       Values : constant Alphabet_Values_Access := E.Values;
 
    begin
-      if Data'Length /= Size * 4 then
-         raise Encoding_Error with "Invalid input stream length";
-      end if;
       while I <= Data'Last loop
          if Pos + 3 > Into'Last + 1 then
             Last    := Pos - 1;
@@ -172,6 +168,12 @@ package body Util.Encoders.Base64 is
 
          Into (Pos) := Stream_Element (Shift_Left (Val1, 2) or Shift_Right (Val2, 4));
 
+         if I + 2 > Data'Last then
+            Encoded := I + 1;
+            Last    := Pos;
+            return;
+         end if;
+
          --  Decode the next byte
          C1 := Data (I + 2);
          Val1 := Values (C1);
@@ -185,6 +187,12 @@ package body Util.Encoders.Base64 is
          end if;
 
          Into (Pos + 1) := Stream_Element (Shift_Left (Val2, 4) or Shift_Right (Val1, 2));
+
+         if I + 3 > Data'Last then
+            Encoded := I + 2;
+            Last    := Pos + 1;
+            return;
+         end if;
 
          C2 := Data (I + 3);
          Val2 := Values (C2);
