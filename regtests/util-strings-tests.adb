@@ -18,7 +18,9 @@
 with Ada.Strings;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
+with Ada.Strings.Fixed.Hash;
 with Ada.Strings.Unbounded.Hash;
+with Ada.Containers;
 with Util.Test_Caller;
 with Util.Strings.Transforms;
 with Util.Strings.Maps;
@@ -191,6 +193,24 @@ package body Util.Strings.Tests is
 --           Ada.Strings.Unbounded.Aux.Set_String (R, P.all'Access);
 --           Util.Measures.Report (T, "Stream transform using Aux string (1024 bytes)");
 --        end;
+      declare
+         T : Util.Measures.Stamp;
+         H : Ada.Containers.Hash_Type;
+      begin
+         for I in 1 .. 1_000 loop
+            H := Ada.Strings.Fixed.Hash ("http://code.google.com/p/ada-awa/jsf:wiki");
+         end loop;
+         Util.Measures.Report (T, "Ada.Strings.Fixed.Hash");
+      end;
+      declare
+         T : Util.Measures.Stamp;
+         H : Ada.Containers.Hash_Type;
+      begin
+         for I in 1 .. 1_000 loop
+            H := Ada.Strings.Fixed.Hash ("http://code.google.com/p/ada-awa/jsf:wiki");
+         end loop;
+         Util.Measures.Report (T, "Ada.Strings.Fixed.Hash");
+      end;
    end Test_Measure_Copy;
 
    --  Test the Index operation
@@ -271,6 +291,16 @@ package body Util.Strings.Tests is
       Ptr_Map.Insert (Name.all'Access, Name.all'Access);
       Unb_Map.Insert (To_Unbounded_String (KEY), To_Unbounded_String (KEY));
       Ref_Map.Insert (Ref, Ref);
+
+      declare
+         T : Util.Measures.Stamp;
+         H : Ada.Containers.Hash_Type;
+      begin
+         for I in 1 .. 1_000 loop
+            H := Ada.Strings.Fixed.Hash ("http://code.google.com/p/ada-awa/jsf:wiki");
+         end loop;
+         Util.Measures.Report (T, "Ada.Strings.Fixed.Hash (1000 calls)");
+      end;
 
       --  Performance of Hashed_Map Name_Access -> Name_Access
       --  (the fastest hash)
