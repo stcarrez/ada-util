@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Time -- Helper conversion for Ada Calendar Time
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,9 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Interfaces.C;
 with Ada.Calendar.Formatting;
+with Ada.Calendar.Conversions;
 
 package body Util.Beans.Objects.Time is
 
@@ -83,7 +85,17 @@ package body Util.Beans.Objects.Time is
             return Value.V.Time_Value + Epoch;
 
          when TYPE_STRING | TYPE_WIDE_STRING =>
-            return Ada.Calendar.Formatting.Value (Value.Type_Def.To_String (Value.V));
+            declare
+               T : constant String := Value.Type_Def.To_String (Value.V);
+            begin
+               return Ada.Calendar.Formatting.Value (T);
+
+            exception
+                  --  Last chance, try to convert a Unix time displayed as an integer.
+               when Constraint_Error =>
+                  return Ada.Calendar.Conversions.To_Ada_Time (Interfaces.C.long'Value (T));
+
+            end;
 
          when others =>
             raise Constraint_Error with "Conversion to a date is not possible";
