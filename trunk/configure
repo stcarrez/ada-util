@@ -3038,7 +3038,7 @@ $as_echo "$ac_xml_version" >&6; }
       UTIL_HAVE_XML='yes';
       ;;
 
-  XmlAda-4.*)
+  XmlAda-4.*|XmlAda-2013)
       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_xml_version" >&5
 $as_echo "$ac_xml_version" >&6; }
       WITH_XML_ADA="with \"xmlada\";";
