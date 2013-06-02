@@ -119,7 +119,7 @@ case $ac_xml_version in
       UTIL_HAVE_XML='yes';
       ;;
 
-  XmlAda-4.*)
+  XmlAda-4.*|XmlAda-2013)
       AC_MSG_RESULT($ac_xml_version)
       WITH_XML_ADA="with \"xmlada\";";
       UTIL_XML_DIR='src/xml';
