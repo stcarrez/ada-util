@@ -343,12 +343,13 @@ package body Util.Serialize.IO.XML is
       procedure Fill (From : in out Stream_Input'Class);
 
       procedure Fill (From : in out Stream_Input'Class) is
+         Last : Natural := From.Last;
       begin
          --  Move to the buffer start
-         if From.Last > From.Index and From.Index > From.Buffer'First then
-            From.Buffer (From.Buffer'First .. From.Last - 1 - From.Index + From.Buffer'First) :=
-              From.Buffer (From.Index .. From.Last - 1);
-            From.Last  := From.Last - From.Index + From.Buffer'First;
+         if Last > From.Index and From.Index > From.Buffer'First then
+            From.Buffer (From.Buffer'First .. Last - 1 - From.Index + From.Buffer'First) :=
+              From.Buffer (From.Index .. Last - 1);
+            Last  := Last - From.Index + From.Buffer'First;
             From.Index := From.Buffer'First;
          end if;
          if From.Index > From.Last then
@@ -356,14 +357,15 @@ package body Util.Serialize.IO.XML is
          end if;
          begin
             loop
-               Stream.Read (From.Buffer (From.Last));
-               From.Last := From.Last + 1;
-               exit when From.Last > From.Buffer'Last;
+               Stream.Read (From.Buffer (Last));
+               Last := Last + 1;
+               exit when Last > From.Buffer'Last;
             end loop;
          exception
             when others =>
                null;
          end;
+         From.Last := Last;
       end Fill;
 
       --  Return the next character in the string.
@@ -390,8 +392,8 @@ package body Util.Serialize.IO.XML is
       Buf        : aliased String (1 .. Buffer_Size);
    begin
       Input.Buffer := Buf'Access;
-      Input.Index  := 2;
-      Input.Last   := 1;
+      Input.Index  := Buf'First + 1;
+      Input.Last   := Buf'First;
       Input.Set_Encoding (Unicode.CES.Utf8.Utf8_Encoding);
       Input.Encoding := Unicode.CES.Utf8.Utf8_Encoding;
       Xml_Parser.Handler := Handler'Unchecked_Access;
