@@ -102,6 +102,8 @@ package body Util.Texts.Builders_Tests is
    --  Test the iterate operation.
    --  ------------------------------
    procedure Test_Iterate (T : in out Test) is
+      procedure Process (S : in String);
+
       B : String_Builder.Builder (13);
       R : Ada.Strings.Unbounded.Unbounded_String;
 
@@ -126,7 +128,6 @@ package body Util.Texts.Builders_Tests is
    --  Test the append and iterate performance.
    --  ------------------------------
    procedure Test_Perf (T : in out Test) is
-      U    : Ada.Strings.Unbounded.Unbounded_String;
       Perf : Ada.Text_IO.File_Type;
    begin
       Ada.Text_IO.Create (File => Perf,
@@ -178,7 +179,8 @@ package body Util.Texts.Builders_Tests is
 
       Ada.Text_IO.Create (File => Perf,
                           Name => Util.Tests.Get_Test_Path ("string.csv"));
-      Ada.Text_IO.Put_Line (Perf, "Size,Append (100),Append (512),Append (1024),Unbounded,Iterate Time");
+      Ada.Text_IO.Put_Line (Perf, "Size,Append (100),Append (512),"
+                            & "Append (1024),Unbounded,Iterate Time");
       for I in 1 .. 4000 loop
          declare
             N  : constant String := Natural'Image (I) & ",";
@@ -212,12 +214,14 @@ package body Util.Texts.Builders_Tests is
 
             declare
                R : constant String := String_Builder.To_Array (B);
+               pragma Unreferenced (R);
             begin
                Util.Measures.Report (S, Perf, ",", Util.Measures.Microseconds);
             end;
 
             declare
                R : constant String := Ada.Strings.Unbounded.To_String (U);
+               pragma Unreferenced (R);
             begin
                Util.Measures.Report (S, Perf, ",", Util.Measures.Microseconds);
             end;
