@@ -73,7 +73,6 @@ package body Util.Properties.JSON.Tests is
       end Check;
 
       Path : constant String := Util.Tests.Get_Test_Path ("regtests/files/test-2.json");
-      S    : Ada.Strings.Unbounded.Unbounded_String;
    begin
       Util.Properties.JSON.Read_JSON (P, Path);
 
