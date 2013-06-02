@@ -196,6 +196,8 @@ package body Util.Strings.Tests is
       declare
          T : Util.Measures.Stamp;
          H : Ada.Containers.Hash_Type;
+
+         pragma Unreferenced (H);
       begin
          for I in 1 .. 1_000 loop
             H := Ada.Strings.Fixed.Hash ("http://code.google.com/p/ada-awa/jsf:wiki");
@@ -205,6 +207,8 @@ package body Util.Strings.Tests is
       declare
          T : Util.Measures.Stamp;
          H : Ada.Containers.Hash_Type;
+
+         pragma Unreferenced (H);
       begin
          for I in 1 .. 1_000 loop
             H := Ada.Strings.Fixed.Hash ("http://code.google.com/p/ada-awa/jsf:wiki");
@@ -295,6 +299,8 @@ package body Util.Strings.Tests is
       declare
          T : Util.Measures.Stamp;
          H : Ada.Containers.Hash_Type;
+
+         pragma Unreferenced (H);
       begin
          for I in 1 .. 1_000 loop
             H := Ada.Strings.Fixed.Hash ("http://code.google.com/p/ada-awa/jsf:wiki");
