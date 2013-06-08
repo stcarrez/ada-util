@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-formats-tests - Test for date formats
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,5 +24,14 @@ package Util.Dates.Formats.Tests is
    type Test is new Util.Tests.Test with null record;
 
    procedure Test_Format (T : in out Test);
+
+   --  Test the Get_Day_Start operation.
+   procedure Test_Get_Day_Start (T : in out Test);
+
+   --  Test the Get_Week_Start operation.
+   procedure Test_Get_Week_Start (T : in out Test);
+
+   --  Test the Get_Month_Start operation.
+   procedure Test_Get_Month_Start (T : in out Test);
 
 end Util.Dates.Formats.Tests;
