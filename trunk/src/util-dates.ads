@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates -- Date utilities
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,5 +40,17 @@ package Util.Dates is
    procedure Split (Into       : out Date_Record;
                     Date       : in Ada.Calendar.Time;
                     Time_Zone  : in Ada.Calendar.Time_Zones.Time_Offset := 0);
+
+   --  Get a time representing the given date at 00:00:00.
+   function Get_Day_Start (Date : in Date_Record) return Ada.Calendar.Time;
+   function Get_Day_Start (Date : in Ada.Calendar.Time) return Ada.Calendar.Time;
+
+   --  Get a time representing the beginning of the week at 00:00:00.
+   function Get_Week_Start (Date : in Date_Record) return Ada.Calendar.Time;
+   function Get_Week_Start (Date : in Ada.Calendar.Time) return Ada.Calendar.Time;
+
+   --  Get a time representing the beginning of the month at 00:00:00.
+   function Get_Month_Start (Date : in Date_Record) return Ada.Calendar.Time;
+   function Get_Month_Start (Date : in Ada.Calendar.Time) return Ada.Calendar.Time;
 
 end Util.Dates;
