@@ -41,6 +41,56 @@ package body Util.Dates is
    end Split;
 
    --  ------------------------------
+   --  Returns true if the given year is a leap year.
+   --  ------------------------------
+   function Is_Leap_Year (Year : in Ada.Calendar.Year_Number) return Boolean is
+   begin
+      if Year mod 400 = 0 then
+         return True;
+      elsif Year mod 100 = 0 then
+         return False;
+      elsif Year mod 4 = 0 then
+         return True;
+      else
+         return False;
+      end if;
+   end Is_Leap_Year;
+
+   --  ------------------------------
+   --  Get the number of days in the given year.
+   --  ------------------------------
+   function Get_Day_Count (Year : in Ada.Calendar.Year_Number)
+                           return Ada.Calendar.Arithmetic.Day_Count is
+   begin
+      if Is_Leap_Year (Year) then
+         return 365;
+      else
+         return 366;
+      end if;
+   end Get_Day_Count;
+
+   Month_Day_Count : constant array (Ada.Calendar.Month_Number)
+     of Ada.Calendar.Arithmetic.Day_Count
+       := (1 => 31, 2 => 28, 3 => 31, 4 => 30, 5 => 31, 6 => 30,
+           7 => 31, 8 => 31, 9 => 30, 10 => 31, 11 => 30, 12 => 31);
+
+   --  ------------------------------
+   --  Get the number of days in the given month.
+   --  ------------------------------
+   function Get_Day_Count (Year  : in Ada.Calendar.Year_Number;
+                           Month : in Ada.Calendar.Month_Number)
+                           return Ada.Calendar.Arithmetic.Day_Count is
+   begin
+      if Month /= 2 then
+         return Month_Day_Count (Month);
+      elsif Is_Leap_Year (Year) then
+         return 29;
+      else
+         return 28;
+      end if;
+   end Get_Day_Count;
+
+   --  ------------------------------
    --  Get a time representing the given date at 00:00:00.
    --  ------------------------------
    function Get_Day_Start (Date : in Date_Record) return Ada.Calendar.Time is
@@ -61,6 +111,28 @@ package body Util.Dates is
       Split (D, Date);
       return Get_Day_Start (D);
    end Get_Day_Start;
+
+   --  ------------------------------
+   --  Get a time representing the given date at 23:59:59.
+   --  ------------------------------
+   function Get_Day_End (Date : in Date_Record) return Ada.Calendar.Time is
+   begin
+      return Ada.Calendar.Formatting.Time_Of (Year        => Date.Year,
+                                              Month       => Date.Month,
+                                              Day         => Date.Month_Day,
+                                              Hour        => 23,
+                                              Minute      => 59,
+                                              Second      => 59,
+                                              Sub_Second  => 0.999,
+                                              Time_Zone   => Date.Time_Zone);
+   end Get_Day_End;
+
+   function Get_Day_End (Date : in Ada.Calendar.Time) return Ada.Calendar.Time is
+      D : Date_Record;
+   begin
+      Split (D, Date);
+      return Get_Day_End (D);
+   end Get_Day_End;
 
    --  ------------------------------
    --  Get a time representing the beginning of the week at 00:00:00.
@@ -94,6 +166,38 @@ package body Util.Dates is
    end Get_Week_Start;
 
    --  ------------------------------
+   --  Get a time representing the end of the week at 23:59:99.
+   --  ------------------------------
+   function Get_Week_End (Date : in Date_Record) return Ada.Calendar.Time is
+      use Ada.Calendar.Formatting;
+      use Ada.Calendar.Arithmetic;
+
+      T : constant Ada.Calendar.Time := Time_Of (Year        => Date.Year,
+                                                 Month       => Date.Month,
+                                                 Day         => Date.Month_Day,
+                                                 Hour        => 23,
+                                                 Minute      => 59,
+                                                 Second      => 59,
+                                                 Sub_Second  => 0.999,
+                                                 Time_Zone   => Date.Time_Zone);
+      Day : constant Ada.Calendar.Formatting.Day_Name := Ada.Calendar.Formatting.Day_Of_Week (T);
+   begin
+      --  End of week is 6 days + 23:59:59
+      if Day = Ada.Calendar.Formatting.Monday then
+         return T + Day_Count (6);
+      else
+         return T + Day_Count (6 - (Day_Name'Pos (Day) - Day_Name'Pos (Monday)));
+      end if;
+   end Get_Week_End;
+
+   function Get_Week_End (Date : in Ada.Calendar.Time) return Ada.Calendar.Time is
+      D : Date_Record;
+   begin
+      Split (D, Date);
+      return Get_Week_End (D);
+   end Get_Week_End;
+
+   --  ------------------------------
    --  Get a time representing the beginning of the month at 00:00:00.
    --  ------------------------------
    function Get_Month_Start (Date : in Date_Record) return Ada.Calendar.Time is
@@ -114,5 +218,29 @@ package body Util.Dates is
       Split (D, Date);
       return Get_Month_Start (D);
    end Get_Month_Start;
+
+   --  ------------------------------
+   --  Get a time representing the end of the month at 23:59:59.
+   --  ------------------------------
+   function Get_Month_End (Date : in Date_Record) return Ada.Calendar.Time is
+      Last_Day : constant Ada.Calendar.Day_Number
+        := Ada.Calendar.Day_Number (Get_Day_Count (Date.Year, Date.Month));
+   begin
+      return Ada.Calendar.Formatting.Time_Of (Year        => Date.Year,
+                                              Month       => Date.Month,
+                                              Day         => Last_Day,
+                                              Hour        => 23,
+                                              Minute      => 59,
+                                              Second      => 59,
+                                              Sub_Second  => 0.999,
+                                              Time_Zone   => Date.Time_Zone);
+   end Get_Month_End;
+
+   function Get_Month_End (Date : in Ada.Calendar.Time) return Ada.Calendar.Time is
+      D : Date_Record;
+   begin
+      Split (D, Date);
+      return Get_Month_End (D);
+   end Get_Month_End;
 
 end Util.Dates;

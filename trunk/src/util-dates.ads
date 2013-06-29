@@ -18,6 +18,7 @@
 
 with Ada.Calendar;
 with Ada.Calendar.Formatting;
+with Ada.Calendar.Arithmetic;
 with Ada.Calendar.Time_Zones;
 package Util.Dates is
 
@@ -41,16 +42,40 @@ package Util.Dates is
                     Date       : in Ada.Calendar.Time;
                     Time_Zone  : in Ada.Calendar.Time_Zones.Time_Offset := 0);
 
+   --  Returns true if the given year is a leap year.
+   function Is_Leap_Year (Year : in Ada.Calendar.Year_Number) return Boolean;
+
+   --  Get the number of days in the given year.
+   function Get_Day_Count (Year : in Ada.Calendar.Year_Number)
+                           return Ada.Calendar.Arithmetic.Day_Count;
+
+   --  Get the number of days in the given month.
+   function Get_Day_Count (Year  : in Ada.Calendar.Year_Number;
+                           Month : in Ada.Calendar.Month_Number)
+                           return Ada.Calendar.Arithmetic.Day_Count;
+
    --  Get a time representing the given date at 00:00:00.
    function Get_Day_Start (Date : in Date_Record) return Ada.Calendar.Time;
    function Get_Day_Start (Date : in Ada.Calendar.Time) return Ada.Calendar.Time;
+
+   --  Get a time representing the given date at 23:59:59.
+   function Get_Day_End (Date : in Date_Record) return Ada.Calendar.Time;
+   function Get_Day_End (Date : in Ada.Calendar.Time) return Ada.Calendar.Time;
 
    --  Get a time representing the beginning of the week at 00:00:00.
    function Get_Week_Start (Date : in Date_Record) return Ada.Calendar.Time;
    function Get_Week_Start (Date : in Ada.Calendar.Time) return Ada.Calendar.Time;
 
+   --  Get a time representing the end of the week at 23:59:99.
+   function Get_Week_End (Date : in Date_Record) return Ada.Calendar.Time;
+   function Get_Week_End (Date : in Ada.Calendar.Time) return Ada.Calendar.Time;
+
    --  Get a time representing the beginning of the month at 00:00:00.
    function Get_Month_Start (Date : in Date_Record) return Ada.Calendar.Time;
    function Get_Month_Start (Date : in Ada.Calendar.Time) return Ada.Calendar.Time;
+
+   --  Get a time representing the end of the month at 23:59:59.
+   function Get_Month_End (Date : in Date_Record) return Ada.Calendar.Time;
+   function Get_Month_End (Date : in Ada.Calendar.Time) return Ada.Calendar.Time;
 
 end Util.Dates;
