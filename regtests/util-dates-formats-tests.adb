@@ -39,6 +39,12 @@ package body Util.Dates.Formats.Tests is
                        Test_Get_Week_Start'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.Get_Month_Start",
                        Test_Get_Month_Start'Access);
+      Caller.Add_Test (Suite, "Test Util.Dates.Get_Day_End",
+                       Test_Get_Day_End'Access);
+      Caller.Add_Test (Suite, "Test Util.Dates.Get_Week_End",
+                       Test_Get_Week_End'Access);
+      Caller.Add_Test (Suite, "Test Util.Dates.Get_Month_End",
+                       Test_Get_Month_End'Access);
    end Add_Tests;
 
    procedure Test_Format (T : in out Test) is
@@ -91,6 +97,7 @@ package body Util.Dates.Formats.Tests is
                     Day        : in Ada.Calendar.Day_Number;
                     Expect_Day : in Ada.Calendar.Day_Number;
                     Message    : in String;
+                    Is_End     : in Boolean;
                     Operation  : access function (D : in Ada.Calendar.Time)
                     return Ada.Calendar.Time) is
       use type Ada.Calendar.Time;
@@ -113,12 +120,21 @@ package body Util.Dates.Formats.Tests is
                                       "Invalid month " & Message);
             Util.Tests.Assert_Equals (T, Natural (Expect_Day), Natural (D.Month_Day),
                                       "Invalid day " & Message);
-            Util.Tests.Assert_Equals (T, 0, Natural (D.Hour),
-                                      "Invalid hour " & Message);
-            Util.Tests.Assert_Equals (T, 0, Natural (D.Minute),
-                                      "Invalid minute " & Message);
-            Util.Tests.Assert_Equals (T, 0, Natural (D.Second),
-                                      "Invalid second " & Message);
+            if Is_End then
+               Util.Tests.Assert_Equals (T, 23, Natural (D.Hour),
+                                         "Invalid hour " & Message);
+               Util.Tests.Assert_Equals (T, 59, Natural (D.Minute),
+                                         "Invalid minute " & Message);
+               Util.Tests.Assert_Equals (T, 59, Natural (D.Second),
+                                         "Invalid second " & Message);
+            else
+               Util.Tests.Assert_Equals (T, 0, Natural (D.Hour),
+                                         "Invalid hour " & Message);
+               Util.Tests.Assert_Equals (T, 0, Natural (D.Minute),
+                                         "Invalid minute " & Message);
+               Util.Tests.Assert_Equals (T, 0, Natural (D.Second),
+                                         "Invalid second " & Message);
+            end if;
          end;
          Date := Date + 1800.0;
       end loop;
@@ -129,8 +145,8 @@ package body Util.Dates.Formats.Tests is
    --  ------------------------------
    procedure Test_Get_Day_Start (T : in out Test) is
    begin
-      Check (T, 2013, 6, 04, 04, "Get_Day_Start", Get_Day_Start'Access);
-      Check (T, 2010, 2, 14, 14, "Get_Day_Start", Get_Day_Start'Access);
+      Check (T, 2013, 6, 04, 04, "Get_Day_Start", False, Get_Day_Start'Access);
+      Check (T, 2010, 2, 14, 14, "Get_Day_Start", False, Get_Day_Start'Access);
    end Test_Get_Day_Start;
 
    --  ------------------------------
@@ -138,14 +154,14 @@ package body Util.Dates.Formats.Tests is
    --  ------------------------------
    procedure Test_Get_Week_Start (T : in out Test) is
    begin
-      Check (T, 2013, 6, 04, 03, "Get_Week_Start", Get_Week_Start'Access);
-      Check (T, 2013, 6, 03, 03, "Get_Week_Start", Get_Week_Start'Access);
-      Check (T, 2013, 6, 05, 03, "Get_Week_Start", Get_Week_Start'Access);
-      Check (T, 2013, 6, 08, 03, "Get_Week_Start", Get_Week_Start'Access);
-      Check (T, 2010, 2, 14, 08, "Get_Week_Start", Get_Week_Start'Access);
-      Check (T, 2010, 2, 13, 08, "Get_Week_Start", Get_Week_Start'Access);
-      Check (T, 2010, 2, 10, 08, "Get_Week_Start", Get_Week_Start'Access);
-      Check (T, 2010, 2, 15, 15, "Get_Week_Start", Get_Week_Start'Access);
+      Check (T, 2013, 6, 04, 03, "Get_Week_Start", False, Get_Week_Start'Access);
+      Check (T, 2013, 6, 03, 03, "Get_Week_Start", False, Get_Week_Start'Access);
+      Check (T, 2013, 6, 05, 03, "Get_Week_Start", False, Get_Week_Start'Access);
+      Check (T, 2013, 6, 08, 03, "Get_Week_Start", False, Get_Week_Start'Access);
+      Check (T, 2010, 2, 14, 08, "Get_Week_Start", False, Get_Week_Start'Access);
+      Check (T, 2010, 2, 13, 08, "Get_Week_Start", False, Get_Week_Start'Access);
+      Check (T, 2010, 2, 10, 08, "Get_Week_Start", False, Get_Week_Start'Access);
+      Check (T, 2010, 2, 15, 15, "Get_Week_Start", False, Get_Week_Start'Access);
    end Test_Get_Week_Start;
 
    --  ------------------------------
@@ -153,8 +169,42 @@ package body Util.Dates.Formats.Tests is
    --  ------------------------------
    procedure Test_Get_Month_Start (T : in out Test) is
    begin
-      Check (T, 2013, 6, 04, 01, "Get_Month_Start", Get_Month_Start'Access);
-      Check (T, 2010, 2, 14, 01, "Get_Month_Start", Get_Month_Start'Access);
+      Check (T, 2013, 6, 04, 01, "Get_Month_Start", False, Get_Month_Start'Access);
+      Check (T, 2010, 2, 14, 01, "Get_Month_Start", False, Get_Month_Start'Access);
    end Test_Get_Month_Start;
+
+   --  ------------------------------
+   --  Test the Get_Day_End operation.
+   --  ------------------------------
+   procedure Test_Get_Day_End (T : in out Test) is
+   begin
+      Check (T, 2013, 6, 04, 04, "Get_Day_Start", True, Get_Day_End'Access);
+      Check (T, 2010, 2, 14, 14, "Get_Day_Start", True, Get_Day_End'Access);
+   end Test_Get_Day_End;
+
+   --  ------------------------------
+   --  Test the Get_Week_End operation.
+   --  ------------------------------
+   procedure Test_Get_Week_End (T : in out Test) is
+   begin
+      Check (T, 2013, 6, 04, 08, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2013, 6, 03, 08, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2013, 6, 05, 08, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2013, 6, 08, 08, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2010, 2, 14, 20, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2010, 2, 13, 13, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2010, 2, 10, 13, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2010, 2, 15, 20, "Get_Week_End", True, Get_Week_End'Access);
+   end Test_Get_Week_End;
+
+   --  ------------------------------
+   --  Test the Get_Month_End operation.
+   --  ------------------------------
+   procedure Test_Get_Month_End (T : in out Test) is
+   begin
+      Check (T, 2013, 6, 04, 30, "Get_Month_End", True, Get_Month_End'Access);
+      Check (T, 2010, 2, 14, 28, "Get_Month_End", True, Get_Month_End'Access);
+      Check (T, 2000, 2, 14, 29, "Get_Month_End", True, Get_Month_End'Access);
+   end Test_Get_Month_End;
 
 end Util.Dates.Formats.Tests;
