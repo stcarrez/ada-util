@@ -34,4 +34,13 @@ package Util.Dates.Formats.Tests is
    --  Test the Get_Month_Start operation.
    procedure Test_Get_Month_Start (T : in out Test);
 
+   --  Test the Get_Day_End operation.
+   procedure Test_Get_Day_End (T : in out Test);
+
+   --  Test the Get_Week_End operation.
+   procedure Test_Get_Week_End (T : in out Test);
+
+   --  Test the Get_Month_End operation.
+   procedure Test_Get_Month_End (T : in out Test);
+
 end Util.Dates.Formats.Tests;
