@@ -2,6 +2,7 @@ Version 1.7.0   -
   - Added a text and string builder
   - Added date helper operations to get the start of day, week or month time
   - Support XmlAda 2013
+  - Added Objects.Datasets to provide list beans (lists of row/column objects)
 
 Version 1.6.1   - Feb 2013
   - Fix compilation with gcc 4.7.2 (workarround to avoid gcc bug 53737)
