@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects -- Generic Typed Data Representation
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -805,6 +805,21 @@ package body Util.Beans.Objects is
    begin
       return Value.Type_Def;
    end Get_Type;
+
+   --  ------------------------------
+   --  Get the value identified by the name in the bean object.
+   --  If the value object is not a bean, returns the null object.
+   --  ------------------------------
+   function Get_Value (Value : in Object;
+                       Name  : in String) return Object is
+      Bean : constant access Util.Beans.Basic.Readonly_Bean'Class := To_Bean (Value);
+   begin
+      if Bean = null then
+         return Null_Object;
+      else
+         return Bean.Get_Value (Name);
+      end if;
+   end Get_Value;
 
    --  ------------------------------
    --  Convert the object to the corresponding type.
