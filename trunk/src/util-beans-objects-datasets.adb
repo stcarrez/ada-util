@@ -83,11 +83,11 @@ package body Util.Beans.Objects.Datasets is
    begin
       if Into.Data = null then
          Into.Data := new Dataset_Array (1 .. 10);
-      elsif Into.Count >= Into.Data'Last then
+      elsif Into.Count >= Into.Data'Length then
          declare
             --  Sun's Java ArrayList use a 2/3 grow factor.
             --  Python's array use 8/9.
-            Grow : constant Positive := (Into.Count * 2) / 3;
+            Grow : constant Positive := Into.Count + (Into.Count * 2) / 3;
             Set  : constant Dataset_Array_Access := new Dataset_Array (1 .. Grow);
          begin
             Set (Into.Data'Range) := Into.Data.all;
