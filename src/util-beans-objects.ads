@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects -- Generic Typed Data Representation
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -146,6 +146,11 @@ package Util.Beans.Objects is
 
    --  Get the type name of this object.
    function Get_Type_Name (Value : Object) return String;
+
+   --  Get the value identified by the name in the bean object.
+   --  If the value object is not a bean, returns the null object.
+   function Get_Value (Value : in Object;
+                       Name  : in String) return Object;
 
    --  Convert the object to the corresponding type.
    function To_String (Value : in Object) return String;
