@@ -57,6 +57,9 @@ package Util.Beans.Basic.Lists is
    procedure Set_Row_Index (From  : in out List_Bean;
                             Index : in Natural);
 
+   --  Returns the current row index.
+   function Get_Row_Index (From : in List_Bean) return Natural;
+
    --  Get the element at the current row index.
    overriding
    function Get_Row (From  : in List_Bean) return Util.Beans.Objects.Object;
@@ -77,8 +80,9 @@ package Util.Beans.Basic.Lists is
 private
 
    type List_Bean is new Abstract_List_Bean with record
-      Current : aliased Element_Type;
-      Row     : Util.Beans.Objects.Object;
+      Current       : aliased Element_Type;
+      Current_Index : Natural := 0;
+      Row           : Util.Beans.Objects.Object;
    end record;
 
 end Util.Beans.Basic.Lists;
