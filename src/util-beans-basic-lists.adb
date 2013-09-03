@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Basic.Lists -- List bean given access to a vector
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,8 +44,17 @@ package body Util.Beans.Basic.Lists is
    procedure Set_Row_Index (From  : in out List_Bean;
                             Index : in Natural) is
    begin
+      From.Current_Index := Index;
       From.Current := Vectors.Element (From.List, Index - 1);
    end Set_Row_Index;
+
+   --  ------------------------------
+   --  Returns the current row index.
+   --  ------------------------------
+   function Get_Row_Index (From : in List_Bean) return Natural is
+   begin
+      return From.Current_Index;
+   end Get_Row_Index;
 
    --  ------------------------------
    --  Get the element at the current row index.
@@ -64,6 +73,8 @@ package body Util.Beans.Basic.Lists is
    begin
       if Name = "count" then
          return Util.Beans.Objects.To_Object (Integer (From.List.Length));
+      elsif Name = "rowIndex" then
+         return Util.Beans.Objects.To_Object (From.Current_Index);
       else
          return Util.Beans.Objects.Null_Object;
       end if;
