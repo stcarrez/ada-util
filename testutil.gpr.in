@@ -7,7 +7,7 @@ project Testutil is
    Library_Type : Config.Library_Type_Type := external ("LIBRARY_TYPE", "static");
 
    for Source_Dirs use ("testutil", @UTIL_XUNIT_DIR@);
-   for Library_Name use "adatestutil";
+   for Library_Name use "ada-testutil";
    for Library_Kind use Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
