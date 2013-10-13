@@ -96,7 +96,7 @@ shared:
 
 # Build and run the unit tests
 test:	build regtests/util-testsuite.adb
-	$(GNATMAKE) -p -Ptests
+	$(GNATMAKE) -p -Ptests $(MAKE_ARGS)
 	-bin/util_harness -xml util-aunit.xml
 
 regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile
