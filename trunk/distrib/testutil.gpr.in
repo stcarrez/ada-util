@@ -3,13 +3,14 @@ with "util";
 
 project Testutil is
    Version := "@UTIL_VERSION@";
+   Prefix  := "INSTALL";
 
    for Library_Name use "adatestutil";
-   for Library_Dir use "INSTALL/lib";
+   for Library_Dir use Prefix & "/lib";
    for Library_Kind use "LIBRARY_TYPE";
 
-   for Source_Dirs use ("INSTALL/share/ada/adainclude/testutil");
-   for Library_ALI_Dir use "INSTALL/lib/ada/adalib/testutil/" & Project'Library_Kind;
+   for Source_Dirs use (Prefix & "/share/ada/adainclude/testutil");
+   for Library_ALI_Dir use Prefix & "/lib/ada/adalib/testutil/" & Project'Library_Kind;
    for Externally_Built use "true";
 
 end Testutil;
