@@ -4,7 +4,7 @@ project Util is
    Version := "@UTIL_VERSION@";
    Prefix  := "INSTALL";
 
-   for Library_Name use "adautil";
+   for Library_Name use "ada-util";
    for Library_Dir use Prefix & "/lib";
    for Library_Kind use "LIBRARY_TYPE";
 
