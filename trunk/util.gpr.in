@@ -67,7 +67,7 @@ project Util is
 	   null;
    end case;
 
-   for Library_Name use "adautil";
+   for Library_Name use "ada-util";
    for Library_Kind use Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
