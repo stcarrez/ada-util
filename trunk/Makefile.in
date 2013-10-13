@@ -65,7 +65,8 @@ bindir=${prefix}/bin
 libdir=${prefix}/lib
 alidir=${libdir}/ada/adalib/
 
-MAKE_ARGS=-XMODE=${MODE} -XLIBRARY_TYPE=${LIBRARY_TYPE} -XPROCESSORS=4
+CPUS := $(shell getconf _NPROCESSORS_ONLN)
+MAKE_ARGS=-XMODE=${MODE} -XLIBRARY_TYPE=${LIBRARY_TYPE} -XPROCESSORS=$(CPUS)
 
 ifeq (${BUILDS_SHARED},yes)
 all:     static shared
