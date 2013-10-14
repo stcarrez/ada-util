@@ -1,4 +1,5 @@
 with "util";
+with "aws";
 
 project Util_Http_Aws is
    Version := "@UTIL_VERSION@";
@@ -6,9 +7,9 @@ project Util_Http_Aws is
 
    for Library_Name use "ada-util-aws";
    for Library_Dir use Prefix & "/lib";
-   for Library_Kind use "LIBRARY_TYPE";
+   for Library_Kind use "dynamic";
 
-   for Source_Dirs use (Prefix & "/share/ada/adainclude/util/http/aws");
-   for Library_ALI_Dir use Prefix & "/lib/ada/adalib/util/" & Project'Library_Kind & "/http/aws";
+   for Source_Dirs use (Prefix & "/share/ada/adainclude/ada-util-aws");
+   for Library_ALI_Dir use Prefix & "/lib/ada/adalib/ada-util-aws/";
    for Externally_Built use "true";
 end Util_Http_Aws;
