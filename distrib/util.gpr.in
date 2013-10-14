@@ -4,11 +4,15 @@ project Util is
    Version := "@UTIL_VERSION@";
    Prefix  := "INSTALL";
 
+   type Xml_Version_Type is ("none", "3", "4");
+
+   Xml_Version : Xml_Version_Type := "@UTIL_XML_VERSION@";
+
    for Library_Name use "ada-util";
    for Library_Dir use Prefix & "/lib";
-   for Library_Kind use "LIBRARY_TYPE";
+   for Library_Kind use "dynamic";
 
-   for Source_Dirs use (Prefix & "/share/ada/adainclude/util", Prefix & "/share/ada/adainclude/util/http");
-   for Library_ALI_Dir use Prefix & "/lib/ada/adalib/util/" & Project'Library_Kind;
+   for Source_Dirs use (Prefix & "/share/ada/adainclude/ada-util");
+   for Library_ALI_Dir use Prefix & "/lib/ada/adalib/ada-util/";
    for Externally_Built use "true";
 end Util;
