@@ -1,0 +1,54 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+LIBRARY_TYPE=static
+
+# gnatmake can do parallel builds; we don't want make to interfere.
+.NOTPARALLEL:
+
+ALIVERSION := $(shell sed -n -r 's/^Package: libxmlada(.*)-dev$$/\1/p' debian/control)
+SOVERSION := $(shell sed -n -r 's/^Package: libxmlada([^-]+)$$/\1/p' debian/control)
+CPUS := $(shell getconf _NPROCESSORS_ONLN)
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+LIBRARY_TYPE=dynamic
+
+%:
+	dh $@ 
+
+override_dh_auto_configure:
+	dh_auto_configure -- --enable-ahven --enable-shared
+
+override_dh_auto_build:
+	dh_auto_build
+
+override_dh_auto_test:
+	dh_auto_test -- LD_LIBRARY_PATH=./lib
+
+override_dh_auto_install:
+	$(MAKE) prefix=$(CURDIR)/debian/tmp/usr install
+	sed -e "s,INSTALL,/usr,g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
+		< $(CURDIR)/distrib/util.gpr > $(CURDIR)/debian/tmp/usr/share/ada/adainclude/util.gpr
+	sed -e "s,INSTALL,/usr,g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
+		< $(CURDIR)/distrib/testutil.gpr > $(CURDIR)/debian/tmp/usr/share/ada/adainclude/testutil.gpr
+	sed -e "s,INSTALL,/usr,g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
+		< $(CURDIR)/distrib/util_http.gpr > $(CURDIR)/debian/tmp/usr/share/ada/adainclude/util_http.gpr
+
+override_dh_install:
+	dh_install
+
+override_dh_installchangelogs:
+	dh_installchangelogs NEWS
+
+override_dh_compress:
+	dh_compress -X.ads -X.adb -XMakefile
+
+override_dh_strip:
+	dh_strip --dbg-package=libada-util-dbg

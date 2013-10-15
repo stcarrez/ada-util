@@ -1,0 +1,7 @@
+usr/lib/libada-testutil.a
+usr/lib/ada/adalib/ada-testutil/*.ali
+usr/share/ada/adainclude/ada-testutil/*.ads
+usr/share/ada/adainclude/ada-testutil/*.adb
+usr/share/ada/adainclude/testutil.gpr
+
+

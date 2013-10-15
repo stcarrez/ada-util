@@ -1,0 +1,7 @@
+usr/lib/libada-util-aws.a
+usr/lib/ada/adalib/ada-util-aws/*.ali
+usr/share/ada/adainclude/ada-util-aws/*.ads
+usr/share/ada/adainclude/ada-util-aws/*.adb
+usr/share/ada/adainclude/util_http_aws.gpr
+
+
