@@ -20,6 +20,7 @@ Package: libada-util-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, libada-util (= ${binary:Version}), gnat, gnat-4.6
+Suggests: libada-util-dbg
 Description: Ada Utility Library (Development files)
  This Ada05 library contains various utility packages for building
  Ada05 applications.  This includes:
@@ -55,8 +56,13 @@ Description: Ada Test Utility Library
  The unit test framework is based on Ahven.
 
 Package: libada-util-dbg
-Section: libdevel
+Section: debug
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Description: Debugging symbols for the Ada Utility Library
+ Ada Utility Library provides a set of utility packages to help in the
+ development of Ada applications.
+ .
+ This is the library containing debugging symbols for the Ada Utility
+ Library.
+
