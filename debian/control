@@ -35,7 +35,7 @@ Description: Ada Utility Library (Development files)
 Package: libada-util-aws-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libada-util (= ${binary:Version}), libada-util-dev, gnat, gnat-4.6
+Depends: ${misc:Depends}, libada-util (= ${binary:Version}), libada-util-dev, gnat, gnat-4.6, libaws2.10.2-dev
 Description: Ada Utility Library AWS HTTP Client
  This is the AWS extension for the Util.Http.Clients package.
 
@@ -49,7 +49,7 @@ Description: Ada Utility Library CURL HTTP Client
 Package: libada-testutil-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, ada-util (= ${binary:Version}), libada-util-dev, gnat, gnat-4.6
+Depends: ${misc:Depends}, libada-util (= ${binary:Version}), libada-util-dev, gnat, gnat-4.6
 Description: Ada Test Utility Library
  This library provides support and helpers for writing Ada unit tests.
  The unit test framework is based on Ahven.
