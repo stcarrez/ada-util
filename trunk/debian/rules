@@ -66,6 +66,7 @@ libada-util$(aliversion)-dev:
 	dh_install -p$@ usr/share/ada/adainclude/util.gpr /usr/share/ada/adainclude
 	dh_install -p$@ usr/share/ada/adainclude/util_http.gpr /usr/share/ada/adainclude
 	dh_install -p$@ usr/share/ada/adainclude/ada-util/*.ad[bs] /usr/share/ada/adainclude/ada-util
+	dh_install -p$@ bundles/*.properties usr/share/doc/$@/bundles
 	dh_install -p$@ samples/*.ads usr/share/doc/$@/samples
 	dh_install -p$@ samples/*.properties usr/share/doc/$@/samples
 	dh_install -p$@ samples/*.xmi usr/share/doc/$@/samples
@@ -133,7 +134,6 @@ override_dh_auto_install: libada-util$(aliversion) \
 						  libada-util$(aliversion)-aws-dev \
 						  libada-util$(aliversion)-curl-dev \
 						  libada-testutil$(aliversion)-dev
-	dh_installdirs -p$(package) usr/share/doc/$(package)/samples
 
 override_dh_install:
 	dh_install
