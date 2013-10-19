@@ -5,8 +5,6 @@
 
 set -e
 
-if [ -f /usr/share/ada/adainclude/util_http.gpr ]; then
-
 has_aws="no"
 has_curl="no"
 if [ -f /usr/share/ada/adainclude/util_http_curl.gpr ]; then
@@ -25,6 +23,6 @@ fi
  echo "end Util_Http;"
 )> /usr/share/ada/adainclude/util_http.gpr
 
-fi
+#DEBHELPER#
 
 exit 0
