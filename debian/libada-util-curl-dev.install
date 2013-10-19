@@ -1,7 +1,0 @@
-usr/lib/libada-util-curl.a
-usr/lib/ada/adalib/ada-util-curl/*.ali
-usr/share/ada/adainclude/ada-util-curl/*.ads
-usr/share/ada/adainclude/ada-util-curl/*.adb
-usr/share/ada/adainclude/util_http_curl.gpr
-
-
