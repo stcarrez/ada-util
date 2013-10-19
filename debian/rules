@@ -46,6 +46,8 @@ libada-util$(aliversion):
 	dh_installdirs -p$@ \
 		usr/lib/$(DEB_HOST_MULTIARCH)
 	dh_install -p$@ usr/lib/libada-util.so.$(soversion) /usr/lib/$(DEB_HOST_MULTIARCH)
+	dh_install -p$@ usr/lib/libada-util-aws.so.$(soversion) /usr/lib/$(DEB_HOST_MULTIARCH)
+	dh_install -p$@ usr/lib/libada-util-curl.so.$(soversion) /usr/lib/$(DEB_HOST_MULTIARCH)
 
 libada-util$(aliversion)-dev:
 	: # The development package
@@ -80,6 +82,8 @@ libada-util$(aliversion)-dev:
 libada-util$(aliversion)-aws-dev:
 	cp $(CURDIR)/debian/dev-postinst $(CURDIR)/debian/$@.postinst
 	cp $(CURDIR)/debian/dev-postrm $(CURDIR)/debian/$@.postrm
+	sed -e "s,INSTALL,/usr,g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
+		< $(CURDIR)/distrib/util_http_aws.gpr > $(CURDIR)/debian/tmp/usr/share/ada/adainclude/util_http_aws.gpr
 	dh_installdirs -p$@ \
 		usr/lib/$(DEB_HOST_MULTIARCH) \
 		usr/share/ada/adainclude/ada-util-aws \
@@ -95,6 +99,8 @@ libada-util$(aliversion)-aws-dev:
 libada-util$(aliversion)-curl-dev:
 	cp $(CURDIR)/debian/dev-postinst $(CURDIR)/debian/$@.postinst
 	cp $(CURDIR)/debian/dev-postrm $(CURDIR)/debian/$@.postrm
+	sed -e "s,INSTALL,/usr,g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
+		< $(CURDIR)/distrib/util_http_curl.gpr > $(CURDIR)/debian/tmp/usr/share/ada/adainclude/util_http_curl.gpr
 	dh_installdirs -p$@ \
 		usr/lib/$(DEB_HOST_MULTIARCH) \
 		usr/share/ada/adainclude/ada-util-curl \
