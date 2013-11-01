@@ -89,6 +89,8 @@ AC_MSG_RESULT(using $src_asm)
 UTIL_ASM_DIR="$src_asm"
 AC_SUBST(UTIL_ASM_DIR)
 
+AC_CHECK_LIB(dl,dlopen,[CFLAGS="$CFLAGS -DHAVE_DLOPEN=1"])
+
 ##########################################
 # XMLAda library
 ##########################################
