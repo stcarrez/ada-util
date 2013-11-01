@@ -3,6 +3,7 @@ Version 1.7.0   -
   - Added date helper operations to get the start of day, week or month time
   - Support XmlAda 2013
   - Added Objects.Datasets to provide list beans (lists of row/column objects)
+  - Added support for shared library loading
   - Support for the creation of Debian packages
 
 Version 1.6.1   - Feb 2013
