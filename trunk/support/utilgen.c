@@ -1,5 +1,5 @@
 /* Generate a package from system header definitions
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,9 @@
 #include <fcntl.h>
 #ifdef HAVE_CURL
 #include <curl/curl.h>
+#endif
+#ifdef HAVE_DLOPEN
+#include <dlfcn.h>
 #endif
 
 int main(int argc, char** argv)
@@ -71,6 +74,18 @@ int main(int argc, char** argv)
     printf("   FD_CLOEXEC                    : constant Interfaces.C.int := %d;\n", FD_CLOEXEC);
 #endif
 
+#ifdef HAVE_DLOPEN
+    printf("\n");
+    printf("   --  Flags used by dlopen\n");
+    printf("   RTLD_LAZY                     : constant Interfaces.C.int := 8#%06o#;\n", RTLD_LAZY);
+    printf("   RTLD_NOW                      : constant Interfaces.C.int := 8#%06o#;\n", RTLD_NOW);
+    printf("   RTLD_NOLOAD                   : constant Interfaces.C.int := 8#%06o#;\n", RTLD_NOLOAD);
+    printf("   RTLD_DEEPBIND                 : constant Interfaces.C.int := 8#%06o#;\n", RTLD_DEEPBIND);
+    printf("   RTLD_GLOBAL                   : constant Interfaces.C.int := 8#%06o#;\n", RTLD_GLOBAL);
+    printf("   RTLD_LOCAL                    : constant Interfaces.C.int := 8#%06o#;\n", RTLD_LOCAL);
+    printf("   RTLD_NODELETE                 : constant Interfaces.C.int := 8#%06o#;\n", RTLD_NODELETE);
+#endif
+    
     printf("\n");
 
     printf("end Util.Systems.Constants;\n");
