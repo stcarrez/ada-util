@@ -1,6 +1,7 @@
 with "config";
 with "util";
 with "testutil";
+with "util";
 with "util_http";
 
 project Tests is
@@ -24,6 +25,8 @@ project Tests is
       when others =>
 
    end case;
+
+		   for Source_Dirs use project'Source_Dirs & ("regtests/dlls");
 
    for Main use Mains;
    for Object_Dir use "./" & Config'Object_Dir & "/obj";
