@@ -11,8 +11,8 @@ Homepage: http://code.google.com/p/ada-util/
 Package: libada-util1.7
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
 Pre-Depends: multiarch-support
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Ada Utility Library
  This Ada05 library contains various utility packages for building
  Ada05 applications.
