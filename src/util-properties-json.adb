@@ -86,7 +86,9 @@ package body Util.Properties.JSON is
                          Content : in String;
                          Flatten_Separator : in String := ".") is
 
-      type Local_Parser is new Parser with null record;
+      type Local_Parser is new Parser with record
+         Manager : access Util.Properties.Manager'Class;
+      end record;
 
       --  Set the name/value pair on the current object.  For each active mapping,
       --  find whether a rule matches our name and execute it.
@@ -107,14 +109,15 @@ package body Util.Properties.JSON is
                             Attribute : in Boolean := False) is
          pragma Unreferenced (Attribute);
       begin
-         Manager.Set (Ada.Strings.Unbounded.To_String (Handler.Base_Name) & Name,
-                      Util.Beans.Objects.To_String (Value));
+         Handler.Manager.Set (Ada.Strings.Unbounded.To_String (Handler.Base_Name) & Name,
+                              Util.Beans.Objects.To_String (Value));
       end Set_Member;
 
       P : Local_Parser;
    begin
-      P.Separator := Ada.Strings.Unbounded.To_Unbounded_String (Flatten_Separator);
+      P.Separator        := Ada.Strings.Unbounded.To_Unbounded_String (Flatten_Separator);
       P.Separator_Length := Flatten_Separator'Length;
+      P.Manager          := Manager'Access;
       P.Parse_String (Content);
       if P.Has_Error then
          raise Util.Serialize.IO.Parse_Error;
@@ -129,7 +132,9 @@ package body Util.Properties.JSON is
                         Path    : in String;
                         Flatten_Separator : in String := ".") is
 
-      type Local_Parser is new Parser with null record;
+      type Local_Parser is new Parser with record
+         Manager : access Util.Properties.Manager'Class;
+      end record;
 
       --  Set the name/value pair on the current object.  For each active mapping,
       --  find whether a rule matches our name and execute it.
@@ -150,12 +155,13 @@ package body Util.Properties.JSON is
                             Attribute : in Boolean := False) is
          pragma Unreferenced (Attribute);
       begin
-         Manager.Set (Ada.Strings.Unbounded.To_String (Handler.Base_Name) & Name,
-                      Util.Beans.Objects.To_String (Value));
+         Handler.Manager.Set (Ada.Strings.Unbounded.To_String (Handler.Base_Name) & Name,
+                              Util.Beans.Objects.To_String (Value));
       end Set_Member;
 
       P : Local_Parser;
    begin
+      P.Manager   := Manager'Access;
       P.Separator := Ada.Strings.Unbounded.To_Unbounded_String (Flatten_Separator);
       P.Separator_Length := Flatten_Separator'Length;
       P.Parse (Path);
