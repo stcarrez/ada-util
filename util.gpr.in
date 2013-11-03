@@ -7,10 +7,13 @@ project Util is
 
    type Xml_Version_Type is ("none", "3", "4");
 
+   type Os_Version_Type is ("none", "os-linux", "os-win32");
+
    Xml_Version : Xml_Version_Type := "@UTIL_XML_VERSION@";
    Xml_Src_Dir := "@UTIL_XML_DIR@";
    Asm_Src_Dir := "@UTIL_ASM_DIR@";
-   Os_Src_Dir  := "@UTIL_OS_DIR@";
+   Os_Version  : Os_Version_Type := "@UTIL_OS_VERSION@";
+   Os_Src_Dir  := "src/@UTIL_OS_VERSION@";
    Has_Vector_Mappers : Config.Yes_No := "@UTIL_HAVE_VECTOR_MAPPERS@";
 
    Library_Type : Config.Library_Type_Type := external ("LIBRARY_TYPE", "static");
