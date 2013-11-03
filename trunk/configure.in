@@ -47,22 +47,27 @@ AC_SUBST(EXEC_PREFIX)
 UTIL_LIBDIR="lib"
 AC_SUBST(UTIL_LIBDIR)
 
+os_version='os-none'
 AC_MSG_CHECKING([specific operating system sources])
 case "${target_os}" in
      linux|linux-*|solaris*|sysv-*)
 	src_os='src/os-linux'
+	os_version='os-linux'
 	;;
 
      netbsdelf*)
 	src_os='src/os-linux'
+	os_version='os-linux'
 	;;
 
      macos*|darwin*)
 	src_os='src/os-linux'
+	os_version='os-linux'
 	;;
 
      mingw32*|cygwin*)
 	src_os='src/os-win32'
+	os_version='os-win32'
 	;;
 
      *)
@@ -71,7 +76,9 @@ case "${target_os}" in
 esac
 AC_MSG_RESULT(using $src_os)
 UTIL_OS_DIR=$src_os
+UTIL_OS_VERSION=$os_version
 AC_SUBST(UTIL_OS_DIR)
+AC_SUBST(UTIL_OS_VERSION)
 
 AC_MSG_CHECKING([specific processor support])
 case "${target}" in
