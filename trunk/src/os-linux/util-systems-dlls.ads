@@ -36,6 +36,8 @@ package Util.Systems.DLLs is
 
    subtype Flags is Interfaces.C.int;
 
+   Extension  : constant String := ".so";
+
    --  Load the shared library with the given name or path and return a library handle.
    --  Raises the <tt>Load_Error</tt> exception if the library cannot be loaded.
    function Load (Path : in String;
