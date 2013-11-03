@@ -26,7 +26,16 @@ project Tests is
 
    end case;
 
-		   for Source_Dirs use project'Source_Dirs & ("regtests/dlls");
+   case Util.Os_Version is
+      when "os-linux" =>
+	 for Source_Dirs use project'Source_Dirs & ("regtests/dlls");
+
+      when "os-win32" =>
+	 for Source_Dirs use project'Source_Dirs & ("regtests/dlls");
+
+      when others =>
+
+   end case;
 
    for Main use Mains;
    for Object_Dir use "./" & Config'Object_Dir & "/obj";
