@@ -583,6 +583,7 @@ UTIL_XML_VERSION
 UTIL_XML_DIR
 WITH_XML_ADA
 UTIL_ASM_DIR
+UTIL_OS_VERSION
 UTIL_OS_DIR
 UTIL_LIBDIR
 EXEC_PREFIX
@@ -2956,23 +2957,28 @@ EXEC_PREFIX="$prefix"
 UTIL_LIBDIR="lib"
 
 
+os_version='os-none'
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking specific operating system sources" >&5
 $as_echo_n "checking specific operating system sources... " >&6; }
 case "${target_os}" in
      linux|linux-*|solaris*|sysv-*)
 	src_os='src/os-linux'
+	os_version='os-linux'
 	;;
 
      netbsdelf*)
 	src_os='src/os-linux'
+	os_version='os-linux'
 	;;
 
      macos*|darwin*)
 	src_os='src/os-linux'
+	os_version='os-linux'
 	;;
 
      mingw32*|cygwin*)
 	src_os='src/os-win32'
+	os_version='os-win32'
 	;;
 
      *)
@@ -2982,6 +2988,8 @@ esac
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: using $src_os" >&5
 $as_echo "using $src_os" >&6; }
 UTIL_OS_DIR=$src_os
+UTIL_OS_VERSION=$os_version
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking specific processor support" >&5
