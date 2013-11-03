@@ -104,7 +104,7 @@ test:	build regtests/util-testsuite.adb
 regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile
 	gnatprep -DHAVE_XML=$(HAVE_XML) -DHAVE_CURL=$(HAVE_CURL) \
                  -DHAVE_AWS=$(HAVE_AWS) -DHAVE_VECTOR_MAPPERS=$(HAVE_VECTOR_MAPPERS) \
-		 -DOS_VERSION=$(OS_VERSION) \
+		 -DOS_VERSION='"$(OS_VERSION)"' \
 		 regtests/util-testsuite.gpb $@
 
 # Not intended for manual invocation.
