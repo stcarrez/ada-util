@@ -24,6 +24,7 @@ with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Text_IO;
 with Ada.Calendar.Formatting;
+with Ada.Exceptions;
 
 with Util.Strings;
 with Util.Measures;
@@ -517,7 +518,10 @@ package body Util.Tests is
          return;
 
       when E : others =>
-         Put_Line ("Exception: " & GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
+         Put_Line ("Exception: " & Ada.Exceptions.Exception_Name (E));
+         Put_Line ("Message:   " & Ada.Exceptions.Exception_Message (E));
+         Put_Line ("Stacktrace:");
+         Put_Line (GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
          Ada.Command_Line.Set_Exit_Status (4);
 
    end Harness;
