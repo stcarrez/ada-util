@@ -21,7 +21,7 @@ project Util_Http_Aws is
 	    
    end case;
    
-   for Library_Name use "ada-util-aws";
+   for Library_Name use "ada_util_aws";
    for Library_Kind use Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
