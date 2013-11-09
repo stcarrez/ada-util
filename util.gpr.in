@@ -95,7 +95,6 @@ project Util is
                                       "Util.Listeners", "Util.Listeners.Lifecycles", "Util.Listeners.Observers",
                                       "Util.Locales",
                                       "Util.Log", "Util.Log.Appenders", "Util.Log.Loggers",
-                                      "Util.Log.Loggers.Traceback",
                                       "Util.Measures",
                                       "Util.Processes",
                                       "Util.Properties", "Util.Properties.Basic", "Util.Properties.Bundles",
@@ -123,7 +122,7 @@ project Util is
            case Xml_Version is
            when "4" =>
               for Library_Interface use Project'Library_Interface &
-                                    ("Util.Serialize.Io.Xml", "Util.Serialize.Io.Xml.Get_Location");
+                                    ("Util.Serialize.Io.Xml");
                 
            when others =>
               null;
