@@ -99,13 +99,15 @@ package Util.Measures is
    --  Collect the result in the per-thread measure set under the given measure
    --  title.
    procedure Report (S     : in out Stamp;
-                     Title : in String);
+                     Title : in String;
+                     Count : in Positive := 1);
 
    --  Report the time spent between the stamp creation and this method call.
    --  Collect the result in the measure set under the given measure title.
    procedure Report (Measures : in out Measure_Set;
                      S        : in out Stamp;
-                     Title    : in String);
+                     Title    : in String;
+                     Count    : in Positive := 1);
 
    --  Report the time spent between the stamp creation and this method call.
    --  The report is written in the file with the given title.  The duration is
@@ -149,7 +151,9 @@ private
                            Time_End   : out Ada.Calendar.Time);
 
       --  Add the measure
-      procedure Add (Title : in String; D : in Duration);
+      procedure Add (Title : in String;
+                     D     : in Duration;
+                     Count : in Positive := 1);
 
    private
       Start   : Ada.Calendar.Time := Ada.Calendar.Clock;
