@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  log.tests -- Unit tests for loggers
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -78,7 +78,7 @@ package body Util.Log.Tests is
          declare
             S : Util.Measures.Stamp;
          begin
-            Util.Measures.Report (S, "Util.Measures.Report");
+            Util.Measures.Report (S, "Util.Measures.Report", 1000);
          end;
       end loop;
 
@@ -91,14 +91,14 @@ package body Util.Log.Tests is
             L.Info ("My log message: {0}: {1}", "A message",
                     "A second parameter");
          end loop;
-         Util.Measures.Report (S, "1000 Log.Info message (output)");
+         Util.Measures.Report (S, "Log.Info message (output)", 1000);
 
          L.Set_Level (INFO_LEVEL);
          for I in 1 .. 10_000 loop
             L.Debug ("My log message: {0}: {1}", "A message",
                      "A second parameter");
          end loop;
-         Util.Measures.Report (S, "10000 Log.Debug message (no output)");
+         Util.Measures.Report (S, "Log.Debug message (no output)", 10_000);
       end;
    end Test_Log_Perf;
 
