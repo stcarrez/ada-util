@@ -89,12 +89,17 @@ package body Util.Measures is
       procedure Dump_XML (Item : in Measure_Access);
 
       procedure Dump_XML (Item : in Measure_Access) is
-         Time  : constant String := Format (Item.Time);
+         Total : constant String := Format (Item.Time);
+         Time  : constant String := Format (Item.Time / Item.Count);
       begin
          Stream.Write ("<time count=""");
          Stream.Write (Item.Count);
          Stream.Write (""" time=""");
          Stream.Write (Time (Time'First + 1 .. Time'Last));
+         if Item.Count > 1 then
+            Stream.Write (""" total=""");
+            Stream.Write (Total (Total'First + 1 .. Total'Last));
+         end if;
          Stream.Write (""" title=""");
          Util.Streams.Texts.TR.Escape_Java_Script (Into => Buffered_Stream (Stream),
                                                    Content => Item.Name.all);
@@ -287,16 +292,16 @@ package body Util.Measures is
    --  ------------------------------
    --  Format the duration in a time in 'ns', 'us', 'ms' or seconds.
    --  ------------------------------
-   function Format (D : Duration) return String is
+   function Format (D : in Duration) return String is
    begin
       if D < 0.000_001 then
-         return Duration'Image (D * 1_000_000_000) & "ns";
+         return Duration'Image (D * 1_000_000_000) (1 .. 6) & " ns";
       elsif D < 0.001 then
-         return Duration'Image (D * 1_000_000) & "us";
+         return Duration'Image (D * 1_000_000) (1 .. 6) & " us";
       elsif D < 1.0 then
-         return Duration'Image (D * 1_000) & "ms";
+         return Duration'Image (D * 1_000) (1 .. 6) & " ms";
       else
-         return Duration'Image (D) & "s";
+         return Duration'Image (D) (1 .. 6) & " s";
       end if;
    end Format;
 
