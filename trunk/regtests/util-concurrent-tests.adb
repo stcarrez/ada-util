@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  concurrency.tests -- Unit tests for concurrency package
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -128,7 +128,7 @@ package body Util.Concurrent.Tests is
             P.Get_Instance (C);
             P.Release (C);
          end loop;
-         Util.Measures.Report (S, "1000 Pool Get_Instance+Release");
+         Util.Measures.Report (S, "Pool Get_Instance+Release", 1000);
       end;
    end Test_Pool;
 
