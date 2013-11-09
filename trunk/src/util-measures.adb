@@ -185,11 +185,12 @@ package body Util.Measures is
    --  title.
    --  ------------------------------
    procedure Report (S     : in out Stamp;
-                     Title : in String) is
+                     Title : in String;
+                     Count : in Positive := 1) is
       Measures : constant Measure_Set_Access := Task_Context.Value;
    begin
       if Measures /= null and then Measures.Enabled then
-         Report (Measures.all, S, Title);
+         Report (Measures.all, S, Title, Count);
       end if;
    end Report;
 
@@ -199,14 +200,15 @@ package body Util.Measures is
    --  ------------------------------
    procedure Report (Measures : in out Measure_Set;
                      S        : in out Stamp;
-                     Title    : in String) is
+                     Title    : in String;
+                     Count    : in Positive := 1) is
       use Ada.Calendar;
    begin
       if Measures.Enabled then
          declare
             D : constant Duration := Ada.Calendar.Clock - S.Start;
          begin
-            Measures.Data.Add (Title, D);
+            Measures.Data.Add (Title, D, Count);
          end;
          S.Start := Ada.Calendar.Clock;
       end if;
@@ -250,7 +252,9 @@ package body Util.Measures is
       --  ------------------------------
       --  Add the measure
       --  ------------------------------
-      procedure Add (Title : String; D : Duration) is
+      procedure Add (Title : in String;
+                     D     : in Duration;
+                     Count : in Positive := 1) is
 
          use Ada.Containers;
          use Ada.Calendar;
@@ -266,7 +270,7 @@ package body Util.Measures is
          while Node /= null loop
             if Node.Name'Length = Title'Length
               and then Node.Name.all = Title then
-               Node.Count := Node.Count + 1;
+               Node.Count := Node.Count + Count;
                Node.Time := Node.Time + D;
                return;
             end if;
@@ -274,7 +278,7 @@ package body Util.Measures is
          end loop;
          Buckets (Pos) := new Measure '(Name => new String '(Title),
                                         Time  => D,
-                                        Count => 1,
+                                        Count => Count,
                                         Next  => Buckets (Pos));
       end Add;
 
