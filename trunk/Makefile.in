@@ -189,6 +189,10 @@ install_shared:
 	$(MAKE) LIBRARY_TYPE=relocatable install_lib
 
 install_lib:
+	rm -rf ${alidir}/ada-util-curl \
+	       ${alidir}/ada-util-aws \
+	       ${alidir}/ada-testutil \
+	       ${alidir}/ada-util
 	$(MKDIR) -p ${includedir}/ada-util
 	$(MKDIR) -p ${includedir}/ada-testutil
 	$(MKDIR) -p ${projectdir}/
