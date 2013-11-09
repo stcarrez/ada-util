@@ -20,7 +20,7 @@ project Util_Http_Curl is
 	    
    end case;
    
-   for Library_Name use "ada-util-curl";
+   for Library_Name use "ada_util_curl";
    for Library_Kind use Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
