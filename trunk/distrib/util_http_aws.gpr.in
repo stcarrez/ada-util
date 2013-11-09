@@ -5,7 +5,7 @@ project Util_Http_Aws is
    Version := "@UTIL_VERSION@";
    Prefix  := "INSTALL";
 
-   for Library_Name use "ada-util-aws";
+   for Library_Name use "ada_util_aws";
    for Library_Dir use Prefix & "/lib";
    for Library_Kind use "dynamic";
 
