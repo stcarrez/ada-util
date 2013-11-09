@@ -4,7 +4,7 @@ project Util_Http_Curl is
    Version := "@UTIL_VERSION@";
    Prefix  := "INSTALL";
 
-   for Library_Name use "ada-util-curl";
+   for Library_Name use "ada_util_curl";
    for Library_Dir use Prefix & "/lib";
    for Library_Kind use "dynamic";
 
