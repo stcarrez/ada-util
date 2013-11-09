@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-listeners-tests -- Unit tests for listeners
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -129,7 +129,7 @@ package body Util.Listeners.Tests is
          for I in 1 .. 1_000 loop
             Integer_Observers.Notify (Listeners, 3);
          end loop;
-         Util.Measures.Report (S, "Published 1000 times");
+         Util.Measures.Report (S, "Observers.Notify", 1000);
       end;
       declare
          S : Util.Measures.Stamp;
@@ -137,7 +137,7 @@ package body Util.Listeners.Tests is
          for I in 1 .. 1_000 loop
             Test_Basic (3);
          end loop;
-         Util.Measures.Report (S, "Call basic 1000 times");
+         Util.Measures.Report (S, "Call basic procedure", 1000);
       end;
    end Test_Publish_Perf;
 
