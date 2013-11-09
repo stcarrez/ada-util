@@ -66,6 +66,9 @@ bindir=${prefix}/bin
 libdir=${prefix}/lib
 alidir=${libdir}/ada/adalib/
 
+libname=libada_util
+libprefix=$(libname)_
+
 CPUS := $(shell getconf _NPROCESSORS_ONLN || echo 2)
 MAKE_ARGS=-XMODE=${MODE} -XLIBRARY_TYPE=${LIBRARY_TYPE} -XPROCESSORS=$(CPUS)
 
@@ -234,27 +237,27 @@ install_lib:
 	${CP} -p lib/util/$(LIBRARY_TYPE)/*.ali ${alidir}/ada-util
 ifeq ($(LIBRARY_TYPE),static)
 	test T${HAVE_AWS} = Tno || \
-	   ${CP} -p lib/util-aws/$(LIBRARY_TYPE)/libada-util-aws.a ${libdir}/
+	   ${CP} -p lib/util-aws/$(LIBRARY_TYPE)/$(libprefix)aws.a ${libdir}/
 	test T${HAVE_CURL} = Tno || \
-	   ${CP} -p lib/util-curl/$(LIBRARY_TYPE)/libada-util-curl.a ${libdir}/
-	${CP} -p lib/util/$(LIBRARY_TYPE)/libada-util.a ${libdir}/
-	${CP} -p lib/testutil/$(LIBRARY_TYPE)/libada-testutil.a ${libdir}/
+	   ${CP} -p lib/util-curl/$(LIBRARY_TYPE)/$(libprefix)curl.a ${libdir}/
+	${CP} -p lib/util/$(LIBRARY_TYPE)/$(libname).a ${libdir}/
+	${CP} -p lib/testutil/$(LIBRARY_TYPE)/$(libprefix)test.a ${libdir}/
 else
 	test T${HAVE_AWS} = Tno || \
-	   ${CP} -p lib/util-aws/$(LIBRARY_TYPE)/libada-util-aws.$(LIBVER) ${libdir}/
+	   ${CP} -p lib/util-aws/$(LIBRARY_TYPE)/$(libprefix)aws.$(LIBVER) ${libdir}/
 	test T${HAVE_CURL} = Tno || \
-	   ${CP} -p lib/util-curl/$(LIBRARY_TYPE)/libada-util-curl.$(LIBVER) ${libdir}/
-	${CP} -p lib/util/$(LIBRARY_TYPE)/libada-util.$(LIBVER) ${libdir}/
-	${CP} -p lib/testutil/$(LIBRARY_TYPE)/libada-testutil.$(LIBVER) ${libdir}/
+	   ${CP} -p lib/util-curl/$(LIBRARY_TYPE)/$(libprefix)curl.$(LIBVER) ${libdir}/
+	${CP} -p lib/util/$(LIBRARY_TYPE)/$(libname).$(LIBVER) ${libdir}/
+	${CP} -p lib/testutil/$(LIBRARY_TYPE)/$(libprefix)test.$(LIBVER) ${libdir}/
 	cd ${libdir} && \
-	rm -f libada-util.$(LIBEXT) libada-testutil.$(LIBEXT) && \
-	rm -f libada-util-aws.$(LIBEXT) libada-util-curl.$(LIBEXT) && \
-	${LN} libada-util.$(LIBVER) libada-util.$(LIBEXT) && \
-	${LN} libada-testutil.$(LIBVER) libada-testutil.$(LIBEXT) && \
+	rm -f $(libname).$(LIBEXT) $(libprefix)test.$(LIBEXT) && \
+	rm -f $(libprefix)aws.$(LIBEXT) $(libprefix)curl.$(LIBEXT) && \
+	${LN} $(libname).$(LIBVER) $(libname).$(LIBEXT) && \
+	${LN} $(libprefix)test.$(LIBVER) $(libprefix)test.$(LIBEXT) && \
 	(test T${HAVE_AWS} = Tno || \
-	   ${LN} libada-util-aws.$(LIBVER) libada-util-aws.$(LIBEXT)) && \
+	   ${LN} $(libprefix)aws.$(LIBVER) $(libprefix)aws.$(LIBEXT)) && \
 	(test T${HAVE_CURL} = Tno || \
-	   ${LN} libada-util-curl.$(LIBVER) libada-util-curl.$(LIBEXT))
+	   ${LN} $(libprefix)curl.$(LIBVER) $(libprefix)curl.$(LIBEXT))
 endif
 
 
@@ -266,12 +269,12 @@ install-support:
 uninstall:
 	rm -rf ${includedir}/ada-util ${includedir}/ada-testutil ${includedir}/ada-util-curl ${includedir}/ada-util-aws
 	rm -rf ${alidir}/ada-util ${alidir}/ada-testutil ${alidir}/ada-util-curl ${alidir}/ada-util-aws
-	rm -f ${libdir}/libada-util.a
-	rm -f ${libdir}/libada-util-curl.a
-	rm -f ${libdir}/libada-util-aws.a
-	rm -f ${libdir}/libada-testutil.a
-	rm -f ${libdir}/libada-util.so.${version}
-	rm -f ${libdir}/libada-testutil.so.${version}
+	rm -f ${libdir}/$(libname).a
+	rm -f ${libdir}/$(libprefix)curl.a
+	rm -f ${libdir}/$(libprefix)aws.a
+	rm -f ${libdir}/$(libprefix)test.a
+	rm -f ${libdir}/$(libname).so.${version}
+	rm -f ${libdir}/$(libprefix)test.so.${version}
 	rm -f ${projectdir}/testutil.gpr
 	rm -f ${projectdir}/util.gpr
 
