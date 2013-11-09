@@ -70,7 +70,17 @@ project Util is
 	   null;
    end case;
 
-   for Library_Name use "ada-util";
+   for Library_Name use "ada_util";
+   case Library_Type is
+      when "relocatable" =>
+		   for Library_Interface use ("Util", "Util.Http", "Util.Http.Clients", "Util.Http.Cookies",
+                                      "Util.Measures");
+
+	  when others =>
+		   null;
+
+   end case;
+
    for Library_Kind use Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
