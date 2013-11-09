@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  AUnit utils - Helper for writing unit tests
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with GNAT.Command_Line;
 with GNAT.Regpat;
+with GNAT.Traceback.Symbolic;
 
 with Ada.Command_Line;
 with Ada.Directories;
@@ -514,6 +515,10 @@ package body Util.Tests is
          Put_Line ("No parameter for " & Full_Switch);
          Help;
          return;
+
+      when E : others =>
+         Put_Line ("Exception: " & GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
+         Ada.Command_Line.Set_Exit_Status (4);
 
    end Harness;
 
