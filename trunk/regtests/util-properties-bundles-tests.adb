@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util -- Utilities
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -138,7 +138,7 @@ package body Util.Properties.Bundles.Tests is
          for I in 1 .. 1000 loop
             Load_Bundle (Factory, "dates", "fr", Bundle);
          end loop;
-         Util.Measures.Report (S1, "Load_Bundle (1000)");
+         Util.Measures.Report (S1, "Load_Bundle", 1000);
       end;
 
       --  Not overloaded, value comes from bundles/dates_fr.properties
