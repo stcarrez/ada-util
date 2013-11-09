@@ -73,8 +73,82 @@ project Util is
    for Library_Name use "ada_util";
    case Library_Type is
       when "relocatable" =>
-		   for Library_Interface use ("Util", "Util.Http", "Util.Http.Clients", "Util.Http.Cookies",
-                                      "Util.Measures");
+		   for Library_Interface use ("Util",
+									  "Util.Beans", "Util.Beans.Basic", "Util.Beans.Basic.Lists",
+									  "Util.Beans.Basic.Ranges", "Util.Beans.Factory", "Util.Beans.Lists",
+									  "Util.Beans.Lists.Strings", "Util.Beans.Methods", "Util.Beans.Objects",
+									  "Util.Beans.Objects.Datasets", "Util.Beans.Objects.Enums",
+									  "Util.Beans.Objects.Hash", "Util.Beans.Objects.Lists",
+									  "Util.Beans.Objects.Maps", "Util.Beans.Objects.Pairs",
+									  "Util.Beans.Objects.Records", "Util.Beans.Objects.Time",
+									  "Util.Beans.Objects.To_Access", "Util.Beans.Objects.Vectors",
+									  "Util.Beans.Ranges",
+									  "Util.Concurrent", "Util.Concurrent.Arrays", "Util.Concurrent.Copies",
+									  "Util.Concurrent.Counters",
+									  "Util.Concurrent.Fifos", "Util.Concurrent.Locks",
+									  "Util.Concurrent.Pools",
+									  "Util.Dates", "Util.Dates.Formats", "Util.Dates.Iso8601",
+									  "Util.Encoders", "Util.Encoders.Base16", "Util.Encoders.Base64",
+									  "Util.Encoders.Hmac", "Util.Encoders.Hmac.Sha1", "Util.Encoders.Sha1",
+									  "Util.Events", "Util.Events.Channels",
+									  "Util.Files",
+									  "Util.Listeners", "Util.Listeners.Lifecycles", "Util.Listeners.Observers",
+									  "Util.Locales",
+									  "Util.Log", "Util.Log.Appenders", "Util.Log.Loggers",
+									  "Util.Log.Loggers.Traceback",
+                                      "Util.Measures",
+									  "Util.Processes",
+									  "Util.Properties", "Util.Properties.Basic", "Util.Properties.Bundles",
+									  "Util.Properties.Discrete", "Util.Properties.Factories",
+									  "Util.Properties.Hash", "Util.Properties.Json",
+									  "Util.Refs",
+									  "Util.Serialize", "Util.Serialize.Contexts", "Util.Serialize.IO",
+									  "Util.Serialize.IO.Csv", "Util.Serialize.IO.Json",
+									  "Util.Serialize.Mappers", "Util.Serialize.Tools",
+									  "Util.Stacks",
+									  "Util.Streams", "Util.Streams.Buffered", "Util.Streams.Files", 
+									  "Util.Streams.Pipes", "Util.Streams.Sockets", "Util.Streams.Texts",
+									  "Util.Strings", "Util.Strings.Builders", "Util.Strings.Maps",
+									  "Util.Strings.Sets", "Util.Strings.Tokenizers", "Util.Strings.Transforms",
+									  "Util.Strings.Vectors",
+									  "Util.Systems", "Util.Systems.Constants",
+									  "Util.Texts", "Util.Texts.Builders", "Util.Texts.Formats",
+									  "Util.Texts.Tokenizers", "Util.Texts.Transforms",
+									  "Util.Http", "Util.Http.Clients",
+									  "Util.Http.Clients.Mockups", "Util.Http.Cookies",
+									  "Util.Http.Mockups", "Util.Http.Parts",
+									  "Util.Http.Tools");
+
+           case Xml_Version is
+		   when "4" =>
+		      for Library_Interface use Project'Library_Interface &
+									("Util.Serialize.Io.Xml", "Util.Serialize.Io.Xml.Get_Location");
+				
+		   when others =>
+			  null;
+
+		   end case;
+
+           case Os_Version is
+		   when "os-linux" =>
+		      for Library_Interface use Project'Library_Interface &
+									("Util.Streams.Raw", "Util.Systems.Dlls", "Util.Systems.Os");
+
+		   when others =>
+			  null;
+
+		   end case;
+
+           case Has_Vector_Mappers is
+           when "yes" =>
+	           for Library_Interface use Project'Library_Interface &
+									 ("Util.Serialize.Mappers.Vector_Mapper",
+									  "Util.Http.Rest");
+
+           when "no" =>
+	           null;
+
+           end case;
 
 	  when others =>
 		   null;
