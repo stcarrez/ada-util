@@ -21,7 +21,7 @@
 #ifdef HAVE_CURL
 #include <curl/curl.h>
 #endif
-#ifdef HAVE_DLOPEN
+#ifdef HAVE_DLFCN_H
 #include <dlfcn.h>
 #endif
 
