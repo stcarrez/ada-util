@@ -42,8 +42,6 @@ package body Util.Systems.DLLs is
       return Interfaces.C.Strings.Value (Sys_Dlerror);
    end Error_Message;
 
-   pragma Linker_Options ("-ldl");
-
    --  -----------------------
    --  Load the shared library with the given name or path and return a library handle.
    --  Raises the <tt>Load_Error</tt> exception if the library cannot be loaded.
