@@ -50,7 +50,7 @@ package body Util.Systems.DLLs.Tests is
       if Util.Systems.Os.Directory_Separator = '/' then
          return "inflate";
       else
-         return "";
+         return "compress";
       end if;
    end Get_Test_Symbol;
 
