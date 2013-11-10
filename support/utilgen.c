@@ -74,7 +74,7 @@ int main(int argc, char** argv)
     printf("   FD_CLOEXEC                    : constant Interfaces.C.int := %d;\n", FD_CLOEXEC);
 #endif
 
-#ifdef HAVE_DLOPEN
+#ifdef HAVE_DLFCN_H
     printf("\n");
     printf("   --  Flags used by dlopen\n");
     printf("   RTLD_LAZY                     : constant Interfaces.C.int := 8#%06o#;\n", RTLD_LAZY);
@@ -85,7 +85,11 @@ int main(int argc, char** argv)
     printf("   RTLD_LOCAL                    : constant Interfaces.C.int := 8#%06o#;\n", RTLD_LOCAL);
     printf("   RTLD_NODELETE                 : constant Interfaces.C.int := 8#%06o#;\n", RTLD_NODELETE);
 #endif
-    
+
+#ifdef HAVE_DLOPEN
+    printf("\n");
+    printf("   pragma Linker_Options (\"-ldl\");\n");
+#endif
     printf("\n");
 
     printf("end Util.Systems.Constants;\n");
