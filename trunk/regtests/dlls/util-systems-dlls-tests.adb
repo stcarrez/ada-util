@@ -48,7 +48,7 @@ package body Util.Systems.DLLs.Tests is
    function Get_Test_Symbol return String is
    begin
       if Util.Systems.Os.Directory_Separator = '/' then
-         return "inflate";
+         return "EVP_sha";
       else
          return "compress";
       end if;
