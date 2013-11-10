@@ -18,7 +18,7 @@
 
 with Util.Tests;
 
-package Util.Systems.Dlls.Tests is
+package Util.Systems.DLLs.Tests is
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite);
 
@@ -30,4 +30,4 @@ package Util.Systems.Dlls.Tests is
    --  Test getting a shared library symbol.
    procedure Test_Get_Symbol (T : in out Test);
 
-end Util.Systems.Dlls.Tests;
+end Util.Systems.DLLs.Tests;
