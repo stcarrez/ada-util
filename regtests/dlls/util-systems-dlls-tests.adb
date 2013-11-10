@@ -16,13 +16,15 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Ada.Unchecked_Deallocation;
 with Util.Test_Caller;
 with Util.Systems.Os;
-package body Util.Systems.Dlls.Tests is
+package body Util.Systems.DLLs.Tests is
 
    use Util.Tests;
    use type System.Address;
+
+   function Get_Test_Library return String;
+   function Get_Test_Symbol return String;
 
    package Caller is new Util.Test_Caller (Test, "Systems.Dlls");
 
@@ -39,7 +41,7 @@ package body Util.Systems.Dlls.Tests is
       if Util.Systems.Os.Directory_Separator = '/' then
          return "libcrypto.so";
       else
-         return "";
+         return "libz.dll";
       end if;
    end Get_Test_Library;
 
@@ -58,11 +60,11 @@ package body Util.Systems.Dlls.Tests is
    procedure Test_Load (T : in out Test) is
       Lib : Handle;
    begin
-      Lib := Util.Systems.Dlls.Load (Get_Test_Library);
+      Lib := Util.Systems.DLLs.Load (Get_Test_Library);
       T.Assert (Lib /= Null_Handle, "Load operation returned null");
 
       begin
-         Lib := Util.Systems.Dlls.Load ("some-invalid-library");
+         Lib := Util.Systems.DLLs.Load ("some-invalid-library");
 
          T.Fail ("Load must raise an exception");
 
@@ -79,14 +81,14 @@ package body Util.Systems.Dlls.Tests is
       Lib : Handle;
       Sym : System.Address;
    begin
-      Lib := Util.Systems.Dlls.Load (Get_Test_Library);
+      Lib := Util.Systems.DLLs.Load (Get_Test_Library);
       T.Assert (Lib /= Null_Handle, "Load operation returned null");
 
-      Sym := Util.Systems.Dlls.Get_Symbol (Lib, Get_Test_Symbol);
+      Sym := Util.Systems.DLLs.Get_Symbol (Lib, Get_Test_Symbol);
       T.Assert (Sym /= System.Null_Address, "Get_Symbol returned null");
 
       begin
-         Sym := Util.Systems.Dlls.Get_Symbol (Lib, "some-invalid-symbol");
+         Sym := Util.Systems.DLLs.Get_Symbol (Lib, "some-invalid-symbol");
          T.Fail ("The Get_Symbol operation must raise an exception");
 
       exception
@@ -96,4 +98,4 @@ package body Util.Systems.Dlls.Tests is
       end;
    end Test_Get_Symbol;
 
-end Util.Systems.Dlls.Tests;
+end Util.Systems.DLLs.Tests;
