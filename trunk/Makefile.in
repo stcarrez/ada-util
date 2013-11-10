@@ -43,7 +43,7 @@ MKDIR=mkdir
 CP=cp
 LN=ln -s
 CC=@CC@
-CFLAGS=@CFLAGS@
+CFLAGS=@CFLAGS@ @DEFS@
 
 ifeq (${OS},Windows_NT)
 LIBEXT=dll
