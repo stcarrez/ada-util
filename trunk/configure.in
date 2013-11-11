@@ -47,6 +47,11 @@ AC_SUBST(EXEC_PREFIX)
 UTIL_LIBDIR="lib"
 AC_SUBST(UTIL_LIBDIR)
 
+AC_MSG_CHECKING([number of processors])
+NR_CPUS=`getconf _NPROCESSORS_CONF 2>/dev/null || getconf _NPROCESSORS_CONF 2>/dev/null || echo 1`
+AC_MSG_RESULT($NR_CPUS)
+AC_SUBST(NR_CPUS)
+
 os_version='os-none'
 AC_MSG_CHECKING([specific operating system sources])
 case "${target_os}" in
