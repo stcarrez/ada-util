@@ -625,6 +625,7 @@ CPP
 UTIL_ASM_DIR
 UTIL_OS_VERSION
 UTIL_OS_DIR
+NR_CPUS
 UTIL_LIBDIR
 EXEC_PREFIX
 UTIL_MICRO_VERSION
@@ -3194,6 +3195,13 @@ EXEC_PREFIX="$prefix"
 
 
 UTIL_LIBDIR="lib"
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking number of processors" >&5
+$as_echo_n "checking number of processors... " >&6; }
+NR_CPUS=`getconf _NPROCESSORS_CONF 2>/dev/null || getconf _NPROCESSORS_CONF 2>/dev/null || echo 1`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $NR_CPUS" >&5
+$as_echo "$NR_CPUS" >&6; }
 
 
 os_version='os-none'
