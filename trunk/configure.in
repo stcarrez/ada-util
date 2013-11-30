@@ -101,8 +101,13 @@ AC_MSG_RESULT(using $src_asm)
 UTIL_ASM_DIR="$src_asm"
 AC_SUBST(UTIL_ASM_DIR)
 
+UTIL_HAS_LIBDL="no"
 AC_CHECK_HEADERS(dlfcn.h)
-AC_CHECK_LIB(dl,dlopen,[CFLAGS="$CFLAGS -DHAVE_DLOPEN=1"])
+AC_CHECK_LIB(dl,dlopen,[
+  CFLAGS="$CFLAGS -DHAVE_DLOPEN=1"
+  UTIL_HAS_LIBDL="yes"
+])
+AC_SUBST(UTIL_HAS_LIBDL)
 
 ##########################################
 # XMLAda library
