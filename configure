@@ -619,6 +619,7 @@ UTIL_HAVE_XML
 UTIL_XML_VERSION
 UTIL_XML_DIR
 WITH_XML_ADA
+UTIL_HAS_LIBDL
 EGREP
 GREP
 CPP
@@ -3257,6 +3258,7 @@ $as_echo "using $src_asm" >&6; }
 UTIL_ASM_DIR="$src_asm"
 
 
+UTIL_HAS_LIBDL="no"
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -3704,8 +3706,12 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_dl_dlopen" >&5
 $as_echo "$ac_cv_lib_dl_dlopen" >&6; }
 if test "x$ac_cv_lib_dl_dlopen" = xyes; then :
+
   CFLAGS="$CFLAGS -DHAVE_DLOPEN=1"
+  UTIL_HAS_LIBDL="yes"
+
 fi
+
 
 
 ##########################################
