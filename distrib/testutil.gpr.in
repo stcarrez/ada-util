@@ -7,7 +7,7 @@ project Testutil is
 
    for Library_Name use "ada_util_test";
    for Library_Dir use Prefix & "/lib";
-   for Library_Kind use "dynamic";
+   for Library_Kind use "LIBRARY_TYPE";
 
    for Source_Dirs use (Prefix & "/share/ada/adainclude/ada-testutil");
    for Library_ALI_Dir use Prefix & "/lib/ada/adalib/ada-testutil/";
