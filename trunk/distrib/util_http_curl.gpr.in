@@ -6,7 +6,7 @@ project Util_Http_Curl is
 
    for Library_Name use "ada_util_curl";
    for Library_Dir use Prefix & "/lib";
-   for Library_Kind use "dynamic";
+   for Library_Kind use "LIBRARY_TYPE";
 
    for Source_Dirs use (Prefix & "/share/ada/adainclude/ada-util-curl");
    for Library_ALI_Dir use Prefix & "/lib/ada/adalib/ada-util-curl/";
