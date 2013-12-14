@@ -11,4 +11,8 @@ project Util_Http_Curl is
    for Source_Dirs use (Prefix & "/share/ada/adainclude/ada-util-curl");
    for Library_ALI_Dir use Prefix & "/lib/ada/adalib/ada-util-curl/";
    for Externally_Built use "true";
+
+   package Linker is
+      for Linker_Options use ("-lcurl");
+   end Linker;
 end Util_Http_Curl;
