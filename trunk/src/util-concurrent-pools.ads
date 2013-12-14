@@ -30,6 +30,8 @@ generic
    type Element_Type is private;
 package Util.Concurrent.Pools is
 
+   pragma Preelaborate;
+
    --  Pool of objects
    type Pool is new Ada.Finalization.Limited_Controlled with private;
 
