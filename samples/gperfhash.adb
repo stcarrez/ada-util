@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  gperfhash -- Perfect hash Ada generator
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -143,6 +143,8 @@ procedure Gperfhash is
       Put (File, "package ");
       Put (File, To_String (Pkg_Name));
       Put_Line (File, " is");
+      New_Line (File);
+      Put_Line (File, "   pragma Preelaborate;");
       New_Line (File);
       Put_Line (File, "   function Hash (S : String) return Natural;");
       New_Line (File);
