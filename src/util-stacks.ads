@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-stacks -- Simple stack
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,8 @@ generic
    type Element_Type is private;
    type Element_Type_Access is access all Element_Type;
 package Util.Stacks is
+
+   pragma Preelaborate;
 
    type Stack is limited private;
 
