@@ -60,7 +60,7 @@ case "${target_os}" in
 	os_version='os-linux'
 	;;
 
-     netbsdelf*)
+     netbsdelf*|openbsd*)
 	src_os='src/os-linux'
 	os_version='os-linux'
 	;;
