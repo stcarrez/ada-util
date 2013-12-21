@@ -19,7 +19,6 @@
 with Util.Serialize.IO;
 with Util.Http.Clients;
 with Util.Serialize.Mappers.Record_Mapper;
-with Util.Serialize.Mappers.Vector_Mapper;
 
 --  The <b>Util.Http.Rest</b> package defines a REST client type which helps in writing
 --  REST client APIs.  A REST client is similar to an HTTP client but it provides additional
@@ -49,18 +48,6 @@ package Util.Http.Rest is
                        Mapping : in Util.Serialize.Mappers.Mapper_Access;
                        Path    : in String := "";
                        Into    : in Element_Mapper.Element_Type_Access);
-
-   --  Execute an HTTP GET operation on the given <b>URI</b> and parse the JSON response
-   --  into the target object refered to by <b>Into</b> by using the mapping described
-   --  in <b>Mapping</b>.
-   generic
-      --  Package that maps the element into a vector of records.
-      with package Vector_Mapper is
-        new Util.Serialize.Mappers.Vector_Mapper (<>);
-   procedure Rest_Get_Vector (URI     : in String;
-                              Mapping : in Util.Serialize.Mappers.Mapper_Access;
-                              Path    : in String := "";
-                              Into    : in Vector_Mapper.Vector_Type_Access);
 
 private
 
