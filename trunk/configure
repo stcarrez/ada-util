@@ -707,6 +707,7 @@ enable_aunit
 enable_curl
 enable_aws
 with_aws
+enable_vector_mappers
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1335,8 +1336,9 @@ Optional Features:
   --enable-traceback      Enable the symbolic traceback dump in logged exceptions (enabled)
   --enable-ahven          Enable internal Ahven support for testutil library and Ada util unit tests (disabled)
   --enable-aunit          Enable AUnit support for testutil library and Ada util unit tests (enabled)
-  --enable-curl      Enable the CURL HTTP client support in Ada Util (enabled)
-  --enable-aws      Enable the AWS HTTP client support in Ada Util (enabled)
+  --enable-curl           Enable the CURL HTTP client support in Ada Util (enabled)
+  --enable-aws            Enable the AWS HTTP client support in Ada Util (enabled)
+  --enable-vector-mappers Enable the Util.Serialize.Mappers.Vector_Mappers package (enabled)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -4026,11 +4028,16 @@ rm -f t.gpr
 
 fi
 
+##########################################
+# Check for Util.Serialize.Mappers.Vector_Mappers support
+##########################################
+
+ac_enable_vector_mappers=yes
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for gcc bug compiling Util.Serialize.Mappers.Vector_Mappers (Bug 53737)" >&5
 $as_echo_n "checking for gcc bug compiling Util.Serialize.Mappers.Vector_Mappers (Bug 53737)... " >&6; }
 version=`$GNATMAKE --version | grep GNATMAKE | sed -e 's,GNATMAKE ,,'`
 case "$version" in
-   4.7.0|4.7.1|4.7.2)
+   4.7.0*|4.7.1*|4.7.2*|4.7.3*)
       { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
       { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Your compiler is known to fail when compiling a generic package." >&5
@@ -4039,15 +4046,29 @@ $as_echo "$as_me: WARNING: Your compiler is known to fail when compiling a gener
 $as_echo "$as_me: WARNING: See Bug 53737: Assert_Failure on a generic package with a package as parameter" >&2;}
       { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: The Util.Serialize.Mappers.Vector_Mappers and Util.Http.Rest packages are excluded." >&5
 $as_echo "$as_me: WARNING: The Util.Serialize.Mappers.Vector_Mappers and Util.Http.Rest packages are excluded." >&2;}
-      UTIL_HAVE_VECTOR_MAPPERS=no
+      ac_enable_vector_mappers=no
       ;;
 
    *)
       { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-      UTIL_HAVE_VECTOR_MAPPERS=yes
+      ac_enable_vector_mappers=yes
       ;;
 esac
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the Util.Serialize.Mappers.Vector_Mappers package must be compiled" >&5
+$as_echo_n "checking whether the Util.Serialize.Mappers.Vector_Mappers package must be compiled... " >&6; }
+# Check whether --enable-vector-mappers was given.
+if test "${enable_vector_mappers+set}" = set; then :
+  enableval=$enable_vector_mappers; case "${enableval}" in
+  no|none)  ac_enable_vector_mappers=no ;;
+  *)        ac_enable_vector_mappers=yes ;;
+esac
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_enable_vector_mappers}" >&5
+$as_echo "${ac_enable_vector_mappers}" >&6; }
+UTIL_HAVE_VECTOR_MAPPERS=$ac_enable_vector_mappers
 
 
 
