@@ -63,8 +63,8 @@ project Util is
       when "no" =>
        for Excluded_Source_Files use ("util-serialize-mappers-vector_mapper.ads",
                      "util-serialize-mappers-vector_mapper.adb",
-                     "util-http-rest.ads",
-                     "util-http-rest.adb");
+                     "util-http-rest-rest_get_vector.ads",
+                     "util-http-rest-rest_get_vector.adb");
 
       when "yes" =>
        null;
@@ -117,7 +117,7 @@ project Util is
                                       "Util.Http", "Util.Http.Clients",
                                       "Util.Http.Clients.Mockups", "Util.Http.Cookies",
                                       "Util.Http.Mockups", "Util.Http.Parts",
-                                      "Util.Http.Tools");
+                                      "Util.Http.Tools", "Util.Http.Rest");
 
            case Xml_Version is
            when "4" =>
@@ -142,8 +142,7 @@ project Util is
            case Has_Vector_Mappers is
            when "yes" =>
                for Library_Interface use Project'Library_Interface &
-                                     ("Util.Serialize.Mappers.Vector_Mapper",
-                                      "Util.Http.Rest");
+                                     ("Util.Serialize.Mappers.Vector_Mapper");
 
            when "no" =>
                null;
