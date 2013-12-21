@@ -3216,7 +3216,7 @@ case "${target_os}" in
 	os_version='os-linux'
 	;;
 
-     netbsdelf*|openbsd*)
+     netbsdelf*|openbsd*|freebsd*)
 	src_os='src/os-linux'
 	os_version='os-linux'
 	;;
