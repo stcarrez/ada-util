@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  wget -- A simple wget command to fetch a page
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,19 +17,9 @@
 -----------------------------------------------------------------------
 with Ada.Text_IO;
 with Ada.Command_Line;
-with Util.Strings;
-with Util.Strings.Tokenizers;
 with Util.Http.Clients;
 with Util.Http.Clients.Curl;
 procedure Wget is
-
-   procedure Print_Token (Token : in String;
-                          Done  : out Boolean) is
-   begin
-      Ada.Text_IO.Put_Line (Token);
-      Done := False;
-   end Print_Token;
-
    Count : constant Natural := Ada.Command_Line.Argument_Count;
 begin
    if Count = 0 then
