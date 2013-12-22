@@ -157,6 +157,20 @@ case $ac_xml_version in
 
 esac
 
+  AC_MSG_CHECKING([whether xmlada_sax project exists])
+  echo "with \"xmlada_sax\"; project t is for Source_Dirs use (); end t;" > t.gpr
+  gnatmake -p -Pt >/dev/null 2>/dev/null
+  if test $? -eq 0; then
+    ac_xmlada_sax=yes
+    AC_MSG_RESULT(yes, using xmlada_sax)
+    WITH_XML_ADA="with \"xmlada_sax\";";
+  else
+    ac_xmlada_sax=no
+    AC_MSG_RESULT(no)
+  fi;
+  rm -f t.gpr
+
+
 AC_SUBST(WITH_XML_ADA)
 AC_SUBST(UTIL_XML_DIR)
 AC_SUBST(UTIL_XML_VERSION)
