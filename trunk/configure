@@ -3772,6 +3772,23 @@ $as_echo "no" >&6; }
 
 esac
 
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether xmlada_sax project exists" >&5
+$as_echo_n "checking whether xmlada_sax project exists... " >&6; }
+  echo "with \"xmlada_sax\"; project t is for Source_Dirs use (); end t;" > t.gpr
+  gnatmake -p -Pt >/dev/null 2>/dev/null
+  if test $? -eq 0; then
+    ac_xmlada_sax=yes
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+    WITH_XML_ADA="with \"xmlada_sax\";";
+  else
+    ac_xmlada_sax=no
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+  fi;
+  rm -f t.gpr
+
+
 
 
 
