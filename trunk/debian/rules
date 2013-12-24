@@ -122,6 +122,9 @@ $(pkgname)$(aliversion)-test-dev:
 		usr/lib/$(DEB_HOST_MULTIARCH) \
 		usr/share/ada/adainclude/ada-testutil \
 		usr/lib/ada/adalib/ada-testutil
+	dh_install -p$@ usr/lib/$(libname)test.so.$(soversion) /usr/lib/$(DEB_HOST_MULTIARCH)
+	dh_link -p$@ usr/lib/$(DEB_HOST_MULTIARCH)/$(libprefix)test.so.$(soversion) \
+	             usr/lib/$(DEB_HOST_MULTIARCH)/$(libprefix)test.so
 	dh_install -p$@ usr/lib/$(libprefix)test.a /usr/lib/$(DEB_HOST_MULTIARCH)
 	dh_install -p$@ usr/lib/ada/adalib/ada-testutil/*.ali /usr/lib/ada/adalib/ada-testutil
 	dh_install -p$@ usr/share/ada/adainclude/ada-testutil/*.ad[bs] /usr/share/ada/adainclude/ada-testutil
