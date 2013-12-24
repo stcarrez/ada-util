@@ -122,6 +122,8 @@ $(pkgname)$(aliversion)-test-dev:
 		usr/lib/$(DEB_HOST_MULTIARCH) \
 		usr/share/ada/adainclude/ada-testutil \
 		usr/lib/ada/adalib/ada-testutil
+	sed -e "s,INSTALL,/usr,g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
+		< $(CURDIR)/distrib/testutil.gpr > $(CURDIR)/debian/tmp/usr/share/ada/adainclude/testutil.gpr
 	dh_install -p$@ usr/lib/$(libprefix)test.so.$(soversion) /usr/lib/$(DEB_HOST_MULTIARCH)
 	dh_link -p$@ usr/lib/$(DEB_HOST_MULTIARCH)/$(libprefix)test.so.$(soversion) \
 	             usr/lib/$(DEB_HOST_MULTIARCH)/$(libprefix)test.so
