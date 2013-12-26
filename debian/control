@@ -49,7 +49,7 @@ Depends: ${misc:Depends}, libada-util1.7 (= ${binary:Version}), libada-util1.7-d
 Description: Ada Utility Library CURL HTTP Client
  This is the CURL extension for the Util.Http.Clients package.
 
-Package: libada-util1.7-test-dev
+Package: libada-util1.7-unit-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, libada-util1.7 (= ${binary:Version}), libada-util1.7-dev, gnat, gnat-4.6

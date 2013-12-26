@@ -58,8 +58,6 @@ $(pkgname)$(aliversion)-dev:
 		< $(CURDIR)/distrib/util.gpr > $(CURDIR)/debian/tmp/usr/share/ada/adainclude/util.gpr
 	sed -e "s,INSTALL,/usr,g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
 		< $(CURDIR)/distrib/util_http.gpr > $(CURDIR)/debian/tmp/usr/share/ada/adainclude/util_http.gpr
-	sed -e "s,INSTALL,/usr,g" -e "s,LIBRARY_TYPE,static,g" \
-		< $(CURDIR)/distrib/testutil.gpr > $(CURDIR)/debian/tmp/usr/share/ada/adainclude/testutil.gpr
 	cp $(CURDIR)/debian/dev-postinst $(CURDIR)/debian/$@.postinst
 	cp $(CURDIR)/debian/dev-postrm $(CURDIR)/debian/$@.postrm
 	dh_installdirs -p$@ \
@@ -116,22 +114,22 @@ $(pkgname)$(aliversion)-curl-dev:
 	             usr/lib/$(DEB_HOST_MULTIARCH)/$(libprefix)curl.so
 	dh_strip -p$@ -X.a
 
-$(pkgname)$(aliversion)-test-dev:
+$(pkgname)$(aliversion)-unit-dev:
 	: # The development package
 	dh_installdirs -p$@ \
 		usr/lib/$(DEB_HOST_MULTIARCH) \
-		usr/share/ada/adainclude/ada-testutil \
-		usr/lib/ada/adalib/ada-testutil
+		usr/share/ada/adainclude/ada-util-unit \
+		usr/lib/ada/adalib/ada-util-unit
 	sed -e "s,INSTALL,/usr,g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
-		< $(CURDIR)/distrib/testutil.gpr > $(CURDIR)/debian/tmp/usr/share/ada/adainclude/testutil.gpr
-	dh_install -p$@ usr/lib/$(libprefix)test.so.$(soversion) /usr/lib/$(DEB_HOST_MULTIARCH)
-	dh_link -p$@ usr/lib/$(DEB_HOST_MULTIARCH)/$(libprefix)test.so.$(soversion) \
-	             usr/lib/$(DEB_HOST_MULTIARCH)/$(libprefix)test.so
-	dh_install -p$@ usr/lib/$(libprefix)test.a /usr/lib/$(DEB_HOST_MULTIARCH)
-	dh_install -p$@ usr/lib/ada/adalib/ada-testutil/*.ali /usr/lib/ada/adalib/ada-testutil
-	dh_install -p$@ usr/share/ada/adainclude/ada-testutil/*.ad[bs] /usr/share/ada/adainclude/ada-testutil
-	dh_install -p$@ usr/share/ada/adainclude/testutil.gpr /usr/share/ada/adainclude
-	dh_install -p$@ usr/share/ada/adainclude/ada-testutil/*.ad[bs] /usr/share/ada/adainclude/ada-testutil
+		< $(CURDIR)/distrib/util_unit.gpr > $(CURDIR)/debian/tmp/usr/share/ada/adainclude/util_unit.gpr
+	dh_install -p$@ usr/lib/$(libprefix)unit.so.$(soversion) /usr/lib/$(DEB_HOST_MULTIARCH)
+	dh_link -p$@ usr/lib/$(DEB_HOST_MULTIARCH)/$(libprefix)unit.so.$(soversion) \
+	             usr/lib/$(DEB_HOST_MULTIARCH)/$(libprefix)unit.so
+	dh_install -p$@ usr/lib/$(libprefix)unit.a /usr/lib/$(DEB_HOST_MULTIARCH)
+	dh_install -p$@ usr/lib/ada/adalib/ada-util-unit/*.ali /usr/lib/ada/adalib/ada-util-unit
+	dh_install -p$@ usr/share/ada/adainclude/ada-util-unit/*.ad[bs] /usr/share/ada/adainclude/ada-util-unit
+	dh_install -p$@ usr/share/ada/adainclude/util_unit.gpr /usr/share/ada/adainclude
+	dh_install -p$@ usr/share/ada/adainclude/ada-util-unit/*.ad[bs] /usr/share/ada/adainclude/ada-util-unit
 	dh_strip -p$@ -X.a
 
 override_dh_auto_configure:
@@ -147,7 +145,7 @@ override_dh_auto_install: $(pkgname)$(aliversion) \
 						  $(pkgname)$(aliversion)-dev \
 						  $(pkgname)$(aliversion)-aws-dev \
 						  $(pkgname)$(aliversion)-curl-dev \
-						  $(pkgname)$(aliversion)-test-dev
+						  $(pkgname)$(aliversion)-unit-dev
 
 override_dh_install:
 	dh_install
