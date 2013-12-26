@@ -1,8 +1,8 @@
 with "config";
 with "util";
-with "testutil";
 with "util";
 with "util_http";
+with "util_unit";
 
 project Tests is
 
@@ -28,10 +28,10 @@ project Tests is
 
    case Util.Os_Version is
       when "os-linux" =>
-	 for Source_Dirs use project'Source_Dirs & ("regtests/dlls");
+	  	 for Source_Dirs use project'Source_Dirs & ("regtests/dlls");
 
       when "os-win32" =>
-	 for Source_Dirs use project'Source_Dirs & ("regtests/dlls");
+	  	 for Source_Dirs use project'Source_Dirs & ("regtests/dlls");
 
       when others =>
 
