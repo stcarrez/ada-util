@@ -5,6 +5,7 @@ Version 1.7.0   -
   - Added Objects.Datasets to provide list beans (lists of row/column objects)
   - Added support for shared library loading
   - Support for the creation of Debian packages
+  - Port on FreeBSD
 
 Version 1.6.1   - Feb 2013
   - Fix compilation with gcc 4.7.2 (workarround to avoid gcc bug 53737)
