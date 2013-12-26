@@ -409,7 +409,7 @@ AC_SUBST(UTIL_AHVEN_OS_DIR)
 AC_SUBST(UTIL_XUNIT_DIR)
 
 AC_OUTPUT(
-Makefile util.gpr util_http.gpr testutil.gpr util_http_curl.gpr util_http_aws.gpr
-distrib/testutil.gpr distrib/util.gpr distrib/util_http.gpr distrib/util_http_curl.gpr
+Makefile util.gpr util_http.gpr util_unit.gpr util_http_curl.gpr util_http_aws.gpr
+distrib/util_unit.gpr distrib/util.gpr distrib/util_http.gpr distrib/util_http_curl.gpr
 distrib/util_http_aws.gpr
 )
