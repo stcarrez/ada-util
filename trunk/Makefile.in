@@ -15,7 +15,7 @@ GPRPATH=util.gpr
 UTIL_HTTP_GPRPATH=util_http.gpr
 UTIL_HTTP_CURL_GPRPATH=util_http_curl.gpr
 UTIL_HTTP_AWS_GPRPATH=util_http_aws.gpr
-TESTUTIL_GPRPATH=testutil.gpr
+TESTUTIL_GPRPATH=util_unit.gpr
 
 BUILDS_SHARED=@BUILDS_SHARED@
 
@@ -151,7 +151,7 @@ version:
 DISTFILES=README LICENSE.txt LICENSE.Ahven NOTICE.txt NEWS CHANGES ChangeLog \
 config.guess configure config.sub \
 configure.in Makefile.in install-sh \
-util.gpr.in util_http.gpr.in config.gpr testutil.gpr.in tests.gpr samples.gpr \
+util.gpr.in util_http.gpr.in config.gpr util_unit.gpr.in tests.gpr samples.gpr \
 util_http_aws.gpr.in util_http_curl.gpr.in \
 src samples regtests testutil \
 distrib support bundles debian
@@ -191,15 +191,15 @@ install_shared:
 install_lib:
 	rm -rf ${alidir}/ada-util-curl \
 	       ${alidir}/ada-util-aws \
-	       ${alidir}/ada-testutil \
+	       ${alidir}/ada-util-unit \
 	       ${alidir}/ada-util
 	$(MKDIR) -p ${includedir}/ada-util
-	$(MKDIR) -p ${includedir}/ada-testutil
+	$(MKDIR) -p ${includedir}/ada-util-unit
 	$(MKDIR) -p ${projectdir}/
-	${MKDIR} -p ${alidir}/ada-testutil
+	${MKDIR} -p ${alidir}/ada-util-unit
 	${MKDIR} -p ${alidir}/ada-util
 	${MKDIR} -p ${libdir}
-	${CP} -p testutil/*.ad[bs] ${includedir}/ada-testutil
+	${CP} -p testutil/*.ad[bs] ${includedir}/ada-util-unit
 	${CP} -p src/*.ad[bs] ${includedir}/ada-util
 	${CP} -p src/http/*.ad[bs] ${includedir}/ada-util
 	if test T${XML_SRC_DIR} != T ; then \
@@ -212,14 +212,14 @@ install_lib:
 	   ${CP} -p ${OS_SRC_DIR}/*.ad[bs] ${includedir}/ada-util ; \
 	fi
 	if test T${AUNIT_SRC_DIR} != T ; then \
-	   ${CP} -p ${AUNIT_SRC_DIR}/*.ad[bs] ${includedir}/ada-testutil ; \
+	   ${CP} -p ${AUNIT_SRC_DIR}/*.ad[bs] ${includedir}/ada-util-unit ; \
 	fi
 	if test T${AHVEN_SRC_DIR} != T ; then \
-	   ${CP} -p ${AHVEN_SRC_DIR}/*.ad[bs] ${includedir}/ada-testutil ; \
-	   ${CP} -p ${AHVEN_SRC_OS_DIR}/*.ad[bs] ${includedir}/ada-testutil ; \
+	   ${CP} -p ${AHVEN_SRC_DIR}/*.ad[bs] ${includedir}/ada-util-unit ; \
+	   ${CP} -p ${AHVEN_SRC_OS_DIR}/*.ad[bs] ${includedir}/ada-util-unit ; \
 	fi
 	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/util.gpr > ${projectdir}/util.gpr
-	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/testutil.gpr > ${projectdir}/testutil.gpr
+	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/util_unit.gpr > ${projectdir}/util_unit.gpr
 	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/util_http.gpr > ${projectdir}/util_http.gpr
 	test T${HAVE_CURL} = Tno || \
 	     sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
@@ -237,7 +237,7 @@ install_lib:
            ${MKDIR} -p ${alidir}/ada-util-aws && \
 	   ${CP} -p src/http/aws/*.ad[bs] ${includedir}/ada-util-aws && \
 	   ${CP} -p lib/util-aws/$(LIBRARY_TYPE)/*.ali ${alidir}/ada-util-aws)
-	${CP} -p lib/testutil/$(LIBRARY_TYPE)/*.ali ${alidir}/ada-testutil
+	${CP} -p lib/testutil/$(LIBRARY_TYPE)/*.ali ${alidir}/ada-util-unit
 	${CP} -p lib/util/$(LIBRARY_TYPE)/*.ali ${alidir}/ada-util
 ifeq ($(LIBRARY_TYPE),static)
 	test T${HAVE_AWS} = Tno || \
@@ -245,19 +245,19 @@ ifeq ($(LIBRARY_TYPE),static)
 	test T${HAVE_CURL} = Tno || \
 	   ${CP} -p lib/util-curl/$(LIBRARY_TYPE)/$(libprefix)curl.a ${libdir}/
 	${CP} -p lib/util/$(LIBRARY_TYPE)/$(libname).a ${libdir}/
-	${CP} -p lib/testutil/$(LIBRARY_TYPE)/$(libprefix)test.a ${libdir}/
+	${CP} -p lib/testutil/$(LIBRARY_TYPE)/$(libprefix)unit.a ${libdir}/
 else
 	test T${HAVE_AWS} = Tno || \
 	   ${CP} -p lib/util-aws/$(LIBRARY_TYPE)/$(libprefix)aws.$(LIBVER) ${libdir}/
 	test T${HAVE_CURL} = Tno || \
 	   ${CP} -p lib/util-curl/$(LIBRARY_TYPE)/$(libprefix)curl.$(LIBVER) ${libdir}/
 	${CP} -p lib/util/$(LIBRARY_TYPE)/$(libname).$(LIBVER) ${libdir}/
-	${CP} -p lib/testutil/$(LIBRARY_TYPE)/$(libprefix)test.$(LIBVER) ${libdir}/
+	${CP} -p lib/testutil/$(LIBRARY_TYPE)/$(libprefix)unit.$(LIBVER) ${libdir}/
 	cd ${libdir} && \
-	rm -f $(libname).$(LIBEXT) $(libprefix)test.$(LIBEXT) && \
+	rm -f $(libname).$(LIBEXT) $(libprefix)unit.$(LIBEXT) && \
 	rm -f $(libprefix)aws.$(LIBEXT) $(libprefix)curl.$(LIBEXT) && \
 	${LN} $(libname).$(LIBVER) $(libname).$(LIBEXT) && \
-	${LN} $(libprefix)test.$(LIBVER) $(libprefix)test.$(LIBEXT) && \
+	${LN} $(libprefix)unit.$(LIBVER) $(libprefix)unit.$(LIBEXT) && \
 	(test T${HAVE_AWS} = Tno || \
 	   ${LN} $(libprefix)aws.$(LIBVER) $(libprefix)aws.$(LIBEXT)) && \
 	(test T${HAVE_CURL} = Tno || \
@@ -271,15 +271,18 @@ install-support:
 	${CP} support/*.xsl ${bindir}
 
 uninstall:
-	rm -rf ${includedir}/ada-util ${includedir}/ada-testutil ${includedir}/ada-util-curl ${includedir}/ada-util-aws
-	rm -rf ${alidir}/ada-util ${alidir}/ada-testutil ${alidir}/ada-util-curl ${alidir}/ada-util-aws
+	rm -rf ${includedir}/ada-util ${includedir}/ada-util-unit ${includedir}/ada-util-curl ${includedir}/ada-util-aws
+	rm -rf ${alidir}/ada-util ${alidir}/ada-util-unit ${alidir}/ada-util-curl ${alidir}/ada-util-aws
 	rm -f ${libdir}/$(libname).a
 	rm -f ${libdir}/$(libprefix)curl.a
 	rm -f ${libdir}/$(libprefix)aws.a
-	rm -f ${libdir}/$(libprefix)test.a
+	rm -f ${libdir}/$(libprefix)unit.a
 	rm -f ${libdir}/$(libname).so.${version}
-	rm -f ${libdir}/$(libprefix)test.so.${version}
-	rm -f ${projectdir}/testutil.gpr
+	rm -f ${libdir}/$(libprefix)unit.so.${version}
+	rm -f ${projectdir}/util_http_aws.gpr
+	rm -f ${projectdir}/util_http_curl.gpr
+	rm -f ${projectdir}/util_http.gpr
+	rm -f ${projectdir}/util_unit.gpr
 	rm -f ${projectdir}/util.gpr
 
 # prepare before releasing a new version of the package
