@@ -274,9 +274,9 @@ uninstall:
 	rm -rf ${includedir}/ada-util ${includedir}/ada-util-unit ${includedir}/ada-util-curl ${includedir}/ada-util-aws
 	rm -rf ${alidir}/ada-util ${alidir}/ada-util-unit ${alidir}/ada-util-curl ${alidir}/ada-util-aws  ${alidir}/ada-util-unit
 	rm -f ${libdir}/$(libname).a
-	rm -f ${libdir}/$(libprefix)curl.a
-	rm -f ${libdir}/$(libprefix)aws.a
-	rm -f ${libdir}/$(libprefix)unit.a
+	rm -f ${libdir}/$(libprefix)curl.a ${libdir}/$(libprefix)curl.$(LIBEXT)  ${libdir}/$(libprefix)curl.$(LIBEXT).${version}
+	rm -f ${libdir}/$(libprefix)aws.a ${libdir}/$(libprefix)aws.$(LIBEXT) ${libdir}/$(libprefix)aws.$(LIBEXT).${version}
+	rm -f ${libdir}/$(libprefix)unit.a ${libdir}/$(libprefix)unit.$(LIBEXT) ${libdir}/$(libprefix)unit.$(LIBEXT).${version}
 	rm -f ${libdir}/$(libname).so.${version}
 	rm -f ${libdir}/$(libprefix)unit.so.${version}
 	rm -f ${projectdir}/util_http_aws.gpr
