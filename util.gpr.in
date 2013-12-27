@@ -120,7 +120,7 @@ project Util is
                                       "Util.Http.Tools", "Util.Http.Rest");
 
            case Xml_Version is
-           when "4" =>
+           when "4" | "3" =>
               for Library_Interface use Project'Library_Interface &
                                     ("Util.Serialize.Io.Xml");
                 
