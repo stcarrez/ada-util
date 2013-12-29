@@ -198,7 +198,7 @@ install_lib:
 	$(MKDIR) -p ${projectdir}/
 	${MKDIR} -p ${alidir}/ada-util-unit
 	${MKDIR} -p ${alidir}/ada-util
-	${MKDIR} -p ${libdir}
+	${MKDIR} -p ${libdir} ${bindir}
 	${CP} -p testutil/*.ad[bs] ${includedir}/ada-util-unit
 	${CP} -p src/*.ad[bs] ${includedir}/ada-util
 	${CP} -p src/http/*.ad[bs] ${includedir}/ada-util
@@ -253,6 +253,7 @@ else
 	   ${CP} -p lib/util-curl/$(LIBRARY_TYPE)/$(libprefix)curl.$(LIBVER) ${libdir}/
 	${CP} -p lib/util/$(LIBRARY_TYPE)/$(libname).$(LIBVER) ${libdir}/
 	${CP} -p lib/testutil/$(LIBRARY_TYPE)/$(libprefix)unit.$(LIBVER) ${libdir}/
+ifneq (${OS},Windows_NT)
 	cd ${libdir} && \
 	rm -f $(libname).$(LIBEXT) $(libprefix)unit.$(LIBEXT) && \
 	rm -f $(libprefix)aws.$(LIBEXT) $(libprefix)curl.$(LIBEXT) && \
@@ -262,6 +263,10 @@ else
 	   ${LN} $(libprefix)aws.$(LIBVER) $(libprefix)aws.$(LIBEXT)) && \
 	(test T${HAVE_CURL} = Tno || \
 	   ${LN} $(libprefix)curl.$(LIBVER) $(libprefix)curl.$(LIBEXT))
+else
+	${CP} -p lib/util/$(LIBRARY_TYPE)/$(libname).$(LIBVER) ${bindir}/
+	${CP} -p lib/testutil/$(LIBRARY_TYPE)/$(libprefix)unit.$(LIBVER) ${bindir}/
+endif
 endif
 
 
