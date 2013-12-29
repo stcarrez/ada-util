@@ -130,7 +130,7 @@ project Util is
            end case;
 
            case Os_Version is
-           when "os-linux" =>
+           when "os-linux" | "os-win32" =>
               for Library_Interface use Project'Library_Interface &
                                     ("Util.Streams.Raw", "Util.Systems.Dlls", "Util.Systems.Os");
 
