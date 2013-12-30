@@ -16,12 +16,11 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with System;
-with Interfaces.C;
 with Interfaces.C.Strings;
-with Util.Systems.Constants;
 
 package body Util.Systems.DLLs is
+
+   pragma Linker_Options (Util.Systems.Constants.DLL_OPTIONS);
 
    function Sys_Dlopen (Path  : in Interfaces.C.Strings.chars_ptr;
                         Mode  : in Flags) return Handle;
@@ -37,6 +36,8 @@ package body Util.Systems.DLLs is
    function Sys_Dlerror return Interfaces.C.Strings.chars_ptr;
    pragma Import (C, Sys_Dlerror, "dlerror");
 
+   function Error_Message return String;
+
    function Error_Message return String is
    begin
       return Interfaces.C.Strings.Value (Sys_Dlerror);
@@ -49,7 +50,7 @@ package body Util.Systems.DLLs is
    function Load (Path : in String;
                   Mode : in Flags := Util.Systems.Constants.RTLD_LAZY) return Handle is
       Lib    : Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.New_String (Path);
-      Result : Handle := Sys_Dlopen (Lib, Mode);
+      Result : constant Handle := Sys_Dlopen (Lib, Mode);
    begin
       Interfaces.C.Strings.Free (Lib);
       if Result = Null_Handle then
@@ -64,6 +65,7 @@ package body Util.Systems.DLLs is
    --  -----------------------
    procedure Unload (Lib : in Handle) is
       Result : Interfaces.C.int;
+      pragma Unreferenced (Result);
    begin
       if Lib /= Null_Handle then
          Result := Sys_Dlclose (Lib);
@@ -78,8 +80,8 @@ package body Util.Systems.DLLs is
                         Name : in String) return System.Address is
       use type System.Address;
 
-      Symbol : Interfaces.C.Strings.Chars_Ptr := Interfaces.C.Strings.New_String (Name);
-      Result : System.Address := Sys_Dlsym (Lib, Symbol);
+      Symbol : Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.New_String (Name);
+      Result : constant System.Address := Sys_Dlsym (Lib, Symbol);
    begin
       Interfaces.C.Strings.Free (Symbol);
       if Result = System.Null_Address then
