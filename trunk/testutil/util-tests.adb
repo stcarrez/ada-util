@@ -54,6 +54,10 @@ package body Util.Tests is
    --  Verbose flag activated by the '-v' option.
    Verbose_Flag      : Boolean := False;
 
+   --  When not empty, defines the name of the test that is enabled.  Other tests are disabled.
+   --  This is initialized by the -r test option.
+   Enabled_Test      : Unbounded_String;
+
    --  ------------------------------
    --  Get a path to access a test file.
    --  ------------------------------
@@ -145,6 +149,16 @@ package body Util.Tests is
    begin
       return Verbose_Flag;
    end Verbose;
+
+   --  ------------------------------
+   --  Returns True if the test with the given name is enabled.
+   --  By default all the tests are enabled.  When the -r test option is passed
+   --  all the tests are disabled except the test specified by the -r option.
+   --  ------------------------------
+   function Is_Test_Enabled (Name : in String) return Boolean is
+   begin
+      return Length (Enabled_Test) = 0 or Enabled_Test = Name;
+   end Is_Test_Enabled;
 
    --  ------------------------------
    --  Check that the value matches what we expect.
@@ -394,7 +408,7 @@ package body Util.Tests is
       begin
          Put_Line ("Test harness: " & Name);
          Put ("Usage: harness [-xml result.xml] [-t timeout] [-p prefix] [-v]"
-              & "[-config file.properties] [-d dir]");
+              & "[-config file.properties] [-d dir] [-r testname]");
          Put_Line ("[-update]");
          Put_Line ("-xml file      Produce an XML test report");
          Put_Line ("-config file   Specify a test configuration file");
@@ -402,20 +416,21 @@ package body Util.Tests is
          Put_Line ("-t timeout     Test execution timeout in seconds");
          Put_Line ("-v             Activate the verbose test flag");
          Put_Line ("-p prefix      Add the prefix to the test class names");
+         Put_Line ("-r testname    Run only the tests for the given testsuite name");
          Put_Line ("-update        Update the test reference files if a file");
          Put_Line ("               is missing or the test generates another output");
          Put_Line ("               (See Assert_Equals_File)");
          Ada.Command_Line.Set_Exit_Status (2);
       end Help;
 
-      Perf     : aliased Util.Measures.Measure_Set;
-      Result   : Util.XUnit.Status;
-      XML      : Boolean := False;
-      Output   : Ada.Strings.Unbounded.Unbounded_String;
-      Chdir    : Ada.Strings.Unbounded.Unbounded_String;
+      Perf      : aliased Util.Measures.Measure_Set;
+      Result    : Util.XUnit.Status;
+      XML       : Boolean := False;
+      Output    : Ada.Strings.Unbounded.Unbounded_String;
+      Chdir     : Ada.Strings.Unbounded.Unbounded_String;
    begin
       loop
-         case Getopt ("h u v x: t: p: c: config: d: update help xml: timeout:") is
+         case Getopt ("h u v x: t: p: c: config: d: r: update help xml: timeout:") is
             when ASCII.NUL =>
                exit;
 
@@ -450,6 +465,9 @@ package body Util.Tests is
                      Ada.Command_Line.Set_Exit_Status (2);
                      return;
                end;
+
+            when 'r' =>
+               Enabled_Test := To_Unbounded_String (Parameter);
 
             when 'p' =>
                Harness_Prefix := To_Unbounded_String (Parameter & " ");
