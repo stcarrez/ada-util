@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  AUnit utils - Helper for writing unit tests
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,13 +34,15 @@ package body Util.Test_Caller is
                        Method    : in Test_Method) is
       pragma Unreferenced (Suite);
    begin
-      if not Added then
-         Instance.Set_Name (Util.Tests.Get_Harness_Prefix & Name);
-         Test.Test := Instance'Access;
-         Util.XUnit.Register (Test'Access);
-         Added := True;
+      if Util.Tests.Is_Test_Enabled (Test_Name) then
+         if not Added then
+            Instance.Set_Name (Util.Tests.Get_Harness_Prefix & Name);
+            Test.Test := Instance'Access;
+            Util.XUnit.Register (Test'Access);
+            Added := True;
+         end if;
+         Ahven.Framework.Add_Test_Routine (Instance, To_X (Method), Test_Name);
       end if;
-      Ahven.Framework.Add_Test_Routine (Instance, To_X (Method), Test_Name);
    end Add_Test;
 
 end Util.Test_Caller;
