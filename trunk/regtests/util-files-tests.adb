@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  files.tests -- Unit tests for files
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@ package body Util.Files.Tests is
       Caller.Add_Test (Suite, "Test Util.Files.Read_File",
                        Test_Read_File'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Read_File (missing)",
-                       Test_Read_File'Access);
+                       Test_Read_File_Missing'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Read_File (truncate)",
                        Test_Read_File'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Write_File",
