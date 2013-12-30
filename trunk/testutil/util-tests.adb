@@ -404,7 +404,7 @@ package body Util.Tests is
          Put_Line ("-p prefix      Add the prefix to the test class names");
          Put_Line ("-update        Update the test reference files if a file");
          Put_Line ("               is missing or the test generates another output");
-         Put_Line ("               (See Asset_Equals_File)");
+         Put_Line ("               (See Assert_Equals_File)");
          Ada.Command_Line.Set_Exit_Status (2);
       end Help;
 
