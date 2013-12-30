@@ -62,8 +62,8 @@ package body Ahven.Text_Runner is
       Total := Total + Amount;
    end Pad;
 
-   procedure Multiline_Pad (Input  : String;
-                            Level  : Natural) is
+   procedure Multiline_Pad (Input : String;
+                            Level : Natural) is
    begin
       Pad (Level);
       for A in Input'Range loop
@@ -79,8 +79,8 @@ package body Ahven.Text_Runner is
                          Result : String) is
       use Ada.Strings;
 
-      Max_Output_Width : constant := 50;
-      Max_Result_Width : constant := 7;
+      Max_Output_Width   : constant := 50;
+      Max_Result_Width   : constant := 7;
       Max_Time_Out_Width : constant := 12;
 
       subtype Result_Size is Integer range 1 .. Max_Result_Width;
@@ -261,22 +261,22 @@ package body Ahven.Text_Runner is
    begin
       Put_Line ("Passed : " & Integer'Image (Pass_Count (Result)));
       if Verbose then
-         Print_Passes (Result, 0);
+         Print_Passes (Result => Result, Level => 0);
       end if;
       New_Line;
       if Skipped_Count (Result) > 0 then
          Put_Line ("Skipped : " & Integer'Image (Skipped_Count (Result)));
-         Print_Skips (Result, 0);
+         Print_Skips (Result => Result, Level => 0);
          New_Line;
       end if;
       if Failure_Count (Result) > 0 then
          Put_Line ("Failed : " & Integer'Image (Failure_Count (Result)));
-         Print_Failures (Result, 0);
+         Print_Failures (Result => Result, Level => 0);
          New_Line;
       end if;
       if Error_Count (Result) > 0 then
          Put_Line ("Errors : " & Integer'Image (Error_Count (Result)));
-         Print_Errors (Result, 0);
+         Print_Errors (Result => Result, Level => 0);
       end if;
    end Report_Results;
 

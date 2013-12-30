@@ -45,5 +45,4 @@ package body Ahven is
       Ada.Exceptions.Raise_Exception (Test_Skipped_Error'Identity, Message);
    end Skip;
 
-
 end Ahven;

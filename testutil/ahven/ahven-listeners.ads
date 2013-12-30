@@ -16,6 +16,7 @@
 
 with Ada.Finalization;
 with Ahven.AStrings;
+with Ahven.Long_AStrings;
 
 package Ahven.Listeners is
    type Test_Phase is (TEST_BEGIN, TEST_RUN, TEST_END);
@@ -32,7 +33,7 @@ package Ahven.Listeners is
          when TEST_RUN =>
             Routine_Name : AStrings.Bounded_String;
             Message      : AStrings.Bounded_String;
-            Long_Message : AStrings.Bounded_String;
+            Long_Message : Long_AStrings.Bounded_String;
       end case;
    end record;
 

@@ -17,6 +17,7 @@
 with Ada.Strings;
 with Ada.Unchecked_Deallocation;
 with Ada.Exceptions;
+with Ahven.Long_AStrings;
 with Util.Measures;
 with Util.Log.Loggers;
 
@@ -37,12 +38,12 @@ package body Ahven.Framework is
 
    procedure Set_Up (T : in out Test) is
    begin
-      null;
+      null; -- empty by default
    end Set_Up;
 
    procedure Tear_Down (T : in out Test) is
    begin
-      null;
+      null; -- empty by default
    end Tear_Down;
 
    procedure Run (T         : in out Test;
@@ -118,6 +119,15 @@ package body Ahven.Framework is
       Execute_Impl (Test_Object => T, Listener_Object => Listener);
    end Execute;
 
+
+   ----------- Test_Case ------------------------------
+
+
+   -- Wrap an "object" routine inside a Test_Command record
+   -- and add it to the test command list.
+   --
+   -- Name of the test will be silently cut if it does not
+   -- fit completely into AStrings.Bounded_String.
    procedure Add_Test_Routine (T       : in out Test_Case'Class;
                                Routine :        Object_Test_Routine_Access;
                                Name    :        String)
@@ -132,6 +142,11 @@ package body Ahven.Framework is
       Test_Command_List.Append (T.Routines, Command);
    end Add_Test_Routine;
 
+   -- Wrap a "simple" routine inside a Test_Command record
+   -- and add it to the test command list.
+   --
+   -- Name of the test will be silently cut if it does not
+   -- fit completely into AStrings.Bounded_String.
    procedure Add_Test_Routine (T       : in out Test_Case'Class;
                                Routine :        Simple_Test_Routine_Access;
                                Name    :        String)
@@ -148,13 +163,15 @@ package body Ahven.Framework is
 
    -- The heart of the package.
    -- Run one test routine (well, Command at this point) and
-   -- store the result to the Result object.
+   -- notify listeners about the result.
    procedure Run_Command (Command  :        Test_Command;
                           Info     :        Listeners.Context;
                           Timeout  :        Test_Duration;
                           Listener : in out Listeners.Result_Listener'Class;
                           T        : in out Test_Case'Class) is
       use Ahven.Listeners;
+      use Ahven.Long_AStrings;
+
       type Test_Status is
         (TEST_PASS, TEST_FAIL, TEST_ERROR, TEST_TIMEOUT, TEST_SKIP);
 
@@ -162,15 +179,15 @@ package body Ahven.Framework is
          function Get_Status return Test_Status;
          procedure Set_Status (Value : Test_Status);
 
-         function Get_Message return Bounded_String;
-         procedure Set_Message (Value : Bounded_String);
+         function Get_Message return AStrings.Bounded_String;
+         procedure Set_Message (Value : AStrings.Bounded_String);
 
-         function Get_Long_Message return Bounded_String;
-         procedure Set_Long_Message (Value : Bounded_String);
+         function Get_Long_Message return Long_AStrings.Bounded_String;
+         procedure Set_Long_Message (Value : Long_AStrings.Bounded_String);
       private
-         Status : Test_Status := Test_Error;
-         Message : Bounded_String;
-         Long_Message : Bounded_String;
+         Status : Test_Status := TEST_ERROR;
+         Message : AStrings.Bounded_String;
+         Long_Message : Long_AStrings.Bounded_String;
       end Test_Results;
 
       protected body Test_Results is
@@ -184,22 +201,22 @@ package body Ahven.Framework is
             Status := Value;
          end Set_Status;
 
-         function Get_Message return Bounded_String is
+         function Get_Message return AStrings.Bounded_String is
          begin
             return Message;
          end Get_Message;
 
-         procedure Set_Message (Value : Bounded_String) is
+         procedure Set_Message (Value : AStrings.Bounded_String) is
          begin
             Message := Value;
          end Set_Message;
 
-         function Get_Long_Message return Bounded_String is
+         function Get_Long_Message return Long_AStrings.Bounded_String is
          begin
             return Long_Message;
          end Get_Long_Message;
 
-         procedure Set_Long_Message (Value : Bounded_String) is
+         procedure Set_Long_Message (Value : Long_AStrings.Bounded_String) is
          begin
             Long_Message := Value;
          end Set_Long_Message;
@@ -218,6 +235,20 @@ package body Ahven.Framework is
       end Command_Task;
 
       procedure Run_A_Command is
+         procedure Set_Status (S            :        Test_Status;
+                               Message      :        String;
+                               Long_Message :        String;
+                               R            : in out Test_Results)
+         is
+         begin
+            R.Set_Status (S);
+            R.Set_Message (To_Bounded_String
+              (Source => Message,
+               Drop   => Ada.Strings.Right));
+            R.Set_Long_Message (To_Bounded_String
+              (Source => Long_Message,
+               Drop   => Ada.Strings.Right));
+         end Set_Status;
       begin
          Util.Measures.Set_Current (Perf);
          begin
@@ -225,24 +256,23 @@ package body Ahven.Framework is
             Result.Set_Status (TEST_PASS);
          exception
             when E : Assertion_Error =>
-               Result.Set_Status (TEST_FAIL);
-               Result.Set_Message (To_Bounded_String
-                 (Source => Ada.Exceptions.Exception_Message (E),
-                  Drop   => Ada.Strings.Right));
+               Set_Status
+                 (S            => TEST_FAIL,
+                  Message      => Ada.Exceptions.Exception_Message (E),
+                  Long_Message => Util.Log.Loggers.Traceback (E),
+                  R            => Result);
             when E : Test_Skipped_Error =>
-               Result.Set_Status (TEST_SKIP);
-               Result.Set_Message (To_Bounded_String
-                 (Source => Ada.Exceptions.Exception_Message (E),
-                  Drop   => Ada.Strings.Right));
+               Set_Status
+                 (S            => TEST_SKIP,
+                  Message      => Ada.Exceptions.Exception_Message (E),
+                  Long_Message => Util.Log.Loggers.Traceback (E),
+                  R            => Result);
             when E : others =>
-               Result.Set_Status (TEST_ERROR);
-               Result.Set_Message (To_Bounded_String
-                 (Source => Ada.Exceptions.Exception_Name (E),
-                  Drop   => Ada.Strings.Right));
-               Result.Set_Long_Message (To_Bounded_String
-                 (Source => Ada.Exceptions.Exception_Message (E)
-                     & ASCII.LF & Util.Log.Loggers.Traceback (E),
-                  Drop   => Ada.Strings.Right));
+               Set_Status
+                 (S            => TEST_ERROR,
+                  Message      => Ada.Exceptions.Exception_Message (E),
+                  Long_Message => Util.Log.Loggers.Traceback (E),
+                  R            => Result);
          end;
       end Run_A_Command;
 
@@ -285,7 +315,7 @@ package body Ahven.Framework is
                 Test_Kind    => CONTAINER,
                 Routine_Name => Info.Routine_Name,
                 Message      => Result.Get_Message,
-                Long_Message => Null_Bounded_String));
+                Long_Message => Long_AStrings.Null_Bounded_String));
          when TEST_ERROR =>
             Listeners.Add_Error
               (Listener,
@@ -303,7 +333,7 @@ package body Ahven.Framework is
                 Test_Kind    => CONTAINER,
                 Routine_Name => Info.Routine_Name,
                 Message      => To_Bounded_String ("TIMEOUT"),
-                Long_Message => Null_Bounded_String));
+                Long_Message => Long_AStrings.Null_Bounded_String));
          when TEST_SKIP =>
             Listeners.Add_Skipped
               (Listener,
@@ -312,7 +342,7 @@ package body Ahven.Framework is
                 Test_Kind    => CONTAINER,
                 Routine_Name => Info.Routine_Name,
                 Message      => Result.Get_Message,
-                Long_Message => Null_Bounded_String));
+                Long_Message => Long_AStrings.Null_Bounded_String));
       end case;
    end Run_Command;
 
@@ -337,13 +367,14 @@ package body Ahven.Framework is
           Test_Name => To_Bounded_String (Test_Name),
           Test_Kind => ROUTINE));
       Run_Command (Command  => Command,
-                   Info     => (Phase        => Listeners.TEST_RUN,
-                                Test_Name    => To_Bounded_String (Test_Name),
-                                Test_Kind    => ROUTINE,
-                                Routine_Name =>
-                                  To_Bounded_String (Routine_Name),
-                                Message      => Null_Bounded_String,
-                                Long_Message => Null_Bounded_String),
+                   Info     =>
+                     (Phase        => Listeners.TEST_RUN,
+                      Test_Name    => To_Bounded_String (Test_Name),
+                      Test_Kind    => ROUTINE,
+                      Routine_Name =>
+                        To_Bounded_String (Routine_Name),
+                      Message      => AStrings.Null_Bounded_String,
+                      Long_Message => Long_AStrings.Null_Bounded_String),
                    Timeout  => Timeout,
                    Listener => Listener,
                    T        => T);
@@ -396,8 +427,7 @@ package body Ahven.Framework is
          end if;
       end Exec;
 
-      procedure Run_All is new Test_Command_List.For_Each
-        (Action => Exec);
+      procedure Run_All is new Test_Command_List.For_Each (Action => Exec);
    begin
       Run_All (T.Routines);
    end Run;
@@ -438,6 +468,10 @@ package body Ahven.Framework is
    begin
       T.Name := To_Bounded_String (Source => Name, Drop => Ada.Strings.Right);
    end Set_Name;
+
+
+   ----------- Test_Suite -----------------------------
+
 
    function Create_Suite (Suite_Name : String)
      return Test_Suite_Access is
@@ -674,6 +708,10 @@ package body Ahven.Framework is
             Tear_Down (T);
       end case;
    end Run;
+
+
+   ----------- Indefinite_Test_List -------------------
+
 
    package body Indefinite_Test_List is
       procedure Remove (Ptr : Node_Access) is
