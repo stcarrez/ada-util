@@ -52,7 +52,8 @@ Description: Ada Utility Library CURL HTTP Client
 Package: libada-util1.7-unit-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libada-util1.7 (= ${binary:Version}), libada-util1.7-dev, gnat, gnat-4.6
+Pre-Depends: multiarch-support
+Depends: ${shlibs:Depends}, ${misc:Depends}, libada-util1.7 (= ${binary:Version}), libada-util1.7-dev, gnat, gnat-4.6
 Description: Ada Test Utility Library
  This library provides support and helpers for writing Ada unit tests.
  The unit test framework is based on Ahven.
