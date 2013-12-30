@@ -55,15 +55,22 @@ package body Ahven.Results is
       Set_Message (Info, To_Bounded_String (Message));
    end Set_Message;
 
-   procedure Set_Long_Message (Info : in out Result_Info;
-                               Message : Bounded_String) is
+   procedure Set_Long_Message (Info    : in out Result_Info;
+                               Message :        Bounded_String) is
+   begin
+      Set_Long_Message (Info, To_String (Message));
+   end Set_Long_Message;
+
+   procedure Set_Long_Message
+     (Info    : in out Result_Info;
+      Message :        Long_AStrings.Bounded_String) is
    begin
       Info.Long_Message := Message;
    end Set_Long_Message;
 
    procedure Set_Long_Message (Info : in out Result_Info; Message : String) is
    begin
-      Set_Long_Message (Info, To_Bounded_String (Message));
+      Set_Long_Message (Info, Long_AStrings.To_Bounded_String (Message));
    end Set_Long_Message;
 
    procedure Set_Execution_Time (Info         : in out Result_Info;
@@ -101,7 +108,7 @@ package body Ahven.Results is
 
    function Get_Long_Message (Info : Result_Info) return String is
    begin
-      return To_String (Info.Long_Message);
+      return Long_AStrings.To_String (Info.Long_Message);
    end Get_Long_Message;
 
    function Get_Execution_Time (Info : Result_Info) return Duration is
@@ -151,7 +158,7 @@ package body Ahven.Results is
         new Ada.Unchecked_Deallocation (Object => Result_Collection,
                                         Name   => Result_Collection_Access);
 
-      Position: Result_List.Cursor := First (Collection.Children);
+      Position : Result_List.Cursor := First (Collection.Children);
       Ptr  : Result_Collection_Access := null;
    begin
       loop
@@ -261,7 +268,6 @@ package body Ahven.Results is
       return Count;
    end Skipped_Count;
 
-
    function Get_Test_Name (Collection : Result_Collection)
      return Bounded_String is
    begin
@@ -341,18 +347,18 @@ package body Ahven.Results is
       return First (Collection.Errors);
    end First_Error;
 
-   function Next (Position: Result_Info_Cursor) return Result_Info_Cursor is
+   function Next (Position : Result_Info_Cursor) return Result_Info_Cursor is
    begin
       return Result_Info_Cursor
         (Result_Info_List.Next (Result_Info_List.Cursor (Position)));
    end Next;
 
-   function Data (Position: Result_Info_Cursor) return Result_Info is
+   function Data (Position : Result_Info_Cursor) return Result_Info is
    begin
       return Result_Info_List.Data (Result_Info_List.Cursor (Position));
    end Data;
 
-   function Is_Valid (Position: Result_Info_Cursor) return Boolean is
+   function Is_Valid (Position : Result_Info_Cursor) return Boolean is
    begin
       return Result_Info_List.Is_Valid (Result_Info_List.Cursor (Position));
    end Is_Valid;
@@ -363,19 +369,19 @@ package body Ahven.Results is
       return First (Collection.Children);
    end First_Child;
 
-   function Next (Position: Result_Collection_Cursor)
+   function Next (Position : Result_Collection_Cursor)
      return Result_Collection_Cursor is
    begin
       return Result_Collection_Cursor
         (Result_List.Next (Result_List.Cursor (Position)));
    end Next;
 
-   function Is_Valid (Position: Result_Collection_Cursor) return Boolean is
+   function Is_Valid (Position : Result_Collection_Cursor) return Boolean is
    begin
       return Result_List.Is_Valid (Result_List.Cursor (Position));
    end Is_Valid;
 
-   function Data (Position: Result_Collection_Cursor)
+   function Data (Position : Result_Collection_Cursor)
      return Result_Collection_Access is
    begin
       return Result_List.Data (Result_List.Cursor (Position)).Ptr;

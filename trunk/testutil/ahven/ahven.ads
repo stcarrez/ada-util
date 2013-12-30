@@ -18,6 +18,7 @@
 package Ahven is
    Max_String_Len : constant := 160 * 10;
    --  SCz 2012-09-04. Max length of messages multiplied by 10 for exception traceback.
+   Max_Long_String_Len : constant := 1024;
 
    Assertion_Error : exception;
    -- Exception, raised when Assert fails.

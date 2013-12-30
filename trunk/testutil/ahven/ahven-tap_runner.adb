@@ -20,6 +20,7 @@ with Ada.Characters.Latin_1;
 
 with Ahven.Parameters;
 with Ahven.AStrings;
+with Ahven.Long_AStrings;
 
 package body Ahven.Tap_Runner is
    use Ada.Text_IO;
@@ -40,12 +41,16 @@ package body Ahven.Tap_Runner is
             Put (Prefix);
             Start_Of_Line := False;
          end if;
-         Put (Message (I));
          if Message (I) = Ada.Characters.Latin_1.LF then
             New_Line;
             Start_Of_Line := True;
+         elsif Message (I) /= Ada.Characters.Latin_1.CR then
+            Put (Message (I));
          end if;
       end loop;
+      if not Start_Of_Line then
+         New_Line;
+      end if;
    end Print_Data;
 
    procedure Run (Suite : in out Framework.Test'Class) is
@@ -78,11 +83,11 @@ package body Ahven.Tap_Runner is
    begin
       if Length (Info.Message) > 0 then
          Print_Data (Message => To_String (Info.Message), Prefix => "# ");
-         New_Line;
       end if;
-      if Length (Info.Long_Message) > 0 then
-         Print_Data (Message => To_String (Info.Long_Message), Prefix => "# ");
-         New_Line;
+      if Long_AStrings.Length (Info.Long_Message) > 0 then
+         Print_Data
+           (Message => Long_AStrings.To_String (Info.Long_Message),
+            Prefix  => "# ");
       end if;
    end Print_Info;
 
