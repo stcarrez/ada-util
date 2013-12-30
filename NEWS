@@ -5,6 +5,8 @@ Version 1.7.0   -
   - Added Objects.Datasets to provide list beans (lists of row/column objects)
   - Added support for shared library loading
   - Support for the creation of Debian packages
+  - Update Ahven integration to 2.3
+  - New option -r <test> option for the unit test harness to execute a single test
   - Port on FreeBSD
 
 Version 1.6.1   - Feb 2013
