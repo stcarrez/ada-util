@@ -98,9 +98,11 @@ int main(int argc, char** argv)
     printf("   RTLD_NODELETE                 : constant Interfaces.C.int := 8#%06o#;\n", RTLD_NODELETE);
 #endif
 
-#ifdef HAVE_DLOPEN
     printf("\n");
-    printf("   pragma Linker_Options (\"-ldl\");\n");
+#ifdef HAVE_DLOPEN
+printf("   DLL_OPTIONS : constant String := \"-ldl\";\n");
+#else
+    printf("   DLL_OPTIONS : constant String := \"\";\n");
 #endif
     printf("\n");
 
