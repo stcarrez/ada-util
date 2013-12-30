@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  AUnit utils - Helper for writing unit tests
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -64,6 +64,11 @@ package Util.Tests is
 
    --  Get the verbose flag that can be activated with the <tt>-v</tt> option.
    function Verbose return Boolean;
+
+   --  Returns True if the test with the given name is enabled.
+   --  By default all the tests are enabled.  When the -r test option is passed
+   --  all the tests are disabled except the test specified by the -r option.
+   function Is_Test_Enabled (Name : in String) return Boolean;
 
    --  Check that two files are equal.  This is intended to be used by
    --  tests that create files that are then checked against patterns.
