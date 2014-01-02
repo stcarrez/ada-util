@@ -25,7 +25,7 @@ project Config is
 
       case Mode is
          when "distrib" =>
-            for Default_Switches ("Ada") use ("-gnatn");
+            for Default_Switches ("Ada") use ("-gnatafno", "-gnatVa", "-gnatwa");
 
          when "debug" =>
             for Default_Switches ("Ada") use warnings
