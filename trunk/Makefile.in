@@ -101,6 +101,7 @@ shared:
 
 # Build and run the unit tests
 test:	build regtests/util-testsuite.adb
+	$(GNATMAKE) -p -Ptests_proc $(MAKE_ARGS)
 	$(GNATMAKE) -p -Ptests $(MAKE_ARGS)
 	-bin/util_harness -xml util-aunit.xml
 
@@ -124,6 +125,7 @@ clean:	clean_test
 	-rm -rf lib/util-curl
 	-rm -rf lib/util-aws
 	-rm -rf lib/testutil
+	-rm -f bin/util_harness bin/util_test_process
 
 # Clean the files produced by the unit tests
 clean_test:
@@ -151,7 +153,7 @@ version:
 DISTFILES=README LICENSE.txt LICENSE.Ahven NOTICE.txt NEWS CHANGES ChangeLog \
 config.guess configure config.sub \
 configure.in Makefile.in install-sh \
-util.gpr.in util_http.gpr.in config.gpr util_unit.gpr.in tests.gpr samples.gpr \
+util.gpr.in util_http.gpr.in config.gpr util_unit.gpr.in tests.gpr tests_proc.gpr samples.gpr \
 util_http_aws.gpr.in util_http_curl.gpr.in \
 src samples regtests testutil \
 distrib support bundles debian
