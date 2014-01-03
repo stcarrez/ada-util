@@ -79,6 +79,7 @@ package body Util.Processes.Os is
                    Signal : in Positive := 15) is
       pragma Unreferenced (Sys);
       Result : Integer;
+      pragma Unreferenced (Result);
    begin
       Result := Sys_Kill (Integer (Proc.Pid), Integer (Signal));
    end Stop;
