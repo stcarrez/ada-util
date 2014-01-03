@@ -180,7 +180,7 @@ package body Util.Concurrent.Tests is
                end;
             end loop;
          exception
-            when others =>
+            when E : others =>
                Log.Error ("Exception raised", E);
                Ada.Text_IO.Put_Line ("Exception raised.");
 
