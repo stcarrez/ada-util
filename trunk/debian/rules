@@ -132,8 +132,10 @@ $(pkgname)$(aliversion)-unit-dev:
 	dh_install -p$@ usr/share/ada/adainclude/ada-util-unit/*.ad[bs] /usr/share/ada/adainclude/ada-util-unit
 	dh_strip -p$@ -X.a
 
+# Add specific link options when the libada_util.so shared library is created.  The -ld is passed but it
+# is lost from the ELF NEEDED list.
 override_dh_auto_configure:
-	dh_auto_configure -- --enable-ahven --enable-shared
+	dh_auto_configure -- --enable-ahven --enable-shared --enable-link-options-util=--no-as-needed,-ldl,--as-needed
 
 override_dh_auto_build:
 	dh_auto_build
