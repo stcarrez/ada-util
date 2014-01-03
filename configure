@@ -613,6 +613,8 @@ WITH_UTIL_AWS
 UTIL_HAVE_AWS
 AWS_DIR
 UTIL_HAVE_VECTOR_MAPPERS
+UTIL_CURL_LIBRARY_OPTIONS
+UTIL_LIBRARY_OPTIONS
 UTIL_GNAT_TRACEBACK
 BUILDS_SHARED
 UTIL_HAVE_XML
@@ -708,6 +710,8 @@ enable_curl
 enable_aws
 with_aws
 enable_vector_mappers
+enable_link_options_util
+enable_link_options_curl
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1339,6 +1343,10 @@ Optional Features:
   --enable-curl           Enable the CURL HTTP client support in Ada Util (enabled)
   --enable-aws            Enable the AWS HTTP client support in Ada Util (enabled)
   --enable-vector-mappers Enable the Util.Serialize.Mappers.Vector_Mappers package (enabled)
+  --enable-link-options-util=opts
+                          Add some linker options when building the Ada Util shared library (disabled)
+  --enable-link-options-curl=opts
+                          Add some linker options when building the Ada Util Curl shared library (disabled)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -4086,6 +4094,44 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_enable_vector_mappers}" >&5
 $as_echo "${ac_enable_vector_mappers}" >&6; }
 UTIL_HAVE_VECTOR_MAPPERS=$ac_enable_vector_mappers
+
+# Check whether --enable-link-options-util was given.
+if test "${enable_link_options_util+set}" = set; then :
+  enableval=$enable_link_options_util;
+  UTIL_LIBRARY_OPTIONS=${enableval}
+
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for additional linker options for libada_util" >&5
+$as_echo_n "checking for additional linker options for libada_util... " >&6; }
+if test "T${UTIL_LIBRARY_OPTIONS}" != T; then
+    UTIL_LIBRARY_OPTIONS="\"-Wl,${UTIL_LIBRARY_OPTIONS}\""
+    opts=${UTIL_LIBRARY_OPTIONS}
+else
+    opts=none
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $opts" >&5
+$as_echo "$opts" >&6; }
+
+
+# Check whether --enable-link-options-curl was given.
+if test "${enable_link_options_curl+set}" = set; then :
+  enableval=$enable_link_options_curl;
+  UTIL_CURL_LIBRARY_OPTIONS=${enableval}
+
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for additional linker options for libada_util_curl" >&5
+$as_echo_n "checking for additional linker options for libada_util_curl... " >&6; }
+if test "T${UTIL_CURL_LIBRARY_OPTIONS}" != T; then
+    UTIL_CURL_LIBRARY_OPTIONS="\"-Wl,${UTIL_CURL_LIBRARY_OPTIONS}\""
+    opts=${UTIL_CURL_LIBRARY_OPTIONS}
+else
+    opts=none
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $opts" >&5
+$as_echo "$opts" >&6; }
+
 
 
 
