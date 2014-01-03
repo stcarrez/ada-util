@@ -9,37 +9,41 @@ project Util_Http_Curl is
    
    Library_Type : Config.Library_Type_Type := external ("LIBRARY_TYPE", "static");
 
-   for Source_Dirs use ("src/http/curl");
-
    case Has_Curl is
       when "yes" =>
-         for Source_Dirs use Project'Source_Dirs & ("src/http/curl");
-	    
+         for Source_Dirs use ("src/http/curl");
+         for Library_Name use "ada_util_curl";
+         for Library_Kind use Library_Type;
+         for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
+         for Library_Options use (@UTIL_CURL_LIBRARY_OPTIONS@);
+
+         for Library_Dir use "lib/util-curl/" & Project'Library_Kind;
+         for Object_Dir use "obj/util-curl/" & Project'Library_Kind;
+
+         case Library_Type is
+            when "relocatable" =>
+                for Library_Interface use ("Util.Http.Clients.Curl");
+
+            when others =>
+                null;
+
+         end case;
+        
       when "no" =>
-         null;
-	    
+         for Source_Dirs use ();
+
    end case;
    
-   for Library_Name use "ada_util_curl";
-   for Library_Kind use Library_Type;
-   for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
-   for Library_Options use (@UTIL_CURL_LIBRARY_OPTIONS@);
-
-   for Library_Dir use "lib/util-curl/" & Project'Library_Kind;
-   for Object_Dir use "obj/util-curl/" & Project'Library_Kind;
-
    package Linker is
-      for Linker_Options use ("-lcurl");
+      case Has_Curl is
+         when "yes" =>
+            for Linker_Options use ("-lcurl");
+
+         when "no" =>
+            null;
+
+      end case;
    end Linker;
-
-   case Library_Type is
-      when "relocatable" =>
-           for Library_Interface use ("Util.Http.Clients.Curl");
-
-	  when others =>
-	      null;
-
-   end case;
 
    package Builder  renames Config.Builder;
    package Compiler renames Config.Compiler;
