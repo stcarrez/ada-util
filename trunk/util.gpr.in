@@ -14,11 +14,14 @@ project Util is
    Asm_Src_Dir := "@UTIL_ASM_DIR@";
    Os_Version  : Os_Version_Type := "@UTIL_OS_VERSION@";
    Os_Src_Dir  := "src/@UTIL_OS_VERSION@";
+
+   --  Enable the compilation of Util.Serialize.Mappers.Vector_Mappers.
    Has_Vector_Mappers : Config.Yes_No := "@UTIL_HAVE_VECTOR_MAPPERS@";
 
-   Library_Type : Config.Library_Type_Type := external ("LIBRARY_TYPE", "static");
-
+   --  Enable the use of GNAT symbolic traceback.
    Has_Gnat_Traceback : Config.Yes_No := "@UTIL_GNAT_TRACEBACK@";
+
+   Library_Type : Config.Library_Type_Type := external ("LIBRARY_TYPE", "static");
    
    package Naming is
       case Xml_Version is
@@ -30,16 +33,16 @@ project Util is
             for Implementation ("Util.Serialize.IO.XML.Get_Location")
                use "util-serialize-io-xml-get_location-xmlada-3.adb";
 
-     when "none" =>
+         when "none" =>
 
       end case;
       case Has_Gnat_Traceback is
          when "yes" =>
-        for Implementation ("Util.Log.Loggers.Traceback")
+            for Implementation ("Util.Log.Loggers.Traceback")
                use "util-log-loggers-traceback-gnat.adb";
 
          when "no" =>
-        for Implementation ("Util.Log.Loggers.Traceback")
+            for Implementation ("Util.Log.Loggers.Traceback")
                use "util-log-loggers-traceback-none.adb";
 
       end case;
@@ -47,11 +50,11 @@ project Util is
       --  The GNAT traceback is not available for shared libraries.
       case Library_Type is
          when "relocatable" =>
-        for Implementation ("Util.Log.Loggers.Traceback")
+            for Implementation ("Util.Log.Loggers.Traceback")
                use "util-log-loggers-traceback-none.adb";
      
-     when others =>
-          null;
+         when others =>
+            null;
 
       end case;
    end Naming;
@@ -61,16 +64,17 @@ project Util is
    --  GCC 4.7 fails to build the Vector_Mapper generic package.
    case Has_Vector_Mappers is
       when "no" =>
-       for Excluded_Source_Files use ("util-serialize-mappers-vector_mapper.ads",
+         for Excluded_Source_Files use ("util-serialize-mappers-vector_mapper.ads",
                      "util-serialize-mappers-vector_mapper.adb",
                      "util-http-rest-rest_get_vector.ads",
                      "util-http-rest-rest_get_vector.adb");
 
       when "yes" =>
-       null;
+         null;
+
    end case;
 
-   for Library_Name use "ada_util";
+   --  The shared library must be self initialized 
    case Library_Type is
       when "relocatable" =>
            for Library_Interface use ("Util",
@@ -104,7 +108,7 @@ project Util is
                                       "Util.Serialize", "Util.Serialize.Contexts", "Util.Serialize.IO",
                                       "Util.Serialize.IO.Csv", "Util.Serialize.IO.Json",
                                       "Util.Serialize.Mappers", "Util.Serialize.Tools",
-									  "Util.Serialize.Mappers.Record_Mapper",
+                                      "Util.Serialize.Mappers.Record_Mapper",
                                       "Util.Stacks",
                                       "Util.Streams", "Util.Streams.Buffered", "Util.Streams.Files", 
                                       "Util.Streams.Pipes", "Util.Streams.Sockets", "Util.Streams.Texts",
@@ -154,6 +158,7 @@ project Util is
 
    end case;
 
+   for Library_Name use "ada_util";
    for Library_Kind use Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
    for Library_Options use (@UTIL_LIBRARY_OPTIONS@);
