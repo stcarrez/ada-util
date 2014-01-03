@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-tests-server - A small non-compliant-inefficient HTTP server used for unit tests
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2013, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 
 with GNAT.Sockets;
-with Util.Streams.Sockets;
 with Util.Log.Loggers;
 package body Util.Tests.Servers is
 
