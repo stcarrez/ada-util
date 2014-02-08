@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  facebook -- Get information about a Facebook user using the Facebook API
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,9 +68,9 @@ begin
          URI      : constant String := Ada.Command_Line.Argument (I);
          P        : aliased Mapping.Person;
       begin
-         Get_User ("https://graph.facebook.com/" & URI,
-                   Person_Mapping'Unchecked_Access,
-                   P'Unchecked_Access);
+         Get_User (URI     => "https://graph.facebook.com/" & URI,
+                   Mapping => Person_Mapping'Unchecked_Access,
+                   Into    => P'Unchecked_Access);
          Print (P);
       end;
    end loop;
