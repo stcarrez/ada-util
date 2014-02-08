@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  json -- JSON Reader
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@ with Ada.Command_Line;
 with Util.Serialize.IO.JSON;
 with Ada.Containers;
 with Mapping;
+with Util.Serialize.Mappers.Vector_Mapper;
 with Util.Streams.Texts;
 with Util.Streams.Buffered;
 procedure Json is
@@ -33,6 +34,15 @@ procedure Json is
    Reader : Util.Serialize.IO.JSON.Parser;
 
    Count  : constant Natural := Ada.Command_Line.Argument_Count;
+
+   package Person_Vector_Mapper is
+     new Util.Serialize.Mappers.Vector_Mapper (Vectors        => Person_Vector,
+                                               Element_Mapper => Person_Mapper);
+
+   subtype Person_Vector_Context is Person_Vector_Mapper.Vector_Data;
+
+   --  Mapping for a list of Person records (stored as a Vector).
+   Person_Vector_Mapping : aliased Person_Vector_Mapper.Mapper;
 
    procedure Print (P : in Mapping.Person_Vector.Cursor);
    procedure Print (P : in Mapping.Person);
@@ -62,6 +72,7 @@ begin
       return;
    end if;
 
+   Person_Vector_Mapping.Set_Mapping (Mapping.Get_Person_Mapper);
    Reader.Add_Mapping ("/list", Mapping.Get_Person_Vector_Mapper.all'Access);
    Reader.Add_Mapping ("/person", Mapping.Get_Person_Mapper.all'Access);
    for I in 1 .. Count loop
