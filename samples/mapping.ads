@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  mapping -- Example of serialization mappings
---  Copyright (C) 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,10 +19,8 @@ with Ada.Strings.Unbounded;
 
 with Util.Beans.Objects;
 with Util.Serialize.Mappers.Record_Mapper;
-with Util.Serialize.Mappers.Vector_Mapper;
 with Util.Serialize.Mappers;
 with Ada.Containers.Vectors;
-with Util.Serialize.Contexts;
 package Mapping is
 
    use Ada.Strings.Unbounded;
@@ -78,19 +76,10 @@ package Mapping is
      new Ada.Containers.Vectors (Element_Type => Person,
                                  Index_Type   => Natural);
 
-   package Person_Vector_Mapper is
-     new Util.Serialize.Mappers.Vector_Mapper (Vectors        => Person_Vector,
-                                               Element_Mapper => Person_Mapper);
-
-   subtype Person_Vector_Context is Person_Vector_Mapper.Vector_Data;
-
    --  Get the address mapper which describes how to load an Address.
    function Get_Address_Mapper return Util.Serialize.Mappers.Mapper_Access;
 
    --  Get the person mapper which describes how to load a Person.
    function Get_Person_Mapper return Person_Mapper.Mapper_Access;
-
-   --  Get the person vector mapper which describes how to load a list of Person.
-   function Get_Person_Vector_Mapper return Person_Vector_Mapper.Mapper_Access;
 
 end Mapping;
