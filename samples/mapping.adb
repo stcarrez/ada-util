@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  mapping -- Example of serialization mappings
---  Copyright (C) 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -187,9 +187,6 @@ package body Mapping is
    --  Mapping for the Person record.
    Person_Mapping        : aliased Person_Mapper.Mapper;
 
-   --  Mapping for a list of Person records (stored as a Vector).
-   Person_Vector_Mapping : aliased Person_Vector_Mapper.Mapper;
-
    --  ------------------------------
    --  Get the address mapper which describes how to load an Address.
    --  ------------------------------
@@ -205,14 +202,6 @@ package body Mapping is
    begin
       return Person_Mapping'Access;
    end Get_Person_Mapper;
-
-   --  ------------------------------
-   --  Get the person vector mapper which describes how to load a list of Person.
-   --  ------------------------------
-   function Get_Person_Vector_Mapper return Person_Vector_Mapper.Mapper_Access is
-   begin
-      return Person_Vector_Mapping'Access;
-   end Get_Person_Vector_Mapper;
 
    --  ------------------------------
    --  Helper to give access to the <b>Address</b> member of a <b>Person</b>.
@@ -258,5 +247,4 @@ begin
    --  Person_Mapper.Add_Mapping ("info/*");
    --  Person_Mapper.Add_Mapping ("address/street/@number");
 
-   Person_Vector_Mapping.Set_Mapping (Person_Mapping'Access);
 end Mapping;
