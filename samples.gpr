@@ -7,7 +7,7 @@ project Samples is
    Mains := ("measures.adb", "properties.adb", "log.adb",
    "bundles.adb", "escape.adb", "encodes.adb", "popen.adb",
    "multipro.adb", "multipro_refs.adb", "date.adb",
-   "csv_city.adb", "csv_reader.adb", "launch.adb", "gperfhash.adb",
+   "csv_reader.adb", "launch.adb", "gperfhash.adb",
    "cut.adb", "xmi.adb");
 
    for Main use Mains;
@@ -15,7 +15,7 @@ project Samples is
    --  GCC 4.7 fails to instantiate the Vector_Mapper generic package.
    case Util.Has_Vector_Mappers is
       when "yes" =>
-         for Main use Mains & ("json.adb", "xmlrd.adb");
+         for Main use Mains & ("json.adb", "xmlrd.adb", "csv_city.adb");
 
       when "no" =>
          null;
