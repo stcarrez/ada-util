@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Serialize.Mappers.Vector_Mapper -- Mapper for vector types
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,7 +59,7 @@ package body Util.Serialize.Mappers.Vector_Mapper is
    --  -----------------------
    procedure Set_Context (Ctx  : in out Util.Serialize.Contexts.Context'Class;
                           Data : in Vector_Type_Access) is
-      Data_Context : Vector_Data_Access := new Vector_Data;
+      Data_Context : constant Vector_Data_Access := new Vector_Data;
    begin
       Data_Context.Vector   := Data;
       Data_Context.Position := Index_Type'First;
