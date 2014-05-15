@@ -10,6 +10,12 @@ project Util is
    Xml_Version : Xml_Version_Type := "@UTIL_XML_VERSION@";
    Has_Libdl : Bool := "@UTIL_HAS_LIBDL@";
 
+   --  Enable the compilation of Util.Serialize.Mappers.Vector_Mappers.
+   Has_Vector_Mappers : Bool := "@UTIL_HAVE_VECTOR_MAPPERS@";
+
+   --  Enable the use of GNAT symbolic traceback.
+   Has_Gnat_Traceback : Bool := "@UTIL_GNAT_TRACEBACK@";
+
    for Library_Name use "ada_util";
    for Library_Dir use Prefix & "/lib";
    for Library_Kind use "LIBRARY_TYPE";
