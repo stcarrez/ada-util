@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Concurrent.Fifos -- Concurrent Fifo Queues
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -174,7 +174,7 @@ package body Util.Concurrent.Fifos is
             Elements := new Element_Array (First_Pos .. Capacity);
          else
             declare
-               New_Array : Element_Array_Access := new Element_Array (First_Pos .. Capacity);
+               New_Array : constant Element_Array_Access := new Element_Array (First_Pos .. Capacity);
             begin
                if Capacity > Elements'Length then
                   New_Array (First_Pos .. Elements'Last) := Elements (First_Pos .. Elements'Last);
