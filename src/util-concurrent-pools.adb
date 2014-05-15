@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Concurrent.Pools -- Concurrent Pools
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -90,7 +90,7 @@ package body Util.Concurrent.Pools is
             Elements := new Element_Array (1 .. Capacity);
          else
             declare
-               New_Array : Element_Array_Access := new Element_Array (1 .. Capacity);
+               New_Array : constant Element_Array_Access := new Element_Array (1 .. Capacity);
             begin
                if Capacity > Elements'Size then
                   New_Array (1 .. Elements'Last) := Elements (1 .. Elements'Last);
