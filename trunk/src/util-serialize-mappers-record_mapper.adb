@@ -267,7 +267,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
    --  Clone the <b>Handler</b> instance and get a copy of that single object.
    --  -----------------------
    function Clone (Handler : in Mapper) return Util.Serialize.Mappers.Mapper_Access is
-      Result : Mapper_Access := new Mapper;
+      Result : constant Mapper_Access := new Mapper;
    begin
       Result.Name             := Handler.Name;
       Result.Mapper           := Handler.Mapper;
