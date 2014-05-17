@@ -14,7 +14,7 @@ LIBRARY_TYPE=static
 .NOTPARALLEL:
 
 aliversion := $(shell sed -n -r 's/^Package: libada-util([^-]*)-dev$$/\1/p' debian/control)
-soversion := $(shell sed -n -r 's/^Package: libada-util([^-]+)$$/\1/p' debian/control).0
+soversion := $(shell sed -n -r 's/^Package: libada-util([^-]+)$$/\1/p' debian/control).1
 CPUS := $(shell getconf _NPROCESSORS_ONLN)
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 package=libada-util-dev

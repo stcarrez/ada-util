@@ -1,1 +1,1 @@
-libada-util1.7: shlib-with-executable-stack usr/lib/*/libada_util.so.1.7.0
+libada-util1.7: shlib-with-executable-stack usr/lib/*/libada_util.so.1.7.1
