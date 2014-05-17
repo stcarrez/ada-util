@@ -1,3 +1,9 @@
+libada-util (1.7.1) testing; urgency=low
+
+  * Fix build for XmlAda 2014
+
+ -- Stephane Carrez <Stephane.Carrez@gmail.com>  Fri, 16 May 2014 21:05:41 +0200
+
 libada-util (1.7.0) testing; urgency=low
 
   * Initial Release.
