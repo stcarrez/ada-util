@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util -- Unit tests for properties
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -146,6 +146,62 @@ package body Util.Properties.Tests is
       end;
    end Test_Copy_Property;
 
+   procedure Test_Set_Preserve_Original (T : in out Test) is
+      Props1 : Properties.Manager;
+   begin
+      Props1.Set ("a", "b");
+      Props1.Set ("c", "d");
+      declare
+         Props2 : Properties.Manager;
+      begin
+         Props2 := Props1;
+         T.Assert (Props2.Exists ("a"), "Property a not found in props2 after assignment");
+         T.Assert (Props2.Exists ("c"), "Property b not found in props2 after assignment");
+         Util.Tests.Assert_Equals (T, "b", String '(Props2.Get ("a")), "Invalid property a");
+         Props1.Set ("a", "d");
+         Util.Tests.Assert_Equals (T, "d", String '(Props1.Get ("a")),
+                                   "Wrong property a in props1");
+         Util.Tests.Assert_Equals (T, "b", String '(Props2.Get ("a")),
+                                   "Wrong property a in props2");
+         Props2 := Props1;
+         Util.Tests.Assert_Equals (T, "d", String '(Props2.Get ("a")),
+                                   "Wrong property a in props2");
+         Props2.Set ("e", "f");
+         Props2.Set ("c", "g");
+         Props1 := Props2;
+
+         --  Release Props2 but the property manager is internally shared so the Props1 is
+         --  not changed.
+      end;
+      T.Assert (Props1.Exists ("e"), "Property e not found in props1 after assignment");
+      T.Assert (Props1.Exists ("c"), "Property c not found in props1 after assignment");
+      Util.Tests.Assert_Equals (T, "g", String '(Props1.Get ("c")),
+                                "Wrong property c in props1");
+   end Test_Set_Preserve_Original;
+
+   procedure Test_Remove_Preserve_Original (T : in out Test) is
+      Props1 : Properties.Manager;
+   begin
+      Props1.Set ("a", "b");
+      Props1.Set ("c", "d");
+      declare
+         Props2 : Properties.Manager;
+      begin
+         Props2 := Props1;
+         T.Assert (Props2.Exists ("a"), "Property a not found in props2 after assignment");
+         T.Assert (Props2.Exists ("c"), "Property b not found in props2 after assignment");
+         Props1.Remove ("a");
+         T.Assert (not Props1.Exists ("a"), "Property a was not removed from props1");
+         T.Assert (Props2.Exists ("a"), "Property a was removed from props2");
+         Props1 := Props2;
+
+         --  Release Props2 but the property manager is internally shared so the Props1 is
+         --  not changed.
+      end;
+      Util.Tests.Assert_Equals (T, "b", String '(Props1.Get ("a")),
+                                "Wrong property a in props1");
+   end Test_Remove_Preserve_Original;
+
    package Caller is new Util.Test_Caller (Test, "Properties");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -169,6 +225,10 @@ package body Util.Properties.Tests is
                        Test_Load_Strip_Property'Access);
       Caller.Add_Test (Suite, "Test Util.Properties.Copy",
                        Test_Copy_Property'Access);
+      Caller.Add_Test (Suite, "Test Util.Properties.Set+Assign",
+                       Test_Set_Preserve_Original'Access);
+      Caller.Add_Test (Suite, "Test Util.Properties.Set+Assign+Remove",
+                       Test_Remove_Preserve_Original'Access);
    end Add_Tests;
 
 end Util.Properties.Tests;
