@@ -107,18 +107,16 @@ package body Util.Properties.Bundles is
       use Util.Properties.Interface_P;
    begin
       Object.Impl := new Util.Properties.Bundles.Interface_P.Manager;
-      Object.Impl.Count := 1;
+      Util.Concurrent.Counters.Increment (Object.Impl.Count);
    end Initialize;
 
    procedure Adjust (Object : in out Manager) is
       use Util.Properties.Interface_P;
    begin
-      if Object.Impl /= null then
-         Object.Impl.Count := Object.Impl.Count + 1;
-      else
+      if Object.Impl = null then
          Object.Impl := new Util.Properties.Bundles.Interface_P.Manager;
-         Object.Impl.Count := 1;
       end if;
+      Util.Concurrent.Counters.Increment (Object.Impl.Count);
    end Adjust;
 
    --  ------------------------------
@@ -189,7 +187,7 @@ package body Util.Properties.Bundles is
                if Bundle_Map.Has_Element (Pos) then
                   Bundle.Finalize;
                   Bundle.Impl := Bundle_Map.Element (Pos).Impl;
-                  Bundle.Impl.Count := Bundle.Impl.Count + 1;
+                  Util.Concurrent.Counters.Increment (Bundle.Impl.Count);
                   Found := True;
                   exit;
                end if;
