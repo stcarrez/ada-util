@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  factories -- Factory for property manager implementation
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +32,7 @@ package body Util.Properties.Factories is
          else
             Properties.Impl := Property_Manager_Factory.all;
          end if;
-         Properties.Impl.Count := 1;
+         Util.Concurrent.Counters.Increment (Properties.Impl.Count);
       end if;
    end Initialize;
 
