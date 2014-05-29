@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -108,14 +108,17 @@ package body Util.Properties is
    begin
       if Self.Impl = null then
          Util.Properties.Factories.Initialize (Self);
-         Self.Impl.Count := 1;
-      elsif Self.Impl.Count > 1 then
+      elsif Util.Concurrent.Counters.Value (Self.Impl.Count) > 1 then
          declare
-            Old : constant Interface_P.Manager_Access := Self.Impl;
+            Old     : Interface_P.Manager_Access := Self.Impl;
+            Is_Zero : Boolean;
          begin
             Self.Impl := Create_Copy (Self.Impl.all);
-            Self.Impl.Count := 1;
-            Old.Count := Old.Count - 1;
+            Util.Concurrent.Counters.Increment (Self.Impl.Count);
+            Util.Concurrent.Counters.Decrement (Old.Count, Is_Zero);
+            if Is_Zero then
+               Delete (Old.all, Old);
+            end if;
          end;
       end if;
    end Check_And_Create_Impl;
@@ -173,6 +176,7 @@ package body Util.Properties is
       if Self.Impl = null then
          raise NO_PROPERTY;
       end if;
+      Check_And_Create_Impl (Self);
       Remove (Self.Impl.all, +Name);
    end Remove;
 
@@ -185,6 +189,7 @@ package body Util.Properties is
       if Self.Impl = null then
          raise NO_PROPERTY;
       end if;
+      Check_And_Create_Impl (Self);
       Remove (Self.Impl.all, Name);
    end Remove;
 
@@ -222,15 +227,16 @@ package body Util.Properties is
    procedure Adjust (Object : in out Manager) is
    begin
       if Object.Impl /= null then
-         Object.Impl.Count := Object.Impl.Count + 1;
+         Util.Concurrent.Counters.Increment (Object.Impl.Count);
       end if;
    end Adjust;
 
    procedure Finalize (Object : in out Manager) is
+      Is_Zero : Boolean;
    begin
       if Object.Impl /= null then
-         Object.Impl.Count := Object.Impl.Count - 1;
-         if Object.Impl.Count = 0 then
+         Util.Concurrent.Counters.Decrement (Object.Impl.Count, Is_Zero);
+         if Is_Zero then
             Delete (Object.Impl.all, Object.Impl);
          end if;
       end if;
@@ -241,7 +247,7 @@ package body Util.Properties is
    begin
       if Self.Impl = null then
          Self.Impl := Impl;
-         Self.Impl.Count := 1;
+--           Self.Impl.Count := 1;
       end if;
    end Set_Property_Implementation;
 
