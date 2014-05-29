@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
 with Ada.Strings.Unbounded;
 with Ada.Finalization;
 with Ada.Text_IO;
+with Util.Concurrent.Counters;
 package Util.Properties is
 
    NO_PROPERTY : exception;
@@ -144,7 +145,7 @@ private
    package Interface_P is
 
       type Manager is abstract tagged limited record
-         Count : Natural := 0;
+         Count : Util.Concurrent.Counters.Counter;
       end record;
       type Manager_Access is access all Manager'Class;
 
