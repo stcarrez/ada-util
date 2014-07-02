@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates -- Date utilities
---  Copyright (C) 2011, 2013 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,8 @@ package body Util.Dates is
    procedure Split (Into       : out Date_Record;
                     Date       : in Ada.Calendar.Time;
                     Time_Zone  : in Ada.Calendar.Time_Zones.Time_Offset := 0) is
+      use Ada.Calendar;
+      D : Ada.Calendar.Time := Date;
    begin
       Into.Date      := Date;
       Into.Time_Zone := Time_Zone;
@@ -36,7 +38,19 @@ package body Util.Dates is
                                      Sub_Second  => Into.Sub_Second,
                                      Leap_Second => Into.Leap_Second,
                                      Time_Zone   => Time_Zone);
-      Into.Day := Ada.Calendar.Formatting.Day_Of_Week (Date);
+
+      --  The Day_Of_Week function uses the local timezone to find the week day.
+      --  The wrong day is computed if the timezone is different.  If the current
+      --  date is 23:30 GMT and the current system timezone is GMT+2, then the computed
+      --  day of week will be the next day due to the +2 hour offset (01:30 AM).
+      --  To avoid the timezone issue, we virtually force the hour to 12:00 am.
+      if Into.Hour > 12 then
+         D := D - Duration ((Into.Hour - 12) * 3600);
+      elsif Into.Hour < 12 then
+         D := D + Duration ((12 - Into.Hour) * 3600);
+      end if;
+      D := D - Duration ((60 - Into.Minute) * 60);
+      Into.Day := Ada.Calendar.Formatting.Day_Of_Week (D);
    end Split;
 
    --  ------------------------------
@@ -148,12 +162,11 @@ package body Util.Dates is
                                                  Second      => 0,
                                                  Sub_Second  => 0.0,
                                                  Time_Zone   => Date.Time_Zone);
-      Day : constant Ada.Calendar.Formatting.Day_Name := Ada.Calendar.Formatting.Day_Of_Week (T);
    begin
-      if Day = Ada.Calendar.Formatting.Monday then
+      if Date.Day = Ada.Calendar.Formatting.Monday then
          return T;
       else
-         return T - Day_Count (Day_Name'Pos (Day) - Day_Name'Pos (Monday));
+         return T - Day_Count (Day_Name'Pos (Date.Day) - Day_Name'Pos (Monday));
       end if;
    end Get_Week_Start;
 
@@ -179,13 +192,12 @@ package body Util.Dates is
                                                  Second      => 59,
                                                  Sub_Second  => 0.999,
                                                  Time_Zone   => Date.Time_Zone);
-      Day : constant Ada.Calendar.Formatting.Day_Name := Ada.Calendar.Formatting.Day_Of_Week (T);
    begin
       --  End of week is 6 days + 23:59:59
-      if Day = Ada.Calendar.Formatting.Monday then
-         return T + Day_Count (6);
+      if Date.Day = Ada.Calendar.Formatting.Sunday then
+         return T;
       else
-         return T + Day_Count (6 - (Day_Name'Pos (Day) - Day_Name'Pos (Monday)));
+         return T + Day_Count (6 - (Day_Name'Pos (Date.Day) - Day_Name'Pos (Monday)));
       end if;
    end Get_Week_End;
 
