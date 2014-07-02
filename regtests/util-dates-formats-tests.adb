@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-formats-tests - Test for date formats
---  Copyright (C) 2011, 2013 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
 
 with Ada.Calendar.Formatting;
 with Util.Test_Caller;
+with Util.Assertions;
 with Util.Properties.Bundles;
 with Util.Log.Loggers;
 package body Util.Dates.Formats.Tests is
@@ -31,6 +32,8 @@ package body Util.Dates.Formats.Tests is
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
+      Caller.Add_Test (Suite, "Test Util.Dates.Split",
+                       Test_Split'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.Formats.Format",
                        Test_Format'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.Get_Day_Start",
@@ -187,14 +190,14 @@ package body Util.Dates.Formats.Tests is
    --  ------------------------------
    procedure Test_Get_Week_End (T : in out Test) is
    begin
-      Check (T, 2013, 6, 04, 08, "Get_Week_End", True, Get_Week_End'Access);
-      Check (T, 2013, 6, 03, 08, "Get_Week_End", True, Get_Week_End'Access);
-      Check (T, 2013, 6, 05, 08, "Get_Week_End", True, Get_Week_End'Access);
-      Check (T, 2013, 6, 08, 08, "Get_Week_End", True, Get_Week_End'Access);
-      Check (T, 2010, 2, 14, 20, "Get_Week_End", True, Get_Week_End'Access);
-      Check (T, 2010, 2, 13, 13, "Get_Week_End", True, Get_Week_End'Access);
-      Check (T, 2010, 2, 10, 13, "Get_Week_End", True, Get_Week_End'Access);
-      Check (T, 2010, 2, 15, 20, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2013, 6, 04, 09, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2013, 6, 03, 09, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2013, 6, 05, 09, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2013, 6, 08, 09, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2010, 2, 14, 14, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2010, 2, 13, 14, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2010, 2, 10, 14, "Get_Week_End", True, Get_Week_End'Access);
+      Check (T, 2010, 2, 15, 21, "Get_Week_End", True, Get_Week_End'Access);
    end Test_Get_Week_End;
 
    --  ------------------------------
@@ -206,5 +209,25 @@ package body Util.Dates.Formats.Tests is
       Check (T, 2010, 2, 14, 28, "Get_Month_End", True, Get_Month_End'Access);
       Check (T, 2000, 2, 14, 29, "Get_Month_End", True, Get_Month_End'Access);
    end Test_Get_Month_End;
+
+   --  ------------------------------
+   --  Test the Split operation.
+   --  ------------------------------
+   procedure Test_Split (T : in out Test) is
+      procedure Assert_Equals is
+         new Util.Assertions.Assert_Equals_T (Ada.Calendar.Formatting.Day_Name);
+
+      Date : constant Ada.Calendar.Time := Ada.Calendar.Formatting.Time_Of (2014, 11, 12,
+                                                                            23, 30, 0);
+      D    : Date_Record;
+   begin
+      Split (D, Date);
+      Util.Tests.Assert_Equals (T, 2014, Natural (D.Year), "Invalid year ");
+      Util.Tests.Assert_Equals (T, 11, Natural (D.Month), "Invalid month ");
+      Util.Tests.Assert_Equals (T, 12, Natural (D.Month_Day), "Invalid day ");
+      Util.Tests.Assert_Equals (T, 23, Natural (D.Hour), "Invalid hour ");
+      Util.Tests.Assert_Equals (T, 30, Natural (D.Minute), "Invalid minute ");
+      Assert_Equals (T, Ada.Calendar.Formatting.Wednesday, D.Day, "Invalid day ");
+   end Test_Split;
 
 end Util.Dates.Formats.Tests;
