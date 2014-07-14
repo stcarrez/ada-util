@@ -106,8 +106,9 @@ package body Util.Tests.Reporter is
    -- Report --
    ------------
 
-   procedure Report (Engine : XML_Reporter;
-                     R      : in out Result'Class)
+   procedure Report (Engine  : in XML_Reporter;
+                     R       : in out Result'Class;
+                     Options : in AUnit.Options.AUnit_Options := AUnit.Options.Default_Options)
    is
       Output : Ada.Text_IO.File_Type;
    begin
