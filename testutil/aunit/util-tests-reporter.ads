@@ -26,6 +26,7 @@
 
 with AUnit.Reporter;
 with AUnit.Test_Results;
+with AUnit.Options;
 
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
@@ -37,8 +38,10 @@ package Util.Tests.Reporter is
       File : Ada.Strings.Unbounded.Unbounded_String;
    end record;
 
-   procedure Report (Engine : XML_Reporter;
-                     R      : in out AUnit.Test_Results.Result'Class);
+   overriding
+   procedure Report (Engine  : in XML_Reporter;
+                     R       : in out AUnit.Test_Results.Result'Class;
+                     Options : in AUnit.Options.AUnit_Options := AUnit.Options.Default_Options);
 
    procedure Report (Engine : XML_Reporter;
                      File   : in out Ada.Text_IO.File_Type;
