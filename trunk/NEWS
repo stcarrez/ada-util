@@ -1,5 +1,7 @@
-Version 1.7.1   -
+Version 1.7.1   - Jul 2014
   - Support XmlAda 2014
+  - Fixed Get_Week_Start/Get_Week_End when the system timezone is
+    different than the asked timezone
 
 Version 1.7     - Feb 2014
   - Added a text and string builder
