@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-system-os -- Unix system operations
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@ with Interfaces.C;
 with Interfaces.C.Strings;
 with Util.Processes;
 with Util.Systems.Constants;
+with Util.Systems.Types;
 
 --  The <b>Util.Systems.Os</b> package defines various types and operations which are specific
 --  to the OS (Unix).
@@ -125,5 +126,13 @@ package Util.Systems.Os is
    function Sys_Kill (Pid : in Integer;
                       Signal : in Integer) return Integer;
    pragma Import (C, Sys_Kill, "kill");
+
+   function Sys_Stat (Path : in Ptr;
+                      Stat : access Util.Systems.Types.Stat_Type) return Integer;
+   pragma Import (C, Sys_Stat, "stat");
+
+   function Sys_Fstat (Fs : in File_Type;
+                       Stat : access Util.Systems.Types.Stat_Type) return Integer;
+   pragma Import (C, Sys_Fstat, "fstat");
 
 end Util.Systems.Os;
