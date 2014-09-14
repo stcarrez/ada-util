@@ -29,6 +29,7 @@ project Tests is
    case Util.Os_Version is
       when "os-linux" =>
 	  	 for Source_Dirs use project'Source_Dirs & ("regtests/dlls");
+	  	 for Source_Dirs use project'Source_Dirs & ("regtests/systems");
 
       when "os-win32" =>
 	  	 for Source_Dirs use project'Source_Dirs & ("regtests/dlls");
