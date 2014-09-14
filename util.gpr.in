@@ -136,7 +136,8 @@ project Util is
            case Os_Version is
            when "os-linux" | "os-win32" =>
               for Library_Interface use Project'Library_Interface &
-                                    ("Util.Streams.Raw", "Util.Systems.Dlls", "Util.Systems.Os");
+                                    ("Util.Streams.Raw", "Util.Systems.Dlls", "Util.Systems.Os",
+                                     "Util.Systems.Types");
 
            when others =>
               null;
