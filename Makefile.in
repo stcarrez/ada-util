@@ -86,6 +86,7 @@ install: install_static
 endif
 
 UTIL_GEN_FILES=src/util-systems-constants.ads
+UTIL_GEN_FILES+=src/util-systems-types.ads
 ifeq (${HAVE_CURL},yes)
 UTIL_GEN_FILES+=src/http/curl/util-http-clients-curl-constants.ads
 endif
@@ -306,6 +307,9 @@ prepare-release:
 
 src/util-systems-constants.ads:	bin/utilgen
 	bin/utilgen > $@
+
+src/util-systems-types.ads:	bin/utilgen
+	bin/utilgen types > $@
 
 src/http/curl/util-http-clients-curl-constants.ads:	bin/utilgen
 	bin/utilgen curl > $@
