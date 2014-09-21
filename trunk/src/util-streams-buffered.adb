@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Streams.Buffered -- Buffered streams Stream utilities
---  Copyright (C) 2010, 2011, 2013 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2013, 2014 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -296,7 +296,7 @@ package body Util.Streams.Buffered is
             Stream.Fill;
             Pos := Stream.Read_Pos;
             Avail := Stream.Write_Pos - Pos;
-            exit when Avail = 0;
+            exit when Avail <= 0;
          end if;
          if Avail < Size then
             Size := Avail;
