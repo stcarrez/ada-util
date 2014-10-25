@@ -45,6 +45,22 @@
 # define NEED_PADDING 0
 #endif
 
+#ifndef S_IFLNK
+# define S_IFLNK 0
+#endif
+
+#ifndef S_IFSOCK
+# define S_IFSOCK 0
+#endif
+
+#ifndef S_ISUID
+# define S_ISUID 0
+#endif
+
+#ifndef S_ISGID
+# define S_ISGID 0
+#endif
+
 #define SIGNED   1
 #define UNSIGNED 0
 
@@ -147,11 +163,22 @@ void gen_stat(void)
     printf("   end record;\n");
     printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
     printf("\n");
-    printf("end Util.Systems.Types;\n");
-    if (NEED_PADDING) {
-        printf("      pad3       : Interfaces.C.unsigned_long;\n");
-        printf("      pad4       : Interfaces.C.unsigned_long;\n");
-    }
+#elif defined(_WIN32)
+    printf("   type Stat_Type is record\n");
+    printf("      st_dev      : dev_t;\n");
+    printf("      st_ino      : ino_t;\n");
+    printf("      st_mode     : mode_t;\n");
+    printf("      st_nlink    : nlink_t;\n");
+    printf("      st_uid      : uid_t;\n");
+    printf("      st_gid      : gid_t;\n");
+    printf("      st_rdev     : dev_t;\n");
+    printf("      st_size     : off_t;\n");
+    printf("      st_atim     : Timespec;\n");
+    printf("      st_mtim     : Timespec;\n");
+    printf("      st_ctim     : Timespec;\n");
+    printf("   end record;\n");
+    printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
+    printf("\n");
 #endif
 }
 
@@ -191,11 +218,17 @@ int main(int argc, char** argv)
     gen_type("dev_t", UNSIGNED, sizeof(st.st_dev));
     gen_type("ino_t", UNSIGNED, sizeof(st.st_ino));
     gen_type("off_t", SIGNED, sizeof(off_t));
+#ifndef _WIN32
     gen_type("blksize_t", SIGNED, sizeof(blksize_t));
     gen_type("blkcnt_t", SIGNED, sizeof(blkcnt_t));
     gen_type("uid_t", UNSIGNED, sizeof(uid_t));
     gen_type("gid_t", UNSIGNED, sizeof(gid_t));
     gen_type("nlink_t", UNSIGNED, sizeof(nlink_t));
+#else
+    gen_type("uid_t", UNSIGNED, sizeof(short));
+    gen_type("gid_t", UNSIGNED, sizeof(short));
+    gen_type("nlink_t", UNSIGNED, sizeof(short));
+#endif
     gen_type("mode_t", UNSIGNED, sizeof(mode_t));
     printf("\n");
     printf("   S_IFMT   : constant mode_t := 8#%08o#;\n", S_IFMT);
