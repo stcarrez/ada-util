@@ -19,6 +19,7 @@
 with System;
 with Interfaces.C;
 with Interfaces.C.Strings;
+with Util.Systems.Types;
 
 --  The <b>Util.Systems.Os</b> package defines various types and operations which are specific
 --  to the OS (Windows).
@@ -117,6 +118,7 @@ package Util.Systems.Os is
 
    subtype LPWSTR is Interfaces.C.Strings.chars_ptr;
    subtype PBYTE is Interfaces.C.Strings.chars_ptr;
+   subtype Ptr is Interfaces.C.Strings.chars_ptr;
    subtype LPCTSTR is System.Address;
    subtype LPTSTR is System.Address;
    type CommandPtr is access all Interfaces.C.wchar_array;
@@ -177,6 +179,14 @@ package Util.Systems.Os is
    function Terminate_Process (Proc : in HANDLE;
                                Code : in DWORD) return Integer;
    pragma Import (Stdcall, Terminate_Process, "TerminateProcess");
+
+   function Sys_Stat (Path : in LPWSTR;
+                      Stat : access Util.Systems.Types.Stat_Type) return Integer;
+   pragma Import (C, Sys_Stat, "_stat64");
+
+   function Sys_Fstat (Fs : in File_Type;
+                       Stat : access Util.Systems.Types.Stat_Type) return Integer;
+   pragma Import (C, Sys_Fstat, "_fstat64");
 
 private
 
