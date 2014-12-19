@@ -141,6 +141,8 @@ void gen_stat(void)
     printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
     printf("\n");
 #elif defined(__FreeBSD__)
+    struct stat st;
+
     printf("   type Stat_Type is record\n");
     printf("      st_dev      : dev_t;\n");
     printf("      st_ino      : ino_t;\n");
