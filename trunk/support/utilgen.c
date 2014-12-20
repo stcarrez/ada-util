@@ -165,6 +165,31 @@ void gen_stat(void)
     printf("   end record;\n");
     printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
     printf("\n");
+#elif defined(__NetBSD__)
+    struct stat st;
+
+    printf("   type Stat_Type is record\n");
+    printf("      st_dev       : dev_t;\n");
+    printf("      st_mode      : mode_t;\n");
+    printf("      st_ino       : ino_t;\n");
+    printf("      st_nlink     : nlink_t;\n");
+    printf("      st_uid       : uid_t;\n");
+    printf("      st_gid       : gid_t;\n");
+    printf("      st_rdev      : dev_t;\n");
+    printf("      st_atim      : Timespec;\n");
+    printf("      st_mtim      : Timespec;\n");
+    printf("      st_ctim      : Timespec;\n");
+    printf("      st_birthtime : Timespec;\n");
+    printf("      st_size      : off_t;\n");
+    printf("      st_blocks    : blkcnt_t;\n");
+    printf("      st_blksize   : blksize_t;\n");
+    printf("      st_flags     : %s;\n", get_type(UNSIGNED, sizeof(st.st_gen)));
+    printf("      st_gen       : %s;\n", get_type(UNSIGNED, sizeof(st.st_gen)));
+    printf("      st_spare1    : %s;\n", get_type(UNSIGNED, sizeof(st.st_spare[0])));
+    printf("      st_spare2    : %s;\n", get_type(UNSIGNED, sizeof(st.st_spare[1])));
+    printf("   end record;\n");
+    printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
+    printf("\n");
 #elif defined(_WIN32)
     printf("   type Stat_Type is record\n");
     printf("      st_dev      : dev_t;\n");
