@@ -201,9 +201,9 @@ void gen_stat(void)
     printf("      st_gid      : gid_t;\n");
     printf("      st_rdev     : dev_t;\n");
     printf("      st_size     : off_t;\n");
-    printf("      st_atim     : Timespec;\n");
-    printf("      st_mtim     : Timespec;\n");
-    printf("      st_ctim     : Timespec;\n");
+    printf("      st_atime    : Time_Type;\n");
+    printf("      st_mtime    : Time_Type;\n");
+    printf("      st_ctime    : Time_Type;\n");
     printf("   end record;\n");
     printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
     printf("\n");
