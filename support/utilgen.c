@@ -238,7 +238,11 @@ int main(int argc, char** argv)
 
   } else if (argc > 1 && strcmp(argv[1], "types") == 0) {
     struct timespec tv;
+#ifndef _WIN32
     struct stat st;
+#else
+    struct stat64 st;
+#endif
       
     printf("with Interfaces.C;\n");
     printf("package Util.Systems.Types is\n");
