@@ -33,6 +33,7 @@ project Tests is
 
       when "os-win32" =>
 	  	 for Source_Dirs use project'Source_Dirs & ("regtests/dlls");
+	  	 for Source_Dirs use project'Source_Dirs & ("regtests/systems");
 
       when others =>
 
