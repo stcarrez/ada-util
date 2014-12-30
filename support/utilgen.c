@@ -114,6 +114,8 @@ void gen_type(const char* name, int is_signed, int size)
 void gen_stat(void)
 {
 #ifdef __linux__
+    printf("   STAT_NAME  : constant String := \"stat\";\n");
+    printf("   FSTAT_NAME : constant String := \"fstat\";\n");
     printf("   type Stat_Type is record\n");
     printf("      st_dev     : dev_t;\n");
     if (NEED_PADDING) {
@@ -144,6 +146,8 @@ void gen_stat(void)
 #elif defined(__FreeBSD__)
     struct stat st;
 
+    printf("   STAT_NAME  : constant String := \"stat\";\n");
+    printf("   FSTAT_NAME : constant String := \"fstat\";\n");
     printf("   type Stat_Type is record\n");
     printf("      st_dev      : dev_t;\n");
     printf("      st_ino      : ino_t;\n");
@@ -169,6 +173,8 @@ void gen_stat(void)
 #elif defined(__NetBSD__)
     struct stat st;
 
+    printf("   STAT_NAME  : constant String := \"__stat50\";\n");
+    printf("   FSTAT_NAME : constant String := \"__fstat50\";\n");
     printf("   type Stat_Type is record\n");
     printf("      st_dev       : dev_t;\n");
     printf("      st_mode      : mode_t;\n");
