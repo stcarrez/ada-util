@@ -129,10 +129,10 @@ package Util.Systems.Os is
 
    function Sys_Stat (Path : in Ptr;
                       Stat : access Util.Systems.Types.Stat_Type) return Integer;
-   pragma Import (C, Sys_Stat, "stat");
+   pragma Import (C, Sys_Stat, Util.Systems.Types.STAT_NAME);
 
    function Sys_Fstat (Fs : in File_Type;
                        Stat : access Util.Systems.Types.Stat_Type) return Integer;
-   pragma Import (C, Sys_Fstat, "fstat");
+   pragma Import (C, Sys_Fstat, Util.Systems.Types.FSTAT_NAME);
 
 end Util.Systems.Os;
