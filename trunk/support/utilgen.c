@@ -158,12 +158,12 @@ void gen_stat(void)
     printf("      st_uid      : uid_t;\n");
     printf("      st_gid      : gid_t;\n");
     printf("      st_rdev     : dev_t;\n");
-    printf("      st_size     : off_t;\n");
     printf("      st_atim     : Timespec;\n");
     printf("      st_mtim     : Timespec;\n");
     printf("      st_ctim     : Timespec;\n");
-    printf("      st_blksize  : blksize_t;\n");
+    printf("      st_size     : off_t;\n");
     printf("      st_blocks   : blkcnt_t;\n");
+    printf("      st_blksize  : blksize_t;\n");
     printf("      st_flags    : fflags_t;\n");
     printf("      st_gen      : %s;\n", get_type(UNSIGNED, sizeof(st.st_gen)));
     printf("      st_lspare   : %s;\n", get_type(UNSIGNED, sizeof(st.st_lspare)));
