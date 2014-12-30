@@ -146,6 +146,8 @@ void gen_stat(void)
 #elif defined(__FreeBSD__)
     struct stat st;
 
+    gen_type("fflags_t", UNSIGNED, sizeof(fflags_t));
+
     printf("   STAT_NAME  : constant String := \"stat\";\n");
     printf("   FSTAT_NAME : constant String := \"fstat\";\n");
     printf("   type Stat_Type is record\n");
@@ -166,7 +168,8 @@ void gen_stat(void)
     printf("      st_gen      : %s;\n", get_type(UNSIGNED, sizeof(st.st_gen)));
     printf("      st_lspare   : %s;\n", get_type(UNSIGNED, sizeof(st.st_lspare)));
     printf("      st_birthtim : Timespec;\n");
-    printf("      pad         : ;\n");
+    printf("      st_spare1   : %s;\n", get_type(UNSIGNED, sizeof(unsigned)));
+    printf("      st_spare2   : %s;\n", get_type(UNSIGNED, sizeof(unsigned)));
     printf("   end record;\n");
     printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
     printf("\n");
