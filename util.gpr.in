@@ -21,7 +21,7 @@ project Util is
    --  Enable the use of GNAT symbolic traceback.
    Has_Gnat_Traceback : Config.Yes_No := "@UTIL_GNAT_TRACEBACK@";
 
-   Library_Type : Config.Library_Type_Type := external ("LIBRARY_TYPE", "static");
+   Library_Type : Config.Library_Type_Type := external ("UTIL_LIBRARY_TYPE", "static");
    
    package Naming is
       case Xml_Version is

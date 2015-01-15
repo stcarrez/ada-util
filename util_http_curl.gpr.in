@@ -7,7 +7,7 @@ project Util_Http_Curl is
 
    Has_Curl : Config.Yes_No := "yes";
    
-   Library_Type : Config.Library_Type_Type := external ("LIBRARY_TYPE", "static");
+   Library_Type : Config.Library_Type_Type := Util.Library_Type;
 
    case Has_Curl is
       when "yes" =>
