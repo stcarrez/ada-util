@@ -1,7 +1,7 @@
 ## The type of library we want to build. Possible values:
 ##   relocatable
 ##   static
-LIBRARY_TYPE=static
+UTIL_LIBRARY_TYPE=static
 
 # You may edit this makefile as long as you keep these original 
 # target names defined.
@@ -70,7 +70,7 @@ libname=libada_util
 libprefix=$(libname)_
 
 CPUS := @NR_CPUS@
-MAKE_ARGS=-XMODE=${MODE} -XUTIL_LIBRARY_TYPE=${LIBRARY_TYPE} -XPROCESSORS=$(CPUS)
+MAKE_ARGS=-XMODE=${MODE} -XUTIL_LIBRARY_TYPE=${UTIL_LIBRARY_TYPE} -XPROCESSORS=$(CPUS)
 
 # The timeout execution time in second for a test case.
 # The concurrent fifo test takes arround 120 seconds on some ARM but only 4 seconds on an i7.
@@ -100,10 +100,10 @@ build:	$(UTIL_GEN_FILES)
 	$(GNATMAKE) -m -p -P"$(UTIL_HTTP_GPRPATH)" $(MAKE_ARGS)
 
 static:
-	$(MAKE) LIBRARY_TYPE=static build
+	$(MAKE) UTIL_LIBRARY_TYPE=static build
 
 shared:
-	$(MAKE) LIBRARY_TYPE=relocatable build
+	$(MAKE) UTIL_LIBRARY_TYPE=relocatable build
 
 # Build and run the unit tests
 test:	build regtests/util-testsuite.adb
@@ -191,10 +191,10 @@ dist:
 	    -cvzf $(DIST_FILE) $(distdir)
 
 install_static:
-	$(MAKE) LIBRARY_TYPE=static install_lib
+	$(MAKE) UTIL_LIBRARY_TYPE=static install_lib
 
 install_shared:
-	$(MAKE) LIBRARY_TYPE=relocatable install_lib
+	$(MAKE) UTIL_LIBRARY_TYPE=relocatable install_lib
 
 install_lib:
 	rm -rf ${alidir}/ada-util-curl \
@@ -226,41 +226,41 @@ install_lib:
 	   ${CP} -p ${AHVEN_SRC_DIR}/*.ad[bs] ${includedir}/ada-util-unit ; \
 	   ${CP} -p ${AHVEN_SRC_OS_DIR}/*.ad[bs] ${includedir}/ada-util-unit ; \
 	fi
-	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/util.gpr > ${projectdir}/util.gpr
-	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/util_unit.gpr > ${projectdir}/util_unit.gpr
-	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" < distrib/util_http.gpr > ${projectdir}/util_http.gpr
+	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" < distrib/util.gpr > ${projectdir}/util.gpr
+	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" < distrib/util_unit.gpr > ${projectdir}/util_unit.gpr
+	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" < distrib/util_http.gpr > ${projectdir}/util_http.gpr
 	test T${HAVE_CURL} = Tno || \
-	     sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
+	     sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" \
 		 < distrib/util_http_curl.gpr > ${projectdir}/util_http_curl.gpr
 	test T${HAVE_AWS} = Tno || \
-	     sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(LIBRARY_TYPE),g" \
+	     sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" \
 		 < distrib/util_http_aws.gpr > ${projectdir}/util_http_aws.gpr
 	test T${HAVE_CURL} = Tno || \
 	  (${MKDIR} -p ${includedir}/ada-util-curl && \
            ${MKDIR} -p ${alidir}/ada-util-curl && \
 	   ${CP} -p src/http/curl/*.ad[bs] ${includedir}/ada-util-curl && \
-	   ${CP} -p lib/util-curl/$(LIBRARY_TYPE)/*.ali ${alidir}/ada-util-curl)
+	   ${CP} -p lib/util-curl/$(UTIL_LIBRARY_TYPE)/*.ali ${alidir}/ada-util-curl)
 	test T${HAVE_AWS} = Tno || \
 	  (${MKDIR} -p ${includedir}/ada-util-aws && \
            ${MKDIR} -p ${alidir}/ada-util-aws && \
 	   ${CP} -p src/http/aws/*.ad[bs] ${includedir}/ada-util-aws && \
-	   ${CP} -p lib/util-aws/$(LIBRARY_TYPE)/*.ali ${alidir}/ada-util-aws)
-	${CP} -p lib/testutil/$(LIBRARY_TYPE)/*.ali ${alidir}/ada-util-unit
-	${CP} -p lib/util/$(LIBRARY_TYPE)/*.ali ${alidir}/ada-util
-ifeq ($(LIBRARY_TYPE),static)
+	   ${CP} -p lib/util-aws/$(UTIL_LIBRARY_TYPE)/*.ali ${alidir}/ada-util-aws)
+	${CP} -p lib/testutil/$(UTIL_LIBRARY_TYPE)/*.ali ${alidir}/ada-util-unit
+	${CP} -p lib/util/$(UTIL_LIBRARY_TYPE)/*.ali ${alidir}/ada-util
+ifeq ($(UTIL_LIBRARY_TYPE),static)
 	test T${HAVE_AWS} = Tno || \
-	   ${CP} -p lib/util-aws/$(LIBRARY_TYPE)/$(libprefix)aws.a ${libdir}/
+	   ${CP} -p lib/util-aws/$(UTIL_LIBRARY_TYPE)/$(libprefix)aws.a ${libdir}/
 	test T${HAVE_CURL} = Tno || \
-	   ${CP} -p lib/util-curl/$(LIBRARY_TYPE)/$(libprefix)curl.a ${libdir}/
-	${CP} -p lib/util/$(LIBRARY_TYPE)/$(libname).a ${libdir}/
-	${CP} -p lib/testutil/$(LIBRARY_TYPE)/$(libprefix)unit.a ${libdir}/
+	   ${CP} -p lib/util-curl/$(UTIL_LIBRARY_TYPE)/$(libprefix)curl.a ${libdir}/
+	${CP} -p lib/util/$(UTIL_LIBRARY_TYPE)/$(libname).a ${libdir}/
+	${CP} -p lib/testutil/$(UTIL_LIBRARY_TYPE)/$(libprefix)unit.a ${libdir}/
 else
 	test T${HAVE_AWS} = Tno || \
-	   ${CP} -p lib/util-aws/$(LIBRARY_TYPE)/$(libprefix)aws.$(LIBVER) ${libdir}/
+	   ${CP} -p lib/util-aws/$(UTIL_LIBRARY_TYPE)/$(libprefix)aws.$(LIBVER) ${libdir}/
 	test T${HAVE_CURL} = Tno || \
-	   ${CP} -p lib/util-curl/$(LIBRARY_TYPE)/$(libprefix)curl.$(LIBVER) ${libdir}/
-	${CP} -p lib/util/$(LIBRARY_TYPE)/$(libname).$(LIBVER) ${libdir}/
-	${CP} -p lib/testutil/$(LIBRARY_TYPE)/$(libprefix)unit.$(LIBVER) ${libdir}/
+	   ${CP} -p lib/util-curl/$(UTIL_LIBRARY_TYPE)/$(libprefix)curl.$(LIBVER) ${libdir}/
+	${CP} -p lib/util/$(UTIL_LIBRARY_TYPE)/$(libname).$(LIBVER) ${libdir}/
+	${CP} -p lib/testutil/$(UTIL_LIBRARY_TYPE)/$(libprefix)unit.$(LIBVER) ${libdir}/
 ifneq (${OS},Windows_NT)
 	cd ${libdir} && \
 	rm -f $(libname).$(LIBEXT) $(libprefix)unit.$(LIBEXT) && \
@@ -272,8 +272,8 @@ ifneq (${OS},Windows_NT)
 	(test T${HAVE_CURL} = Tno || \
 	   ${LN} $(libprefix)curl.$(LIBVER) $(libprefix)curl.$(LIBEXT))
 else
-	${CP} -p lib/util/$(LIBRARY_TYPE)/$(libname).$(LIBVER) ${bindir}/
-	${CP} -p lib/testutil/$(LIBRARY_TYPE)/$(libprefix)unit.$(LIBVER) ${bindir}/
+	${CP} -p lib/util/$(UTIL_LIBRARY_TYPE)/$(libname).$(LIBVER) ${bindir}/
+	${CP} -p lib/testutil/$(UTIL_LIBRARY_TYPE)/$(libprefix)unit.$(LIBVER) ${bindir}/
 endif
 endif
 
