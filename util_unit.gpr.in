@@ -4,11 +4,10 @@ with "util";
 
 project Util_Unit is
    Version      := "@UTIL_VERSION@";
-   Library_Type : Config.Library_Type_Type := external ("LIBRARY_TYPE", "static");
 
    for Source_Dirs use ("testutil", @UTIL_XUNIT_DIR@);
    for Library_Name use "ada_util_unit";
-   for Library_Kind use Library_Type;
+   for Library_Kind use Util.Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
    for Library_Dir use Util.Library_Dir & "/testutil/" & Project'Library_Kind;
