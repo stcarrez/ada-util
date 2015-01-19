@@ -1,5 +1,5 @@
 /* Generate a package from system header definitions
---  Copyright (C) 2011, 2013, 2014 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,7 +74,7 @@ const char* get_type(int is_signed, int size)
         case 2:
             return "Interfaces.C.short";
         case 4:
-            if (sizeof(int) == 4) {
+            if (sizeof(int) == 8) {
                 return "Interfaces.C.long";
             } else {
                 return "Interfaces.C.int";
@@ -92,10 +92,10 @@ const char* get_type(int is_signed, int size)
         case 2:
             return "Interfaces.C.unsigned_short";
         case 4:
-            if (sizeof(int) == 4) {
+            if (sizeof(int) == 8) {
                 return "Interfaces.C.unsigned_long";
             } else {
-                return "Interfaces.C.unsigned_int";
+                return "Interfaces.C.unsigned";
             }
             
         case 8:
@@ -122,8 +122,13 @@ void gen_stat(void)
         printf("      pad1       : Interfaces.C.unsigned_short;\n");
     }
     printf("      st_ino     : ino_t;\n");
+#ifndef __x86_64__
     printf("      st_mode    : mode_t;\n");
     printf("      st_nlink   : nlink_t;\n");
+#else
+    printf("      st_nlink   : nlink_t;\n");
+    printf("      st_mode    : mode_t;\n");
+#endif
     printf("      st_uid     : uid_t;\n");
     printf("      st_gid     : gid_t;\n");
     printf("      st_rdev    : dev_t;\n");
@@ -140,6 +145,11 @@ void gen_stat(void)
         printf("      pad3       : Interfaces.C.unsigned_long;\n");
         printf("      pad4       : Interfaces.C.unsigned_long;\n");
     }
+#ifdef __x86_64__
+    printf("      pad5    : Interfaces.C.unsigned_long;\n");
+    printf("      pad6    : Interfaces.C.unsigned_long;\n");
+    printf("      pad7    : Interfaces.C.unsigned_long;\n");
+#endif
     printf("   end record;\n");
     printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
     printf("\n");
