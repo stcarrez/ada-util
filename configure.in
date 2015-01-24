@@ -109,6 +109,11 @@ AC_CHECK_LIB(dl,dlopen,[
 ])
 AC_SUBST(UTIL_HAS_LIBDL)
 
+# directories GNAT project gives the installation paths
+AM_GNAT_CHECK_PROJECT([directories])
+UTIL_HAVE_PRJ_DIRECTORIES=${gnat_project_directories}
+AC_SUBST(UTIL_HAVE_PRJ_DIRECTORIES)
+
 ##########################################
 # XMLAda library
 ##########################################
