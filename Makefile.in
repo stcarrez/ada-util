@@ -37,6 +37,7 @@ HAVE_XML=@UTIL_HAVE_XML@
 HAVE_CURL=@UTIL_HAVE_CURL@
 HAVE_AWS=@UTIL_HAVE_AWS@
 HAVE_VECTOR_MAPPERS=@UTIL_HAVE_VECTOR_MAPPERS@
+HAVE_PRJ_DIRECTORIES=@UTIL_HAVE_PRJ_DIRECTORIES@
 
 LN_S=@LN_S@
 MKDIR=mkdir
@@ -91,10 +92,10 @@ TEST_TIMEOUT=30
 
 ifeq (${BUILDS_SHARED},yes)
 all:     static shared
-install: install_static install_shared
+install: install_static install_shared install-info
 else
 all:     static
-install: install_static
+install: install_static install-info
 endif
 
 UTIL_GEN_FILES=src/util-systems-constants.ads
@@ -238,14 +239,22 @@ install_lib:
 	   ${CP} -p ${AHVEN_SRC_DIR}/*.ad[bs] ${includedir}/ada-util-unit ; \
 	   ${CP} -p ${AHVEN_SRC_OS_DIR}/*.ad[bs] ${includedir}/ada-util-unit ; \
 	fi
-	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" < distrib/util.gpr > ${projectdir}/util.gpr
-	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" < distrib/util_unit.gpr > ${projectdir}/util_unit.gpr
-	sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" < distrib/util_http.gpr > ${projectdir}/util_http.gpr
+	test T${HAVE_PRJ_DIRECTORIES} = Tyes || \
+	  sed -e "s,ALI_INSTALL,${alidir},g" \
+		  -e "s,LIB_INSTALL,${libdir},g" \
+		  -e "s,BIN_INSTALL,${bindir},g" \
+		  -e "s,INCLUDE_INSTALL,${includedir},g" \
+		  < distrib/util_config-default.gpr > ${projectdir}/util_config.gpr
+	test T${HAVE_PRJ_DIRECTORIES} = Tno || \
+	  ${CP} distrib/util_config-directories.gpr ${projectdir}/util_config.gpr
+	sed -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" < distrib/util.gpr > ${projectdir}/util.gpr
+	sed -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" < distrib/util_unit.gpr > ${projectdir}/util_unit.gpr
+	sed -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" < distrib/util_http.gpr > ${projectdir}/util_http.gpr
 	test T${HAVE_CURL} = Tno || \
-	     sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" \
+	     sed -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" \
 		 < distrib/util_http_curl.gpr > ${projectdir}/util_http_curl.gpr
 	test T${HAVE_AWS} = Tno || \
-	     sed -e "s,INSTALL,${prefix},g" -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" \
+	     sed -e "s,LIBRARY_TYPE,$(UTIL_LIBRARY_TYPE),g" \
 		 < distrib/util_http_aws.gpr > ${projectdir}/util_http_aws.gpr
 	test T${HAVE_CURL} = Tno || \
 	  (${MKDIR} -p ${includedir}/ada-util-curl && \
@@ -289,6 +298,14 @@ else
 endif
 endif
 
+install-info:
+	@echo "Installation directories:"
+	@echo "  Ada source files:    ${includedir}"
+	@echo "  ALI files:           ${alidir}"
+	@echo "  Libraries:           ${libdir}"
+	@echo "  GNAT project:        ${projectdir}"
+	@echo "Environment setup:"
+	@echo "  export ADA_PROJECT_PATH=${projectdir}:$$ADA_PROJECT_PATH"
 
 install-support:
 	$(MKDIR) -p ${bindir}
