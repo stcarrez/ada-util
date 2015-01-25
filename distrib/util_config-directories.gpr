@@ -1,0 +1,9 @@
+with "directories";
+abstract project Util_Config is
+
+   Bindir         := Directories.Bindir;
+   Includedir     := Directories.Includedir;
+   Alidir         := Directories.Alidir;
+   Libdir         := Directories.Libdir;
+
+end Util_Config;
