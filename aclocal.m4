@@ -145,6 +145,64 @@ AC_DEFUN(AM_GNAT_CHECK_AWS,
   fi
 ])
 
+dnl Setup installation paths
+dnl AM_UTIL_INSTALL([inc],[ali],[lib],[prj])
+AC_DEFUN(AM_UTIL_INSTALL,
+[
+  gnat_prefix=
+  for dir in $1 $2 $3 $4; do
+    # If we have a valid path, try to identify the common path prefix.
+    if test x$gnat_prefix = x; then
+      gnat_prefix=$dir
+    else
+	  # echo "Dir=$dir"
+	  gnat_old_ifs=$IFS
+	  path=
+	  IFS=/
+	  for c in $dir; do
+	    if test x"$path" = x"/"; then
+		  try="/$c"
+		else
+          try="$path/$c"
+		fi
+		# echo "gnat_prefix=$gnat_prefix try=$try path=$path c=$c"
+		case $gnat_prefix in
+		  $try*)
+			;;
+		  *)
+			break
+			;;
+		esac
+		  path=$try
+	  done
+	  IFS=$gnat_old_ifs
+	  gnat_prefix=$path
+    fi
+  done
+  ADA_INC_BASE=`echo $1 | sed -e s,^$gnat_prefix/,,`
+  ADA_ALI_BASE=`echo $2 | sed -e s,^$gnat_prefix/,,`
+  ADA_LIB_BASE=`echo $3 | sed -e s,^$gnat_prefix/,,`
+  ADA_PRJ_BASE=`echo $4 | sed -e s,^$gnat_prefix/,,`
+
+  AC_MSG_CHECKING([installation of Ada source files])
+  AC_MSG_RESULT(<prefix>/${ADA_INC_BASE})
+
+  AC_MSG_CHECKING([installation of Ada ALI files])
+  AC_MSG_RESULT(<prefix>/${ADA_ALI_BASE})
+
+  AC_MSG_CHECKING([installation of library files])
+  AC_MSG_RESULT(<prefix>/${ADA_LIB_BASE})
+
+  AC_MSG_CHECKING([installation of GNAT project files])
+  AC_MSG_RESULT(<prefix>/${ADA_PRJ_BASE})
+
+  AC_SUBST(ADA_INC_BASE)
+  AC_SUBST(ADA_LIB_BASE)
+  AC_SUBST(ADA_ALI_BASE)
+  AC_SUBST(ADA_PRJ_BASE)
+])
+
+
 dnl Check by using xmlada-config where some files are installed.
 dnl The goad is to find or guess some installation paths.
 dnl           XML/Ada                    Debian
@@ -289,22 +347,34 @@ AC_DEFUN(AM_GNAT_CHECK_INSTALL,
   ADA_LIB_BASE=`echo $gnat_xml_lib_dir | sed -e s,^$gnat_prefix/,,`
   ADA_ALI_BASE=`echo $gnat_xml_ali_dir | sed -e s,^$gnat_prefix/,,`
   ADA_PRJ_BASE=`echo $gnat_xml_prj_dir | sed -e s,^$gnat_prefix/,,`
-
-  AC_MSG_CHECKING([installation of Ada source files])
-  AC_MSG_RESULT(<prefix>/${ADA_INC_BASE})
-
-  AC_MSG_CHECKING([installation of Ada ALI files])
-  AC_MSG_RESULT(<prefix>/${ADA_ALI_BASE})
-
-  AC_MSG_CHECKING([installation of library files])
-  AC_MSG_RESULT(<prefix>/${ADA_LIB_BASE})
-
-  AC_MSG_CHECKING([installation of GNAT project files])
-  AC_MSG_RESULT(<prefix>/${ADA_PRJ_BASE})
-
-  AC_SUBST(ADA_INC_BASE)
-  AC_SUBST(ADA_LIB_BASE)
-  AC_SUBST(ADA_ALI_BASE)
-  AC_SUBST(ADA_PRJ_BASE)
+  AM_UTIL_INSTALL([${gnat_xml_inc_dir}],[${gnat_xml_ali_dir}],[${gnat_xml_lib_dir}],[${gnat_xml_prj_dir}])
 ])
 
+dnl Guess the installation path
+AC_DEFUN(AM_UTIL_CHECK_INSTALL,
+[
+  AM_GNAT_CHECK_PROJECT([util_config])
+
+  # Search in the GNAT project path.
+  AC_MSG_CHECKING([for util_config.gpr installation])
+  # echo "D:${gnat_project_with_util_config}"
+  echo "${gnat_project_with_util_config} project t is for Source_Dirs use (); end t;" > t.gpr
+  # cat t.gpr
+  # $GNATMAKE -vP1 -Pt 2>&1
+  gnat_util_config_path=`$GNATMAKE -vP1 -Pt 2>&1 | awk '/Parsing.*util_config.gpr/ {print @S|@2}' | sed -e 's,",,g'`
+  AC_MSG_RESULT(${gnat_util_config_path})
+
+  gnat_inc_dir=
+  gnat_ali_dir=
+  gnat_prj_dir=
+  gnat_lib_dir=
+  if test x${gnat_util_config_path} != x; then
+    if test -f ${gnat_util_config_path}; then
+      gnat_inc_dir=`awk '/Includedir/ {print @S|@3}' ${gnat_util_config_path} | sed -e 's,",,g' -e 's,;,,'`
+      gnat_lib_dir=`awk '/Libdir/ {print @S|@3}' ${gnat_util_config_path} | sed -e 's,",,g' -e 's,;,,'`
+      gnat_ali_dir=`awk '/Alidir/ {print @S|@3}' ${gnat_util_config_path} | sed -e 's,",,g' -e 's,;,,'`
+      gnat_prj_dir=`dirname ${gnat_util_config_path}`
+    fi
+  fi
+  AM_UTIL_INSTALL([${gnat_inc_dir}],[${gnat_ali_dir}],[${gnat_lib_dir}],[${gnat_prj_dir}])
+])
