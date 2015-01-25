@@ -16,6 +16,76 @@ AC_DEFUN(AM_GNAT_CHECK_PROJECT,
   rm -f t.gpr
 ])
 
+# Check if a GNAT project is available.
+# AM_GNAT_FIND_PROJECT([ada-util],[Ada Utility Library],[util])
+AC_DEFUN(AM_GNAT_FIND_PROJECT,
+[
+  AC_MSG_CHECKING([Ada Utility library (code.google.com/p/ada-util)])
+  AC_ARG_WITH($1,
+    AS_HELP_STRING([--with-$1=x], [Path for $2]),
+    [
+      gnat_project_name_$3=${withval}/
+    ],
+    [
+      gnat_project_name_$3=$3
+    ])
+  AC_MSG_RESULT(trying ${gnat_project_name_$3})
+
+  # Search in the GNAT project path.
+  AC_MSG_CHECKING([whether ${gnat_project_name_$3} project exists in gnatmake's search path])
+  echo "with \"${gnat_project_name_$3}\"; project t is for Source_Dirs use (); end t;" > t.gpr
+  $GNATMAKE -p -Pt >/dev/null 2>/dev/null
+  if test $? -eq 0; then
+    gnat_project_$3=yes
+    AC_MSG_RESULT(yes, using ${gnat_project_name_$3})
+  else
+    gnat_project_$3=no
+    AC_MSG_RESULT(no)
+
+    # Search in ../$1-*/$3.gpr
+    files=`ls -r ../$1/$3.gpr ../$3/$3.gpr ../$1-*/$3.gpr 2>/dev/null`
+    for name in $files; do
+      dir=`dirname $name`
+      AC_MSG_CHECKING([for $2 project in ${dir}])
+      echo "with \"${name}\"; project t is for Source_Dirs use (); end t;" > t.gpr
+	  # echo ""
+	  # cat t.gpr
+      $GNATMAKE -p -Pt >/dev/null 2>/dev/null
+      if test $? -eq 0; then
+         gnat_project_$3=yes
+		 gnat_project_name_$3=${name}
+         AC_MSG_RESULT(yes, using ${name})
+         break
+      else
+         gnat_project_$3=no
+         AC_MSG_RESULT(no)
+      fi
+    done
+  fi
+  rm -f t.gpr
+  if test x${gnat_project_$3} = xyes; then
+    gnat_project_with_$3="with \"${gnat_project_name_$3}\";";
+    gnat_project_dir_$3=`dirname ${gnat_project_name_$3}`
+    if test ${gnat_project_dir_$3} = . ; then
+       gnat_project_dir_$3=
+    else
+       gnat_project_dir_$3="${gnat_project_dir_$3}/"
+    fi
+    $5
+  else
+    gnat_project_dir_$3=
+    gnat_project_name_$3=
+    AC_MSG_ERROR([$4
+You should build and install the $2 component.
+It must be available and found by ${GNATMAKE}.
+The project was not found in the ADA_PROJECT_PATH environment variable.
+Using:
+  ${GNATMAKE}
+  ADA_PROJECT_PATH=$ADA_PROJECT_PATH
+])
+  fi
+])
+
 dnl Check whether the shared library support is enabled.
 AC_DEFUN(AM_SHARED_LIBRARY_SUPPORT,
 [
