@@ -199,7 +199,7 @@ dist:
 	mkdir $(distdir)/bin
 	mkdir $(distdir)/obj
 	mkdir $(distdir)/lib
-	tar --exclude=.svn --exclude="*~" --exclude="*.o" --exclude="*.ali" \
+	tar --exclude=.svn --exclude=.git --exclude="*~" --exclude="*.o" --exclude="*.ali" \
 	    --exclude="*.log" --exclude="*.a" \
 	    -cvzf $(DIST_FILE) $(distdir)
 
@@ -330,9 +330,9 @@ uninstall:
 # prepare before releasing a new version of the package
 # (collect information about changes and SVN repository)
 prepare-release:
-	${SVN} update
-	${SVN} info > CHANGES
-	${SVN} log -v > ChangeLog
+	# ${SVN} update
+	# ${SVN} info > CHANGES
+	# ${SVN} log -v > ChangeLog
 
 src/util-systems-constants.ads:	bin/utilgen
 	bin/utilgen > $@
