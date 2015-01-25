@@ -1,15 +1,15 @@
 with "util";
+with "util_config";
 with "aws";
 
-project Util_Http_Aws is
+library project Util_Http_Aws is
    Version := "@UTIL_VERSION@";
-   Prefix  := "INSTALL";
 
    for Library_Name use "ada_util_aws";
-   for Library_Dir use Prefix & "/lib";
+   for Library_Dir use Util_Config.Libdir;
    for Library_Kind use "LIBRARY_TYPE";
 
-   for Source_Dirs use (Prefix & "/share/ada/adainclude/ada-util-aws");
-   for Library_ALI_Dir use Prefix & "/lib/ada/adalib/ada-util-aws/";
+   for Source_Dirs use (Util_Config.Includedir  & "/ada-util-aws");
+   for Library_ALI_Dir use Util_Config.Alidir & "/ada-util-aws/";
    for Externally_Built use "true";
 end Util_Http_Aws;
