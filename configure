@@ -644,6 +644,7 @@ UTIL_HAVE_XML
 UTIL_XML_VERSION
 UTIL_XML_DIR
 WITH_XML_ADA
+UTIL_HAVE_PRJ_DIRECTORIES
 UTIL_HAS_LIBDL
 EGREP
 GREP
@@ -3742,6 +3743,27 @@ if test "x$ac_cv_lib_dl_dlopen" = xyes; then :
 
 fi
 
+
+
+# directories GNAT project gives the installation paths
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether directories project exists" >&5
+$as_echo_n "checking whether directories project exists... " >&6; }
+  echo "with \"directories\"; project t is for Source_Dirs use (); end t;" > t.gpr
+  $GNATMAKE -p -Pt >/dev/null 2>/dev/null
+  if test $? -eq 0; then
+    gnat_project_directories=yes
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+    gnat_project_with_directories="with \"directories\";";
+  else
+    gnat_project_directories=no
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+  fi;
+  rm -f t.gpr
+
+UTIL_HAVE_PRJ_DIRECTORIES=${gnat_project_directories}
 
 
 ##########################################
