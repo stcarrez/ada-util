@@ -1,0 +1,8 @@
+abstract project Util_Config is
+
+   Bindir         := "BIN_INSTALL";
+   Includedir     := "INCLUDE_INSTALL";
+   Alidir         := "ALI_INSTALL";
+   Libdir         := "LIB_INSTALL";
+
+end Util_Config;
