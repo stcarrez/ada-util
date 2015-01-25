@@ -1,14 +1,15 @@
 
 # Check if a GNAT project is available.
+# dnl AM_GNAT_CHECK_PROJECT([name],[path])
 AC_DEFUN(AM_GNAT_CHECK_PROJECT,
 [
   AC_MSG_CHECKING([whether $1 project exists])
-  echo "with \"$1\"; project t is for Source_Dirs use (); end t;" > t.gpr
+  echo "with \"$2\"; project t is for Source_Dirs use (); end t;" > t.gpr
   $GNATMAKE -p -Pt >/dev/null 2>/dev/null
   if test $? -eq 0; then
     gnat_project_$1=yes
-    AC_MSG_RESULT(yes, using $1)
-    gnat_project_with_$1="with \"$1\";";
+    AC_MSG_RESULT([yes, using $2])
+    gnat_project_with_$1="with \"$2\";";
   else
     gnat_project_$1=no
     AC_MSG_RESULT(no)
@@ -111,7 +112,8 @@ AC_DEFUN(AM_GNAT_CHECK_AWS,
 [
   dnl Define option to enable/disable AWS
   gnat_enable_aws=yes
-  gnat_project_aws=
+  gnat_project_aws=no
+  gnat_project_name_aws=
   AC_ARG_ENABLE(aws,
     [  --enable-aws            Enable the AWS support (enabled)],
     [case "${enableval}" in
@@ -127,16 +129,17 @@ AC_DEFUN(AM_GNAT_CHECK_AWS,
     AC_ARG_WITH(aws,
     AS_HELP_STRING([--with-aws=x], [Path for the Ada Web Server library (http://libre.adacore.com/libre/tools/aws/)]),
     [
-      gnat_project_aws=${withval}
+      gnat_project_name=${withval}
     ],
     [
-      AM_GNAT_CHECK_PROJECT([aws])
-      if test x$gnat_project_aws = x; then
-        gnat_enable_aws=no
-      else
-        gnat_project_aws=aws
-      fi
+      gnat_project_name=aws
     ])
+    AM_GNAT_CHECK_PROJECT([aws],[${gnat_project_name}])
+    if test x$gnat_project_aws = xno; then
+      gnat_enable_aws=no
+    else
+      gnat_project_aws=aws
+    fi
   fi
   if test T$gnat_enable_aws = Tno; then
     $1
@@ -353,7 +356,7 @@ AC_DEFUN(AM_GNAT_CHECK_INSTALL,
 dnl Guess the installation path
 AC_DEFUN(AM_UTIL_CHECK_INSTALL,
 [
-  AM_GNAT_CHECK_PROJECT([util_config])
+  AM_GNAT_CHECK_PROJECT([util_config],[util_config])
 
   # Search in the GNAT project path.
   AC_MSG_CHECKING([for util_config.gpr installation])
