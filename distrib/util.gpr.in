@@ -1,8 +1,8 @@
 @WITH_XML_ADA@
+with "util_config";
 
-project Util is
+library project Util is
    Version := "@UTIL_VERSION@";
-   Prefix  := "INSTALL";
 
    type Bool is ("yes", "no");
    type Xml_Version_Type is ("none", "3", "4");
@@ -17,11 +17,11 @@ project Util is
    Has_Gnat_Traceback : Bool := "@UTIL_GNAT_TRACEBACK@";
 
    for Library_Name use "ada_util";
-   for Library_Dir use Prefix & "/lib";
+   for Library_Dir use Util_Config.Libdir;
    for Library_Kind use "LIBRARY_TYPE";
 
-   for Source_Dirs use (Prefix & "/share/ada/adainclude/ada-util");
-   for Library_ALI_Dir use Prefix & "/lib/ada/adalib/ada-util/";
+   for Source_Dirs use (Util_Config.Includedir & "/ada-util");
+   for Library_ALI_Dir use Util_Config.Alidir & "/ada-util/";
    for Externally_Built use "true";
 
    package Linker is
