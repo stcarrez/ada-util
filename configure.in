@@ -171,8 +171,6 @@ AC_SUBST(UTIL_XML_DIR)
 AC_SUBST(UTIL_XML_VERSION)
 AC_SUBST(UTIL_HAVE_XML)
 
-AM_GNAT_CHECK_INSTALL
-
 ##########################################
 # Check to enable/disable shared library
 ##########################################
@@ -384,6 +382,8 @@ AC_SUBST(UTIL_AUNIT_DIR)
 AC_SUBST(UTIL_AHVEN_DIR)
 AC_SUBST(UTIL_AHVEN_OS_DIR)
 AC_SUBST(UTIL_XUNIT_DIR)
+
+AM_GNAT_CHECK_INSTALL
 
 dnl AC_MSG_NOTICE(  XML support:   $WITH_XML_ADA)
 dnl AC_MSG_NOTICE(  CURL support:  $WITH_UTIL_CURL)
