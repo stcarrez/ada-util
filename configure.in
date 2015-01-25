@@ -110,7 +110,7 @@ AC_CHECK_LIB(dl,dlopen,[
 AC_SUBST(UTIL_HAS_LIBDL)
 
 # directories GNAT project gives the installation paths
-AM_GNAT_CHECK_PROJECT([directories])
+AM_GNAT_CHECK_PROJECT([directories],[directories])
 UTIL_HAVE_PRJ_DIRECTORIES=${gnat_project_directories}
 AC_SUBST(UTIL_HAVE_PRJ_DIRECTORIES)
 
@@ -157,7 +157,7 @@ case $ac_xml_version in
       ;;
 
 esac
-AM_GNAT_CHECK_PROJECT([xmlada_sax])
+AM_GNAT_CHECK_PROJECT([xmlada_sax],[xmlada_sax])
 
 if test T$gnat_project_xmlada_sax = Tno; then
   WITH_XML_ADA='';
@@ -222,7 +222,7 @@ AC_MSG_CHECKING(whether Ahven internal support is enabled)
 AC_MSG_RESULT($ac_enable_ahven)
 
 if test T$ac_enable_aunit = Tyes; then
-   AM_GNAT_CHECK_PROJECT([aunit])
+   AM_GNAT_CHECK_PROJECT([aunit],[aunit])
    if test T$gnat_project_aunit = Tno; then
 	  if test T$ac_enable_ahven = Tno; then
 	     AC_MSG_WARN(AUnit is not installed and Ahven is not enabled.)
@@ -294,16 +294,16 @@ fi
 ##########################################
 # Check for Ada Web Server
 ##########################################
-
-AM_GNAT_CHECK_AWS([
+AM_GNAT_CHECK_AWS(
+  [
     UTIL_HAVE_AWS=no
     WITH_SERVER="";
     WITH_UTIL_AWS="";
-], [
+  ], [
     UTIL_HAVE_AWS=yes
     WITH_UTIL_AWS="with \"util_http_aws\";";
-    WITH_SERVER="with \"$gnat_project_aws\";";
-])
+    WITH_SERVER="with \"$gnat_project_name\";";
+  ])
 
 ##########################################
 # Check for Util.Serialize.Mappers.Vector_Mappers support
