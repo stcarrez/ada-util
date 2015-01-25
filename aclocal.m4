@@ -17,10 +17,10 @@ AC_DEFUN(AM_GNAT_CHECK_PROJECT,
 ])
 
 # Check if a GNAT project is available.
-# AM_GNAT_FIND_PROJECT([ada-util],[Ada Utility Library],[util])
+# AM_GNAT_FIND_PROJECT([ada-util],[Ada Utility Library],[util],[link],[code-fail],[code-ok])
 AC_DEFUN(AM_GNAT_FIND_PROJECT,
 [
-  AC_MSG_CHECKING([Ada Utility library (code.google.com/p/ada-util)])
+  AC_MSG_CHECKING([$2])
   AC_ARG_WITH($1,
     AS_HELP_STRING([--with-$1=x], [Path for $2]),
     [
@@ -71,17 +71,20 @@ AC_DEFUN(AM_GNAT_FIND_PROJECT,
     else
        gnat_project_dir_$3="${gnat_project_dir_$3}/"
     fi
-    $5
+    $6
   else
     gnat_project_dir_$3=
     gnat_project_name_$3=
-    AC_MSG_ERROR([$4
-You should build and install the $2 component.
-It must be available and found by ${GNATMAKE}.
-The project was not found in the ADA_PROJECT_PATH environment variable.
-Using:
-  ${GNATMAKE}
-  ADA_PROJECT_PATH=$ADA_PROJECT_PATH
+    AC_MSG_ERROR([$5
+  You should build and install the $2 component.
+  It must be available and found by ${GNATMAKE}.
+  This project was not found in the ADA_PROJECT_PATH environment variable.
+  This project was not found in ../$3 nor in ../$1-*.
+  The component is available at $4.
+  Please, download and configure $2.
+  The current configuration was using:
+    ${GNATMAKE}
+    ADA_PROJECT_PATH=$ADA_PROJECT_PATH
 ])
   fi
 ])
