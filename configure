@@ -3753,8 +3753,8 @@ $as_echo_n "checking whether directories project exists... " >&6; }
   $GNATMAKE -p -Pt >/dev/null 2>/dev/null
   if test $? -eq 0; then
     gnat_project_directories=yes
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes, using directories" >&5
+$as_echo "yes, using directories" >&6; }
     gnat_project_with_directories="with \"directories\";";
   else
     gnat_project_directories=no
@@ -3824,8 +3824,8 @@ $as_echo_n "checking whether xmlada_sax project exists... " >&6; }
   $GNATMAKE -p -Pt >/dev/null 2>/dev/null
   if test $? -eq 0; then
     gnat_project_xmlada_sax=yes
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes, using xmlada_sax" >&5
+$as_echo "yes, using xmlada_sax" >&6; }
     gnat_project_with_xmlada_sax="with \"xmlada_sax\";";
   else
     gnat_project_xmlada_sax=no
@@ -3930,8 +3930,8 @@ $as_echo_n "checking whether aunit project exists... " >&6; }
   $GNATMAKE -p -Pt >/dev/null 2>/dev/null
   if test $? -eq 0; then
     gnat_project_aunit=yes
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes, using aunit" >&5
+$as_echo "yes, using aunit" >&6; }
     gnat_project_with_aunit="with \"aunit\";";
   else
     gnat_project_aunit=no
@@ -4057,9 +4057,9 @@ fi
 # Check for Ada Web Server
 ##########################################
 
-
     gnat_enable_aws=yes
-  gnat_project_aws=
+  gnat_project_aws=no
+  gnat_project_name_aws=
   # Check whether --enable-aws was given.
 if test "${enable_aws+set}" = set; then :
   enableval=$enable_aws; case "${enableval}" in
@@ -4078,20 +4078,24 @@ $as_echo "${gnat_enable_aws}" >&6; }
 # Check whether --with-aws was given.
 if test "${with_aws+set}" = set; then :
   withval=$with_aws;
-      gnat_project_aws=${withval}
+      gnat_project_name=${withval}
 
 else
+
+      gnat_project_name=aws
+
+fi
 
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether aws project exists" >&5
 $as_echo_n "checking whether aws project exists... " >&6; }
-  echo "with \"aws\"; project t is for Source_Dirs use (); end t;" > t.gpr
+  echo "with \"${gnat_project_name}\"; project t is for Source_Dirs use (); end t;" > t.gpr
   $GNATMAKE -p -Pt >/dev/null 2>/dev/null
   if test $? -eq 0; then
     gnat_project_aws=yes
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-    gnat_project_with_aws="with \"aws\";";
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes, using ${gnat_project_name}" >&5
+$as_echo "yes, using ${gnat_project_name}" >&6; }
+    gnat_project_with_aws="with \"${gnat_project_name}\";";
   else
     gnat_project_aws=no
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
@@ -4099,14 +4103,11 @@ $as_echo "no" >&6; }
   fi;
   rm -f t.gpr
 
-      if test x$gnat_project_aws = x; then
-        gnat_enable_aws=no
-      else
-        gnat_project_aws=aws
-      fi
-
-fi
-
+    if test x$gnat_project_aws = xno; then
+      gnat_enable_aws=no
+    else
+      gnat_project_aws=aws
+    fi
   fi
   if test T$gnat_enable_aws = Tno; then
 
@@ -4118,7 +4119,7 @@ fi
 
     UTIL_HAVE_AWS=yes
     WITH_UTIL_AWS="with \"util_http_aws\";";
-    WITH_SERVER="with \"$gnat_project_aws\";";
+    WITH_SERVER="with \"$gnat_project_name\";";
 
   fi
 
