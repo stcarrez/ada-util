@@ -1,15 +1,15 @@
 with "util";
+with "util_config";
 
-project Util_Http_Curl is
+library project Util_Http_Curl is
    Version := "@UTIL_VERSION@";
-   Prefix  := "INSTALL";
 
    for Library_Name use "ada_util_curl";
-   for Library_Dir use Prefix & "/lib";
+   for Library_Dir use Util_Config.Libdir;
    for Library_Kind use "LIBRARY_TYPE";
 
-   for Source_Dirs use (Prefix & "/share/ada/adainclude/ada-util-curl");
-   for Library_ALI_Dir use Prefix & "/lib/ada/adalib/ada-util-curl/";
+   for Source_Dirs use (Util_Config.Includedir & "/ada-util-curl");
+   for Library_ALI_Dir use Util_Config.Alidir  & "/ada-util-curl/";
    for Externally_Built use "true";
 
    package Linker is
