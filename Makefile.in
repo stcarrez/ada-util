@@ -121,7 +121,7 @@ shared:
 # Build and run the unit tests
 test:	build regtests/util-testsuite.adb
 	$(GNATMAKE) -p -Ptests_proc $(MAKE_ARGS)
-	$(GNATMAKE) -p -Ptests $(MAKE_ARGS)
+	$(GNATMAKE) -p -Putil_tests $(MAKE_ARGS)
 	-bin/util_harness -xml util-aunit.xml -timeout ${TEST_TIMEOUT}
 
 regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile

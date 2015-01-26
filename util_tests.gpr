@@ -4,7 +4,7 @@ with "util_http";
 with "util_unit";
 with "tests_proc";
 
-project Tests is
+project Util_Tests is
 
    for Languages use ("Ada", "Project file");
    Mains := ("util_harness.adb");
@@ -56,4 +56,4 @@ project Tests is
       for Compiler_Command ("c") use "gcc";
    end Ide;
 
-end Tests;
+end Util_Tests;
