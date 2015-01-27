@@ -26,6 +26,9 @@ AC_DEFUN(AM_GNAT_FIND_PROJECT,
     AS_HELP_STRING([--with-$1=x], [Path for $2]),
     [
       gnat_project_name_$3=${withval}/
+      if test -d "${withval}"; then
+	    gnat_project_name_$3=${withval}/$3
+	  fi
     ],
     [
       gnat_project_name_$3=$3
