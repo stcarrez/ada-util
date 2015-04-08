@@ -159,6 +159,7 @@ AC_DEFUN(AM_UTIL_INSTALL,
 [
   gnat_prefix=
   for dir in $1 $2 $3 $4; do
+    dir=`echo $dir | sed -e 's,\\\\,/,g'`
     # If we have a valid path, try to identify the common path prefix.
     if test x$gnat_prefix = x; then
       gnat_prefix=$dir
@@ -194,10 +195,10 @@ AC_DEFUN(AM_UTIL_INSTALL,
 	  gnat_prefix=$path
     fi
   done
-  ADA_INC_BASE=`echo $1 | sed -e s,^$gnat_prefix/,,`
-  ADA_ALI_BASE=`echo $2 | sed -e s,^$gnat_prefix/,,`
-  ADA_LIB_BASE=`echo $3 | sed -e s,^$gnat_prefix/,,`
-  ADA_PRJ_BASE=`echo $4 | sed -e s,^$gnat_prefix/,,`
+  ADA_INC_BASE=`echo $1 | sed -e 's,\\\\,/,g' | sed -e s,^$gnat_prefix/,,`
+  ADA_ALI_BASE=`echo $2 | sed -e 's,\\\\,/,g' | sed -e s,^$gnat_prefix/,,`
+  ADA_LIB_BASE=`echo $3 | sed -e 's,\\\\,/,g' | sed -e s,^$gnat_prefix/,,`
+  ADA_PRJ_BASE=`echo $4 | sed -e 's,\\\\,/,g' | sed -e s,^$gnat_prefix/,,`
 
   AC_MSG_CHECKING([installation of Ada source files])
   AC_MSG_RESULT(<prefix>/${ADA_INC_BASE})
