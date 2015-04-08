@@ -4371,6 +4371,7 @@ $as_echo "$opts" >&6; }
 
   gnat_prefix=
   for dir in ${gnat_xml_inc_dir} ${gnat_xml_ali_dir} ${gnat_xml_lib_dir} ${gnat_xml_prj_dir}; do
+    dir=`echo $dir | sed -e 's,\\\\,/,g'`
     # If we have a valid path, try to identify the common path prefix.
     if test x$gnat_prefix = x; then
       gnat_prefix=$dir
@@ -4406,10 +4407,10 @@ $as_echo "$opts" >&6; }
 	  gnat_prefix=$path
     fi
   done
-  ADA_INC_BASE=`echo ${gnat_xml_inc_dir} | sed -e s,^$gnat_prefix/,,`
-  ADA_ALI_BASE=`echo ${gnat_xml_ali_dir} | sed -e s,^$gnat_prefix/,,`
-  ADA_LIB_BASE=`echo ${gnat_xml_lib_dir} | sed -e s,^$gnat_prefix/,,`
-  ADA_PRJ_BASE=`echo ${gnat_xml_prj_dir} | sed -e s,^$gnat_prefix/,,`
+  ADA_INC_BASE=`echo ${gnat_xml_inc_dir} | sed -e 's,\\\\,/,g' | sed -e s,^$gnat_prefix/,,`
+  ADA_ALI_BASE=`echo ${gnat_xml_ali_dir} | sed -e 's,\\\\,/,g' | sed -e s,^$gnat_prefix/,,`
+  ADA_LIB_BASE=`echo ${gnat_xml_lib_dir} | sed -e 's,\\\\,/,g' | sed -e s,^$gnat_prefix/,,`
+  ADA_PRJ_BASE=`echo ${gnat_xml_prj_dir} | sed -e 's,\\\\,/,g' | sed -e s,^$gnat_prefix/,,`
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking installation of Ada source files" >&5
 $as_echo_n "checking installation of Ada source files... " >&6; }
