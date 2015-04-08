@@ -166,10 +166,17 @@ AC_DEFUN(AM_UTIL_INSTALL,
 	  # echo "Dir=$dir"
 	  gnat_old_ifs=$IFS
 	  path=
-	  IFS=/
+	  IFS='/\'
 	  for c in $dir; do
-	    if test x"$path" = x"/"; then
-		  try="/$c"
+	    if test x"$path" = x"/" || test x"$path" = x ; then
+		  case $c in
+		    c:|C:|d:|D:|e:|E:)
+			  try="$c"
+			  ;;
+		    *)
+			  try="/$c"
+			  ;;
+		  esac
 		else
           try="$path/$c"
 		fi
@@ -227,6 +234,10 @@ AC_DEFUN(AM_GNAT_CHECK_INSTALL,
   gnat_xml_ali_dir=
   gnat_xml_lib_dir=
   gnat_xml_prl_dir=
+
+  if test x${gnat_xml_ada} = 'x'; then
+     gnat_xml_ada=xmlada-config
+  fi
   gnat_xml_config=`$gnat_xml_ada --sax 2>/dev/null`
 
   # echo "Config: $gnat_xml_config"
@@ -351,6 +362,18 @@ AC_DEFUN(AM_GNAT_CHECK_INSTALL,
   else
     gnat_xml_prj_dir=$gnat_xml_inc_dir
   fi
+  if test x${gnat_xml_inc_dir} = x ; then
+    gnat_xml_inc_dir='include'
+  fi
+  if test x${gnat_xml_lib_dir} = x ; then
+    gnat_xml_lib_dir='lib'
+  fi
+  if test x${gnat_xml_ali_dir} = x ; then
+    gnat_xml_ali_dir='lib'
+  fi
+  if test x${gnat_xml_prj_dir} = x ; then
+    gnat_xml_prj_dir='lib/gnat'
+  fi
   ADA_INC_BASE=`echo $gnat_xml_inc_dir | sed -e s,^$gnat_prefix/,,`
   ADA_LIB_BASE=`echo $gnat_xml_lib_dir | sed -e s,^$gnat_prefix/,,`
   ADA_ALI_BASE=`echo $gnat_xml_ali_dir | sed -e s,^$gnat_prefix/,,`
@@ -384,5 +407,9 @@ AC_DEFUN(AM_UTIL_CHECK_INSTALL,
       gnat_prj_dir=`dirname ${gnat_util_config_path}`
     fi
   fi
-  AM_UTIL_INSTALL([${gnat_inc_dir}],[${gnat_ali_dir}],[${gnat_lib_dir}],[${gnat_prj_dir}])
+  if test x${gnat_prj_dir} != x; then
+    AM_UTIL_INSTALL([${gnat_inc_dir}],[${gnat_ali_dir}],[${gnat_lib_dir}],[${gnat_prj_dir}])
+  else
+    AM_GNAT_CHECK_INSTALL
+  fi
 ])
