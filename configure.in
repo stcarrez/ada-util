@@ -157,7 +157,7 @@ case $ac_xml_version in
       ;;
 
 esac
-AM_GNAT_CHECK_PROJECT([xmlada_sax],[xmlada_sax])
+AM_GNAT_CHECK_PROJECT([xmlada],[xmlada])
 
 if test T$gnat_project_xmlada_sax = Tno; then
   WITH_XML_ADA='';
