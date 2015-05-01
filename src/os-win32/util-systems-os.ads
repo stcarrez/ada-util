@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-system-os -- Windows system operations
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,9 @@ package Util.Systems.Os is
 
    --  The directory separator.
    Directory_Separator : constant Character := '\';
+
+   --  The path separator.
+   Path_Separator      : constant Character := ';';
 
    --  Defines several windows specific types.
    type BOOL is mod 8;
