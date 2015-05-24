@@ -1,3 +1,6 @@
+Version 1.7.2   - May 2015
+  - Fix end condition when reading stream buffer
+
 Version 1.7.1   - Jul 2014
   - Support XmlAda 2014
   - Fixed Get_Week_Start/Get_Week_End when the system timezone is
