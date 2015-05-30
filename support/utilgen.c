@@ -322,12 +322,14 @@ int main(int argc, char** argv)
     printf("   O_EXCL                        : constant Interfaces.C.int := 8#%06o#;\n", O_EXCL);
     printf("   O_TRUNC                       : constant Interfaces.C.int := 8#%06o#;\n", O_TRUNC);
     printf("   O_APPEND                      : constant Interfaces.C.int := 8#%06o#;\n", O_APPEND);
+    printf("   O_NONBLOCK                    : constant Interfaces.C.int := 8#%06o#;\n", O_NONBLOCK);
 
     printf("\n");
 
 #ifdef F_SETFL
     printf("   --  Flags used by fcntl\n");
     printf("   F_SETFL                       : constant Interfaces.C.int := %d;\n", F_SETFL);
+    printf("   F_GETFL                       : constant Interfaces.C.int := %d;\n", F_GETFL);
     printf("   FD_CLOEXEC                    : constant Interfaces.C.int := %d;\n", FD_CLOEXEC);
 #endif
 
