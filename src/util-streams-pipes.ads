@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-pipes -- Pipe stream to or from a process
---  Copyright (C) 2011, 2013 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,7 +67,7 @@ private
 
    use Ada.Streams;
 
-   type Pipe_Stream is new Ada.Finalization.Limited_Controlled
+   type Pipe_Stream is limited new Ada.Finalization.Limited_Controlled
      and Output_Stream and Input_Stream with record
       Proc   : Util.Processes.Process;
    end record;
