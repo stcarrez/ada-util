@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients -- HTTP Clients
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -193,7 +193,8 @@ private
 
    Default_Http_Manager : Http_Manager_Access;
 
-   type Response is new Ada.Finalization.Limited_Controlled and Abstract_Response with record
+   type Response is limited new Ada.Finalization.Limited_Controlled
+     and Abstract_Response with record
       Delegate : Abstract_Response_Access;
    end record;
 
@@ -201,7 +202,8 @@ private
    overriding
    procedure Finalize (Reply : in out Response);
 
-   type Client is new Ada.Finalization.Limited_Controlled and Abstract_Request with record
+   type Client is limited new Ada.Finalization.Limited_Controlled
+     and Abstract_Request with record
       Manager  : Http_Manager_Access;
       Delegate : Http_Request_Access;
    end record;
