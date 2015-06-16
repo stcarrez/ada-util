@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-sockets -- Socket streams
---  Copyright (C) 2012, 2013 Stephane Carrez
+--  Copyright (C) 2012, 2013, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,7 +56,7 @@ private
 
    use Ada.Streams;
 
-   type Socket_Stream is new Ada.Finalization.Limited_Controlled
+   type Socket_Stream is limited new Ada.Finalization.Limited_Controlled
      and Output_Stream and Input_Stream with record
       Sock : GNAT.Sockets.Socket_Type := GNAT.Sockets.No_Socket;
    end record;
