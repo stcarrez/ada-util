@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Concurrent.Pools -- Concurrent Pools
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,20 +32,26 @@ package Util.Concurrent.Pools is
 
    pragma Preelaborate;
 
+   FOREVER : constant Duration := -1.0;
+
+   --  Exception raised if the Get_Instance timeout exceeded.
+   Timeout : exception;
+
    --  Pool of objects
-   type Pool is new Ada.Finalization.Limited_Controlled with private;
+   type Pool is limited new Ada.Finalization.Limited_Controlled with private;
 
    --  Get an element instance from the pool.
    --  Wait until one instance gets available.
    procedure Get_Instance (From : in out Pool;
-                           Item : out Element_Type);
+                           Item : out Element_Type;
+                           Wait : in Duration := FOREVER);
 
    --  Put the element back to the pool.
    procedure Release (Into : in out Pool;
                       Item : in Element_Type);
 
    --  Set the pool size.
-   procedure Set_Size (Into : in out Pool;
+   procedure Set_Size (Into     : in out Pool;
                        Capacity : in Positive);
 
    --  Release the pool elements.
@@ -80,7 +86,7 @@ private
       Elements      : Element_Array_Access := Null_Element_Array;
    end Protected_Pool;
 
-   type Pool is new Ada.Finalization.Limited_Controlled with record
+   type Pool is limited new Ada.Finalization.Limited_Controlled with record
       List : Protected_Pool;
    end record;
 
