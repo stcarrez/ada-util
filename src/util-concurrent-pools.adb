@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Concurrent.Pools -- Concurrent Pools
---  Copyright (C) 2011, 2014 Stephane Carrez
+--  Copyright (C) 2011, 2014, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,9 +24,19 @@ package body Util.Concurrent.Pools is
    --  Wait until one instance gets available.
    --  ------------------------------
    procedure Get_Instance (From : in out Pool;
-                           Item : out Element_Type) is
+                           Item : out Element_Type;
+                           Wait : in Duration := FOREVER) is
    begin
-      From.List.Get_Instance (Item);
+      if Wait < 0.0 then
+         From.List.Get_Instance (Item);
+      else
+         select
+            From.List.Get_Instance (Item);
+         or
+            delay Wait;
+            raise Timeout;
+         end select;
+      end if;
    end Get_Instance;
 
    --  ------------------------------
