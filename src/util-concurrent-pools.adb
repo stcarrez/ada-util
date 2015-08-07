@@ -58,6 +58,15 @@ package body Util.Concurrent.Pools is
    end Set_Size;
 
    --  ------------------------------
+   --  Get the number of available elements in the pool.
+   --  ------------------------------
+   procedure Get_Available (From      : in out Pool;
+                            Available : out Natural) is
+   begin
+      Available := From.List.Get_Available;
+   end Get_Available;
+
+   --  ------------------------------
    --  Release the pool elements.
    --  ------------------------------
    overriding
@@ -113,6 +122,14 @@ package body Util.Concurrent.Pools is
             end;
          end if;
       end Set_Size;
+
+      --  ------------------------------
+      --  Get the number of available elements.
+      --  ------------------------------
+      function Get_Available return Natural is
+      begin
+         return Available;
+      end Get_Available;
 
    end Protected_Pool;
 
