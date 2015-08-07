@@ -54,6 +54,10 @@ package Util.Concurrent.Pools is
    procedure Set_Size (Into     : in out Pool;
                        Capacity : in Positive);
 
+   --  Get the number of available elements in the pool.
+   procedure Get_Available (From      : in out Pool;
+                            Available : out Natural);
+
    --  Release the pool elements.
    overriding
    procedure Finalize (Object : in out Pool);
@@ -80,6 +84,9 @@ private
 
       --  Set the pool size.
       procedure Set_Size (Capacity : in Natural);
+
+      --  Get the number of available elements.
+      function Get_Available return Natural;
 
    private
       Available     : Natural := 0;
