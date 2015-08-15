@@ -2,7 +2,7 @@ with "config";
 with "util";
 @WITH_AUNIT@
 
-project Util_Unit is
+library project Util_Unit is
    Version      := "@UTIL_VERSION@";
 
    for Source_Dirs use ("testutil", @UTIL_XUNIT_DIR@);

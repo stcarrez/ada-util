@@ -1,7 +1,7 @@
 with "config";
 @WITH_XML_ADA@
 
-project Util is
+library project Util is
    Version := "@UTIL_VERSION@";
    Library_Dir := "@UTIL_LIBDIR@";
 
