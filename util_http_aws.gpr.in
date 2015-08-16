@@ -2,7 +2,7 @@ with "config";
 with "util";
 @WITH_SERVER@
 
-project Util_Http_Aws is
+library project Util_Http_Aws is
    Version     := Util.Version;
    Library_Dir := Util.Library_Dir;
 
