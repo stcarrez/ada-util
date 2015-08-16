@@ -172,7 +172,7 @@ version:
 DISTFILES=README LICENSE.txt LICENSE.Ahven NOTICE.txt NEWS CHANGES ChangeLog \
 config.guess configure config.sub \
 configure.in Makefile.in install-sh \
-util.gpr.in util_http.gpr.in config.gpr util_unit.gpr.in tests.gpr tests_proc.gpr samples.gpr \
+util.gpr.in util_http.gpr.in config.gpr util_unit.gpr.in util_tests.gpr tests_proc.gpr samples.gpr \
 util_http_aws.gpr.in util_http_curl.gpr.in \
 src samples regtests testutil \
 distrib support bundles debian
