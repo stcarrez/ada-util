@@ -169,7 +169,7 @@ version:
 		  src/util.gpb src/util.ads
 
 # Files to package in source distribution
-DISTFILES=README LICENSE.txt LICENSE.Ahven NOTICE.txt NEWS CHANGES ChangeLog \
+DISTFILES=README LICENSE.txt LICENSE.Ahven NOTICE.txt NEWS \
 config.guess configure config.sub \
 configure.in Makefile.in install-sh \
 util.gpr.in util_http.gpr.in config.gpr util_unit.gpr.in util_tests.gpr tests_proc.gpr samples.gpr \
