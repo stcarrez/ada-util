@@ -195,6 +195,7 @@ dist:
 	  fi; \
 	done
 	rm -f $(distdir)/distrib/*.gpr
+	cp distrib/util_config-*.gpr $(distrib)/distrib
 	rm -rf $(distdir)/regtests/result
 	mkdir $(distdir)/bin
 	mkdir $(distdir)/obj
