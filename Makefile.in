@@ -8,6 +8,7 @@ UTIL_LIBRARY_TYPE=static
 MODE=distrib
 GNATMAKE=@GNATMAKE@
 GNATCLEAN=gnatclean
+GPRINSTALL=@GPRINSTALL@
 SVN=svn
 INSTALL=@INSTALL@
 
@@ -178,7 +179,7 @@ configure.in Makefile.in install-sh \
 util.gpr.in util_http.gpr.in config.gpr util_unit.gpr.in util_tests.gpr tests_proc.gpr samples.gpr \
 util_http_aws.gpr.in util_http_curl.gpr.in \
 src samples regtests testutil \
-distrib support bundles debian
+distrib support bundles
 
 dist:
 	-rm -rf $(distdir)
@@ -214,6 +215,16 @@ install_shared:
 	$(MAKE) UTIL_LIBRARY_TYPE=relocatable install_lib
 
 install_lib:
+ifneq (${GPRINSTALL},)
+	$(GPRINSTALL) -p -f --prefix=${prefix} $(MAKE_ARGS) \
+		--build-name=$(UTIL_LIBRARY_TYPE) $(GPRPATH)
+	test T${HAVE_CURL} = Tno || \
+		 $(GPRINSTALL) -p -f --prefix=${prefix} $(MAKE_ARGS) \
+					   --build-name=$(UTIL_LIBRARY_TYPE) $(UTIL_HTTP_CURL_GPRPATH)
+	test T${HAVE_AWS} = Tno || \
+		 $(GPRINSTALL) -p -f --prefix=${prefix} $(MAKE_ARGS) \
+					   --build-name=$(UTIL_LIBRARY_TYPE) $(UTIL_HTTP_AWS_GPRPATH)
+else
 	rm -rf ${alidir}/ada-util-curl \
 	       ${alidir}/ada-util-aws \
 	       ${alidir}/ada-util-unit \
@@ -301,6 +312,7 @@ else
 	${CP} -p lib/testutil/$(UTIL_LIBRARY_TYPE)/$(libprefix)unit.$(LIBVER) ${bindir}/
 endif
 endif
+endif
 
 install-info:
 	@echo "Installation directories:"
@@ -317,6 +329,13 @@ install-support:
 	${CP} support/*.xsl ${bindir}
 
 uninstall:
+ifneq (${GPRINSTALL},)
+	-$(GPRINSTALL) -q -f --prefix=${prefix} $(MAKE_ARGS) --uninstall $(GPRPATH)
+	-test T${HAVE_CURL} = Tno || \
+	 $(GPRINSTALL) -q -f --prefix=${prefix} $(MAKE_ARGS) --uninstall $(UTIL_HTTP_CURL_GPRPATH)
+	-test T${HAVE_AWS} = Tno || \
+	 $(GPRINSTALL) -q -f --prefix=${prefix} $(MAKE_ARGS) --uninstall $(UTIL_HTTP_AWS_GPRPATH)
+else
 	rm -rf ${includedir}/ada-util ${includedir}/ada-util-unit ${includedir}/ada-util-curl ${includedir}/ada-util-aws
 	rm -rf ${alidir}/ada-util ${alidir}/ada-util-unit ${alidir}/ada-util-curl ${alidir}/ada-util-aws  ${alidir}/ada-util-unit
 	rm -f ${libdir}/$(libname).a
@@ -330,6 +349,7 @@ uninstall:
 	rm -f ${projectdir}/util_http.gpr
 	rm -f ${projectdir}/util_unit.gpr
 	rm -f ${projectdir}/util.gpr
+endif
 
 # prepare before releasing a new version of the package
 # (collect information about changes and SVN repository)
