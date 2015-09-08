@@ -386,6 +386,7 @@ AC_DEFUN(AM_GNAT_CHECK_INSTALL,
 dnl Guess the installation path
 AC_DEFUN(AM_UTIL_CHECK_INSTALL,
 [
+  AC_CHECK_PROGS(GPRINSTALL, gprinstall, "")
   AM_GNAT_CHECK_PROJECT([util_config],[util_config])
 
   # Search in the GNAT project path.
