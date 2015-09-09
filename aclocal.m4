@@ -1,3 +1,13 @@
+# Check whether we can use gprbuild or gnatmake
+AC_DEFUN(AM_GNAT_CHECK_GPRBUILD,
+[
+  AC_CHECK_PROGS(GPRBUILD, gprbuild, "")
+  if test -n "$GPRBUILD"; then
+    GNATMAKE="$GPRBUILD"
+  else
+    AC_CHECK_PROGS(GNATMAKE, gnatmake, "")
+  fi
+])
 
 # Check if a GNAT project is available.
 # dnl AM_GNAT_CHECK_PROJECT([name],[path])
