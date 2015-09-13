@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-refs -- Reference Counting
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,6 +48,8 @@ with Util.Concurrent.Counters;
 --
 package Util.Refs is
 
+   pragma Preelaborate;
+
    --  Root of referenced objects.
    type Ref_Entity is abstract tagged limited private;
 
@@ -58,6 +60,7 @@ package Util.Refs is
       type Element_Type (<>) is new Ref_Entity with private;
       type Element_Access is access all Element_Type;
    package Indefinite_References is
+
       type Ref is new Ada.Finalization.Controlled with private;
 
       --  Create an element and return a reference to that element.
