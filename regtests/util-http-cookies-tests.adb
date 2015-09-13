@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-cookies-tests - Unit tests for Cookies
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -200,6 +200,10 @@ package body Util.Http.Cookies.Tests is
                   & "1ZTA5dhasChFIbRm1YpxPXPteSbwdTE01",
                   15, "s_sq", "%5B%5BB%5D%5D");
 
+      Test_Parse ("A=B;", 1, "A", "B");
+      Test_Parse ("A=B; ", 1, "A", "B");
+      Test_Parse ("A=B; C&3", 1, "A", "B");
+      Test_Parse ("A=C; C<3=4", 1, "A", "C");
    end Test_Parse_Http_Header;
 
 end Util.Http.Cookies.Tests;
