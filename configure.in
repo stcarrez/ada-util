@@ -85,18 +85,22 @@ UTIL_OS_VERSION=$os_version
 AC_SUBST(UTIL_OS_DIR)
 AC_SUBST(UTIL_OS_VERSION)
 
+# Check for gcc intrinsics
+AM_HAS_INTRINSIC_SYNC_COUNTERS(src_asm='src/asm-intrinsic',src_asm='')
 AC_MSG_CHECKING([specific processor support])
-case "${target}" in
-  ## Intel 386 machines where we don't care about the manufacturer
-  i[[34567]]86-*-* | x86_* | x86-*)
-    src_asm='src/asm-x86'
-    ;;
+if test T$src_asm = T; then
+   case "${target}" in
+   ## Intel 386 machines where we don't care about the manufacturer
+     i[[34567]]86-*-* | x86_* | x86-*)
+       src_asm='src/asm-x86'
+       ;;
 
-  *)
-    src_asm='src/asm-none'
-    ;;
+     *)
+       src_asm='src/asm-none'
+       ;;
 
-esac
+   esac
+fi
 AC_MSG_RESULT(using $src_asm)
 UTIL_ASM_DIR="$src_asm"
 AC_SUBST(UTIL_ASM_DIR)
