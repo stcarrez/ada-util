@@ -426,3 +426,67 @@ AC_DEFUN(AM_UTIL_CHECK_INSTALL,
     AM_GNAT_CHECK_INSTALL
   fi
 ])
+
+# AM_TRY_ADA and AM_HAS_INTRINSIC_SYNC_COUNTERS are imported from GNATcoll aclocal.m4
+#############################################################
+# Check whether gnatmake can compile, bind and link an Ada program
+#    AM_TRY_ADA(gnatmake,filename,content,success,failure)
+#############################################################
+
+AC_DEFUN(AM_TRY_ADA,
+[
+   cat > conftest.ada <<EOF
+[$3]
+EOF
+   if AC_TRY_COMMAND([gnatchop -q conftest.ada && $1 $2 >/dev/null 2>conftest.out])
+   then
+      : Success
+      $4
+   else
+      : Failure
+      $5
+   fi
+   rm -rf conftest.ada
+])
+
+#############################################################
+# Check whether platform/GNAT supports atomic increment/decrement
+# operations.
+# The following variable is then set:
+#     SYNC_COUNTERS_IMPL
+# to either "intrinsic" or "mutex"
+# Code comes from the PolyORB configure.ac
+#############################################################
+
+AC_DEFUN(AM_HAS_INTRINSIC_SYNC_COUNTERS,
+[
+  AC_MSG_CHECKING([whether platform supports atomic inc/dec])
+  AM_TRY_ADA([gnatmake], [check.adb],
+[
+with Interfaces; use Interfaces;
+procedure Check is
+   function Sync_Add_And_Fetch
+     (Ptr   : access Interfaces.Integer_32;
+      Value : Interfaces.Integer_32) return Interfaces.Integer_32;
+   pragma Import (Intrinsic, Sync_Add_And_Fetch, "__sync_add_and_fetch_4");
+   X : aliased Interfaces.Integer_32;
+   Y : Interfaces.Integer_32 := 0;
+   pragma Volatile (Y);
+   --  On some platforms (e.g. i386), GCC has limited support for
+   --  __sync_add_and_fetch_4 for the case where the result is not used.
+   --  Here we want to test for general availability, so make Y volatile to
+   --  prevent the store operation from being discarded.
+begin
+   Y := Sync_Add_And_Fetch (X'Access, 1);
+end Check;
+],
+[
+   AC_MSG_RESULT(yes)
+   $1
+],[
+   AC_MSG_RESULT(no)
+   $2
+])
+
+   rm -f check.adb check
+])
