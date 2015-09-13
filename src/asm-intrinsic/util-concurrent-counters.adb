@@ -71,7 +71,7 @@ package body Util.Concurrent.Counters is
       Value : Unsigned_32;
    begin
       Value := Sync_Add_And_Fetch (C.Value'Unrestricted_Access, -1);
-      Is_Zero := Value /= 0;
+      Is_Zero := Value = 0;
    end Decrement;
 
    --  ------------------------------
