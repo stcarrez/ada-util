@@ -19,6 +19,8 @@ with Ada.Finalization;
 with Ada.Streams.Stream_IO;
 package Util.Streams.Files is
 
+   pragma Preelaborate;
+
    --  -----------------------
    --  File stream
    --  -----------------------
