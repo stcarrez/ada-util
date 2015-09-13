@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Concurrent -- Concurrent Counters
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -78,8 +78,12 @@ private
    --  o The size of the target object is 10 times smaller.
    --  o Increment and Decrement operations are 5 times faster.
    --  o It works by using special instructions
+   --  o The counter is Atomic to make sure the compiler will use atomic read/write instructions
+   --    and it prevents optimization (Atomic implies Volatile).  The Atomic does not mean
+   --    that atomic instructions are used.
    type Counter is record
       Value : Interfaces.Unsigned_32 := 0;
+      pragma Atomic (Value);
    end record;
 
    ONE : constant Counter := Counter '(Value => 1);
