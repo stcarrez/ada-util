@@ -18,25 +18,25 @@
 
 package body Util.Concurrent.Counters is
 
-   use Interfaces;
+   function Sync_Sub_And_Fetch (Ptr   : access Interfaces.Unsigned_32;
+                                Value : in Interfaces.Unsigned_32) return Interfaces.Unsigned_32;
+   pragma Import (Intrinsic, Sync_Sub_And_Fetch,
+                  External_Name => "__sync_sub_and_fetch_4");
 
-   function Sync_Add_And_Fetch
-     (Ptr   : access Interfaces.Unsigned_32;
-      Value : Interfaces.Integer_32) return Interfaces.Unsigned_32;
-   pragma Import (Intrinsic, Sync_Add_And_Fetch,
-                  External_Name => "__sync_add_and_fetch_4");
-
-   function Sync_Fetch_And_Add
-     (Ptr   : access Interfaces.Unsigned_32;
-      Value : Interfaces.Integer_32) return Interfaces.Unsigned_32;
+   function Sync_Fetch_And_Add (Ptr   : access Interfaces.Unsigned_32;
+                                Value : in Interfaces.Unsigned_32) return Interfaces.Unsigned_32;
    pragma Import (Intrinsic, Sync_Fetch_And_Add,
                   External_Name => "__sync_fetch_and_add_4");
 
-   procedure Sync_Add
-     (Ptr   : access Interfaces.Unsigned_32;
-      Value : Interfaces.Unsigned_32);
+   procedure Sync_Add (Ptr   : access Interfaces.Unsigned_32;
+                       Value : in Interfaces.Unsigned_32);
    pragma Import (Intrinsic, Sync_Add,
                   External_Name => "__sync_add_and_fetch_4");
+
+   procedure Sync_Sub (Ptr   : access Interfaces.Unsigned_32;
+                       Value : in Interfaces.Unsigned_32);
+   pragma Import (Intrinsic, Sync_Sub,
+                  External_Name => "__sync_sub_and_fetch_4");
 
    --  ------------------------------
    --  Increment the counter atomically.
@@ -59,8 +59,9 @@ package body Util.Concurrent.Counters is
    --  Decrement the counter atomically.
    --  ------------------------------
    procedure Decrement (C : in out Counter) is
+      use type Interfaces.Unsigned_32;
    begin
-      Sync_Add (C.Value'Unrestricted_Access, -1);
+      Sync_Sub (C.Value'Unrestricted_Access, 1);
    end Decrement;
 
    --  ------------------------------
@@ -68,9 +69,11 @@ package body Util.Concurrent.Counters is
    --  ------------------------------
    procedure Decrement (C : in out Counter;
                         Is_Zero : out Boolean) is
-      Value : Unsigned_32;
+      use type Interfaces.Unsigned_32;
+
+      Value : Interfaces.Unsigned_32;
    begin
-      Value := Sync_Add_And_Fetch (C.Value'Unrestricted_Access, -1);
+      Value := Sync_Sub_And_Fetch (C.Value'Unrestricted_Access, 1);
       Is_Zero := Value = 0;
    end Decrement;
 
