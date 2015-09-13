@@ -268,7 +268,7 @@ int main(int argc, char** argv)
     printf("\n");
     gen_type("dev_t", UNSIGNED, sizeof(st.st_dev));
     gen_type("ino_t", UNSIGNED, sizeof(st.st_ino));
-    gen_type("off_t", SIGNED, sizeof(off_t));
+    gen_type("off_t", SIGNED, sizeof(st.st_size));
 #ifndef _WIN32
     gen_type("blksize_t", SIGNED, sizeof(blksize_t));
     gen_type("blkcnt_t", SIGNED, sizeof(blkcnt_t));
@@ -276,9 +276,9 @@ int main(int argc, char** argv)
     gen_type("gid_t", UNSIGNED, sizeof(gid_t));
     gen_type("nlink_t", UNSIGNED, sizeof(nlink_t));
 #else
-    gen_type("uid_t", UNSIGNED, sizeof(short));
-    gen_type("gid_t", UNSIGNED, sizeof(short));
-    gen_type("nlink_t", UNSIGNED, sizeof(short));
+    gen_type("uid_t", UNSIGNED, sizeof(st.st_uid));
+    gen_type("gid_t", UNSIGNED, sizeof(st.st_gid));
+    gen_type("nlink_t", UNSIGNED, sizeof(st.st_nlink));
 #endif
     gen_type("mode_t", UNSIGNED, sizeof(mode_t));
     printf("\n");
