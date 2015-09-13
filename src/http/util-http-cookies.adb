@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-cookies -- HTTP Cookies
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -442,13 +442,14 @@ package body Util.Http.Cookies is
       return Cnt;
    end Get_Cookie_Count;
 
+   --  ------------------------------
    --  Parse the header and return an array of cookies.
+   --  ------------------------------
    function Get_Cookies (Header : in String) return Cookie_Array_Access is
-      Pos : Natural := Header'First;
-
-      Cnt    : constant Natural := Get_Cookie_Count (Header);
-      Result : constant Cookie_Array_Access := new Cookie_Array (1 .. Cnt);
-      Idx    : Positive := 1;
+      Cnt        : constant Natural := Get_Cookie_Count (Header);
+      Result     : constant Cookie_Array_Access := new Cookie_Array (1 .. Cnt);
+      Pos        : Natural := Header'First;
+      Idx        : Positive := 1;
       Start_Pos  : Natural;
       End_Pos    : Natural;
       Is_Special : Boolean;
@@ -514,6 +515,7 @@ package body Util.Http.Cookies is
             end if;
          end if;
          Idx := Idx + 1;
+         exit when Idx > Cnt;
          while Pos <= Header'Last loop
             C := Header (Pos);
             exit when C /= ' ' and C /= ASCII.HT;
