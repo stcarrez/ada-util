@@ -296,12 +296,20 @@ int main(int argc, char** argv)
     printf("   S_IWRITE : constant mode_t := 8#%08o#;\n", S_IWRITE);
     printf("   S_IEXEC  : constant mode_t := 8#%08o#;\n", S_IEXEC);
     printf("\n");
+#ifndef _WIN32
     printf("   subtype Time_Type is %s;\n", get_type(UNSIGNED, sizeof(tv.tv_sec)));
     printf("\n");
     printf("   type Timespec is record\n");
     printf("      tv_sec  : Time_Type;\n");
     printf("      tv_nsec : %s;\n", get_type(SIGNED, sizeof(tv.tv_nsec)));
     printf("   end record;\n");
+#else
+    printf("   subtype Time_Type is %s;\n", get_type(UNSIGNED, sizeof(st.st_mtime)));
+    printf("\n");
+    printf("   type Timespec is record\n");
+    printf("      tv_sec  : Time_Type;\n");
+    printf("   end record;\n");
+#endif
     printf("   pragma Convention (C_Pass_By_Copy, Timespec);\n");
 
     printf("\n");
