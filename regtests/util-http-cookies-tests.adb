@@ -203,7 +203,7 @@ package body Util.Http.Cookies.Tests is
       Test_Parse ("A=B;", 1, "A", "B");
       Test_Parse ("A=B; ", 1, "A", "B");
       Test_Parse ("A=B; C&3", 1, "A", "B");
-      Test_Parse ("A=C; C<3=4", 1, "A", "C");
+      Test_Parse ("A=C; C<3=4", 2, "A", "C");
    end Test_Parse_Http_Header;
 
 end Util.Http.Cookies.Tests;
