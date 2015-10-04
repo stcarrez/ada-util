@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  strings.tests -- Unit tests for strings
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,7 @@ with Ada.Containers;
 with Util.Test_Caller;
 with Util.Strings.Transforms;
 with Util.Strings.Maps;
+with Util.Strings.Vectors;
 with Util.Perfect_Hash;
 with Util.Strings.Tokenizers;
 with Ada.Streams;
@@ -66,6 +67,8 @@ package body Util.Strings.Tests is
                        Test_Perfect_Hash'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.Tokenizers.Iterate_Token",
                        Test_Iterate_Token'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Vectors perf",
+                       Test_Perf_Vector'Access);
 
    end Add_Tests;
 
@@ -217,7 +220,9 @@ package body Util.Strings.Tests is
       end;
    end Test_Measure_Copy;
 
+   --  ------------------------------
    --  Test the Index operation
+   --  ------------------------------
    procedure Test_Index (T : in out Test) is
       Str : constant String := "0123456789abcdefghijklmnopq";
    begin
@@ -243,7 +248,9 @@ package body Util.Strings.Tests is
       end;
    end Test_Index;
 
+   --  ------------------------------
    --  Test the Rindex operation
+   --  ------------------------------
    procedure Test_Rindex (T : in out Test) is
       Str : constant String := "0123456789abcdefghijklmnopq";
    begin
@@ -281,7 +288,9 @@ package body Util.Strings.Tests is
       Hash            => Hash,
       Equivalent_Keys => Equivalent_Keys);
 
+   --  ------------------------------
    --  Do some benchmark on String -> X hash mapped.
+   --  ------------------------------
    procedure Test_Measure_Hash (T : in out Test) is
       KEY     : aliased constant String := "testing";
       Str_Map : Util.Strings.Maps.Map;
@@ -376,7 +385,9 @@ package body Util.Strings.Tests is
       end loop;
    end Test_String_Ref;
 
+   --  ------------------------------
    --  Test perfect hash (samples/gperfhash)
+   --  ------------------------------
    procedure Test_Perfect_Hash (T : in out Test) is
    begin
       for I in Util.Perfect_Hash.Keywords'Range loop
@@ -393,6 +404,71 @@ package body Util.Strings.Tests is
          end;
       end loop;
    end Test_Perfect_Hash;
+
+   --  ------------------------------
+   --  Benchmark comparison between the use of Iterate vs Query_Element.
+   --  ------------------------------
+   procedure Test_Perf_Vector (T : in out Test) is
+      procedure Iterate_Item (Item : in String);
+      procedure Iterate (Pos : in Util.Strings.Vectors.Cursor);
+
+      List  : Util.Strings.Vectors.Vector;
+      Count : Natural := 0;
+      Total : Natural := 0;
+
+      procedure Iterate_Item (Item : in String) is
+      begin
+         Count := Count + 1;
+         Total := Total + Item'Length;
+      end Iterate_Item;
+
+      procedure Iterate (Pos : in Util.Strings.Vectors.Cursor) is
+         S : constant String := Util.Strings.Vectors.Element (Pos);
+      begin
+         Count := Count + 1;
+         Total := Total + S'Length;
+      end Iterate;
+
+   begin
+      for I in 1 .. 100 loop
+         List.Append ("yet another fixed string with some reasonable content");
+      end loop;
+
+      --  First form of iterate by using the container Iterate procedure.
+      --  Due to the Cursor usage, this forces a copy of the string to the secondary stack.
+      declare
+         St  : Util.Measures.Stamp;
+      begin
+         List.Iterate (Iterate'Access);
+         Util.Measures.Report (St, "Util.Strings.Vectors.Iterate (100)");
+      end;
+
+      --  Second form by using the cursor and the Query_Element procedure.
+      --  We avoid a copy of the string to the secondary stack.
+      declare
+         St   : Util.Measures.Stamp;
+         Iter : Util.Strings.Vectors.Cursor := List.First;
+      begin
+         while Util.Strings.Vectors.Has_Element (Iter) loop
+            Util.Strings.Vectors.Query_Element (Iter, Iterate_Item'Access);
+            Util.Strings.Vectors.Next (Iter);
+         end loop;
+         Util.Measures.Report (St, "Util.Strings.Vectors.Query_Element+Cursor (100)");
+      end;
+
+      --  Third form by using a manual index iteration.
+      --  This is the fastest form of iteration with the current GNAT implementation.
+      declare
+         St   : Util.Measures.Stamp;
+         Last : constant Ada.Containers.Count_Type := List.Length;
+      begin
+         for I in 1 .. Last loop
+            List.Query_Element (Positive (I), Iterate_Item'Access);
+         end loop;
+         Util.Measures.Report (St, "Util.Strings.Vectors.Query_Element+Index (100)");
+      end;
+
+   end Test_Perf_Vector;
 
    --  ------------------------------
    --  Test the token iteration.
