@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  strings.tests -- Unit tests for Strings
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,6 +45,9 @@ package Util.Strings.Tests is
 
    --  Test String_Ref creation
    procedure Test_String_Ref (T : in out Test);
+
+   --  Benchmark comparison between the use of Iterate vs Query_Element.
+   procedure Test_Perf_Vector (T : in out Test);
 
    --  Test perfect hash (samples/gperfhash)
    procedure Test_Perfect_Hash (T : in out Test);
