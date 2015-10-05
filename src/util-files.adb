@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Files -- Various File Utility Packages
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -361,7 +361,8 @@ package body Util.Files is
          end if;
       end loop;
       if To'Last = From'Last or (To'Last = From'Last + 1
-                                 and (To (To'Last) = '/' or To (To'Last) = '\')) then
+                                 and (To (To'Last) = '/' or To (To'Last) = '\'))
+      then
          return ".";
       elsif Last = 0 then
          return To;
