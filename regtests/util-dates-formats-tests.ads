@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-formats-tests - Test for date formats
---  Copyright (C) 2011, 2013, 2014 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,5 +45,8 @@ package Util.Dates.Formats.Tests is
 
    --  Test the Split operation.
    procedure Test_Split (T : in out Test);
+
+   --  Test the Append_Date operation
+   procedure Test_Append_Date (T : in out Test);
 
 end Util.Dates.Formats.Tests;
