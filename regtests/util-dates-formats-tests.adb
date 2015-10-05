@@ -21,6 +21,7 @@ with Util.Test_Caller;
 with Util.Assertions;
 with Util.Properties.Bundles;
 with Util.Log.Loggers;
+with Util.Dates.RFC7231;
 package body Util.Dates.Formats.Tests is
    use Util.Tests;
    use Ada.Strings.Unbounded;
@@ -48,6 +49,8 @@ package body Util.Dates.Formats.Tests is
                        Test_Get_Week_End'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.Get_Month_End",
                        Test_Get_Month_End'Access);
+      Caller.Add_Test (Suite, "Test Util.Dates.RFC7231.Append_Date",
+                       Test_Append_Date'Access);
    end Add_Tests;
 
    procedure Test_Format (T : in out Test) is
@@ -229,5 +232,27 @@ package body Util.Dates.Formats.Tests is
       Util.Tests.Assert_Equals (T, 30, Natural (D.Minute), "Invalid minute ");
       Assert_Equals (T, Ada.Calendar.Formatting.Wednesday, D.Day, "Invalid day ");
    end Test_Split;
+
+   procedure Check (T    : in out Test;
+                    Date : in String) is
+      D : constant Ada.Calendar.Time := Util.Dates.RFC7231.Value (Date);
+      F : constant String := Util.Dates.RFC7231.Image (D);
+   begin
+      Util.Tests.Assert_Equals (T, Date, F, "Invalid date conversion");
+   end Check;
+
+   --  ------------------------------
+   --  Test the Append_Date as well as the Image operation
+   --  ------------------------------
+   procedure Test_Append_Date (T : in out Test) is
+   begin
+      Check (T, "Mon, 26 Mar 2012 19:43:47 GMT");
+      Check (T, "Tue, 02 Feb 2016 15:18:35 GMT");
+      Check (T, "Wed, 07 Oct 2015 03:41:11 GMT");
+      Check (T, "Thu, 17 Sep 2015 10:07:02 GMT");
+      Check (T, "Sat, 03 Oct 2015 17:09:58 GMT");
+      Check (T, "Fri, 17 Jul 2015 16:07:54 GMT");
+      Check (T, "Sun, 04 Oct 2015 15:10:44 GMT");
+   end Test_Append_Date;
 
 end Util.Dates.Formats.Tests;
