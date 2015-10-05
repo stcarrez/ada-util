@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-iso8601 -- ISO8601 dates
---  Copyright (C) 2011, 2013 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,7 +47,8 @@ package body Util.Dates.ISO8601 is
          Result.Month_Day := Day_Number'Value (Date (Date'First + 6 .. Date'First + 7));
 
       elsif Date'Length >= 9 and then Date (Date'First + 4) = '-'
-        and then Date (Date'First + 7) = '-' then
+        and then Date (Date'First + 7) = '-'
+      then
          --  ISO8601 date: YYYY-MM-DD
          Result.Month := Month_Number'Value (Date (Date'First + 5 .. Date'First + 6));
          Result.Month_Day := Day_Number'Value (Date (Date'First + 8 .. Date'First + 9));
