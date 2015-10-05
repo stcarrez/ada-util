@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-systems-os-tests -- Unit tests for OS specific operations
---  Copyright (C) 2014 Stephane Carrez
+--  Copyright (C) 2014, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Directories;
-with Util.Tests;
 with Util.Test_Caller;
 with Util.Systems.Types;
 with Interfaces.C.Strings;
