@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-csv -- CSV Serialization Driver
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -299,7 +299,8 @@ package body Util.Serialize.IO.CSV is
             end if;
 
          elsif C = Handler.Comment and Handler.Comment /= ASCII.NUL
-           and Column = 1 and Length (Token) = 0 then
+           and Column = 1 and Length (Token) = 0
+         then
             Ignore_Row := True;
 
          elsif not Ignore_Row then
