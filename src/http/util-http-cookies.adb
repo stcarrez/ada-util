@@ -17,11 +17,12 @@
 -----------------------------------------------------------------------
 
 with Ada.Calendar;
-with Ada.Calendar.Formatting;
-
-with Util.Strings.Transforms;
-with Util.Strings;
 with Ada.Strings.Maps;
+
+with Util.Strings;
+with Util.Strings.Builders;
+with Util.Strings.Builders.Transforms;
+with Util.Dates.RFC7231;
 package body Util.Http.Cookies is
 
    use Ada.Strings.Unbounded;
@@ -290,95 +291,46 @@ package body Util.Http.Cookies is
       Object.Http_Only := Http_Only;
    end Set_Http_Only;
 
-   use Ada.Calendar;
-   use Ada.Calendar.Formatting;
-
-   Day_Names : constant array (Day_Name) of String (1 .. 3)
-     := ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
-
-   Month_Names : constant array (Month_Number) of String (1 .. 3)
-     := ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
-         "Sep", "Oct", "Nov", "Dec");
-
-   procedure Append_Digits (Into  : in out Unbounded_String;
-                            Value : in Natural);
-
-   procedure Append_Date (Into : in out Unbounded_String;
-                          Date : in Ada.Calendar.Time);
-
-   procedure Append_Digits (Into  : in out Unbounded_String;
-                            Value : in Natural) is
-   begin
-      Append (Into, Character'Val (Character'Pos ('0') + Value / 10));
-      Append (Into, Character'Val (Character'Pos ('0') + Value mod 10));
-   end Append_Digits;
-
-   procedure Append_Date (Into : in out Unbounded_String;
-                          Date : in Ada.Calendar.Time) is
-      Wday  : constant Day_Name := Day_Of_Week (Date);
-      Year  : Year_Number;
-      Month : Month_Number;
-      Day   : Day_Number;
-      Hour  : Hour_Number;
-      Min   : Minute_Number;
-      Sec   : Second_Number;
-      Ssec  : Second_Duration;
-   begin
-      Split (Date, Year, Month, Day, Hour, Min, Sec, Ssec);
-      Append (Into, Day_Names (Wday));
-      Append (Into, ", ");
-      Append_Digits (Into, Integer (Day));
-      Append (Into, '-');
-      Append (Into, Month_Names (Month));
-      Append (Into, '-');
-      Append_Digits (Into, Integer (Year / 100));
-      Append_Digits (Into, Integer (Year mod 100));
-      Append (Into, ' ');
-      Append_Digits (Into, Integer (Hour));
-      Append (Into, ':');
-      Append_Digits (Into, Integer (Min));
-      Append (Into, ':');
-      Append_Digits (Into, Integer (Sec));
-      Append (Into, " GMT");
-   end Append_Date;
-
    --  ------------------------------
    --  Get the cookie definition
    --  ------------------------------
    function To_Http_Header (Object : in Cookie) return String is
+      use Util.Strings.Builders;
+      use Ada.Calendar;
+
       V      : Natural := Object.Version;
 
-      procedure Append_Value (Into  : in out Unbounded_String;
+      procedure Append_Value (Into  : in out Util.Strings.Builders.Builder;
                               Name  : in String;
                               Value : in Unbounded_String);
 
-      procedure Append_Value (Into  : in out Unbounded_String;
+      procedure Append_Value (Into  : in out Util.Strings.Builders.Builder;
                               Name  : in String;
                               Value : in Unbounded_String) is
-         Len : constant Natural := Length (Value);
+         Item : constant String := To_String (Value);
       begin
          if Name'Length > 0 then
-            if Len = 0 then
+            if Item'Length = 0 then
                return;
             end if;
             Append (Into, Name);
          end if;
-         if Len > 2 and then Element (Value, 1) = '"' and then Element (Value, Len) = '"' then
+         if Item'Length > 2 and then Item (Item'First) = '"' and then Item (Item'Last) = '"' then
             V := 1;
             Append (Into, '"');
-            Util.Strings.Transforms.Escape_Javascript (Content => To_String (Value),
-                                                       Into    => Into);
+            Util.Strings.Builders.Transforms.Escape_Java_Script (Content => Item,
+                                                                 Into    => Into);
             Append (Into, '"');
          else
-            Append (Into, Value);
+            Append (Into, Item);
          end if;
       end Append_Value;
 
-      Result : Unbounded_String;
-      Buf    : Unbounded_String;
+      Result : Util.Strings.Builders.Builder (Len => 256);
+      Buf    : Util.Strings.Builders.Builder (Len => 256);
 
    begin
-      Append (Result, Object.Name);
+      Append (Result, To_String (Object.Name));
       Append (Result, '=');
       Append_Value (Result, "", Object.Value);
       Append_Value (Buf, "; Domain=", Object.Domain);
@@ -399,10 +351,12 @@ package body Util.Http.Cookies is
          if Object.Max_Age = 0 then
             Append (Result, "Thu, 01-Jan-1970 00:00:01 GMT");
          else
-            Append_Date (Result, Ada.Calendar.Clock + Duration (Object.Max_Age));
+            Util.Dates.RFC7231.Append_Date (Result,
+                                            Ada.Calendar.Clock + Duration (Object.Max_Age));
          end if;
       end if;
-      Append (Result, Buf);
+      Append_Value (Result, "; Domain=", Object.Domain);
+      Append_Value (Result, "; Path=", Object.Path);
 
       if Object.Secure then
          Append (Result, "; Secure");
@@ -411,7 +365,7 @@ package body Util.Http.Cookies is
          Append (Result, "; HttpOnly");
       end if;
 
-      return To_String (Result);
+      return Util.Strings.Builders.To_Array (Result);
    end To_Http_Header;
 
    --  ------------------------------
