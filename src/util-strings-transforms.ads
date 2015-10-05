@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util-texts -- Various Text Transformation Utilities
---  Copyright (C) 2001, 2002, 2003, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,16 +30,14 @@ package Util.Strings.Transforms is
                                 Input  => String,
                                 Put    => Ada.Strings.Unbounded.Append,
                                 To_Upper => Ada.Characters.Handling.To_Upper,
-                                To_Lower => Ada.Characters.Handling.To_Lower,
-                                To_Input => Ada.Strings.Unbounded.To_String);
-
+                                To_Lower => Ada.Characters.Handling.To_Lower);
 
    --  Capitalize the string into the result stream.
    procedure Capitalize (Content : in String;
                          Into    : in out Unbounded_String)
                          renames TR.Capitalize;
    function Capitalize (Content : String) return String
-                         renames TR.Capitalize;
+                        renames TR.Capitalize;
 
    --  Translate the input string into an upper case string in the result stream.
    procedure To_Upper_Case (Content : in String;
@@ -64,16 +62,14 @@ package Util.Strings.Transforms is
    procedure Escape_Javascript (Content : in String;
                                 Into    : in out Unbounded_String)
                                 renames TR.Escape_Java_Script;
-   function Escape_Javascript (Content : String) return String
-                                renames TR.Escape_Java_Script;
+   function Escape_Javascript (Content : String) return String;
 
    --  Escape the content into the result stream using the Java
    --  escape rules.
    procedure Escape_Java (Content : in String;
                           Into    : in out Unbounded_String)
                           renames TR.Escape_Java;
-   function Escape_Java (Content : String) return String
-                          renames TR.Escape_Java;
+   function Escape_Java (Content : String) return String;
 
    --  Escape the content into the result stream using the XML
    --  escape rules:
@@ -86,8 +82,7 @@ package Util.Strings.Transforms is
                          Into    : in out Unbounded_String)
                           renames TR.Escape_Xml;
 
-   function Escape_Xml (Content : String) return String
-                        renames TR.Escape_Xml;
+   function Escape_Xml (Content : String) return String;
 
    procedure Translate_Xml_Entity (Entity : in String;
                                    Into   : in out Unbounded_String)
