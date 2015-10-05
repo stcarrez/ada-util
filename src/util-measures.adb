@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  measure -- Benchmark tools
---  Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Stephane Carrez
+--  Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -274,7 +274,8 @@ package body Util.Measures is
          Node := Buckets (Pos);
          while Node /= null loop
             if Node.Name'Length = Title'Length
-              and then Node.Name.all = Title then
+              and then Node.Name.all = Title
+            then
                Node.Count := Node.Count + Count;
                Node.Time := Node.Time + D;
                return;
