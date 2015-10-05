@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Streams.Files -- File Stream utilities
---  Copyright (C) 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,8 +62,7 @@ package Util.Streams.Texts is
                                 Input  => String,
                                 Put    => Buffered.Write,
                                 To_Upper => Ada.Characters.Handling.To_Upper,
-                                To_Lower => Ada.Characters.Handling.To_Lower,
-                                To_Input => To_String);
+                                To_Lower => Ada.Characters.Handling.To_Lower);
 
    --  -----------------------
    --  Reader stream
