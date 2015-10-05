@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util-texts -- Various Text Transformation Utilities
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,7 +97,8 @@ package body Util.Texts.Transforms is
          else
             C := Char'Pos (To_Lower (Content (I)));
             if C = Character'Pos ('_') or C = Character'Pos ('.') or C = Character'Pos (':')
-              or C = Character'Pos (';') or C = Character'Pos (',') or C = Character'Pos (' ') then
+              or C = Character'Pos (';') or C = Character'Pos (',') or C = Character'Pos (' ')
+            then
                Upper := True;
             end if;
          end if;
@@ -109,10 +110,25 @@ package body Util.Texts.Transforms is
    --  Capitalize the string
    --  ------------------------------
    function Capitalize (Content : Input) return Input is
-      Result : Stream;
+      Upper  : Boolean := True;
+      C      : Code;
+      Result : Input (Content'Range);
    begin
-      Capitalize (Content, Result);
-      return To_Input (Result);
+      for I in Content'Range loop
+         if Upper then
+            C := Char'Pos (To_Upper (Content (I)));
+            Upper := False;
+         else
+            C := Char'Pos (To_Lower (Content (I)));
+            if C = Character'Pos ('_') or C = Character'Pos ('.') or C = Character'Pos (':')
+              or C = Character'Pos (';') or C = Character'Pos (',') or C = Character'Pos (' ')
+            then
+               Upper := True;
+            end if;
+         end if;
+         Result (I) := Char'Val (C);
+      end loop;
+      return Result;
    end Capitalize;
 
    --  ------------------------------
@@ -172,29 +188,11 @@ package body Util.Texts.Transforms is
                    Escape_Single_Quote => True);
    end Escape_Java_Script;
 
-   function Escape_Java_Script (Content : Input) return Input is
-      Result : Stream;
-   begin
-      Escape_Java (Content             => Content,
-                   Into                => Result,
-                   Escape_Single_Quote => True);
-      return To_Input (Result);
-   end Escape_Java_Script;
-
    procedure Escape_Java (Content : in Input;
                           Into    : in out Stream) is
    begin
       Escape_Java (Content             => Content, Into => Into,
                    Escape_Single_Quote => False);
-   end Escape_Java;
-
-   function Escape_Java (Content : Input) return Input is
-      Result : Stream;
-   begin
-      Escape_Java (Content             => Content,
-                   Into                => Result,
-                   Escape_Single_Quote => False);
-      return To_Input (Result);
    end Escape_Java;
 
    procedure Escape_Java (Content             : in Input;
@@ -251,15 +249,7 @@ package body Util.Texts.Transforms is
       end loop;
    end Escape_Java;
 
-
-   function Escape_Xml (Content : Input) return Input is
-      Result : Stream;
-   begin
-      Escape_Xml (Content => Content,
-                  Into    => Result);
-      return To_Input (Result);
-   end Escape_Xml;
-
+   --  ------------------------------
    --  Escape the content into the result stream using the XML
    --  escape rules:
    --   '<' -> '&lt;'
@@ -267,6 +257,7 @@ package body Util.Texts.Transforms is
    --   ''' -> '&apos;'
    --   '&' -> '&amp;'
    --       -> '&#nnn;' if Character'Pos >= 128
+   --  ------------------------------
    procedure Escape_Xml (Content : in Input;
                          Into    : in out Stream) is
       C : Code;
@@ -305,18 +296,21 @@ package body Util.Texts.Transforms is
                                    Into   : in out Stream) is
    begin
       if Entity (Entity'First) = Char'Val (Character'Pos ('&'))
-        and then Entity (Entity'Last) = Char'Val (Character'Pos (';')) then
+        and then Entity (Entity'Last) = Char'Val (Character'Pos (';'))
+      then
          case Char'Pos (Entity (Entity'First + 1)) is
             when Character'Pos ('l') =>
                if Entity'Length = 4
-                 and then Entity (Entity'First + 2) = Char'Val (Character'Pos ('t')) then
+                 and then Entity (Entity'First + 2) = Char'Val (Character'Pos ('t'))
+               then
                   Put (Into, '<');
                   return;
                end if;
 
             when Character'Pos ('g') =>
                if Entity'Length = 4
-                 and then Entity (Entity'First + 2) = Char'Val (Character'Pos ('t')) then
+                 and then Entity (Entity'First + 2) = Char'Val (Character'Pos ('t'))
+               then
                   Put (Into, '>');
                   return;
                end if;
@@ -324,14 +318,16 @@ package body Util.Texts.Transforms is
             when Character'Pos ('a') =>
                if Entity'Length = 5
                  and then Entity (Entity'First + 2) = Char'Val (Character'Pos ('m'))
-                 and then Entity (Entity'First + 3) = Char'Val (Character'Pos ('p')) then
+                 and then Entity (Entity'First + 3) = Char'Val (Character'Pos ('p'))
+               then
                   Put (Into, '&');
                   return;
                end if;
                if Entity'Length = 6
                  and then Entity (Entity'First + 2) = Char'Val (Character'Pos ('p'))
                  and then Entity (Entity'First + 3) = Char'Val (Character'Pos ('o'))
-                 and then Entity (Entity'First + 4) = Char'Val (Character'Pos ('s')) then
+                 and then Entity (Entity'First + 4) = Char'Val (Character'Pos ('s'))
+               then
                   Put (Into, ''');
                   return;
                end if;
@@ -340,7 +336,8 @@ package body Util.Texts.Transforms is
                if Entity'Length = 6
                  and then Entity (Entity'First + 2) = Char'Val (Character'Pos ('u'))
                  and then Entity (Entity'First + 3) = Char'Val (Character'Pos ('o'))
-                 and then Entity (Entity'First + 4) = Char'Val (Character'Pos ('t')) then
+                 and then Entity (Entity'First + 4) = Char'Val (Character'Pos ('t'))
+               then
                   Put (Into, '"');
                   return;
                end if;
