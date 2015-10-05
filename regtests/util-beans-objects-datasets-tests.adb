@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-datasets-tests -- Unit tests for dataset beans
---  Copyright (C) 2013 Stephane Carrez
+--  Copyright (C) 2013, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Util.Tests;
 with Util.Test_Caller;
 
 package body Util.Beans.Objects.Datasets.Tests is
@@ -53,8 +52,7 @@ package body Util.Beans.Objects.Datasets.Tests is
       for I in 1 .. 100 loop
          Set.Set_Row_Index (I);
          declare
-            R : Object := Set.Get_Row;
-
+            R : constant Object := Set.Get_Row;
          begin
             T.Assert (not Is_Null (R), "Row is null");
             Util.Tests.Assert_Equals (T, "john", To_String (Get_Value (R, "name")),
