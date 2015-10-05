@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Locales -- Locale
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -116,7 +116,8 @@ package body Util.Locales is
                Upper := Pos - 1;
             end if;
          elsif Result'Length > Length and then Result (Length + 1) = '.'
-           and then Result (1 .. Length) = Language then
+           and then Result (1 .. Length) = Language
+         then
             return Result;
          elsif Result (1 .. Length) < Language then
             Lower := Pos + 1;
@@ -151,7 +152,8 @@ package body Util.Locales is
    begin
       if Language'Length /= 2
         or else (Country'Length /= 0 and Country'Length /= 2)
-        or else (Variant'Length /= 0 and Variant'Length /= 2) then
+        or else (Variant'Length /= 0 and Variant'Length /= 2)
+      then
          return NULL_LOCALE;
       end if;
       if Country'Length = 0 and Variant'Length = 0 then
