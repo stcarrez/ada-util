@@ -113,6 +113,9 @@ package body Util.Log.Appenders is
    begin
       if Self.Level >= Event.Level then
          Text_IO.Put_Line (Self.Output, Format (Self, Event));
+         if Self.Immediate_Flush then
+            Self.Flush;
+         end if;
       end if;
    end Append;
 
@@ -125,7 +128,9 @@ package body Util.Log.Appenders is
       Text_IO.Flush (Self.Output);
    end Flush;
 
+   --  ------------------------------
    --  Flush and close the file.
+   --  ------------------------------
    overriding
    procedure Finalize (Self : in out File_Appender) is
    begin
