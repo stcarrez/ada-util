@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Appenders -- Log appenders
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@ with Ada.Strings.Fixed;
 
 with Util.Strings.Transforms;
 with Util.Log.Loggers;
+with Util.Properties.Basic;
 package body Util.Log.Appenders is
 
    use Ada;
@@ -139,30 +140,40 @@ package body Util.Log.Appenders is
                                   Properties : in Util.Properties.Manager;
                                   Default    : in Level_Type)
                                   return Appender_Access is
+      use Util.Properties.Basic;
+
       Path   : constant String := Properties.Get (Name & ".File");
+      Append : constant Boolean := Boolean_Property.Get (Properties, Name & ".append", True);
       Result : constant File_Appender_Access := new File_Appender;
    begin
       Result.Set_Level (Name, Properties, Default);
       Result.Set_Layout (Name, Properties, FULL);
-      Text_IO.Open (File => Result.Output,
-                    Name => Path,
-                    Mode => Text_IO.Out_File);
+      Result.Set_File (Path, Append);
+      Result.Immediate_Flush := Boolean_Property.Get (Properties, Name & ".immediateFlush", True);
       return Result.all'Access;
-   exception
-      when Text_IO.Name_Error =>
-         Text_IO.Create (File => Result.Output, Name => Path);
-         return Result.all'Access;
    end Create_File_Appender;
 
    --  ------------------------------
-   --  Set the file where the appender will write the logs
+   --  Set the file where the appender will write the logs.
+   --  When <tt>Append</tt> is true, the log message are appended to the existing file.
+   --  When set to false, the file is cleared before writing new messages.
    --  ------------------------------
    procedure Set_File (Self : in out File_Appender;
-                       Path : in String) is
+                       Path : in String;
+                       Append : in Boolean := True) is
+      Mode   : Text_IO.File_Mode;
    begin
+      if Append then
+         Mode := Text_IO.Append_File;
+      else
+         Mode := Text_IO.Out_File;
+      end if;
       Text_IO.Open (File => Self.Output,
                     Name => Path,
-                    Mode => Text_IO.Out_File);
+                    Mode => Mode);
+   exception
+      when Text_IO.Name_Error =>
+         Text_IO.Create (File => Self.Output, Name => Path);
    end Set_File;
 
    procedure Append (Self  : in out Console_Appender;
