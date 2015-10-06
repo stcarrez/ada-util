@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  log.tests -- Unit tests for loggers
---  Copyright (C) 2009, 2010, 2011, 2013 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -102,7 +102,9 @@ package body Util.Log.Tests is
       end;
    end Test_Log_Perf;
 
+   --  ------------------------------
    --  Test appending the log on several log files
+   --  ------------------------------
    procedure Test_List_Appender (T : in out Test) is
       use Ada.Strings;
       use Ada.Directories;
@@ -151,6 +153,54 @@ package body Util.Log.Tests is
       end loop;
    end Test_List_Appender;
 
+   --  ------------------------------
+   --  Test file appender with different modes.
+   --  ------------------------------
+   procedure Test_File_Appender_Modes (T : in out Test) is
+      Props : Util.Properties.Manager;
+   begin
+      Props.Set ("log4j.appender.test", "File");
+      Props.Set ("log4j.appender.test.File", "test-append.log");
+      Props.Set ("log4j.appender.test.append", "true");
+      Props.Set ("log4j.appender.test.immediateFlush", "true");
+      Props.Set ("log4j.logger.util.log.test.file", "DEBUG,test");
+      Props.Set ("log4j.rootCategory", "DEBUG, test.log");
+      Util.Log.Loggers.Initialize (Props);
+
+      declare
+         L : constant Loggers.Logger := Loggers.Create ("util.log.test.file");
+      begin
+         L.Debug ("Writing a debug message");
+         L.Debug ("{0}: {1}", "Parameter", "Value");
+         L.Debug ("Done");
+         L.Error ("This is the error test message");
+      end;
+
+      Props.Set ("log4j.appender.test_append", "File");
+      Props.Set ("log4j.appender.test_append.File", "test-append.log");
+      Props.Set ("log4j.appender.test_append.append", "true");
+      Props.Set ("log4j.appender.test_append.immediateFlush", "true");
+      Props.Set ("log4j.logger.util.log.test2.file", "DEBUG,test_append");
+      Props.Set ("log4j.rootCategory", "DEBUG, test.log");
+      Util.Log.Loggers.Initialize (Props);
+
+      declare
+         L1 : constant Loggers.Logger := Loggers.Create ("util.log.test.file");
+         L2 : constant Loggers.Logger := Loggers.Create ("util.log.test2.file");
+      begin
+         L1.Info ("Writing a info message");
+         L2.Info ("{0}: {1}", "Parameter", "Value");
+         L1.Info ("Done");
+         L2.Error ("This is the error test2 message");
+      end;
+
+      Props.Set ("log4j.appender.test_append.append", "plop");
+      Props.Set ("log4j.appender.test_append.immediateFlush", "falsex");
+      Props.Set ("log4j.rootCategory", "DEBUG, test.log");
+      Util.Log.Loggers.Initialize (Props);
+
+   end Test_File_Appender_Modes;
+
    package Caller is new Util.Test_Caller (Test, "Log");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -163,6 +213,8 @@ package body Util.Log.Tests is
                        Test_Log'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Appenders.File_Appender",
                        Test_File_Appender'Access);
+      Caller.Add_Test (Suite, "Test Util.Log.Appenders.File_Appender (append)",
+                       Test_File_Appender_Modes'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Appenders.List_Appender",
                        Test_List_Appender'Access);
 
