@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Appenders -- Log appenders
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -113,9 +113,12 @@ package Util.Log.Appenders is
    procedure Append (Self  : in out File_Appender;
                      Event : in Log_Event);
 
-   --  Set the file where the appender will write the logs
-   procedure Set_File (Self : in out File_Appender;
-                       Path : in String);
+   --  Set the file where the appender will write the logs.
+   --  When <tt>Append</tt> is true, the log message are appended to the existing file.
+   --  When set to false, the file is cleared before writing new messages.
+   procedure Set_File (Self   : in out File_Appender;
+                       Path   : in String;
+                       Append : in Boolean := True);
 
    --  Flush the log events.
    overriding
@@ -186,7 +189,8 @@ private
    end record;
 
    type File_Appender is new Appender with record
-      Output : Ada.Text_IO.File_Type;
+      Output          : Ada.Text_IO.File_Type;
+      Immediate_Flush : Boolean := False;
    end record;
 
    type Appender_Array_Access is array (1 .. MAX_APPENDERS) of Appender_Access;
