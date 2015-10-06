@@ -278,7 +278,7 @@ package body Ahven.XML_Runner is
          Put_Line (Output, ">");
 
          Position := First_Error (Result);
-         Error_Loop:
+         Error_Loop :
          loop
             exit Error_Loop when not Is_Valid (Position);
             Print_Test_Error (Output,
@@ -287,7 +287,7 @@ package body Ahven.XML_Runner is
          end loop Error_Loop;
 
          Position := First_Failure (Result);
-         Failure_Loop:
+         Failure_Loop :
          loop
             exit Failure_Loop when not Is_Valid (Position);
             Print_Test_Failure (Output,
@@ -296,7 +296,7 @@ package body Ahven.XML_Runner is
          end loop Failure_Loop;
 
          Position := First_Pass (Result);
-         Pass_Loop:
+         Pass_Loop :
          loop
             exit Pass_Loop when not Is_Valid (Position);
             Print_Test_Pass (Output,
@@ -305,7 +305,7 @@ package body Ahven.XML_Runner is
          end loop Pass_Loop;
 
          Position := First_Skipped (Result);
-         Skip_Loop:
+         Skip_Loop :
          loop
             exit Skip_Loop when not Is_Valid (Position);
 
