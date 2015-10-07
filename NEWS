@@ -1,3 +1,10 @@
+Version 1.8.0   -
+  - Added support for immediate flush and file appending to the file logger
+  - Added support for RFC7231/RFC2616 date conversion
+  - Improvement of configure and installation process with gprinstall (if available)
+  - Added file system stat/fstat support
+  - Use gcc intrinsics for atomic counters (Intel, Arm)
+
 Version 1.7.1   - Jul 2014
   - Support XmlAda 2014
   - Fixed Get_Week_Start/Get_Week_End when the system timezone is
