@@ -219,6 +219,10 @@ install_lib:
 ifneq (${GPRINSTALL},)
 	$(GPRINSTALL) -p -f --prefix=${prefix} $(MAKE_ARGS) \
 		--build-name=$(UTIL_LIBRARY_TYPE) $(GPRPATH)
+	$(GPRINSTALL) -p -f --prefix=${prefix} $(MAKE_ARGS) \
+		--build-name=$(UTIL_LIBRARY_TYPE) $(TESTUTIL_GPRPATH)
+	$(GPRINSTALL) -p -f --prefix=${prefix} $(MAKE_ARGS) \
+		--build-name=$(UTIL_LIBRARY_TYPE) $(UTIL_HTTP_GPRPATH)
 	test T${HAVE_CURL} = Tno || \
 		 $(GPRINSTALL) -p -f --prefix=${prefix} $(MAKE_ARGS) \
 					   --build-name=$(UTIL_LIBRARY_TYPE) $(UTIL_HTTP_CURL_GPRPATH)
@@ -332,6 +336,8 @@ install-support:
 uninstall:
 ifneq (${GPRINSTALL},)
 	-$(GPRINSTALL) -q -f --prefix=${prefix} $(MAKE_ARGS) --uninstall $(GPRPATH)
+	-$(GPRINSTALL) -q -f --prefix=${prefix} $(MAKE_ARGS) --uninstall $(TESTUTIL_GPRPATH)
+	-$(GPRINSTALL) -q -f --prefix=${prefix} $(MAKE_ARGS) --uninstall $(UTIL_HTTP_GPRPATH)
 	-test T${HAVE_CURL} = Tno || \
 	 $(GPRINSTALL) -q -f --prefix=${prefix} $(MAKE_ARGS) --uninstall $(UTIL_HTTP_CURL_GPRPATH)
 	-test T${HAVE_AWS} = Tno || \
