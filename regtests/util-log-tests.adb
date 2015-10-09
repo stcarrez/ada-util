@@ -157,14 +157,20 @@ package body Util.Log.Tests is
    --  Test file appender with different modes.
    --  ------------------------------
    procedure Test_File_Appender_Modes (T : in out Test) is
+      use Ada.Directories;
+
       Props : Util.Properties.Manager;
    begin
       Props.Set ("log4j.appender.test", "File");
       Props.Set ("log4j.appender.test.File", "test-append.log");
       Props.Set ("log4j.appender.test.append", "true");
       Props.Set ("log4j.appender.test.immediateFlush", "true");
-      Props.Set ("log4j.logger.util.log.test.file", "DEBUG,test");
-      Props.Set ("log4j.rootCategory", "DEBUG, test.log");
+      Props.Set ("log4j.appender.test_global", "File");
+      Props.Set ("log4j.appender.test_global.File", "test-append-global.log");
+      Props.Set ("log4j.appender.test_global.append", "false");
+      Props.Set ("log4j.appender.test_global.immediateFlush", "false");
+      Props.Set ("log4j.logger.util.log.test.file", "DEBUG");
+      Props.Set ("log4j.rootCategory", "DEBUG,test_global,test");
       Util.Log.Loggers.Initialize (Props);
 
       declare
@@ -177,21 +183,20 @@ package body Util.Log.Tests is
       end;
 
       Props.Set ("log4j.appender.test_append", "File");
-      Props.Set ("log4j.appender.test_append.File", "test-append.log");
+      Props.Set ("log4j.appender.test_append.File", "test-append2.log");
       Props.Set ("log4j.appender.test_append.append", "true");
       Props.Set ("log4j.appender.test_append.immediateFlush", "true");
-      Props.Set ("log4j.logger.util.log.test2.file", "DEBUG,test_append");
-      Props.Set ("log4j.rootCategory", "DEBUG, test.log");
+      Props.Set ("log4j.logger.util.log.test2.file", "DEBUG,test_append,test_global");
       Util.Log.Loggers.Initialize (Props);
 
       declare
          L1 : constant Loggers.Logger := Loggers.Create ("util.log.test.file");
          L2 : constant Loggers.Logger := Loggers.Create ("util.log.test2.file");
       begin
-         L1.Info ("Writing a info message");
-         L2.Info ("{0}: {1}", "Parameter", "Value");
-         L1.Info ("Done");
-         L2.Error ("This is the error test2 message");
+         L1.Info ("L1-1 Writing a info message");
+         L2.Info ("L2-2 {0}: {1}", "Parameter", "Value");
+         L1.Info ("L1-3 Done");
+         L2.Error ("L2-4 This is the error test2 message");
       end;
 
       Props.Set ("log4j.appender.test_append.append", "plop");
@@ -199,6 +204,12 @@ package body Util.Log.Tests is
       Props.Set ("log4j.rootCategory", "DEBUG, test.log");
       Util.Log.Loggers.Initialize (Props);
 
+      T.Assert (Ada.Directories.Size ("test-append.log") > 100,
+                "Log file test-append.log is empty");
+      T.Assert (Ada.Directories.Size ("test-append2.log") > 100,
+                "Log file test-append2.log is empty");
+      T.Assert (Ada.Directories.Size ("test-append-global.log") > 100,
+                "Log file test-append.log is empty");
    end Test_File_Appender_Modes;
 
    package Caller is new Util.Test_Caller (Test, "Log");
