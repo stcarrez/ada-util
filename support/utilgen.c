@@ -14,7 +14,9 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 */
-
+#ifdef _MIPS_ARCH
+# define _LARGEFILE64_SOURCE
+#endif
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -114,13 +116,24 @@ void gen_type(const char* name, int is_signed, int size)
 void gen_stat(void)
 {
 #ifdef __linux__
+#ifdef _MIPS_ARCH
+    printf("   STAT_NAME  : constant String := \"stat64\";\n");
+    printf("   FSTAT_NAME : constant String := \"fstat64\";\n");
+#else
     printf("   STAT_NAME  : constant String := \"stat\";\n");
     printf("   FSTAT_NAME : constant String := \"fstat\";\n");
+#endif
     printf("   type Stat_Type is record\n");
     printf("      st_dev     : dev_t;\n");
+#ifdef _MIPS_ARCH
+    printf("      pad0_1     : Interfaces.C.unsigned_long;\n");
+    printf("      pad0_2     : Interfaces.C.unsigned_long;\n");
+    printf("      pad0_3     : Interfaces.C.unsigned_long;\n");
+#else
     if (NEED_PADDING) {
         printf("      pad1       : Interfaces.C.unsigned_short;\n");
     }
+#endif
     printf("      st_ino     : ino_t;\n");
 #ifndef __x86_64__
     printf("      st_mode    : mode_t;\n");
@@ -132,19 +145,34 @@ void gen_stat(void)
     printf("      st_uid     : uid_t;\n");
     printf("      st_gid     : gid_t;\n");
     printf("      st_rdev    : dev_t;\n");
+#ifdef _MIPS_ARCH
+    printf("      pad1_0     : Interfaces.C.unsigned_long;\n");
+    printf("      pad1_1     : Interfaces.C.unsigned_long;\n");
+    printf("      pad1_2     : Interfaces.C.unsigned_long;\n");
+#else
     if (NEED_PADDING) {
         printf("      pad2       : Interfaces.C.unsigned_short;\n");
     }
+#endif
     printf("      st_size    : off_t;\n");
+#ifndef _MIPS_ARCH
     printf("      st_blksize : blksize_t;\n");
     printf("      st_blocks  : blkcnt_t;\n");
+    printf("      pad3_1     : Interfaces.C.unsigned_long;\n");
+#endif
     printf("      st_atim    : Timespec;\n");
     printf("      st_mtim    : Timespec;\n");
     printf("      st_ctim    : Timespec;\n");
+#ifdef _MIPS_ARCH
+    printf("      st_blksize : blksize_t;\n");
+    printf("      pad2       : Interfaces.C.unsigned_long;\n");
+    printf("      st_blocks  : blkcnt_t;\n");
+#else
     if (NEED_PADDING) {
         printf("      pad3       : Interfaces.C.unsigned_long;\n");
         printf("      pad4       : Interfaces.C.unsigned_long;\n");
     }
+#endif
 #ifdef __x86_64__
     printf("      pad5    : Interfaces.C.unsigned_long;\n");
     printf("      pad6    : Interfaces.C.unsigned_long;\n");
@@ -257,7 +285,7 @@ int main(int argc, char** argv)
 
   } else if (argc > 1 && strcmp(argv[1], "types") == 0) {
     struct timespec tv;
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(_MIPS_ARCH)
     struct stat st;
 #else
     struct stat64 st;
