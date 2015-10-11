@@ -7,6 +7,13 @@ AC_DEFUN(AM_GNAT_CHECK_GPRBUILD,
   else
     AC_CHECK_PROGS(GNATMAKE, gnatmake, "")
   fi
+
+  AC_CHECK_PROGS(GPRCLEAN, gprclean, "")
+  if test -n "$GPRCLEAN"; then
+    GNATCLEAN="$GPRCLEAN"
+  else
+    AC_CHECK_PROGS(GNATCLEAN, gnatclean, "")
+  fi
 ])
 
 # Check if a GNAT project is available.
