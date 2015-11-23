@@ -223,12 +223,14 @@ ifneq (${GPRINSTALL},)
 		--build-name=$(UTIL_LIBRARY_TYPE) $(TESTUTIL_GPRPATH)
 	$(GPRINSTALL) -p -f --prefix=${prefix} $(MAKE_ARGS) \
 		--build-name=$(UTIL_LIBRARY_TYPE) $(UTIL_HTTP_GPRPATH)
-	test T${HAVE_CURL} = Tno || \
-		 $(GPRINSTALL) -p -f --prefix=${prefix} $(MAKE_ARGS) \
-					   --build-name=$(UTIL_LIBRARY_TYPE) $(UTIL_HTTP_CURL_GPRPATH)
-	test T${HAVE_AWS} = Tno || \
-		 $(GPRINSTALL) -p -f --prefix=${prefix} $(MAKE_ARGS) \
-					   --build-name=$(UTIL_LIBRARY_TYPE) $(UTIL_HTTP_AWS_GPRPATH)
+ifeq (${HAVE_CURL},yes)
+	$(GPRINSTALL) -p -f --prefix=${prefix} $(MAKE_ARGS) \
+		--build-name=$(UTIL_LIBRARY_TYPE) $(UTIL_HTTP_CURL_GPRPATH)
+endif
+ifeq (${HAVE_AWS},yes)
+	$(GPRINSTALL) -p -f --prefix=${prefix} $(MAKE_ARGS) \
+		--build-name=$(UTIL_LIBRARY_TYPE) $(UTIL_HTTP_AWS_GPRPATH)
+endif
 else
 	rm -rf ${alidir}/ada-util-curl \
 	       ${alidir}/ada-util-aws \
