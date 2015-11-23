@@ -8,7 +8,7 @@ with "config";
 --  which are in fact not used by this tool.
 project Tests_Proc is
 
-   for Languages use ("Ada", "Project file");
+   for Languages use ("Ada");
    Mains := ("util_test_process.adb");
    for Source_Dirs use ("regtests/prog");
 
