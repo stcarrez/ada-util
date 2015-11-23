@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-rest -- REST API support
---  Copyright (C) 2012, 2013 Stephane Carrez
+--  Copyright (C) 2012, 2013, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +32,6 @@ package body Util.Http.Rest is
       Http.Get (URI, Response);
       Http.Status := Response.Get_Status;
       declare
-         Content_Type : constant String := Response.Get_Header ("Content-Type");
          Content      : constant String := Response.Get_Body;
       begin
          Parser.Parse_String (Content);
