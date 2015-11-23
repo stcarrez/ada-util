@@ -6,7 +6,7 @@ with "tests_proc";
 
 project Util_Tests is
 
-   for Languages use ("Ada", "Project file");
+   for Languages use ("Ada");
    Mains := ("util_harness.adb");
    for Source_Dirs use ("regtests/");
 
