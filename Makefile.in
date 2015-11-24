@@ -83,7 +83,7 @@ alidir=${prefix}/${infix_ali}
 libname=libada_util
 libprefix=$(libname)_
 
-PROCESSORS := @NR_CPUS@
+PROCESSORS=@NR_CPUS@
 MAKE_ARGS=-XMODE=${MODE} -XUTIL_LIBRARY_TYPE=${UTIL_LIBRARY_TYPE} -XPROCESSORS=$(PROCESSORS)
 ifeq ($(UTIL_LIBRARY_TYPE),relocatable)
 MAKE_ARGS += -XXMLADA_BUILD=relocatable -XAWS_BUILD=relocatable
