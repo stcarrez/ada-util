@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Logs -- Utility Log Package
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012, 2015 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -78,7 +78,7 @@ package body Util.Log.Loggers is
 
       Config           : Properties.Manager;
       Appenders        : Appender_Maps.Map;
-      Default_Level    : Level_Type := INFO_LEVEL;
+      Default_Level    : Level_Type := WARN_LEVEL;
       Default_Appender : Log.Appenders.Appender_Access := null;
       First_Logger     : Logger_Info_Access := null;
    end Log_Manager;
@@ -389,20 +389,13 @@ package body Util.Log.Loggers is
       Log : Logger_Info_Access;
    begin
       Manager.Create (Name, Log);
---        declare
---           Event : Util.Log.Appenders.Log_Event;
---        begin
---           Event.Time    := Ada.Calendar.Clock;
---           Event.Level   := DEBUG_LEVEL;
---           Event.Message := Format ("Create logger {0}", Name, "", "");
---           Event.Logger  := To_Unbounded_String (Name);
---           Log.Appender.Append (Event);
---        end;
       return Logger '(Ada.Finalization.Limited_Controlled with
                       Instance => Log);
    end Create;
 
+   --  ------------------------------
    --  Create a logger with the given name and use the specified level.
+   --  ------------------------------
    function Create (Name  : in String;
                     Level : in Level_Type) return Logger is
       Log : Logger_Info_Access;
