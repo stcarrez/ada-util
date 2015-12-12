@@ -117,9 +117,9 @@ build:	setup
 	$(GNATMAKE) -m -p -P"$(TESTUTIL_GPRPATH)" $(MAKE_ARGS)
 	$(GNATMAKE) -m -p -P"$(UTIL_HTTP_GPRPATH)" $(MAKE_ARGS)
 
-setup: $(UTIL_GEN_FILES) obj/util/static lib/util/static
+setup: $(UTIL_GEN_FILES) obj/util/static lib/util/static obj/util-aws/static lib/util-aws/static
 
-obj/util/static lib/util/static:
+obj/util/static lib/util/static lib/util/static obj/util-aws/static lib/util-aws/static:
 	mkdir -p $@
 
 static:
