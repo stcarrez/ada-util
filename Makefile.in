@@ -110,12 +110,14 @@ UTIL_GEN_FILES+=src/http/curl/util-http-clients-curl-constants.ads
 endif
 
 # Build executables for all mains defined by the project.
-build:	$(UTIL_GEN_FILES)
+build:	setup
 	$(GNATMAKE) -m -p -P"$(GPRPATH)" $(MAKE_ARGS)
 	test T${HAVE_CURL} = Tno || $(GNATMAKE) -m -p -P"$(UTIL_HTTP_CURL_GPRPATH)" $(MAKE_ARGS)
 	test T${HAVE_AWS} = Tno || $(GNATMAKE) -m -p -P"$(UTIL_HTTP_AWS_GPRPATH)" $(MAKE_ARGS)
 	$(GNATMAKE) -m -p -P"$(TESTUTIL_GPRPATH)" $(MAKE_ARGS)
 	$(GNATMAKE) -m -p -P"$(UTIL_HTTP_GPRPATH)" $(MAKE_ARGS)
+
+setup: $(UTIL_GEN_FILES)
 
 static:
 	$(MAKE) UTIL_LIBRARY_TYPE=static build
