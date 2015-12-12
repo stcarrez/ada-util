@@ -117,7 +117,10 @@ build:	setup
 	$(GNATMAKE) -m -p -P"$(TESTUTIL_GPRPATH)" $(MAKE_ARGS)
 	$(GNATMAKE) -m -p -P"$(UTIL_HTTP_GPRPATH)" $(MAKE_ARGS)
 
-setup: $(UTIL_GEN_FILES)
+setup: $(UTIL_GEN_FILES) obj/util/static lib/util/static
+
+obj/util/static lib/util/static:
+	mkdir -p $@
 
 static:
 	$(MAKE) UTIL_LIBRARY_TYPE=static build
