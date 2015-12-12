@@ -21,17 +21,17 @@ AC_DEFUN(AM_GNAT_CHECK_GPRBUILD,
 AC_DEFUN(AM_GNAT_CHECK_PROJECT,
 [
   AC_MSG_CHECKING([whether $1 project exists])
-  echo "with \"$2\"; project t is for Source_Dirs use (); end t;" > t.gpr
-  $GNATMAKE -p -Pt >/dev/null 2>/dev/null
-  if test $? -eq 0; then
+  echo "with \"$2\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
+  if AC_TRY_COMMAND([gnat ls -Pconftest.gpr system.ads > /dev/null 2>conftest.out])
+  then
     gnat_project_$1=yes
     AC_MSG_RESULT([yes, using $2])
     gnat_project_with_$1="with \"$2\";";
   else
     gnat_project_$1=no
     AC_MSG_RESULT(no)
-  fi;
-  rm -f t.gpr
+  fi
+  rm -f conftest.gpr
 ])
 
 # Check if a GNAT project is available.
@@ -52,11 +52,12 @@ AC_DEFUN(AM_GNAT_FIND_PROJECT,
     ])
   AC_MSG_RESULT(trying ${gnat_project_name_$3})
 
+  rm -f conftest.gpr
   # Search in the GNAT project path.
   AC_MSG_CHECKING([whether ${gnat_project_name_$3} project exists in gnatmake's search path])
-  echo "with \"${gnat_project_name_$3}\"; project t is for Source_Dirs use (); end t;" > t.gpr
-  $GNATMAKE -p -Pt >/dev/null 2>/dev/null
-  if test $? -eq 0; then
+  echo "with \"${gnat_project_name_$3}\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
+  if AC_TRY_COMMAND([gnat ls -Pconftest.gpr system.ads > /dev/null 2>conftest.out])
+  then
     gnat_project_$3=yes
     AC_MSG_RESULT(yes, using ${gnat_project_name_$3})
   else
@@ -68,11 +69,9 @@ AC_DEFUN(AM_GNAT_FIND_PROJECT,
     for name in $files; do
       dir=`dirname $name`
       AC_MSG_CHECKING([for $2 project in ${dir}])
-      echo "with \"${name}\"; project t is for Source_Dirs use (); end t;" > t.gpr
-	  # echo ""
-	  # cat t.gpr
-      $GNATMAKE -p -Pt >/dev/null 2>/dev/null
-      if test $? -eq 0; then
+      echo "with \"${name}\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
+      if AC_TRY_COMMAND([gnat ls -Pconftest.gpr system.ads > /dev/null 2>conftest.out])
+      then
          gnat_project_$3=yes
 		 gnat_project_name_$3=${name}
          AC_MSG_RESULT(yes, using ${name})
@@ -83,7 +82,7 @@ AC_DEFUN(AM_GNAT_FIND_PROJECT,
       fi
     done
   fi
-  rm -f t.gpr
+  rm -f conftest.gpr
   if test x${gnat_project_$3} = xyes; then
     gnat_project_with_$3="with \"${gnat_project_name_$3}\";";
     gnat_project_dir_$3=`dirname ${gnat_project_name_$3}`
@@ -411,7 +410,6 @@ AC_DEFUN(AM_UTIL_CHECK_INSTALL,
   # echo "D:${gnat_project_with_util_config}"
   echo "${gnat_project_with_util_config} project t is for Source_Dirs use (); end t;" > t.gpr
   # cat t.gpr
-  # $GNATMAKE -vP1 -Pt 2>&1
   gnat_util_config_path=`$GNATMAKE -vP1 -Pt 2>&1 | awk '/Parsing.*util_config.gpr/ {print @S|@2}' | sed -e 's,",,g'`
   AC_MSG_RESULT(${gnat_util_config_path})
 
