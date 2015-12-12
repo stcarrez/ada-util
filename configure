@@ -3389,7 +3389,7 @@ case "${target_os}" in
 	os_version='os-linux'
 	;;
 
-     netbsdelf*|openbsd*|freebsd*)
+     netbsdelf*|openbsd*|dragonfly*|freebsd*)
 	src_os='src/os-linux'
 	os_version='os-linux'
 	;;
@@ -3946,9 +3946,14 @@ fi
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether directories project exists" >&5
 $as_echo_n "checking whether directories project exists... " >&6; }
-  echo "with \"directories\"; project t is for Source_Dirs use (); end t;" > t.gpr
-  $GNATMAKE -p -Pt >/dev/null 2>/dev/null
-  if test $? -eq 0; then
+  echo "with \"directories\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
+  if { ac_try='gnat ls -Pconftest.gpr system.ads > /dev/null 2>conftest.out'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }
+  then
     gnat_project_directories=yes
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes, using directories" >&5
 $as_echo "yes, using directories" >&6; }
@@ -3957,8 +3962,8 @@ $as_echo "yes, using directories" >&6; }
     gnat_project_directories=no
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-  fi;
-  rm -f t.gpr
+  fi
+  rm -f conftest.gpr
 
 UTIL_HAVE_PRJ_DIRECTORIES=${gnat_project_directories}
 
@@ -4017,9 +4022,14 @@ esac
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether xmlada project exists" >&5
 $as_echo_n "checking whether xmlada project exists... " >&6; }
-  echo "with \"xmlada\"; project t is for Source_Dirs use (); end t;" > t.gpr
-  $GNATMAKE -p -Pt >/dev/null 2>/dev/null
-  if test $? -eq 0; then
+  echo "with \"xmlada\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
+  if { ac_try='gnat ls -Pconftest.gpr system.ads > /dev/null 2>conftest.out'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }
+  then
     gnat_project_xmlada=yes
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes, using xmlada" >&5
 $as_echo "yes, using xmlada" >&6; }
@@ -4028,8 +4038,8 @@ $as_echo "yes, using xmlada" >&6; }
     gnat_project_xmlada=no
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-  fi;
-  rm -f t.gpr
+  fi
+  rm -f conftest.gpr
 
 
 if test T$gnat_project_xmlada_sax = Tno; then
@@ -4123,9 +4133,14 @@ if test T$ac_enable_aunit = Tyes; then
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether aunit project exists" >&5
 $as_echo_n "checking whether aunit project exists... " >&6; }
-  echo "with \"aunit\"; project t is for Source_Dirs use (); end t;" > t.gpr
-  $GNATMAKE -p -Pt >/dev/null 2>/dev/null
-  if test $? -eq 0; then
+  echo "with \"aunit\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
+  if { ac_try='gnat ls -Pconftest.gpr system.ads > /dev/null 2>conftest.out'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }
+  then
     gnat_project_aunit=yes
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes, using aunit" >&5
 $as_echo "yes, using aunit" >&6; }
@@ -4134,8 +4149,8 @@ $as_echo "yes, using aunit" >&6; }
     gnat_project_aunit=no
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-  fi;
-  rm -f t.gpr
+  fi
+  rm -f conftest.gpr
 
    if test T$gnat_project_aunit = Tno; then
 	  if test T$ac_enable_ahven = Tno; then
@@ -4286,9 +4301,14 @@ fi
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether aws project exists" >&5
 $as_echo_n "checking whether aws project exists... " >&6; }
-  echo "with \"${gnat_project_name}\"; project t is for Source_Dirs use (); end t;" > t.gpr
-  $GNATMAKE -p -Pt >/dev/null 2>/dev/null
-  if test $? -eq 0; then
+  echo "with \"${gnat_project_name}\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
+  if { ac_try='gnat ls -Pconftest.gpr system.ads > /dev/null 2>conftest.out'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }
+  then
     gnat_project_aws=yes
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes, using ${gnat_project_name}" >&5
 $as_echo "yes, using ${gnat_project_name}" >&6; }
@@ -4297,8 +4317,8 @@ $as_echo "yes, using ${gnat_project_name}" >&6; }
     gnat_project_aws=no
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-  fi;
-  rm -f t.gpr
+  fi
+  rm -f conftest.gpr
 
     if test x$gnat_project_aws = xno; then
       gnat_enable_aws=no
