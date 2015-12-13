@@ -119,7 +119,7 @@ build:	setup
 
 setup: $(UTIL_GEN_FILES) obj/util/static lib/util/static obj/util-aws/static lib/util-aws/static
 
-obj/util/static lib/util/static lib/util/static obj/util-aws/static lib/util-aws/static:
+obj/util/static lib/util/static obj/util-aws/static lib/util-aws/static:
 	mkdir -p $@
 
 static:
