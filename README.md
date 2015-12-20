@@ -2,8 +2,8 @@
 
 [![Build Status](https://img.shields.io/jenkins/s/http/jenkins.vacs.fr/Ada-Util.svg)](http://jenkins.vacs.fr/job/Ada-Util/)
 [![Test Status](https://img.shields.io/jenkins/t/http/jenkins.vacs.fr/Ada-Util.svg)](http://jenkins.vacs.fr/job/Ada-Util/)
-[![License](http://img.shields.io/badge/license-APACHE2-blue.svg)](LICENSE)
 [![Download](https://img.shields.io/badge/download-1.7.2-brightgreen.svg)](http://download.vacs.fr/ada-util/ada-util-1.7.2.tar.gz)
+[![License](http://img.shields.io/badge/license-APACHE2-blue.svg)](LICENSE)
 ![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/ada-util-1.7.2.svg)
 
 
