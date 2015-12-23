@@ -179,7 +179,7 @@ version:
 		  src/util.gpb src/util.ads
 
 # Files to package in source distribution
-DISTFILES=README LICENSE.txt LICENSE.Ahven NOTICE.txt NEWS \
+DISTFILES=README.md LICENSE.txt LICENSE.Ahven NOTICE.txt NEWS \
 config.guess configure config.sub \
 configure.in Makefile.in install-sh \
 util.gpr.in util_http.gpr.in config.gpr util_unit.gpr.in util_tests.gpr tests_proc.gpr samples.gpr \
@@ -327,11 +327,13 @@ endif
 endif
 
 install-info:
+ifeq (${GPRINSTALL},)
 	@echo "Installation directories:"
 	@echo "  Ada source files:    ${includedir}"
 	@echo "  ALI files:           ${alidir}"
 	@echo "  Libraries:           ${libdir}"
 	@echo "  GNAT project:        ${projectdir}"
+endif
 	@echo "Environment setup:"
 	@echo "  export ADA_PROJECT_PATH=${projectdir}:$$ADA_PROJECT_PATH"
 
