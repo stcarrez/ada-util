@@ -1,3 +1,9 @@
+libada-util (1.8.0) testing; urgency=low
+
+  * Update for Ada util 1.8
+
+ -- Stephane Carrez <Stephane.Carrez@gmail.com>  Wed, 23 Dec 2015 15:03:21 +0200
+
 libada-util (1.7.1) testing; urgency=low
 
   * Fix build for XmlAda 2014
