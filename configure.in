@@ -170,12 +170,22 @@ case $ac_xml_version in
 
 esac
 if test T$UTIL_HAVE_XML = Tyes ; then
-  AM_GNAT_CHECK_PROJECT([xmlada],[xmlada])
+  AM_GNAT_CHECK_PROJECT([xmlada_sax],[xmlada_sax])
+  if test T$gnat_project_xmlada_sax = Tno; then
+    AM_GNAT_CHECK_PROJECT([xmlada],[xmlada])
+    if test T$gnat_project_xmlada = Tno; then
+      WITH_XML_ADA="with \"xmlada\";";
+    else
+      UTIL_HAVE_XML=no
+    fi
+  else
+    WITH_XML_ADA="with \"xmlada_sax\";";
+  fi
 else
   gnat_project_xmlada_sax='no'
 fi
 
-if test T$gnat_project_xmlada_sax = Tno; then
+if test T$UTIL_HAVE_XML = Tno; then
   WITH_XML_ADA='';
   UTIL_XML_DIR='src';
   UTIL_XML_VERSION='none';
