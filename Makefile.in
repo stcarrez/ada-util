@@ -180,7 +180,7 @@ version:
 
 # Files to package in source distribution
 DISTFILES=README.md LICENSE.txt LICENSE.Ahven NOTICE.txt NEWS \
-config.guess configure config.sub \
+config.guess configure config.sub aclocal.m4 \
 configure.in Makefile.in install-sh \
 util.gpr.in util_http.gpr.in config.gpr util_unit.gpr.in util_tests.gpr tests_proc.gpr samples.gpr \
 util_http_aws.gpr.in util_http_curl.gpr.in \
@@ -207,6 +207,9 @@ dist:
 	rm -f $(distdir)/distrib/*.gpr
 	cp distrib/util_config-*.gpr $(distdir)/distrib
 	rm -rf $(distdir)/regtests/result
+	rm -f $(distdir)/regtests/util-testsuite.adb
+	rm -f $(distdir)/src/util-system-types.ads $(distdir)/src/util-system-constants.ads
+	rm -f $(distdir)/src/curl/util-http-clients-curl-constants.ads
 	mkdir $(distdir)/bin
 	mkdir $(distdir)/obj
 	mkdir $(distdir)/lib
