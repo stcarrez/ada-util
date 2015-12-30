@@ -3979,21 +3979,29 @@ $as_echo_n "checking xmlada library... " >&6; }
 # Check whether --with-xmlada was given.
 if test "${with_xmlada+set}" = set; then :
   withval=$with_xmlada;
-  gnat_xml_ada=${withval}/xmlada-config
-  WITH_XML_ADA="with \"${withval}\";";
-  UTIL_XML_DIR='src/xml';
-  UTIL_HAVE_XML='yes';
+  if test T${withval} = Tno ; then
+    UTIL_HAVE_XML=no;
+  else
+    gnat_xml_ada=${withval}/xmlada-config;
+    WITH_XML_ADA="with \"${withval}\";";
+    UTIL_XML_DIR='src/xml';
+    UTIL_HAVE_XML='yes';
+  fi
 
 else
 
   WITH_XML_ADA='';
   UTIL_XML_DIR='src';
-  UTIL_HAVE_XML='no';
+  UTIL_HAVE_XML='yes';
 
 fi
 
 
-ac_xml_version=`$gnat_xml_ada --version 2>/dev/null | sed -e 's, ,-,g'`
+if test T$UTIL_HAVE_XML = Tyes ; then
+  ac_xml_version=`$gnat_xml_ada --version 2>/dev/null | sed -e 's, ,-,g'`
+else
+  ac_xml_version=none
+fi
 case $ac_xml_version in
   XmlAda-3.2*)
       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_xml_version" >&5
@@ -4019,6 +4027,7 @@ $as_echo "no" >&6; }
       ;;
 
 esac
+if test T$UTIL_HAVE_XML = Tyes ; then
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether xmlada project exists" >&5
 $as_echo_n "checking whether xmlada project exists... " >&6; }
@@ -4041,6 +4050,9 @@ $as_echo "no" >&6; }
   fi
   rm -f conftest.gpr
 
+else
+  gnat_project_xmlada_sax='no'
+fi
 
 if test T$gnat_project_xmlada_sax = Tno; then
   WITH_XML_ADA='';
