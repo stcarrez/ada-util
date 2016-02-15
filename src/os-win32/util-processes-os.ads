@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- Windows specific and low level operations
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,8 @@ with Interfaces.C;
 private package Util.Processes.Os is
 
    use Util.Systems.Os;
+
+   SHELL : constant String := "";
 
    type Wchar_Ptr is access all Interfaces.C.wchar_array;
 
