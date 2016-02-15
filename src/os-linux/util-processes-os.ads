@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,8 @@ with Interfaces.C;
 with Interfaces.C.Strings;
 
 private package Util.Processes.Os is
+
+   SHELL : constant String := "/bin/sh";
 
    type System_Process is new Util.Processes.System_Process with record
       Argv       : Util.Systems.Os.Ptr_Ptr_Array := null;
