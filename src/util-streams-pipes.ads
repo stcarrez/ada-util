@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-pipes -- Pipe stream to or from a process
---  Copyright (C) 2011, 2013, 2015 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2015, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,6 +34,13 @@ package Util.Streams.Pipes is
    --  The <b>Pipe_Stream</b> is an output/input stream that reads or writes
    --  to or from a process.
    type Pipe_Stream is limited new Output_Stream and Input_Stream  with private;
+
+   --  Set the shell executable path to use to launch a command.  The default on Unix is
+   --  the /bin/sh command.  Argument splitting is done by the /bin/sh -c command.
+   --  When setting an empty shell command, the argument splitting is done by the
+   --  <tt>Spawn</tt> procedure.
+   procedure Set_Shell (Stream : in out Pipe_Stream;
+                        Shell  : in String);
 
    --  Open a pipe to read or write to an external process.  The pipe is created and the
    --  command is executed with the input and output streams redirected through the pipe.
