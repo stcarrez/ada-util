@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes -- Process creation and control
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -79,6 +79,13 @@ package Util.Processes is
    procedure Set_Working_Directory (Proc : in out Process;
                                     Path : in String);
 
+   --  Set the shell executable path to use to launch a command.  The default on Unix is
+   --  the /bin/sh command.  Argument splitting is done by the /bin/sh -c command.
+   --  When setting an empty shell command, the argument splitting is done by the
+   --  <tt>Spawn</tt> procedure.
+   procedure Set_Shell (Proc  : in out Process;
+                        Shell : in String);
+
    --  Append the argument to the current process argument list.
    --  Raises <b>Invalid_State</b> if the process is running.
    procedure Append_Argument (Proc : in out Process;
@@ -138,6 +145,7 @@ private
       In_File    : Ada.Strings.Unbounded.Unbounded_String;
       Out_File   : Ada.Strings.Unbounded.Unbounded_String;
       Err_File   : Ada.Strings.Unbounded.Unbounded_String;
+      Shell      : Ada.Strings.Unbounded.Unbounded_String;
       Out_Append : Boolean := False;
       Err_Append : Boolean := False;
       Output     : Util.Streams.Input_Stream_Access := null;
