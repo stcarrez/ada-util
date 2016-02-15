@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-tests - Test for processes
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,6 +42,8 @@ package body Util.Processes.Tests is
                        Test_Output_Pipe'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn(WRITE pipe)",
                        Test_Input_Pipe'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Spawn/Shell(WRITE pipe)",
+                       Test_Shell_Splitting_Pipe'Access);
 
       pragma Warnings (Off);
       if Util.Systems.Os.Directory_Separator /= '\' then
@@ -108,6 +110,27 @@ package body Util.Processes.Tests is
       T.Assert (not P.Is_Running, "Process has stopped");
       Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Invalid exit status");
    end Test_Output_Pipe;
+
+   --  ------------------------------
+   --  Test shell splitting.
+   --  ------------------------------
+   procedure Test_Shell_Splitting_Pipe (T : in out Test) is
+      P : aliased Util.Streams.Pipes.Pipe_Stream;
+   begin
+      P.Open ("bin/util_test_process 0 write 'b c d e f' test_marker");
+      declare
+         Buffer  : Util.Streams.Buffered.Buffered_Stream;
+         Content : Ada.Strings.Unbounded.Unbounded_String;
+      begin
+         Buffer.Initialize (null, P'Unchecked_Access, 19);
+         Buffer.Read (Content);
+         P.Close;
+         Util.Tests.Assert_Matches (T, "b c d e f\s+test_marker\s+", Content,
+                                    "Invalid content");
+      end;
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Invalid exit status");
+   end Test_Shell_Splitting_Pipe;
 
    --  ------------------------------
    --  Test input pipe redirection: write the process standard input

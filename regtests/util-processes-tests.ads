@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-tests - Test for processes
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,6 +34,9 @@ package Util.Processes.Tests is
 
    --  Test input pipe redirection: write the process standard input
    procedure Test_Input_Pipe (T : in out Test);
+
+   --  Test shell splitting.
+   procedure Test_Shell_Splitting_Pipe (T : in out Test);
 
    --  Test launching several processes through pipes in several threads.
    procedure Test_Multi_Spawn (T : in out Test);
