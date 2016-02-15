@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes -- Process creation and control
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -91,6 +91,22 @@ package body Util.Processes is
    end Set_Working_Directory;
 
    --  ------------------------------
+   --  Set the shell executable path to use to launch a command.  The default on Unix is
+   --  the /bin/sh command.  Argument splitting is done by the /bin/sh -c command.
+   --  When setting an empty shell command, the argument splitting is done by the
+   --  <tt>Spawn</tt> procedure.
+   --  ------------------------------
+   procedure Set_Shell (Proc  : in out Process;
+                        Shell : in String) is
+   begin
+      if Proc.Is_Running then
+         Log.Error ("Cannot set shell to {0} while process is running", Shell);
+         raise Invalid_State with "Process is running";
+      end if;
+      Proc.Shell := To_Unbounded_String (Shell);
+   end Set_Shell;
+
+   --  ------------------------------
    --  Append the argument to the current process argument list.
    --  Raises <b>Invalid_State</b> if the process is running.
    --  ------------------------------
@@ -163,15 +179,21 @@ package body Util.Processes is
       end if;
       Proc.Sys := new Util.Processes.Os.System_Process;
 
-      --  Build the argc/argv table
-      while Pos <= Command'Last loop
-         N := Util.Strings.Index (Command, ' ', Pos);
-         if N = 0 then
-            N := Command'Last + 1;
-         end if;
-         Proc.Sys.Append_Argument (Command (Pos .. N - 1));
-         Pos := N + 1;
-      end loop;
+      if Length (Proc.Shell) > 0 then
+         Proc.Sys.Append_Argument (To_String (Proc.Shell));
+         Proc.Sys.Append_Argument ("-c");
+         Proc.Sys.Append_Argument (Command);
+      else
+         --  Build the argc/argv table
+         while Pos <= Command'Last loop
+            N := Util.Strings.Index (Command, ' ', Pos);
+            if N = 0 then
+               N := Command'Last + 1;
+            end if;
+            Proc.Sys.Append_Argument (Command (Pos .. N - 1));
+            Pos := N + 1;
+         end loop;
+      end if;
 
       --  Prepare to redirect the input/output/error streams.
       --  The pipe mode takes precedence and will override these redirections.
@@ -267,6 +289,7 @@ package body Util.Processes is
    procedure Initialize (Proc : in out Process) is
    begin
       Proc.Sys := new Util.Processes.Os.System_Process;
+      Proc.Shell := To_Unbounded_String (Util.Processes.Os.SHELL);
    end Initialize;
 
    --  ------------------------------
