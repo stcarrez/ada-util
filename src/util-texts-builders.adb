@@ -215,6 +215,23 @@ package body Util.Texts.Builders is
    end To_Array;
 
    --  ------------------------------
+   --  Call the <tt>Process</tt> procedure with the full buffer content, trying to avoid
+   --  secondary stack copies as much as possible.
+   --  ------------------------------
+   procedure Get (Source : in Builder) is
+   begin
+      if Source.Length < Source.First.Len then
+         Process (Source.First.Content (1 .. Source.Length));
+      else
+         declare
+            Content : constant Input := To_Array (Source);
+         begin
+            Process (Content);
+         end;
+      end if;
+   end Get;
+
+   --  ------------------------------
    --  Setup the builder.
    --  ------------------------------
    overriding
