@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-texts-builders -- Text builder
---  Copyright (C) 2013 Stephane Carrez
+--  Copyright (C) 2013, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -147,6 +147,50 @@ package body Util.Texts.Builders is
          end;
       end if;
    end Iterate;
+
+   --  ------------------------------
+   --  Return the content starting from the tail and up to <tt>Length</tt> items.
+   --  ------------------------------
+   function Tail (Source : in Builder;
+                  Length : in Natural) return Input is
+      Last : constant Natural := Source.Current.Last;
+   begin
+      if Last >= Length then
+         return Source.Current.Content (Last - Length + 1 .. Last);
+      elsif Length >= Source.Length then
+         return To_Array (Source);
+      else
+         declare
+            Result  : Input (1 .. Length);
+            Offset  : Natural := Source.Length - Length;
+            B       : Block_Access := Source.First'Unrestricted_Access;
+            Src_Pos : Positive := 1;
+            Dst_Pos : Positive := 1;
+            Len     : Natural;
+         begin
+            --  Skip the data moving to next blocks as needed.
+            while Offset /= 0 loop
+               if Offset < B.Last then
+                  Src_Pos := Offset + 1;
+                  Offset := 0;
+               else
+                  Offset := Offset - B.Last + 1;
+                  B := B.Next_Block;
+               end if;
+            end loop;
+
+            --  Copy what remains until we reach the length.
+            while Dst_Pos <= Length loop
+               Len := B.Last - Src_Pos + 1;
+               Result (Dst_Pos .. Dst_Pos + Len - 1) := B.Content (Src_Pos .. B.Last);
+               Src_Pos := 1;
+               Dst_Pos := Dst_Pos + Len;
+               B := B.Next_Block;
+            end loop;
+            return Result;
+         end;
+      end if;
+   end Tail;
 
    --  ------------------------------
    --  Get the buffer content as an array.
