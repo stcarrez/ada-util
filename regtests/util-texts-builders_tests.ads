@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-texts-builders_tests -- Unit tests for text builders
---  Copyright (C) 2013 Stephane Carrez
+--  Copyright (C) 2013, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,6 +35,9 @@ package Util.Texts.Builders_Tests is
 
    --  Test the clear operation.
    procedure Test_Clear (T : in out Test);
+
+   --  Test the tail operation.
+   procedure Test_Tail (T : in out Test);
 
    --  Test the append and iterate performance.
    procedure Test_Perf (T : in out Test);
