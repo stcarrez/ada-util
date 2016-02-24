@@ -95,6 +95,10 @@ package Util.Texts.Builders is
    --  Get the buffer content as an array.
    function To_Array (Source : in Builder) return Input;
 
+   --  Return the content starting from the tail and up to <tt>Length</tt> items.
+   function Tail (Source : in Builder;
+                  Length : in Natural) return Input;
+
 private
 
    pragma Inline (Length);
