@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-texts-builders_tests -- Unit tests for text builders
---  Copyright (C) 2013 Stephane Carrez
+--  Copyright (C) 2013, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,6 +40,8 @@ package body Util.Texts.Builders_Tests is
                        Test_Clear'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Iterate",
                        Test_Iterate'Access);
+      Caller.Add_Test (Suite, "Test Util.Texts.Builders.Tail",
+                       Test_Tail'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Perf",
                        Test_Perf'Access);
    end Add_Tests;
@@ -97,6 +99,51 @@ package body Util.Texts.Builders_Tests is
       Util.Tests.Assert_Equals (T, 0, String_Builder.Length (B), "Invalid length after clear");
       Util.Tests.Assert_Equals (T, 7, String_Builder.Capacity (B), "Invalid capacity after clear");
    end Test_Clear;
+
+   --  ------------------------------
+   --  Test the tail operation.
+   --  ------------------------------
+   procedure Test_Tail (T : in out Test) is
+
+      procedure Check_Tail (Min : in Positive;
+                            Max : in Positive;
+                            L   : in Natural);
+
+      procedure Check_Tail (Min : in Positive;
+                            Max : in Positive;
+                            L   : in Natural) is
+         P : constant String := "0123456789";
+         B : String_Builder.Builder (Min);
+      begin
+         for I in 1 .. Max loop
+            String_Builder.Append (B, P (1 + (I mod 10)));
+         end loop;
+         declare
+            S  : constant String := String_Builder.Tail (B, L);
+            S2 : constant String := String_Builder.To_Array (B);
+         begin
+            Util.Tests.Assert_Equals (T, Max, S2'Length, "Invalid length");
+            if L >= Max then
+               Util.Tests.Assert_Equals (T, S2, S, "Invalid Tail result");
+            else
+               Util.Tests.Assert_Equals (T, S2 (S2'Last - L + 1.. S2'Last), S,
+                                         "Invalid Tail result {"
+                                         & Positive'Image (Min) & ","
+                                         & Positive'Image (Max) & ","
+                                         & Positive'Image (L) & "]");
+            end if;
+         end;
+      end Check_Tail;
+
+   begin
+      for I in 1 .. 100 loop
+         for J in 1 .. 8 loop
+            for K in 1 .. I + 3 loop
+               Check_Tail (J, I, K);
+            end loop;
+         end loop;
+      end loop;
+   end Test_Tail;
 
    --  ------------------------------
    --  Test the iterate operation.
