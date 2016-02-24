@@ -99,6 +99,12 @@ package Util.Texts.Builders is
    function Tail (Source : in Builder;
                   Length : in Natural) return Input;
 
+   --  Call the <tt>Process</tt> procedure with the full buffer content, trying to avoid
+   --  secondary stack copies as much as possible.
+   generic
+      with procedure Process (Content : in Input);
+   procedure Get (Source : in Builder);
+
 private
 
    pragma Inline (Length);
