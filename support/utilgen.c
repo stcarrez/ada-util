@@ -145,6 +145,9 @@ void gen_stat(void)
 #endif
     printf("      st_uid     : uid_t;\n");
     printf("      st_gid     : gid_t;\n");
+#ifdef __x86_64__
+    printf("      pad1_0     : Interfaces.C.unsigned;\n");
+#endif
     printf("      st_rdev    : dev_t;\n");
 #ifdef _MIPS_ARCH
     printf("      pad1_0     : Interfaces.C.unsigned_long;\n");
@@ -159,7 +162,9 @@ void gen_stat(void)
 #ifndef _MIPS_ARCH
     printf("      st_blksize : blksize_t;\n");
     printf("      st_blocks  : blkcnt_t;\n");
+#ifndef __x86_64__
     printf("      pad3_1     : Interfaces.C.unsigned_long;\n");
+#endif
 #endif
     printf("      st_atim    : Timespec;\n");
     printf("      st_mtim    : Timespec;\n");
