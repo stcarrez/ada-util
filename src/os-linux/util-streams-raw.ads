@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-raw -- Raw streams for Unix based systems
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
 with Ada.Finalization;
 
 with Util.Systems.Os;
+with Util.Systems.Types;
 
 --  The <b>Util.Streams.Raw</b> package provides a stream directly on top of
 --  file system operations <b>read</b> and <b>write</b>.
@@ -49,6 +50,11 @@ package Util.Streams.Raw is
    procedure Read (Stream : in out Raw_Stream;
                    Into   : out Ada.Streams.Stream_Element_Array;
                    Last   : out Ada.Streams.Stream_Element_Offset);
+
+   --  Reposition the read/write file offset.
+   procedure Seek (Stream : in out Raw_Stream;
+                   Pos    : in Util.Systems.Types.off_t;
+                   Mode   : in Util.Systems.Types.Seek_Mode);
 
 private
 
