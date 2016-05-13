@@ -1,5 +1,5 @@
 /* Generate a package from system header definitions
---  Copyright (C) 2011, 2013, 2014, 2015 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2015, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -377,8 +377,11 @@ int main(int argc, char** argv)
     printf("      tv_sec  : Time_Type;\n");
     printf("   end record;\n");
 #endif
-    printf("   pragma Convention (C_Pass_By_Copy, Timespec);\n");
+    printf("   pragma Convention (C_Pass_By_Copy, Timespec);\n\n");
 
+    printf("   type Seek_Mode is (SEEK_SET, SEEK_CUR, SEEK_END);\n");
+    printf("   for Seek_Mode use (SEEK_SET => %d, SEEK_CUR => %d, SEEK_END => %d);\n",
+           SEEK_SET, SEEK_CUR, SEEK_END);
     printf("\n");
     gen_stat();
     printf("\nend Util.Systems.Types;\n");
