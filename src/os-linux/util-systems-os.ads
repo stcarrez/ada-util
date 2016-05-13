@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-system-os -- Unix system operations
---  Copyright (C) 2011, 2012, 2014, 2015 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2014, 2015, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -137,5 +137,10 @@ package Util.Systems.Os is
    function Sys_Fstat (Fs : in File_Type;
                        Stat : access Util.Systems.Types.Stat_Type) return Integer;
    pragma Import (C, Sys_Fstat, Util.Systems.Types.FSTAT_NAME);
+
+   function Sys_Lseek (Fs : in File_Type;
+                       Offset : in Util.Systems.Types.off_t;
+                       Mode   : in Util.Systems.Types.Seek_Mode) return Util.Systems.Types.off_t;
+   pragma Import (C, Sys_Lseek, "lseek");
 
 end Util.Systems.Os;
