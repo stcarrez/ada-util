@@ -117,7 +117,7 @@ package Util.Systems.Os is
    --  Open a file
    function Sys_Open (Path  : in Ptr;
                       Flags : in Interfaces.C.int;
-                      Mode  : in Interfaces.C.int) return File_Type;
+                      Mode  : in Util.Systems.Types.mode_t) return File_Type;
    pragma Import (C, Sys_Open, "open");
 
    --  Change the file settings
@@ -142,5 +142,9 @@ package Util.Systems.Os is
                        Offset : in Util.Systems.Types.off_t;
                        Mode   : in Util.Systems.Types.Seek_Mode) return Util.Systems.Types.off_t;
    pragma Import (C, Sys_Lseek, "lseek");
+
+   --  Libc errno.  The __get_errno function is provided by the GNAT runtime.
+   function Errno return Integer;
+   pragma Import (C, errno, "__get_errno");
 
 end Util.Systems.Os;
