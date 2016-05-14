@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -131,6 +131,17 @@ package Util.Encoders is
    --  cannot be transformed
    function Transform (E    : in Transformer'Class;
                        Data : in Ada.Streams.Stream_Element_Array) return String;
+
+   --  Transform the input string <b>Data</b> using the transformation
+   --  rules provided by the <b>E</b> transformer and return the data in
+   --  the <b>Into</b> array, setting <b>Last</b> to the last index.
+   --
+   --  Raises the <b>Encoding_Error</b> exception if the source string
+   --  cannot be transformed
+   procedure Transform (E    : in Transformer'Class;
+                        Data : in String;
+                        Into : out Ada.Streams.Stream_Element_Array;
+                        Last : out Ada.Streams.Stream_Element_Offset);
 
    --  Encode the value represented by <tt>Val</tt> in the stream array <tt>Into</tt> starting
    --  at position <tt>Pos</tt> in that array.  The value is encoded using LEB128 format, 7-bits
