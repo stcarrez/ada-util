@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -152,6 +152,67 @@ package body Util.Encoders is
          end;
       end loop;
       return To_String (Result);
+   end Transform;
+
+   --  ------------------------------
+   --  Transform the input string <b>Data</b> using the transformation
+   --  rules provided by the <b>E</b> transformer and return the data in
+   --  the <b>Into</b> array, setting <b>Last</b> to the last index.
+   --
+   --  Raises the <b>Encoding_Error</b> exception if the source string
+   --  cannot be transformed
+   --  ------------------------------
+   procedure Transform (E    : in Transformer'Class;
+                        Data : in String;
+                        Into : out Ada.Streams.Stream_Element_Array;
+                        Last : out Ada.Streams.Stream_Element_Offset) is
+      Buf_Size : constant Streams.Stream_Element_Offset := Best_Size (Data'Length);
+      Buf      : Streams.Stream_Element_Array (1 .. Buf_Size);
+      Pos      : Natural := Data'First;
+      First    : Streams.Stream_Element_Offset := Into'First;
+   begin
+      while Pos <= Data'Last loop
+         declare
+            Last_Encoded  : Streams.Stream_Element_Offset;
+            First_Encoded : Streams.Stream_Element_Offset := 1;
+            Size          : Streams.Stream_Element_Offset;
+            Next_Pos      : Natural;
+         begin
+            --  Fill the stream buffer with our input string
+            Size := Streams.Stream_Element_Offset (Data'Last - Pos + 1);
+            if Size > Buf'Length then
+               Size := Buf'Length;
+            end if;
+            for I in 1 .. Size loop
+               Buf (I) := Character'Pos (Data (Natural (I) + Pos - 1));
+            end loop;
+            Next_Pos := Pos + Natural (Size);
+
+            --  Encode that buffer and put the result in the output data array.
+            loop
+               E.Transform (Data    => Buf (First_Encoded .. Size),
+                            Into    => Into (First .. Into'Last),
+                            Encoded => Last_Encoded,
+                            Last    => Last);
+
+               --  If the encoder generated nothing, move the position backward
+               --  to take into account the remaining bytes not taken into account.
+               if Last < First then
+                  Next_Pos := Next_Pos - Natural (Size - First_Encoded + 1);
+                  exit;
+               end if;
+               exit when Last_Encoded = Size;
+               First_Encoded := Last_Encoded + 1;
+            end loop;
+
+            --  The encoder cannot encode the data
+            if Pos = Next_Pos then
+               raise Encoding_Error with "Encoding cannot proceed";
+            end if;
+            First := Last;
+            Pos := Next_Pos;
+         end;
+      end loop;
    end Transform;
 
    --  ------------------------------
