@@ -171,10 +171,10 @@ package body Util.Encoders is
       Pos      : Natural := Data'First;
       First    : Streams.Stream_Element_Offset := Into'First;
    begin
-      while Pos <= Data'Last loop
+      Last := Into'First - 1;
+      while Pos <= Data'Last and Last < Into'Last loop
          declare
             Last_Encoded  : Streams.Stream_Element_Offset;
-            First_Encoded : Streams.Stream_Element_Offset := 1;
             Size          : Streams.Stream_Element_Offset;
             Next_Pos      : Natural;
          begin
@@ -189,21 +189,15 @@ package body Util.Encoders is
             Next_Pos := Pos + Natural (Size);
 
             --  Encode that buffer and put the result in the output data array.
-            loop
-               E.Transform (Data    => Buf (First_Encoded .. Size),
-                            Into    => Into (First .. Into'Last),
-                            Encoded => Last_Encoded,
-                            Last    => Last);
+            E.Transform (Data    => Buf (1 .. Size),
+                         Into    => Into (First .. Into'Last),
+                         Encoded => Last_Encoded,
+                         Last    => Last);
 
-               --  If the encoder generated nothing, move the position backward
-               --  to take into account the remaining bytes not taken into account.
-               if Last < First then
-                  Next_Pos := Next_Pos - Natural (Size - First_Encoded + 1);
-                  exit;
-               end if;
-               exit when Last_Encoded = Size;
-               First_Encoded := Last_Encoded + 1;
-            end loop;
+            --  If the encoded has not used all the data, update the position for the next run.
+            if Last_Encoded /= Size then
+               Next_Pos := Next_Pos - Natural (Size - Last_Encoded + 1);
+            end if;
 
             --  The encoder cannot encode the data
             if Pos = Next_Pos then
@@ -213,6 +207,9 @@ package body Util.Encoders is
             Pos := Next_Pos;
          end;
       end loop;
+      if Pos <= Data'Last then
+         raise Encoding_Error with "Not enough space for encoding";
+      end if;
    end Transform;
 
    --  ------------------------------
