@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encodes-tests - Test for encoding
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@ with Util.Strings.Transforms;
 with Ada.Text_IO;
 with Util.Encoders.SHA1;
 with Util.Encoders.HMAC.SHA1;
+with Util.Encoders.Base16;
 package body Util.Encoders.Tests is
 
    use Util.Tests;
@@ -190,6 +191,9 @@ package body Util.Encoders.Tests is
          end loop;
       end Check_Hash;
 
+      Hex_Decoder : Util.Encoders.Base16.Decoder;
+      Last        : Ada.Streams.Stream_Element_Offset;
+      Sign        : Util.Encoders.SHA1.Hash_Array;
    begin
       Util.Encoders.SHA1.Update (C, "a");
       Util.Encoders.SHA1.Finish (C, Hash);
@@ -204,6 +208,29 @@ package body Util.Encoders.Tests is
       Check_Hash ("e746699d3947443d84dad1e0c58bf7ad347124382C669751BDC492937"
                   & "7245F5EEBEAED1CE4DA8A45",
                   "875C9C0DE4CE91ED8F432DD02B5BB40CD35DAACD");
+
+      Util.Encoders.Transform (E       => Hex_Decoder,
+                               Data    => "D803BA2155CD12D8997117E0846AD2D4555BEB28",
+                               Into    => Sign,
+                               Last    => Last);
+      Assert_Equals (T, Natural (Sign'Last), Natural (Last), "Decoding SHA1 failed");
+
+      Util.Encoders.Transform (E       => Hex_Decoder,
+                               Data    => "D803BA2155CD12D8997117E0846AD2D4555BEB",
+                               Into    => Sign,
+                               Last    => Last);
+      Assert_Equals (T, Natural (Sign'Last) - 1, Natural (Last), "Decoding SHA1 failed");
+
+      begin
+         Util.Encoders.Transform (E       => Hex_Decoder,
+                                  Data    => "D803BA2155CD12D8997117E0846AD2D4555BEB2801",
+                                  Into    => Sign,
+                                  Last    => Last);
+         Fail (T, "No Encoding_Error exception raised");
+      exception
+         when Encoding_Error =>
+            null;
+      end;
    end Test_SHA1_Encode;
 
    --  ------------------------------
