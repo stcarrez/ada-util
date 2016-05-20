@@ -81,6 +81,8 @@ package body Util.Streams.Raw is
    procedure Seek (Stream : in out Raw_Stream;
                    Pos    : in Util.Systems.Types.off_t;
                    Mode   : in Util.Systems.Types.Seek_Mode) is
+      use type Util.Systems.Types.off_t;
+
       Res : Util.Systems.Types.off_t;
    begin
       Res := Sys_Lseek (Stream.File, Pos, Mode);
