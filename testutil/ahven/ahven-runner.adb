@@ -42,7 +42,8 @@ package body Ahven.Runner is
 
       Reporter (Listener.Main_Result, Params);
       if (Error_Count (Listener.Main_Result) > 0) or
-         (Failure_Count (Listener.Main_Result) > 0) then
+        (Failure_Count (Listener.Main_Result) > 0)
+      then
          Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
       end if;
    exception
