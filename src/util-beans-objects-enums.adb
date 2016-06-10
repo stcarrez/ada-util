@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Enums -- Helper conversion for discrete types
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,7 +57,7 @@ package body Util.Beans.Objects.Enums is
       return T'Image (T'Val (Value.Int_Value));
    end To_String;
 
-   Value_Type  : aliased constant Enum_Type := Enum_Type '(others => <>);
+   Value_Type  : aliased constant Enum_Type := Enum_Type '(null record);
 
    --  ------------------------------
    --  Create an object from the given value.
