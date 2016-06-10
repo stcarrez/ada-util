@@ -288,7 +288,7 @@ package body Ahven.Results is
       Child_Position : Result_List.Cursor;
    begin
       Position := First (Collection.Passes);
-      Pass_Loop:
+      Pass_Loop :
       loop
          exit Pass_Loop when not Is_Valid (Position);
          Total_Time := Total_Time + Get_Execution_Time (Data (Position));
@@ -296,7 +296,7 @@ package body Ahven.Results is
       end loop Pass_Loop;
 
       Position := First (Collection.Failures);
-      Failure_Loop:
+      Failure_Loop :
       loop
          exit Failure_Loop when not Is_Valid (Position);
          Total_Time := Total_Time + Get_Execution_Time (Data (Position));
@@ -304,14 +304,14 @@ package body Ahven.Results is
       end loop Failure_Loop;
 
       Position := First (Collection.Errors);
-      Error_Loop:
+      Error_Loop :
       loop
          exit Error_Loop when not Is_Valid (Position);
          Total_Time := Total_Time + Get_Execution_Time (Data (Position));
          Position := Next (Position);
       end loop Error_Loop;
 
-      Child_Loop:
+      Child_Loop :
       loop
          exit Child_Loop when not Result_List.Is_Valid (Child_Position);
          Total_Time := Total_Time +
