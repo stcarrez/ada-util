@@ -143,8 +143,12 @@ package Util.Systems.Os is
                        Mode   : in Util.Systems.Types.Seek_Mode) return Util.Systems.Types.off_t;
    pragma Import (C, Sys_Lseek, "lseek");
 
+   function Sys_Fchmod (Fd   : in File_Type;
+                        Mode : in Util.Systems.Types.mode_t) return Integer;
+   pragma Import (C, Sys_Fchmod, "fchmod");
+
    --  Libc errno.  The __get_errno function is provided by the GNAT runtime.
    function Errno return Integer;
-   pragma Import (C, errno, "__get_errno");
+   pragma Import (C, Errno, "__get_errno");
 
 end Util.Systems.Os;
