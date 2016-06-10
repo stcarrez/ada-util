@@ -553,7 +553,7 @@ private
       end case;
    end record;
 
-   No_Type     : aliased constant Null_Type := Null_Type '(others => <>);
+   No_Type     : aliased constant Null_Type := Null_Type '(null record);
 
    Null_Value  : constant Object_Value := Object_Value '(Of_Type => TYPE_NULL);
 
