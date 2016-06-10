@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-xunit - Unit tests on top of AHven
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -172,7 +172,8 @@ package body Util.XUnit is
       Ahven.XML_Runner.Report_Results (Listener.Main_Result, Out_Dir);
 
       if (Error_Count (Listener.Main_Result) > 0) or
-        (Failure_Count (Listener.Main_Result) > 0) then
+        (Failure_Count (Listener.Main_Result) > 0)
+      then
          Result := Failure;
       else
          Result := Success;
