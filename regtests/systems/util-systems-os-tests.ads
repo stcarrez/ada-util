@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-systems-os-tests -- Unit tests for OS specific operations
---  Copyright (C) 2014 Stephane Carrez
+--  Copyright (C) 2014, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@
 
 with Util.Tests;
 
-package Util.Systems.OS.Tests is
+package Util.Systems.Os.Tests is
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite);
 
@@ -30,4 +30,4 @@ package Util.Systems.OS.Tests is
    --  Test the Sys_Stat operation on a directory.
    procedure Test_Stat_Directory (T : in out Test);
 
-end Util.Systems.OS.Tests;
+end Util.Systems.Os.Tests;
