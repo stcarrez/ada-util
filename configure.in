@@ -180,6 +180,8 @@ if test T$UTIL_HAVE_XML = Tyes ; then
     fi
   else
     WITH_XML_ADA="with \"xmlada_sax\";";
+    UTIL_XML_VERSION='4'
+    UTIL_XML_DIR='src/xml'
   fi
 else
   gnat_project_xmlada_sax='no'
