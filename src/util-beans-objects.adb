@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects -- Generic Typed Data Representation
---  Copyright (C) 2009, 2010, 2011, 2013 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,13 +36,13 @@ package body Util.Beans.Objects is
    --  Find the best type to be used to compare two operands.
    function Get_Compare_Type (Left, Right : Object) return Data_Type;
 
-   Integer_Type  : aliased constant Int_Type         := Int_Type '(others => <>);
-   Bool_Type     : aliased constant Boolean_Type     := Boolean_Type '(others => <>);
-   Str_Type      : aliased constant String_Type      := String_Type '(others => <>);
-   WString_Type  : aliased constant Wide_String_Type := Wide_String_Type '(others => <>);
-   Flt_Type      : aliased constant Float_Type       := Float_Type '(others => <>);
-   Duration_Type : aliased constant Duration_Type_Def := Duration_Type_Def '(others => <>);
-   Bn_Type       : aliased constant Bean_Type        := Bean_Type '(others => <>);
+   Integer_Type  : aliased constant Int_Type         := Int_Type '(null record);
+   Bool_Type     : aliased constant Boolean_Type     := Boolean_Type '(null record);
+   Str_Type      : aliased constant String_Type      := String_Type '(null record);
+   WString_Type  : aliased constant Wide_String_Type := Wide_String_Type '(null record);
+   Flt_Type      : aliased constant Float_Type       := Float_Type '(null record);
+   Duration_Type : aliased constant Duration_Type_Def := Duration_Type_Def '(null record);
+   Bn_Type       : aliased constant Bean_Type        := Bean_Type '(null record);
 
    --  ------------------------------
    --  Convert the value into a wide string.
