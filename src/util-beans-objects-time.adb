@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Time -- Helper conversion for Ada Calendar Time
---  Copyright (C) 2010, 2013 Stephane Carrez
+--  Copyright (C) 2010, 2013, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,7 +42,7 @@ package body Util.Beans.Objects.Time is
    function To_String (Type_Def : in Time_Type_Def;
                        Value    : in Object_Value) return String;
 
-   Time_Type  : aliased constant Time_Type_Def := Time_Type_Def '(others => <>);
+   Time_Type  : aliased constant Time_Type_Def := Time_Type_Def '(null record);
 
    --  ------------------------------
    --  Get the type name
