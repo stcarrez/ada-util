@@ -174,7 +174,8 @@ package body Ahven.Text_Runner is
          exit Test_Loop when not Is_Valid (Position);
          Print_Test (Data (Position), Level, Status);
          if Print_Log and
-           (Length (Get_Output_File (Data (Position))) > 0) then
+           (Length (Get_Output_File (Data (Position))) > 0)
+         then
             Print_Log_File (To_String (Get_Output_File (Data (Position))));
          end if;
          Position := Next (Position);
