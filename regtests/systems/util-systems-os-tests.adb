@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-systems-os-tests -- Unit tests for OS specific operations
---  Copyright (C) 2014, 2015 Stephane Carrez
+--  Copyright (C) 2014, 2015, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,7 @@ with Ada.Directories;
 with Util.Test_Caller;
 with Util.Systems.Types;
 with Interfaces.C.Strings;
-package body Util.Systems.OS.Tests is
+package body Util.Systems.Os.Tests is
 
    package Caller is new Util.Test_Caller (Test, "Systems.OS");
 
@@ -47,10 +47,10 @@ package body Util.Systems.OS.Tests is
       Res := Sys_Stat (Name, Info (1)'Unchecked_Access);
       T.Assert (Res = 0, "Sys_Stat must return 0");
       T.Assert (Info (1).st_size > 0, "Sys_Stat must return the correct size");
-      T.Assert (Info (2).St_Dev = 16#12345678#, "Suspecting invalid size for Stat_Type");
-      T.Assert (Info (1).St_Size = off_t (Ada.Directories.Size (Path)),
+      T.Assert (Info (2).st_dev = 16#12345678#, "Suspecting invalid size for Stat_Type");
+      T.Assert (Info (1).st_size = off_t (Ada.Directories.Size (Path)),
                 "Invalid size returned by Sys_Stat");
-      T.Assert ((Info (1).St_Mode and S_IFMT) = S_IFREG, "st_mode must indicate a regular file");
+      T.Assert ((Info (1).st_mode and S_IFMT) = S_IFREG, "st_mode must indicate a regular file");
       Interfaces.C.Strings.Free (Name);
    end Test_Stat;
 
@@ -68,8 +68,8 @@ package body Util.Systems.OS.Tests is
    begin
       Res := Sys_Stat (Name, Stat'Unchecked_Access);
       T.Assert (Res = 0, "Sys_Stat must return 0");
-      T.Assert ((Stat.St_Mode and S_IFMT) = S_IFDIR, "st_mode must indicate a directory");
+      T.Assert ((Stat.st_mode and S_IFMT) = S_IFDIR, "st_mode must indicate a directory");
       Interfaces.C.Strings.Free (Name);
    end Test_Stat_Directory;
 
-end Util.Systems.OS.Tests;
+end Util.Systems.Os.Tests;
