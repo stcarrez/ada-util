@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Records -- Generic Typed Data Representation
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,7 +51,7 @@ package body Util.Beans.Objects.Records is
       return Value.Proxy /= null;
    end To_Boolean;
 
-   Bn_Type : aliased Record_Bean_Type := Record_Bean_Type '(others => <>);
+   Bn_Type : aliased Record_Bean_Type := Record_Bean_Type '(null record);
 
    --  ------------------------------
    --  Create an object which holds a record of the type <b>Element_Type</b>.
