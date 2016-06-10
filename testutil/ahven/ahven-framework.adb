@@ -296,7 +296,7 @@ package body Ahven.Framework is
             or
                delay Duration (Timeout);
                abort Command_Runner;
-               Result.Set_Status (Test_Timeout);
+               Result.Set_Status (TEST_TIMEOUT);
             end select;
          end;
       else
