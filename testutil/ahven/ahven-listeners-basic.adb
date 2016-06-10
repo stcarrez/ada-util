@@ -196,7 +196,7 @@ package body Ahven.Listeners.Basic is
       Remove_Loop (First_Skipped (Collection));
 
       Child_Iter := First_Child (Collection);
-      Child_Loop:
+      Child_Loop :
       loop
          exit Child_Loop when not Is_Valid (Child_Iter);
          Remove_Files (Data (Child_Iter).all);
