@@ -173,7 +173,7 @@ if test T$UTIL_HAVE_XML = Tyes ; then
   AM_GNAT_CHECK_PROJECT([xmlada_sax],[xmlada_sax])
   if test T$gnat_project_xmlada_sax = Tno; then
     AM_GNAT_CHECK_PROJECT([xmlada],[xmlada])
-    if test T$gnat_project_xmlada = Tno; then
+    if test T$gnat_project_xmlada != Tno; then
       WITH_XML_ADA="with \"xmlada\";";
     else
       UTIL_HAVE_XML=no
