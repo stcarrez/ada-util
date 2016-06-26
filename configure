@@ -4073,7 +4073,7 @@ $as_echo "no" >&6; }
   fi
   rm -f conftest.gpr
 
-    if test T$gnat_project_xmlada = Tno; then
+    if test T$gnat_project_xmlada != Tno; then
       WITH_XML_ADA="with \"xmlada\";";
     else
       UTIL_HAVE_XML=no
