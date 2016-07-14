@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-iso8601 -- ISO8601 dates
---  Copyright (C) 2011, 2013 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,12 +19,18 @@
 with Ada.Calendar;
 package Util.Dates.ISO8601 is
 
-   --  Parses an ISO8601 date and return it as a calendar time.
+   type Precision_Type is (YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, SUBSECOND);
+
+                           --  Parses an ISO8601 date and return it as a calendar time.
    --  Raises Constraint_Error if the date format is not recognized.
    function Value (Date : in String) return Ada.Calendar.Time;
 
    --  Return the ISO8601 date.
    function Image (Date : in Ada.Calendar.Time) return String;
    function Image (Date : in Date_Record) return String;
+   function Image (Date      : in Ada.Calendar.Time;
+                   Precision : in Precision_Type) return String;
+   function Image (Date      : in Date_Record;
+                   Precision : in Precision_Type) return String;
 
 end Util.Dates.ISO8601;
