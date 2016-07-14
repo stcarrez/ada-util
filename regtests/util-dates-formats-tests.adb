@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-formats-tests - Test for date formats
---  Copyright (C) 2011, 2013, 2014 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,9 @@ with Util.Assertions;
 with Util.Properties.Bundles;
 with Util.Log.Loggers;
 with Util.Dates.RFC7231;
+with Util.Dates.ISO8601;
 package body Util.Dates.Formats.Tests is
+
    use Util.Tests;
    use Ada.Strings.Unbounded;
 
@@ -51,6 +53,8 @@ package body Util.Dates.Formats.Tests is
                        Test_Get_Month_End'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.RFC7231.Append_Date",
                        Test_Append_Date'Access);
+      Caller.Add_Test (Suite, "Test Util.Dates.ISO8601.Image",
+                       Test_ISO8601'Access);
    end Add_Tests;
 
    procedure Test_Format (T : in out Test) is
@@ -254,5 +258,24 @@ package body Util.Dates.Formats.Tests is
       Check (T, "Fri, 17 Jul 2015 16:07:54 GMT");
       Check (T, "Sun, 04 Oct 2015 15:10:44 GMT");
    end Test_Append_Date;
+
+   --  ------------------------------
+   --  Test the ISO8601 operations.
+   --  ------------------------------
+   procedure Test_ISO8601 (T : in out Test) is
+      Date : constant Ada.Calendar.Time := Ada.Calendar.Formatting.Time_Of (2014, 11, 12,
+                                                                            23, 30, 4, 0.123456);
+      D    : Date_Record;
+   begin
+      Split (D, Date);
+      Util.Tests.Assert_Equals (T, "2014", ISO8601.Image (D, ISO8601.YEAR));
+      Util.Tests.Assert_Equals (T, "2014-11", ISO8601.Image (D, ISO8601.MONTH));
+      Util.Tests.Assert_Equals (T, "2014-11-12", ISO8601.Image (D, ISO8601.DAY));
+      Util.Tests.Assert_Equals (T, "2014-11-12T23", ISO8601.Image (D, ISO8601.HOUR));
+      Util.Tests.Assert_Equals (T, "2014-11-12T23:30", ISO8601.Image (D, ISO8601.MINUTE));
+      Util.Tests.Assert_Equals (T, "2014-11-12T23:30:04", ISO8601.Image (D, ISO8601.SECOND));
+      Util.Tests.Assert_Equals (T, "2014-11-12T23:30:04.123+00:00",
+                                ISO8601.Image (D, ISO8601.SUBSECOND));
+   end Test_ISO8601;
 
 end Util.Dates.Formats.Tests;
