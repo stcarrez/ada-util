@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-jcsv-tests -- Unit tests for CSV parser
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,5 +25,8 @@ package Util.Serialize.IO.CSV.Tests is
    type Test is new Util.Tests.Test with null record;
 
    procedure Test_Parser (T : in out Test);
+
+   --  Test the CSV output stream generation.
+   procedure Test_Output (T : in out Test);
 
 end Util.Serialize.IO.CSV.Tests;
