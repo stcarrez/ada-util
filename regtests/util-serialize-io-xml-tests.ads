@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-xml-tests -- Unit tests for XML serialization
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,5 +40,8 @@ package Util.Serialize.IO.XML.Tests is
 
    --  Test XML serialization
    procedure Test_Writer (T : in out Test);
+
+   --  Test the XML output stream generation.
+   procedure Test_Output (T : in out Test);
 
 end Util.Serialize.IO.XML.Tests;
