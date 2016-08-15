@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Serialize.Mappers.Vector_Mapper -- Mapper for vector types
---  Copyright (C) 2010, 2011, 2014 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2014, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -171,13 +171,13 @@ package body Util.Serialize.Mappers.Vector_Mapper is
                     Element : in Vectors.Vector) is
       Pos : Vectors.Cursor := Element.First;
    begin
-      Stream.Start_Array (Element.Length);
+      Stream.Start_Array (Ada.Strings.Unbounded.To_String (Handler.Name));
       while Vectors.Has_Element (Pos) loop
          Element_Mapper.Write (Handler.Mapper.all, Handler.Map.Get_Getter,
                                Stream, Vectors.Element (Pos));
          Vectors.Next (Pos);
       end loop;
-      Stream.End_Array;
+      Stream.End_Array (Ada.Strings.Unbounded.To_String (Handler.Name));
    end Write;
 
 begin
