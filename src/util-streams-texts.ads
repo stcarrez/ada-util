@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Streams.Files -- File Stream utilities
---  Copyright (C) 2010, 2011, 2012, 2015 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2015, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@ with Ada.Strings.Unbounded;
 with Util.Streams.Buffered;
 with Util.Texts.Transforms;
 with Ada.Characters.Handling;
+with Ada.Wide_Wide_Characters.Handling;
 with Ada.Calendar;
 with GNAT.Calendar.Time_IO;
 package Util.Streams.Texts is
@@ -55,14 +56,29 @@ package Util.Streams.Texts is
    --  Get the output stream content as a string.
    function To_String (Stream : in Buffered.Buffered_Stream) return String;
 
+   --  Write a character on the stream.
+   procedure Write_Char (Stream : in out Buffered.Buffered_Stream'Class;
+                         Item   : in Character);
+
+   --  Write a character on the stream.
+   procedure Write_Char (Stream : in out Buffered.Buffered_Stream'Class;
+                         Item   : in Wide_Wide_Character);
 
    package TR is
-     new Util.Texts.Transforms (Stream => Buffered.Buffered_Stream,
+     new Util.Texts.Transforms (Stream => Buffered.Buffered_Stream'Class,
                                 Char   => Character,
                                 Input  => String,
-                                Put    => Buffered.Write,
+                                Put    => Write_Char,
                                 To_Upper => Ada.Characters.Handling.To_Upper,
                                 To_Lower => Ada.Characters.Handling.To_Lower);
+
+   package WTR is
+     new Util.Texts.Transforms (Stream => Buffered.Buffered_Stream'Class,
+                                Char   => Wide_Wide_Character,
+                                Input  => Wide_Wide_String,
+                                Put    => Write_Char,
+                                To_Upper => Ada.Wide_Wide_Characters.Handling.To_Upper,
+                                To_Lower => Ada.Wide_Wide_Characters.Handling.To_Lower);
 
    --  -----------------------
    --  Reader stream
