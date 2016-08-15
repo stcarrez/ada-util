@@ -1,3 +1,6 @@
+Version 1.9.0   -
+  - Improvement and fixes of the JSON, XML, CSV serialization
+
 Version 1.8.0   - Dec 2015
   - Added support for immediate flush and file appending to the file logger
   - Added support for RFC7231/RFC2616 date conversion
