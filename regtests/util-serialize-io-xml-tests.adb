@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-xml-tests -- Unit tests for XML serialization
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,12 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Strings.Unbounded;
+with Ada.Streams.Stream_IO;
 with Util.Test_Caller;
 with Util.Log.Loggers;
 with Util.Streams.Buffered;
+with Util.Streams.Files;
+with Util.Serialize.IO.JSON.Tests;
 with Util.Serialize.IO.XML;
 with Util.Serialize.Mappers.Record_Mapper;
 package body Util.Serialize.IO.XML.Tests is
@@ -111,6 +114,8 @@ package body Util.Serialize.IO.XML.Tests is
                        Test_Parser_Error'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.XML.Write",
                        Test_Writer'Access);
+      Caller.Add_Test (Suite, "Test Util.Serialize.IO.XML.Write",
+                       Test_Output'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -389,5 +394,24 @@ package body Util.Serialize.IO.XML.Tests is
          T.Assert (XML'Length > 0, "Invalid XML serialization");
       end;
    end Test_Writer;
+
+   --  ------------------------------
+   --  Test the XML output stream generation.
+   --  ------------------------------
+   procedure Test_Output (T : in out Test) is
+      File   : aliased Util.Streams.Files.File_Stream;
+      Stream : Util.Serialize.IO.XML.Output_Stream;
+      Expect : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.xml");
+      Path   : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.xml");
+   begin
+      File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Path);
+      Stream.Initialize (Output => File'Unchecked_Access, Input => null, Size => 10000);
+      Util.Serialize.IO.JSON.Tests.Write_Stream (Stream);
+      Stream.Close;
+      Util.Tests.Assert_Equal_Files (T       => T,
+                                     Expect  => Expect,
+                                     Test    => Path,
+                                     Message => "XML output serialization");
+   end Test_Output;
 
 end Util.Serialize.IO.XML.Tests;
