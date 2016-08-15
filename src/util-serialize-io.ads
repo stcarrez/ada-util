@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io -- IO Drivers for serialization
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,24 +37,77 @@ package Util.Serialize.IO is
    --  a target format such as XML or JSON.
    type Output_Stream is limited interface and Util.Streams.Output_Stream;
 
+   --  Start a document.
+   procedure Start_Document (Stream : in out Output_Stream) is null;
+
+   --  Finish a document.
+   procedure End_Document (Stream : in out Output_Stream) is null;
+
    procedure Start_Entity (Stream : in out Output_Stream;
                            Name   : in String) is null;
 
    procedure End_Entity (Stream : in out Output_Stream;
                          Name   : in String) is null;
 
+   --  Write the attribute name/value pair.
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in String) is abstract;
+
+   procedure Write_Wide_Attribute (Stream : in out Output_Stream;
+                                   Name   : in String;
+                                   Value  : in Wide_Wide_String) is abstract;
+
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Integer) is abstract;
+
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Boolean) is abstract;
+
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object) is abstract;
+
+   procedure Write_Attribute (Stream : in out Output_Stream'Class;
+                              Name   : in String;
+                              Value  : in Ada.Strings.Unbounded.Unbounded_String);
+
+   --  Write the entity value.
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in String) is abstract;
+
+   procedure Write_Wide_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Wide_Wide_String) is abstract;
+
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Boolean) is abstract;
+
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Integer) is abstract;
+
+   procedure Write_Long_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Long_Long_Integer) is abstract;
 
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object) is abstract;
 
-   procedure Start_Array (Stream : in out Output_Stream;
-                          Length : in Ada.Containers.Count_Type) is null;
+   procedure Write_Entity (Stream : in out Output_Stream'Class;
+                           Name   : in String;
+                           Value  : in Ada.Strings.Unbounded.Unbounded_String);
 
-   procedure End_Array (Stream : in out Output_Stream) is null;
+   procedure Start_Array (Stream : in out Output_Stream;
+                          Name   : in String) is null;
+
+   procedure End_Array (Stream : in out Output_Stream;
+                        Name   : in String) is null;
 
    type Parser is abstract new Util.Serialize.Contexts.Context with private;
 
