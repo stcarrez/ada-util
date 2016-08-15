@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-json-tests -- Unit tests for JSON parser
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,5 +27,11 @@ package Util.Serialize.IO.JSON.Tests is
    procedure Test_Parse_Error (T : in out Test);
 
    procedure Test_Parser (T : in out Test);
+
+   --  Generate some output stream for the test.
+   procedure Write_Stream (Stream : in out Util.Serialize.IO.Output_Stream'Class);
+
+   --  Test the JSON output stream generation.
+   procedure Test_Output (T : in out Test);
 
 end Util.Serialize.IO.JSON.Tests;
