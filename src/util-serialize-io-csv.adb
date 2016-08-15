@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-csv -- CSV Serialization Driver
---  Copyright (C) 2011, 2015 Stephane Carrez
+--  Copyright (C) 2011, 2015, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,6 +43,30 @@ package body Util.Serialize.IO.CSV is
          end if;
       end loop;
       Stream.Write ('"');
+   end Write_Cell;
+
+   procedure Write_Cell (Stream : in out Output_Stream;
+                         Value  : in Integer) is
+   begin
+      if Stream.Column > 1 then
+         Stream.Write (",");
+      end if;
+      Stream.Column := Stream.Column + 1;
+      Stream.Write (Util.Strings.Image (Value));
+   end Write_Cell;
+
+   procedure Write_Cell (Stream : in out Output_Stream;
+                         Value  : in Boolean) is
+   begin
+      if Stream.Column > 1 then
+         Stream.Write (",");
+      end if;
+      Stream.Column := Stream.Column + 1;
+      if Value then
+         Stream.Write ("true");
+      else
+         Stream.Write ("false");
+      end if;
    end Write_Cell;
 
    procedure Write_Cell (Stream : in out Output_Stream;
@@ -98,6 +122,42 @@ package body Util.Serialize.IO.CSV is
       Stream.Row := Stream.Row + 1;
    end New_Row;
 
+   --  -----------------------
+   --  Write the attribute name/value pair.
+   --  -----------------------
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in String) is
+   begin
+      Stream.Write_Cell (Value);
+   end Write_Attribute;
+
+   overriding
+   procedure Write_Wide_Attribute (Stream : in out Output_Stream;
+                                   Name   : in String;
+                                   Value  : in Wide_Wide_String) is
+   begin
+      null;
+   end Write_Wide_Attribute;
+
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Integer) is
+   begin
+      Stream.Write_Cell (Value);
+   end Write_Attribute;
+
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Boolean) is
+   begin
+      Stream.Write_Cell (Value);
+   end Write_Attribute;
+
+   overriding
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object) is
@@ -111,6 +171,49 @@ package body Util.Serialize.IO.CSV is
    begin
       null;
    end Write_Entity;
+
+   --  -----------------------
+   --  Write the entity value.
+   --  -----------------------
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in String) is
+   begin
+      Stream.Write_Cell (Value);
+   end Write_Entity;
+
+   overriding
+   procedure Write_Wide_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Wide_Wide_String) is
+   begin
+      null;
+   end Write_Wide_Entity;
+
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Boolean) is
+   begin
+      Stream.Write_Cell (Value);
+   end Write_Entity;
+
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Integer) is
+   begin
+      Stream.Write_Cell (Value);
+   end Write_Entity;
+
+   overriding
+   procedure Write_Long_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Long_Long_Integer) is
+   begin
+      null;
+   end Write_Long_Entity;
 
    --  ------------------------------
    --  Get the header name for the given column.
