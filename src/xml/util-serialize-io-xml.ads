@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-xml -- XML Serialization Driver
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,10 +59,19 @@ package Util.Serialize.IO.XML is
    type Output_Stream is
      new Util.Streams.Texts.Print_Stream and Util.Serialize.IO.Output_Stream with private;
 
+   --  Write a character on the response stream and escape that character as necessary.
+   procedure Write_Escape (Stream : in out Output_Stream'Class;
+                           Char   : in Wide_Wide_Character);
+
    --  Write the value as a XML string.  Special characters are escaped using the XML
    --  escape rules.
    procedure Write_String (Stream : in out Output_Stream;
                            Value  : in String);
+
+   --  Write the value as a XML string.  Special characters are escaped using the XML
+   --  escape rules.
+   procedure Write_Wide_String (Stream : in out Output_Stream;
+                                Value  : in Wide_Wide_String);
 
    --  Write the value as a XML string.  Special characters are escaped using the XML
    --  escape rules.
@@ -77,10 +86,56 @@ package Util.Serialize.IO.XML is
    procedure End_Entity (Stream : in out Output_Stream;
                          Name   : in String);
 
+   --  Write the attribute name/value pair.
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in String);
+
+   overriding
+   procedure Write_Wide_Attribute (Stream : in out Output_Stream;
+                                   Name   : in String;
+                                   Value  : in Wide_Wide_String);
+
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Integer);
+
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Boolean);
+
    --  Write a XML name/value attribute.
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object);
+   --  Write the entity value.
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in String);
+
+   overriding
+   procedure Write_Wide_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Wide_Wide_String);
+
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Boolean);
+
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Integer);
+
+   overriding
+   procedure Write_Long_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Long_Long_Integer);
 
    --  Write a XML name/value entity (see Write_Attribute).
    procedure Write_Entity (Stream : in out Output_Stream;
