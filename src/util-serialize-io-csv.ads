@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-csv -- CSV Serialization Driver
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,15 +40,68 @@ package Util.Serialize.IO.CSV is
    procedure Write_Cell (Stream : in out Output_Stream;
                          Value  : in String);
    procedure Write_Cell (Stream : in out Output_Stream;
+                         Value  : in Integer);
+  procedure Write_Cell (Stream : in out Output_Stream;
+                         Value  : in Boolean);
+   procedure Write_Cell (Stream : in out Output_Stream;
                          Value  : in Util.Beans.Objects.Object);
 
    --  Start a new row.
    procedure New_Row (Stream : in out Output_Stream);
 
+   --  Write the attribute name/value pair.
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in String);
+
+   overriding
+   procedure Write_Wide_Attribute (Stream : in out Output_Stream;
+                                   Name   : in String;
+                                   Value  : in Wide_Wide_String);
+
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Integer);
+
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Boolean);
+
+   overriding
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object);
 
+   --  Write the entity value.
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in String);
+
+   overriding
+   procedure Write_Wide_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Wide_Wide_String);
+
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Boolean);
+
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Integer);
+
+   overriding
+   procedure Write_Long_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Long_Long_Integer);
+
+   overriding
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object);
