@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Streams.Buffered -- Buffered streams Stream utilities
---  Copyright (C) 2010, 2011, 2013, 2014 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2013, 2014, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-
+with Interfaces;
 with Ada.IO_Exceptions;
 with Ada.Unchecked_Deallocation;
 package body Util.Streams.Buffered is
@@ -117,6 +117,43 @@ package body Util.Streams.Buffered is
       Stream.Buffer (Stream.Write_Pos) := Stream_Element (Character'Pos (Char));
       Stream.Write_Pos := Stream.Write_Pos + 1;
    end Write;
+
+   --  ------------------------------
+   --  Write a wide character on the stream doing some conversion if necessary.
+   --  The default implementation translates the wide character to a UTF-8 sequence.
+   --  ------------------------------
+   procedure Write_Wide (Stream : in out Buffered_Stream;
+                         Item   : in Wide_Wide_Character) is
+      use Interfaces;
+
+      Val : Unsigned_32;
+   begin
+      --  UTF-8 conversion
+      --  7  U+0000   U+007F   1  0xxxxxxx
+      --  11 U+0080   U+07FF   2  110xxxxx 10xxxxxx
+      --  16 U+0800   U+FFFF   3  1110xxxx 10xxxxxx 10xxxxxx
+      --  21 U+10000  U+1FFFFF 4  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+      Val := Wide_Wide_Character'Pos (Item);
+      if Val <= 16#7f# then
+         Stream.Write (Character'Val (Val));
+      elsif Val <= 16#07FF# then
+         Stream.Write (Character'Val (16#C0# or Shift_Right (Val, 6)));
+         Stream.Write (Character'Val (16#80# or (Val and 16#03F#)));
+      elsif Val <= 16#0FFFF# then
+         Stream.Write (Character'Val (16#E0# or Shift_Right (Val, 12)));
+         Val := Val and 16#0FFF#;
+         Stream.Write (Character'Val (16#80# or Shift_Right (Val, 6)));
+         Stream.Write (Character'Val (16#80# or (Val and 16#03F#)));
+      else
+         Val := Val and 16#1FFFFF#;
+         Stream.Write (Character'Val (16#F0# or Shift_Right (Val, 18)));
+         Val := Val and 16#3FFFF#;
+         Stream.Write (Character'Val (16#E0# or Shift_Right (Val, 12)));
+         Val := Val and 16#0FFF#;
+         Stream.Write (Character'Val (16#80# or Shift_Right (Val, 6)));
+         Stream.Write (Character'Val (16#80# or (Val and 16#03F#)));
+      end if;
+   end Write_Wide;
 
    --  ------------------------------
    --  Write a raw string on the stream.
