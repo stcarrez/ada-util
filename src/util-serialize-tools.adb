@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-tools -- Tools to Serialize objects in various formats
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -86,13 +86,12 @@ package body Util.Serialize.Tools is
          declare
             Iter : Util.Beans.Objects.Maps.Cursor := Map.First;
          begin
-            Output.Start_Array (Name   => Name,
-                                Length => Map.Length);
+            Output.Start_Array (Name => Name);
             while Util.Beans.Objects.Maps.Has_Element (Iter) loop
                Util.Beans.Objects.Maps.Query_Element (Iter, Write'Access);
                Util.Beans.Objects.Maps.Next (Iter);
             end loop;
-            Output.End_Array;
+            Output.End_Array (Name => Name);
          end;
       end if;
    end To_JSON;
