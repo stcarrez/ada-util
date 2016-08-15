@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Streams.Buffered -- Buffered streams Stream utilities
---  Copyright (C) 2010, 2013, 2015 Stephane Carrez
+--  Copyright (C) 2010, 2013, 2015, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -61,6 +61,11 @@ package Util.Streams.Buffered is
    --  Write a raw character on the stream.
    procedure Write (Stream : in out Buffered_Stream;
                     Char   : in Character);
+
+   --  Write a wide character on the stream doing some conversion if necessary.
+   --  The default implementation translates the wide character to a UTF-8 sequence.
+   procedure Write_Wide (Stream : in out Buffered_Stream;
+                         Item   : in Wide_Wide_Character);
 
    --  Write a raw string on the stream.
    procedure Write (Stream : in out Buffered_Stream;
