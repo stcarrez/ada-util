@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@
 with Interfaces;
 
 with Ada.Characters.Latin_1;
+with Ada.Characters.Wide_Wide_Latin_1;
 with Ada.IO_Exceptions;
 
 with Util.Strings;
@@ -82,7 +83,7 @@ package body Util.Serialize.IO.JSON is
                      Stream.Write ("\t");
 
                   when others =>
-                     Util.Streams.Texts.TR.To_Hex (Streams.Buffered.Buffered_Stream (Stream), C);
+                     Util.Streams.Texts.TR.To_Hex (Stream, C);
 
                end case;
             end if;
@@ -90,6 +91,55 @@ package body Util.Serialize.IO.JSON is
       end loop;
       Stream.Write ('"');
    end Write_String;
+
+   --  -----------------------
+   --  Write the value as a JSON string.  Special characters are escaped using the JSON
+   --  escape rules.
+   --  -----------------------
+   procedure Write_Wide_String (Stream : in out Output_Stream;
+                                Value  : in Wide_Wide_String) is
+   begin
+      Stream.Write ('"');
+      for I in Value'Range loop
+         declare
+            C : constant Wide_Wide_Character := Value (I);
+         begin
+            if C = '"' then
+               Stream.Write ("\""");
+
+            elsif C = '\'  then
+               Stream.Write ("\\");
+
+            elsif Wide_Wide_Character'Pos (C) >= 16#20# then
+               Util.Streams.Texts.Write_Char (Stream, C);
+
+            else
+               case C is
+                  when Ada.Characters.Wide_Wide_Latin_1.BS =>
+                     Stream.Write ("\b");
+
+                  when Ada.Characters.Wide_Wide_Latin_1.VT =>
+                     Stream.Write ("\f");
+
+                  when Ada.Characters.Wide_Wide_Latin_1.LF =>
+                     Stream.Write ("\n");
+
+                  when Ada.Characters.Wide_Wide_Latin_1.CR =>
+                     Stream.Write ("\r");
+
+                  when Ada.Characters.Wide_Wide_Latin_1.HT =>
+                     Stream.Write ("\t");
+
+                  when others =>
+                     Util.Streams.Texts.WTR.To_Hex (Stream, C);
+
+               end case;
+            end if;
+         end;
+      end loop;
+      Stream.Write ('"');
+   end Write_Wide_String;
+
 
    --  -----------------------
    --  Start writing an object identified by the given name
@@ -105,14 +155,14 @@ package body Util.Serialize.IO.JSON is
             Current.Has_Fields := True;
          end if;
       end if;
-      Node_Info_Stack.Push (Stream.Stack);
-      Current := Node_Info_Stack.Current (Stream.Stack);
-      Current.Has_Fields := False;
 
-      if Name'Length > 0 then
+      if Name'Length > 0 and then (Current = null or else not Current.Is_Array) then
          Stream.Write_String (Name);
          Stream.Write (':');
       end if;
+      Node_Info_Stack.Push (Stream.Stack);
+      Current := Node_Info_Stack.Current (Stream.Stack);
+      Current.Has_Fields := False;
       Stream.Write ('{');
    end Start_Entity;
 
@@ -126,6 +176,85 @@ package body Util.Serialize.IO.JSON is
       Node_Info_Stack.Pop (Stream.Stack);
       Stream.Write ('}');
    end End_Entity;
+
+   --  -----------------------
+   --  Write the attribute name/value pair.
+   --  -----------------------
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in String) is
+      Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
+   begin
+      if Current /= null then
+         if Current.Has_Fields then
+            Stream.Write (",");
+         else
+            Current.Has_Fields := True;
+         end if;
+      end if;
+      Stream.Write_String (Name);
+      Stream.Write (':');
+      Stream.Write_String (Value);
+   end Write_Attribute;
+
+   overriding
+   procedure Write_Wide_Attribute (Stream : in out Output_Stream;
+                                   Name   : in String;
+                                   Value  : in Wide_Wide_String) is
+      Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
+   begin
+      if Current /= null then
+         if Current.Has_Fields then
+            Stream.Write (",");
+         else
+            Current.Has_Fields := True;
+         end if;
+      end if;
+      Stream.Write_String (Name);
+      Stream.Write (':');
+      Stream.Write_Wide_String (Value);
+   end Write_Wide_Attribute;
+
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Integer) is
+      Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
+   begin
+      if Current /= null then
+         if Current.Has_Fields then
+            Stream.Write (",");
+         else
+            Current.Has_Fields := True;
+         end if;
+      end if;
+      Stream.Write_String (Name);
+      Stream.Write (':');
+      Stream.Write (Integer'Image (Value));
+   end Write_Attribute;
+
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Boolean) is
+      Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
+   begin
+      if Current /= null then
+         if Current.Has_Fields then
+            Stream.Write (",");
+         else
+            Current.Has_Fields := True;
+         end if;
+      end if;
+      Stream.Write_String (Name);
+      Stream.Write (':');
+      if Value then
+         Stream.Write ("true");
+      else
+         Stream.Write ("false");
+      end if;
+   end Write_Attribute;
 
    --  -----------------------
    --  Write an attribute member from the current object
@@ -177,15 +306,59 @@ package body Util.Serialize.IO.JSON is
    end Write_Entity;
 
    --  -----------------------
+   --  Write a JSON name/value pair (see Write_Attribute).
+   --  -----------------------
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in String) is
+   begin
+      Stream.Write_Attribute (Name, Value);
+   end Write_Entity;
+
+   overriding
+   procedure Write_Wide_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Wide_Wide_String) is
+   begin
+      Stream.Write_Wide_Attribute (Name, Value);
+   end Write_Wide_Entity;
+
+   --  -----------------------
+   --  Write a JSON name/value pair (see Write_Attribute).
+   --  -----------------------
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Integer) is
+   begin
+      Stream.Write_Attribute (Name, Value);
+   end Write_Entity;
+
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Boolean) is
+   begin
+      Stream.Write_Attribute (Name, Value);
+   end Write_Entity;
+
+   overriding
+   procedure Write_Long_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Long_Long_Integer) is
+   begin
+      Stream.Write_Attribute (Name, Integer (Value));
+   end Write_Long_Entity;
+
+   --  -----------------------
    --  Start an array that will contain the specified number of elements
    --  Example:  "list": [
    --  -----------------------
+   overriding
    procedure Start_Array (Stream : in out Output_Stream;
-                          Name   : in String;
-                          Length : in Ada.Containers.Count_Type) is
-      pragma Unreferenced (Length);
-
-      Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
+                          Name   : in String) is
+      Current : access Node_Info := Node_Info_Stack.Current (Stream.Stack);
    begin
       if Current /= null then
          if Current.Has_Fields then
@@ -195,6 +368,9 @@ package body Util.Serialize.IO.JSON is
          end if;
       end if;
       Node_Info_Stack.Push (Stream.Stack);
+      Current := Node_Info_Stack.Current (Stream.Stack);
+      Current.Has_Fields := False;
+      Current.Is_Array := True;
       Stream.Write_String (Name);
       Stream.Write (':');
       Stream.Write ('[');
@@ -203,7 +379,9 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Finishes an array
    --  -----------------------
-   procedure End_Array (Stream : in out Output_Stream) is
+   overriding
+   procedure End_Array (Stream : in out Output_Stream;
+                        Name   : in String) is
    begin
       Node_Info_Stack.Pop (Stream.Stack);
       Stream.Write (']');
