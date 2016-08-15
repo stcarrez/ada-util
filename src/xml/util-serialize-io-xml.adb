@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-xml -- XML Serialization Driver
---  Copyright (C) 2011, 2012, 2013 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2013, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-
+with Ada.Characters.Conversions;
 with Unicode;
 with Unicode.CES.Utf8;
 
@@ -431,6 +431,32 @@ package body Util.Serialize.IO.XML is
    end Close_Current;
 
    --  ------------------------------
+   --  Write a character on the response stream and escape that character as necessary.
+   --  ------------------------------
+   procedure Write_Escape (Stream : in out Output_Stream'Class;
+                           Char   : in Wide_Wide_Character) is
+      type Unicode_Char is mod 2**32;
+
+      Code : constant Unicode_Char := Wide_Wide_Character'Pos (Char);
+   begin
+      --  If "?" or over, no escaping is needed (this covers
+      --  most of the Latin alphabet)
+      if Code > 16#80# then
+         Stream.Write_Wide (Char);
+      elsif Code > 16#3F# or Code <= 16#20# then
+         Stream.Write (Character'Val (Code));
+      elsif Char = '<' then
+         Stream.Write ("&lt;");
+      elsif Char = '>' then
+         Stream.Write ("&gt;");
+      elsif Char = '&' then
+         Stream.Write ("&amp;");
+      else
+         Stream.Write (Character'Val (Code));
+      end if;
+   end Write_Escape;
+
+   --  ------------------------------
    --  Write the value as a XML string.  Special characters are escaped using the XML
    --  escape rules.
    --  ------------------------------
@@ -438,8 +464,23 @@ package body Util.Serialize.IO.XML is
                            Value  : in String) is
    begin
       Close_Current (Stream);
-      Stream.Write (Value);
+      for I in Value'Range loop
+         Stream.Write_Escape (Ada.Characters.Conversions.To_Wide_Wide_Character (Value (I)));
+      end loop;
    end Write_String;
+
+   --  ------------------------------
+   --  Write the value as a XML string.  Special characters are escaped using the XML
+   --  escape rules.
+   --  ------------------------------
+   procedure Write_Wide_String (Stream : in out Output_Stream;
+                                Value  : in Wide_Wide_String) is
+   begin
+      Close_Current (Stream);
+      for I in Value'Range loop
+         Stream.Write_Escape (Value (I));
+      end loop;
+   end Write_Wide_String;
 
    --  ------------------------------
    --  Write the value as a XML string.  Special characters are escaped using the XML
@@ -495,6 +536,59 @@ package body Util.Serialize.IO.XML is
    end End_Entity;
 
    --  ------------------------------
+   --  Write the attribute name/value pair.
+   --  ------------------------------
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in String) is
+   begin
+      Stream.Write (' ');
+      Stream.Write (Name);
+      Stream.Write ("=""");
+      Util.Streams.Texts.TR.Escape_Java (Content => Value, Into => Stream);
+      Stream.Write ('"');
+   end Write_Attribute;
+
+   overriding
+   procedure Write_Wide_Attribute (Stream : in out Output_Stream;
+                                   Name   : in String;
+                                   Value  : in Wide_Wide_String) is
+   begin
+      Stream.Write (' ');
+      Stream.Write (Name);
+      Stream.Write ("=""");
+      Util.Streams.Texts.WTR.Escape_Java (Content => Value, Into => Stream);
+      Stream.Write ('"');
+   end Write_Wide_Attribute;
+
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Integer) is
+   begin
+      Stream.Write (' ');
+      Stream.Write (Name);
+      Stream.Write ("=""");
+      Stream.Write (Value);
+      Stream.Write ('"');
+   end Write_Attribute;
+
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Boolean) is
+   begin
+      Stream.Write (' ');
+      Stream.Write (Name);
+      if Value then
+         Stream.Write ("=""true""");
+      else
+         Stream.Write ("=""false""");
+      end if;
+   end Write_Attribute;
+
+   --  ------------------------------
    --  Write a XML name/value attribute.
    --  ------------------------------
    procedure Write_Attribute (Stream : in out Output_Stream;
@@ -525,6 +619,86 @@ package body Util.Serialize.IO.XML is
       end case;
       Stream.Write ('"');
    end Write_Attribute;
+
+   --  ------------------------------
+   --  Write the entity value.
+   --  ------------------------------
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in String) is
+   begin
+      Close_Current (Stream);
+      Stream.Write ('<');
+      Stream.Write (Name);
+      Stream.Close_Start := True;
+      Stream.Write_String (Value);
+      Stream.Write ("</");
+      Stream.Write (Name);
+      Stream.Write ('>');
+   end Write_Entity;
+
+   overriding
+   procedure Write_Wide_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Wide_Wide_String) is
+   begin
+      Close_Current (Stream);
+      Stream.Write ('<');
+      Stream.Write (Name);
+      Stream.Close_Start := True;
+      Stream.Write_Wide_String (Value);
+      Stream.Write ("</");
+      Stream.Write (Name);
+      Stream.Write ('>');
+   end Write_Wide_Entity;
+
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Boolean) is
+   begin
+      Close_Current (Stream);
+      Stream.Write ('<');
+      Stream.Write (Name);
+      if Value then
+         Stream.Write (">true</");
+      else
+         Stream.Write (">false</");
+      end if;
+      Stream.Write (Name);
+      Stream.Write ('>');
+   end Write_Entity;
+
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Integer) is
+   begin
+      Close_Current (Stream);
+      Stream.Write ('<');
+      Stream.Write (Name);
+      Stream.Write ('>');
+      Stream.Write (Value);
+      Stream.Write ("</");
+      Stream.Write (Name);
+      Stream.Write ('>');
+   end Write_Entity;
+
+   overriding
+   procedure Write_Long_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Long_Long_Integer) is
+   begin
+      Close_Current (Stream);
+      Stream.Write ('<');
+      Stream.Write (Name);
+      Stream.Write ('>');
+      Stream.Write (Value);
+      Stream.Write ("</");
+      Stream.Write (Name);
+      Stream.Write ('>');
+   end Write_Long_Entity;
 
    --  ------------------------------
    --  Write a XML name/value entity (see Write_Attribute).
