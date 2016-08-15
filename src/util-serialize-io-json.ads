@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,15 +29,22 @@ package Util.Serialize.IO.JSON is
      new Util.Streams.Texts.Print_Stream and Util.Serialize.IO.Output_Stream with private;
 
    --  Start a JSON document.  This operation writes the initial JSON marker ('{').
+   overriding
    procedure Start_Document (Stream : in out Output_Stream);
 
    --  Finish a JSON document by writing the final JSON marker ('}').
+   overriding
    procedure End_Document (Stream : in out Output_Stream);
 
    --  Write the value as a JSON string.  Special characters are escaped using the JSON
    --  escape rules.
    procedure Write_String (Stream : in out Output_Stream;
                            Value  : in String);
+
+   --  Write the value as a JSON string.  Special characters are escaped using the JSON
+   --  escape rules.
+   procedure Write_Wide_String (Stream : in out Output_Stream;
+                                Value  : in Wide_Wide_String);
 
    --  Start a new JSON object.  If the name is not empty, write it as a string
    --  followed by the ':' (colon).  The JSON object starts with '{' (curly brace).
@@ -48,6 +55,27 @@ package Util.Serialize.IO.JSON is
    --  Terminates the current JSON object.
    procedure End_Entity (Stream : in out Output_Stream;
                          Name   : in String);
+
+   --  Write the attribute name/value pair.
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in String);
+
+   overriding
+   procedure Write_Wide_Attribute (Stream : in out Output_Stream;
+                                   Name   : in String;
+                                   Value  : in Wide_Wide_String);
+
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Integer);
+
+   overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Boolean);
 
    --  Write a JSON name/value pair.  The value is written according to its type
    --  Example:  "name": null
@@ -63,14 +91,43 @@ package Util.Serialize.IO.JSON is
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object);
 
+   --  Write a JSON name/value pair (see Write_Attribute).
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in String);
+
+   overriding
+   procedure Write_Wide_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Wide_Wide_String);
+
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Boolean);
+
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Integer);
+
+   overriding
+   procedure Write_Long_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Long_Long_Integer);
+
+
    --  Starts a JSON array.
    --  Example:  "list": [
+   overriding
    procedure Start_Array (Stream : in out Output_Stream;
-                          Name   : in String;
-                          Length : in Ada.Containers.Count_Type);
+                          Name   : in String);
 
    --  Terminates a JSON array.
-   procedure End_Array (Stream : in out Output_Stream);
+   overriding
+   procedure End_Array (Stream : in out Output_Stream;
+                        Name   : in String);
 
    type Parser is new Serialize.IO.Parser with private;
 
