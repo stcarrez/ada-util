@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-csv-tests -- Unit tests for CSV parser
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,10 +15,11 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-
+with Ada.Streams.Stream_IO;
 with Util.Test_Caller;
-
+with Util.Streams.Files;
 with Util.Serialize.Mappers.Tests;
+with Util.Serialize.IO.JSON.Tests;
 package body Util.Serialize.IO.CSV.Tests is
 
    package Caller is new Util.Test_Caller (Test, "Serialize.IO.CSV");
@@ -27,6 +28,8 @@ package body Util.Serialize.IO.CSV.Tests is
    begin
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.CSV.Parse (parse Ok)",
                        Test_Parser'Access);
+      Caller.Add_Test (Suite, "Test Util.Serialize.IO.CSV.Write",
+                       Test_Output'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -73,5 +76,24 @@ package body Util.Serialize.IO.CSV.Tests is
       Check_Parse (HDR & """John" & ASCII.CR & "Potter"",False,""3234"",True", 3234);
       Check_Parse (HDR & """John" & ASCII.LF & "Potter"",False,""3234"",True", 3234);
    end Test_Parser;
+
+   --  ------------------------------
+   --  Test the CSV output stream generation.
+   --  ------------------------------
+   procedure Test_Output (T : in out Test) is
+      File   : aliased Util.Streams.Files.File_Stream;
+      Stream : Util.Serialize.IO.CSV.Output_Stream;
+      Expect : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.csv");
+      Path   : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.csv");
+   begin
+      File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Path);
+      Stream.Initialize (Output => File'Unchecked_Access, Input => null, Size => 10000);
+      Util.Serialize.IO.JSON.Tests.Write_Stream (Stream);
+      Stream.Close;
+      Util.Tests.Assert_Equal_Files (T       => T,
+                                     Expect  => Expect,
+                                     Test    => Path,
+                                     Message => "CSV output serialization");
+   end Test_Output;
 
 end Util.Serialize.IO.CSV.Tests;
