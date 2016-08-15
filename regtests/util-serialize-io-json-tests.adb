@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-json-tests -- Unit tests for JSON parser
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,11 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-
+with Ada.Streams.Stream_IO;
+with Ada.Characters.Wide_Wide_Latin_1;
 with Util.Test_Caller;
 with Util.Log.Loggers;
+with Util.Streams.Files;
 
 package body Util.Serialize.IO.JSON.Tests is
 
@@ -33,6 +35,8 @@ package body Util.Serialize.IO.JSON.Tests is
                        Test_Parse_Error'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.JSON.Parse (parse Ok)",
                        Test_Parser'Access);
+      Caller.Add_Test (Suite, "Test Util.Serialize.IO.JSON.Write",
+                       Test_Output'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -100,5 +104,77 @@ package body Util.Serialize.IO.JSON.Tests is
       Check_Parse ("{ ""person"":""\u1CDE""}");
       Check_Parse ("{ ""person"":""\u2ABF""}");
    end Test_Parser;
+
+   --  ------------------------------
+   --  Generate some output stream for the test.
+   --  ------------------------------
+   procedure Write_Stream (Stream : in out Util.Serialize.IO.Output_Stream'Class) is
+      Name : Ada.Strings.Unbounded.Unbounded_String;
+      Wide : constant Wide_Wide_String :=
+        Ada.Characters.Wide_Wide_Latin_1.CR &
+        Ada.Characters.Wide_Wide_Latin_1.LF &
+        Ada.Characters.Wide_Wide_Latin_1.HT &
+        Wide_Wide_Character'Val (16#080#) &
+        Wide_Wide_Character'Val (16#1fC#) &
+        Wide_Wide_Character'Val (16#2acbf#);
+   begin
+      Ada.Strings.Unbounded.Append (Name, "Katniss Everdeen");
+      Stream.Start_Document;
+      Stream.Start_Entity ("root");
+      Stream.Start_Entity ("person");
+      Stream.Write_Attribute ("id", 1);
+      Stream.Write_Attribute ("name", Name);
+      Stream.Write_Entity ("name", Name);
+      Stream.Write_Entity ("gender", "female");
+      Stream.Write_Entity ("volunteer", True);
+      Stream.Write_Entity ("age", 17);
+      Stream.Write_Wide_Entity ("skin", "olive skin");
+      Stream.Start_Array ("badges");
+
+      Stream.Start_Entity ("badge");
+      Stream.Write_Entity ("level", "gold");
+      Stream.Write_Entity ("name", "hunter");
+      Stream.End_Entity ("badge");
+
+      Stream.Start_Entity ("badge");
+      Stream.Write_Entity ("level", "gold");
+      Stream.Write_Entity ("name", "archery");
+      Stream.End_Entity ("badge");
+      Stream.End_Array ("badges");
+
+      Stream.Start_Entity ("district");
+      Stream.Write_Attribute ("id", 12);
+      Stream.Write_Wide_Attribute ("industry", "Coal mining");
+      Stream.Write_Attribute ("state", "<destroyed>");
+      Stream.Write_Long_Entity ("members", 10_000);
+      Stream.Write_Entity ("description", "<TBW>&""");
+      Stream.Write_Wide_Entity ("wescape", "'""<>&;,@!`~[]{}^%*()-+=");
+      Stream.Write_Entity ("escape", "'""<>&;,@!`~\[]{}^%*()-+=");
+      Stream.Write_Wide_Entity ("wide", Wide);
+      Stream.End_Entity ("district");
+
+      Stream.End_Entity ("person");
+      Stream.End_Entity ("root");
+      Stream.End_Document;
+   end Write_Stream;
+
+   --  ------------------------------
+   --  Test the JSON output stream generation.
+   --  ------------------------------
+   procedure Test_Output (T : in out Test) is
+      File   : aliased Util.Streams.Files.File_Stream;
+      Stream : Util.Serialize.IO.JSON.Output_Stream;
+      Expect : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.json");
+      Path   : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.json");
+   begin
+      File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Path);
+      Stream.Initialize (Output => File'Unchecked_Access, Input => null, Size => 10000);
+      Write_Stream (Stream);
+      Stream.Close;
+      Util.Tests.Assert_Equal_Files (T       => T,
+                                     Expect  => Expect,
+                                     Test    => Path,
+                                     Message => "JSON output serialization");
+   end Test_Output;
 
 end Util.Serialize.IO.JSON.Tests;
