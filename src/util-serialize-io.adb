@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io -- IO Drivers for serialization
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,19 @@ package body Util.Serialize.IO is
    --  The logger'
    Log : aliased constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Serialize.IO",
                                                                               Util.Log.WARN_LEVEL);
+   procedure Write_Attribute (Stream : in out Output_Stream'Class;
+                              Name   : in String;
+                              Value  : in Ada.Strings.Unbounded.Unbounded_String) is
+   begin
+      Stream.Write_Attribute (Name, Ada.Strings.Unbounded.To_String (Value));
+   end Write_Attribute;
+
+   procedure Write_Entity (Stream : in out Output_Stream'Class;
+                           Name   : in String;
+                           Value  : in Ada.Strings.Unbounded.Unbounded_String) is
+   begin
+      Stream.Write_Entity (Name, Ada.Strings.Unbounded.To_String (Value));
+   end Write_Entity;
 
    --  ------------------------------
    --  Read the file and parse it using the JSON parser.
