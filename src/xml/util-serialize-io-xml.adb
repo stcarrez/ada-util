@@ -546,7 +546,7 @@ package body Util.Serialize.IO.XML is
       Stream.Write (' ');
       Stream.Write (Name);
       Stream.Write ("=""");
-      Util.Streams.Texts.TR.Escape_Java (Content => Value, Into => Stream);
+      Util.Streams.Texts.TR.Escape_Xml (Content => Value, Into => Stream);
       Stream.Write ('"');
    end Write_Attribute;
 
@@ -558,7 +558,7 @@ package body Util.Serialize.IO.XML is
       Stream.Write (' ');
       Stream.Write (Name);
       Stream.Write ("=""");
-      Util.Streams.Texts.WTR.Escape_Java (Content => Value, Into => Stream);
+      Util.Streams.Texts.WTR.Escape_Xml (Content => Value, Into => Stream);
       Stream.Write ('"');
    end Write_Wide_Attribute;
 
