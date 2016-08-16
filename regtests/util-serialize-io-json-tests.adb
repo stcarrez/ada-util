@@ -116,6 +116,7 @@ package body Util.Serialize.IO.JSON.Tests is
         Ada.Characters.Wide_Wide_Latin_1.HT &
         Wide_Wide_Character'Val (16#080#) &
         Wide_Wide_Character'Val (16#1fC#) &
+        Wide_Wide_Character'Val (16#20AC#) &
         Wide_Wide_Character'Val (16#2acbf#);
    begin
       Ada.Strings.Unbounded.Append (Name, "Katniss Everdeen");
