@@ -441,7 +441,7 @@ package body Util.Serialize.IO.XML is
    begin
       --  If "?" or over, no escaping is needed (this covers
       --  most of the Latin alphabet)
-      if Code > 16#80# then
+      if Code >= 16#80# then
          Stream.Write_Wide (Char);
       elsif Code > 16#3F# or Code <= 16#20# then
          Stream.Write (Character'Val (Code));
