@@ -148,7 +148,7 @@ package body Util.Streams.Buffered is
          Val := Val and 16#1FFFFF#;
          Stream.Write (Character'Val (16#F0# or Shift_Right (Val, 18)));
          Val := Val and 16#3FFFF#;
-         Stream.Write (Character'Val (16#E0# or Shift_Right (Val, 12)));
+         Stream.Write (Character'Val (16#80# or Shift_Right (Val, 12)));
          Val := Val and 16#0FFF#;
          Stream.Write (Character'Val (16#80# or Shift_Right (Val, 6)));
          Stream.Write (Character'Val (16#80# or (Val and 16#03F#)));
