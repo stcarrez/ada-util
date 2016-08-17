@@ -215,6 +215,14 @@ package body Util.Serialize.IO.CSV is
       null;
    end Write_Long_Entity;
 
+   overriding
+   procedure Write_Enum_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in String) is
+   begin
+      Stream.Write_Entity (Name, Value);
+   end Write_Enum_Entity;
+
    --  ------------------------------
    --  Get the header name for the given column.
    --  If there was no header line, build a default header for the column.
