@@ -700,6 +700,14 @@ package body Util.Serialize.IO.XML is
       Stream.Write ('>');
    end Write_Long_Entity;
 
+   overriding
+   procedure Write_Enum_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in String) is
+   begin
+      Stream.Write_Entity (Name, Value);
+   end Write_Enum_Entity;
+
    --  ------------------------------
    --  Write a XML name/value entity (see Write_Attribute).
    --  ------------------------------
