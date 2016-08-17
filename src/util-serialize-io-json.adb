@@ -351,6 +351,14 @@ package body Util.Serialize.IO.JSON is
       Stream.Write_Attribute (Name, Integer (Value));
    end Write_Long_Entity;
 
+   overriding
+   procedure Write_Enum_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in String) is
+   begin
+      Stream.Write_Entity (Name, Value);
+   end Write_Enum_Entity;
+
    --  -----------------------
    --  Start an array that will contain the specified number of elements
    --  Example:  "list": [
