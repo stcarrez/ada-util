@@ -117,6 +117,10 @@ package Util.Serialize.IO.JSON is
                                 Name   : in String;
                                 Value  : in Long_Long_Integer);
 
+   overriding
+   procedure Write_Enum_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in String);
 
    --  Starts a JSON array.
    --  Example:  "list": [
