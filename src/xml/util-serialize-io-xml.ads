@@ -137,6 +137,11 @@ package Util.Serialize.IO.XML is
                                 Name   : in String;
                                 Value  : in Long_Long_Integer);
 
+   overriding
+   procedure Write_Enum_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in String);
+
    --  Write a XML name/value entity (see Write_Attribute).
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
