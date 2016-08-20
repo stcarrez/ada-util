@@ -17,6 +17,8 @@
 -----------------------------------------------------------------------
 with Ada.Streams.Stream_IO;
 with Ada.Characters.Wide_Wide_Latin_1;
+with Ada.Calendar.Formatting;
+
 with Util.Test_Caller;
 with Util.Log.Loggers;
 with Util.Streams.Files;
@@ -116,8 +118,9 @@ package body Util.Serialize.IO.JSON.Tests is
         Ada.Characters.Wide_Wide_Latin_1.HT &
         Wide_Wide_Character'Val (16#080#) &
         Wide_Wide_Character'Val (16#1fC#) &
-        Wide_Wide_Character'Val (16#20AC#) &
+        Wide_Wide_Character'Val (16#20AC#) & -- Euro sign
         Wide_Wide_Character'Val (16#2acbf#);
+      T : constant Ada.Calendar.Time := Ada.Calendar.Formatting.Time_Of (2011, 11, 19, 23, 0, 0);
    begin
       Ada.Strings.Unbounded.Append (Name, "Katniss Everdeen");
       Stream.Start_Document;
@@ -129,6 +132,7 @@ package body Util.Serialize.IO.JSON.Tests is
       Stream.Write_Entity ("gender", "female");
       Stream.Write_Entity ("volunteer", True);
       Stream.Write_Entity ("age", 17);
+      Stream.Write_Entity ("date", T);
       Stream.Write_Wide_Entity ("skin", "olive skin");
       Stream.Start_Array ("badges");
 
