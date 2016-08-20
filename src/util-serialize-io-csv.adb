@@ -20,6 +20,7 @@ with Ada.Characters.Latin_1;
 with Ada.IO_Exceptions;
 
 with Util.Strings;
+with Util.Dates.ISO8601;
 
 package body Util.Serialize.IO.CSV is
 
@@ -205,6 +206,14 @@ package body Util.Serialize.IO.CSV is
                            Value  : in Integer) is
    begin
       Stream.Write_Cell (Value);
+   end Write_Entity;
+
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Ada.Calendar.Time) is
+   begin
+      Stream.Write_Entity (Name, Util.Dates.ISO8601.Image (Value, Util.Dates.ISO8601.SUBSECOND));
    end Write_Entity;
 
    overriding
