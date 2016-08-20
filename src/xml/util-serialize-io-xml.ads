@@ -133,6 +133,11 @@ package Util.Serialize.IO.XML is
                            Value  : in Integer);
 
    overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Ada.Calendar.Time);
+
+   overriding
    procedure Write_Long_Entity (Stream : in out Output_Stream;
                                 Name   : in String;
                                 Value  : in Long_Long_Integer);
