@@ -23,12 +23,10 @@ with Ada.Text_IO;
 with Util.Encoders.SHA1;
 with Util.Encoders.HMAC.SHA1;
 with Util.Encoders.Base16;
+with Util.Encoders.Base64;
 package body Util.Encoders.Tests is
 
    use Util.Tests;
---     use Util.Log;
---
---     Log : constant Loggers.Logger := Loggers.Create ("Util.Encoders.Tests");
 
    procedure Check_HMAC (T      : in out Test'Class;
                          Key    : in String;
@@ -73,6 +71,8 @@ package body Util.Encoders.Tests is
                        Test_HMAC_SHA1_RFC2202_T7'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Encode_LEB128",
                        Test_LEB128'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Encode",
+                       Test_Base64_LEB128'Access);
    end Add_Tests;
 
    procedure Test_Base64_Encode (T : in out Test) is
@@ -365,5 +365,27 @@ package body Util.Encoders.Tests is
          T.Assert (Val = Res, "Invalid decode with I " & Integer'Image (I));
       end loop;
    end Test_LEB128;
+
+   --  ------------------------------
+   --  Test encoding leb128 + base64
+   --  ------------------------------
+   procedure Test_Base64_LEB128 (T : in out Test) is
+      use type Interfaces.Unsigned_64;
+
+      Val   : Interfaces.Unsigned_64 := 0;
+      Start : Util.Measures.Stamp;
+   begin
+      for I in 1 .. 100 loop
+         declare
+            S : constant String := Util.Encoders.Base64.Encode (Val);
+            V : constant Interfaces.Unsigned_64 := Util.Encoders.Base64.Decode  (S);
+         begin
+            T.Assert (Val = V, "Invalid leb128+base64 encode/decode "
+                      & Interfaces.Unsigned_64'Image (Val));
+         end;
+         val := val * 10 + 1;
+      end loop;
+      Util.Measures.Report (Start, "LEB128+Base64 encode and decode", 100);
+   end Test_Base64_LEB128;
 
 end Util.Encoders.Tests;
