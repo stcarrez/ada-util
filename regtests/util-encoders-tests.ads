@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encodes-tests - Test for encoding
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,5 +47,8 @@ package Util.Encoders.Tests is
 
    --  Test encoding leb128.
    procedure Test_LEB128 (T : in out Test);
+
+   --  Test encoding leb128 + base64url.
+   procedure Test_Base64_LEB128 (T : in out Test);
 
 end Util.Encoders.Tests;
