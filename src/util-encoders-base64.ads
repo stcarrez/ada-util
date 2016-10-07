@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base64 -- Encode/Decode a stream in Base64
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,13 @@ with Interfaces;
 package Util.Encoders.Base64 is
 
    pragma Preelaborate;
+
+   --  Encode the 64-bit value to LEB128 and then base64url.
+   function Encode (Value : in Interfaces.Unsigned_64) return String;
+
+   --  Decode the base64url string and then the LEB128 integer.
+   --  Raise the Encoding_Error if the string is invalid and cannot be decoded.
+   function Decode (Value : in String) return Interfaces.Unsigned_64;
 
    --  ------------------------------
    --  Base64 encoder
