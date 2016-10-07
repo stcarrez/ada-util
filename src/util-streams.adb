@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Streams -- Stream utilities
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,6 +35,36 @@ package body Util.Streams is
             Into.Write (Buffer (Buffer'First .. Last));
          end if;
          exit when Last < Buffer'Last;
+      end loop;
+   end Copy;
+
+   --  ------------------------------
+   --  Copy the stream array to the string.
+   --  The string must be large enough to hold the stream array
+   --  or a Constraint_Error exception is raised.
+   --  ------------------------------
+   procedure Copy (From : in Ada.Streams.Stream_Element_Array;
+                   Into : in out String) is
+      Pos : Positive := Into'First;
+   begin
+      for I in From'Range loop
+         Into (Pos) := Character'Val (From (I));
+         Pos := Pos + 1;
+      end loop;
+   end Copy;
+
+   --  ------------------------------
+   --  Copy the string to the stream array.
+   --  The stream array must be large enough to hold the string
+   --  or a Constraint_Error exception is raised.
+   --  ------------------------------
+   procedure Copy (From : in String;
+                   Into : in out Ada.Streams.Stream_Element_Array) is
+      Pos : Ada.Streams.Stream_Element_Offset := Into'First;
+   begin
+      for I in From'Range loop
+         Into (Pos) := Character'Pos (From (I));
+         Pos := Pos + 1;
       end loop;
    end Copy;
 
