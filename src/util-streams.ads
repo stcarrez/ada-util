@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Streams -- Stream utilities
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,6 +57,18 @@ package Util.Streams is
    --  is reached.
    procedure Copy (From : in out Input_Stream'Class;
                    Into : in out Output_Stream'Class);
+
+   --  Copy the stream array to the string.
+   --  The string must be large enough to hold the stream array
+   --  or a Constraint_Error exception is raised.
+   procedure Copy (From : in Ada.Streams.Stream_Element_Array;
+                   Into : in out String);
+
+   --  Copy the string to the stream array.
+   --  The stream array must be large enough to hold the string
+   --  or a Constraint_Error exception is raised.
+   procedure Copy (From : in String;
+                   Into : in out Ada.Streams.Stream_Element_Array);
 
    --  Notes:
    --  ------
