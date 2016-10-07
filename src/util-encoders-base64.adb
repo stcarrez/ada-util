@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base64 -- Encode/Decode a stream in base64adecimal
---  Copyright (C) 2009, 2010, 2011, 2012, 2013 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,13 +15,92 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-
+with Util.Streams;
 package body Util.Encoders.Base64 is
 
    use Interfaces;
    use Ada;
 
    use type Ada.Streams.Stream_Element_Offset;
+
+   --  ------------------------------
+   --  Encode the 64-bit value to LEB128 and then base64url.
+   --  ------------------------------
+   function Encode (Value : in Interfaces.Unsigned_64) return String is
+      E       : Encoder;
+      Data    : Ada.Streams.Stream_Element_Array (1 .. 10);
+      Last    : Ada.Streams.Stream_Element_Offset;
+      Encoded : Ada.Streams.Stream_Element_Offset;
+      Result  : String (1 .. 16);
+      Buf     : Ada.Streams.Stream_Element_Array (1 .. Result'Length);
+      for Buf'Address use Result'Address;
+      pragma Import (Ada, Buf);
+   begin
+      --  Encode the integer to LEB128 in the data buffer.
+      Encode_LEB128 (Into => Data,
+                     Pos  => Data'First,
+                     Val  => Value,
+                     Last => Last);
+
+      --  Encode the data buffer in base64url.
+      E.Set_URL_Mode (True);
+      E.Transform (Data    => Data (Data'First .. Last),
+                   Into    => Buf,
+                   Last    => Last,
+                   Encoded => Encoded);
+
+      --  Strip the '=' or '==' at end of base64url.
+      if Result (Positive (Last)) /= '=' then
+         return Result (Result'First .. Positive (Last));
+      elsif Result (Positive (Last) - 1) /= '=' then
+         return Result (Result'First .. Positive (Last) - 1);
+      else
+         return Result (Result'First .. Positive (Last) - 2);
+      end if;
+   end Encode;
+
+   --  ------------------------------
+   --  Decode the base64url string and then the LEB128 integer.
+   --  Raise the Encoding_Error if the string is invalid and cannot be decoded.
+   --  ------------------------------
+   function Decode (Value : in String) return Interfaces.Unsigned_64 is
+      D       : Decoder;
+      Buf     : Ada.Streams.Stream_Element_Array (1 .. Value'Length + 2);
+      R       : Ada.Streams.Stream_Element_Array (1 .. Value'Length + 2);
+      Last    : Ada.Streams.Stream_Element_Offset;
+      Encoded : Ada.Streams.Stream_Element_Offset;
+      Result  : Interfaces.Unsigned_64;
+      End_Pos : constant Ada.Streams.Stream_Element_Offset
+        := Value'Length + ((4 - (Value'Length mod 4)) mod 4);
+   begin
+      Util.Streams.Copy (Into => Buf (1 .. Value'Length), From => Value);
+
+      --  Set back the '=' for the base64url (pad to multiple of 4.
+      Buf (Value'Length + 1) := Character'Pos ('=');
+      Buf (Value'Length + 2) := Character'Pos ('=');
+
+      --  Decode using base64url
+      D.Set_URL_Mode (True);
+      D.Transform (Data    => Buf (Buf'First .. End_Pos),
+                   Into    => R,
+                   Last    => Last,
+                   Encoded => Encoded);
+      if Encoded /= End_Pos then
+         raise Encoding_Error with "Input string is too short";
+      end if;
+
+      --  Decode the LEB128 number.
+      Decode_LEB128 (From => R (R'First .. Last),
+                     Pos  => R'First,
+                     Val  => Result,
+                     Last => Encoded);
+
+      --  Check that everything was decoded.
+      if Last + 1 /= Encoded then
+         raise Encoding_Error with "Input string contains garbage at the end";
+      end if;
+      return Result;
+   end Decode;
 
    --  ------------------------------
    --  Encodes the binary input stream represented by <b>Data</b> into
@@ -44,8 +123,8 @@ package body Util.Encoders.Base64 is
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset) is
 
-      Pos      : Streams.Stream_Element_Offset := Into'First;
-      I        : Streams.Stream_Element_Offset := Data'First;
+      Pos      : Ada.Streams.Stream_Element_Offset := Into'First;
+      I        : Ada.Streams.Stream_Element_Offset := Data'First;
       C1, C2   : Unsigned_8;
 
       Alphabet : constant Alphabet_Access := E.Alphabet;
@@ -138,9 +217,9 @@ package body Util.Encoders.Base64 is
 
       use Ada.Streams;
 
-      Pos      : Streams.Stream_Element_Offset := Into'First;
-      I        : Streams.Stream_Element_Offset := Data'First;
-      C1, C2   : Streams.Stream_Element;
+      Pos      : Ada.Streams.Stream_Element_Offset := Into'First;
+      I        : Ada.Streams.Stream_Element_Offset := Data'First;
+      C1, C2   : Ada.Streams.Stream_Element;
       Val1, Val2 : Unsigned_8;
 
       Values : constant Alphabet_Values_Access := E.Values;
