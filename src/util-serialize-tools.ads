@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-tools -- Tools to Serialize objects in various formats
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2016 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@ package Util.Serialize.Tools is
 
    --  Serialize the objects defined in the object map <b>Map</b> into the <b>Output</b>
    --  JSON stream.  Use the <b>Name</b> as the name of the JSON object.
-   procedure To_JSON (Output : in out Util.Serialize.IO.JSON.Output_Stream;
+   procedure To_JSON (Output : in out Util.Serialize.IO.JSON.Output_Stream'Class;
                       Name   : in String;
                       Map    : in Util.Beans.Objects.Maps.Map);
 
