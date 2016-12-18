@@ -62,7 +62,7 @@ package body Util.Serialize.Tools is
    --  Serialize the objects defined in the object map <b>Map</b> into the <b>Output</b>
    --  JSON stream.  Use the <b>Name</b> as the name of the JSON object.
    --  -----------------------
-   procedure To_JSON (Output : in out Util.Serialize.IO.JSON.Output_Stream;
+   procedure To_JSON (Output : in out Util.Serialize.IO.JSON.Output_Stream'Class;
                       Name   : in String;
                       Map    : in Util.Beans.Objects.Maps.Map) is
       use type Ada.Containers.Count_Type;
@@ -107,13 +107,15 @@ package body Util.Serialize.Tools is
          return "";
       end if;
       declare
+         Buffer : aliased Util.Streams.Texts.Print_Stream;
          Output : Util.Serialize.IO.JSON.Output_Stream;
       begin
-         Output.Initialize (Size => 10000);
+         Buffer.Initialize (Size => 10000);
+         Output.Initialize (Buffer'Unchecked_Access);
          Output.Start_Document;
          To_JSON (Output, "params", Map);
          Output.End_Document;
-         return Util.Streams.Texts.To_String (Util.Streams.Buffered.Buffered_Stream (Output));
+         return Util.Streams.Texts.To_String (Util.Streams.Buffered.Buffered_Stream (Buffer));
       end;
    end To_JSON;
 
