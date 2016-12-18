@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Strings.Unbounded;
+with Ada.Streams;
 with Util.Streams.Texts;
 with Util.Stacks;
 package Util.Serialize.IO.JSON is
@@ -25,8 +26,37 @@ package Util.Serialize.IO.JSON is
    --  ------------------------------
    --  The <b>Output_Stream</b> provides methods for creating a JSON output stream.
    --  The stream object takes care of the JSON escape rules.
-   type Output_Stream is
-     new Util.Streams.Texts.Print_Stream and Util.Serialize.IO.Output_Stream with private;
+   type Output_Stream is limited new Util.Serialize.IO.Output_Stream with private;
+
+   --  Set the target output stream.
+   procedure Initialize (Stream : in out Output_Stream;
+                         Output : in Util.Streams.Texts.Print_Stream_Access);
+
+   --  Flush the buffer (if any) to the sink.
+   overriding
+   procedure Flush (Stream : in out Output_Stream);
+
+   --  Close the sink.
+   overriding
+   procedure Close (Stream : in out Output_Stream);
+
+   --  Write the buffer array to the output stream.
+   overriding
+   procedure Write (Stream : in out Output_Stream;
+                    Buffer : in Ada.Streams.Stream_Element_Array);
+
+   --  Write a raw character on the stream.
+   procedure Write (Stream : in out Output_Stream;
+                    Char   : in Character);
+
+   --  Write a wide character on the stream doing some conversion if necessary.
+   --  The default implementation translates the wide character to a UTF-8 sequence.
+   procedure Write_Wide (Stream : in out Output_Stream;
+                         Item   : in Wide_Wide_Character);
+
+   --  Write a raw string on the stream.
+   procedure Write (Stream : in out Output_Stream;
+                    Item   : in String);
 
    --  Start a JSON document.  This operation writes the initial JSON marker ('{').
    overriding
@@ -158,9 +188,9 @@ private
    package Node_Info_Stack is new Util.Stacks (Element_Type => Node_Info,
                                                Element_Type_Access => Node_Info_Access);
 
-   type Output_Stream is
-     new Util.Streams.Texts.Print_Stream and Util.Serialize.IO.Output_Stream with record
-      Stack : Node_Info_Stack.Stack;
+   type Output_Stream is limited new Util.Serialize.IO.Output_Stream with record
+      Stack  : Node_Info_Stack.Stack;
+      Stream : Util.Streams.Texts.Print_Stream_Access;
    end record;
 
    type Token_Type is (T_EOF, T_LEFT_BRACE, T_RIGHT_BRACE, T_LEFT_BRACKET,
