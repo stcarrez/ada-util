@@ -23,6 +23,7 @@ with Sax.Attributes;
 with Unicode.CES;
 with Input_Sources;
 
+with Ada.Streams;
 with Ada.Strings.Unbounded;
 with Util.Streams.Buffered;
 with Util.Streams.Texts;
@@ -56,8 +57,37 @@ package Util.Serialize.IO.XML is
    --  ------------------------------
    --  The <b>Output_Stream</b> provides methods for creating an XML output stream.
    --  The stream object takes care of the XML escape rules.
-   type Output_Stream is
-     new Util.Streams.Texts.Print_Stream and Util.Serialize.IO.Output_Stream with private;
+   type Output_Stream is limited new Util.Serialize.IO.Output_Stream with private;
+
+   --  Set the target output stream.
+   procedure Initialize (Stream : in out Output_Stream;
+                         Output : in Util.Streams.Texts.Print_Stream_Access);
+
+   --  Flush the buffer (if any) to the sink.
+   overriding
+   procedure Flush (Stream : in out Output_Stream);
+
+   --  Close the sink.
+   overriding
+   procedure Close (Stream : in out Output_Stream);
+
+   --  Write the buffer array to the output stream.
+   overriding
+   procedure Write (Stream : in out Output_Stream;
+                    Buffer : in Ada.Streams.Stream_Element_Array);
+
+   --  Write a raw character on the stream.
+   procedure Write (Stream : in out Output_Stream;
+                    Char   : in Character);
+
+   --  Write a wide character on the stream doing some conversion if necessary.
+   --  The default implementation translates the wide character to a UTF-8 sequence.
+   procedure Write_Wide (Stream : in out Output_Stream;
+                         Item   : in Wide_Wide_Character);
+
+   --  Write a raw string on the stream.
+   procedure Write (Stream : in out Output_Stream;
+                    Item   : in String);
 
    --  Write a character on the response stream and escape that character as necessary.
    procedure Write_Escape (Stream : in out Output_Stream'Class;
@@ -273,9 +303,9 @@ private
       Ignore_Empty_Lines  : Boolean := True;
    end record;
 
-   type Output_Stream is
-     new Util.Streams.Texts.Print_Stream and Util.Serialize.IO.Output_Stream with record
+   type Output_Stream is limited new Util.Serialize.IO.Output_Stream with record
       Close_Start : Boolean := False;
+      Stream      : Util.Streams.Texts.Print_Stream_Access;
    end record;
 
 end Util.Serialize.IO.XML;
