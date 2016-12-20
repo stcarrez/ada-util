@@ -206,13 +206,9 @@ package body Util.Serialize.IO.JSON is
       Stream.Write ('"');
    end Write_Wide_String;
 
-
-   --  -----------------------
-   --  Start writing an object identified by the given name
-   --  -----------------------
-   procedure Start_Entity (Stream : in out Output_Stream;
-                           Name   : in String) is
-      Current : access Node_Info := Node_Info_Stack.Current (Stream.Stack);
+   procedure Write_Field_Name (Stream : in out Output_Stream;
+                               Name   : in String) is
+      Current   : access Node_Info := Node_Info_Stack.Current (Stream.Stack);
    begin
       if Current /= null then
          if Current.Has_Fields then
@@ -226,9 +222,20 @@ package body Util.Serialize.IO.JSON is
          Stream.Write_String (Name);
          Stream.Write (':');
       end if;
+   end Write_Field_Name;
+
+   --  -----------------------
+   --  Start writing an object identified by the given name
+   --  -----------------------
+   procedure Start_Entity (Stream : in out Output_Stream;
+                           Name   : in String) is
+      Current : access Node_Info := Node_Info_Stack.Current (Stream.Stack);
+   begin
+      Stream.Write_Field_Name (Name);
       Node_Info_Stack.Push (Stream.Stack);
       Current := Node_Info_Stack.Current (Stream.Stack);
       Current.Has_Fields := False;
+      Current.Is_Array := False;
       Stream.Write ('{');
    end Start_Entity;
 
@@ -250,17 +257,8 @@ package body Util.Serialize.IO.JSON is
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in String) is
-      Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
    begin
-      if Current /= null then
-         if Current.Has_Fields then
-            Stream.Write (",");
-         else
-            Current.Has_Fields := True;
-         end if;
-      end if;
-      Stream.Write_String (Name);
-      Stream.Write (':');
+      Stream.Write_Field_Name (Name);
       Stream.Write_String (Value);
    end Write_Attribute;
 
@@ -268,17 +266,8 @@ package body Util.Serialize.IO.JSON is
    procedure Write_Wide_Attribute (Stream : in out Output_Stream;
                                    Name   : in String;
                                    Value  : in Wide_Wide_String) is
-      Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
    begin
-      if Current /= null then
-         if Current.Has_Fields then
-            Stream.Write (",");
-         else
-            Current.Has_Fields := True;
-         end if;
-      end if;
-      Stream.Write_String (Name);
-      Stream.Write (':');
+      Stream.Write_Field_Name (Name);
       Stream.Write_Wide_String (Value);
    end Write_Wide_Attribute;
 
@@ -286,17 +275,8 @@ package body Util.Serialize.IO.JSON is
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Integer) is
-      Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
    begin
-      if Current /= null then
-         if Current.Has_Fields then
-            Stream.Write (",");
-         else
-            Current.Has_Fields := True;
-         end if;
-      end if;
-      Stream.Write_String (Name);
-      Stream.Write (':');
+      Stream.Write_Field_Name (Name);
       Stream.Write (Integer'Image (Value));
    end Write_Attribute;
 
@@ -304,17 +284,8 @@ package body Util.Serialize.IO.JSON is
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Boolean) is
-      Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
    begin
-      if Current /= null then
-         if Current.Has_Fields then
-            Stream.Write (",");
-         else
-            Current.Has_Fields := True;
-         end if;
-      end if;
-      Stream.Write_String (Name);
-      Stream.Write (':');
+      Stream.Write_Field_Name (Name);
       if Value then
          Stream.Write ("true");
       else
@@ -329,18 +300,8 @@ package body Util.Serialize.IO.JSON is
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object) is
       use Util.Beans.Objects;
-
-      Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
    begin
-      if Current /= null then
-         if Current.Has_Fields then
-            Stream.Write (",");
-         else
-            Current.Has_Fields := True;
-         end if;
-      end if;
-      Stream.Write_String (Name);
-      Stream.Write (':');
+      Stream.Write_Field_Name (Name);
       case Util.Beans.Objects.Get_Type (Value) is
          when TYPE_NULL =>
             Stream.Write ("null");
@@ -419,8 +380,8 @@ package body Util.Serialize.IO.JSON is
 
    overriding
    procedure Write_Long_Entity (Stream : in out Output_Stream;
-                           Name   : in String;
-                           Value  : in Long_Long_Integer) is
+                                Name   : in String;
+                                Value  : in Long_Long_Integer) is
    begin
       Stream.Write_Attribute (Name, Integer (Value));
    end Write_Long_Entity;
