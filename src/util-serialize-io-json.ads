@@ -193,6 +193,9 @@ private
       Stream : Util.Streams.Texts.Print_Stream_Access;
    end record;
 
+   procedure Write_Field_Name (Stream : in out Output_Stream;
+                               Name   : in String);
+
    type Token_Type is (T_EOF, T_LEFT_BRACE, T_RIGHT_BRACE, T_LEFT_BRACKET,
                        T_RIGHT_BRACKET, T_COLON, T_COMMA, T_TRUE, T_FALSE,
                        T_STRING, T_NUMBER, T_BOOLEAN, T_UNKNOWN, T_NULL);
