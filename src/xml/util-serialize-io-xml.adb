@@ -431,6 +431,71 @@ package body Util.Serialize.IO.XML is
       end if;
    end Close_Current;
 
+   --  -----------------------
+   --  Set the target output stream.
+   --  -----------------------
+   procedure Initialize (Stream : in out Output_Stream;
+                         Output : in Util.Streams.Texts.Print_Stream_Access) is
+   begin
+      Stream.Stream := Output;
+   end Initialize;
+
+   --  -----------------------
+   --  Flush the buffer (if any) to the sink.
+   --  -----------------------
+   overriding
+   procedure Flush (Stream : in out Output_Stream) is
+   begin
+      Stream.Stream.Flush;
+   end Flush;
+
+   --  -----------------------
+   --  Close the sink.
+   --  -----------------------
+   overriding
+   procedure Close (Stream : in out Output_Stream) is
+   begin
+      Stream.Stream.Close;
+   end Close;
+
+   --  -----------------------
+   --  Write the buffer array to the output stream.
+   --  -----------------------
+   overriding
+   procedure Write (Stream : in out Output_Stream;
+                    Buffer : in Ada.Streams.Stream_Element_Array) is
+   begin
+      Stream.Stream.Write (Buffer);
+   end Write;
+
+   --  -----------------------
+   --  Write a raw character on the stream.
+   --  -----------------------
+   procedure Write (Stream : in out Output_Stream;
+                    Char   : in Character) is
+   begin
+      Stream.Stream.Write (Char);
+   end Write;
+
+   --  -----------------------
+   --  Write a wide character on the stream doing some conversion if necessary.
+   --  The default implementation translates the wide character to a UTF-8 sequence.
+   --  -----------------------
+   procedure Write_Wide (Stream : in out Output_Stream;
+                         Item   : in Wide_Wide_Character) is
+   begin
+      Stream.Stream.Write_Wide (Item);
+   end Write_Wide;
+
+   --  -----------------------
+   --  Write a raw string on the stream.
+   --  -----------------------
+   procedure Write (Stream : in out Output_Stream;
+                    Item   : in String) is
+   begin
+      Stream.Stream.Write (Item);
+   end Write;
+
    --  ------------------------------
    --  Write a character on the response stream and escape that character as necessary.
    --  ------------------------------
@@ -504,7 +569,7 @@ package body Util.Serialize.IO.XML is
             end if;
 
          when TYPE_INTEGER =>
-            Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
+            Stream.Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
 
          when others =>
             Stream.Write_String (Util.Beans.Objects.To_String (Value));
@@ -547,7 +612,7 @@ package body Util.Serialize.IO.XML is
       Stream.Write (' ');
       Stream.Write (Name);
       Stream.Write ("=""");
-      Util.Streams.Texts.TR.Escape_Xml (Content => Value, Into => Stream);
+      Util.Streams.Texts.TR.Escape_Xml (Content => Value, Into => Stream.Stream.all);
       Stream.Write ('"');
    end Write_Attribute;
 
@@ -559,7 +624,7 @@ package body Util.Serialize.IO.XML is
       Stream.Write (' ');
       Stream.Write (Name);
       Stream.Write ("=""");
-      Util.Streams.Texts.WTR.Escape_Xml (Content => Value, Into => Stream);
+      Util.Streams.Texts.WTR.Escape_Xml (Content => Value, Into => Stream.Stream.all);
       Stream.Write ('"');
    end Write_Wide_Attribute;
 
@@ -571,7 +636,7 @@ package body Util.Serialize.IO.XML is
       Stream.Write (' ');
       Stream.Write (Name);
       Stream.Write ("=""");
-      Stream.Write (Value);
+      Stream.Stream.Write (Value);
       Stream.Write ('"');
    end Write_Attribute;
 
@@ -612,7 +677,7 @@ package body Util.Serialize.IO.XML is
             end if;
 
          when TYPE_INTEGER =>
-            Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
+            Stream.Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
 
          when others =>
             Stream.Write (Util.Beans.Objects.To_String (Value));
@@ -680,7 +745,7 @@ package body Util.Serialize.IO.XML is
       Stream.Write ('<');
       Stream.Write (Name);
       Stream.Write ('>');
-      Stream.Write (Value);
+      Stream.Stream.Write (Value);
       Stream.Write ("</");
       Stream.Write (Name);
       Stream.Write ('>');
@@ -703,7 +768,7 @@ package body Util.Serialize.IO.XML is
       Stream.Write ('<');
       Stream.Write (Name);
       Stream.Write ('>');
-      Stream.Write (Value);
+      Stream.Stream.Write (Value);
       Stream.Write ("</");
       Stream.Write (Name);
       Stream.Write ('>');
