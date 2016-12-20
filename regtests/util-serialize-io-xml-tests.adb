@@ -368,11 +368,13 @@ package body Util.Serialize.IO.XML.Tests is
       Reader  : Util.Serialize.IO.XML.Parser;
 
       function Serialize (Value : in Map_Test) return String is
+         Buffer : aliased Util.Streams.Texts.Print_Stream;
          Output : Util.Serialize.IO.XML.Output_Stream;
       begin
-         Output.Initialize (Size => 10000);
+         Buffer.Initialize (Size => 10000);
+         Output.Initialize (Output => Buffer'Unchecked_Access);
          Mapping.Write (Output, Value);
-         return Util.Streams.Texts.To_String (Buffered_Stream (Output));
+         return Util.Streams.Texts.To_String (Buffered_Stream (Buffer));
       end Serialize;
 
    begin
@@ -400,12 +402,14 @@ package body Util.Serialize.IO.XML.Tests is
    --  ------------------------------
    procedure Test_Output (T : in out Test) is
       File   : aliased Util.Streams.Files.File_Stream;
+      Buffer : aliased Util.Streams.Texts.Print_Stream;
       Stream : Util.Serialize.IO.XML.Output_Stream;
       Expect : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.xml");
       Path   : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.xml");
    begin
       File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Path);
-      Stream.Initialize (Output => File'Unchecked_Access, Input => null, Size => 10000);
+      Buffer.Initialize (Output => File'Unchecked_Access, Input => null, Size => 10000);
+      Stream.Initialize (Output => Buffer'Unchecked_Access);
       Util.Serialize.IO.JSON.Tests.Write_Stream (Stream);
       Stream.Close;
       Util.Tests.Assert_Equal_Files (T       => T,
