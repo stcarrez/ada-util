@@ -63,6 +63,27 @@ package body Util.Log.Locations is
    end File;
 
    --  ------------------------------
+   --  Compare the two source location.  The comparison is made on:
+   --  o the source file,
+   --  o the line number,
+   --  o the column.
+   --  ------------------------------
+   function "<" (Left, Right : in Line_Info) return Boolean is
+   begin
+      if Left.File.Path < Right.File.Path then
+         return True;
+      elsif Left.File.Path > Right.File.Path then
+         return False;
+      elsif Left.Line < Right.Line then
+         return True;
+      elsif Left.Line > Right.Line then
+         return False;
+      else
+         return Left.Column < Right.Column;
+      end if;
+   end "<";
+
+   --  ------------------------------
    --  Create a source line information.
    --  ------------------------------
    function Create_Line_Info (File   : in File_Info_Access;
