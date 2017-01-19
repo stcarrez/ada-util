@@ -72,7 +72,7 @@ private
       Path         : String (1 .. Length);
    end record;
 
-   NO_FILE : aliased File_Info := File_Info '(Length => 0, Path => "", Relative_Pos => 0);
+   NO_FILE : aliased File_Info := File_Info '(Length => 0, Path => "", Relative_Pos => 1);
 
    type Line_Info is record
       Line   : Natural := 0;
