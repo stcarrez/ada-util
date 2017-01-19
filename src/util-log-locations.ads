@@ -43,6 +43,12 @@ package Util.Log.Locations is
    --  Get the source file
    function File (Info : in Line_Info) return String;
 
+   --  Compare the two source location.  The comparison is made on:
+   --  o the source file,
+   --  o the line number,
+   --  o the column.
+   function "<" (Left, Right : in Line_Info) return Boolean;
+
    --  Create a source line information.
    function Create_Line_Info (File   : in File_Info_Access;
                               Line   : in Natural;
