@@ -22,26 +22,26 @@ abstract project Config is
 
    package compiler is
       warnings := ("-gnatwua");
-
+      defaults := ("-gnat2012");
       case Mode is
          when "distrib" =>
-            for Default_Switches ("Ada") use ("-gnatafno", "-gnatVa", "-gnatwa");
+            for Default_Switches ("Ada") use defaults & ("-gnatafno", "-gnatVa", "-gnatwa");
 
          when "debug" =>
-            for Default_Switches ("Ada") use warnings
+            for Default_Switches ("Ada") use defaults & warnings
                & ("-gnata", "-gnatVaMI", "-gnaty3abcefhiklmnprstxM99");
 
          when "optimize" =>
-            for Default_Switches ("Ada") use warnings
+            for Default_Switches ("Ada") use defaults & warnings
                & ("-gnatn", "-gnatp", "-fdata-sections", "-ffunction-sections");
 
          when "profile" =>
-            for Default_Switches ("Ada") use warnings & ("-pg");
+            for Default_Switches ("Ada") use defaults & warnings & ("-pg");
       end case;
 
       case Coverage is
       when "yes" =>
-         for Default_Switches ("ada") use Compiler'Default_Switches ("ada") &
+         for Default_Switches ("ada") use Compiler'Default_Switches ("Ada") &
            ("-fprofile-arcs", "-ftest-coverage");
       when others =>
       end case;
