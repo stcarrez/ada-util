@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects -- Generic Typed Data Representation
---  Copyright (C) 2009, 2010, 2011, 2013, 2016 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
 
 with Ada.Characters.Conversions;
 with Ada.Unchecked_Deallocation;
+with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 with Interfaces.C;
 with Util.Beans.Basic;
 package body Util.Beans.Objects is
@@ -26,6 +27,9 @@ package body Util.Beans.Objects is
    use Ada.Characters.Conversions;
 
    use type Interfaces.C.long;
+
+   function UTF8_Decode (S : in String) return Wide_Wide_String
+      renames Ada.Strings.UTF_Encoding.Wide_Wide_Strings.Decode;
 
    --  Find the data type to be used for an arithmetic operation between two objects.
    function Get_Arithmetic_Type (Left, Right : Object) return Data_Type;
@@ -50,7 +54,7 @@ package body Util.Beans.Objects is
    function To_Wide_Wide_String (Type_Def : in Basic_Type;
                                  Value    : in Object_Value) return Wide_Wide_String is
    begin
-      return To_Wide_Wide_String (Object_Type'Class (Type_Def).To_String (Value));
+      return UTF8_Decode (Object_Type'Class (Type_Def).To_String (Value));
    end To_Wide_Wide_String;
 
    --  ------------------------------
@@ -872,7 +876,7 @@ package body Util.Beans.Objects is
                return To_Unbounded_Wide_Wide_String ("null");
             end if;
             return To_Unbounded_Wide_Wide_String
-              (To_Wide_Wide_String (Value.V.String_Proxy.Value));
+              (UTF8_Decode (Value.V.String_Proxy.Value));
 
          when others =>
             return To_Unbounded_Wide_Wide_String (To_Wide_Wide_String (To_String (Value)));
