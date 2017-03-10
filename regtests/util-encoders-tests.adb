@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encodes-tests - Test for encoding
---  Copyright (C) 2009, 2010, 2011, 2012, 2016 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@ with Util.Measures;
 with Util.Strings.Transforms;
 with Ada.Text_IO;
 with Util.Encoders.SHA1;
+with Util.Encoders.SHA256;
 with Util.Encoders.HMAC.SHA1;
 with Util.Encoders.Base16;
 with Util.Encoders.Base64;
@@ -55,6 +56,8 @@ package body Util.Encoders.Tests is
                        Test_SHA1_Encode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.SHA1.Benchmark",
                        Test_SHA1_Benchmark'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.SHA256.Encode",
+                       Test_SHA256_Encode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA1.Sign_SHA1 (RFC2202 test1)",
                        Test_HMAC_SHA1_RFC2202_T1'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA1.Sign_SHA1 (RFC2202 test2)",
@@ -257,6 +260,53 @@ package body Util.Encoders.Tests is
       end loop;
    end Test_SHA1_Benchmark;
 
+   procedure Test_SHA256_Encode (T : in out Test) is
+      procedure Check_Hash (Value  : in String;
+                            Expect : in String);
+
+      C      : Util.Encoders.SHA256.Context;
+      Hash   : Util.Encoders.SHA256.Digest;
+      Digest : Util.Encoders.SHA256.Base64_Digest;
+
+      procedure Check_Hash (Value  : in String;
+                            Expect : in String) is
+         J, N : Natural;
+         Ctx  : Util.Encoders.SHA256.Context;
+      begin
+         for I in 1 .. Value'Length loop
+            J := Value'First;
+            while J <= Value'Last loop
+               if J + I <= Value'Last then
+                  N := J + I;
+               else
+                  N := Value'Last;
+               end if;
+               Util.Encoders.SHA256.Update (Ctx, Value (J .. N));
+               J := N + 1;
+            end loop;
+            Util.Encoders.SHA256.Finish_Base64 (Ctx, Digest);
+            Ada.Text_IO.Put_Line ("Pass " & Natural'Image (Natural (I)) & ": " & Digest);
+            Assert_Equals (T, Expect, Digest, "Invalid SHA256-base64 digest for: " & Value);
+         end loop;
+      end Check_Hash;
+
+   begin
+      Util.Encoders.SHA256.Update (C, "a");
+      Util.Encoders.SHA256.Finish (C, Hash);
+
+      Assert_Equals (T, "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+                     Hash,
+                     "Invalid hash for 'a'");
+
+      Check_Hash ("ut", "RpzGQ6Gft1kB5dMxuNwUvvqLmIELJGwvsi//DDgtw54=");
+      Check_Hash ("Uti", "cgM7MSIWSqV9OkdvuTPRKGlB3MWUVIaDLsZs/+7Wucs=");
+      Check_Hash ("Util", "+29Ow/TX6KR5mTjGr98WyuMeizmNl4g5XGZzpDYOn3A=");
+      Check_Hash ("Util.Encoders", "fzUVgu2+6QAfbf/CLYJeDFoeGTm7CHivxiFEUm0K80E=");
+      Check_Hash ("e746699d3947443d84dad1e0c58bf7ad347124382C669751BDC492937"
+                  & "7245F5EEBEAED1CE4DA8A45",
+                  "ZGrFiFCpzbCzN8xfRoVd5VmMlRU7PDMAPZRN34GaAJo=");
+   end Test_SHA256_Encode;
+
    procedure Check_HMAC (T      : in out Test'Class;
                          Key    : in String;
                          Value  : in String;
@@ -383,7 +433,7 @@ package body Util.Encoders.Tests is
             T.Assert (Val = V, "Invalid leb128+base64 encode/decode "
                       & Interfaces.Unsigned_64'Image (Val));
          end;
-         val := val * 10 + 1;
+         Val := Val * 10 + 1;
       end loop;
       Util.Measures.Report (Start, "LEB128+Base64 encode and decode", 100);
    end Test_Base64_LEB128;
