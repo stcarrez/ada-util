@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-csv -- CSV Serialization Driver
---  Copyright (C) 2011, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +41,7 @@ package Util.Serialize.IO.CSV is
                          Value  : in String);
    procedure Write_Cell (Stream : in out Output_Stream;
                          Value  : in Integer);
-  procedure Write_Cell (Stream : in out Output_Stream;
+   procedure Write_Cell (Stream : in out Output_Stream;
                          Value  : in Boolean);
    procedure Write_Cell (Stream : in out Output_Stream;
                          Value  : in Util.Beans.Objects.Object);
