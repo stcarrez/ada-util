@@ -803,8 +803,10 @@ package body Util.Serialize.IO.XML is
    --  ------------------------------
    --  Starts a XML array.
    --  ------------------------------
+   overriding
    procedure Start_Array (Stream : in out Output_Stream;
-                          Length : in Ada.Containers.Count_Type) is
+                          Name   : in String) is
+      pragma Unreferenced (Stream, Name);
    begin
       null;
    end Start_Array;
@@ -812,7 +814,9 @@ package body Util.Serialize.IO.XML is
    --  ------------------------------
    --  Terminates a XML array.
    --  ------------------------------
-   procedure End_Array (Stream : in out Output_Stream) is
+   overriding
+   procedure End_Array (Stream : in out Output_Stream;
+                        Name   : in String) is
    begin
       null;
    end End_Array;
