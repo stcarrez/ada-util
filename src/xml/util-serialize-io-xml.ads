@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-xml -- XML Serialization Driver
---  Copyright (C) 2011, 2012, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -178,16 +178,20 @@ package Util.Serialize.IO.XML is
                                 Value  : in String);
 
    --  Write a XML name/value entity (see Write_Attribute).
+   overriding
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object);
 
    --  Starts a XML array.
+   overriding
    procedure Start_Array (Stream : in out Output_Stream;
-                          Length : in Ada.Containers.Count_Type);
+                          Name   : in String);
 
    --  Terminates a XML array.
-   procedure End_Array (Stream : in out Output_Stream);
+   overriding
+   procedure End_Array (Stream : in out Output_Stream;
+                        Name   : in String);
 
    --  Return the location where the exception was raised.
    function Get_Location (Except : Sax.Exceptions.Sax_Parse_Exception'Class)
