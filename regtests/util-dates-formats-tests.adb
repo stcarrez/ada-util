@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-formats-tests - Test for date formats
---  Copyright (C) 2011, 2013, 2014, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +32,17 @@ package body Util.Dates.Formats.Tests is
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Dates.Formats.Tests");
 
    package Caller is new Util.Test_Caller (Test, "Dates");
+   procedure Check (T    : in out Test;
+                    Date : in String);
+   procedure Check (T          : in out Test'Class;
+                    Year       : in Ada.Calendar.Year_Number;
+                    Month      : in Ada.Calendar.Month_Number;
+                    Day        : in Ada.Calendar.Day_Number;
+                    Expect_Day : in Ada.Calendar.Day_Number;
+                    Message    : in String;
+                    Is_End     : in Boolean;
+                    Operation  : access function (D : in Ada.Calendar.Time)
+                    return Ada.Calendar.Time);
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
