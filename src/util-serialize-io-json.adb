@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010, 2011, 2012, 2016 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -208,7 +208,7 @@ package body Util.Serialize.IO.JSON is
 
    procedure Write_Field_Name (Stream : in out Output_Stream;
                                Name   : in String) is
-      Current   : access Node_Info := Node_Info_Stack.Current (Stream.Stack);
+      Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
    begin
       if Current /= null then
          if Current.Has_Fields then
@@ -425,6 +425,7 @@ package body Util.Serialize.IO.JSON is
    overriding
    procedure End_Array (Stream : in out Output_Stream;
                         Name   : in String) is
+      pragma Unreferenced (Name);
    begin
       Node_Info_Stack.Pop (Stream.Stack);
       Stream.Write (']');
