@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-texts-builders_tests -- Unit tests for text builders
---  Copyright (C) 2013, 2016 Stephane Carrez
+--  Copyright (C) 2013, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -126,7 +126,7 @@ package body Util.Texts.Builders_Tests is
             if L >= Max then
                Util.Tests.Assert_Equals (T, S2, S, "Invalid Tail result");
             else
-               Util.Tests.Assert_Equals (T, S2 (S2'Last - L + 1.. S2'Last), S,
+               Util.Tests.Assert_Equals (T, S2 (S2'Last - L + 1 .. S2'Last), S,
                                          "Invalid Tail result {"
                                          & Positive'Image (Min) & ","
                                          & Positive'Image (Max) & ","
