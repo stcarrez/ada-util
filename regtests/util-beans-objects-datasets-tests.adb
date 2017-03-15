@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-datasets-tests -- Unit tests for dataset beans
---  Copyright (C) 2013, 2015 Stephane Carrez
+--  Copyright (C) 2013, 2015, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +30,8 @@ package body Util.Beans.Objects.Datasets.Tests is
 
    --  Test the creation, initialization and retrieval of dataset content.
    procedure Test_Fill_Dataset (T : in out Test) is
+      procedure Fill (Row : in out Object_Array);
+
       Set : Dataset;
 
       procedure Fill (Row : in out Object_Array) is
