@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-iso8601 -- ISO8601 dates
---  Copyright (C) 2011, 2013, 2015, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2015, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -141,7 +141,7 @@ package body Util.Dates.ISO8601 is
 
       To_Char : constant array (0 .. 9) of Character := "0123456789";
       Result  : String (1 .. 29) := "0000-00-00T00:00:00.000-00:00";
-     N,  Tz      : Natural;
+      N,  Tz  : Natural;
    begin
       Result (1) := To_Char (Date.Year / 1000);
       Result (2) := To_Char (Date.Year / 100 mod 10);
