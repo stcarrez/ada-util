@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-csv -- CSV Serialization Driver
---  Copyright (C) 2011, 2015, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2015, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -130,6 +130,7 @@ package body Util.Serialize.IO.CSV is
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in String) is
+      pragma Unreferenced (Name);
    begin
       Stream.Write_Cell (Value);
    end Write_Attribute;
@@ -146,6 +147,7 @@ package body Util.Serialize.IO.CSV is
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Integer) is
+      pragma Unreferenced (Name);
    begin
       Stream.Write_Cell (Value);
    end Write_Attribute;
@@ -154,6 +156,7 @@ package body Util.Serialize.IO.CSV is
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Boolean) is
+      pragma Unreferenced (Name);
    begin
       Stream.Write_Cell (Value);
    end Write_Attribute;
@@ -162,15 +165,17 @@ package body Util.Serialize.IO.CSV is
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object) is
+      pragma Unreferenced (Name);
    begin
-      null;
+      Stream.Write_Cell (Value);
    end Write_Attribute;
 
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object) is
+      pragma Unreferenced (Name);
    begin
-      null;
+      Stream.Write_Cell (Value);
    end Write_Entity;
 
    --  -----------------------
@@ -180,6 +185,7 @@ package body Util.Serialize.IO.CSV is
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in String) is
+      pragma Unreferenced (Name);
    begin
       Stream.Write_Cell (Value);
    end Write_Entity;
@@ -196,6 +202,7 @@ package body Util.Serialize.IO.CSV is
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Boolean) is
+      pragma Unreferenced (Name);
    begin
       Stream.Write_Cell (Value);
    end Write_Entity;
@@ -204,6 +211,7 @@ package body Util.Serialize.IO.CSV is
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Integer) is
+      pragma Unreferenced (Name);
    begin
       Stream.Write_Cell (Value);
    end Write_Entity;
