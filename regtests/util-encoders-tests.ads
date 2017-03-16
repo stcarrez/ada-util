@@ -46,6 +46,15 @@ package Util.Encoders.Tests is
    procedure Test_HMAC_SHA1_RFC2202_T6 (T : in out Test);
    procedure Test_HMAC_SHA1_RFC2202_T7 (T : in out Test);
 
+   --  Test HMAC-SHA256
+   procedure Test_HMAC_SHA256_RFC4231_T1 (T : in out Test);
+   procedure Test_HMAC_SHA256_RFC4231_T2 (T : in out Test);
+   procedure Test_HMAC_SHA256_RFC4231_T3 (T : in out Test);
+   procedure Test_HMAC_SHA256_RFC4231_T4 (T : in out Test);
+   procedure Test_HMAC_SHA256_RFC4231_T5 (T : in out Test);
+   procedure Test_HMAC_SHA256_RFC4231_T6 (T : in out Test);
+   procedure Test_HMAC_SHA256_RFC4231_T7 (T : in out Test);
+
    --  Test encoding leb128.
    procedure Test_LEB128 (T : in out Test);
 
