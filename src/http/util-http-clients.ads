@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients -- HTTP Clients
---  Copyright (C) 2011, 2012, 2015 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2015, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -166,6 +166,13 @@ package Util.Http.Clients is
                    Data    : in String;
                    Reply   : out Response'Class);
 
+   --  Execute an http PUT request on the given URL.  The post data is passed in <b>Data</b>.
+   --  Additional request cookies and headers should have been set on the client object.
+   procedure Put (Request : in out Client;
+                  URL     : in String;
+                  Data    : in String;
+                  Reply   : out Response'Class);
+
 private
 
    subtype Http_Request is Abstract_Request;
@@ -190,6 +197,12 @@ private
                       URI      : in String;
                       Data     : in String;
                       Reply    : out Response'Class) is abstract;
+
+   procedure Do_Put (Manager  : in Http_Manager;
+                     Http     : in Client'Class;
+                     URI      : in String;
+                     Data     : in String;
+                     Reply    : out Response'Class) is abstract;
 
    Default_Http_Manager : Http_Manager_Access;
 
