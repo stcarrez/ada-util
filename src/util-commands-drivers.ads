@@ -58,7 +58,7 @@ package Util.Commands.Drivers is
                   Name    : in String;
                   Message : in String);
 
-   type Help_Command_Type is new Command_Type with null record;
+   type Help_Command_Type is new Command_Type with private;
 
    --  Execute the help command with the arguments.
    --  Print the help for every registered command.
@@ -69,7 +69,7 @@ package Util.Commands.Drivers is
                       Context   : in out Context_Type);
 
    --  Write the help associated with the command.
-   procedure Help (Command   : in Command_Type;
+   procedure Help (Command   : in Help_Command_Type;
                    Context   : in out Context_Type);
 
    type Driver_Type is tagged limited private;
@@ -112,6 +112,8 @@ private
    type Command_Type is abstract tagged limited record
       Driver : access Driver_Type'Class;
    end record;
+
+   type Help_Command_Type is new Command_Type with null record;
 
    type Handler_Command_Type is new Command_Type with record
       Handler : Command_Handler;
