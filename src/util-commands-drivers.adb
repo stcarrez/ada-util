@@ -67,7 +67,7 @@ package body Util.Commands.Drivers is
          --  Usage;
          New_Line;
          Put ("Type '");
-         --  Put (Ada.Command_Line.Command_Name);
+         Put (Args.Get_Command_Name);
          Put_Line (" help {command}' for help on a specific command.");
          New_Line;
          Put_Line ("Available subcommands:");
@@ -75,10 +75,11 @@ package body Util.Commands.Drivers is
          Command.Driver.List.Iterate (Process => Print'Access);
       else
          declare
-            Target_Cmd : constant Command_Access := Command.Driver.Find_Command (Name);
+            Cmd_Name   : constant String := Args.Get_Argument (1);
+            Target_Cmd : constant Command_Access := Command.Driver.Find_Command (Cmd_Name);
          begin
             if Target_Cmd = null then
-               Logs.Error ("Unknown command {0}", Name);
+               Logs.Error ("Unknown command {0}", Cmd_Name);
             else
                Target_Cmd.Help (Context);
             end if;
@@ -94,6 +95,15 @@ package body Util.Commands.Drivers is
    begin
       null;
    end Help;
+
+   --  ------------------------------
+   --  Set the driver description printed in the usage.
+   --  ------------------------------
+   procedure Set_Description (Driver      : in out Driver_Type;
+                              Description : in String) is
+   begin
+      Driver.Desc := Ada.Strings.Unbounded.To_Unbounded_String (Description);
+   end Set_Description;
 
    --  ------------------------------
     --  Register the command under the given name.
@@ -143,6 +153,8 @@ package body Util.Commands.Drivers is
    begin
       if Command /= null then
          Command.Execute (Name, Args, Context);
+      else
+         Logs.Error ("Unkown command {0}", Name);
       end if;
    end Execute;
 
