@@ -58,6 +58,20 @@ package Util.Commands.Drivers is
                   Name    : in String;
                   Message : in String);
 
+   type Help_Command_Type is new Command_Type with null record;
+
+   --  Execute the help command with the arguments.
+   --  Print the help for every registered command.
+   overriding
+   procedure Execute (Command   : in Help_Command_Type;
+                      Name      : in String;
+                      Args      : in out Argument_List;
+                      Context   : in out Context_Type);
+
+   --  Write the help associated with the command.
+   procedure Help (Command   : in Command_Type;
+                   Context   : in out Context_Type);
+
    type Driver_Type is tagged limited private;
 
     --  Register the command under the given name.
