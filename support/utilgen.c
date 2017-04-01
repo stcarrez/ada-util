@@ -1,5 +1,5 @@
 /* Generate a package from system header definitions
---  Copyright (C) 2011, 2013, 2014, 2015, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2015, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -305,6 +305,9 @@ int main(int argc, char** argv)
 #ifdef HAVE_CURL
     printf("\n");
     printf("   CURLOPT_URL            : constant Curl_Option := %d;\n", CURLOPT_URL);
+    printf("   CURLOPT_HTTPGET        : constant Curl_Option := %d;\n", CURLOPT_HTTPGET);
+    printf("   CURLOPT_POST           : constant Curl_Option := %d;\n", CURLOPT_POST);
+    printf("   CURLOPT_CUSTOMREQUEST  : constant Curl_Option := %d;\n", CURLOPT_CUSTOMREQUEST);
     printf("   CURLOPT_READFUNCTION   : constant Curl_Option := %d;\n", CURLOPT_READFUNCTION);
     printf("   CURLOPT_WRITEUNCTION   : constant Curl_Option := %d;\n", CURLOPT_WRITEFUNCTION);
     printf("   CURLOPT_HTTPHEADER     : constant Curl_Option := %d;\n", CURLOPT_HTTPHEADER);
