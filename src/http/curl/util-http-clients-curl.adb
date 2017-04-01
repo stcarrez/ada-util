@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-curl -- HTTP Clients with CURL
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -143,6 +143,9 @@ package body Util.Http.Clients.Curl is
       Interfaces.C.Strings.Free (Req.URL);
       Req.URL := Strings.New_String (URI);
 
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_HTTPGET, 1);
+      Check_Code (Result, "set http GET");
+
       Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_HEADER, 1);
       Check_Code (Result, "set header");
 
@@ -186,6 +189,9 @@ package body Util.Http.Clients.Curl is
 
       Interfaces.C.Strings.Free (Req.Content);
       Req.Content := Strings.New_String (Data);
+
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_POST, 1);
+      Check_Code (Result, "set http POST");
 
       Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_HEADER, 1);
       Check_Code (Result, "set header");
