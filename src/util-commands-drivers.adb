@@ -106,6 +106,15 @@ package body Util.Commands.Drivers is
    end Set_Description;
 
    --  ------------------------------
+   --  Set the driver usage printed in the usage.
+   --  ------------------------------
+   procedure Set_Usage (Driver  : in out Driver_Type;
+                        Usage   : in String) is
+   begin
+      Driver.Usage := Ada.Strings.Unbounded.To_Unbounded_String (Usage);
+   end Set_Usage;
+
+   --  ------------------------------
     --  Register the command under the given name.
    --  ------------------------------
    procedure Add_Command (Driver  : in out Driver_Type;
