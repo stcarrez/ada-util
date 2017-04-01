@@ -50,7 +50,7 @@ package body Util.Commands.Drivers is
    overriding
    procedure Execute (Command   : in Help_Command_Type;
                       Name      : in String;
-                      Args      : in out Argument_List;
+                      Args      : in Argument_List'Class;
                       Context   : in out Context_Type) is
      procedure Print (Position : in Command_Maps.Cursor);
 
@@ -63,7 +63,7 @@ package body Util.Commands.Drivers is
    begin
       Logs.Debug ("Execute command {0}", Name);
 
-      if Name'Length = 0 then
+      if Args.Get_Count = 0 then
          --  Usage;
          New_Line;
          Put ("Type '");
@@ -137,7 +137,7 @@ package body Util.Commands.Drivers is
    --  ------------------------------
    procedure Execute (Driver  : in Driver_Type;
                       Name    : in String;
-                      Args    : in out Argument_List;
+                      Args    : in Argument_List'Class;
                       Context : in out Context_Type) is
       Command : constant Command_Access := Driver.Find_Command (Name);
    begin
@@ -164,7 +164,7 @@ package body Util.Commands.Drivers is
    overriding
    procedure Execute (Command   : in Handler_Command_Type;
                       Name      : in String;
-                      Args      : in out Argument_List;
+                      Args      : in Argument_List'Class;
                       Context   : in out Context_Type) is
    begin
       Command.Handler (Name, Args, Context);
