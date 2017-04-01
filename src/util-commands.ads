@@ -15,9 +15,16 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Util.Strings.Vectors;
 package Util.Commands is
 
-   subtype Argument_List is Util.Strings.Vectors.Vector;
+   --  The argument list interface that gives access to command arguments.
+   type Argument_List is limited interface;
+
+   --  Get the number of arguments available.
+   function Get_Count (List : in Argument_List) return Natural is abstract;
+
+   --  Get the argument at the given position.
+   function Get_Argument (List : in Argument_List;
+                          Pos  : in Positive) return String is abstract;
 
 end Util.Commands;
