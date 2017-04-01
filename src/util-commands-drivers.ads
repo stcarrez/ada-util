@@ -29,7 +29,7 @@ package Util.Commands.Drivers is
 
    --  A simple command handler executed when the command with the given name is executed.
    type Command_Handler is not null access procedure (Name    : in String;
-                                                      Args    : in out Argument_List;
+                                                      Args    : in Argument_List'Class;
                                                       Context : in out Context_Type);
 
    --  A more complex command handler that has a command instance as context.
@@ -40,7 +40,7 @@ package Util.Commands.Drivers is
    --  arguments.
    procedure Execute (Command   : in Command_Type;
                       Name      : in String;
-                      Args      : in out Argument_List;
+                      Args      : in Argument_List'Class;
                       Context   : in out Context_Type) is abstract;
 
    --  Write the help associated with the command.
@@ -65,7 +65,7 @@ package Util.Commands.Drivers is
    overriding
    procedure Execute (Command   : in Help_Command_Type;
                       Name      : in String;
-                      Args      : in out Argument_List;
+                      Args      : in Argument_List'Class;
                       Context   : in out Context_Type);
 
    --  Write the help associated with the command.
@@ -92,7 +92,7 @@ package Util.Commands.Drivers is
    --  Execute the command registered under the given name.
    procedure Execute (Driver  : in Driver_Type;
                       Name    : in String;
-                      Args    : in out Argument_List;
+                      Args    : in Argument_List'Class;
                       Context : in out Context_Type);
 
    --  Print a message for the command.  The level indicates whether the message is an error,
@@ -123,7 +123,7 @@ private
    overriding
    procedure Execute (Command   : in Handler_Command_Type;
                       Name      : in String;
-                      Args      : in out Argument_List;
+                      Args      : in Argument_List'Class;
                       Context   : in out Context_Type);
 
    --  Write the help associated with the command.
