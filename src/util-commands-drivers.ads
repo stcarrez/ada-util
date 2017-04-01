@@ -75,6 +75,10 @@ package Util.Commands.Drivers is
 
    type Driver_Type is tagged limited private;
 
+   --  Report the command usage.
+   procedure Usage (Driver : in Driver_Type;
+                    Args   : in Argument_List'Class);
+
    --  Set the driver description printed in the usage.
    procedure Set_Description (Driver      : in out Driver_Type;
                               Description : in String);
