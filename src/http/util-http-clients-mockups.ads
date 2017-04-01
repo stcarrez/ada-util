@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-mockups -- HTTP Clients mockups
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,15 +37,24 @@ private
    procedure Create (Manager  : in File_Http_Manager;
                      Http     : in out Client'Class);
 
+   overriding
    procedure Do_Get (Manager  : in File_Http_Manager;
                      Http     : in Client'Class;
                      URI      : in String;
                      Reply    : out Response'Class);
 
+   overriding
    procedure Do_Post (Manager  : in File_Http_Manager;
                       Http     : in Client'Class;
                       URI      : in String;
                       Data     : in String;
                       Reply    : out Response'Class);
+
+   overriding
+   procedure Do_Put (Manager  : in File_Http_Manager;
+                     Http     : in Client'Class;
+                     URI      : in String;
+                     Data     : in String;
+                     Reply    : out Response'Class);
 
 end Util.Http.Clients.Mockups;
