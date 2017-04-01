@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Log;
+private with Ada.Strings.Unbounded;
 private with Ada.Containers.Indefinite_Ordered_Maps;
 
 --  == Command line driver ==
@@ -74,7 +75,11 @@ package Util.Commands.Drivers is
 
    type Driver_Type is tagged limited private;
 
-    --  Register the command under the given name.
+   --  Set the driver description printed in the usage.
+   procedure Set_Description (Driver      : in out Driver_Type;
+                              Description : in String);
+
+   --  Register the command under the given name.
    procedure Add_Command (Driver  : in out Driver_Type;
                           Name    : in String;
                           Command : in Command_Access);
@@ -133,6 +138,7 @@ private
 
    type Driver_Type is tagged limited record
       List : Command_Maps.Map;
+      Desc : Ada.Strings.Unbounded.Unbounded_String;
    end record;
 
 end Util.Commands.Drivers;
