@@ -27,6 +27,9 @@ package Util.Commands is
    function Get_Argument (List : in Argument_List;
                           Pos  : in Positive) return String is abstract;
 
+   --  Get the command name.
+   function Get_Command_Name (List : in Argument_List) return String is abstract;
+
    type Default_Argument_List (Offset : Natural) is new Argument_List with null record;
 
    --  Get the number of arguments available.
@@ -37,5 +40,8 @@ package Util.Commands is
    overriding
    function Get_Argument (List : in Default_Argument_List;
                           Pos  : in Positive) return String;
+
+   --  Get the command name.
+   function Get_Command_Name (List : in Default_Argument_List) return String;
 
 end Util.Commands;
