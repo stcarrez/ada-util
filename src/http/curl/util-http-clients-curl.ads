@@ -70,16 +70,25 @@ private
    procedure Create (Manager  : in Curl_Http_Manager;
                      Http     : in out Client'Class);
 
+   overriding
    procedure Do_Get (Manager  : in Curl_Http_Manager;
                      Http     : in Client'Class;
                      URI      : in String;
                      Reply    : out Response'Class);
 
+   overriding
    procedure Do_Post (Manager  : in Curl_Http_Manager;
                       Http     : in Client'Class;
                       URI      : in String;
                       Data     : in String;
                       Reply    : out Response'Class);
+
+   overriding
+   procedure Do_Put (Manager  : in Curl_Http_Manager;
+                     Http     : in Client'Class;
+                     URI      : in String;
+                     Data     : in String;
+                     Reply    : out Response'Class);
 
    type Curl_Http_Request is new Util.Http.Mockups.Mockup_Request with record
       Data         : CURL := System.Null_Address;
