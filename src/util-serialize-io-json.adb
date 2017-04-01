@@ -469,8 +469,10 @@ package body Util.Serialize.IO.JSON is
          Token : Token_Type;
       begin
          Peek (P, Token);
-         if Token /= T_LEFT_BRACE then
-            P.Error ("Missing '{'");
+         if Token = T_LEFT_BRACKET then
+            P.Start_Array ("");
+         elsif Token /= T_LEFT_BRACE then
+            P.Error ("Missing '{' or '['");
          end if;
          Parse_Pairs (P);
          Peek (P, Token);
@@ -499,6 +501,7 @@ package body Util.Serialize.IO.JSON is
             Peek (P, Token);
             if Token /= T_COLON then
                P.Error ("Missing ':'");
+               exit when Token = T_EOF;
             end if;
 
             Parse_Value (P, To_String (Current_Name));
@@ -555,6 +558,7 @@ package body Util.Serialize.IO.JSON is
                      exit when Token = T_RIGHT_BRACKET;
                      if Token /= T_COMMA then
                         P.Error ("Missing ']'");
+                        exit when Token = T_EOF;
                      end if;
                   end loop;
                end if;
@@ -811,9 +815,7 @@ package body Util.Serialize.IO.JSON is
       end Peek;
 
    begin
-      Parser'Class (Handler).Start_Object ("");
-      Parse (Handler);
-      Parser'Class (Handler).Finish_Object ("");
+      Parse_Value (Handler, "");
    end Parse;
 
 end Util.Serialize.IO.JSON;
