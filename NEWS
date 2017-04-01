@@ -1,6 +1,7 @@
 Version 1.9.0   -
   - Improvement and fixes of the JSON, XML, CSV serialization
   - Add encoders to support SHA256 and HMAC-SHA256
+  - Added a command package for implementation of command line tools
   - Fix on the HTTP curl support
 
 Version 1.8.0   - Dec 2015
