@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-curl -- HTTP Clients with CURL
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -82,12 +82,15 @@ private
                       Reply    : out Response'Class);
 
    type Curl_Http_Request is new Util.Http.Mockups.Mockup_Request with record
-      Data    : CURL := System.Null_Address;
-      URL     : Chars_Ptr := Interfaces.C.Strings.Null_Ptr;
-      Content : Chars_Ptr := Interfaces.C.Strings.Null_Ptr;
-      Headers : CURL_Slist_Access := null;
+      Data         : CURL := System.Null_Address;
+      URL          : Chars_Ptr := Interfaces.C.Strings.Null_Ptr;
+      Content      : Chars_Ptr := Interfaces.C.Strings.Null_Ptr;
+      Curl_Headers : CURL_Slist_Access := null;
    end record;
    type Curl_Http_Request_Access is access all Curl_Http_Request'Class;
+
+   --  Prepare to setup the headers in the request.
+   procedure Set_Headers (Request : in out Curl_Http_Request);
 
    overriding
    procedure Finalize (Request : in out Curl_Http_Request);
@@ -138,6 +141,12 @@ private
                                      Option : in Curl_Option;
                                      Value  : in Chars_Ptr) return CURL_Code;
    pragma Import (C, Curl_Easy_Setopt_String, "curl_easy_setopt");
+
+   --  Set options for a curl easy handle.
+   function Curl_Easy_Setopt_Slist (Handle : in CURL;
+                                     Option : in Curl_Option;
+                                     Value  : in CURL_Slist_Access) return CURL_Code;
+   pragma Import (C, Curl_Easy_Setopt_Slist, "curl_easy_setopt");
 
    --  Set options for a curl easy handle.
    function Curl_Easy_Setopt_Long (Handle : in CURL;
