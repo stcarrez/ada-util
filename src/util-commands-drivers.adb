@@ -19,6 +19,8 @@ with Util.Log.Loggers;
 with Ada.Text_IO; use Ada.Text_IO;
 package body Util.Commands.Drivers is
 
+   use Ada.Strings.Unbounded;
+
    --  The logger
    Logs : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create (Driver_Name);
 
@@ -64,7 +66,7 @@ package body Util.Commands.Drivers is
       Logs.Debug ("Execute command {0}", Name);
 
       if Args.Get_Count = 0 then
-         --  Usage;
+         Usage (Command.Driver.all, Args);
          New_Line;
          Put ("Type '");
          Put (Args.Get_Command_Name);
@@ -95,6 +97,20 @@ package body Util.Commands.Drivers is
    begin
       null;
    end Help;
+
+   --  ------------------------------
+   --  Report the command usage.
+   --  ------------------------------
+   procedure Usage (Driver : in Driver_Type;
+                    Args   : in Argument_List'Class) is
+   begin
+      Put_Line (To_String (Driver.Desc));
+      New_Line;
+      Put ("Usage: ");
+      Put (Args.Get_Command_Name);
+      Put (" ");
+      Put_Line (To_String (Driver.Usage));
+   end Usage;
 
    --  ------------------------------
    --  Set the driver description printed in the usage.
