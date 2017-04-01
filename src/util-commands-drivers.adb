@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Log.Loggers;
+with Ada.Text_IO; use Ada.Text_IO;
 package body Util.Commands.Drivers is
 
    --  The logger
@@ -41,6 +42,58 @@ package body Util.Commands.Drivers is
    begin
       Command.Driver.Log (Level, Name, Message);
    end Log;
+
+   --  ------------------------------
+   --  Execute the help command with the arguments.
+   --  Print the help for every registered command.
+   --  ------------------------------
+   overriding
+   procedure Execute (Command   : in Help_Command_Type;
+                      Name      : in String;
+                      Args      : in out Argument_List;
+                      Context   : in out Context_Type) is
+     procedure Print (Position : in Command_Maps.Cursor);
+
+      procedure Print (Position : in Command_Maps.Cursor) is
+         Name : constant String := Command_Maps.Key (Position);
+      begin
+         Put_Line ("   " & Name);
+      end Print;
+
+   begin
+      Logs.Debug ("Execute command {0}", Name);
+
+      if Name'Length = 0 then
+         --  Usage;
+         New_Line;
+         Put ("Type '");
+         --  Put (Ada.Command_Line.Command_Name);
+         Put_Line (" help {command}' for help on a specific command.");
+         New_Line;
+         Put_Line ("Available subcommands:");
+
+         Command.Driver.List.Iterate (Process => Print'Access);
+      else
+         declare
+            Target_Cmd : constant Command_Access := Command.Driver.Find_Command (Name);
+         begin
+            if Target_Cmd = null then
+               Logs.Error ("Unknown command {0}", Name);
+            else
+               Target_Cmd.Help (Context);
+            end if;
+         end;
+      end if;
+   end Execute;
+
+   --  ------------------------------
+   --  Write the help associated with the command.
+   --  ------------------------------
+   procedure Help (Command   : in Help_Command_Type;
+                   Context   : in out Context_Type) is
+   begin
+      null;
+   end Help;
 
    --  ------------------------------
     --  Register the command under the given name.
