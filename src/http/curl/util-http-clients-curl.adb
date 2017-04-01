@@ -122,6 +122,27 @@ package body Util.Http.Clients.Curl is
       return Total;
    end Read_Response;
 
+   --  ------------------------------
+   --  Prepare to setup the headers in the request.
+   --  ------------------------------
+   procedure Set_Headers (Request : in out Curl_Http_Request) is
+
+      procedure Process (Name, Value : in String) is
+         S : Chars_Ptr := Strings.New_String (Name & ": " & Value);
+      begin
+         Request.Curl_Headers := Curl_Slist_Append (Request.Curl_Headers, S);
+         Interfaces.C.Strings.Free (S);
+      end Process;
+
+   begin
+      if Request.Curl_Headers /= null then
+         Curl_Slist_Free_All (Request.Curl_Headers);
+         Request.Curl_Headers := null;
+      end if;
+
+      Request.Iterate_Headers (Process'Access);
+   end Set_Headers;
+
    procedure Do_Get (Manager  : in Curl_Http_Manager;
                      Http     : in Client'Class;
                      URI      : in String;
@@ -135,10 +156,11 @@ package body Util.Http.Clients.Curl is
       Status   : aliased C.long;
    begin
       Log.Info ("GET {0}", URI);
-
       Result := Curl_Easy_Setopt_Write_Callback (Req.Data, Constants.CURLOPT_WRITEUNCTION,
                                                  Read_Response'Access);
       Check_Code (Result, "set callback");
+
+      Req.Set_Headers;
 
       Interfaces.C.Strings.Free (Req.URL);
       Req.URL := Strings.New_String (URI);
@@ -148,6 +170,9 @@ package body Util.Http.Clients.Curl is
 
       Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_HEADER, 1);
       Check_Code (Result, "set header");
+
+      Result := Curl_Easy_Setopt_Slist (Req.Data, Constants.CURLOPT_HTTPHEADER, Req.Curl_Headers);
+      Check_Code (Result, "set http GET headers");
 
       Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_URL, Req.URL);
       Check_Code (Result, "set url");
@@ -183,6 +208,7 @@ package body Util.Http.Clients.Curl is
       Result := Curl_Easy_Setopt_Write_Callback (Req.Data, Constants.CURLOPT_WRITEUNCTION,
                                                  Read_Response'Access);
       Check_Code (Result, "set callback");
+      Req.Set_Headers;
 
       Interfaces.C.Strings.Free (Req.URL);
       Req.URL := Strings.New_String (URI);
@@ -195,6 +221,9 @@ package body Util.Http.Clients.Curl is
 
       Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_HEADER, 1);
       Check_Code (Result, "set header");
+
+      Result := Curl_Easy_Setopt_Slist (Req.Data, Constants.CURLOPT_HTTPHEADER, Req.Curl_Headers);
+      Check_Code (Result, "set http GET headers");
 
       Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_URL, Req.URL);
       Check_Code (Result, "set url");
@@ -225,9 +254,9 @@ package body Util.Http.Clients.Curl is
          Curl_Easy_Cleanup (Request.Data);
          Request.Data := System.Null_Address;
       end if;
-      if Request.Headers /= null then
-         Curl_Slist_Free_All (Request.Headers);
-         Request.Headers := null;
+      if Request.Curl_Headers /= null then
+         Curl_Slist_Free_All (Request.Curl_Headers);
+         Request.Curl_Headers := null;
       end if;
       Interfaces.C.Strings.Free (Request.URL);
       Interfaces.C.Strings.Free (Request.Content);
