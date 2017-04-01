@@ -79,6 +79,10 @@ package Util.Commands.Drivers is
    procedure Set_Description (Driver      : in out Driver_Type;
                               Description : in String);
 
+   --  Set the driver usage printed in the usage.
+   procedure Set_Usage (Driver  : in out Driver_Type;
+                        Usage   : in String);
+
    --  Register the command under the given name.
    procedure Add_Command (Driver  : in out Driver_Type;
                           Name    : in String;
@@ -137,8 +141,9 @@ private
                    Context   : in out Context_Type);
 
    type Driver_Type is tagged limited record
-      List : Command_Maps.Map;
-      Desc : Ada.Strings.Unbounded.Unbounded_String;
+      List  : Command_Maps.Map;
+      Desc  : Ada.Strings.Unbounded.Unbounded_String;
+      Usage : Ada.Strings.Unbounded.Unbounded_String;
    end record;
 
 end Util.Commands.Drivers;
