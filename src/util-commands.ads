@@ -27,4 +27,15 @@ package Util.Commands is
    function Get_Argument (List : in Argument_List;
                           Pos  : in Positive) return String is abstract;
 
+   type Default_Argument_List (Offset : Natural) is new Argument_List with null record;
+
+   --  Get the number of arguments available.
+   overriding
+   function Get_Count (List : in Default_Argument_List) return Natural;
+
+   --  Get the argument at the given position.
+   overriding
+   function Get_Argument (List : in Default_Argument_List;
+                          Pos  : in Positive) return String;
+
 end Util.Commands;
