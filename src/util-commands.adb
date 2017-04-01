@@ -34,7 +34,15 @@ package body Util.Commands is
    function Get_Argument (List : in Default_Argument_List;
                           Pos  : in Positive) return String is
    begin
-      return Ada.Command_Line.Argument (Pos - List.Offset);
+      return Ada.Command_Line.Argument (Pos + List.Offset);
    end Get_Argument;
+
+   --  ------------------------------
+   --  Get the command name.
+   --  ------------------------------
+   function Get_Command_Name (List : in Default_Argument_List) return String is
+   begin
+      return Ada.Command_Line.Command_Name;
+   end Get_Command_Name;
 
 end Util.Commands;
