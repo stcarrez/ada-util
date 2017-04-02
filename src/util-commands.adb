@@ -23,8 +23,13 @@ package body Util.Commands is
    --  ------------------------------
    overriding
    function Get_Count (List : in Default_Argument_List) return Natural is
+      Count : constant Natural := Ada.Command_Line.Argument_Count;
    begin
-      return Ada.Command_Line.Argument_Count - List.Offset;
+      if Count > List.Offset then
+         return Count - List.Offset;
+      else
+         return 0;
+      end if;
    end Get_Count;
 
    --  ------------------------------
