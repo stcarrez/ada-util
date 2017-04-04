@@ -147,7 +147,13 @@ package Util.Systems.Os is
                         Mode : in Util.Systems.Types.mode_t) return Integer;
    pragma Import (C, Sys_Fchmod, "fchmod");
 
-   --  Rename a file (the Ada.Directories.Rename does not allow to use the Unix atomic file rename!)
+   --  Change permission of a file.
+   function Sys_Chmod (Path  : in Ptr;
+                       Mode  : in Util.Systems.Types.mode_t) return Integer;
+   pragma Import (C, Sys_Chmod, "chmod");
+
+   --  Rename a file (the Ada.Directories.Rename does not allow to use
+   --  the Unix atomic file rename!)
    function Sys_Rename (Oldpath  : in Ptr;
                         Newpath  : in Ptr) return Integer;
    pragma Import (C, Sys_Rename, "rename");
