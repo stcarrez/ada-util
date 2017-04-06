@@ -534,6 +534,7 @@ package body Util.Serialize.IO.JSON is
       procedure Parse_Value (P    : in out Parser'Class;
                              Name : in String) is
          Token : Token_Type;
+         Index : Natural;
       begin
          Peek (P, Token);
          case Token is
@@ -552,14 +553,16 @@ package body Util.Serialize.IO.JSON is
                Peek (P, Token);
                if Token /= T_RIGHT_BRACKET then
                   Put_Back (P, Token);
+                  Index := 0;
                   loop
-                     Parse_Value (P, Name);
+                     Parse_Value (P, Util.Strings.Image (Index));
                      Peek (P, Token);
                      exit when Token = T_RIGHT_BRACKET;
                      if Token /= T_COMMA then
                         P.Error ("Missing ']'");
                         exit when Token = T_EOF;
                      end if;
+                     Index := Index + 1;
                   end loop;
                end if;
                P.Finish_Array (Name);
