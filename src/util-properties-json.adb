@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties-json -- read json files into properties
---  Copyright (C) 2013 Stephane Carrez
+--  Copyright (C) 2013, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,6 +46,14 @@ package body Util.Properties.JSON is
    procedure Finish_Object (Handler : in out Parser;
                             Name    : in String);
 
+   overriding
+   procedure Start_Array (Handler : in out Parser;
+                          Name    : in String);
+
+   overriding
+   procedure Finish_Array (Handler : in out Parser;
+                           Name    : in String);
+
    --  -----------------------
    --  Start a new object associated with the given name.  This is called when
    --  the '{' is reached.  The reader must be updated so that the next
@@ -78,6 +86,22 @@ package body Util.Properties.JSON is
                                        Len - Name'Length - Handler.Separator_Length + 1, Len);
       end if;
    end Finish_Object;
+
+   overriding
+   procedure Start_Array (Handler : in out Parser;
+                          Name    : in String) is
+   begin
+      Handler.Start_Object (Name);
+      Util.Serialize.IO.JSON.Parser (Handler).Start_Array (Name);
+   end Start_Array;
+
+   overriding
+   procedure Finish_Array (Handler : in out Parser;
+                           Name    : in String) is
+   begin
+      Handler.Finish_Object (Name);
+      Util.Serialize.IO.JSON.Parser (Handler).Finish_Array (Name);
+   end Finish_Array;
 
    --  -----------------------
    --  Parse the JSON content and put the flattened content in the property manager.
