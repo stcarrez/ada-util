@@ -90,6 +90,12 @@ private
                      Data     : in String;
                      Reply    : out Response'Class);
 
+   --  Set the timeout for the connection.
+   overriding
+   procedure Set_Timeout (Manager : in Curl_Http_Manager;
+                          Http    : in Client'Class;
+                          Timeout : in Duration);
+
    type Curl_Http_Request is new Util.Http.Mockups.Mockup_Request with record
       Data         : CURL := System.Null_Address;
       URL          : Chars_Ptr := Interfaces.C.Strings.Null_Ptr;
