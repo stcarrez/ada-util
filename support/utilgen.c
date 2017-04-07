@@ -319,6 +319,8 @@ int main(int argc, char** argv)
     printf("   CURLOPT_HEADER         : constant Curl_Option := %d;\n", CURLOPT_HEADER);
     printf("   CURLOPT_POSTFIELDS     : constant Curl_Option := %d;\n", CURLOPT_POSTFIELDS);
     printf("   CURLOPT_POSTFIELDSIZE  : constant Curl_Option := %d;\n", CURLOPT_POSTFIELDSIZE);
+    printf("   CURLOPT_CONNECTTIMEOUT : constant Curl_Option := %d;\n", CURLOPT_CONNECTTIMEOUT);
+    printf("   CURLOPT_TIMEOUT        : constant Curl_Option := %d;\n", CURLOPT_TIMEOUT);
     printf("\n");
     printf("   CURLINFO_RESPONSE_CODE : constant CURL_Info := %d;\n", CURLINFO_RESPONSE_CODE);
     printf("\n");
