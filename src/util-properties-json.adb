@@ -52,7 +52,8 @@ package body Util.Properties.JSON is
 
    overriding
    procedure Finish_Array (Handler : in out Parser;
-                           Name    : in String);
+                           Name    : in String;
+                           Count   : in Natural);
 
    --  -----------------------
    --  Start a new object associated with the given name.  This is called when
@@ -97,10 +98,12 @@ package body Util.Properties.JSON is
 
    overriding
    procedure Finish_Array (Handler : in out Parser;
-                           Name    : in String) is
+                           Name    : in String;
+                           Count   : in Natural) is
    begin
+      Parser'Class (Handler).Set_Member ("length", Util.Beans.Objects.To_Object (Count));
       Handler.Finish_Object (Name);
-      Util.Serialize.IO.JSON.Parser (Handler).Finish_Array (Name);
+      Util.Serialize.IO.JSON.Parser (Handler).Finish_Array (Name, Count);
    end Finish_Array;
 
    --  -----------------------
