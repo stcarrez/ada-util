@@ -89,4 +89,16 @@ package body Util.Http.Clients.Mockups is
       Manager.Do_Get (Http, URI, Reply);
    end Do_Put;
 
+   --  ------------------------------
+   --  Set the timeout for the connection.
+   --  ------------------------------
+   overriding
+   procedure Set_Timeout (Manager : in File_Http_Manager;
+                          Http    : in Client'Class;
+                          Timeout : in Duration) is
+      pragma Unreferenced (Manager, Http, Timeout);
+   begin
+      null;
+   end Set_Timeout;
+
 end Util.Http.Clients.Mockups;
