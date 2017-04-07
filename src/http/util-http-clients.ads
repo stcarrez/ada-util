@@ -153,6 +153,10 @@ package Util.Http.Clients is
    procedure Add_Cookie (Http   : in out Client;
                          Cookie : in Util.Http.Cookies.Cookie);
 
+   --  Set the timeout for the connection.
+   procedure Set_Timeout (Request : in out Client;
+                          Timeout : in Duration);
+
    --  Execute an http GET request on the given URL.  Additional request parameters,
    --  cookies and headers should have been set on the client object.
    procedure Get (Request  : in out Client;
@@ -203,6 +207,11 @@ private
                      URI      : in String;
                      Data     : in String;
                      Reply    : out Response'Class) is abstract;
+
+   --  Set the timeout for the connection.
+   procedure Set_Timeout (Manager : in Http_Manager;
+                          Http    : in Client'Class;
+                          Timeout : in Duration) is abstract;
 
    Default_Http_Manager : Http_Manager_Access;
 
