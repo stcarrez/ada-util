@@ -57,4 +57,10 @@ private
                      Data     : in String;
                      Reply    : out Response'Class);
 
+   --  Set the timeout for the connection.
+   overriding
+   procedure Set_Timeout (Manager : in File_Http_Manager;
+                          Http    : in Client'Class;
+                          Timeout : in Duration);
+
 end Util.Http.Clients.Mockups;
