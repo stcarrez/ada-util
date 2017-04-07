@@ -195,6 +195,14 @@ package body Util.Http.Clients.Web is
       Rep.Data       := AWS.Client.Put (URL => URI, Data => Data, Headers => Req.Headers);
    end Do_Put;
 
+   --  Set the timeout for the connection.
+   overriding
+   procedure Set_Timeout (Manager : in AWS_Http_Manager;
+                          Http    : in Client'Class;
+                          Timeout : in Duration) is
+   begin
+      null;
+   end Set_Timeout;
 
    --  ------------------------------
    --  Returns a boolean indicating whether the named request header has already
