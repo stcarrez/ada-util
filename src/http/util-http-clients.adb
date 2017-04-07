@@ -253,6 +253,15 @@ package body Util.Http.Clients is
    end Put;
 
    --  ------------------------------
+   --  Set the timeout for the connection.
+   --  ------------------------------
+   procedure Set_Timeout (Request : in out Client;
+                          Timeout : in Duration) is
+   begin
+      Request.Manager.Set_Timeout (Request, Timeout);
+   end Set_Timeout;
+
+   --  ------------------------------
    --  Adds the specified cookie to the request. This method can be called multiple
    --  times to set more than one cookie.
    --  ------------------------------
