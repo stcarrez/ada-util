@@ -501,7 +501,6 @@ package body Util.Serialize.IO.JSON is
             Peek (P, Token);
             if Token /= T_COLON then
                P.Error ("Missing ':'");
-               exit when Token = T_EOF;
             end if;
 
             Parse_Value (P, To_String (Current_Name));
@@ -551,21 +550,20 @@ package body Util.Serialize.IO.JSON is
             when T_LEFT_BRACKET =>
                P.Start_Array (Name);
                Peek (P, Token);
+               Index := 0;
                if Token /= T_RIGHT_BRACKET then
                   Put_Back (P, Token);
-                  Index := 0;
                   loop
                      Parse_Value (P, Util.Strings.Image (Index));
                      Peek (P, Token);
                      exit when Token = T_RIGHT_BRACKET;
                      if Token /= T_COMMA then
                         P.Error ("Missing ']'");
-                        exit when Token = T_EOF;
                      end if;
                      Index := Index + 1;
                   end loop;
                end if;
-               P.Finish_Array (Name);
+               P.Finish_Array (Name, Index);
 
             when T_NULL =>
                P.Set_Member (Name, Util.Beans.Objects.Null_Object);
