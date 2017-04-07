@@ -155,7 +155,8 @@ package Util.Serialize.IO is
                           Name    : in String);
 
    procedure Finish_Array (Handler : in out Parser;
-                           Name    : in String);
+                           Name    : in String;
+                           Count   : in Natural);
 
    --  Set the name/value pair on the current object.  For each active mapping,
    --  find whether a rule matches our name and execute it.
