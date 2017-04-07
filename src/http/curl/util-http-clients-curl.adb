@@ -309,6 +309,23 @@ package body Util.Http.Clients.Curl is
       Response.Status := Natural (Status);
    end Do_Put;
 
+   --  ------------------------------
+   --  Set the timeout for the connection.
+   --  ------------------------------
+   overriding
+   procedure Set_Timeout (Manager : in Curl_Http_Manager;
+                          Http    : in Client'Class;
+                          Timeout : in Duration) is
+      pragma Unreferenced (Manager);
+
+      Req      : constant Curl_Http_Request_Access := Get_Request (Http);
+      Time     : constant Interfaces.C.long := Interfaces.C.long (Timeout);
+      Result   : CURL_Code;
+   begin
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_TIMEOUT, Time);
+      Check_Code (Result, "set timeout");
+   end Set_Timeout;
+
    overriding
    procedure Finalize (Request : in out Curl_Http_Request) is
    begin
