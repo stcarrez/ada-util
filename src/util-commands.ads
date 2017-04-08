@@ -44,4 +44,38 @@ package Util.Commands is
    --  Get the command name.
    function Get_Command_Name (List : in Default_Argument_List) return String;
 
+   type String_Argument_List (Max_Length : Positive;
+                              Max_Args   : Positive) is new Argument_List with private;
+
+   --  Set the argument list to the given string and split the arguments.
+   procedure Initialize (List : in out String_Argument_List;
+                         Line : in String);
+
+   --  Get the number of arguments available.
+   overriding
+   function Get_Count (List : in String_Argument_List) return Natural;
+
+   --  Get the argument at the given position.
+   overriding
+   function Get_Argument (List : in String_Argument_List;
+                          Pos  : in Positive) return String;
+
+   --  Get the command name.
+   overriding
+   function Get_Command_Name (List : in String_Argument_List) return String;
+
+private
+
+   type Argument_Pos is array (Natural range <>) of Natural;
+
+   type String_Argument_List (Max_Length : Positive;
+                              Max_Args   : Positive) is new Argument_List
+     with record
+      Count     : Natural := 0;
+      Length    : Natural := 0;
+      Line      : String (1 .. Max_Length);
+      Start_Pos : Argument_Pos (0 .. Max_Args);
+      End_Pos   : Argument_Pos (0 .. Max_Args);
+   end record;
+
 end Util.Commands;
