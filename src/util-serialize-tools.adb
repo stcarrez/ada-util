@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-tools -- Tools to Serialize objects in various formats
---  Copyright (C) 2012, 2016 Stephane Carrez
+--  Copyright (C) 2012, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -131,7 +131,7 @@ package body Util.Serialize.Tools is
    begin
       if Content'Length > 0 then
          Context.Map := Map'Unchecked_Access;
-         Parser.Add_Mapping ("/params", JSON_Mapping'Access);
+         Parser.Add_Mapping ("**", JSON_Mapping'Access);
          Object_Mapper.Set_Context (Parser, Context'Unchecked_Access);
          Parser.Parse_String (Content);
       end if;
