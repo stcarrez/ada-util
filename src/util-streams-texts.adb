@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Streams.Files -- File Stream utilities
---  Copyright (C) 2010, 2011, 2012, 2016 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -75,7 +75,7 @@ package body Util.Streams.Texts is
    --  ------------------------------
    --  Get the output stream content as a string.
    --  ------------------------------
-   function To_String (Stream : in Buffered.Buffered_Stream) return String is
+   function To_String (Stream : in Buffered.Buffered_Stream'Class) return String is
       use Ada.Streams;
 
       Size   : constant Natural := Stream.Get_Size;
