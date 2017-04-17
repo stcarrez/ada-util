@@ -9,7 +9,6 @@ MODE=distrib
 GNATMAKE=@GNATMAKE@
 GNATCLEAN=gnatclean
 GPRINSTALL=@GPRINSTALL@
-SVN=svn
 INSTALL=@INSTALL@
 
 GPRPATH=util.gpr
@@ -112,8 +111,12 @@ endif
 # Build executables for all mains defined by the project.
 build:	setup
 	$(GNATMAKE) -m -p -P"$(GPRPATH)" $(MAKE_ARGS)
-	test T${HAVE_CURL} = Tno || $(GNATMAKE) -m -p -P"$(UTIL_HTTP_CURL_GPRPATH)" $(MAKE_ARGS)
-	test T${HAVE_AWS} = Tno || $(GNATMAKE) -m -p -P"$(UTIL_HTTP_AWS_GPRPATH)" $(MAKE_ARGS)
+ifeq (${HAVE_CURL},yes)
+	$(GNATMAKE) -m -p -P"$(UTIL_HTTP_CURL_GPRPATH)" $(MAKE_ARGS)
+endif
+ifeq (${HAVE_AWS},yes)
+	$(GNATMAKE) -m -p -P"$(UTIL_HTTP_AWS_GPRPATH)" $(MAKE_ARGS)
+endif
 	$(GNATMAKE) -m -p -P"$(TESTUTIL_GPRPATH)" $(MAKE_ARGS)
 	$(GNATMAKE) -m -p -P"$(UTIL_HTTP_GPRPATH)" $(MAKE_ARGS)
 
@@ -178,44 +181,8 @@ version:
 	gnatprep `svn info | grep '^[UR][eR][Lv]' | sed -e 's,URL: \(.*\),-DURL="\1",' -e 's,Revision: ,-DREVISION=,'` \
 		  src/util.gpb src/util.ads
 
-# Files to package in source distribution
-DISTFILES=README.md LICENSE.txt LICENSE.Ahven NOTICE.txt NEWS \
-config.guess configure config.sub aclocal.m4 \
-configure.in Makefile.in install-sh \
-util.gpr.in util_http.gpr.in config.gpr util_unit.gpr.in util_tests.gpr tests_proc.gpr samples.gpr \
-util_http_aws.gpr.in util_http_curl.gpr.in \
-src samples regtests testutil \
-distrib support bundles
-
 dist:
-	-rm -rf $(distdir)
-	mkdir $(distdir)
-	-chmod 777 $(distdir)
-	here=`cd $(top_builddir) && pwd`; \
-	top_distdir=`cd $(distdir) && pwd`; \
-	distdir=`cd $(distdir) && pwd`; \
-	for file in $(DISTFILES); do \
-	  d=$(srcdir); \
-	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
-	  else \
-	    test -f $(distdir)/$$file \
-	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
-	    || cp -p $$d/$$file $(distdir)/$$file || :; \
-	  fi; \
-	done
-	rm -f $(distdir)/distrib/*.gpr
-	cp distrib/util_config-*.gpr $(distdir)/distrib
-	rm -rf $(distdir)/regtests/result
-	rm -f $(distdir)/regtests/util-testsuite.adb
-	rm -f $(distdir)/src/util-system-types.ads $(distdir)/src/util-system-constants.ads
-	rm -f $(distdir)/src/curl/util-http-clients-curl-constants.ads
-	mkdir $(distdir)/bin
-	mkdir $(distdir)/obj
-	mkdir $(distdir)/lib
-	tar --exclude=.svn --exclude=.git --exclude="*~" --exclude="*.o" --exclude="*.ali" \
-	    --exclude="*.log" --exclude="*.a" \
-	    -cvzf $(DIST_FILE) $(distdir)
+	git archive -o $(DIST_FILE) --prefix=$(distdir)/ HEAD
 
 install_static:
 	$(MAKE) UTIL_LIBRARY_TYPE=static install_lib
@@ -369,13 +336,6 @@ else
 	rm -f ${projectdir}/util_unit.gpr
 	rm -f ${projectdir}/util.gpr
 endif
-
-# prepare before releasing a new version of the package
-# (collect information about changes and SVN repository)
-prepare-release:
-	# ${SVN} update
-	# ${SVN} info > CHANGES
-	# ${SVN} log -v > ChangeLog
 
 src/util-systems-constants.ads:	bin/utilgen
 	bin/utilgen > $@
