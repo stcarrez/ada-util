@@ -225,11 +225,11 @@ AC_SUBST(UTIL_GNAT_TRACEBACK)
 # Test framework selection: aunit or ahven
 ##########################################
 
-ac_enable_aunit=yes
+ac_enable_aunit=no
 
-ac_enable_ahven=no
+ac_enable_ahven=yes
 AC_ARG_ENABLE(ahven,
-[  --enable-ahven          Enable internal Ahven support for testutil library and Ada util unit tests (disabled)],
+[  --enable-ahven          Enable internal Ahven support for testutil library and Ada util unit tests (enabled)],
 [case "${enableval}" in
   no|none)  ac_enable_ahven= ;;
   *)        ac_enable_ahven=yes
@@ -237,7 +237,7 @@ AC_ARG_ENABLE(ahven,
 esac])dnl
 
 AC_ARG_ENABLE(aunit,
-[  --enable-aunit          Enable AUnit support for testutil library and Ada util unit tests (enabled)],
+[  --enable-aunit          Enable AUnit support for testutil library and Ada util unit tests (disabled)],
 [case "${enableval}" in
   no|none)  ac_enable_aunit=no ;;
   *)        ac_enable_aunit=yes ;;
