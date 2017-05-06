@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-raw -- Raw streams for Unix based systems
---  Copyright (C) 2011, 2013, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +30,49 @@ package body Util.Streams.Pipes is
    begin
       Util.Processes.Set_Shell (Stream.Proc, Shell);
    end Set_Shell;
+
+   --  -----------------------
+   --  Before launching the process, redirect the input stream of the process
+   --  to the specified file.
+   --  Raises <b>Invalid_State</b> if the process is running.
+   --  -----------------------
+   procedure Set_Input_Stream (Stream : in out Pipe_Stream;
+                               File   : in String) is
+   begin
+      Util.Processes.Set_Input_Stream (Stream.Proc, File);
+   end Set_Input_Stream;
+
+   --  -----------------------
+   --  Set the output stream of the process.
+   --  Raises <b>Invalid_State</b> if the process is running.
+   --  -----------------------
+   procedure Set_Output_Stream (Stream : in out Pipe_Stream;
+                                File   : in String;
+                                Append : in Boolean := False) is
+   begin
+      Util.Processes.Set_Output_Stream (Stream.Proc, File, Append);
+   end Set_Output_Stream;
+
+   --  -----------------------
+   --  Set the error stream of the process.
+   --  Raises <b>Invalid_State</b> if the process is running.
+   --  -----------------------
+   procedure Set_Error_Stream (Stream : in out Pipe_Stream;
+                               File   : in String;
+                               Append : in Boolean := False) is
+   begin
+      Util.Processes.Set_Error_Stream (Stream.Proc, File, Append);
+   end Set_Error_Stream;
+
+   --  -----------------------
+   --  Set the working directory that the process will use once it is created.
+   --  The directory must exist or the <b>Invalid_Directory</b> exception will be raised.
+   --  -----------------------
+   procedure Set_Working_Directory (Stream : in out Pipe_Stream;
+                                    Path   : in String) is
+   begin
+      Util.Processes.Set_Working_Directory (Stream.Proc, Path);
+   end Set_Working_Directory;
 
    --  -----------------------
    --  Open a pipe to read or write to an external process.  The pipe is created and the
