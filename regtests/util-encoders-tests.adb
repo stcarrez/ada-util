@@ -26,6 +26,7 @@ with Util.Encoders.HMAC.SHA1;
 with Util.Encoders.HMAC.SHA256;
 with Util.Encoders.Base16;
 with Util.Encoders.Base64;
+with Util.Encoders.AES;
 package body Util.Encoders.Tests is
 
    use Util.Tests;
@@ -95,6 +96,8 @@ package body Util.Encoders.Tests is
                        Test_HMAC_SHA256_RFC4231_T6'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA256.Sign_SHA1 (RFC4231 test7)",
                        Test_HMAC_SHA256_RFC4231_T7'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.AES.Encrypt",
+                       Test_AES'Access);
    end Add_Tests;
 
    procedure Test_Base64_Encode (T : in out Test) is
@@ -525,5 +528,31 @@ package body Util.Encoders.Tests is
                      & "ds to be hashed before being used by the HMAC algorithm.",
                      "9b09ffa71b942fcb27635fbcd5b0e944bfdc63644f0713938a7f51535c3a35e2");
    end Test_HMAC_SHA256_RFC4231_T7;
+
+   procedure Test_AES (T : in out Test) is
+      use type Ada.Streams.Stream_Element;
+
+      PK   : Ada.Streams.Stream_Element_Array (1 .. 32) := (others => 1);
+      Key  : Util.Encoders.AES.Key_Type;
+      B    : Util.Encoders.AES.Block_Type := (others => 1);
+      E    : Util.Encoders.AES.Block_Type := (others => 0);
+      Ok   : Boolean;
+   begin
+      Util.Encoders.AES.Set_Encrypt_Key (Key, PK);
+      Util.Encoders.AES.Encrypt (B, E, Key);
+      Util.Encoders.AES.Set_Decrypt_Key (Key, PK);
+      Util.Encoders.AES.Decrypt (E, B, Key);
+      Ok := (for all E of B => E = 1);
+      T.Assert (Ok, "Encryption and decryption are invalid (block with 1)");
+
+      B := (others => 16#ab#);
+      Util.Encoders.AES.Set_Encrypt_Key (Key, PK);
+      Util.Encoders.AES.Encrypt (B, E, Key);
+      Util.Encoders.AES.Set_Decrypt_Key (Key, PK);
+      Util.Encoders.AES.Decrypt (E, B, Key);
+      Ok := (for all E of B => E = 16#ab#);
+      T.Assert (Ok, "Encryption and decryption are invalid (block with 16#AB#)");
+
+   end Test_AES;
 
 end Util.Encoders.Tests;
