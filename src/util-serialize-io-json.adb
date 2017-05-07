@@ -463,24 +463,6 @@ package body Util.Serialize.IO.JSON is
       procedure Parse_Value (P    : in out Parser'Class;
                              Name : in String);
 
-      procedure Parse (P : in out Parser'Class);
-
-      procedure Parse (P : in out Parser'Class) is
-         Token : Token_Type;
-      begin
-         Peek (P, Token);
-         if Token = T_LEFT_BRACKET then
-            P.Start_Array ("");
-         elsif Token /= T_LEFT_BRACE then
-            P.Error ("Missing '{' or '['");
-         end if;
-         Parse_Pairs (P);
-         Peek (P, Token);
-         if Token /= T_RIGHT_BRACE then
-            P.Error ("Missing '}'");
-         end if;
-      end Parse;
-
       --  ------------------------------
       --  Parse a list of members
       --  members ::= pair | pair ',' members
