@@ -61,4 +61,7 @@ package Util.Encoders.Tests is
    --  Test encoding leb128 + base64url.
    procedure Test_Base64_LEB128 (T : in out Test);
 
+   --  Test encrypt and decrypt operations.
+   procedure Test_AES (T : in out Test);
+
 end Util.Encoders.Tests;
