@@ -16,14 +16,9 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Interfaces;
-with Util.Encoders.Base16;
-with Util.Encoders.Base64;
-
 package body Util.Encoders.AES is
 
    use Ada.Streams;
-   use Interfaces;
 
    type Sbox is array (Unsigned_32 range 0 .. 255) of Unsigned_32;
    type Final_Sbox is array (Unsigned_32 range 0 .. 255) of Unsigned_8;
