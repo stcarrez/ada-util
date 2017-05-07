@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients -- HTTP Clients
---  Copyright (C) 2011, 2012, 2013 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2013, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -239,6 +239,27 @@ package body Util.Http.Clients is
    begin
       Request.Manager.Do_Post (Request, URL, Data, Reply);
    end Post;
+
+   --  ------------------------------
+   --  Execute an http PUT request on the given URL.  The post data is passed in <b>Data</b>.
+   --  Additional request cookies and headers should have been set on the client object.
+   --  ------------------------------
+   procedure Put (Request : in out Client;
+                  URL     : in String;
+                  Data    : in String;
+                  Reply   : out Response'Class) is
+   begin
+      Request.Manager.Do_Put (Request, URL, Data, Reply);
+   end Put;
+
+   --  ------------------------------
+   --  Set the timeout for the connection.
+   --  ------------------------------
+   procedure Set_Timeout (Request : in out Client;
+                          Timeout : in Duration) is
+   begin
+      Request.Manager.Set_Timeout (Request, Timeout);
+   end Set_Timeout;
 
    --  ------------------------------
    --  Adds the specified cookie to the request. This method can be called multiple

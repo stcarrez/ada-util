@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io -- IO Drivers for serialization
---  Copyright (C) 2010, 2011, 2016 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -225,8 +225,9 @@ package body Util.Serialize.IO is
    end Start_Array;
 
    procedure Finish_Array (Handler : in out Parser;
-                           Name    : in String) is
-      pragma Unreferenced (Name);
+                           Name    : in String;
+                           Count   : in Natural) is
+      pragma Unreferenced (Name, Count);
    begin
       Handler.Pop;
    end Finish_Array;

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Streams.Files -- File Stream utilities
---  Copyright (C) 2010, 2011, 2012, 2015, 2016 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2015, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,7 +54,7 @@ package Util.Streams.Texts is
                     := GNAT.Calendar.Time_IO.ISO_Date);
 
    --  Get the output stream content as a string.
-   function To_String (Stream : in Buffered.Buffered_Stream) return String;
+   function To_String (Stream : in Buffered.Buffered_Stream'Class) return String;
 
    --  Write a character on the stream.
    procedure Write_Char (Stream : in out Buffered.Buffered_Stream'Class;

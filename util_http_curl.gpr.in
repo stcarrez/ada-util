@@ -5,7 +5,7 @@ library project Util_Http_Curl is
    Version     := Util.Version;
    Library_Dir := Util.Library_Dir;
 
-   Has_Curl : Config.Yes_No := "yes";
+   Has_Curl : Config.Yes_No := "@UTIL_HAVE_CURL@";
    
    Library_Type : Config.Library_Type_Type := Util.Library_Type;
 

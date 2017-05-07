@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-system-os -- Unix system operations
---  Copyright (C) 2011, 2012, 2014, 2015, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2014, 2015, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -146,6 +146,17 @@ package Util.Systems.Os is
    function Sys_Fchmod (Fd   : in File_Type;
                         Mode : in Util.Systems.Types.mode_t) return Integer;
    pragma Import (C, Sys_Fchmod, "fchmod");
+
+   --  Change permission of a file.
+   function Sys_Chmod (Path  : in Ptr;
+                       Mode  : in Util.Systems.Types.mode_t) return Integer;
+   pragma Import (C, Sys_Chmod, "chmod");
+
+   --  Rename a file (the Ada.Directories.Rename does not allow to use
+   --  the Unix atomic file rename!)
+   function Sys_Rename (Oldpath  : in Ptr;
+                        Newpath  : in Ptr) return Integer;
+   pragma Import (C, Sys_Rename, "rename");
 
    --  Libc errno.  The __get_errno function is provided by the GNAT runtime.
    function Errno return Integer;

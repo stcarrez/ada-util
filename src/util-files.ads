@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Files -- Various File Utility Packages
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with Ada.Strings.Unbounded;
 with Util.Strings.Maps;
+with Util.Strings.Vectors;
 package Util.Files is
 
    use Ada.Strings.Unbounded;
@@ -33,6 +34,11 @@ package Util.Files is
    --  procedure with each line as argument.
    procedure Read_File (Path     : in String;
                         Process  : not null access procedure (Line : in String));
+
+   --  Read the file with the given path, one line at a time and append each line to
+   --  the <b>Into</b> vector.
+   procedure Read_File (Path  : in String;
+                        Into  : in out Util.Strings.Vectors.Vector);
 
    --  Save the string into a file creating the file if necessary
    procedure Write_File (Path    : in String;

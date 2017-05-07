@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-web -- HTTP Clients with AWS implementation
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -142,7 +142,7 @@ package body Util.Http.Clients.Web is
       Http.Delegate := new AWS_Http_Request;
    end Create;
 
-
+   overriding
    procedure Do_Get (Manager  : in AWS_Http_Manager;
                      Http     : in Client'Class;
                      URI      : in String;
@@ -159,7 +159,7 @@ package body Util.Http.Clients.Web is
       Rep.Data       := AWS.Client.Get (URL => URI, Headers => Req.Headers);
    end Do_Get;
 
-
+   overriding
    procedure Do_Post (Manager  : in AWS_Http_Manager;
                       Http     : in Client'Class;
                       URI      : in String;
@@ -176,6 +176,33 @@ package body Util.Http.Clients.Web is
       Reply.Delegate := Rep.all'Access;
       Rep.Data       := AWS.Client.Post (URL => URI, Data => Data, Headers => Req.Headers);
    end Do_Post;
+
+   overriding
+   procedure Do_Put (Manager  : in AWS_Http_Manager;
+                     Http     : in Client'Class;
+                     URI      : in String;
+                     Data     : in String;
+                     Reply    : out Response'Class) is
+      pragma Unreferenced (Manager);
+
+      Req     : constant AWS_Http_Request_Access
+        := AWS_Http_Request'Class (Http.Delegate.all)'Access;
+      Rep     : constant AWS_Http_Response_Access := new AWS_Http_Response;
+   begin
+      Log.Info ("Put {0}", URI);
+
+      Reply.Delegate := Rep.all'Access;
+      Rep.Data       := AWS.Client.Put (URL => URI, Data => Data, Headers => Req.Headers);
+   end Do_Put;
+
+   --  Set the timeout for the connection.
+   overriding
+   procedure Set_Timeout (Manager : in AWS_Http_Manager;
+                          Http    : in Client'Class;
+                          Timeout : in Duration) is
+   begin
+      null;
+   end Set_Timeout;
 
    --  ------------------------------
    --  Returns a boolean indicating whether the named request header has already

@@ -1364,8 +1364,8 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-shared         Enable the shared libraries (disabled)
   --enable-traceback      Enable the symbolic traceback dump in logged exceptions (enabled)
-  --enable-ahven          Enable internal Ahven support for testutil library and Ada util unit tests (disabled)
-  --enable-aunit          Enable AUnit support for testutil library and Ada util unit tests (enabled)
+  --enable-ahven          Enable internal Ahven support for testutil library and Ada util unit tests (enabled)
+  --enable-aunit          Enable AUnit support for testutil library and Ada util unit tests (disabled)
   --enable-curl           Enable the CURL HTTP client support in Ada Util (enabled)
   --enable-aws            Enable the AWS support (enabled)
   --enable-vector-mappers Enable the Util.Serialize.Mappers.Vector_Mappers package (enabled)
@@ -4144,9 +4144,9 @@ UTIL_GNAT_TRACEBACK=$ac_enable_traceback
 # Test framework selection: aunit or ahven
 ##########################################
 
-ac_enable_aunit=yes
+ac_enable_aunit=no
 
-ac_enable_ahven=no
+ac_enable_ahven=yes
 # Check whether --enable-ahven was given.
 if test "${enable_ahven+set}" = set; then :
   enableval=$enable_ahven; case "${enableval}" in

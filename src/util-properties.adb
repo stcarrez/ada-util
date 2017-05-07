@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012, 2014 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,9 @@
 -----------------------------------------------------------------------
 
 with Util.Properties.Factories;
+with Ada.IO_Exceptions;
 with Ada.Strings.Unbounded.Text_IO;
+with Interfaces.C.Strings;
 package body Util.Properties is
 
    use Ada.Text_IO;
@@ -311,6 +313,50 @@ package body Util.Properties is
       Load_Properties (Self, F, Prefix, Strip);
       Close (F);
    end Load_Properties;
+
+   --  ------------------------------
+   --  Save the properties in the given file path.
+   --  ------------------------------
+   procedure Save_Properties (Self   : in out Manager'Class;
+                              Path   : in String;
+                              Prefix : in String := "") is
+      procedure Save_Property (Name, Item : in Value);
+
+      Tmp : constant String := Path & ".tmp";
+      F : File_Type;
+
+      procedure Save_Property (Name, Item : in Value) is
+      begin
+         Put (F, Name);
+         Put (F, "=");
+         Put (F, Item);
+         New_Line (F);
+      end Save_Property;
+
+      --  Rename a file (the Ada.Directories.Rename does not allow to use the Unix atomic file rename!)
+      function Sys_Rename (Oldpath  : in Interfaces.C.Strings.chars_ptr;
+                           Newpath  : in Interfaces.C.Strings.chars_ptr) return Integer;
+      pragma Import (C, Sys_Rename, "rename");
+
+      Old_Path : Interfaces.C.Strings.chars_ptr;
+      New_Path : Interfaces.C.Strings.chars_ptr;
+      Result   : Integer;
+   begin
+      Create (File => F, Name => Tmp);
+      Self.Iterate (Save_Property'Access);
+      Close (File => F);
+
+      --  Do a system atomic rename of old file in the new file.
+      --  Ada.Directories.Rename does not allow this.
+      Old_Path := Interfaces.C.Strings.New_String (Tmp);
+      New_Path := Interfaces.C.Strings.New_String (Path);
+      Result := Sys_Rename (Old_Path, New_Path);
+      Interfaces.C.Strings.Free (Old_Path);
+      Interfaces.C.Strings.Free (New_Path);
+      if Result /= 0 then
+         raise Ada.IO_Exceptions.Use_Error with "Cannot rename file";
+      end if;
+   end Save_Properties;
 
    --  ------------------------------
    --  Copy the properties from FROM which start with a given prefix.

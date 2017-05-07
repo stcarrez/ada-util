@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2014 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2014, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -129,6 +129,11 @@ package Util.Properties is
                               Path   : in String;
                               Prefix : in String := "";
                               Strip  : in Boolean := False);
+
+   --  Save the properties in the given file path.
+   procedure Save_Properties (Self   : in out Manager'Class;
+                              Path   : in String;
+                              Prefix : in String := "");
 
    --  Copy the properties from FROM which start with a given prefix.
    --  If the prefix is empty, all properties are copied.  When <b>Strip</b> is True,

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-pipes -- Pipe stream to or from a process
---  Copyright (C) 2011, 2013, 2015, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2015, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,6 +41,29 @@ package Util.Streams.Pipes is
    --  <tt>Spawn</tt> procedure.
    procedure Set_Shell (Stream : in out Pipe_Stream;
                         Shell  : in String);
+
+   --  Before launching the process, redirect the input stream of the process
+   --  to the specified file.
+   --  Raises <b>Invalid_State</b> if the process is running.
+   procedure Set_Input_Stream (Stream : in out Pipe_Stream;
+                               File   : in String);
+
+   --  Set the output stream of the process.
+   --  Raises <b>Invalid_State</b> if the process is running.
+   procedure Set_Output_Stream (Stream : in out Pipe_Stream;
+                                File   : in String;
+                                Append : in Boolean := False);
+
+   --  Set the error stream of the process.
+   --  Raises <b>Invalid_State</b> if the process is running.
+   procedure Set_Error_Stream (Stream : in out Pipe_Stream;
+                               File   : in String;
+                               Append : in Boolean := False);
+
+   --  Set the working directory that the process will use once it is created.
+   --  The directory must exist or the <b>Invalid_Directory</b> exception will be raised.
+   procedure Set_Working_Directory (Stream : in out Pipe_Stream;
+                                    Path   : in String);
 
    --  Open a pipe to read or write to an external process.  The pipe is created and the
    --  command is executed with the input and output streams redirected through the pipe.

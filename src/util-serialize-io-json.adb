@@ -469,8 +469,10 @@ package body Util.Serialize.IO.JSON is
          Token : Token_Type;
       begin
          Peek (P, Token);
-         if Token /= T_LEFT_BRACE then
-            P.Error ("Missing '{'");
+         if Token = T_LEFT_BRACKET then
+            P.Start_Array ("");
+         elsif Token /= T_LEFT_BRACE then
+            P.Error ("Missing '{' or '['");
          end if;
          Parse_Pairs (P);
          Peek (P, Token);
@@ -531,6 +533,7 @@ package body Util.Serialize.IO.JSON is
       procedure Parse_Value (P    : in out Parser'Class;
                              Name : in String) is
          Token : Token_Type;
+         Index : Natural;
       begin
          Peek (P, Token);
          case Token is
@@ -547,18 +550,21 @@ package body Util.Serialize.IO.JSON is
             when T_LEFT_BRACKET =>
                P.Start_Array (Name);
                Peek (P, Token);
+               Index := 0;
                if Token /= T_RIGHT_BRACKET then
                   Put_Back (P, Token);
                   loop
-                     Parse_Value (P, Name);
+                     Parse_Value (P, Util.Strings.Image (Index));
                      Peek (P, Token);
                      exit when Token = T_RIGHT_BRACKET;
                      if Token /= T_COMMA then
                         P.Error ("Missing ']'");
+			exit when Token = T_EOF;
                      end if;
+                     Index := Index + 1;
                   end loop;
                end if;
-               P.Finish_Array (Name);
+               P.Finish_Array (Name, Index);
 
             when T_NULL =>
                P.Set_Member (Name, Util.Beans.Objects.Null_Object);
@@ -811,9 +817,7 @@ package body Util.Serialize.IO.JSON is
       end Peek;
 
    begin
-      Parser'Class (Handler).Start_Object ("");
-      Parse (Handler);
-      Parser'Class (Handler).Finish_Object ("");
+      Parse_Value (Handler, "");
    end Parse;
 
 end Util.Serialize.IO.JSON;

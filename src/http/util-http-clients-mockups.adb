@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-mockups -- HTTP Clients
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,6 +48,7 @@ package body Util.Http.Clients.Mockups is
       Http.Delegate := new Util.Http.Mockups.Mockup_Request;
    end Create;
 
+   overriding
    procedure Do_Get (Manager  : in File_Http_Manager;
                      Http     : in Client'Class;
                      URI      : in String;
@@ -66,6 +67,7 @@ package body Util.Http.Clients.Mockups is
       Rep.Set_Status (SC_OK);
    end Do_Get;
 
+   overriding
    procedure Do_Post (Manager  : in File_Http_Manager;
                       Http     : in Client'Class;
                       URI      : in String;
@@ -75,5 +77,28 @@ package body Util.Http.Clients.Mockups is
    begin
       Manager.Do_Get (Http, URI, Reply);
    end Do_Post;
+
+   overriding
+   procedure Do_Put (Manager  : in File_Http_Manager;
+                     Http     : in Client'Class;
+                     URI      : in String;
+                     Data     : in String;
+                     Reply    : out Response'Class) is
+      pragma Unreferenced (Data);
+   begin
+      Manager.Do_Get (Http, URI, Reply);
+   end Do_Put;
+
+   --  ------------------------------
+   --  Set the timeout for the connection.
+   --  ------------------------------
+   overriding
+   procedure Set_Timeout (Manager : in File_Http_Manager;
+                          Http    : in Client'Class;
+                          Timeout : in Duration) is
+      pragma Unreferenced (Manager, Http, Timeout);
+   begin
+      null;
+   end Set_Timeout;
 
 end Util.Http.Clients.Mockups;

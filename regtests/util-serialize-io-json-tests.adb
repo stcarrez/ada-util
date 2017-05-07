@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-json-tests -- Unit tests for JSON parser
---  Copyright (C) 2011, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -105,6 +105,7 @@ package body Util.Serialize.IO.JSON.Tests is
       Check_Parse ("{ ""person"":""\ucdef""}");
       Check_Parse ("{ ""person"":""\u1CDE""}");
       Check_Parse ("{ ""person"":""\u2ABF""}");
+      Check_Parse ("[{ ""person"":""\u2ABF""}]");
    end Test_Parser;
 
    --  ------------------------------
