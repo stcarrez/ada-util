@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  AUnit utils - Helper for writing unit tests
---  Copyright (C) 2009, 2010, 2011, 2012, 2013 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,7 @@ with Ada.Exceptions;
 with Util.Strings;
 with Util.Measures;
 with Util.Files;
+with Util.Strings.Vectors;
 with Util.Log.Loggers;
 package body Util.Tests is
 
@@ -277,9 +278,11 @@ package body Util.Tests is
                                  Source  : String := GNAT.Source_Info.File;
                                  Line    : Natural := GNAT.Source_Info.Line) is
       use Util.Files;
+      use type Ada.Containers.Count_Type;
+      use type Util.Strings.Vectors.Vector;
 
-      Expect_File : Unbounded_String;
-      Test_File   : Unbounded_String;
+      Expect_File : Util.Strings.Vectors.Vector;
+      Test_File   : Util.Strings.Vectors.Vector;
       Same        : Boolean;
    begin
       begin
@@ -303,18 +306,33 @@ package body Util.Tests is
             end if;
       end;
 
-      --  Check file sizes
-      Assert_Equals (T       => T,
-                     Expect  => Length (Expect_File),
-                     Value   => Length (Test_File),
-                     Message => Message & ": Invalid file sizes",
-                     Source  => Source,
-                     Line    => Line);
+      if Expect_File.Length /= Test_File.Length then
+         if Update_Test_Files then
+            Ada.Directories.Copy_File (Source_Name => Test,
+                                       Target_Name => Expect);
+         end if;
+
+         --  Check file sizes
+         Assert_Equals (T       => T,
+                        Expect  => Natural (Expect_File.Length),
+                        Value   => Natural (Test_File.Length),
+                        Message => Message & ": Invalid number of lines",
+                        Source  => Source,
+                        Line    => Line);
+      end if;
 
       Same := Expect_File = Test_File;
       if Same then
          return;
       end if;
+      if Update_Test_Files then
+         Ada.Directories.Copy_File (Source_Name => Test,
+                                    Target_Name => Expect);
+      end if;
+      T.Assert (Condition => False,
+                Message   => Message & ": Content is different on some lines",
+                Source    => Source,
+                Line      => Line);
    end Assert_Equal_Files;
 
    --  ------------------------------
@@ -328,9 +346,11 @@ package body Util.Tests is
                                  Source  : String := GNAT.Source_Info.File;
                                  Line    : Natural := GNAT.Source_Info.Line) is
       use Util.Files;
+      use type Ada.Containers.Count_Type;
+      use type Util.Strings.Vectors.Vector;
 
-      Expect_File : Unbounded_String;
-      Test_File   : Unbounded_String;
+      Expect_File : Util.Strings.Vectors.Vector;
+      Test_File   : Util.Strings.Vectors.Vector;
       Same        : Boolean;
    begin
       begin
@@ -354,18 +374,33 @@ package body Util.Tests is
             end if;
       end;
 
-      --  Check file sizes
-      Assert_Equals (T       => T,
-                     Expect  => Length (Expect_File),
-                     Value   => Length (Test_File),
-                     Message => Message & ": Invalid file sizes",
-                     Source  => Source,
-                     Line    => Line);
+      if Expect_File.Length /= Test_File.Length then
+         if Update_Test_Files then
+            Ada.Directories.Copy_File (Source_Name => Test,
+                                       Target_Name => Expect);
+         end if;
+
+         --  Check file sizes
+         Assert_Equals (T       => T,
+                        Expect  => Natural (Expect_File.Length),
+                        Value   => Natural (Test_File.Length),
+                        Message => Message & ": Invalid number of lines",
+                        Source  => Source,
+                        Line    => Line);
+      end if;
 
       Same := Expect_File = Test_File;
       if Same then
          return;
       end if;
+      if Update_Test_Files then
+         Ada.Directories.Copy_File (Source_Name => Test,
+                                    Target_Name => Expect);
+      end if;
+      Fail (T       => T,
+            Message => Message & ": Content is different on some lines",
+            Source  => Source,
+            Line    => Line);
    end Assert_Equal_Files;
 
    --  ------------------------------
