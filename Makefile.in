@@ -126,15 +126,17 @@ obj/util/static lib/util/static obj/util-aws/static lib/util-aws/static:
 	mkdir -p $@
 
 static:
-	$(MAKE) UTIL_LIBRARY_TYPE=static build
+	$(MAKE) UTIL_LIBRARY_TYPE=static build build-test
 
 shared:
-	$(MAKE) UTIL_LIBRARY_TYPE=relocatable build
+	$(MAKE) UTIL_LIBRARY_TYPE=relocatable build build-test
 
-# Build and run the unit tests
-test:	build regtests/util-testsuite.adb
+build-test: build regtests/util-testsuite.adb
 	$(GNATMAKE) -p -Ptests_proc $(MAKE_ARGS)
 	$(GNATMAKE) -p -Putil_tests $(MAKE_ARGS)
+
+# Build and run the unit tests
+test:	build-test
 	-bin/util_harness -xml util-aunit.xml -timeout ${TEST_TIMEOUT}
 
 regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile
