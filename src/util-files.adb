@@ -84,6 +84,21 @@ package body Util.Files is
    end Read_File;
 
    --  ------------------------------
+   --  Read the file with the given path, one line at a time and append each line to
+   --  the <b>Into</b> vector.
+   --  ------------------------------
+   procedure Read_File (Path  : in String;
+                        Into  : in out Util.Strings.Vectors.Vector) is
+      procedure Append (Line : in String);
+      procedure Append (Line : in String) is
+      begin
+         Into.Append (Line);
+      end Append;
+   begin
+      Read_File (Path, Append'Access);
+   end Read_File;
+
+   --  ------------------------------
    --  Save the string into a file creating the file if necessary
    --  ------------------------------
    procedure Write_File (Path    : in String;
