@@ -54,7 +54,7 @@ package body Util.Commands.Drivers is
                       Name      : in String;
                       Args      : in Argument_List'Class;
                       Context   : in out Context_Type) is
-     procedure Print (Position : in Command_Maps.Cursor);
+      procedure Print (Position : in Command_Maps.Cursor);
 
       procedure Print (Position : in Command_Maps.Cursor) is
          Name : constant String := Command_Maps.Key (Position);
@@ -131,7 +131,7 @@ package body Util.Commands.Drivers is
    end Set_Usage;
 
    --  ------------------------------
-    --  Register the command under the given name.
+   --  Register the command under the given name.
    --  ------------------------------
    procedure Add_Command (Driver  : in out Driver_Type;
                           Name    : in String;
@@ -191,6 +191,7 @@ package body Util.Commands.Drivers is
                   Level   : in Util.Log.Level_Type;
                   Name    : in String;
                   Message : in String) is
+      pragma Unreferenced (Driver);
    begin
       Logs.Print (Level, "{0}: {1}", Name, Message);
    end Log;
