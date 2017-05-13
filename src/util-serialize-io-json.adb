@@ -383,7 +383,8 @@ package body Util.Serialize.IO.JSON is
                                 Name   : in String;
                                 Value  : in Long_Long_Integer) is
    begin
-      Stream.Write_Attribute (Name, Integer (Value));
+      Stream.Write_Field_Name (Name);
+      Stream.Write (Long_Long_Integer'Image (Value));
    end Write_Long_Entity;
 
    overriding
