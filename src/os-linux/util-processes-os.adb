@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -225,11 +225,11 @@ package body Util.Processes.Os is
             Result := Sys_Close (Stdin_Pipes (1));
 
          elsif Sys.In_File /= Null_Ptr then
-            --  Redirect the process input to a file.
+            --  Redirect the process input from a file.
             declare
                Fd : File_Type;
             begin
-               Fd := Sys_Open (Sys.Out_File, O_RDONLY, 8#644#);
+               Fd := Sys_Open (Sys.In_File, O_RDONLY, 8#644#);
                if Fd < 0 then
                   Sys_Exit (254);
                end if;
@@ -334,6 +334,3 @@ package body Util.Processes.Os is
    end Finalize;
 
 end Util.Processes.Os;
-
-
-
