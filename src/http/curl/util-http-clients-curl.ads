@@ -201,5 +201,6 @@ private
                            Size     : in Size_T;
                            Nmemb    : in Size_T;
                            Response : in Curl_Http_Response_Access) return Size_T;
+   pragma Convention (C, Read_Response);
 
 end Util.Http.Clients.Curl;
