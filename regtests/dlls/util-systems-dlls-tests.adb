@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-systems-dlls-tests -- Unit tests for shared libraries
---  Copyright (C) 2013 Stephane Carrez
+--  Copyright (C) 2013, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,7 +48,7 @@ package body Util.Systems.DLLs.Tests is
    function Get_Test_Symbol return String is
    begin
       if Util.Systems.Os.Directory_Separator = '/' then
-         return "EVP_sha";
+         return "EVP_sha1";
       else
          return "compress";
       end if;
