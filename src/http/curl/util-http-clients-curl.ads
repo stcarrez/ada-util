@@ -181,13 +181,17 @@ private
                                     Value  : access C.long) return CURL_Code;
    pragma Import (C, Curl_Easy_Getinfo_Long, "curl_easy_getinfo");
 
+   type Write_Callback_Access is access
+     function (Data  : in Chars_Ptr;
+               Size  : in Size_T;
+               Nmemb : in Size_T;
+               Ptr   : in Curl_Http_Response_Access) return Size_T;
+   pragma Convention (C, Write_Callback_Access);
+
    function Curl_Easy_Setopt_Write_Callback
      (Handle : in CURL;
       Option : in Curl_Option;
-      Func : access function (Data  : in Chars_Ptr;
-                              Size  : in Size_T;
-                              Nmemb : in Size_T;
-                              Ptr   : in Curl_Http_Response_Access) return Size_T)
+      Func   : in Write_Callback_Access)
       return CURL_Code;
    pragma Import (C, Curl_Easy_Setopt_Write_Callback, "curl_easy_setopt");
 
