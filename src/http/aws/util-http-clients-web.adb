@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 
 with AWS.Headers.Set;
-with AWS.Client;
 with AWS.Messages;
 with Util.Log.Loggers;
 package body Util.Http.Clients.Web is
@@ -156,7 +155,8 @@ package body Util.Http.Clients.Web is
       Log.Info ("Get {0}", URI);
 
       Reply.Delegate := Rep.all'Access;
-      Rep.Data       := AWS.Client.Get (URL => URI, Headers => Req.Headers);
+      Rep.Data       := AWS.Client.Get (URL => URI, Headers => Req.Headers,
+                                        Timeouts => Req.Timeouts);
    end Do_Get;
 
    overriding
@@ -174,7 +174,9 @@ package body Util.Http.Clients.Web is
       Log.Info ("Post {0}", URI);
 
       Reply.Delegate := Rep.all'Access;
-      Rep.Data       := AWS.Client.Post (URL => URI, Data => Data, Headers => Req.Headers);
+      Rep.Data       := AWS.Client.Post (URL => URI, Data => Data,
+                                         Headers => Req.Headers,
+                                         Timeouts => Req.Timeouts);
    end Do_Post;
 
    overriding
@@ -192,16 +194,23 @@ package body Util.Http.Clients.Web is
       Log.Info ("Put {0}", URI);
 
       Reply.Delegate := Rep.all'Access;
-      Rep.Data       := AWS.Client.Put (URL => URI, Data => Data, Headers => Req.Headers);
+      Rep.Data       := AWS.Client.Put (URL => URI, Data => Data, Headers => Req.Headers,
+                                        Timeouts => Req.Timeouts);
    end Do_Put;
 
+   --  ------------------------------
    --  Set the timeout for the connection.
+   --  ------------------------------
    overriding
    procedure Set_Timeout (Manager : in AWS_Http_Manager;
                           Http    : in Client'Class;
                           Timeout : in Duration) is
    begin
-      null;
+      AWS_Http_Request'Class (Http.Delegate.all).Timeouts
+         := AWS.Client.Timeouts (Connect  => Timeout,
+                                 Send     => Timeout,
+                                 Receive  => Timeout,
+                                 Response => Timeout);
    end Set_Timeout;
 
    --  ------------------------------
