@@ -35,6 +35,14 @@ package Util.Serialize.IO.CSV is
    type Output_Stream is
      new Util.Streams.Texts.Print_Stream and Util.Serialize.IO.Output_Stream with private;
 
+   --  Set the field separator.  The default field separator is the comma (',').
+   procedure Set_Field_Separator (Stream    : in out Output_Stream;
+                                  Separator : in Character);
+
+   --  Enable or disable the double quotes by default for strings.
+   procedure Set_Quotes (Stream : in out Output_Stream;
+                         Enable : in Boolean);
+
    --  Write the value as a CSV cell.  Special characters are escaped using the CSV
    --  escape rules.
    procedure Write_Cell (Stream : in out Output_Stream;
@@ -172,6 +180,8 @@ private
       Max_Columns : Column_Type := 1;
       Column      : Column_Type := 1;
       Row         : Row_Type := 0;
+      Separator   : Character := ',';
+      Quote       : Boolean := True;
    end record;
 
    type Parser is new Util.Serialize.IO.Parser with record
