@@ -18,6 +18,7 @@
 
 private with AWS.Headers;
 private with AWS.Response;
+private with AWS.Client;
 package Util.Http.Clients.Web is
 
    --  Register the Http manager.
@@ -25,7 +26,9 @@ package Util.Http.Clients.Web is
 
 private
 
-   type AWS_Http_Manager is new Http_Manager with null record;
+   type AWS_Http_Manager is new Http_Manager with record
+      Timeout : Duration := 60.0;
+   end record;
    type AWS_Http_Manager_Access is access all Http_Manager'Class;
 
    procedure Create (Manager  : in AWS_Http_Manager;
@@ -58,7 +61,8 @@ private
                           Timeout : in Duration);
 
    type AWS_Http_Request is new Http_Request with record
-      Headers : AWS.Headers.List;
+      Timeouts : AWS.Client.Timeouts_Values := AWS.Client.No_Timeout;
+      Headers  : AWS.Headers.List;
    end record;
    type AWS_Http_Request_Access is access all AWS_Http_Request'Class;
 
