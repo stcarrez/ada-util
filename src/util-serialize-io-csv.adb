@@ -25,6 +25,24 @@ with Util.Dates.ISO8601;
 package body Util.Serialize.IO.CSV is
 
    --  ------------------------------
+   --  Set the field separator.  The default field separator is the comma (',').
+   --  ------------------------------
+   procedure Set_Field_Separator (Stream    : in out Output_Stream;
+                                  Separator : in Character) is
+   begin
+      Stream.Separator := Separator;
+   end Set_Field_Separator;
+
+   --  ------------------------------
+   --  Enable or disable the double quotes by default for strings.
+   --  ------------------------------
+   procedure Set_Quotes (Stream : in out Output_Stream;
+                         Enable : in Boolean) is
+   begin
+      Stream.Quote := Enable;
+   end Set_Quotes;
+
+   --  ------------------------------
    --  Write the value as a CSV cell.  Special characters are escaped using the CSV
    --  escape rules.
    --  ------------------------------
@@ -32,10 +50,12 @@ package body Util.Serialize.IO.CSV is
                          Value  : in String) is
    begin
       if Stream.Column > 1 then
-         Stream.Write (",");
+         Stream.Write (Stream.Separator);
       end if;
       Stream.Column := Stream.Column + 1;
-      Stream.Write ('"');
+      if Stream.Quote then
+         Stream.Write ('"');
+      end if;
       for I in Value'Range loop
          if Value (I) = '"' then
             Stream.Write ("""""");
@@ -43,14 +63,16 @@ package body Util.Serialize.IO.CSV is
             Stream.Write (Value (I));
          end if;
       end loop;
-      Stream.Write ('"');
+      if Stream.Quote then
+         Stream.Write ('"');
+      end if;
    end Write_Cell;
 
    procedure Write_Cell (Stream : in out Output_Stream;
                          Value  : in Integer) is
    begin
       if Stream.Column > 1 then
-         Stream.Write (",");
+         Stream.Write (Stream.Separator);
       end if;
       Stream.Column := Stream.Column + 1;
       Stream.Write (Util.Strings.Image (Value));
@@ -60,7 +82,7 @@ package body Util.Serialize.IO.CSV is
                          Value  : in Boolean) is
    begin
       if Stream.Column > 1 then
-         Stream.Write (",");
+         Stream.Write (Stream.Separator);
       end if;
       Stream.Column := Stream.Column + 1;
       if Value then
@@ -77,30 +99,34 @@ package body Util.Serialize.IO.CSV is
       case Util.Beans.Objects.Get_Type (Value) is
          when TYPE_NULL =>
             if Stream.Column > 1 then
-               Stream.Write (",");
+               Stream.Write (Stream.Separator);
             end if;
             Stream.Column := Stream.Column + 1;
-            Stream.Write ("""null""");
+            if Stream.Quote then
+               Stream.Write ("""null""");
+            else
+               Stream.Write ("null");
+            end if;
 
          when TYPE_BOOLEAN =>
             if Stream.Column > 1 then
-               Stream.Write (",");
+               Stream.Write (Stream.Separator);
             end if;
             Stream.Column := Stream.Column + 1;
             if Util.Beans.Objects.To_Boolean (Value) then
-               Stream.Write ("""true""");
+               Stream.Write ("true");
             else
-               Stream.Write ("""false""");
+               Stream.Write ("false");
             end if;
 
          when TYPE_INTEGER =>
             if Stream.Column > 1 then
-               Stream.Write (",");
+               Stream.Write (Stream.Separator);
             end if;
             Stream.Column := Stream.Column + 1;
-            Stream.Write ('"');
+            --  Stream.Write ('"');
             Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
-            Stream.Write ('"');
+            --  Stream.Write ('"');
 
          when others =>
             Stream.Write_Cell (Util.Beans.Objects.To_String (Value));
@@ -114,7 +140,7 @@ package body Util.Serialize.IO.CSV is
    procedure New_Row (Stream : in out Output_Stream) is
    begin
       while Stream.Column < Stream.Max_Columns loop
-         Stream.Write (",");
+         Stream.Write (Stream.Separator);
          Stream.Column := Stream.Column + 1;
       end loop;
       Stream.Write (ASCII.CR);
