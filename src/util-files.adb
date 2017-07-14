@@ -332,15 +332,15 @@ package body Util.Files is
          return Directory;
       elsif Directory'Length = 0 then
          return Name;
-      elsif Directory = "." or Directory = "./" then
+      elsif Directory = "." or else Directory = "./" then
          if Name (Name'First) = '/' then
             return Compose (Directory, Name (Name'First + 1 .. Name'Last));
          else
             return Name;
          end if;
-      elsif Directory (Directory'Last) = '/' and Name (Name'First) = '/' then
+      elsif Directory (Directory'Last) = '/' and then Name (Name'First) = '/' then
          return Directory & Name (Name'First + 1 .. Name'Last);
-      elsif Directory (Directory'Last) = '/' or Name (Name'First) = '/' then
+      elsif Directory (Directory'Last) = '/' or else Name (Name'First) = '/' then
          return Directory & Name;
       else
          return Directory & "/" & Name;
