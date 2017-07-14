@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-rfc7231-- RFC7231 date format utilities
---  Copyright (C) 2015 Stephane Carrez
+--  Copyright (C) 2015, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -61,7 +61,8 @@ package body Util.Dates.RFC7231 is
       Sec   : Second_Number;
       Ssec  : Second_Duration;
    begin
-      Split (Date, Year, Month, Day, Hour, Min, Sec, Ssec);
+      Split (Date => Date, Year => Year, Month => Month, Day => Day,
+             Hour => Hour, Minute => Min, Second => Sec, Sub_Second => Ssec);
       Append (Into, Day_Names (Wday));
       Append (Into, ", ");
       Append_Digits (Into, Integer (Day));
