@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Beans.Objects -- Generic Typed Data Representation
---  Copyright (C) 2009, 2010, 2011, 2013 Stephane Carrez
+--  util-beans-objects -- Generic Typed Data Representation
+--  Copyright (C) 2009, 2010, 2011, 2013, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
