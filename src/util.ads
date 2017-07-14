@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util -- Various Utility Packages
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2013 Stephane Carrez
+--  util -- Various Utility Packages
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2013, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
