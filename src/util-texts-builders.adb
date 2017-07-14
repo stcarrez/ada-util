@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-texts-builders -- Text builder
---  Copyright (C) 2013, 2016 Stephane Carrez
+--  Copyright (C) 2013, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -163,7 +163,7 @@ package body Util.Texts.Builders is
          declare
             Result  : Input (1 .. Length);
             Offset  : Natural := Source.Length - Length;
-            B       : Block_Access := Source.First'Unrestricted_Access;
+            B       : access constant Block := Source.First'Access;
             Src_Pos : Positive := 1;
             Dst_Pos : Positive := 1;
             Len     : Natural;
