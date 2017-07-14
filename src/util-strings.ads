@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util-strings -- Various String Utility
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012 Stephane Carrez
+--  util-strings -- Various String Utility
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ with Ada.Strings.Unbounded;
 with Ada.Containers;
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Hashed_Sets;
-with Util.Concurrent.Counters;
+private with Util.Concurrent.Counters;
 package Util.Strings is
 
    pragma Preelaborate;
@@ -115,8 +115,6 @@ private
    type String_Ref is new Ada.Finalization.Controlled with record
       Str : String_Record_Access := null;
    end record;
-
-   pragma Finalize_Storage_Only (String_Ref);
 
    --  Increment the reference counter.
    overriding
