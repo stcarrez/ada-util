@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Concurrent -- Concurrent Counters
---  Copyright (C) 2009, 2010, 2015 Stephane Carrez
+--  util-concurrent -- Concurrent Counters
+--  Copyright (C) 2009, 2010, 2015, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
