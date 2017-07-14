@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util-strings -- Various String Utility
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012 Stephane Carrez
+--  util-strings -- Various String Utility
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -98,10 +98,10 @@ package body Util.Strings is
    --  ------------------------------
    function To_String (S : in String_Ref) return String is
    begin
-      if S.Str /= null then
-         return S.Str.Str;
-      else
+      if S.Str = null then
          return "";
+      else
+         return S.Str.Str;
       end if;
    end To_String;
 
@@ -111,10 +111,10 @@ package body Util.Strings is
    function To_Unbounded_String (S : in String_Ref)
                                  return Ada.Strings.Unbounded.Unbounded_String is
    begin
-      if S.Str /= null then
-         return Ada.Strings.Unbounded.To_Unbounded_String (S.Str.Str);
-      else
+      if S.Str = null then
          return Ada.Strings.Unbounded.Null_Unbounded_String;
+      else
+         return Ada.Strings.Unbounded.To_Unbounded_String (S.Str.Str);
       end if;
    end To_Unbounded_String;
 
@@ -123,10 +123,10 @@ package body Util.Strings is
    --  ------------------------------
    function Hash (Key : String_Ref) return Ada.Containers.Hash_Type is
    begin
-      if Key.Str /= null then
-         return Ada.Strings.Hash (Key.Str.Str);
-      else
+      if Key.Str = null then
          return 0;
+      else
+         return Ada.Strings.Hash (Key.Str.Str);
       end if;
    end Hash;
 
