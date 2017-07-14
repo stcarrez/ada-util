@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  Util.Beans.Objects -- Generic Typed Data Representation
+--  util-beans-objects -- Generic Typed Data Representation
 --  Copyright (C) 2009, 2010, 2011, 2013, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
