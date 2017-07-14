@@ -542,7 +542,7 @@ package body Util.Serialize.IO.JSON is
                      exit when Token = T_RIGHT_BRACKET;
                      if Token /= T_COMMA then
                         P.Error ("Missing ']'");
-			exit when Token = T_EOF;
+                        exit when Token = T_EOF;
                      end if;
                      Index := Index + 1;
                   end loop;
