@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util-strings-maps --  Map of strings
---  Copyright (C) 2010 Stephane Carrez
+--  util-strings-maps --  Map of strings
+--  Copyright (C) 2010, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
