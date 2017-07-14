@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Beans.Basic.Lists -- List bean given access to a vector
---  Copyright (C) 2011, 2013 Stephane Carrez
+--  util-beans-basic-lists -- List bean given access to a vector
+--  Copyright (C) 2011, 2013, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
