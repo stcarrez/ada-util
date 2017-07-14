@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Concurrent.Copies -- Protect concurrent read/writes of a variable
---  Copyright (C) 2011 Stephane Carrez
+--  util-concurrent-copies -- Protect concurrent read/writes of a variable
+--  Copyright (C) 2011, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
