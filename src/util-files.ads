@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  Util.Files -- Various File Utility Packages
+--  util-files -- Various File Utility Packages
 --  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
