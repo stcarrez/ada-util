@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  Util.Files -- Various File Utility Packages
+--  util-files -- Various File Utility Packages
 --  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2015, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -166,7 +166,6 @@ package body Util.Files is
    --  ------------------------------
    function Find_File_Path (Name  : String;
                             Paths : String) return String is
-      use Ada.Directories;
       use Ada.Strings.Fixed;
 
       Sep_Pos : Natural;
@@ -182,6 +181,8 @@ package body Util.Files is
             Sep_Pos := Sep_Pos - 1;
          end if;
          declare
+         use Ada.Directories;
+
             Path : constant String := Util.Files.Compose (Paths (Pos .. Sep_Pos), Name);
          begin
             if Exists (Path) and then Kind (Path) = Ordinary_File then
@@ -299,7 +300,6 @@ package body Util.Files is
       procedure Compose (Dir : in String;
                          Done : out Boolean) is
          use Ada.Directories;
-         use Ada.Strings.Fixed;
 
          Path : constant String := Util.Files.Compose (Dir, Name);
       begin
@@ -333,10 +333,10 @@ package body Util.Files is
       elsif Directory'Length = 0 then
          return Name;
       elsif Directory = "." or Directory = "./" then
-         if Name (Name'First) /= '/' then
-            return Name;
-         else
+         if Name (Name'First) = '/' then
             return Compose (Directory, Name (Name'First + 1 .. Name'Last));
+         else
+            return Name;
          end if;
       elsif Directory (Directory'Last) = '/' and Name (Name'First) = '/' then
          return Directory & Name (Name'First + 1 .. Name'Last);
