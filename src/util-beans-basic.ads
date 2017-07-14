@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Beans.Basic -- Interface Definition with Getter and Setters
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  util-beans-basic -- Interface Definition with Getter and Setters
+--  Copyright (C) 2009, 2010, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,8 +38,8 @@ package Util.Beans.Basic is
 
    --  Get the value identified by the name.
    --  If the name cannot be found, the method should return the Null object.
-   function Get_Value (From : Readonly_Bean;
-                       Name : String) return Util.Beans.Objects.Object is abstract;
+   function Get_Value (From : in Readonly_Bean;
+                       Name : in String) return Util.Beans.Objects.Object is abstract;
 
    --  ------------------------------
    --  Bean interface.
@@ -62,13 +62,13 @@ package Util.Beans.Basic is
    type List_Bean_Access is access all List_Bean'Class;
 
    --  Get the number of elements in the list.
-   function Get_Count (From : List_Bean) return Natural is abstract;
+   function Get_Count (From : in List_Bean) return Natural is abstract;
 
    --  Set the current row index.  Valid row indexes start at 1.
    procedure Set_Row_Index (From  : in out List_Bean;
                             Index : in Natural) is abstract;
 
    --  Get the element at the current row index.
-   function Get_Row (From  : List_Bean) return Util.Beans.Objects.Object is abstract;
+   function Get_Row (From  : in List_Bean) return Util.Beans.Objects.Object is abstract;
 
 end Util.Beans.Basic;
