@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util -- Unit tests for properties
---  Copyright (C) 2009, 2010, 2011, 2014 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2014, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +26,7 @@ with Util.Properties.Basic;
 package body Util.Properties.Tests is
 
    use Ada.Text_IO;
+   use type Ada.Containers.Count_Type;
    use Util.Properties.Basic;
    use Util;
 
@@ -81,9 +82,10 @@ package body Util.Properties.Tests is
       Close (F);
 
       declare
-         Names : constant Name_Array := Get_Names (Props);
+         Names : Util.Strings.Vectors.Vector;
       begin
-         T.Assert (Names'Length > 30,
+         Props.Get_Names (Names);
+         T.Assert (Names.Length > 30,
                    "Loading the test properties returned too few properties");
 
          T.Assert (To_String (Props.Get ("root.dir")) = ".",
@@ -110,9 +112,10 @@ package body Util.Properties.Tests is
       Close (F);
 
       declare
-         Names : constant Name_Array := Get_Names (Props);
+         Names : Util.Strings.Vectors.Vector;
       begin
-         T.Assert (Names'Length > 3,
+         Props.Get_Names (Names);
+         T.Assert (Names.Length > 3,
                    "Loading the test properties returned too few properties");
 
          T.Assert (To_String (Props.Get ("version")) = "0.6",
