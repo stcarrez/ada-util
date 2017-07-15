@@ -20,6 +20,7 @@ with Ada.Finalization;
 with Ada.Text_IO;
 with Util.Beans.Objects;
 with Util.Beans.Basic;
+with Util.Strings.Vectors;
 private with Util.Concurrent.Counters;
 private with Util.Beans.Objects.Maps;
 package Util.Properties is
@@ -123,6 +124,13 @@ package Util.Properties is
    function Get_Names (Self   : in Manager;
                        Prefix : in String := "") return Name_Array;
 
+   --  Collect the name of the properties defined in the manager.
+   --  When a prefix is specified, only the properties starting with the prefix are
+   --  returned.
+   procedure Get_Names (Self   : in Manager;
+                        Into   : in out Util.Strings.Vectors.Vector;
+                        Prefix : in String := "");
+
    --  Load the properties from the file input stream.  The file must follow
    --  the definition of Java property files.  When a prefix is specified, keep
    --  only the properties that starts with the prefix.  When <b>Strip</b> is True,
@@ -166,26 +174,25 @@ private
       end record;
       type Manager_Access is access all Manager'Class;
 
-      type Manager_Factory is access function return Manager_Access;
-
       --  Returns TRUE if the property exists.
-      function Exists (Self : in Manager; Name : in String)
+      function Exists (Self : in Manager;
+                       Name : in String)
                        return Boolean is abstract;
 
       --  Remove the property given its name.
-      procedure Remove (Self : in out Manager; Name : in Value) is abstract;
+      procedure Remove (Self : in out Manager;
+                        Name : in String) is abstract;
 
       --  Iterate over the properties and execute the given procedure passing the
       --  property name and its value.
       procedure Iterate (Self    : in Manager;
-                         Process : access procedure (Name, Item : Value)) is abstract;
+                         Process : access procedure (Name : in String;
+                                                     Item : in Util.Beans.Objects.Object))
+      is abstract;
 
       --  Deep copy of properties stored in 'From' to 'To'.
       function Create_Copy (Self : in Manager)
                             return Manager_Access is abstract;
-
-      function Get_Names (Self   : in Manager;
-                          Prefix : in String) return Name_Array is abstract;
 
    end Interface_P;
 
