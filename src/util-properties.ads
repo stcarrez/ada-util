@@ -22,7 +22,6 @@ with Util.Beans.Objects;
 with Util.Beans.Basic;
 with Util.Strings.Vectors;
 private with Util.Concurrent.Counters;
-private with Util.Beans.Objects.Maps;
 package Util.Properties is
 
    NO_PROPERTY : exception;
@@ -114,15 +113,8 @@ package Util.Properties is
    --  Iterate over the properties and execute the given procedure passing the
    --  property name and its value.
    procedure Iterate (Self    : in Manager'Class;
-                      Process : access procedure (Name, Item : Value));
-
-   type Name_Array is array (Natural range <>) of Value;
-
-   --  Return the name of the properties defined in the manager.
-   --  When a prefix is specified, only the properties starting with
-   --  the prefix are returned.
-   function Get_Names (Self   : in Manager;
-                       Prefix : in String := "") return Name_Array;
+                      Process : access procedure (Name : in String;
+                                                  Item : in Util.Beans.Objects.Object));
 
    --  Collect the name of the properties defined in the manager.
    --  When a prefix is specified, only the properties starting with the prefix are
