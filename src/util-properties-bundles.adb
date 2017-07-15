@@ -60,13 +60,15 @@ package body Util.Properties.Bundles is
 
       --  Remove the property given its name.
       overriding
-      procedure Remove (Self : in out Manager; Name : in Value);
+      procedure Remove (Self : in out Manager;
+                        Name : in String);
 
       --  Iterate over the properties and execute the given procedure passing the
       --  property name and its value.
       overriding
       procedure Iterate (Self    : in Manager;
-                         Process : access procedure (Name, Item : Value));
+                         Process : access procedure (Name : in String;
+                                                     Item : in Util.Beans.Objects.Object));
 
       procedure Load_Properties (Self : in out Manager;
                                  File : in String);
@@ -74,9 +76,6 @@ package body Util.Properties.Bundles is
       --  Deep copy of properties stored in 'From' to 'To'.
       function Create_Copy (Self : in Manager)
                            return Util.Properties.Interface_P.Manager_Access;
-
-      function Get_Names (Self   : in Manager;
-                          Prefix : in String) return Name_Array;
 
       procedure Add_Bundle (Self : in out Manager;
                             Props : in Util.Properties.Manager_Access);
@@ -377,7 +376,8 @@ package body Util.Properties.Bundles is
       --  ------------------------------
       --  Remove the property given its name.
       --  ------------------------------
-      procedure Remove (Self : in out Manager; Name : in Value) is
+      procedure Remove (Self : in out Manager;
+                        Name : in String) is
       begin
          raise NOT_WRITEABLE with "Bundle is readonly";
       end Remove;
@@ -385,7 +385,8 @@ package body Util.Properties.Bundles is
       --  Iterate over the properties and execute the given procedure passing the
       --  property name and its value.
       procedure Iterate (Self    : in Manager;
-                         Process : access procedure (Name, Item : Value)) is
+                         Process : access procedure (Name : in String;
+                                                     Item : in Util.Beans.Objects.Object)) is
       begin
          raise Program_Error with "Iterate is not implemented on Bundle";
       end Iterate;
@@ -399,22 +400,6 @@ package body Util.Properties.Bundles is
       begin
          return null;
       end Create_Copy;
-
-      function Get_Names (Self   : in Manager;
-                          Prefix : in String) return Name_Array is
-         Result : Name_Array (1 .. 2);
-         Iter   : constant Cursor := Self.List.First;
-      begin
-         while Has_Element (Iter) loop
-            declare
-               M : constant Util.Properties.Manager_Access := Element (Iter);
-               N : constant Name_Array := M.Get_Names (Prefix);
-            begin
-               return N;
-            end;
-         end loop;
-         return Result;
-      end Get_Names;
 
       procedure Add_Bundle (Self  : in out Manager;
                             Props : in Util.Properties.Manager_Access) is
