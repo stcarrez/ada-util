@@ -246,7 +246,6 @@ package body Util.Properties is
    procedure Check_And_Create_Impl (Self : in out Manager) is
    begin
       if Self.Impl = null then
-         --  Util.Properties.Factories.Initialize (Self);
          Self.Impl := new Property_Map;
          Util.Concurrent.Counters.Increment (Self.Impl.Count);
       elsif Util.Concurrent.Counters.Value (Self.Impl.Count) > 1 then
@@ -367,15 +366,6 @@ package body Util.Properties is
          end if;
       end if;
    end Finalize;
-
-   procedure Set_Property_Implementation (Self : in out Manager;
-                                          Impl : in Interface_P.Manager_Access) is
-   begin
-      if Self.Impl = null then
-         Self.Impl := Impl;
---           Self.Impl.Count := 1;
-      end if;
-   end Set_Property_Implementation;
 
    procedure Load_Property (Name   : out Unbounded_String;
                             Value  : out Unbounded_String;
