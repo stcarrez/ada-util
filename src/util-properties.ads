@@ -19,6 +19,9 @@ with Ada.Strings.Unbounded;
 with Ada.Finalization;
 with Ada.Text_IO;
 with Util.Concurrent.Counters;
+with Util.Beans.Objects;
+with Util.Beans.Basic;
+private with Util.Beans.Objects.Maps;
 package Util.Properties is
 
    NO_PROPERTY : exception;
@@ -33,8 +36,22 @@ package Util.Properties is
 
    --  The manager holding the name/value pairs and providing the operations
    --  to get and set the properties.
-   type Manager is new Ada.Finalization.Controlled with private;
+   type Manager is new Ada.Finalization.Controlled and Util.Beans.Basic.Bean with private;
    type Manager_Access is access all Manager'Class;
+
+   --  Get the value identified by the name.
+   --  If the name cannot be found, the method should return the Null object.
+   overriding
+   function Get_Value (From : in Manager;
+                       Name : in String) return Util.Beans.Objects.Object;
+
+   --  Set the value identified by the name.
+   --  If the map contains the given name, the value changed.
+   --  Otherwise name is added to the map and the value associated with it.
+   overriding
+   procedure Set_Value (From  : in out Manager;
+                        Name  : in String;
+                        Value : in Util.Beans.Objects.Object);
 
    --  Returns TRUE if the property exists.
    function Exists (Self : in Manager'Class;
@@ -198,7 +215,7 @@ private
    --  Create a property implementation if there is none yet.
    procedure Check_And_Create_Impl (Self : in out Manager);
 
-   type Manager is new Ada.Finalization.Controlled with record
+   type Manager is new Ada.Finalization.Controlled and Util.Beans.Basic.Bean with record
       Impl : Interface_P.Manager_Access := null;
    end record;
 
