@@ -18,6 +18,7 @@
 
 --  with Util.Properties.Factories;
 with Ada.IO_Exceptions;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded.Text_IO;
 with Interfaces.C.Strings;
 with Ada.Unchecked_Deallocation;
@@ -59,22 +60,20 @@ package body Util.Properties is
 
    --  Remove the property given its name.
    overriding
-   procedure Remove (Self : in out Property_Map; Name : in Value);
+   procedure Remove (Self : in out Property_Map;
+                     Name : in String);
 
    --  Iterate over the properties and execute the given procedure passing the
    --  property name and its value.
    overriding
    procedure Iterate (Self    : in Property_Map;
-                      Process : access procedure (Name, Item : Value));
+                      Process : access procedure (Name : in String;
+                                                  Item : in Util.Beans.Objects.Object));
 
    --  Deep copy of properties stored in 'From' to 'To'.
    overriding
    function Create_Copy (Self : in Property_Map)
                          return Interface_P.Manager_Access;
-
-   overriding
-   function Get_Names (Self   : in Property_Map;
-                       Prefix : in String) return Name_Array;
 
    procedure Load_Property (Name   : out Unbounded_String;
                             Value  : out Unbounded_String;
@@ -121,18 +120,24 @@ package body Util.Properties is
    --  Remove the property given its name.
    --  ------------------------------
    overriding
-   procedure Remove (Self : in out Property_Map; Name : in Value) is
+   procedure Remove (Self : in out Property_Map;
+                     Name : in String) is
    begin
-      null;
+      Self.Props.Delete (Name);
    end Remove;
 
    --  Iterate over the properties and execute the given procedure passing the
    --  property name and its value.
    overriding
    procedure Iterate (Self    : in Property_Map;
-                      Process : access procedure (Name, Item : Value)) is
+                      Process : access procedure (Name : in String;
+                                                  Item : in Util.Beans.Objects.Object)) is
+      Iter : Util.Beans.Objects.Maps.Cursor := Self.Props.First;
    begin
-      null;
+      while Util.Beans.Objects.Maps.Has_Element (Iter) loop
+         Util.Beans.Objects.Maps.Query_Element (Iter, Process);
+         Util.Beans.Objects.Maps.Next (Iter);
+      end loop;
    end Iterate;
 
    --  Deep copy of properties stored in 'From' to 'To'.
@@ -144,14 +149,6 @@ package body Util.Properties is
       Result.Props := Self.Props;
       return Result.all'Access;
    end Create_Copy;
-
-   overriding
-   function Get_Names (Self   : in Property_Map;
-                       Prefix : in String) return Name_Array is
-      N : Name_Array (1 .. 0);
-   begin
-      return N;
-   end Get_Names;
 
    --  ------------------------------
    --  Get the value identified by the name.
@@ -306,7 +303,7 @@ package body Util.Properties is
          raise NO_PROPERTY with "No property '" & Name & "'";
       end if;
       Check_And_Create_Impl (Self);
-      Remove (Self.Impl.all, +Name);
+      Remove (Self.Impl.all, Name);
    end Remove;
 
    --  ------------------------------
@@ -326,7 +323,7 @@ package body Util.Properties is
                       Process : access procedure (Name, Item : Value)) is
    begin
       if Self.Impl /= null then
-         Self.Impl.Iterate (Process);
+         null; --  Self.Impl.Iterate (Process);
       end if;
    end Iterate;
 
@@ -337,15 +334,29 @@ package body Util.Properties is
    --  ------------------------------
    function Get_Names (Self  : in Manager;
                        Prefix : in String := "") return Name_Array is
+      Empty : Name_Array (1 .. 0);
    begin
-      if Self.Impl = null then
-         declare
-            Empty : Name_Array (1 .. 0);
-         begin
-            return Empty;
-         end;
-      else
-         return Get_Names (Self.Impl.all, Prefix);
+      return Empty;
+   end Get_Names;
+
+   --  ------------------------------
+   --  Collect the name of the properties defined in the manager.
+   --  When a prefix is specified, only the properties starting with the prefix are
+   --  returned.
+   --  ------------------------------
+   procedure Get_Names (Self   : in Manager;
+                        Into   : in out Util.Strings.Vectors.Vector;
+                        Prefix : in String := "") is
+      procedure Process (Name : in String;
+                         Item : in Util.Beans.Objects.Object) is
+      begin
+         if Prefix'Length = 0 or else Ada.Strings.Fixed.Index (NAme, Prefix) = 1 then
+            Into.Append (Name);
+         end if;
+      end Process;
+   begin
+      if Self.Impl /= null then
+         Self.Impl.Iterate (Process'Access);
       end if;
    end Get_Names;
 
@@ -481,26 +492,16 @@ package body Util.Properties is
                    From   : in Manager'Class;
                    Prefix : in String := "";
                    Strip  : in Boolean := False) is
-      Names : constant Name_Array := From.Get_Names;
+      Names : Util.Strings.Vectors.Vector;
    begin
-      for I in Names'Range loop
-         declare
-            Name : Unbounded_String renames Names (I);
-         begin
-            if Prefix'Length = 0 or else Index (Name, Prefix) = 1 then
-               if Strip and Prefix'Length > 0 then
-                  declare
-                     S : constant String := Slice (Name, Prefix'Length + 1, Length (Name));
-                  begin
-                     Self.Set (+(S), From.Get (Name));
-                  end;
-               else
-                  Self.Set (Name, From.Get (Name));
-               end if;
-            end if;
-         end;
+      From.Get_Names (Names, Prefix);
+      for Name of Names loop
+         if Strip and Prefix'Length > 0 then
+            Self.Set_Value (Name (Name'First + Prefix'Length .. Name'Last), From.Get_Value (Name));
+         else
+            Self.Set_Value (Name, From.Get_Value (Name));
+         end if;
       end loop;
-
    end Copy;
 
 end Util.Properties;
