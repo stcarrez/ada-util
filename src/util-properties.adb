@@ -16,12 +16,12 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
---  with Util.Properties.Factories;
 with Ada.IO_Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded.Text_IO;
 with Interfaces.C.Strings;
 with Ada.Unchecked_Deallocation;
+with Util.Beans.Objects.Maps;
 package body Util.Properties is
 
    use Ada.Text_IO;
@@ -126,8 +126,10 @@ package body Util.Properties is
       Self.Props.Delete (Name);
    end Remove;
 
+   --  ------------------------------
    --  Iterate over the properties and execute the given procedure passing the
    --  property name and its value.
+   --  ------------------------------
    overriding
    procedure Iterate (Self    : in Property_Map;
                       Process : access procedure (Name : in String;
@@ -140,11 +142,13 @@ package body Util.Properties is
       end loop;
    end Iterate;
 
+   --  ------------------------------
    --  Deep copy of properties stored in 'From' to 'To'.
+   --  ------------------------------
    overriding
    function Create_Copy (Self : in Property_Map)
                          return Interface_P.Manager_Access is
-      Result : Property_Map_Access := new Property_Map;
+      Result : constant Property_Map_Access := new Property_Map;
    begin
       Result.Props := Self.Props;
       return Result.all'Access;
@@ -222,11 +226,7 @@ package body Util.Properties is
    function Get (Self : in Manager'Class;
                  Name : in Value) return String is
    begin
-      if Self.Impl = null then
-         raise NO_PROPERTY;
-      end if;
-
-      return To_String (Self.Get_Value (-Name));
+      return Self.Get (-Name);
    end Get;
 
    function Get (Self : in Manager'Class;
@@ -320,24 +320,13 @@ package body Util.Properties is
    --  property name and its value.
    --  ------------------------------
    procedure Iterate (Self    : in Manager'Class;
-                      Process : access procedure (Name, Item : Value)) is
+                      Process : access procedure (Name : in String;
+                                                  Item : in Util.Beans.Objects.Object)) is
    begin
       if Self.Impl /= null then
-         null; --  Self.Impl.Iterate (Process);
+         Self.Impl.Iterate (Process);
       end if;
    end Iterate;
-
-   --  ------------------------------
-   --  Return the name of the properties defined in the manager.
-   --  When a prefix is specified, only the properties starting with
-   --  the prefix are returned.
-   --  ------------------------------
-   function Get_Names (Self  : in Manager;
-                       Prefix : in String := "") return Name_Array is
-      Empty : Name_Array (1 .. 0);
-   begin
-      return Empty;
-   end Get_Names;
 
    --  ------------------------------
    --  Collect the name of the properties defined in the manager.
@@ -348,9 +337,13 @@ package body Util.Properties is
                         Into   : in out Util.Strings.Vectors.Vector;
                         Prefix : in String := "") is
       procedure Process (Name : in String;
+                         Item : in Util.Beans.Objects.Object);
+
+      procedure Process (Name : in String;
                          Item : in Util.Beans.Objects.Object) is
+         pragma Unreferenced (Item);
       begin
-         if Prefix'Length = 0 or else Ada.Strings.Fixed.Index (NAme, Prefix) = 1 then
+         if Prefix'Length = 0 or else Ada.Strings.Fixed.Index (Name, Prefix) = 1 then
             Into.Append (Name);
          end if;
       end Process;
@@ -445,16 +438,18 @@ package body Util.Properties is
    procedure Save_Properties (Self   : in out Manager'Class;
                               Path   : in String;
                               Prefix : in String := "") is
-      procedure Save_Property (Name, Item : in Value);
+      procedure Save_Property (Name : in String;
+                               Item : in Util.Beans.Objects.Object);
 
       Tmp : constant String := Path & ".tmp";
       F : File_Type;
 
-      procedure Save_Property (Name, Item : in Value) is
+      procedure Save_Property (Name : in String;
+                               Item : in Util.Beans.Objects.Object) is
       begin
          Put (F, Name);
          Put (F, "=");
-         Put (F, Item);
+         Put (F, Util.Beans.Objects.To_String (Item));
          New_Line (F);
       end Save_Property;
 
