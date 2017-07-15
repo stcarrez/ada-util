@@ -16,61 +16,184 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Util.Properties.Factories;
+--  with Util.Properties.Factories;
 with Ada.IO_Exceptions;
 with Ada.Strings.Unbounded.Text_IO;
 with Interfaces.C.Strings;
+with Ada.Unchecked_Deallocation;
 package body Util.Properties is
 
    use Ada.Text_IO;
    use Ada.Strings.Unbounded.Text_IO;
    use Interface_P;
+   use Util.Beans.Objects;
+
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Object => Interface_P.Manager'Class,
+                                     Name   => Interface_P.Manager_Access);
+
+   type Property_Map is new Interface_P.Manager with record
+      Props : Util.Beans.Objects.Maps.Map_Bean;
+   end record;
+   type Property_Map_Access is access all Property_Map;
+
+   --  Get the value identified by the name.
+   --  If the name cannot be found, the method should return the Null object.
+   overriding
+   function Get_Value (From : in Property_Map;
+                       Name : in String) return Util.Beans.Objects.Object;
+
+   --  Set the value identified by the name.
+   --  If the map contains the given name, the value changed.
+   --  Otherwise name is added to the map and the value associated with it.
+   overriding
+   procedure Set_Value (From  : in out Property_Map;
+                        Name  : in String;
+                        Value : in Util.Beans.Objects.Object);
+
+   --  Returns TRUE if the property exists.
+   overriding
+   function Exists (Self : in Property_Map;
+                    Name : in String)
+                    return Boolean;
+
+   --  Remove the property given its name.
+   overriding
+   procedure Remove (Self : in out Property_Map; Name : in Value);
+
+   --  Iterate over the properties and execute the given procedure passing the
+   --  property name and its value.
+   overriding
+   procedure Iterate (Self    : in Property_Map;
+                      Process : access procedure (Name, Item : Value));
+
+   --  Deep copy of properties stored in 'From' to 'To'.
+   overriding
+   function Create_Copy (Self : in Property_Map)
+                         return Interface_P.Manager_Access;
+
+   overriding
+   function Get_Names (Self   : in Property_Map;
+                       Prefix : in String) return Name_Array;
 
    procedure Load_Property (Name   : out Unbounded_String;
                             Value  : out Unbounded_String;
                             File   : in File_Type;
                             Prefix : in String := "";
                             Strip  : in Boolean := False);
+
+   --  ------------------------------
    --  Get the value identified by the name.
    --  If the name cannot be found, the method should return the Null object.
+   --  ------------------------------
+   overriding
+   function Get_Value (From : in Property_Map;
+                       Name : in String) return Util.Beans.Objects.Object is
+   begin
+      return From.Props.Get_Value (Name);
+   end Get_Value;
+
+   --  ------------------------------
+   --  Set the value identified by the name.
+   --  If the map contains the given name, the value changed.
+   --  Otherwise name is added to the map and the value associated with it.
+   --  ------------------------------
+   overriding
+   procedure Set_Value (From  : in out Property_Map;
+                        Name  : in String;
+                        Value : in Util.Beans.Objects.Object) is
+   begin
+      From.Props.Set_Value (Name, Value);
+   end Set_Value;
+
+   --  ------------------------------
+   --  Returns TRUE if the property exists.
+   --  ------------------------------
+   overriding
+   function Exists (Self : in Property_Map;
+                    Name : in String)
+                    return Boolean is
+   begin
+      return Self.Props.Contains (Name);
+   end Exists;
+
+   --  ------------------------------
+   --  Remove the property given its name.
+   --  ------------------------------
+   overriding
+   procedure Remove (Self : in out Property_Map; Name : in Value) is
+   begin
+      null;
+   end Remove;
+
+   --  Iterate over the properties and execute the given procedure passing the
+   --  property name and its value.
+   overriding
+   procedure Iterate (Self    : in Property_Map;
+                      Process : access procedure (Name, Item : Value)) is
+   begin
+      null;
+   end Iterate;
+
+   --  Deep copy of properties stored in 'From' to 'To'.
+   overriding
+   function Create_Copy (Self : in Property_Map)
+                         return Interface_P.Manager_Access is
+      Result : Property_Map_Access := new Property_Map;
+   begin
+      Result.Props := Self.Props;
+      return Result.all'Access;
+   end Create_Copy;
+
+   overriding
+   function Get_Names (Self   : in Property_Map;
+                       Prefix : in String) return Name_Array is
+      N : Name_Array (1 .. 0);
+   begin
+      return N;
+   end Get_Names;
+
+   --  ------------------------------
+   --  Get the value identified by the name.
+   --  If the name cannot be found, the method should return the Null object.
+   --  ------------------------------
    overriding
    function Get_Value (From : in Manager;
                        Name : in String) return Util.Beans.Objects.Object is
    begin
-      return Util.Beans.Objects.Null_Object;
+      if From.Impl = null then
+         return Util.Beans.Objects.Null_Object;
+      else
+         return From.Impl.Get_Value (Name);
+      end if;
    end Get_Value;
 
+   --  ------------------------------
    --  Set the value identified by the name.
    --  If the map contains the given name, the value changed.
    --  Otherwise name is added to the map and the value associated with it.
+   --  ------------------------------
    overriding
    procedure Set_Value (From  : in out Manager;
                         Name  : in String;
                         Value : in Util.Beans.Objects.Object) is
    begin
-      null;
+      Check_And_Create_Impl (From);
+      From.Impl.Set_Value (Name, Value);
    end Set_Value;
 
    function Exists (Self : in Manager'Class;
                     Name : in String) return Boolean is
    begin
       --  There is not yet an implementation, no property
-      if Self.Impl = null then
-         return False;
-      end if;
-
-      return Exists (Self.Impl.all, +Name);
+      return Self.Impl /= null and then Self.Impl.Exists (Name);
    end Exists;
 
    function Exists (Self : in Manager'Class;
                     Name : in Value) return Boolean is
    begin
       --  There is not yet an implementation, no property
-      if Self.Impl = null then
-         return False;
-      end if;
-
-      return Exists (Self.Impl.all, Name);
+      return Self.Impl /= null and then Self.Impl.Exists (-Name);
    end Exists;
 
    function Get (Self : in Manager'Class;
@@ -80,17 +203,13 @@ package body Util.Properties is
          raise NO_PROPERTY with "No property: '" & Name & "'";
       end if;
 
-      return Get (Self.Impl.all, +Name);
+      return Value (To_Unbounded_String (Self.Impl.Get_Value (Name)));
    end Get;
 
    function Get (Self : in Manager'Class;
                  Name : in Value) return Value is
    begin
-      if Self.Impl = null then
-         raise NO_PROPERTY with "No property: '" & To_String (Name) & "'";
-      end if;
-
-      return Get (Self.Impl.all, Name);
+      return Self.Get (-Name);
    end Get;
 
    function Get (Self : in Manager'Class;
@@ -100,7 +219,7 @@ package body Util.Properties is
          raise NO_PROPERTY with "No property: '" & Name & "'";
       end if;
 
-      return -Get (Self.Impl.all, +Name);
+      return To_String (Self.Impl.Get_Value (Name));
    end Get;
 
    function Get (Self : in Manager'Class;
@@ -110,16 +229,15 @@ package body Util.Properties is
          raise NO_PROPERTY;
       end if;
 
-      return -Get (Self.Impl.all, Name);
+      return To_String (Self.Get_Value (-Name));
    end Get;
 
    function Get (Self : in Manager'Class;
                  Name : in String;
                  Default : in String) return String is
-      Prop_Name : constant Value := +Name;
    begin
-      if Exists (Self, Prop_Name) then
-         return Get (Self, Prop_Name);
+      if Exists (Self, Name) then
+         return Get (Self, Name);
       else
          return Default;
       end if;
@@ -128,7 +246,9 @@ package body Util.Properties is
    procedure Check_And_Create_Impl (Self : in out Manager) is
    begin
       if Self.Impl = null then
-         Util.Properties.Factories.Initialize (Self);
+         --  Util.Properties.Factories.Initialize (Self);
+         Self.Impl := new Property_Map;
+         Util.Concurrent.Counters.Increment (Self.Impl.Count);
       elsif Util.Concurrent.Counters.Value (Self.Impl.Count) > 1 then
          declare
             Old     : Interface_P.Manager_Access := Self.Impl;
@@ -138,19 +258,11 @@ package body Util.Properties is
             Util.Concurrent.Counters.Increment (Self.Impl.Count);
             Util.Concurrent.Counters.Decrement (Old.Count, Is_Zero);
             if Is_Zero then
-               Delete (Old.all, Old);
+               Free (Old);
             end if;
          end;
       end if;
    end Check_And_Create_Impl;
-
-   procedure Insert (Self : in out Manager'Class;
-                     Name : in String;
-                     Item : in String) is
-   begin
-      Check_And_Create_Impl (Self);
-      Insert (Self.Impl.all, +Name, +Item);
-   end Insert;
 
    --  ------------------------------
    --  Set the value of the property.  The property is created if it
@@ -160,8 +272,7 @@ package body Util.Properties is
                   Name : in String;
                   Item : in String) is
    begin
-      Check_And_Create_Impl (Self);
-      Set (Self.Impl.all, +Name, +Item);
+      Self.Set_Value (Name, To_Object (Item));
    end Set;
 
    --  ------------------------------
@@ -172,8 +283,7 @@ package body Util.Properties is
                   Name : in String;
                   Item : in Value) is
    begin
-      Check_And_Create_Impl (Self);
-      Set (Self.Impl.all, +Name, Item);
+      Self.Set_Value (Name, To_Object (Item));
    end Set;
 
    --  ------------------------------
@@ -184,8 +294,7 @@ package body Util.Properties is
                   Name : in Unbounded_String;
                   Item : in Value) is
    begin
-      Check_And_Create_Impl (Self);
-      Set (Self.Impl.all, Name, Item);
+      Self.Set_Value (-Name, To_Object (Item));
    end Set;
 
    --  ------------------------------
@@ -195,7 +304,7 @@ package body Util.Properties is
                      Name : in String) is
    begin
       if Self.Impl = null then
-         raise NO_PROPERTY;
+         raise NO_PROPERTY with "No property '" & Name & "'";
       end if;
       Check_And_Create_Impl (Self);
       Remove (Self.Impl.all, +Name);
@@ -207,11 +316,7 @@ package body Util.Properties is
    procedure Remove (Self : in out Manager'Class;
                      Name : in Value) is
    begin
-      if Self.Impl = null then
-         raise NO_PROPERTY;
-      end if;
-      Check_And_Create_Impl (Self);
-      Remove (Self.Impl.all, Name);
+      Self.Remove (-Name);
    end Remove;
 
    --  ------------------------------
@@ -258,7 +363,7 @@ package body Util.Properties is
       if Object.Impl /= null then
          Util.Concurrent.Counters.Decrement (Object.Impl.Count, Is_Zero);
          if Is_Zero then
-            Delete (Object.Impl.all, Object.Impl);
+            Free (Object.Impl);
          end if;
       end if;
    end Finalize;
