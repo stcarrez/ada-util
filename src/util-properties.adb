@@ -31,6 +31,25 @@ package body Util.Properties is
                             File   : in File_Type;
                             Prefix : in String := "";
                             Strip  : in Boolean := False);
+   --  Get the value identified by the name.
+   --  If the name cannot be found, the method should return the Null object.
+   overriding
+   function Get_Value (From : in Manager;
+                       Name : in String) return Util.Beans.Objects.Object is
+   begin
+      return Util.Beans.Objects.Null_Object;
+   end Get_Value;
+
+   --  Set the value identified by the name.
+   --  If the map contains the given name, the value changed.
+   --  Otherwise name is added to the map and the value associated with it.
+   overriding
+   procedure Set_Value (From  : in out Manager;
+                        Name  : in String;
+                        Value : in Util.Beans.Objects.Object) is
+   begin
+      null;
+   end Set_Value;
 
    function Exists (Self : in Manager'Class;
                     Name : in String) return Boolean is
