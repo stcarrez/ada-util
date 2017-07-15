@@ -189,9 +189,6 @@ private
 
    end Interface_P;
 
-   procedure Set_Property_Implementation (Self : in out Manager;
-                                          Impl : in Interface_P.Manager_Access);
-
    --  Create a property implementation if there is none yet.
    procedure Check_And_Create_Impl (Self : in out Manager);
 
