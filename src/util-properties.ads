@@ -184,9 +184,6 @@ private
       function Create_Copy (Self : in Manager)
                             return Manager_Access is abstract;
 
-      procedure Delete (Self : in Manager; Obj : in out Manager_Access)
-        is abstract;
-
       function Get_Names (Self   : in Manager;
                           Prefix : in String) return Name_Array is abstract;
 
