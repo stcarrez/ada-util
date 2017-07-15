@@ -18,9 +18,9 @@
 with Ada.Strings.Unbounded;
 with Ada.Finalization;
 with Ada.Text_IO;
-with Util.Concurrent.Counters;
 with Util.Beans.Objects;
 with Util.Beans.Basic;
+private with Util.Concurrent.Counters;
 private with Util.Beans.Objects.Maps;
 package Util.Properties is
 
@@ -81,11 +81,6 @@ package Util.Properties is
    function Get (Self : in Manager'Class;
                  Name : in String;
                  Default : in String) return String;
-
-   --  Insert the specified property in the list.
-   procedure Insert (Self : in out Manager'Class;
-                     Name : in String;
-                     Item : in String);
 
    --  Set the value of the property.  The property is created if it
    --  does not exists.
@@ -166,7 +161,7 @@ private
    --  (this allows to decouples the implementation from the API)
    package Interface_P is
 
-      type Manager is abstract tagged limited record
+      type Manager is abstract limited new Util.Beans.Basic.Bean with record
          Count : Util.Concurrent.Counters.Counter;
       end record;
       type Manager_Access is access all Manager'Class;
@@ -174,20 +169,8 @@ private
       type Manager_Factory is access function return Manager_Access;
 
       --  Returns TRUE if the property exists.
-      function Exists (Self : in Manager; Name : in Value)
+      function Exists (Self : in Manager; Name : in String)
                        return Boolean is abstract;
-
-      --  Returns the property value.  Raises an exception if not found.
-      function Get (Self : in Manager; Name : in Value)
-                    return Value is abstract;
-
-      procedure Insert (Self : in out Manager; Name : in Value;
-                        Item : in Value) is abstract;
-
-      --  Set the value of the property.  The property is created if it
-      --  does not exists.
-      procedure Set (Self : in out Manager; Name : in Value;
-                     Item : in Value) is abstract;
 
       --  Remove the property given its name.
       procedure Remove (Self : in out Manager; Name : in Value) is abstract;
