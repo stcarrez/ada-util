@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,27 +38,33 @@ package body Util.Properties.Bundles is
       type Manager is new Util.Properties.Interface_P.Manager with private;
       type Manager_Object_Access is access all Manager;
 
+      --  Get the value identified by the name.
+      --  If the name cannot be found, the method should return the Null object.
+      overriding
+      function Get_Value (From : in Manager;
+                          Name : in String) return Util.Beans.Objects.Object;
+
+      --  Set the value identified by the name.
+      --  If the map contains the given name, the value changed.
+      --  Otherwise name is added to the map and the value associated with it.
+      overriding
+      procedure Set_Value (From  : in out Manager;
+                           Name  : in String;
+                           Value : in Util.Beans.Objects.Object);
+
       --  Returns TRUE if the property exists.
-      function Exists (Self : in Manager; Name : in Value)
+      overriding
+      function Exists (Self : in Manager;
+                       Name : in String)
                        return Boolean;
 
-      --  Returns the property value.  Raises an exception if not found.
-      function Get (Self : in Manager; Name : in Value)
-                    return Value;
-
-      procedure Insert (Self : in out Manager; Name : in Value;
-                        Item : in Value);
-
-      --  Set the value of the property.  The property is created if it
-      --  does not exists.
-      procedure Set (Self : in out Manager; Name : in Value;
-                     Item : in Value);
-
       --  Remove the property given its name.
+      overriding
       procedure Remove (Self : in out Manager; Name : in Value);
 
       --  Iterate over the properties and execute the given procedure passing the
       --  property name and its value.
+      overriding
       procedure Iterate (Self    : in Manager;
                          Process : access procedure (Name, Item : Value));
 
@@ -68,9 +74,6 @@ package body Util.Properties.Bundles is
       --  Deep copy of properties stored in 'From' to 'To'.
       function Create_Copy (Self : in Manager)
                            return Util.Properties.Interface_P.Manager_Access;
-
-      procedure Delete (Self : in Manager;
-                        Obj : in out Util.Properties.Interface_P.Manager_Access);
 
       function Get_Names (Self   : in Manager;
                           Prefix : in String) return Name_Array;
@@ -314,10 +317,42 @@ package body Util.Properties.Bundles is
    package body Interface_P is
       use PropertyList;
 
+      --  Get the value identified by the name.
+      --  If the name cannot be found, the method should return the Null object.
+      overriding
+      function Get_Value (From : in Manager;
+                          Name : in String) return Util.Beans.Objects.Object is
+         Result : Util.Beans.Objects.Object := From.Props.Get_Value (Name);
+      begin
+         if Util.Beans.Objects.Is_Null (Result) then
+            declare
+               Iter : Cursor := From.List.First;
+            begin
+               while Has_Element (Iter) loop
+                  Result := Element (Iter).all.Get_Value (Name);
+                  exit when not Util.Beans.Objects.Is_Null (Result);
+                  Iter := Next (Iter);
+               end loop;
+            end;
+         end if;
+         return Result;
+      end Get_Value;
+
+      --  Set the value identified by the name.
+      --  If the map contains the given name, the value changed.
+      --  Otherwise name is added to the map and the value associated with it.
+      overriding
+      procedure Set_Value (From  : in out Manager;
+                           Name  : in String;
+                           Value : in Util.Beans.Objects.Object) is
+      begin
+         raise NOT_WRITEABLE with "Bundle is readonly";
+      end Set_Value;
+
       --  ------------------------------
       --  Returns TRUE if the property exists.
       --  ------------------------------
-      function Exists (Self : in Manager; Name : in Value)
+      function Exists (Self : in Manager; Name : in String)
                       return Boolean is
          Iter : Cursor := Self.List.First;
       begin
@@ -333,57 +368,11 @@ package body Util.Properties.Bundles is
          return False;
       end Exists;
 
-      --  ------------------------------
-      --  Returns the property value.  Raises an exception if not found.
-      --  ------------------------------
-      function Get (Self : in Manager; Name : in Value)
-                   return Value is
-      begin
-         return Self.Props.Get (Name);
-
-      exception
-         when NO_PROPERTY =>
-            declare
-               Iter : Cursor := Self.List.First;
-            begin
-               while Has_Element (Iter) loop
-                  begin
-                     return Element (Iter).all.Get (Name);
-                  exception
-                     when NO_PROPERTY =>
-                        Iter := Next (Iter);
-                  end;
-               end loop;
-            end;
-            raise;
-      end Get;
-
       procedure Load_Properties (Self : in out Manager;
                                  File : in String) is
       begin
          Self.Props.Load_Properties (File);
       end Load_Properties;
-
-      procedure Insert (Self : in out Manager;
-                        Name : in Value;
-                        Item : in Value) is
-         pragma Unreferenced (Self);
-         pragma Unreferenced (Name);
-         pragma Unreferenced (Item);
-      begin
-         raise NOT_WRITEABLE with "Bundle is readonly";
-      end Insert;
-
-      --  ------------------------------
-      --  Set the value of the property.  The property is created if it
-      --  does not exists.
-      --  ------------------------------
-      procedure Set (Self : in out Manager;
-                     Name : in Value;
-                     Item : in Value) is
-      begin
-         raise NOT_WRITEABLE with "Bundle is readonly";
-      end Set;
 
       --  ------------------------------
       --  Remove the property given its name.
@@ -410,14 +399,6 @@ package body Util.Properties.Bundles is
       begin
          return null;
       end Create_Copy;
-
-      procedure Delete (Self : in Manager;
-                        Obj : in out Util.Properties.Interface_P.Manager_Access) is
-         pragma Unreferenced (Self);
-         Item : Manager_Object_Access := Manager (Obj.all)'Access;
-      begin
-         Free (Item);
-      end Delete;
 
       function Get_Names (Self   : in Manager;
                           Prefix : in String) return Name_Array is
