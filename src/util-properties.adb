@@ -75,12 +75,6 @@ package body Util.Properties is
    function Create_Copy (Self : in Property_Map)
                          return Interface_P.Manager_Access;
 
-   procedure Load_Property (Name   : out Unbounded_String;
-                            Value  : out Unbounded_String;
-                            File   : in File_Type;
-                            Prefix : in String := "";
-                            Strip  : in Boolean := False);
-
    --  ------------------------------
    --  Get the value identified by the name.
    --  If the name cannot be found, the method should return the Null object.
@@ -199,12 +193,13 @@ package body Util.Properties is
 
    function Get (Self : in Manager'Class;
                  Name : in String) return Unbounded_String is
+      Value : constant Util.Beans.Objects.Object := Self.Get_Value (Name);
    begin
-      if Self.Impl = null then
+      if Util.Beans.Objects.Is_Null (Value) then
          raise NO_PROPERTY with "No property: '" & Name & "'";
       end if;
 
-      return To_Unbounded_String (Self.Impl.Get_Value (Name));
+      return To_Unbounded_String (Value);
    end Get;
 
    function Get (Self : in Manager'Class;
@@ -257,12 +252,30 @@ package body Util.Properties is
       return Manager (Bean.all);
    end Get;
 
+   --  ------------------------------
+   --  Create a property manager and associated it with the given name.
+   --  ------------------------------
+   function Create (Self : in out Manager'Class;
+                    Name : in String) return Manager is
+      Result : Manager_Access;
+   begin
+      Check_And_Create_Impl (Self);
+
+      --  Create the property manager and make it shared so that it can be populated by
+      --  the caller.
+      Result := new Manager;
+      Check_And_Create_Impl (Result.all);
+      Result.Impl.Shared := True;
+      Self.Impl.Set_Value (Name, Util.Beans.Objects.To_Object (Result.all'Access));
+      return Manager (Result.all);
+   end Create;
+
    procedure Check_And_Create_Impl (Self : in out Manager) is
    begin
       if Self.Impl = null then
          Self.Impl := new Property_Map;
          Util.Concurrent.Counters.Increment (Self.Impl.Count);
-      elsif Util.Concurrent.Counters.Value (Self.Impl.Count) > 1 then
+      elsif not Self.Impl.Shared and Util.Concurrent.Counters.Value (Self.Impl.Count) > 1 then
          declare
             Old     : Interface_P.Manager_Access := Self.Impl;
             Is_Zero : Boolean;
@@ -390,50 +403,54 @@ package body Util.Properties is
       end if;
    end Finalize;
 
-   procedure Load_Property (Name   : out Unbounded_String;
-                            Value  : out Unbounded_String;
-                            File   : in File_Type;
-                            Prefix : in String := "";
-                            Strip  : in Boolean := False) is
-      pragma Unreferenced (Strip);
-
-      Line : Unbounded_String;
-      Pos  : Natural;
-      Len  : Natural;
-   begin
-      while not End_Of_File (File) loop
-         Line := Get_Line (File);
-         Len  := Length (Line);
-         if Len /= 0 and then Element (Line, 1) /= '#' then
-            Pos := Index (Line, "=");
-            if Pos > 0 and then Prefix'Length > 0 and then Index (Line, Prefix) = 1 then
-               Name  := Unbounded_Slice (Line, Prefix'Length + 1, Pos - 1);
-               Value := Tail (Line, Len - Pos);
-               return;
-
-            elsif Pos > 0 and Prefix'Length = 0 then
-               Name  := Head (Line, Pos - 1);
-               Value := Tail (Line, Len - Pos);
-               return;
-
-            end if;
-         end if;
-      end loop;
-      Name := Null_Unbounded_String;
-      Value := Null_Unbounded_String;
-   end Load_Property;
-
    procedure Load_Properties (Self   : in out Manager'Class;
                               File   : in File_Type;
                               Prefix : in String := "";
                               Strip  : in Boolean := False) is
-      Name, Value : Unbounded_String;
+      Line    : Unbounded_String;
+      Name    : Unbounded_String;
+      Value   : Unbounded_String;
+      Current : Manager;
+      Pos     : Natural;
+      Len     : Natural;
+      Old_Shared : Boolean;
    begin
-      loop
-         Load_Property (Name, Value, File, Prefix, Strip);
-         exit when Name = Null_Unbounded_String;
-         Set (Self, Name, Value);
+      Check_And_Create_Impl (Self);
+      Current := Manager (Self);
+      Old_Shared := Current.Impl.Shared;
+      Current.Impl.Shared := True;
+      while not End_Of_File (File) loop
+         Line := Get_Line (File);
+         Len  := Length (Line);
+         if Len /= 0 then
+            case Element (Line, 1) is
+               when '!' | '#' =>
+                  null;
+
+               when '[' =>
+                  Pos := Index (Line, "]");
+                  if Pos > 0 then
+                     Current := Self.Create (To_String (Unbounded_Slice (Line, 2, Pos - 1)));
+                  end if;
+
+               when others =>
+                  Pos := Index (Line, "=");
+                  if Pos > 0 and then Prefix'Length > 0 and then Index (Line, Prefix) = 1 then
+                     Name  := Unbounded_Slice (Line, Prefix'Length + 1, Pos - 1);
+                     Value := Tail (Line, Len - Pos);
+                     Current.Set (Name, Value);
+
+                  elsif Pos > 0 and Prefix'Length = 0 then
+                     Name  := Head (Line, Pos - 1);
+                     Value := Tail (Line, Len - Pos);
+                     Current.Set (Name, Value);
+
+                  end if;
+
+            end case;
+         end if;
       end loop;
+      Self.Impl.Shared := Old_Shared;
 
    exception
       when End_Error =>
@@ -528,7 +545,7 @@ package body Util.Properties is
       end Process;
 
    begin
-      Self.Iterate (Process'Access);
+      From.Iterate (Process'Access);
    end Copy;
 
 end Util.Properties;
