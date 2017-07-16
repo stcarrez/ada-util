@@ -373,6 +373,16 @@ package body Util.Properties is
    end To_Manager;
 
    --  ------------------------------
+   --  Returns True if the item value represents a property manager.
+   --  ------------------------------
+   function Is_Manager (Item : in Value) return Boolean is
+      Bean  : constant access Util.Beans.Basic.Readonly_Bean'Class
+        := Util.Beans.Objects.To_Bean (Item);
+   begin
+      return Bean /= null and then (Bean.all in Manager'Class);
+   end Is_Manager;
+
+   --  ------------------------------
    --  Collect the name of the properties defined in the manager.
    --  When a prefix is specified, only the properties starting with the prefix are
    --  returned.
