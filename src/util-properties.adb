@@ -19,6 +19,7 @@
 with Ada.IO_Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded.Text_IO;
+with Ada.Strings.Maps;
 with Interfaces.C.Strings;
 with Ada.Unchecked_Deallocation;
 with Util.Beans.Objects.Maps;
@@ -32,6 +33,9 @@ package body Util.Properties is
    procedure Free is
      new Ada.Unchecked_Deallocation (Object => Interface_P.Manager'Class,
                                      Name   => Interface_P.Manager_Access);
+
+   Trim_Chars : constant Ada.Strings.Maps.Character_Set
+     := Ada.Strings.Maps.To_Set (" " & ASCII.HT);
 
    type Property_Map is new Interface_P.Manager with record
       Props : Util.Beans.Objects.Maps.Map_Bean;
@@ -462,11 +466,15 @@ package body Util.Properties is
                   if Pos > 0 and then Prefix'Length > 0 and then Index (Line, Prefix) = 1 then
                      Name  := Unbounded_Slice (Line, Prefix'Length + 1, Pos - 1);
                      Value := Tail (Line, Len - Pos);
+                     Trim (Name, Trim_Chars, Trim_Chars );
+                     Trim (Value, Trim_Chars, Trim_Chars);
                      Current.Set (Name, Value);
 
                   elsif Pos > 0 and Prefix'Length = 0 then
                      Name  := Head (Line, Pos - 1);
                      Value := Tail (Line, Len - Pos);
+                     Trim (Name, Trim_Chars, Trim_Chars);
+                     Trim (Value, Trim_Chars, Trim_Chars);
                      Current.Set (Name, Value);
 
                   end if;
