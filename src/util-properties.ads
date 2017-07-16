@@ -85,6 +85,12 @@ package Util.Properties is
                  Name : in String;
                  Default : in String) return String;
 
+   --  Returns a property manager that is associated with the given name.
+   --  Raises NO_PROPERTY if there is no such property manager or if a property exists
+   --  but is not a property manager.
+   function Get (Self : in Manager'Class;
+                 Name : in String) return Manager;
+
    --  Set the value of the property.  The property is created if it
    --  does not exists.
    procedure Set (Self : in out Manager'Class;
