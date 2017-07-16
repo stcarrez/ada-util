@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  json -- JSON Reader
+--  serialize -- JSON serialization
 --  Copyright (C) 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
