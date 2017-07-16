@@ -205,6 +205,34 @@ package body Util.Properties.Tests is
                                 "Wrong property a in props1");
    end Test_Remove_Preserve_Original;
 
+   procedure Test_Missing_Property (T : in out Test) is
+      Props  : Properties.Manager;
+      V      : Unbounded_String;
+   begin
+      T.Assert (Util.Beans.Objects.Is_Null (Props.Get_Value ("missing")),
+                "The Get_Value operation must return a null object");
+      begin
+         V := Props.Get ("missing");
+         T.Fail ("Exception NO_PROPERTY was not raised");
+
+      exception
+         when NO_PROPERTY =>
+            null;
+      end;
+
+      Props.Set ("a", "b");
+      T.Assert (Util.Beans.Objects.Is_Null (Props.Get_Value ("missing")),
+                "The Get_Value operation must return a null object");
+      begin
+         V := Props.Get ("missing");
+         T.Fail ("Exception NO_PROPERTY was not raised");
+
+      exception
+         when NO_PROPERTY =>
+            null;
+      end;
+   end Test_Missing_Property;
+
    package Caller is new Util.Test_Caller (Test, "Properties");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -215,6 +243,8 @@ package body Util.Properties.Tests is
                        Test_Property'Access);
       Caller.Add_Test (Suite, "Test Util.Properties.Exists",
                        Test_Property'Access);
+      Caller.Add_Test (Suite, "Test Util.Properties.Get (NO_PROPERTY)",
+                       Test_Missing_Property'Access);
 
       Caller.Add_Test (Suite, "Test Util.Properties.Discrete.Get",
                        Test_Integer_Property'Access);
