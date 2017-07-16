@@ -91,6 +91,10 @@ package Util.Properties is
    function Get (Self : in Manager'Class;
                  Name : in String) return Manager;
 
+   --  Create a property manager and associated it with the given name.
+   function Create (Self : in out Manager'Class;
+                    Name : in String) return Manager;
+
    --  Set the value of the property.  The property is created if it
    --  does not exists.
    procedure Set (Self : in out Manager'Class;
@@ -171,7 +175,8 @@ private
    package Interface_P is
 
       type Manager is abstract limited new Util.Beans.Basic.Bean with record
-         Count : Util.Concurrent.Counters.Counter;
+         Count  : Util.Concurrent.Counters.Counter;
+         Shared : Boolean := False;
       end record;
       type Manager_Access is access all Manager'Class;
 
