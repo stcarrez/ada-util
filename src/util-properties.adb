@@ -359,6 +359,20 @@ package body Util.Properties is
    end Iterate;
 
    --  ------------------------------
+   --  Get the property manager represented by the item value.
+   --  Raise the Conversion_Error exception if the value is not a property manager.
+   --  ------------------------------
+   function To_Manager (Item : in Value) return Manager is
+      Bean  : constant access Util.Beans.Basic.Readonly_Bean'Class
+        := Util.Beans.Objects.To_Bean (Item);
+   begin
+      if Bean = null or else not (Bean.all in Manager'Class) then
+         raise Util.Beans.Objects.Conversion_Error;
+      end if;
+      return Manager (Bean.all);
+   end To_Manager;
+
+   --  ------------------------------
    --  Collect the name of the properties defined in the manager.
    --  When a prefix is specified, only the properties starting with the prefix are
    --  returned.
