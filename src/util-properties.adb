@@ -240,6 +240,23 @@ package body Util.Properties is
       end if;
    end Get;
 
+   --  ------------------------------
+   --  Returns a property manager that is associated with the given name.
+   --  Raises NO_PROPERTY if there is no such property manager or if a property exists
+   --  but is not a property manager.
+   --  ------------------------------
+   function Get (Self : in Manager'Class;
+                 Name : in String) return Manager is
+      Value : constant Util.Beans.Objects.Object := Self.Get_Value (Name);
+      Bean  : constant access Util.Beans.Basic.Readonly_Bean'Class
+        := Util.Beans.Objects.To_Bean (Value);
+   begin
+      if Bean = null or else not (Bean.all in Manager'Class) then
+         raise NO_PROPERTY with "No property '" & Name & "'";
+      end if;
+      return Manager (Bean.all);
+   end Get;
+
    procedure Check_And_Create_Impl (Self : in out Manager) is
    begin
       if Self.Impl = null then
