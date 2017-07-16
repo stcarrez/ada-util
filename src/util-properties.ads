@@ -28,11 +28,14 @@ package Util.Properties is
 
    use Ada.Strings.Unbounded;
 
-   subtype Value is Ada.Strings.Unbounded.Unbounded_String;
+   subtype Value is Util.Beans.Objects.Object;
 
-   function "+" (S : String) return Value renames To_Unbounded_String;
+   function "+" (S : String) return Unbounded_String renames To_Unbounded_String;
 
-   function "-" (S : Value) return String renames To_String;
+   function "-" (S : Unbounded_String) return String renames To_String;
+
+   function To_String (V : in Value) return String
+     renames Util.Beans.Objects.To_String;
 
    --  The manager holding the name/value pairs and providing the operations
    --  to get and set the properties.
@@ -55,7 +58,7 @@ package Util.Properties is
 
    --  Returns TRUE if the property exists.
    function Exists (Self : in Manager'Class;
-                    Name : in Value) return Boolean;
+                    Name : in Unbounded_String) return Boolean;
 
    --  Returns TRUE if the property exists.
    function Exists (Self : in Manager'Class;
@@ -67,15 +70,15 @@ package Util.Properties is
 
    --  Returns the property value.  Raises an exception if not found.
    function Get (Self : in Manager'Class;
-                 Name : in String) return Value;
+                 Name : in String) return Unbounded_String;
 
    --  Returns the property value.  Raises an exception if not found.
    function Get (Self : in Manager'Class;
-                 Name : in Value) return Value;
+                 Name : in Unbounded_String) return Unbounded_String;
 
    --  Returns the property value.  Raises an exception if not found.
    function Get (Self : in Manager'Class;
-                 Name : in Value) return String;
+                 Name : in Unbounded_String) return String;
 
    --  Returns the property value or Default if it does not exist.
    function Get (Self : in Manager'Class;
@@ -92,13 +95,13 @@ package Util.Properties is
    --  does not exists.
    procedure Set (Self : in out Manager'Class;
                   Name : in String;
-                  Item : in Value);
+                  Item : in Unbounded_String);
 
    --  Set the value of the property.  The property is created if it
    --  does not exists.
    procedure Set (Self : in out Manager'Class;
                   Name : in Unbounded_String;
-                  Item : in Value);
+                  Item : in Unbounded_String);
 
    --  Remove the property given its name.  If the property does not
    --  exist, raises NO_PROPERTY exception.
@@ -108,13 +111,13 @@ package Util.Properties is
    --  Remove the property given its name.  If the property does not
    --  exist, raises NO_PROPERTY exception.
    procedure Remove (Self : in out Manager'Class;
-                     Name : in Value);
+                     Name : in Unbounded_String);
 
    --  Iterate over the properties and execute the given procedure passing the
    --  property name and its value.
    procedure Iterate (Self    : in Manager'Class;
                       Process : access procedure (Name : in String;
-                                                  Item : in Util.Beans.Objects.Object));
+                                                  Item : in Value));
 
    --  Collect the name of the properties defined in the manager.
    --  When a prefix is specified, only the properties starting with the prefix are
@@ -179,7 +182,7 @@ private
       --  property name and its value.
       procedure Iterate (Self    : in Manager;
                          Process : access procedure (Name : in String;
-                                                     Item : in Util.Beans.Objects.Object))
+                                                     Item : in Value))
       is abstract;
 
       --  Deep copy of properties stored in 'From' to 'To'.
