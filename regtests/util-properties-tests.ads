@@ -32,5 +32,6 @@ package Util.Properties.Tests is
    procedure Test_Set_Preserve_Original (T : in out Test);
    procedure Test_Remove_Preserve_Original (T : in out Test);
    procedure Test_Missing_Property (T : in out Test);
+   procedure Test_Load_Ini_Property (T : in out Test);
 
 end Util.Properties.Tests;
