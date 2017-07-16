@@ -172,6 +172,9 @@ package Util.Properties is
    --  Raise the Conversion_Error exception if the value is not a property manager.
    function To_Manager (Item : in Value) return Manager;
 
+   --  Returns True if the item value represents a property manager.
+   function Is_Manager (Item : in Value) return Boolean;
+
 private
 
    --  Abstract interface for the implementation of Properties
