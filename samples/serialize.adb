@@ -18,7 +18,6 @@
 with Ada.Text_IO;
 with Util.Serialize.IO.JSON;
 with Util.Streams.Texts;
-with Util.Streams.Buffered;
 procedure Serialize is
    Output : aliased Util.Streams.Texts.Print_Stream;
    Stream : Util.Serialize.IO.JSON.Output_Stream;
