@@ -191,24 +191,24 @@ package body Util.Properties is
    end Exists;
 
    function Exists (Self : in Manager'Class;
-                    Name : in Value) return Boolean is
+                    Name : in Unbounded_String) return Boolean is
    begin
       --  There is not yet an implementation, no property
       return Self.Impl /= null and then Self.Impl.Exists (-Name);
    end Exists;
 
    function Get (Self : in Manager'Class;
-                 Name : in String) return Value is
+                 Name : in String) return Unbounded_String is
    begin
       if Self.Impl = null then
          raise NO_PROPERTY with "No property: '" & Name & "'";
       end if;
 
-      return Value (To_Unbounded_String (Self.Impl.Get_Value (Name)));
+      return To_Unbounded_String (Self.Impl.Get_Value (Name));
    end Get;
 
    function Get (Self : in Manager'Class;
-                 Name : in Value) return Value is
+                 Name : in Unbounded_String) return Unbounded_String is
    begin
       return Self.Get (-Name);
    end Get;
@@ -224,7 +224,7 @@ package body Util.Properties is
    end Get;
 
    function Get (Self : in Manager'Class;
-                 Name : in Value) return String is
+                 Name : in Unbounded_String) return String is
    begin
       return Self.Get (-Name);
    end Get;
@@ -277,7 +277,7 @@ package body Util.Properties is
    --  ------------------------------
    procedure Set (Self : in out Manager'Class;
                   Name : in String;
-                  Item : in Value) is
+                  Item : in Unbounded_String) is
    begin
       Self.Set_Value (Name, To_Object (Item));
    end Set;
@@ -288,7 +288,7 @@ package body Util.Properties is
    --  ------------------------------
    procedure Set (Self : in out Manager'Class;
                   Name : in Unbounded_String;
-                  Item : in Value) is
+                  Item : in Unbounded_String) is
    begin
       Self.Set_Value (-Name, To_Object (Item));
    end Set;
@@ -310,7 +310,7 @@ package body Util.Properties is
    --  Remove the property given its name.
    --  ------------------------------
    procedure Remove (Self : in out Manager'Class;
-                     Name : in Value) is
+                     Name : in Unbounded_String) is
    begin
       Self.Remove (-Name);
    end Remove;
@@ -353,6 +353,7 @@ package body Util.Properties is
       end if;
    end Get_Names;
 
+   overriding
    procedure Adjust (Object : in out Manager) is
    begin
       if Object.Impl /= null then
@@ -360,6 +361,7 @@ package body Util.Properties is
       end if;
    end Adjust;
 
+   overriding
    procedure Finalize (Object : in out Manager) is
       Is_Zero : Boolean;
    begin
@@ -487,16 +489,29 @@ package body Util.Properties is
                    From   : in Manager'Class;
                    Prefix : in String := "";
                    Strip  : in Boolean := False) is
-      Names : Util.Strings.Vectors.Vector;
-   begin
-      From.Get_Names (Names, Prefix);
-      for Name of Names loop
-         if Strip and Prefix'Length > 0 then
-            Self.Set_Value (Name (Name'First + Prefix'Length .. Name'Last), From.Get_Value (Name));
-         else
-            Self.Set_Value (Name, From.Get_Value (Name));
+      procedure Process (Name : in String;
+                         Value : in Util.Beans.Objects.Object);
+
+      procedure Process (Name  : in String;
+                         Value : in Util.Beans.Objects.Object) is
+      begin
+         if Prefix'Length > 0 then
+            if Name'Length < Prefix'Length then
+               return;
+            end if;
+            if Name (Name'First .. Name'First + Prefix'Length - 1) /= Prefix then
+               return;
+            end if;
+            if Strip then
+               Self.Set_Value (Name (Name'First + Prefix'Length .. Name'Last), Value);
+               return;
+            end if;
          end if;
-      end loop;
+         Self.Set_Value (Name, Value);
+      end Process;
+
+   begin
+      Self.Iterate (Process'Access);
    end Copy;
 
 end Util.Properties;
