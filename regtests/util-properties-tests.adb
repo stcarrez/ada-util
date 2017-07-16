@@ -233,6 +233,41 @@ package body Util.Properties.Tests is
       end;
    end Test_Missing_Property;
 
+   procedure Test_Load_Ini_Property (T : in out Test) is
+      Props : Properties.Manager;
+      F : File_Type;
+   begin
+      Open (F, In_File, "regtests/files/my.cnf");
+      Load_Properties (Props, F);
+      Close (F);
+
+      declare
+         V : Util.Properties.Value;
+         P : Properties.Manager;
+      begin
+         V := Props.Get_Value ("mysqld");
+         T.Assert (Util.Properties.Is_Manager (V),
+                   "Value 'mysqld' must be a property manager");
+         P := Util.Properties.To_Manager (V);
+         T.Assert (P.Exists ("user"),
+                   "The [mysqld] property manager should contain a 'user' property");
+
+         V := Props.Get_Value ("mysqld_safe");
+         T.Assert (Util.Properties.Is_Manager (V),
+                   "Value 'mysqld_safe' must be a property manager");
+         P := Util.Properties.To_Manager (V);
+         T.Assert (P.Exists ("socket"),
+                   "The [mysqld] property manager should contain a 'socket' property");
+
+      end;
+
+   exception
+      when Ada.Text_IO.Name_Error =>
+         Ada.Text_IO.Put_Line ("Cannot find test file: regtests/files/my.cnf");
+         raise;
+
+   end Test_Load_Ini_Property;
+
    package Caller is new Util.Test_Caller (Test, "Properties");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -254,6 +289,8 @@ package body Util.Properties.Tests is
 
       Caller.Add_Test (Suite, "Test Util.Properties.Load_Properties",
                        Test_Load_Property'Access);
+      Caller.Add_Test (Suite, "Test Util.Properties.Load_Properties (INI)",
+                       Test_Load_Ini_Property'Access);
       Caller.Add_Test (Suite, "Test Util.Properties.Load_Strip_Properties",
                        Test_Load_Strip_Property'Access);
       Caller.Add_Test (Suite, "Test Util.Properties.Copy",
