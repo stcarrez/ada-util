@@ -168,6 +168,10 @@ package Util.Properties is
                    Prefix : in String := "";
                    Strip  : in Boolean := False);
 
+   --  Get the property manager represented by the item value.
+   --  Raise the Conversion_Error exception if the value is not a property manager.
+   function To_Manager (Item : in Value) return Manager;
+
 private
 
    --  Abstract interface for the implementation of Properties
