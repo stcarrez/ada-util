@@ -148,7 +148,12 @@ package body Util.Properties is
                          return Interface_P.Manager_Access is
       Result : constant Property_Map_Access := new Property_Map;
    begin
-      Result.Props := Self.Props;
+      --  SCz 2017-07-20: the map assignment is buggy on GNAT 2016 because the copy of the
+      --  object also copies the internal Lock and Busy flags which makes the target copy
+      --  unusable because the Lock and Busy flag prevents modifications.  Instead of the
+      --  Ada assignment, we use the Assign procedure which makes the deep copy of the map.
+      --  Result.Props := Self.Props;
+      Result.Props.Assign (Self.Props);
       return Result.all'Access;
    end Create_Copy;
 
