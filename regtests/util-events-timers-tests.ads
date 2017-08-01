@@ -24,7 +24,8 @@ package Util.Events.Timers.Tests is
 
    type Test is new Util.Tests.Test
      and Util.Events.Timers.Timer with record
-      Count : Natural := 0;
+      Count  : Natural := 0;
+      Repeat : Natural := 0;
    end record;
 
    overriding
@@ -35,5 +36,8 @@ package Util.Events.Timers.Tests is
    procedure Test_Empty_Timer (T : in out Test);
 
    procedure Test_Timer_Event (T : in out Test);
+
+   --  Test repeating timers.
+   procedure Test_Repeat_Timer (T : in out Test);
 
 end Util.Events.Timers.Tests;
