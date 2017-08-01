@@ -209,12 +209,11 @@ package body Util.Events.Timers is
                            Timer    : in out Timer_Ref) is
          Now : constant Ada.Real_Time.Time := Ada.Real_Time.Clock;
       begin
+         Timer.Finalize;
          if List = null then
-            Timer.Finalize;
             Deadline := Ada.Real_Time.Time_Last;
          elsif List.Deadline < Now then
             Timer.Value := List;
-            Util.Concurrent.Counters.Increment (Timer.Value.Counter);
             List := List.Next;
             if List /= null then
                List.Prev := null;
@@ -224,7 +223,6 @@ package body Util.Events.Timers is
             end if;
          else
             Deadline := List.Deadline;
-            Timer.Finalize;
          end if;
       end Find_Next;
 
