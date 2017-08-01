@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Util.Tests;
 with Util.Test_Caller;
 
 package body Util.Events.Timers.Tests is
@@ -50,6 +49,7 @@ package body Util.Events.Timers.Tests is
       Deadline : Ada.Real_Time.Time;
    begin
       T.Assert (not R.Is_Scheduled, "Empty timer should not be scheduled");
+      T.Assert (R.Time_Of_Event = Ada.Real_Time.Time_Last, "Time_Of_Event returned invalid value");
       R.Cancel;
       M.Process (Deadline);
       T.Assert (Deadline = Ada.Real_Time.Time_Last,
@@ -59,7 +59,7 @@ package body Util.Events.Timers.Tests is
    procedure Test_Timer_Event (T : in out Test) is
       M        : Timer_List;
       R        : Timer_Ref;
-      Start    : Ada.Real_Time.Time := Ada.Real_Time.Clock;
+      Start    : constant Ada.Real_Time.Time := Ada.Real_Time.Clock;
       Deadline : Ada.Real_Time.Time;
       Now      : Ada.Real_Time.Time;
    begin
