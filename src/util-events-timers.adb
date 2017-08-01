@@ -101,10 +101,10 @@ package body Util.Events.Timers is
       Now   : constant Ada.Real_Time.Time := Ada.Real_Time.Clock;
    begin
       loop
-         Timer.Finalize;
          List.Manager.Find_Next (Now, Timeout, Timer);
-         exit when not Timer.Is_Scheduled;
+         exit when Timer.Value = null;
          Timer.Value.Handler.Time_Handler (Timer);
+         Timer.Finalize;
       end loop;
    end Process;
 
