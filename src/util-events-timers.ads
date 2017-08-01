@@ -134,7 +134,7 @@ private
    protected type Timer_Manager is
 
       --  Add a timer.
-      procedure Add (Timer    : in out Timer_Node_Access;
+      procedure Add (Timer    : in Timer_Node_Access;
                      Deadline : in Ada.Real_Time.Time);
 
       --  Cancel a timer.
