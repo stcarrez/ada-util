@@ -98,9 +98,11 @@ package body Util.Events.Timers is
                       Timeout   : out Ada.Real_Time.Time;
                       Max_Count : in Natural := Natural'Last) is
       Timer : Timer_Ref;
+      Now   : constant Ada.Real_Time.Time := Ada.Real_Time.Clock;
    begin
       loop
-         List.Manager.Find_Next (Timeout, Timer);
+         Timer.Finalize;
+         List.Manager.Find_Next (Now, Timeout, Timer);
          exit when not Timer.Is_Scheduled;
          Timer.Value.Handler.Time_Handler (Timer);
       end loop;
@@ -203,16 +205,15 @@ package body Util.Events.Timers is
       end Cancel;
 
       --  -----------------------
-      --  Find the next timer to be executed or return the next deadline.
+      --  Find the next timer to be executed before the given time or return the next deadline.
       --  -----------------------
-      procedure Find_Next (Deadline : out Ada.Real_Time.Time;
+      procedure Find_Next (Before   : in Ada.Real_Time.Time;
+                           Deadline : out Ada.Real_Time.Time;
                            Timer    : in out Timer_Ref) is
-         Now : constant Ada.Real_Time.Time := Ada.Real_Time.Clock;
       begin
-         Timer.Finalize;
          if List = null then
             Deadline := Ada.Real_Time.Time_Last;
-         elsif List.Deadline < Now then
+         elsif List.Deadline < Before then
             Timer.Value := List;
             List := List.Next;
             if List /= null then
@@ -230,8 +231,14 @@ package body Util.Events.Timers is
 
    overriding
    procedure Finalize (Object : in out Timer_List) is
+      Timer    : Timer_Ref;
+      Timeout  : Ada.Real_Time.Time;
    begin
-      null;
+      loop
+         Object.Manager.Find_Next (Ada.Real_Time.Time_Last, Timeout, Timer);
+         exit when Timer.Value = null;
+         Timer.Finalize;
+      end loop;
    end Finalize;
 
 end Util.Events.Timers;
