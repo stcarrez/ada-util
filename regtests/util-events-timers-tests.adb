@@ -33,6 +33,8 @@ package body Util.Events.Timers.Tests is
                        Test_Timer_Event'Access);
       Caller.Add_Test (Suite, "Test Util.Events.Timers.Repeat",
                        Test_Repeat_Timer'Access);
+      Caller.Add_Test (Suite, "Test Util.Events.Timers.Repeat+Process",
+                       Test_Many_Timers'Access);
    end Add_Tests;
 
    overriding
@@ -107,5 +109,45 @@ package body Util.Events.Timers.Tests is
       end loop;
       Assert_Equals (T, 5, T.Count, "The timer handler was not repeated");
    end Test_Repeat_Timer;
+
+   --  -----------------------
+   --  Test executing several timers.
+   --  -----------------------
+   procedure Test_Many_Timers (T : in out Test) is
+      Timer_Count : constant Positive := 30;
+
+      type Timer_Ref_Array is array (1 .. Timer_Count) of Timer_Ref;
+      type Test_Ref_Array is array (1 .. Timer_Count) of aliased Test;
+
+      M        : Timer_List;
+      Start    : constant Ada.Real_Time.Time := Ada.Real_Time.Clock;
+      Deadline : Ada.Real_Time.Time;
+      R        : Timer_Ref_Array;
+      D        : Test_Ref_Array;
+      Dt       : Ada.Real_Time.Time_Span;
+      Count    : Natural := 0;
+   begin
+      for I in R'Range loop
+         D (I).Count := 0;
+         D (I).Repeat := 4;
+         if I mod 2 = 0 then
+            Dt := Ada.Real_Time.Milliseconds (40);
+         else
+            Dt := Ada.Real_Time.Milliseconds (20);
+         end if;
+         M.Set_Timer (D (I)'Unchecked_Access, R (I), Start + Dt);
+      end loop;
+      loop
+         M.Process (Deadline);
+         exit when Deadline >= Start + Ada.Real_Time.Seconds (10);
+         Count := Count + 1;
+         delay until Deadline;
+      end loop;
+      Util.Tests.Assert_Equals (T, 4, Count, "Count of Process");
+      for I in D'Range loop
+         Util.Tests.Assert_Equals (T, 4, D (I).Count, "Invalid count for timer at "
+                                     & Natural'Image (I) & " " & Natural'Image (Count));
+      end loop;
+   end Test_Many_Timers;
 
 end Util.Events.Timers.Tests;
