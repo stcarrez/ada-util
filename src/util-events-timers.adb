@@ -24,11 +24,16 @@ package body Util.Events.Timers is
      new Ada.Unchecked_Deallocation (Object => Timer_Node,
                                      Name   => Timer_Node_Access);
 
+   --  -----------------------
    --  Repeat the timer.
+   --  -----------------------
    procedure Repeat (Event   : in out Timer_Ref;
                      In_Time : in Ada.Real_Time.Time_Span) is
+      Timer : constant Timer_Node_Access := Event.Value;
    begin
-      null;
+      if Timer /= null and then Timer.List /= null then
+         Timer.List.Add (Timer, Timer.Deadline + In_Time);
+      end if;
    end Repeat;
 
    --  -----------------------
@@ -66,20 +71,22 @@ package body Util.Events.Timers is
                         Handler : in Timer_Access;
                         Event   : in out Timer_Ref'Class;
                         At_Time : in Ada.Real_Time.Time) is
+      Timer : Timer_Node_Access := Event.Value;
    begin
-      if Event.Value = null then
+      if Timer = null then
          Event.Value := new Timer_Node;
+         Timer := Event.Value;
       end if;
-      Event.Value.Handler := Handler;
+      Timer.Handler := Handler;
 
       --  Cancel the timer if it is part of another timer manager.
-      if Event.Value.List /= null and Event.Value.List /= List.Manager'Unchecked_Access then
-         Event.Value.List.all.Cancel (Event.Value);
+      if Timer.List /= null and Timer.List /= List.Manager'Unchecked_Access then
+         Timer.List.Cancel (Timer);
       end if;
 
       --  Update the timer.
-      Event.Value.List := List.Manager'Unchecked_Access;
-      List.Manager.Add (Event.Value, At_Time);
+      Timer.List := List.Manager'Unchecked_Access;
+      List.Manager.Add (Timer, At_Time);
    end Set_Timer;
 
    --  -----------------------
@@ -123,17 +130,36 @@ package body Util.Events.Timers is
 
    protected body Timer_Manager is
 
+      procedure Remove (Timer : in Timer_Node_Access) is
+      begin
+         if List = Timer then
+            List := Timer.Next;
+            Timer.Prev := null;
+            if List /= null then
+               List.Prev := null;
+            end if;
+         elsif Timer.Prev /= null then
+            Timer.Prev.Next := Timer.Next;
+            Timer.Next.Prev := Timer.Prev;
+         else
+            return;
+         end if;
+         Timer.Next := null;
+         Timer.Prev := null;
+         Timer.List := null;
+      end Remove;
+
       --  -----------------------
       --  Add a timer.
       --  -----------------------
-      procedure Add (Timer    : in out Timer_Node_Access;
+      procedure Add (Timer    : in Timer_Node_Access;
                      Deadline : in Ada.Real_Time.Time) is
          Current : Timer_Node_Access := List;
          Prev    : Timer_Node_Access;
       begin
          Util.Concurrent.Counters.Increment (Timer.Counter);
          if Timer.List /= null then
-            Cancel (Timer);
+            Remove (Timer);
          end if;
          Timer.Deadline := Deadline;
          while Current /= null loop
@@ -169,21 +195,7 @@ package body Util.Events.Timers is
          if Timer.List = null then
             return;
          end if;
-         if List = Timer then
-            List := Timer.Next;
-            Timer.Prev := null;
-            if List /= null then
-               List.Prev := null;
-            end if;
-         elsif Timer.Prev /= null then
-            Timer.Prev.Next := Timer.Next;
-            Timer.Next.Prev := Timer.Prev;
-         else
-            return;
-         end if;
-         Timer.Next := null;
-         Timer.Prev := null;
-         Timer.List := null;
+         Remove (Timer);
          Util.Concurrent.Counters.Decrement (Timer.Counter, Is_Zero);
          if Is_Zero then
             Free (Timer);
