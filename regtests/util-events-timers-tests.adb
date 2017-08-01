@@ -28,7 +28,9 @@ package body Util.Events.Timers.Tests is
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
-      Caller.Add_Test (Suite, "Test Util.Events.Channels.Post_Event",
+      Caller.Add_Test (Suite, "Test Util.Events.Timers.Is_Scheduled",
+                       Test_Empty_Timer'Access);
+      Caller.Add_Test (Suite, "Test Util.Events.Timers.Process",
                        Test_Timer_Event'Access);
    end Add_Tests;
 
@@ -39,6 +41,21 @@ package body Util.Events.Timers.Tests is
       Sub.Count := Sub.Count + 1;
    end Time_Handler;
 
+   --  -----------------------
+   --  Test empty timers.
+   --  -----------------------
+   procedure Test_Empty_Timer (T : in out Test) is
+      M        : Timer_List;
+      R        : Timer_Ref;
+      Deadline : Ada.Real_Time.Time;
+   begin
+      T.Assert (not R.Is_Scheduled, "Empty timer should not be scheduled");
+      R.Cancel;
+      M.Process (Deadline);
+      T.Assert (Deadline = Ada.Real_Time.Time_Last,
+                "The Process operation returned invalid deadline");
+   end Test_Empty_Timer;
+
    procedure Test_Timer_Event (T : in out Test) is
       M        : Timer_List;
       R        : Timer_Ref;
@@ -46,7 +63,6 @@ package body Util.Events.Timers.Tests is
       Deadline : Ada.Real_Time.Time;
       Now      : Ada.Real_Time.Time;
    begin
-      T.Assert (not R.Is_Scheduled, "Empty timer should not be scheduled");
       for Retry in 1 .. 10 loop
          M.Set_Timer (T'Unchecked_Access, R, Start + Ada.Real_Time.Milliseconds (10));
          M.Process (Deadline);
