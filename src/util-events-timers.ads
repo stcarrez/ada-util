@@ -126,7 +126,7 @@ private
       Next     : Timer_Node_Access;
       Prev     : Timer_Node_Access;
       List     : Timer_Manager_Access;
-      Counter  : Util.Concurrent.Counters.Counter;
+      Counter  : Util.Concurrent.Counters.Counter := Util.Concurrent.Counters.ONE;
       Handler  : Timer_Access;
       Deadline : Ada.Real_Time.Time;
    end record;
