@@ -140,8 +140,9 @@ private
       --  Cancel a timer.
       procedure Cancel (Timer : in out Timer_Node_Access);
 
-      --  Find the next timer to be executed or return the next deadline.
-      procedure Find_Next (Deadline : out Ada.Real_Time.Time;
+      --  Find the next timer to be executed before the given time or return the next deadline.
+      procedure Find_Next (Before   : in Ada.Real_Time.Time;
+                           Deadline : out Ada.Real_Time.Time;
                            Timer    : in out Timer_Ref);
 
    private
