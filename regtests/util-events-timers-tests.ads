@@ -31,6 +31,9 @@ package Util.Events.Timers.Tests is
    procedure Time_Handler (Sub   : in out Test;
                            Event : in out Timer_Ref'Class);
 
+   --  Test empty timers.
+   procedure Test_Empty_Timer (T : in out Test);
+
    procedure Test_Timer_Event (T : in out Test);
 
 end Util.Events.Timers.Tests;
