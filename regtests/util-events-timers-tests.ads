@@ -40,4 +40,7 @@ package Util.Events.Timers.Tests is
    --  Test repeating timers.
    procedure Test_Repeat_Timer (T : in out Test);
 
+   --  Test executing several timers.
+   procedure Test_Many_Timers (T : in out Test);
+
 end Util.Events.Timers.Tests;
