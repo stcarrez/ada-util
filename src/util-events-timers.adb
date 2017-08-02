@@ -176,7 +176,7 @@ package body Util.Events.Timers is
          end if;
          Timer.Deadline := Deadline;
          while Current /= null loop
-            if Current.Deadline < Deadline then
+            if Current.Deadline > Deadline then
                if Prev = null then
                   List := Timer;
                else
