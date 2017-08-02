@@ -97,6 +97,12 @@ package Util.Events.Timers is
                         Event   : in out Timer_Ref'Class;
                         At_Time : in Ada.Real_Time.Time);
 
+   --  Set a timer to be called after the given time span.
+   procedure Set_Timer (List    : in out Timer_List;
+                        Handler : in Timer_Access;
+                        Event   : in out Timer_Ref'Class;
+                        In_Time : in Ada.Real_Time.Time_Span);
+
    --  Process the timer handlers that have passed the deadline and return the next
    --  deadline.  The <tt>Max_Count</tt> parameter allows to limit the number of timer handlers
    --  that are called by operation.  The default is not limited.
