@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Real_Time;
+with Ada.Exceptions;
 private with Ada.Finalization;
 private with Util.Concurrent.Counters;
 
@@ -109,6 +110,13 @@ package Util.Events.Timers is
    procedure Process (List      : in out Timer_List;
                       Timeout   : out Ada.Real_Time.Time;
                       Max_Count : in Natural := Natural'Last);
+
+   --  Procedure called when a timer handler raises an exception.
+   --  The default operation reports an error in the logs.  This procedure can be
+   --  overriden to implement specific error handling.
+   procedure Error (List : in out Timer_List;
+                    Handler : in Timer_Access;
+                    E       : in Ada.Exceptions.Exception_Occurrence);
 
 private
 
