@@ -16,9 +16,12 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Unchecked_Deallocation;
+with Util.Log.Loggers;
 package body Util.Events.Timers is
 
    use type Ada.Real_Time.Time;
+
+   Log     : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Events.Timers");
 
    procedure Free is
      new Ada.Unchecked_Deallocation (Object => Timer_Node,
@@ -110,14 +113,35 @@ package body Util.Events.Timers is
                       Max_Count : in Natural := Natural'Last) is
       Timer : Timer_Ref;
       Now   : constant Ada.Real_Time.Time := Ada.Real_Time.Clock;
+      Count : Natural := 0;
    begin
-      loop
+      for Count in 1 .. Max_Count loop
          List.Manager.Find_Next (Now, Timeout, Timer);
          exit when Timer.Value = null;
-         Timer.Value.Handler.Time_Handler (Timer);
+         begin
+            Timer.Value.Handler.Time_Handler (Timer);
+
+         exception
+            when E : others =>
+               Timer_List'Class (List).Error (Timer.Value.Handler, E);
+
+         end;
          Timer.Finalize;
       end loop;
    end Process;
+
+   --  -----------------------
+   --  Procedure called when a timer handler raises an exception.
+   --  The default operation reports an error in the logs.  This procedure can be
+   --  overriden to implement specific error handling.
+   --  -----------------------
+   procedure Error (List : in out Timer_List;
+                    Handler : in Timer_Access;
+                    E       : in Ada.Exceptions.Exception_Occurrence) is
+      pragma Unreferenced (List, Handler);
+   begin
+      Log.Error ("Timer handler raised an exception", E, True);
+   end Error;
 
    overriding
    procedure Adjust (Object : in out Timer_Ref) is
