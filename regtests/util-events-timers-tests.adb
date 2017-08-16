@@ -143,7 +143,7 @@ package body Util.Events.Timers.Tests is
          Count := Count + 1;
          delay until Deadline;
       end loop;
-      Util.Tests.Assert_Equals (T, 4, Count, "Count of Process");
+      Util.Tests.Assert_Equals (T, 8, Count, "Count of Process");
       for I in D'Range loop
          Util.Tests.Assert_Equals (T, 4, D (I).Count, "Invalid count for timer at "
                                      & Natural'Image (I) & " " & Natural'Image (Count));
