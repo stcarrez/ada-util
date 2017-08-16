@@ -100,6 +100,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    procedure Start_Document (Stream : in out Output_Stream) is
    begin
+      Node_Info_Stack.Push (Stream.Stack);
       Stream.Write ('{');
    end Start_Document;
 
