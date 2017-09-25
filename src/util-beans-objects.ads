@@ -137,7 +137,6 @@ package Util.Beans.Objects is
    --  Otherwise returns false.
    function Is_Empty (Value : in Object) return Boolean;
 
---     function Is_Constant (Value : in Object) return Boolean;
    --  Get a type identification for the object value.
    function Get_Type (Value : in Object) return Data_Type;
 
@@ -151,6 +150,13 @@ package Util.Beans.Objects is
    --  If the value object is not a bean, returns the null object.
    function Get_Value (Value : in Object;
                        Name  : in String) return Object;
+
+   --  Set into the target object a value identified by the name.
+   --  The target object must be a <tt>Bean</tt> instance that implements the <tt>Set_Value</tt>
+   --  procedure.  The operation does nothing if this is not the case.
+   procedure Set_Value (Into  : in Object;
+                        Name  : in String;
+                        Value : in Object);
 
    --  Convert the object to the corresponding type.
    function To_String (Value : in Object) return String;
