@@ -826,6 +826,21 @@ package body Util.Beans.Objects is
    end Get_Value;
 
    --  ------------------------------
+   --  Set into the target object a value identified by the name.
+   --  The target object must be a <tt>Bean</tt> instance that implements the <tt>Set_Value</tt>
+   --  procedure.  The operation does nothing if this is not the case.
+   --  ------------------------------
+   procedure Set_Value (Into  : in Object;
+                        Name  : in String;
+                        Value : in Object) is
+      Bean : constant access Util.Beans.Basic.Readonly_Bean'Class := To_Bean (Into);
+   begin
+      if Bean /= null and then Bean.all in Util.Beans.Basic.Bean'Class then
+         Util.Beans.Basic.Bean'Class (Bean.all).Set_Value (Name, Value);
+      end if;
+   end Set_Value;
+
+   --  ------------------------------
    --  Convert the object to the corresponding type.
    --  ------------------------------
    function To_String (Value : Object) return String is
