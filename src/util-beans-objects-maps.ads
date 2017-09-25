@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Maps -- Object maps
---  Copyright (C) 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,6 +53,8 @@ package Util.Beans.Objects.Maps is
                              renames Maps.Equivalent_Keys;
    function Equivalent_Keys (Left : String; Right : Cursor) return Boolean
                              renames Maps.Equivalent_Keys;
+   function Copy (Source : Maps.Map; Capacity : in Ada.Containers.Count_Type) return Maps.Map
+     renames Maps.Copy;
 
    --  ------------------------------
    --  Map Bean
@@ -72,6 +74,9 @@ package Util.Beans.Objects.Maps is
    procedure Set_Value (From  : in out Map_Bean;
                         Name  : in String;
                         Value : in Object);
+
+   --  Create an object that contains a <tt>Map_Bean</tt> instance.
+   function Create return Object;
 
 private
 
