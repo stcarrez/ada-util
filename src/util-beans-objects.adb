@@ -48,6 +48,7 @@ package body Util.Beans.Objects is
    Flt_Type      : aliased constant Float_Type       := Float_Type '(null record);
    Duration_Type : aliased constant Duration_Type_Def := Duration_Type_Def '(null record);
    Bn_Type       : aliased constant Bean_Type        := Bean_Type '(null record);
+   Ar_Type       : aliased constant Bean_Type        := Bean_Type '(null record);
 
    --  ------------------------------
    --  Convert the value into a wide string.
@@ -1147,6 +1148,17 @@ package body Util.Beans.Objects is
                                                                          Storage => Storage)),
                          Type_Def   => Bn_Type'Access);
       end if;
+   end To_Object;
+
+   function To_Object (Value : in Object_Array) return Object is
+   begin
+      return Object '(Controlled with
+                        V => Object_Value '(Of_Type => TYPE_ARRAY,
+                                            Array_Proxy => new Array_Proxy '(Ref_Counter => ONE,
+                                                                             Len    => Value'Length,
+                                                                             Count  => Value'Length,
+                                                                             Values => Value)),
+                      Type_Def => Ar_Type'Access);
    end To_Object;
 
    --  ------------------------------
