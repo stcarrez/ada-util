@@ -788,6 +788,14 @@ package body Util.Beans.Objects is
    end Is_Empty;
 
    --  ------------------------------
+   --  Returns True if the object is an array.
+   --  ------------------------------
+   function Is_Array (Value : in Object) return Boolean is
+   begin
+      return Value.V.Of_Type = TYPE_ARRAY;
+   end Is_Array;
+
+   --  ------------------------------
    --  Generic Object holding a value
    --  ------------------------------
 
@@ -1562,6 +1570,10 @@ package body Util.Beans.Objects is
                                      Name   => Basic.Readonly_Bean_Access);
 
    procedure Free is
+     new Ada.Unchecked_Deallocation (Object => Array_Proxy,
+                                     Name   => Array_Proxy_Access);
+
+   procedure Free is
      new Ada.Unchecked_Deallocation (Object => Proxy'Class,
                                      Name   => Bean_Proxy_Access);
 
@@ -1606,6 +1618,16 @@ package body Util.Beans.Objects is
                   Free (Obj.V.Proxy);
                else
                   Obj.V.Proxy := null;
+               end if;
+            end if;
+
+         when TYPE_ARRAY =>
+            if Obj.V.Array_Proxy /= null then
+               Util.Concurrent.Counters.Decrement (Obj.V.Array_Proxy.Ref_Counter, Release);
+               if Release then
+                  Free (Obj.V.Array_Proxy);
+               else
+                  Obj.V.Array_Proxy := null;
                end if;
             end if;
 
