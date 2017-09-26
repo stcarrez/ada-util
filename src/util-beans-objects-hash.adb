@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Hash -- Hash on an object
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -128,6 +128,16 @@ begin
                Val := Val xor U32 (I);
             end loop;
             return Hash_Type (Val);
+         end;
+
+      when TYPE_ARRAY =>
+         declare
+            Result : Unsigned_32 := 0;
+         begin
+            for Object of Key.V.Array_Proxy.Values loop
+               Result := Result xor Unsigned_32 (Hash (Object));
+            end loop;
+            return Hash_Type (Result);
          end;
 
    end case;
