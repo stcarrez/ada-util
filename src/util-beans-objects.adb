@@ -18,6 +18,7 @@
 
 with Ada.Characters.Conversions;
 with Ada.Unchecked_Deallocation;
+with Ada.Tags;
 with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 with Interfaces.C;
 with Util.Beans.Basic;
@@ -690,9 +691,13 @@ package body Util.Beans.Objects is
    --  ------------------------------
    function To_String (Type_Def : in Bean_Type;
                        Value    : in Object_Value) return String is
-      pragma Unreferenced (Type_Def, Value);
+      pragma Unreferenced (Type_Def);
    begin
-      return "<bean>";
+      if Value.Proxy = null then
+         return "<null bean>";
+      else
+         return "<" & Ada.Tags.Expanded_Name (Value.Proxy'Tag) & ">";
+      end if;
    end To_String;
 
    --  ------------------------------
