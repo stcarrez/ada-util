@@ -53,13 +53,15 @@ package Util.Beans.Objects is
                       TYPE_INTEGER,
                       --  The object holds a floating point value.
                       TYPE_FLOAT,
-                      --  The object holds a date and time
+                      --  The object holds a date and time.
                       TYPE_TIME,
-                      --  The object holds a string
+                      --  The object holds a string.
                       TYPE_STRING,
-                      --  The object holds a wide wide string
+                      --  The object holds a wide wide string.
                       TYPE_WIDE_STRING,
-                      --  The object holds a generic bean
+                      --  The object holds an array of objects.
+                      TYPE_ARRAY,
+                      --  The object holds a generic bean.
                       TYPE_BEAN);
 
    type Storage_Type is (STATIC, DYNAMIC);
@@ -76,6 +78,9 @@ package Util.Beans.Objects is
    --  The object can be converted to standard Ada types.
    type Object is private;
    type Object_Value is private;
+
+   --  An array of objects.
+   type Object_Array is array (Positive range <>) of Object;
 
    --  The null object.
    Null_Object : constant Object;
@@ -136,6 +141,9 @@ package Util.Beans.Objects is
    --  If the object is a list bean whose Get_Count is 0, returns true.
    --  Otherwise returns false.
    function Is_Empty (Value : in Object) return Boolean;
+
+   --  Returns True if the object is an array.
+   function Is_Array (Value : in Object) return Boolean;
 
    --  Get a type identification for the object value.
    function Get_Type (Value : in Object) return Data_Type;
@@ -525,6 +533,12 @@ private
       Storage : Storage_Type;
    end record;
 
+   type Array_Proxy (Len : Natural) is new Proxy with record
+      Count  : Natural := 0;
+      Values : Object_Array (1 .. Len);
+   end record;
+   type Array_Proxy_Access is access all Array_Proxy;
+
    --  Release the object pointed to by the proxy (if necessary).
    overriding
    procedure Release (P : in out Bean_Proxy);
@@ -552,6 +566,9 @@ private
 
          when TYPE_WIDE_STRING =>
             Wide_Proxy : Wide_String_Proxy_Access;
+
+         when TYPE_ARRAY =>
+            Array_Proxy : Array_Proxy_Access;
 
          when TYPE_BEAN =>
             Proxy : Bean_Proxy_Access;
