@@ -208,6 +208,7 @@ package Util.Beans.Objects is
    function To_Object (Value : in Unbounded_Wide_Wide_String) return Object;
    function To_Object (Value : in Boolean) return Object;
    function To_Object (Value : in Duration) return Object;
+   function To_Object (Value : in Object_Array) return Object;
 
    --  Create an object that refers to the bean object.  With the storage type
    --  <b>DYNAMIC</b>, the default, the bean object will be freed when there is
