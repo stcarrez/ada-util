@@ -516,6 +516,37 @@ private
    function Is_Empty (Type_Def : in Bean_Type;
                       Value    : in Object_Value) return Boolean;
 
+   --  ------------------------------
+   --  Array Type
+   --  ------------------------------
+   type Array_Type is new Basic_Type with null record;
+
+   --  Get the type name
+   function Get_Name (Type_Def : in Array_Type) return String;
+
+   --  Get the base data type.
+   function Get_Data_Type (Type_Def : in Array_Type) return Data_Type;
+
+   --  Convert the value into a string.
+   function To_String (Type_Def : in Array_Type;
+                       Value    : in Object_Value) return String;
+
+   --  Convert the value into an integer.
+   function To_Long_Long (Type_Def : in Array_Type;
+                          Value    : in Object_Value) return Long_Long_Integer;
+
+   --  Convert the value into a float.
+   function To_Long_Float (Type_Def : in Array_Type;
+                           Value    : in Object_Value) return Long_Long_Float;
+
+   --  Convert the value into a boolean.
+   function To_Boolean (Type_Def : in Array_Type;
+                        Value    : in Object_Value) return Boolean;
+
+   --  Returns True if the value is empty.
+   function Is_Empty (Type_Def : in Array_Type;
+                      Value    : in Object_Value) return Boolean;
+
    subtype Proxy_Data_Type is Data_Type range TYPE_STRING .. TYPE_BEAN;
 
    type Proxy is tagged limited record
