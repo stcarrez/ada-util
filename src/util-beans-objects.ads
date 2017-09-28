@@ -166,6 +166,14 @@ package Util.Beans.Objects is
                         Name  : in String;
                         Value : in Object);
 
+   --  Get the number of elements in the array object.
+   --  Returns 0 if the object is not an array.
+   function Get_Count (From : in Object) return Natural;
+
+   --  Get the array element at the given position.
+   function Get_Value (From     : in Object;
+                       Position : in Positive) return Object;
+
    --  Convert the object to the corresponding type.
    function To_String (Value : in Object) return String;
    function To_Wide_Wide_String (Value : in Object) return Wide_Wide_String;
