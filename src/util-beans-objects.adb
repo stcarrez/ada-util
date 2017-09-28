@@ -48,7 +48,7 @@ package body Util.Beans.Objects is
    Flt_Type      : aliased constant Float_Type       := Float_Type '(null record);
    Duration_Type : aliased constant Duration_Type_Def := Duration_Type_Def '(null record);
    Bn_Type       : aliased constant Bean_Type        := Bean_Type '(null record);
-   Ar_Type       : aliased constant Bean_Type        := Bean_Type '(null record);
+   Ar_Type       : aliased constant Array_Type       := Array_Type '(null record);
 
    --  ------------------------------
    --  Convert the value into a wide string.
@@ -755,6 +755,87 @@ package body Util.Beans.Objects is
       begin
          return L.Get_Count = 0;
       end;
+   end Is_Empty;
+
+   --  ------------------------------
+   --  Array Type
+   --  ------------------------------
+
+   --  ------------------------------
+   --  Get the type name
+   --  ------------------------------
+   function Get_Name (Type_Def : in Array_Type) return String is
+      pragma Unreferenced (Type_Def);
+   begin
+      return "Array";
+   end Get_Name;
+
+   --  ------------------------------
+   --  Get the base data type.
+   --  ------------------------------
+   function Get_Data_Type (Type_Def : in Array_Type) return Data_Type is
+      pragma Unreferenced (Type_Def);
+   begin
+      return TYPE_ARRAY;
+   end Get_Data_Type;
+
+   --  ------------------------------
+   --  Convert the value into a string.
+   --  ------------------------------
+   function To_String (Type_Def : in Array_Type;
+                       Value    : in Object_Value) return String is
+      pragma Unreferenced (Type_Def);
+   begin
+      if Value.Array_Proxy = null then
+         return "<null array>";
+      else
+         return "<array>";
+      end if;
+   end To_String;
+
+   --  ------------------------------
+   --  Convert the value into an integer.
+   --  ------------------------------
+   function To_Long_Long (Type_Def : in Array_Type;
+                          Value    : in Object_Value) return Long_Long_Integer is
+      pragma Unreferenced (Type_Def, Value);
+   begin
+      return 0;
+   end To_Long_Long;
+
+   --  ------------------------------
+   --  Convert the value into a float.
+   --  ------------------------------
+   function To_Long_Float (Type_Def : in Array_Type;
+                           Value    : in Object_Value) return Long_Long_Float is
+      pragma Unreferenced (Type_Def, Value);
+   begin
+      return 0.0;
+   end To_Long_Float;
+
+   --  ------------------------------
+   --  Convert the value into a boolean.
+   --  ------------------------------
+   function To_Boolean (Type_Def : in Array_Type;
+                        Value    : in Object_Value) return Boolean is
+      pragma Unreferenced (Type_Def);
+      Proxy : constant Bean_Proxy_Access := Value.Proxy;
+   begin
+      return Proxy /= null;
+   end To_Boolean;
+
+   --  ------------------------------
+   --  Returns True if the value is empty.
+   --  ------------------------------
+   function Is_Empty (Type_Def : in Array_Type;
+                      Value    : in Object_Value) return Boolean is
+      pragma Unreferenced (Type_Def);
+   begin
+      if Value.Array_Proxy = null then
+         return True;
+      else
+         return Value.Array_Proxy.Len = 0;
+      end if;
    end Is_Empty;
 
    --  ------------------------------
