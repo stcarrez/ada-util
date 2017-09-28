@@ -855,6 +855,34 @@ package body Util.Beans.Objects is
    end Set_Value;
 
    --  ------------------------------
+   --  Get the number of elements in the array object.
+   --  Returns 0 if the object is not an array.
+   --  ------------------------------
+   function Get_Count (From : in Object) return Natural is
+   begin
+      if From.V.Of_Type /= TYPE_ARRAY then
+         return 0;
+      else
+         return From.V.Array_Proxy.Len;
+      end if;
+   end Get_Count;
+
+   --  ------------------------------
+   --  Get the array element at the given position.
+   --  ------------------------------
+   function Get_Value (From     : in Object;
+                       Position : in Positive) return Object is
+   begin
+      if From.V.Of_Type /= TYPE_ARRAY then
+         return Null_Object;
+      elsif From.V.Array_Proxy.Len < Position then
+         return Null_Object;
+      else
+         return From.V.Array_Proxy.Values (Position);
+      end if;
+   end Get_Value;
+
+   --  ------------------------------
    --  Convert the object to the corresponding type.
    --  ------------------------------
    function To_String (Value : Object) return String is
