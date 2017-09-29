@@ -20,6 +20,8 @@ with Ada.Finalization;
 
 with Util.Beans.Objects;
 with Util.Log.Loggers;
+with Util.Stacks;
+with Util.Serialize.IO;
 with Util.Serialize.Contexts;
 package Util.Serialize.Mappers is
 
@@ -117,6 +119,52 @@ package Util.Serialize.Mappers is
                    Log     : in Util.Log.Loggers.Logger'Class;
                    Prefix  : in String := "");
 
+   type Processing is new Util.Serialize.Contexts.Context
+     and Util.Serialize.IO.Reader with private;
+
+   --  Start a document.
+   procedure Start_Document (Stream : in out Processing);
+
+   --  Start a new object associated with the given name.  This is called when
+   --  the '{' is reached.  The reader must be updated so that the next
+   --  <b>Set_Member</b> procedure will associate the name/value pair on the
+   --  new object.
+   procedure Start_Object (Handler : in out Processing;
+                           Name    : in String);
+
+   --  Finish an object associated with the given name.  The reader must be
+   --  updated to be associated with the previous object.
+   procedure Finish_Object (Handler : in out Processing;
+                            Name    : in String);
+
+   procedure Start_Array (Handler : in out Processing;
+                          Name    : in String);
+
+   procedure Finish_Array (Handler : in out Processing;
+                           Name    : in String;
+                           Count   : in Natural);
+
+   --  Report an error while parsing the input stream.  The error message will be reported
+   --  on the logger associated with the parser.  The parser will be set as in error so that
+   --  the <b>Has_Error</b> function will return True after parsing the whole file.
+   procedure Error (Handler : in out Processing;
+                    Message : in String);
+
+   --  Set the name/value pair on the current object.  For each active mapping,
+   --  find whether a rule matches our name and execute it.
+   procedure Set_Member (Handler   : in out Processing;
+                         Name      : in String;
+                         Value     : in Util.Beans.Objects.Object;
+                         Attribute : in Boolean := False);
+
+   procedure Add_Mapping (Handler : in out Processing;
+                          Path    : in String;
+                          Mapper  : in Util.Serialize.Mappers.Mapper_Access);
+
+   --  Dump the mapping tree on the logger using the INFO log level.
+   procedure Dump (Handler : in Processing'Class;
+                   Logger  : in Util.Log.Loggers.Logger'Class);
+
 private
    --  Find a path component representing a child mapper under <b>From</b> and
    --  identified by the given <b>Name</b>.  If the mapper is not found, a new
@@ -155,5 +203,38 @@ private
    --  Finalize the object and release any mapping.
    overriding
    procedure Finalize (Controller : in out Mapper);
+
+   --  Implementation limitation:  the max number of active mapping nodes
+   MAX_NODES : constant Positive := 10;
+
+   type Mapper_Access_Array is array (1 .. MAX_NODES) of Serialize.Mappers.Mapper_Access;
+
+   procedure Push (Handler : in out Processing);
+
+   --  Pop the context and restore the previous context when leaving an element
+   procedure Pop (Handler  : in out Processing);
+
+   function Find_Mapper (Handler : in Processing;
+                         Name    : in String) return Util.Serialize.Mappers.Mapper_Access;
+
+   type Element_Context is record
+      --  The object mapper being process.
+      Object_Mapper : Util.Serialize.Mappers.Mapper_Access;
+
+      --  The active mapping nodes.
+      Active_Nodes : Mapper_Access_Array;
+   end record;
+   type Element_Context_Access is access all Element_Context;
+
+   package Context_Stack is new Util.Stacks (Element_Type => Element_Context,
+                                             Element_Type_Access => Element_Context_Access);
+
+   type Processing is new Util.Serialize.Contexts.Context and
+     Util.Serialize.IO.Reader with record
+      Error_Flag     : Boolean := False;
+      Stack          : Context_Stack.Stack;
+      Mapping_Tree   : aliased Mappers.Mapper;
+      Current_Mapper : Util.Serialize.Mappers.Mapper_Access;
+   end record;
 
 end Util.Serialize.Mappers;
