@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 
 with Util.Serialize.IO.JSON;
+with Util.Serialize.Mappers;
 package body Util.Http.Rest is
 
    --  -----------------------
@@ -26,7 +27,8 @@ package body Util.Http.Rest is
    --  -----------------------
    procedure Get (Http   : in out Client;
                   URI    : in String;
-                  Parser : in out Util.Serialize.IO.Parser'Class) is
+                  Parser : in out Util.Serialize.IO.Parser'Class;
+                  Sink   : in out Util.Serialize.IO.Reader'Class) is
       Response : Util.Http.Clients.Response;
    begin
       Http.Get (URI, Response);
@@ -34,7 +36,7 @@ package body Util.Http.Rest is
       declare
          Content      : constant String := Response.Get_Body;
       begin
-         Parser.Parse_String (Content);
+         Parser.Parse_String (Content, Sink);
       end;
    end Get;
 
@@ -49,10 +51,11 @@ package body Util.Http.Rest is
                        Into    : in Element_Mapper.Element_Type_Access) is
       Http     : Util.Http.Rest.Client;
       Reader   : Util.Serialize.IO.JSON.Parser;
+      Mapper   : Util.Serialize.Mappers.Processing;
    begin
-      Reader.Add_Mapping (Path, Mapping.all'Access);
-      Element_Mapper.Set_Context (Reader, Into);
-      Http.Get (URI, Reader);
+      Mapper.Add_Mapping (Path, Mapping.all'Access);
+      Element_Mapper.Set_Context (Mapper, Into);
+      Http.Get (URI, Reader, Mapper);
    end Rest_Get;
 
 end Util.Http.Rest;
