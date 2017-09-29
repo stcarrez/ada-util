@@ -41,20 +41,20 @@ package body Util.Serialize.IO.CSV.Tests is
       procedure Check_Parse (Content : in String;
                              Expect   : in Integer);
 
-      Mapping : aliased Util.Serialize.Mappers.Tests.Map_Test_Mapper.Mapper;
-
-      Mapper  : aliased Util.Serialize.Mappers.Tests.Map_Test_Vector_Mapper.Mapper;
+      Mapping        : aliased Util.Serialize.Mappers.Tests.Map_Test_Mapper.Mapper;
+      Vector_Mapper  : aliased Util.Serialize.Mappers.Tests.Map_Test_Vector_Mapper.Mapper;
 
       procedure Check_Parse (Content : in String;
                              Expect : in Integer) is
          P : Parser;
 
          Value   : aliased Map_Test_Vector.Vector;
+         Mapper  : Util.Serialize.Mappers.Processing;
       begin
-         P.Add_Mapping ("", Mapper'Unchecked_Access);
-         Map_Test_Vector_Mapper.Set_Context (P, Value'Unchecked_Access);
+         Mapper.Add_Mapping ("", Vector_Mapper'Unchecked_Access);
+         Map_Test_Vector_Mapper.Set_Context (Mapper, Value'Unchecked_Access);
 
-         P.Parse_String (Content);
+         P.Parse_String (Content, Mapper);
 
          T.Assert (not P.Has_Error, "Parse error for: " & Content);
          Util.Tests.Assert_Equals (T, 1, Integer (Value.Length), "Invalid result length");
@@ -68,7 +68,7 @@ package body Util.Serialize.IO.CSV.Tests is
       Mapping.Add_Mapping ("value", FIELD_VALUE);
       Mapping.Add_Mapping ("status", FIELD_BOOL);
       Mapping.Add_Mapping ("bool", FIELD_BOOL);
-      Mapper.Set_Mapping (Mapping'Unchecked_Access);
+      Vector_Mapper.Set_Mapping (Mapping'Unchecked_Access);
 
       Check_Parse (HDR & "joe,false,23,true", 23);
       Check_Parse (HDR & "billy,false,""12"",true", 12);
