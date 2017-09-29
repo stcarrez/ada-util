@@ -19,6 +19,7 @@ with System.Address_Image;
 with Util.Strings;
 
 with Ada.Tags;
+with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 package body Util.Serialize.Mappers is
 
@@ -485,5 +486,199 @@ package body Util.Serialize.Mappers is
          Controller.Mapping := null;
       end if;
    end Finalize;
+
+   --  Start a document.
+   procedure Start_Document (Stream : in out Processing) is
+   begin
+      Context_Stack.Clear (Stream.Stack);
+   end Start_Document;
+
+   --  ------------------------------
+   --  Push the current context when entering in an element.
+   --  ------------------------------
+   procedure Push (Handler : in out Processing) is
+      use type Util.Serialize.Mappers.Mapper_Access;
+   begin
+      Context_Stack.Push (Handler.Stack);
+   end Push;
+
+   --  ------------------------------
+   --  Pop the context and restore the previous context when leaving an element
+   --  ------------------------------
+   procedure Pop (Handler  : in out Processing) is
+   begin
+      Context_Stack.Pop (Handler.Stack);
+   end Pop;
+
+   function Find_Mapper (Handler : in Processing;
+                         Name    : in String) return Util.Serialize.Mappers.Mapper_Access is
+      pragma Unreferenced (Handler, Name);
+   begin
+      return null;
+   end Find_Mapper;
+
+   --  ------------------------------
+   --  Start a new object associated with the given name.  This is called when
+   --  the '{' is reached.  The reader must be updated so that the next
+   --  <b>Set_Member</b> procedure will associate the name/value pair on the
+   --  new object.
+   --  ------------------------------
+   procedure Start_Object (Handler : in out Processing;
+                           Name    : in String) is
+
+      use type Util.Serialize.Mappers.Mapper_Access;
+
+      Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
+      Next    : Element_Context_Access;
+      Pos     : Positive;
+   begin
+      Log.Debug ("Start object {0}", Name);
+
+      Context_Stack.Push (Handler.Stack);
+      Next := Context_Stack.Current (Handler.Stack);
+      if Current /= null then
+         Pos := 1;
+
+         --  Notify we are entering in the given node for each active mapping.
+         for I in Current.Active_Nodes'Range loop
+            declare
+               Node  : constant Mappers.Mapper_Access := Current.Active_Nodes (I);
+               Child : Mappers.Mapper_Access;
+            begin
+               exit when Node = null;
+               Child := Node.Find_Mapper (Name => Name);
+               if Child = null and then Node.Is_Wildcard then
+                  Child := Node;
+               end if;
+               if Child /= null then
+                  Log.Debug ("{0} is matching {1}", Name, Child.Get_Name);
+                  Child.Start_Object (Handler, Name);
+                  Next.Active_Nodes (Pos) := Child;
+                  Pos := Pos + 1;
+               end if;
+            end;
+         end loop;
+         while Pos <= Next.Active_Nodes'Last loop
+            Next.Active_Nodes (Pos) := null;
+            Pos := Pos + 1;
+         end loop;
+      else
+         Next.Active_Nodes (1) := Handler.Mapping_Tree.Find_Mapper (Name);
+      end if;
+   end Start_Object;
+
+   --  ------------------------------
+   --  Finish an object associated with the given name.  The reader must be
+   --  updated to be associated with the previous object.
+   --  ------------------------------
+   procedure Finish_Object (Handler : in out Processing;
+                            Name    : in String) is
+
+      use type Util.Serialize.Mappers.Mapper_Access;
+   begin
+      Log.Debug ("Finish object {0}", Name);
+
+      declare
+         Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
+      begin
+         if Current /= null then
+            --  Notify we are leaving the given node for each active mapping.
+            for I in Current.Active_Nodes'Range loop
+               declare
+                  Node : constant Mappers.Mapper_Access := Current.Active_Nodes (I);
+               begin
+                  exit when Node = null;
+                  Node.Finish_Object (Handler, Name);
+               end;
+            end loop;
+         end if;
+      end;
+      Handler.Pop;
+   end Finish_Object;
+
+   procedure Start_Array (Handler : in out Processing;
+                          Name    : in String) is
+      pragma Unreferenced (Name);
+   begin
+      Handler.Push;
+   end Start_Array;
+
+   procedure Finish_Array (Handler : in out Processing;
+                           Name    : in String;
+                           Count   : in Natural) is
+      pragma Unreferenced (Name, Count);
+   begin
+      Handler.Pop;
+   end Finish_Array;
+
+   --  -----------------------
+   --  Set the name/value pair on the current object.  For each active mapping,
+   --  find whether a rule matches our name and execute it.
+   --  -----------------------
+   procedure Set_Member (Handler   : in out Processing;
+                         Name      : in String;
+                         Value     : in Util.Beans.Objects.Object;
+                         Attribute : in Boolean := False) is
+      use Util.Serialize.Mappers;
+
+      Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
+   begin
+      Log.Debug ("Set member {0}", Name);
+
+      if Current /= null then
+
+         --  Look each active mapping node.
+         for I in Current.Active_Nodes'Range loop
+            declare
+               Node : constant Mapper_Access := Current.Active_Nodes (I);
+            begin
+               exit when Node = null;
+               Node.Set_Member (Name      => Name,
+                                Value     => Value,
+                                Attribute => Attribute,
+                                Context   => Handler);
+
+            exception
+               when E : Util.Serialize.Mappers.Field_Error =>
+                  Processing'Class (Handler).Error (Message => Ada.Exceptions.Exception_Message (E));
+
+               when E : Util.Serialize.Mappers.Field_Fatal_Error =>
+                  Processing'Class (Handler).Error (Message => Ada.Exceptions.Exception_Message (E));
+                  raise;
+
+                  --  For other exception, report an error with the field name and value.
+               when E : others =>
+                  Processing'Class (Handler).Error (Message => "Cannot set field '" & Name & "' to '"
+                                                & Util.Beans.Objects.To_String (Value) & "': "
+                                                & Ada.Exceptions.Exception_Message (E));
+                  raise;
+            end;
+         end loop;
+      end if;
+   end Set_Member;
+   --  Report an error while parsing the input stream.  The error message will be reported
+   --  on the logger associated with the parser.  The parser will be set as in error so that
+   --  the <b>Has_Error</b> function will return True after parsing the whole file.
+   procedure Error (Handler : in out Processing;
+                    Message : in String) is
+   begin
+      null;
+   end Error;
+
+   procedure Add_Mapping (Handler : in out Processing;
+                          Path    : in String;
+                          Mapper  : in Util.Serialize.Mappers.Mapper_Access) is
+   begin
+      Handler.Mapping_Tree.Add_Mapping (Path, Mapper);
+   end Add_Mapping;
+
+   --  ------------------------------
+   --  Dump the mapping tree on the logger using the INFO log level.
+   --  ------------------------------
+   procedure Dump (Handler : in Processing'Class;
+                   Logger  : in Util.Log.Loggers.Logger'Class) is
+   begin
+      Util.Serialize.Mappers.Dump (Handler.Mapping_Tree, Logger, "Mapping ");
+   end Dump;
 
 end Util.Serialize.Mappers;
