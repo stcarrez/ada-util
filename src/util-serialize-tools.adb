@@ -127,13 +127,14 @@ package body Util.Serialize.Tools is
    procedure From_JSON (Content : in String;
                         Map     : in out Util.Beans.Objects.Maps.Map) is
       Parser  : Util.Serialize.IO.JSON.Parser;
+      Mapper  : Util.Serialize.Mappers.Processing;
       Context : aliased Object_Mapper_Context;
    begin
       if Content'Length > 0 then
          Context.Map := Map'Unchecked_Access;
-         Parser.Add_Mapping ("**", JSON_Mapping'Access);
-         Object_Mapper.Set_Context (Parser, Context'Unchecked_Access);
-         Parser.Parse_String (Content);
+         Mapper.Add_Mapping ("**", JSON_Mapping'Access);
+         Object_Mapper.Set_Context (Mapper, Context'Unchecked_Access);
+         Parser.Parse_String (Content, Mapper);
       end if;
    end From_JSON;
 
