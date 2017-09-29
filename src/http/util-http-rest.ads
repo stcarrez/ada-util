@@ -35,7 +35,8 @@ package Util.Http.Rest is
    --  serialization context associated with the parser.
    procedure Get (Http   : in out Client;
                   URI    : in String;
-                  Parser : in out Util.Serialize.IO.Parser'Class);
+                  Parser : in out Util.Serialize.IO.Parser'Class;
+                  Sink   : in out Util.Serialize.IO.Reader'Class);
 
    --  Execute an HTTP GET operation on the given <b>URI</b> and parse the JSON response
    --  into the target object refered to by <b>Into</b> by using the mapping described
