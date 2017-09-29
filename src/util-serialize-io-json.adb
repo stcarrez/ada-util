@@ -442,7 +442,8 @@ package body Util.Serialize.IO.JSON is
    end Get_Location;
 
    procedure Parse (Handler : in out Parser;
-                    Stream : in out Util.Streams.Buffered.Buffered_Stream'Class) is
+                    Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class;
+                    Sink    : in out Reader'Class) is
 
       --  Put back a token in the buffer.
       procedure Put_Back (P     : in out Parser'Class;
@@ -522,17 +523,17 @@ package body Util.Serialize.IO.JSON is
          Peek (P, Token);
          case Token is
             when T_LEFT_BRACE =>
-               P.Start_Object (Name);
+               Sink.Start_Object (Name);
                Parse_Pairs (P);
                Peek (P, Token);
                if Token /= T_RIGHT_BRACE then
                   P.Error ("Missing '}'");
                end if;
-               P.Finish_Object (Name);
+               Sink.Finish_Object (Name);
 
                   --
             when T_LEFT_BRACKET =>
-               P.Start_Array (Name);
+               Sink.Start_Array (Name);
                Peek (P, Token);
                Index := 0;
                if Token /= T_RIGHT_BRACKET then
@@ -548,25 +549,25 @@ package body Util.Serialize.IO.JSON is
                      Index := Index + 1;
                   end loop;
                end if;
-               P.Finish_Array (Name, Index);
+               Sink.Finish_Array (Name, Index);
 
             when T_NULL =>
-               P.Set_Member (Name, Util.Beans.Objects.Null_Object);
+               Sink.Set_Member (Name, Util.Beans.Objects.Null_Object);
 
             when T_NUMBER =>
-               P.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token));
+               Sink.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token));
 
             when T_STRING =>
-               P.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token));
+               Sink.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token));
 
             when T_TRUE =>
-               P.Set_Member (Name, Util.Beans.Objects.To_Object (True));
+               Sink.Set_Member (Name, Util.Beans.Objects.To_Object (True));
 
             when T_FALSE =>
-               P.Set_Member (Name, Util.Beans.Objects.To_Object (False));
+               Sink.Set_Member (Name, Util.Beans.Objects.To_Object (False));
 
             when T_EOF =>
-               P.Error ("End of stream reached");
+               Sink.Error ("End of stream reached");
                return;
 
             when others =>
