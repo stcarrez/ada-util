@@ -126,19 +126,20 @@ package body Util.Serialize.IO.XML.Tests is
       Result  : aliased Map_Test;
 
       Reader  : Util.Serialize.IO.XML.Parser;
+      Mapper  : Util.Serialize.Mappers.Processing;
    begin
       Mapping.Add_Mapping ("name", FIELD_NAME);
       Mapping.Add_Mapping ("value", FIELD_VALUE);
       Mapping.Add_Mapping ("status", FIELD_BOOL);
       Mapping.Add_Mapping ("@bool", FIELD_BOOL);
       Mapping.Add_Mapping ("@id", FIELD_VALUE);
-      Reader.Add_Mapping ("info/node", Mapping'Unchecked_Access);
+      Mapper.Add_Mapping ("info/node", Mapping'Unchecked_Access);
 
-      Map_Test_Mapper.Set_Context (Reader, Result'Unchecked_Access);
+      Map_Test_Mapper.Set_Context (Mapper, Result'Unchecked_Access);
 
       --  Extract XML and check name, value, status
       Reader.Parse_String ("<info><node><name>A</name><value>2</value>"
-                           & "<status>1</status></node></info>");
+                           & "<status>1</status></node></info>", Mapper);
       T.Assert (not Reader.Has_Error, "The parser indicates an error");
       Assert_Equals (T, "A", Result.Name, "Invalid name");
       Assert_Equals (T, 2, Result.Value, "Invalid value");
@@ -146,14 +147,15 @@ package body Util.Serialize.IO.XML.Tests is
 
       --  Another extraction.
       Reader.Parse_String ("<info><node><name>B</name><value>20</value>"
-                           & "<status>0</status></node></info>");
+                           & "<status>0</status></node></info>", Mapper);
       T.Assert (not Reader.Has_Error, "The parser indicates an error");
       Assert_Equals (T, "B", Result.Name, "Invalid name");
       Assert_Equals (T, 20, Result.Value, "Invalid value");
       T.Assert (not Result.Bool, "Invalid boolean");
 
       --  Another extraction using attribute mappings.
-      Reader.Parse_String ("<info><node id='23' bool='true'><name>TOTO</name></node></info>");
+      Reader.Parse_String ("<info><node id='23' bool='true'><name>TOTO</name></node></info>",
+                           Mapper);
       T.Assert (not Reader.Has_Error, "The parser indicates an error");
       Assert_Equals (T, "TOTO", Result.Name, "Invalid name");
       Assert_Equals (T, 23, Result.Value, "Invalid value");
@@ -171,6 +173,7 @@ package body Util.Serialize.IO.XML.Tests is
       Result  : aliased Map_Test;
 
       Reader  : Util.Serialize.IO.XML.Parser;
+      Mapper  : Util.Serialize.Mappers.Processing;
    begin
       Mapping.Add_Mapping ("node/name", FIELD_NAME);
       Mapping.Add_Mapping ("node/value", FIELD_VALUE);
@@ -178,14 +181,14 @@ package body Util.Serialize.IO.XML.Tests is
       Mapping.Add_Mapping ("node/@bool", FIELD_BOOL);
       Mapping.Add_Mapping ("node/@id", FIELD_VALUE);
       Mapping.Add_Mapping ("node", FIELD_NODE);
-      Reader.Add_Mapping ("info", Mapping'Unchecked_Access);
+      Mapper.Add_Mapping ("info", Mapping'Unchecked_Access);
 
-      Map_Test_Mapper.Set_Context (Reader, Result'Unchecked_Access);
+      Map_Test_Mapper.Set_Context (Mapper, Result'Unchecked_Access);
 
       Result.Node := Util.Beans.Objects.Null_Object;
       --  Extract XML and check name, value, status
       Reader.Parse_String ("<info><node><name>A</name><value>2</value>"
-                           & "<status>1</status></node></info>");
+                           & "<status>1</status></node></info>", Mapper);
       T.Assert (not Reader.Has_Error, "The parser indicates an error");
       Assert_Equals (T, "A", Result.Name, "Invalid name");
       Assert_Equals (T, 2, Result.Value, "Invalid value");
@@ -195,13 +198,14 @@ package body Util.Serialize.IO.XML.Tests is
 
       --  Another extraction.
       Reader.Parse_String ("<info><node><name>B</name><value>20</value>"
-                           & "<status>0</status></node></info>");
+                           & "<status>0</status></node></info>", Mapper);
       Assert_Equals (T, "B", Result.Name, "Invalid name");
       Assert_Equals (T, 20, Result.Value, "Invalid value");
       T.Assert (not Result.Bool, "Invalid boolean");
 
       --  Another extraction using attribute mappings.
-      Reader.Parse_String ("<info><node id='23' bool='true'><name>TOTO</name></node></info>");
+      Reader.Parse_String ("<info><node id='23' bool='true'><name>TOTO</name></node></info>",
+                           Mapper);
       Assert_Equals (T, "TOTO", Result.Name, "Invalid name");
       Assert_Equals (T, 23, Result.Value, "Invalid value");
       T.Assert (Result.Bool, "Invalid boolean");
@@ -218,6 +222,7 @@ package body Util.Serialize.IO.XML.Tests is
       Result  : aliased Map_Test;
 
       Reader  : Util.Serialize.IO.XML.Parser;
+      Mapper  : Util.Serialize.Mappers.Processing;
    begin
       Mapping.Add_Mapping ("node/*/status", FIELD_BOOL);
       Mapping.Add_Mapping ("node/*/name", FIELD_NAME);
@@ -225,14 +230,14 @@ package body Util.Serialize.IO.XML.Tests is
       Mapping.Add_Mapping ("node/*/name/@bool", FIELD_BOOL);
       Mapping.Add_Mapping ("node/@id", FIELD_VALUE);
       Mapping.Add_Mapping ("node", FIELD_NODE);
-      Reader.Add_Mapping ("info", Mapping'Unchecked_Access);
+      Mapper.Add_Mapping ("info", Mapping'Unchecked_Access);
 
-      Map_Test_Mapper.Set_Context (Reader, Result'Unchecked_Access);
+      Map_Test_Mapper.Set_Context (Mapper, Result'Unchecked_Access);
 
       Result.Node := Util.Beans.Objects.Null_Object;
       --  Extract XML and check name, value, status
       Reader.Parse_String ("<info><node><inner><name>A</name><value>2</value></inner>"
-                           & "<status>1</status></node></info>");
+                           & "<status>1</status></node></info>", Mapper);
       T.Assert (not Reader.Has_Error, "The parser indicates an error");
       Assert_Equals (T, "A", Result.Name, "Invalid name");
       Assert_Equals (T, 2, Result.Value, "Invalid value");
@@ -242,13 +247,14 @@ package body Util.Serialize.IO.XML.Tests is
 
       --  Another extraction.
       Reader.Parse_String ("<info><node><b><c><d><name>B</name><value>20</value></d></c></b>"
-                           & "<status>0</status></node></info>");
+                           & "<status>0</status></node></info>", Mapper);
       Assert_Equals (T, "B", Result.Name, "Invalid name");
       Assert_Equals (T, 20, Result.Value, "Invalid value");
       T.Assert (not Result.Bool, "Invalid boolean");
 
       --  Another extraction using attribute mappings.
-      Reader.Parse_String ("<info><node id='23'><name bool='true'>TOTO</name></node></info>");
+      Reader.Parse_String ("<info><node id='23'><name bool='true'>TOTO</name></node></info>",
+                           Mapper);
       Assert_Equals (T, "TOTO", Result.Name, "Invalid name");
       Assert_Equals (T, 23, Result.Value, "Invalid value");
       T.Assert (Result.Bool, "Invalid boolean");
@@ -265,6 +271,7 @@ package body Util.Serialize.IO.XML.Tests is
       Result  : aliased Map_Test;
 
       Reader  : Util.Serialize.IO.XML.Parser;
+      Mapper  : Util.Serialize.Mappers.Processing;
    begin
       Mapping.Add_Mapping ("**/node/@id", FIELD_VALUE);
       Mapping.Add_Mapping ("**/node/name", FIELD_NAME);
@@ -272,18 +279,18 @@ package body Util.Serialize.IO.XML.Tests is
       Mapping.Add_Mapping ("**/node", FIELD_NODE);
       Mapping.Dump (Log);
 
-      Reader.Add_Mapping ("info", Mapping'Unchecked_Access);
+      Mapper.Add_Mapping ("info", Mapping'Unchecked_Access);
 
-      Map_Test_Mapper.Set_Context (Reader, Result'Unchecked_Access);
+      Map_Test_Mapper.Set_Context (Mapper, Result'Unchecked_Access);
 
-      Reader.Dump (Log);
+      Mapper.Dump (Log);
 
       Result.Node := Util.Beans.Objects.Null_Object;
 
       --  Extract XML and check name, value, status
       Reader.Parse_String ("<info><node><node id='2'><name bool='1'>A</name>"
                            & "<value>2</value></node>"
-                           & "<status>1</status></node></info>");
+                           & "<status>1</status></node></info>", Mapper);
       T.Assert (not Reader.Has_Error, "The parser indicates an error");
       Assert_Equals (T, "A", Result.Name, "Invalid name");
       Assert_Equals (T, 2, Result.Value, "Invalid value");
@@ -293,7 +300,7 @@ package body Util.Serialize.IO.XML.Tests is
 
       Reader.Parse_String ("<info><node><a><b><node id='3'><name bool='0'>B</name>"
                            & "<d><value>2</value></d></node></b></a>"
-                           & "<status>1</status></node></info>");
+                           & "<status>1</status></node></info>", Mapper);
       T.Assert (not Reader.Has_Error, "The parser indicates an error");
       Assert_Equals (T, "B", Result.Name, "Invalid name");
       Assert_Equals (T, 3, Result.Value, "Invalid value");
@@ -320,6 +327,7 @@ package body Util.Serialize.IO.XML.Tests is
          Result  : aliased Map_Test;
 
          Reader  : Util.Serialize.IO.XML.Parser;
+         Mapper  : Util.Serialize.Mappers.Processing;
       begin
          Mapping.Add_Mapping ("node/name", FIELD_NAME);
          Mapping.Add_Mapping ("node/value", FIELD_VALUE);
@@ -327,14 +335,14 @@ package body Util.Serialize.IO.XML.Tests is
          Mapping.Add_Mapping ("node/@bool", FIELD_BOOL);
          Mapping.Add_Mapping ("node/@id", FIELD_VALUE);
          Mapping.Add_Mapping ("node", FIELD_NODE);
-         Reader.Add_Mapping ("info", Mapping'Unchecked_Access);
+         Mapper.Add_Mapping ("info", Mapping'Unchecked_Access);
 
-         Map_Test_Mapper.Set_Context (Reader, Result'Unchecked_Access);
+         Map_Test_Mapper.Set_Context (Mapper, Result'Unchecked_Access);
 
          Result.Node := Util.Beans.Objects.Null_Object;
 
          --  Extract XML and check name, value, status
-         Reader.Parse_String (Content);
+         Reader.Parse_String (Content, Mapper);
          T.Assert (Reader.Has_Error, "No error reported by the parser for an invalid XML: " & Msg);
       end Check_Error;
 
@@ -364,8 +372,7 @@ package body Util.Serialize.IO.XML.Tests is
 
       Mapping : aliased Map_Test_Mapper.Mapper;
       Result  : aliased Map_Test;
-
-      Reader  : Util.Serialize.IO.XML.Parser;
+      Mapper  : Util.Serialize.Mappers.Processing;
 
       function Serialize (Value : in Map_Test) return String is
          Buffer : aliased Util.Streams.Texts.Print_Stream;
@@ -384,7 +391,7 @@ package body Util.Serialize.IO.XML.Tests is
 --        Mapping.Add_Mapping ("@bool", FIELD_BOOL);
 --        Mapping.Add_Mapping ("@id", FIELD_VALUE);
       Mapping.Bind (Get_Member'Access);
-      Reader.Add_Mapping ("info/node", Mapping'Unchecked_Access);
+      Mapper.Add_Mapping ("info/node", Mapping'Unchecked_Access);
 
       Result.Name  := To_Unbounded_String ("test");
       Result.Bool  := False;
