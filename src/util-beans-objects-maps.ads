@@ -62,6 +62,7 @@ package Util.Beans.Objects.Maps is
    --  The <b>Map_Bean</b> is a map of objects that also exposes the <b>Bean</b> interface.
    --  This allows the map to be available and accessed from an Object instance.
    type Map_Bean is new Maps.Map and Util.Beans.Basic.Bean with private;
+   type Map_Bean_Access is access all Map_Bean'Class;
 
    --  Get the value identified by the name.
    --  If the name cannot be found, the method should return the Null object.
