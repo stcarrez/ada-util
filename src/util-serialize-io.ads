@@ -23,9 +23,9 @@ with Util.Beans.Objects;
 with Util.Streams;
 with Util.Streams.Buffered;
 with Util.Serialize.Contexts;
-with Util.Serialize.Mappers;
+--  with Util.Serialize.Mappers;
 with Util.Log.Loggers;
-with Util.Stacks;
+--  with Util.Stacks;
 package Util.Serialize.IO is
 
    Parse_Error : exception;
@@ -118,19 +118,62 @@ package Util.Serialize.IO is
    procedure End_Array (Stream : in out Output_Stream;
                         Name   : in String) is null;
 
+   type Reader is limited interface;
+
+   --  Start a document.
+   procedure Start_Document (Stream : in out Reader) is null;
+
+   --  Finish a document.
+   procedure End_Document (Stream : in out Reader) is null;
+
+   --  Start a new object associated with the given name.  This is called when
+   --  the '{' is reached.  The reader must be updated so that the next
+   --  <b>Set_Member</b> procedure will associate the name/value pair on the
+   --  new object.
+   procedure Start_Object (Handler : in out Reader;
+                           Name    : in String) is abstract;
+
+   --  Finish an object associated with the given name.  The reader must be
+   --  updated to be associated with the previous object.
+   procedure Finish_Object (Handler : in out Reader;
+                            Name    : in String) is abstract;
+
+   procedure Start_Array (Handler : in out Reader;
+                          Name    : in String) is abstract;
+
+   procedure Finish_Array (Handler : in out Reader;
+                           Name    : in String;
+                           Count   : in Natural) is abstract;
+
+   --  Set the name/value pair on the current object.  For each active mapping,
+   --  find whether a rule matches our name and execute it.
+   procedure Set_Member (Handler   : in out Reader;
+                         Name      : in String;
+                         Value     : in Util.Beans.Objects.Object;
+                         Attribute : in Boolean := False) is abstract;
+
+   --  Report an error while parsing the input stream.  The error message will be reported
+   --  on the logger associated with the parser.  The parser will be set as in error so that
+   --  the <b>Has_Error</b> function will return True after parsing the whole file.
+   procedure Error (Handler : in out Reader;
+                    Message : in String) is abstract;
+
    type Parser is abstract new Util.Serialize.Contexts.Context with private;
 
    --  Parse the stream using the JSON parser.
    procedure Parse (Handler : in out Parser;
-                    Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class) is abstract;
+                    Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class;
+                    Sink    : in out Reader'Class) is abstract;
 
    --  Read the file and parse it using the parser.
    procedure Parse (Handler : in out Parser;
-                    File    : in String);
+                    File    : in String;
+                    Sink    : in out Reader'Class);
 
    --  Parse the content string.
    procedure Parse_String (Handler : in out Parser;
-                           Content : in String);
+                           Content : in String;
+                           Sink    : in out Reader'Class);
 
    --  Returns true if the <b>Parse</b> operation detected at least one error.
    function Has_Error (Handler : in Parser) return Boolean;
@@ -138,32 +181,6 @@ package Util.Serialize.IO is
    --  Set the error logger to report messages while parsing and reading the input file.
    procedure Set_Logger (Handler : in out Parser;
                          Logger  : in Util.Log.Loggers.Logger_Access);
-
-   --  Start a new object associated with the given name.  This is called when
-   --  the '{' is reached.  The reader must be updated so that the next
-   --  <b>Set_Member</b> procedure will associate the name/value pair on the
-   --  new object.
-   procedure Start_Object (Handler : in out Parser;
-                           Name    : in String);
-
-   --  Finish an object associated with the given name.  The reader must be
-   --  updated to be associated with the previous object.
-   procedure Finish_Object (Handler : in out Parser;
-                            Name    : in String);
-
-   procedure Start_Array (Handler : in out Parser;
-                          Name    : in String);
-
-   procedure Finish_Array (Handler : in out Parser;
-                           Name    : in String;
-                           Count   : in Natural);
-
-   --  Set the name/value pair on the current object.  For each active mapping,
-   --  find whether a rule matches our name and execute it.
-   procedure Set_Member (Handler   : in out Parser;
-                         Name      : in String;
-                         Value     : in Util.Beans.Objects.Object;
-                         Attribute : in Boolean := False);
 
    --  Get the current location (file and line) to report an error message.
    function Get_Location (Handler : in Parser) return String;
@@ -174,46 +191,10 @@ package Util.Serialize.IO is
    procedure Error (Handler : in out Parser;
                     Message : in String);
 
-   procedure Add_Mapping (Handler : in out Parser;
-                          Path    : in String;
-                          Mapper  : in Util.Serialize.Mappers.Mapper_Access);
-
-   --  Dump the mapping tree on the logger using the INFO log level.
-   procedure Dump (Handler : in Parser'Class;
-                   Logger  : in Util.Log.Loggers.Logger'Class);
-
 private
-
-   --  Implementation limitation:  the max number of active mapping nodes
-   MAX_NODES : constant Positive := 10;
-
-   type Mapper_Access_Array is array (1 .. MAX_NODES) of Serialize.Mappers.Mapper_Access;
-
-   procedure Push (Handler : in out Parser);
-
-   --  Pop the context and restore the previous context when leaving an element
-   procedure Pop (Handler  : in out Parser);
-
-   function Find_Mapper (Handler : in Parser;
-                         Name    : in String) return Util.Serialize.Mappers.Mapper_Access;
-
-   type Element_Context is record
-      --  The object mapper being process.
-      Object_Mapper : Util.Serialize.Mappers.Mapper_Access;
-
-      --  The active mapping nodes.
-      Active_Nodes : Mapper_Access_Array;
-   end record;
-   type Element_Context_Access is access all Element_Context;
-
-   package Context_Stack is new Util.Stacks (Element_Type => Element_Context,
-                                             Element_Type_Access => Element_Context_Access);
 
    type Parser is abstract new Util.Serialize.Contexts.Context with record
       Error_Flag     : Boolean := False;
-      Stack          : Context_Stack.Stack;
-      Mapping_Tree   : aliased Mappers.Mapper;
-      Current_Mapper : Util.Serialize.Mappers.Mapper_Access;
 
       --  The file name to use when reporting errors.
       File           : Ada.Strings.Unbounded.Unbounded_String;
