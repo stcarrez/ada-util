@@ -35,7 +35,8 @@ package Util.Serialize.IO.XML is
 
    --  Parse the stream using the JSON parser.
    procedure Parse (Handler : in out Parser;
-                    Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class);
+                    Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class;
+                    Sink    : in out Reader'Class);
 
    --  Set the XHTML reader to ignore or not the white spaces.
    --  When set to True, the ignorable white spaces will not be kept.
@@ -292,6 +293,8 @@ private
 
       --  Whether empty lines should be ignored (when white spaces are kept).
       Ignore_Empty_Lines : Boolean := True;
+
+      Sink               : access Reader'Class;
    end record;
 
    type Parser is new Util.Serialize.IO.Parser with record
