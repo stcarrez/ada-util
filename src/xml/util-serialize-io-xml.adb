@@ -142,16 +142,16 @@ package body Util.Serialize.IO.XML is
    begin
       Log.Debug ("Start object {0}", Local_Name);
 
-      Handler.Handler.Start_Object (Local_Name);
+      Handler.Sink.Start_Object (Local_Name);
       Attr_Count := Get_Length (Atts);
       for I in 0 .. Attr_Count - 1 loop
          declare
             Name  : constant String := Get_Qname (Atts, I);
             Value : constant String := Get_Value (Atts, I);
          begin
-            Handler.Handler.Set_Member (Name      => Name,
-                                        Value     => Util.Beans.Objects.To_Object (Value),
-                                        Attribute => True);
+            Handler.Sink.Set_Member (Name      => Name,
+                                     Value     => Util.Beans.Objects.To_Object (Value),
+                                     Attribute => True);
          end;
       end loop;
    end Start_Element;
@@ -168,20 +168,20 @@ package body Util.Serialize.IO.XML is
 
       Len : constant Natural := Length (Handler.Text);
    begin
-      Handler.Handler.Finish_Object (Local_Name);
+      Handler.Sink.Finish_Object (Local_Name);
       if Len > 0 then
 
          --  Add debug message only when it is active (saves the To_String conversion).
          if Log.Get_Level >= Util.Log.DEBUG_LEVEL then
             Log.Debug ("Close object {0} -> {1}", Local_Name, To_String (Handler.Text));
          end if;
-         Handler.Handler.Set_Member (Local_Name, Util.Beans.Objects.To_Object (Handler.Text));
+         Handler.Sink.Set_Member (Local_Name, Util.Beans.Objects.To_Object (Handler.Text));
 
          --  Clear the string using Delete so that the buffer is kept.
          Ada.Strings.Unbounded.Delete (Source => Handler.Text, From => 1, Through => Len);
       else
          Log.Debug ("Close object {0}", Local_Name);
-         Handler.Handler.Set_Member (Local_Name, Util.Beans.Objects.To_Object (Handler.Text));
+         Handler.Sink.Set_Member (Local_Name, Util.Beans.Objects.To_Object (Handler.Text));
       end if;
    end End_Element;
 
@@ -322,7 +322,8 @@ package body Util.Serialize.IO.XML is
 
    --  Parse the stream using the JSON parser.
    procedure Parse (Handler : in out Parser;
-                    Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class) is
+                    Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class;
+                    Sink    : in out Reader'Class) is
 
       Buffer_Size : constant Positive := 256;
 
@@ -400,6 +401,7 @@ package body Util.Serialize.IO.XML is
       Xml_Parser.Handler := Handler'Unchecked_Access;
       Xml_Parser.Ignore_White_Spaces := Handler.Ignore_White_Spaces;
       Xml_Parser.Ignore_Empty_Lines  := Handler.Ignore_Empty_Lines;
+      Xml_Parser.Sink := Sink'Unchecked_Access;
       Sax.Readers.Reader (Xml_Parser).Parse (Input);
       Handler.Locator := Sax.Locators.No_Locator;
 
