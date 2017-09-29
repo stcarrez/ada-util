@@ -25,7 +25,7 @@ package body Util.Properties.JSON is
    package Length_Stack is new Util.Stacks (Element_Type        => Natural,
                                             Element_Type_Access => Natural_Access);
 
-   type Parser is new Util.Serialize.IO.JSON.Parser with record
+   type Parser is abstract limited new Util.Serialize.IO.Reader with record
       Base_Name        : Ada.Strings.Unbounded.Unbounded_String;
       Lengths          : Length_Stack.Stack;
       Separator        : Ada.Strings.Unbounded.Unbounded_String;
@@ -54,6 +54,13 @@ package body Util.Properties.JSON is
    procedure Finish_Array (Handler : in out Parser;
                            Name    : in String;
                            Count   : in Natural);
+
+   --  Report an error while parsing the input stream.  The error message will be reported
+   --  on the logger associated with the parser.  The parser will be set as in error so that
+   --  the <b>Has_Error</b> function will return True after parsing the whole file.
+   procedure Error (Handler : in out Parser;
+                    Message : in String);
+
 
    --  -----------------------
    --  Start a new object associated with the given name.  This is called when
@@ -93,7 +100,7 @@ package body Util.Properties.JSON is
                           Name    : in String) is
    begin
       Handler.Start_Object (Name);
-      Util.Serialize.IO.JSON.Parser (Handler).Start_Array (Name);
+--      Util.Serialize.IO.JSON.Parser (Handler).Start_Array (Name);
    end Start_Array;
 
    overriding
@@ -103,8 +110,17 @@ package body Util.Properties.JSON is
    begin
       Parser'Class (Handler).Set_Member ("length", Util.Beans.Objects.To_Object (Count));
       Handler.Finish_Object (Name);
-      Util.Serialize.IO.JSON.Parser (Handler).Finish_Array (Name, Count);
+--      Util.Serialize.IO.JSON.Parser (Handler).Finish_Array (Name, Count);
    end Finish_Array;
+
+   --  Report an error while parsing the input stream.  The error message will be reported
+   --  on the logger associated with the parser.  The parser will be set as in error so that
+   --  the <b>Has_Error</b> function will return True after parsing the whole file.
+   procedure Error (Handler : in out Parser;
+                    Message : in String) is
+   begin
+      null;
+   end Error;
 
    --  -----------------------
    --  Parse the JSON content and put the flattened content in the property manager.
@@ -141,12 +157,13 @@ package body Util.Properties.JSON is
       end Set_Member;
 
       P : Local_Parser;
+      R : Util.Serialize.IO.JSON.Parser;
    begin
       P.Separator        := Ada.Strings.Unbounded.To_Unbounded_String (Flatten_Separator);
       P.Separator_Length := Flatten_Separator'Length;
       P.Manager          := Manager'Access;
-      P.Parse_String (Content);
-      if P.Has_Error then
+      R.Parse_String (Content, P);
+      if R.Has_Error then
          raise Util.Serialize.IO.Parse_Error;
       end if;
    end Parse_JSON;
@@ -187,12 +204,13 @@ package body Util.Properties.JSON is
       end Set_Member;
 
       P : Local_Parser;
+      R : Util.Serialize.IO.JSON.Parser;
    begin
       P.Manager   := Manager'Access;
       P.Separator := Ada.Strings.Unbounded.To_Unbounded_String (Flatten_Separator);
       P.Separator_Length := Flatten_Separator'Length;
-      P.Parse (Path);
-      if P.Has_Error then
+      R.Parse (Path, P);
+      if R.Has_Error then
          raise Util.Serialize.IO.Parse_Error;
       end if;
    end Read_JSON;
