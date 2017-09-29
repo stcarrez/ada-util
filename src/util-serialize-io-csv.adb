@@ -321,12 +321,12 @@ package body Util.Serialize.IO.CSV is
             --  Detect a new row.  Close the current object and start a new one.
             if Handler.Row /= Row then
                if Row > 1 then
-                  Parser'Class (Handler).Finish_Object ("");
+                  Handler.Sink.Finish_Object ("");
                end if;
-               Parser'Class (Handler).Start_Object ("");
+               Handler.Sink.Start_Object ("");
             end if;
             Handler.Row := Row;
-            Parser'Class (Handler).Set_Member (Name, Util.Beans.Objects.To_Object (Value));
+            Handler.Sink.Set_Member (Name, Util.Beans.Objects.To_Object (Value));
          end;
       end if;
    end Set_Cell;
@@ -383,7 +383,8 @@ package body Util.Serialize.IO.CSV is
    --  ------------------------------
    overriding
    procedure Parse (Handler : in out Parser;
-                    Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class) is
+                    Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class;
+                    Sink    : in out Reader'Class) is
       use Ada.Strings.Unbounded;
 
       C              : Character;
@@ -393,15 +394,16 @@ package body Util.Serialize.IO.CSV is
       In_Quote_Token : Boolean := False;
       In_Escape      : Boolean := False;
       Ignore_Row     : Boolean := False;
-      Context        : Element_Context_Access;
+      --  Context        : Element_Context_Access;
    begin
-      Context_Stack.Push (Handler.Stack);
-      Context := Context_Stack.Current (Handler.Stack);
-      Context.Active_Nodes (1) := Handler.Mapping_Tree'Unchecked_Access;
+      --  Context_Stack.Push (Handler.Stack);
+      --  Context := Context_Stack.Current (Handler.Stack);
+      --  Context.Active_Nodes (1) := Handler.Mapping_Tree'Unchecked_Access;
       if Handler.Use_Default_Headers then
          Row := 1;
       end if;
       Handler.Headers.Clear;
+      Handler.Sink := Sink'Unchecked_Access;
       loop
          Stream.Read (Char => C);
 
@@ -464,11 +466,13 @@ package body Util.Serialize.IO.CSV is
          end if;
 
       end loop;
+      Handler.Sink := null;
 
    exception
       when Ada.IO_Exceptions.Data_Error =>
          Parser'Class (Handler).Set_Cell (To_String (Token), Row, Column);
-         Context_Stack.Pop (Handler.Stack);
+         --  Context_Stack.Pop (Handler.Stack);
+         Handler.Sink := null;
          return;
    end Parse;
 
