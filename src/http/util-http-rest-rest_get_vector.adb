@@ -29,9 +29,10 @@ procedure Util.Http.Rest.Rest_Get_Vector (URI     : in String;
                                      Into    : in Vector_Mapper.Vector_Type_Access) is
    Http     : Util.Http.Rest.Client;
    Reader   : Util.Serialize.IO.JSON.Parser;
+   Mapper   : Util.Serialize.Mappers.Processing;
 begin
-   Reader.Add_Mapping (Path, Mapping.all'Access);
-   Vector_Mapper.Set_Context (Reader, Into);
-   Http.Get (URI, Reader);
+   Mapper.Add_Mapping (Path, Mapping.all'Access);
+   Vector_Mapper.Set_Context (Mapper, Into);
+   Http.Get (URI, Reader, Mapper);
 end Util.Http.Rest.Rest_Get_Vector;
 
