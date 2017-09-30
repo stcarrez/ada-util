@@ -181,7 +181,7 @@ package body Util.Files is
             Sep_Pos := Sep_Pos - 1;
          end if;
          declare
-         use Ada.Directories;
+            use Ada.Directories;
 
             Path : constant String := Util.Files.Compose (Paths (Pos .. Sep_Pos), Name);
          begin
