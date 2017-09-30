@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-mappers -- Serialize objects in various formats
---  Copyright (C) 2010, 2011, 2012, 2014 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2014, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -524,8 +524,9 @@ package body Util.Serialize.Mappers is
    --  new object.
    --  ------------------------------
    procedure Start_Object (Handler : in out Processing;
-                           Name    : in String) is
-
+                           Name    : in String;
+                           Logger  : in out Util.Log.Logging'Class) is
+      pragma Unreferenced (Logger);
       use type Util.Serialize.Mappers.Mapper_Access;
 
       Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
@@ -572,7 +573,8 @@ package body Util.Serialize.Mappers is
    --  updated to be associated with the previous object.
    --  ------------------------------
    procedure Finish_Object (Handler : in out Processing;
-                            Name    : in String) is
+                            Name    : in String;
+                            Logger  : in out Util.Log.Logging'Class) is
 
       use type Util.Serialize.Mappers.Mapper_Access;
    begin
@@ -597,7 +599,8 @@ package body Util.Serialize.Mappers is
    end Finish_Object;
 
    procedure Start_Array (Handler : in out Processing;
-                          Name    : in String) is
+                          Name    : in String;
+                          Logger  : in out Util.Log.Logging'Class) is
       pragma Unreferenced (Name);
    begin
       Handler.Push;
@@ -605,7 +608,8 @@ package body Util.Serialize.Mappers is
 
    procedure Finish_Array (Handler : in out Processing;
                            Name    : in String;
-                           Count   : in Natural) is
+                           Count   : in Natural;
+                           Logger  : in out Util.Log.Logging'Class) is
       pragma Unreferenced (Name, Count);
    begin
       Handler.Pop;
@@ -618,6 +622,7 @@ package body Util.Serialize.Mappers is
    procedure Set_Member (Handler   : in out Processing;
                          Name      : in String;
                          Value     : in Util.Beans.Objects.Object;
+                         Logger    : in out Util.Log.Logging'Class;
                          Attribute : in Boolean := False) is
       use Util.Serialize.Mappers;
 
@@ -640,17 +645,17 @@ package body Util.Serialize.Mappers is
 
             exception
                when E : Util.Serialize.Mappers.Field_Error =>
-                  Processing'Class (Handler).Error (Message => Ada.Exceptions.Exception_Message (E));
+                  Logger.Error (Message => Ada.Exceptions.Exception_Message (E));
 
                when E : Util.Serialize.Mappers.Field_Fatal_Error =>
-                  Processing'Class (Handler).Error (Message => Ada.Exceptions.Exception_Message (E));
+                  Logger.Error (Message => Ada.Exceptions.Exception_Message (E));
                   raise;
 
                   --  For other exception, report an error with the field name and value.
                when E : others =>
-                  Processing'Class (Handler).Error (Message => "Cannot set field '" & Name & "' to '"
-                                                & Util.Beans.Objects.To_String (Value) & "': "
-                                                & Ada.Exceptions.Exception_Message (E));
+                  Logger.Error (Message => "Cannot set field '" & Name & "' to '"
+                                & Util.Beans.Objects.To_String (Value) & "': "
+                                & Ada.Exceptions.Exception_Message (E));
                   raise;
             end;
          end loop;
