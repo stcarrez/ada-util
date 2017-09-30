@@ -57,7 +57,7 @@ with Util.Http.Clients.Web.Tests;
 # end if;
 #if not (OS_VERSION = "os-none")
 with Util.Systems.DLLs.Tests;
-with Util.Systems.OS.Tests;
+with Util.Systems.Os.Tests;
 #end if;
 package body Util.Testsuite is
 
@@ -107,7 +107,7 @@ package body Util.Testsuite is
 #end if;
 #if not(OS_VERSION = "os-none")
       Util.Systems.DLLs.Tests.Add_Tests (Result);
-      Util.Systems.OS.Tests.Add_Tests (Result);
+      Util.Systems.Os.Tests.Add_Tests (Result);
 #end if;
       return Result;
    end Suite;
