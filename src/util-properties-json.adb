@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with Util.Serialize.IO.JSON;
 with Util.Stacks;
+with Util.Log;
 with Util.Beans.Objects;
 package body Util.Properties.JSON is
 
@@ -38,29 +39,26 @@ package body Util.Properties.JSON is
    --  new object.
    overriding
    procedure Start_Object (Handler : in out Parser;
-                           Name    : in String);
+                           Name    : in String;
+                           Logger  : in out Util.Log.Logging'Class);
 
    --  Finish an object associated with the given name.  The reader must be
    --  updated to be associated with the previous object.
    overriding
    procedure Finish_Object (Handler : in out Parser;
-                            Name    : in String);
+                            Name    : in String;
+                            Logger  : in out Util.Log.Logging'Class);
 
    overriding
    procedure Start_Array (Handler : in out Parser;
-                          Name    : in String);
+                          Name    : in String;
+                          Logger  : in out Util.Log.Logging'Class);
 
    overriding
    procedure Finish_Array (Handler : in out Parser;
                            Name    : in String;
-                           Count   : in Natural);
-
-   --  Report an error while parsing the input stream.  The error message will be reported
-   --  on the logger associated with the parser.  The parser will be set as in error so that
-   --  the <b>Has_Error</b> function will return True after parsing the whole file.
-   procedure Error (Handler : in out Parser;
-                    Message : in String);
-
+                           Count   : in Natural;
+                           Logger  : in out Util.Log.Logging'Class);
 
    --  -----------------------
    --  Start a new object associated with the given name.  This is called when
@@ -70,7 +68,8 @@ package body Util.Properties.JSON is
    --  -----------------------
    overriding
    procedure Start_Object (Handler : in out Parser;
-                           Name    : in String) is
+                           Name    : in String;
+                           Logger  : in out Util.Log.Logging'Class) is
    begin
       if Name'Length > 0 then
          Ada.Strings.Unbounded.Append (Handler.Base_Name, Name);
@@ -86,7 +85,8 @@ package body Util.Properties.JSON is
    --  -----------------------
    overriding
    procedure Finish_Object (Handler : in out Parser;
-                            Name    : in String) is
+                            Name    : in String;
+                            Logger  : in out Util.Log.Logging'Class) is
       Len : constant Natural := Ada.Strings.Unbounded.Length (Handler.Base_Name);
    begin
       if Name'Length > 0 then
@@ -97,30 +97,23 @@ package body Util.Properties.JSON is
 
    overriding
    procedure Start_Array (Handler : in out Parser;
-                          Name    : in String) is
+                          Name    : in String;
+                          Logger  : in out Util.Log.Logging'Class) is
    begin
-      Handler.Start_Object (Name);
+      Handler.Start_Object (Name, Logger);
 --      Util.Serialize.IO.JSON.Parser (Handler).Start_Array (Name);
    end Start_Array;
 
    overriding
    procedure Finish_Array (Handler : in out Parser;
                            Name    : in String;
-                           Count   : in Natural) is
+                           Count   : in Natural;
+                           Logger  : in out Util.Log.Logging'Class) is
    begin
-      Parser'Class (Handler).Set_Member ("length", Util.Beans.Objects.To_Object (Count));
-      Handler.Finish_Object (Name);
+      Parser'Class (Handler).Set_Member ("length", Util.Beans.Objects.To_Object (Count), Logger);
+      Handler.Finish_Object (Name, Logger);
 --      Util.Serialize.IO.JSON.Parser (Handler).Finish_Array (Name, Count);
    end Finish_Array;
-
-   --  Report an error while parsing the input stream.  The error message will be reported
-   --  on the logger associated with the parser.  The parser will be set as in error so that
-   --  the <b>Has_Error</b> function will return True after parsing the whole file.
-   procedure Error (Handler : in out Parser;
-                    Message : in String) is
-   begin
-      null;
-   end Error;
 
    --  -----------------------
    --  Parse the JSON content and put the flattened content in the property manager.
@@ -139,6 +132,7 @@ package body Util.Properties.JSON is
       procedure Set_Member (Handler   : in out Local_Parser;
                             Name      : in String;
                             Value     : in Util.Beans.Objects.Object;
+                            Logger    : in out Util.Log.Logging'Class;
                             Attribute : in Boolean := False);
 
       --  -----------------------
@@ -149,6 +143,7 @@ package body Util.Properties.JSON is
       procedure Set_Member (Handler   : in out Local_Parser;
                             Name      : in String;
                             Value     : in Util.Beans.Objects.Object;
+                            Logger    : in out Util.Log.Logging'Class;
                             Attribute : in Boolean := False) is
          pragma Unreferenced (Attribute);
       begin
@@ -186,6 +181,7 @@ package body Util.Properties.JSON is
       procedure Set_Member (Handler   : in out Local_Parser;
                             Name      : in String;
                             Value     : in Util.Beans.Objects.Object;
+                            Logger    : in out Util.Log.Logging'Class;
                             Attribute : in Boolean := False);
 
       --  -----------------------
@@ -196,6 +192,7 @@ package body Util.Properties.JSON is
       procedure Set_Member (Handler   : in out Local_Parser;
                             Name      : in String;
                             Value     : in Util.Beans.Objects.Object;
+                            Logger    : in out Util.Log.Logging'Class;
                             Attribute : in Boolean := False) is
          pragma Unreferenced (Attribute);
       begin
