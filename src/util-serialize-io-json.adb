@@ -26,6 +26,7 @@ with Util.Strings;
 with Util.Streams;
 with Util.Streams.Buffered;
 with Util.Dates.ISO8601;
+with Util.Beans.Objects.Readers;
 package body Util.Serialize.IO.JSON is
 
    use Ada.Strings.Unbounded;
@@ -717,7 +718,7 @@ package body Util.Serialize.IO.JSON is
                   Append (P.Token, C);
                end loop;
             end if;
-            if C /= ' ' and C /= Ada.Characters.Latin_1.HT then
+            if not (C in ' ' | Ada.Characters.Latin_1.HT | Ada.Characters.Latin_1.LF | Ada.Characters.Latin_1.CR) then
                P.Has_Pending_Char := True;
                P.Pending_Char := C;
             end if;
@@ -735,7 +736,7 @@ package body Util.Serialize.IO.JSON is
                Append (P.Token, C);
             end loop;
             --  Putback the last character unless we can ignore it.
-            if C /= ' ' and C /= Ada.Characters.Latin_1.HT then
+            if not (C in ' ' | Ada.Characters.Latin_1.HT | Ada.Characters.Latin_1.LF | Ada.Characters.Latin_1.CR) then
                P.Has_Pending_Char := True;
                P.Pending_Char := C;
             end if;
@@ -804,5 +805,14 @@ package body Util.Serialize.IO.JSON is
    begin
       Parse_Value (Handler, "");
    end Parse;
+
+   --  Read a JSON file and return an object.
+   function Read (Path : in String) return Util.Beans.Objects.Object is
+      P : Parser;
+      R : Util.Beans.Objects.Readers.Reader;
+   begin
+      P.Parse (Path, R);
+      return R.Get_Root;
+   end Read;
 
 end Util.Serialize.IO.JSON;
