@@ -661,14 +661,6 @@ package body Util.Serialize.Mappers is
          end loop;
       end if;
    end Set_Member;
-   --  Report an error while parsing the input stream.  The error message will be reported
-   --  on the logger associated with the parser.  The parser will be set as in error so that
-   --  the <b>Has_Error</b> function will return True after parsing the whole file.
-   procedure Error (Handler : in out Processing;
-                    Message : in String) is
-   begin
-      null;
-   end Error;
 
    procedure Add_Mapping (Handler : in out Processing;
                           Path    : in String;
