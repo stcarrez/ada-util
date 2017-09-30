@@ -19,6 +19,7 @@ with Ada.Strings.Unbounded;
 with Ada.Streams;
 with Util.Streams.Texts;
 with Util.Stacks;
+with Util.Beans.Objects;
 package Util.Serialize.IO.JSON is
 
    --  ------------------------------
@@ -177,6 +178,9 @@ package Util.Serialize.IO.JSON is
 
    --  Get the current location (file and line) to report an error message.
    function Get_Location (Handler : in Parser) return String;
+
+   --  Read a JSON file and return an object.
+   function Read (Path : in String) return Util.Beans.Objects.Object;
 
 private
 
