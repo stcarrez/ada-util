@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-mappers -- Serialize objects in various formats
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -130,31 +130,30 @@ package Util.Serialize.Mappers is
    --  <b>Set_Member</b> procedure will associate the name/value pair on the
    --  new object.
    procedure Start_Object (Handler : in out Processing;
-                           Name    : in String);
+                           Name    : in String;
+                           Logger  : in out Util.Log.Logging'Class);
 
    --  Finish an object associated with the given name.  The reader must be
    --  updated to be associated with the previous object.
    procedure Finish_Object (Handler : in out Processing;
-                            Name    : in String);
+                            Name    : in String;
+                            Logger  : in out Util.Log.Logging'Class);
 
    procedure Start_Array (Handler : in out Processing;
-                          Name    : in String);
+                          Name    : in String;
+                          Logger  : in out Util.Log.Logging'Class);
 
    procedure Finish_Array (Handler : in out Processing;
                            Name    : in String;
-                           Count   : in Natural);
-
-   --  Report an error while parsing the input stream.  The error message will be reported
-   --  on the logger associated with the parser.  The parser will be set as in error so that
-   --  the <b>Has_Error</b> function will return True after parsing the whole file.
-   procedure Error (Handler : in out Processing;
-                    Message : in String);
+                           Count   : in Natural;
+                           Logger  : in out Util.Log.Logging'Class);
 
    --  Set the name/value pair on the current object.  For each active mapping,
    --  find whether a rule matches our name and execute it.
    procedure Set_Member (Handler   : in out Processing;
                          Name      : in String;
                          Value     : in Util.Beans.Objects.Object;
+                         Logger    : in out Util.Log.Logging'Class;
                          Attribute : in Boolean := False);
 
    procedure Add_Mapping (Handler : in out Processing;
