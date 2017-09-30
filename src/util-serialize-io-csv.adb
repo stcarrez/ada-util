@@ -396,11 +396,7 @@ package body Util.Serialize.IO.CSV is
       In_Quote_Token : Boolean := False;
       In_Escape      : Boolean := False;
       Ignore_Row     : Boolean := False;
-      --  Context        : Element_Context_Access;
    begin
-      --  Context_Stack.Push (Handler.Stack);
-      --  Context := Context_Stack.Current (Handler.Stack);
-      --  Context.Active_Nodes (1) := Handler.Mapping_Tree'Unchecked_Access;
       if Handler.Use_Default_Headers then
          Row := 1;
       end if;
@@ -468,12 +464,10 @@ package body Util.Serialize.IO.CSV is
          end if;
 
       end loop;
-      Handler.Sink := null;
 
    exception
       when Ada.IO_Exceptions.Data_Error =>
          Parser'Class (Handler).Set_Cell (To_String (Token), Row, Column);
-         --  Context_Stack.Pop (Handler.Stack);
          Handler.Sink := null;
          return;
    end Parse;
