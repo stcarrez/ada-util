@@ -575,7 +575,7 @@ package body Util.Serialize.Mappers is
    procedure Finish_Object (Handler : in out Processing;
                             Name    : in String;
                             Logger  : in out Util.Log.Logging'Class) is
-
+      pragma Unreferenced (Logger);
       use type Util.Serialize.Mappers.Mapper_Access;
    begin
       Log.Debug ("Finish object {0}", Name);
@@ -601,7 +601,7 @@ package body Util.Serialize.Mappers is
    procedure Start_Array (Handler : in out Processing;
                           Name    : in String;
                           Logger  : in out Util.Log.Logging'Class) is
-      pragma Unreferenced (Name);
+      pragma Unreferenced (Name, Logger);
    begin
       Handler.Push;
    end Start_Array;
@@ -610,7 +610,7 @@ package body Util.Serialize.Mappers is
                            Name    : in String;
                            Count   : in Natural;
                            Logger  : in out Util.Log.Logging'Class) is
-      pragma Unreferenced (Name, Count);
+      pragma Unreferenced (Name, Count, Logger);
    begin
       Handler.Pop;
    end Finish_Array;
