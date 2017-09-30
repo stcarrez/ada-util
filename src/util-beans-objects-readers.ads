@@ -23,6 +23,10 @@ package Util.Beans.Objects.Readers is
 
    type Reader is limited new Util.Serialize.IO.Reader with private;
 
+   --  Start a document.
+   overriding
+   procedure Start_Document (Handler : in out Reader);
+
    --  Start a new object associated with the given name.  This is called when
    --  the '{' is reached.  The reader must be updated so that the next
    --  <b>Set_Member</b> procedure will associate the name/value pair on the
@@ -62,9 +66,17 @@ package Util.Beans.Objects.Readers is
 
 private
 
+   type Object_Context is record
+      Map  : Util.Beans.Objects.Maps.Map_Bean_Access;
+      List : Util.Beans.Objects.Vectors.Vector_Bean_Access;
+   end record;
+   type Object_Context_Access is access all Object_Context;
+
+   package Object_Stack is new Util.Stacks (Element_Type        => Object_Context,
+                                            Element_Type_Access => Object_Context_Access);
+
    type Reader is limited new Util.Serialize.IO.Reader with record
-      Current          : Util.Beans.Objects.Maps.Map_Bean_Access;
-      List             : Util.Beans.Objects.Vectors.Vector;
+      Context  : Object_Stack.Stack;
    end record;
 
 end Util.Beans.Objects.Readers;
