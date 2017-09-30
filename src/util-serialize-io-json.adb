@@ -523,17 +523,17 @@ package body Util.Serialize.IO.JSON is
          Peek (P, Token);
          case Token is
             when T_LEFT_BRACE =>
-               Sink.Start_Object (Name);
+               Sink.Start_Object (Name, P);
                Parse_Pairs (P);
                Peek (P, Token);
                if Token /= T_RIGHT_BRACE then
                   P.Error ("Missing '}'");
                end if;
-               Sink.Finish_Object (Name);
+               Sink.Finish_Object (Name, P);
 
                   --
             when T_LEFT_BRACKET =>
-               Sink.Start_Array (Name);
+               Sink.Start_Array (Name, P);
                Peek (P, Token);
                Index := 0;
                if Token /= T_RIGHT_BRACKET then
@@ -549,25 +549,25 @@ package body Util.Serialize.IO.JSON is
                      Index := Index + 1;
                   end loop;
                end if;
-               Sink.Finish_Array (Name, Index);
+               Sink.Finish_Array (Name, Index, P);
 
             when T_NULL =>
-               Sink.Set_Member (Name, Util.Beans.Objects.Null_Object);
+               Sink.Set_Member (Name, Util.Beans.Objects.Null_Object, P);
 
             when T_NUMBER =>
-               Sink.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token));
+               Sink.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token), P);
 
             when T_STRING =>
-               Sink.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token));
+               Sink.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token), P);
 
             when T_TRUE =>
-               Sink.Set_Member (Name, Util.Beans.Objects.To_Object (True));
+               Sink.Set_Member (Name, Util.Beans.Objects.To_Object (True), P);
 
             when T_FALSE =>
-               Sink.Set_Member (Name, Util.Beans.Objects.To_Object (False));
+               Sink.Set_Member (Name, Util.Beans.Objects.To_Object (False), P);
 
             when T_EOF =>
-               Sink.Error ("End of stream reached");
+               P.Error ("End of stream reached");
                return;
 
             when others =>
