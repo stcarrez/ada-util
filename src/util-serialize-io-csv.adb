@@ -322,6 +322,8 @@ package body Util.Serialize.IO.CSV is
             if Handler.Row /= Row then
                if Row > 1 then
                   Handler.Sink.Finish_Object ("");
+               else
+                  Handler.Sink.Start_Array ("");
                end if;
                Handler.Sink.Start_Object ("");
             end if;
