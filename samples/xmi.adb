@@ -177,6 +177,7 @@ procedure XMI is
                                                Set_Member          => Set_Member);
 
    XMI_Mapping        : aliased XMI_Mapper.Mapper;
+   Mapper             : Util.Serialize.Mappers.Processing;
 
 begin
 --        Util.Log.Loggers.Initialize ("samples/log4j.properties");
@@ -236,15 +237,15 @@ begin
    XMI_Mapping.Add_Mapping ("**/Comment/Comment.annotatedElement/Class/@xmi.idref",
                             FIELD_COMMENT_CLASS_ID);
 
-   Reader.Add_Mapping ("XMI", XMI_Mapping'Unchecked_Access);
+   Mapper.Add_Mapping ("XMI", XMI_Mapping'Unchecked_Access);
 
    for I in 1 .. Count loop
       declare
          S    : constant String := Ada.Command_Line.Argument (I);
          Data : aliased XMI_Info;
       begin
-         XMI_Mapper.Set_Context (Reader, Data'Unchecked_Access);
-         Reader.Parse (S);
+         XMI_Mapper.Set_Context (Mapper, Data'Unchecked_Access);
+         Reader.Parse (S, Mapper);
       end;
    end loop;
 end XMI;
