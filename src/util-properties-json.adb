@@ -70,6 +70,7 @@ package body Util.Properties.JSON is
    procedure Start_Object (Handler : in out Parser;
                            Name    : in String;
                            Logger  : in out Util.Log.Logging'Class) is
+      pragma Unreferenced (Logger);
    begin
       if Name'Length > 0 then
          Ada.Strings.Unbounded.Append (Handler.Base_Name, Name);
@@ -87,6 +88,7 @@ package body Util.Properties.JSON is
    procedure Finish_Object (Handler : in out Parser;
                             Name    : in String;
                             Logger  : in out Util.Log.Logging'Class) is
+      pragma Unreferenced (Logger);
       Len : constant Natural := Ada.Strings.Unbounded.Length (Handler.Base_Name);
    begin
       if Name'Length > 0 then
@@ -145,7 +147,7 @@ package body Util.Properties.JSON is
                             Value     : in Util.Beans.Objects.Object;
                             Logger    : in out Util.Log.Logging'Class;
                             Attribute : in Boolean := False) is
-         pragma Unreferenced (Attribute);
+         pragma Unreferenced (Logger, Attribute);
       begin
          Handler.Manager.Set (Ada.Strings.Unbounded.To_String (Handler.Base_Name) & Name,
                               Util.Beans.Objects.To_String (Value));
@@ -194,7 +196,7 @@ package body Util.Properties.JSON is
                             Value     : in Util.Beans.Objects.Object;
                             Logger    : in out Util.Log.Logging'Class;
                             Attribute : in Boolean := False) is
-         pragma Unreferenced (Attribute);
+         pragma Unreferenced (Logger, Attribute);
       begin
          Handler.Manager.Set (Ada.Strings.Unbounded.To_String (Handler.Base_Name) & Name,
                               Util.Beans.Objects.To_String (Value));
