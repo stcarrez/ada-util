@@ -1263,10 +1263,11 @@ package body Util.Beans.Objects is
    begin
       return Object '(Controlled with
                         V => Object_Value '(Of_Type => TYPE_ARRAY,
-                                            Array_Proxy => new Array_Proxy '(Ref_Counter => ONE,
-                                                                             Len    => Value'Length,
-                                                                             Count  => Value'Length,
-                                                                             Values => Value)),
+                                            Array_Proxy =>
+                                               new Array_Proxy '(Ref_Counter => ONE,
+                                                                 Len    => Value'Length,
+                                                                 Count  => Value'Length,
+                                                                 Values => Value)),
                       Type_Def => Ar_Type'Access);
    end To_Object;
 
