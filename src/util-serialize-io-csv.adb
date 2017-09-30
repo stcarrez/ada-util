@@ -321,14 +321,14 @@ package body Util.Serialize.IO.CSV is
             --  Detect a new row.  Close the current object and start a new one.
             if Handler.Row /= Row then
                if Row > 1 then
-                  Handler.Sink.Finish_Object ("");
+                  Handler.Sink.Finish_Object ("", Handler);
                else
-                  Handler.Sink.Start_Array ("");
+                  Handler.Sink.Start_Array ("", Handler);
                end if;
-               Handler.Sink.Start_Object ("");
+               Handler.Sink.Start_Object ("", Handler);
             end if;
             Handler.Row := Row;
-            Handler.Sink.Set_Member (Name, Util.Beans.Objects.To_Object (Value));
+            Handler.Sink.Set_Member (Name, Util.Beans.Objects.To_Object (Value), Handler);
          end;
       end if;
    end Set_Cell;
