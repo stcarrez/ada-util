@@ -22,10 +22,7 @@ with Ada.Calendar;
 with Util.Beans.Objects;
 with Util.Streams;
 with Util.Streams.Buffered;
-with Util.Serialize.Contexts;
---  with Util.Serialize.Mappers;
 with Util.Log.Loggers;
---  with Util.Stacks;
 package Util.Serialize.IO is
 
    Parse_Error : exception;
@@ -131,34 +128,33 @@ package Util.Serialize.IO is
    --  <b>Set_Member</b> procedure will associate the name/value pair on the
    --  new object.
    procedure Start_Object (Handler : in out Reader;
-                           Name    : in String) is abstract;
+                           Name    : in String;
+                           Logger  : in out Util.Log.Logging'Class) is abstract;
 
    --  Finish an object associated with the given name.  The reader must be
    --  updated to be associated with the previous object.
    procedure Finish_Object (Handler : in out Reader;
-                            Name    : in String) is abstract;
+                            Name    : in String;
+                            Logger  : in out Util.Log.Logging'Class) is abstract;
 
    procedure Start_Array (Handler : in out Reader;
-                          Name    : in String) is abstract;
+                          Name    : in String;
+                          Logger  : in out Util.Log.Logging'Class) is abstract;
 
    procedure Finish_Array (Handler : in out Reader;
                            Name    : in String;
-                           Count   : in Natural) is abstract;
+                           Count   : in Natural;
+                           Logger  : in out Util.Log.Logging'Class) is abstract;
 
    --  Set the name/value pair on the current object.  For each active mapping,
    --  find whether a rule matches our name and execute it.
    procedure Set_Member (Handler   : in out Reader;
                          Name      : in String;
                          Value     : in Util.Beans.Objects.Object;
+                         Logger    : in out Util.Log.Logging'Class;
                          Attribute : in Boolean := False) is abstract;
 
-   --  Report an error while parsing the input stream.  The error message will be reported
-   --  on the logger associated with the parser.  The parser will be set as in error so that
-   --  the <b>Has_Error</b> function will return True after parsing the whole file.
-   procedure Error (Handler : in out Reader;
-                    Message : in String) is abstract;
-
-   type Parser is abstract new Util.Serialize.Contexts.Context with private;
+   type Parser is abstract new Util.Log.Logging with private;
 
    --  Parse the stream using the JSON parser.
    procedure Parse (Handler : in out Parser;
@@ -193,7 +189,7 @@ package Util.Serialize.IO is
 
 private
 
-   type Parser is abstract new Util.Serialize.Contexts.Context with record
+   type Parser is abstract new Util.Log.Logging with record
       Error_Flag     : Boolean := False;
 
       --  The file name to use when reporting errors.
