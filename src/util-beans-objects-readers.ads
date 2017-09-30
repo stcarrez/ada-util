@@ -19,6 +19,7 @@ with Util.Beans.Objects.Maps;
 with Util.Beans.Objects.Vectors;
 with Util.Serialize.IO;
 with Util.Stacks;
+with Util.Log;
 package Util.Beans.Objects.Readers is
 
    type Reader is limited new Util.Serialize.IO.Reader with private;
@@ -33,22 +34,26 @@ package Util.Beans.Objects.Readers is
    --  new object.
    overriding
    procedure Start_Object (Handler : in out Reader;
-                           Name    : in String);
+                           Name    : in String;
+                           Logger  : in out Util.Log.Logging'Class);
 
    --  Finish an object associated with the given name.  The reader must be
    --  updated to be associated with the previous object.
    overriding
    procedure Finish_Object (Handler : in out Reader;
-                            Name    : in String);
+                            Name    : in String;
+                            Logger  : in out Util.Log.Logging'Class);
 
    overriding
    procedure Start_Array (Handler : in out Reader;
-                          Name    : in String);
+                          Name    : in String;
+                          Logger  : in out Util.Log.Logging'Class);
 
    overriding
    procedure Finish_Array (Handler : in out Reader;
                            Name    : in String;
-                           Count   : in Natural);
+                           Count   : in Natural;
+                           Logger  : in out Util.Log.Logging'Class);
 
    --  Set the name/value pair on the current object.  For each active mapping,
    --  find whether a rule matches our name and execute it.
@@ -56,13 +61,8 @@ package Util.Beans.Objects.Readers is
    procedure Set_Member (Handler   : in out Reader;
                          Name      : in String;
                          Value     : in Util.Beans.Objects.Object;
+                         Logger    : in out Util.Log.Logging'Class;
                          Attribute : in Boolean := False);
-
-   --  Report an error while parsing the input stream.  The error message will be reported
-   --  on the logger associated with the parser.  The parser will be set as in error so that
-   --  the <b>Has_Error</b> function will return True after parsing the whole file.
-   procedure Error (Handler : in out Reader;
-                    Message : in String);
 
 private
 
