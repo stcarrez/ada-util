@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  json -- JSON Reader
---  Copyright (C) 2010, 2011, 2014 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2014, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,8 +30,10 @@ procedure Json is
    use Ada.Strings.Unbounded;
    use type Mapping.Person_Access;
    use type Ada.Containers.Count_Type;
+   use Mapping;
 
    Reader : Util.Serialize.IO.JSON.Parser;
+   Mapper : Util.Serialize.Mappers.Processing;
 
    Count  : constant Natural := Ada.Command_Line.Argument_Count;
 
@@ -73,8 +75,8 @@ begin
    end if;
 
    Person_Vector_Mapping.Set_Mapping (Mapping.Get_Person_Mapper);
-   Reader.Add_Mapping ("/list", Mapping.Get_Person_Vector_Mapper.all'Access);
-   Reader.Add_Mapping ("/person", Mapping.Get_Person_Mapper.all'Access);
+   Mapper.Add_Mapping ("/list", Person_Vector_Mapping'Unchecked_Access);
+   Mapper.Add_Mapping ("/person", Mapping.Get_Person_Mapper.all'Access);
    for I in 1 .. Count loop
       declare
          S    : constant String := Ada.Command_Line.Argument (I);
@@ -82,9 +84,9 @@ begin
          List : aliased Mapping.Person_Vector.Vector;
          P    : aliased Mapping.Person;
       begin
-         Mapping.Person_Vector_Mapper.Set_Context (Reader, List'Unchecked_Access);
-         Mapping.Person_Mapper.Set_Context (Reader, P'Unchecked_Access);
-         Reader.Parse (S);
+         Person_Vector_Mapper.Set_Context (Mapper, List'Unchecked_Access);
+         Mapping.Person_Mapper.Set_Context (Mapper, P'Unchecked_Access);
+         Reader.Parse (S, Mapper);
 
          --  The list now contains our elements.
          List.Iterate (Process => Print'Access);
@@ -93,24 +95,32 @@ begin
          end if;
 
          declare
+            Buffer : aliased Util.Streams.Buffered.Buffered_Stream;
+            Print  : aliased Util.Streams.Texts.Print_Stream;
             Output : Util.Serialize.IO.JSON.Output_Stream;
          begin
-            Output.Initialize (Size => 10000);
+            Buffer.Initialize (Size => 10000);
+            Print.Initialize (Buffer'Unchecked_Access);
+            Output.Initialize (Print'Unchecked_Access);
             Mapping.Get_Person_Mapper.Write (Output, P);
             Ada.Text_IO.Put_Line ("Person: "
-                                  & Util.Streams.Texts.To_String (Buffered_Stream (Output)));
+                                  & Util.Streams.Texts.To_String (Print));
          end;
 
          declare
+            Buffer : aliased Util.Streams.Buffered.Buffered_Stream;
+            Print  : aliased Util.Streams.Texts.Print_Stream;
             Output : Util.Serialize.IO.JSON.Output_Stream;
          begin
-            Output.Initialize (Size => 10000);
+            Buffer.Initialize (Size => 10000);
+            Print.Initialize (Buffer'Unchecked_Access);
+            Output.Initialize (Print'Unchecked_Access);
             Output.Write ("{""list"":");
-            Mapping.Get_Person_Vector_Mapper.Write (Output, List);
+            Person_Vector_Mapping.Write (Output, List);
             Output.Write ("}");
 
             Ada.Text_IO.Put_Line ("IO:");
-            Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Buffered_Stream (Output)));
+            Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Buffered_Stream (Print)));
          end;
       end;
    end loop;
