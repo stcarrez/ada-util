@@ -61,7 +61,6 @@ package body Util.Serialize.IO is
                          Input  => Stream'Unchecked_Access,
                          Size   => 1024);
       Stream.Open (Mode => Ada.Streams.Stream_IO.In_File, Name => File);
-      --  Context_Stack.Clear (Handler.Stack);
       Sink.Start_Document;
       Parser'Class (Handler).Parse (Buffer, Sink);
 
@@ -91,7 +90,6 @@ package body Util.Serialize.IO is
       end if;
       Handler.File := Ada.Strings.Unbounded.To_Unbounded_String ("<inline>");
       Stream.Initialize (Content  => Content);
-      --  Context_Stack.Clear (Handler.Stack);
       Sink.Start_Document;
       Parser'Class (Handler).Parse (Stream, Sink);
 
