@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-readers -- Datasets
---  Copyright (C) 2013 Stephane Carrez
+--  Copyright (C) 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,8 @@ package body Util.Beans.Objects.Readers is
    --  -----------------------
    overriding
    procedure Start_Object (Handler : in out Reader;
-                           Name    : in String) is
+                           Name    : in String;
+                           Logger  : in out Util.Log.Logging'Class) is
       Current : constant Object_Context_Access := Object_Stack.Current (Handler.Context);
       Next    : Object_Context_Access;
    begin
@@ -58,14 +59,16 @@ package body Util.Beans.Objects.Readers is
    --  -----------------------
    overriding
    procedure Finish_Object (Handler : in out Reader;
-                            Name    : in String) is
+                            Name    : in String;
+                            Logger  : in out Util.Log.Logging'Class) is
    begin
       Object_Stack.Pop (Handler.Context);
    end Finish_Object;
 
    overriding
    procedure Start_Array (Handler : in out Reader;
-                          Name    : in String) is
+                          Name    : in String;
+                          Logger  : in out Util.Log.Logging'Class) is
       Current : constant Object_Context_Access := Object_Stack.Current (Handler.Context);
       Next    : Object_Context_Access;
    begin
@@ -82,7 +85,8 @@ package body Util.Beans.Objects.Readers is
    overriding
    procedure Finish_Array (Handler : in out Reader;
                            Name    : in String;
-                           Count   : in Natural) is
+                           Count   : in Natural;
+                           Logger  : in out Util.Log.Logging'Class) is
    begin
       Object_Stack.Pop (Handler.Context);
    end Finish_Array;
@@ -95,6 +99,7 @@ package body Util.Beans.Objects.Readers is
    procedure Set_Member (Handler   : in out Reader;
                          Name      : in String;
                          Value     : in Util.Beans.Objects.Object;
+                         Logger    : in out Util.Log.Logging'Class;
                          Attribute : in Boolean := False) is
       pragma Unreferenced (Attribute);
       Current : constant Object_Context_Access := Object_Stack.Current (Handler.Context);
@@ -105,14 +110,5 @@ package body Util.Beans.Objects.Readers is
          Current.List.Append (Value);
       end if;
    end Set_Member;
-
-   --  Report an error while parsing the input stream.  The error message will be reported
-   --  on the logger associated with the parser.  The parser will be set as in error so that
-   --  the <b>Has_Error</b> function will return True after parsing the whole file.
-   procedure Error (Handler : in out Reader;
-                    Message : in String) is
-   begin
-      null;
-   end Error;
 
 end Util.Beans.Objects.Readers;
