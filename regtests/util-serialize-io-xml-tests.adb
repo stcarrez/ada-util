@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-xml-tests -- Unit tests for XML serialization
---  Copyright (C) 2011, 2012, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -146,6 +146,7 @@ package body Util.Serialize.IO.XML.Tests is
       T.Assert (Result.Bool, "Invalid boolean");
 
       --  Another extraction.
+      Map_Test_Mapper.Set_Context (Mapper, Result'Unchecked_Access);
       Reader.Parse_String ("<info><node><name>B</name><value>20</value>"
                            & "<status>0</status></node></info>", Mapper);
       T.Assert (not Reader.Has_Error, "The parser indicates an error");
