@@ -27,6 +27,7 @@ package body Util.Beans.Objects.Readers is
       Object_Stack.Clear (Handler.Context);
       Object_Stack.Push (Handler.Context);
       Object_Stack.Current (Handler.Context).Map := new Maps.Map_Bean;
+      Handler.Root := To_Object (Object_Stack.Current (Handler.Context).Map, DYNAMIC);
    end Start_Document;
 
    --  -----------------------
@@ -47,9 +48,9 @@ package body Util.Beans.Objects.Readers is
       Next := Object_Stack.Current (Handler.Context);
       Next.Map := new Maps.Map_Bean;
       if Current.Map /= null then
-         Current.Map.Include (Name, To_Object (Next.List, DYNAMIC));
+         Current.Map.Include (Name, To_Object (Next.Map, DYNAMIC));
       else
-         Current.List.Append (To_Object (Next.List, DYNAMIC));
+         Current.List.Append (To_Object (Next.Map, DYNAMIC));
       end if;
    end Start_Object;
 
@@ -113,5 +114,13 @@ package body Util.Beans.Objects.Readers is
          Current.List.Append (Value);
       end if;
    end Set_Member;
+
+   --  -----------------------
+   --  Get the root object.
+   --  -----------------------
+   function Get_Root (Handler : in Reader) return Object is
+   begin
+      return Handler.Root;
+   end Get_Root;
 
 end Util.Beans.Objects.Readers;
