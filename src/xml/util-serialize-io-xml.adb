@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-xml -- XML Serialization Driver
---  Copyright (C) 2011, 2012, 2013, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2013, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -142,7 +142,7 @@ package body Util.Serialize.IO.XML is
    begin
       Log.Debug ("Start object {0}", Local_Name);
 
-      Handler.Sink.Start_Object (Local_Name);
+      Handler.Sink.Start_Object (Local_Name, Handler.Handler.all);
       Attr_Count := Get_Length (Atts);
       for I in 0 .. Attr_Count - 1 loop
          declare
@@ -151,6 +151,7 @@ package body Util.Serialize.IO.XML is
          begin
             Handler.Sink.Set_Member (Name      => Name,
                                      Value     => Util.Beans.Objects.To_Object (Value),
+                                     Logger    => Handler.Handler.all,
                                      Attribute => True);
          end;
       end loop;
@@ -168,20 +169,22 @@ package body Util.Serialize.IO.XML is
 
       Len : constant Natural := Length (Handler.Text);
    begin
-      Handler.Sink.Finish_Object (Local_Name);
+      Handler.Sink.Finish_Object (Local_Name, Handler.Handler.all);
       if Len > 0 then
 
          --  Add debug message only when it is active (saves the To_String conversion).
          if Log.Get_Level >= Util.Log.DEBUG_LEVEL then
             Log.Debug ("Close object {0} -> {1}", Local_Name, To_String (Handler.Text));
          end if;
-         Handler.Sink.Set_Member (Local_Name, Util.Beans.Objects.To_Object (Handler.Text));
+         Handler.Sink.Set_Member (Local_Name, Util.Beans.Objects.To_Object (Handler.Text),
+                                  Handler.Handler.all);
 
          --  Clear the string using Delete so that the buffer is kept.
          Ada.Strings.Unbounded.Delete (Source => Handler.Text, From => 1, Through => Len);
       else
          Log.Debug ("Close object {0}", Local_Name);
-         Handler.Sink.Set_Member (Local_Name, Util.Beans.Objects.To_Object (Handler.Text));
+         Handler.Sink.Set_Member (Local_Name, Util.Beans.Objects.To_Object (Handler.Text),
+                                  Handler.Handler.all);
       end if;
    end End_Element;
 
