@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  csv_reader -- Read CSV file
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@ with Ada.Text_IO;
 with Ada.Command_Line;
 
 with Util.Serialize.IO.CSV;
+with Util.Serialize.Mappers;
 
 --  This example shows how to read a CSV file.  Unlike <b>csv_city</b>, the CSV cells
 --  are collected directly by overriding the <b>Set_Cell</b> parser procedure.
@@ -64,9 +65,10 @@ begin
    for I in 1 .. Count loop
       declare
          File : constant String := Ada.Command_Line.Argument (I);
+         Mapper : Util.Serialize.Mappers.Processing;
       begin
          Prev_Row := Row_Type'Last;
-         Parser.Parse (File);
+         Parser.Parse (File, Mapper);
       end;
    end loop;
 end CSV_Reader;
