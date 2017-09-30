@@ -113,7 +113,6 @@ package body Util.Events.Timers is
                       Max_Count : in Natural := Natural'Last) is
       Timer : Timer_Ref;
       Now   : constant Ada.Real_Time.Time := Ada.Real_Time.Clock;
-      Count : Natural := 0;
    begin
       for Count in 1 .. Max_Count loop
          List.Manager.Find_Next (Now, Timeout, Timer);
