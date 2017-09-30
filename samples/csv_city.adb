@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  csv_city -- Read CSV file which contains city mapping
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@ with Ada.Strings.Unbounded;
 
 with Util.Log.Loggers;
 with Util.Serialize.IO.CSV;
+with Util.Serialize.Mappers;
 
 with City_Mapping;
 procedure CSV_City is
@@ -43,11 +44,12 @@ begin
    declare
       File   : constant String := Ada.Command_Line.Argument (1);
       List   : aliased City_Mapping.City_Vector.Vector;
+      Mapper : aliased Util.Serialize.Mappers.Processing;
       Reader : Util.Serialize.IO.CSV.Parser;
    begin
-      Reader.Add_Mapping ("", City_Mapping.Get_City_Vector_Mapper.all'Access);
-      City_Mapping.City_Vector_Mapper.Set_Context (Reader, List'Unchecked_Access);
-      Reader.Parse (File);
+      Mapper.Add_Mapping ("", City_Mapping.Get_City_Vector_Mapper.all'Access);
+      City_Mapping.City_Vector_Mapper.Set_Context (Mapper, List'Unchecked_Access);
+      Reader.Parse (File, Mapper);
 
       if List.Length = 0 then
          Ada.Text_IO.Put_Line ("No city found.");
