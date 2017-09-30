@@ -15,7 +15,6 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Util.Serialize.IO;
 package body Util.Beans.Objects.Readers is
 
    use type Maps.Map_Bean_Access;
@@ -40,6 +39,7 @@ package body Util.Beans.Objects.Readers is
    procedure Start_Object (Handler : in out Reader;
                            Name    : in String;
                            Logger  : in out Util.Log.Logging'Class) is
+      pragma Unreferenced (Logger);
       Current : constant Object_Context_Access := Object_Stack.Current (Handler.Context);
       Next    : Object_Context_Access;
    begin
@@ -61,6 +61,7 @@ package body Util.Beans.Objects.Readers is
    procedure Finish_Object (Handler : in out Reader;
                             Name    : in String;
                             Logger  : in out Util.Log.Logging'Class) is
+      pragma Unreferenced (Name, Logger);
    begin
       Object_Stack.Pop (Handler.Context);
    end Finish_Object;
@@ -69,6 +70,7 @@ package body Util.Beans.Objects.Readers is
    procedure Start_Array (Handler : in out Reader;
                           Name    : in String;
                           Logger  : in out Util.Log.Logging'Class) is
+      pragma Unreferenced (Logger);
       Current : constant Object_Context_Access := Object_Stack.Current (Handler.Context);
       Next    : Object_Context_Access;
    begin
@@ -87,6 +89,7 @@ package body Util.Beans.Objects.Readers is
                            Name    : in String;
                            Count   : in Natural;
                            Logger  : in out Util.Log.Logging'Class) is
+      pragma Unreferenced (Name, Count, Logger);
    begin
       Object_Stack.Pop (Handler.Context);
    end Finish_Array;
@@ -101,7 +104,7 @@ package body Util.Beans.Objects.Readers is
                          Value     : in Util.Beans.Objects.Object;
                          Logger    : in out Util.Log.Logging'Class;
                          Attribute : in Boolean := False) is
-      pragma Unreferenced (Attribute);
+      pragma Unreferenced (Logger, Attribute);
       Current : constant Object_Context_Access := Object_Stack.Current (Handler.Context);
    begin
       if Current.Map /= null then
