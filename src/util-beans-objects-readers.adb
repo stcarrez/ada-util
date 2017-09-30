@@ -18,6 +18,18 @@
 with Util.Serialize.IO;
 package body Util.Beans.Objects.Readers is
 
+   use type Maps.Map_Bean_Access;
+   use type Vectors.Vector_Bean_Access;
+
+   --  Start a document.
+   overriding
+   procedure Start_Document (Handler : in out Reader) is
+   begin
+      Object_Stack.Clear (Handler.Context);
+      Object_Stack.Push (Handler.Context);
+      Object_Stack.Current (Handler.Context).Map := new Maps.Map_Bean;
+   end Start_Document;
+
    --  -----------------------
    --  Start a new object associated with the given name.  This is called when
    --  the '{' is reached.  The reader must be updated so that the next
@@ -25,14 +37,18 @@ package body Util.Beans.Objects.Readers is
    --  new object.
    --  -----------------------
    overriding
-   procedure Start_Object (Handler : in out Parser;
+   procedure Start_Object (Handler : in out Reader;
                            Name    : in String) is
+      Current : constant Object_Context_Access := Object_Stack.Current (Handler.Context);
+      Next    : Object_Context_Access;
    begin
-      if Name'Length > 0 then
-         Ada.Strings.Unbounded.Append (Handler.Base_Name, Name);
-         Ada.Strings.Unbounded.Append (Handler.Base_Name, Handler.Separator);
-         Length_Stack.Push (Handler.Lengths);
-         Length_Stack.Current (Handler.Lengths).all := Name'Length + Handler.Separator_Length;
+      Object_Stack.Push (Handler.Context);
+      Next := Object_Stack.Current (Handler.Context);
+      Next.Map := new Maps.Map_Bean;
+      if Current.Map /= null then
+         Current.Map.Include (Name, To_Object (Next.List, DYNAMIC));
+      else
+         Current.List.Append (To_Object (Next.List, DYNAMIC));
       end if;
    end Start_Object;
 
@@ -41,31 +57,34 @@ package body Util.Beans.Objects.Readers is
    --  updated to be associated with the previous object.
    --  -----------------------
    overriding
-   procedure Finish_Object (Handler : in out Parser;
+   procedure Finish_Object (Handler : in out Reader;
                             Name    : in String) is
-      Len : constant Natural := Ada.Strings.Unbounded.Length (Handler.Base_Name);
    begin
-      if Name'Length > 0 then
-         Ada.Strings.Unbounded.Delete (Handler.Base_Name,
-                                       Len - Name'Length - Handler.Separator_Length + 1, Len);
-      end if;
+      Object_Stack.Pop (Handler.Context);
    end Finish_Object;
 
    overriding
-   procedure Start_Array (Handler : in out Parser;
+   procedure Start_Array (Handler : in out Reader;
                           Name    : in String) is
+      Current : constant Object_Context_Access := Object_Stack.Current (Handler.Context);
+      Next    : Object_Context_Access;
    begin
-      Handler.Start_Object (Name);
---      Util.Serialize.IO.JSON.Parser (Handler).Start_Array (Name);
+      Object_Stack.Push (Handler.Context);
+      Next := Object_Stack.Current (Handler.Context);
+      Next.List := new Vectors.Vector_Bean;
+      if Current.Map /= null then
+         Current.Map.Include (Name, To_Object (Next.List, DYNAMIC));
+      else
+         Current.List.Append (To_Object (Next.List, DYNAMIC));
+      end if;
    end Start_Array;
 
    overriding
-   procedure Finish_Array (Handler : in out Parser;
+   procedure Finish_Array (Handler : in out Reader;
                            Name    : in String;
                            Count   : in Natural) is
    begin
-      Parser'Class (Handler).Set_Member ("length", Util.Beans.Objects.To_Object (Count));
-      Handler.Finish_Object (Name);
+      Object_Stack.Pop (Handler.Context);
    end Finish_Array;
 
    --  -----------------------
@@ -78,14 +97,19 @@ package body Util.Beans.Objects.Readers is
                          Value     : in Util.Beans.Objects.Object;
                          Attribute : in Boolean := False) is
       pragma Unreferenced (Attribute);
+      Current : constant Object_Context_Access := Object_Stack.Current (Handler.Context);
    begin
-      Handler.Current.Set_Value (Name, Value);
+      if Current.Map /= null then
+         Current.Map.Set_Value (Name, Value);
+      else
+         Current.List.Append (Value);
+      end if;
    end Set_Member;
 
    --  Report an error while parsing the input stream.  The error message will be reported
    --  on the logger associated with the parser.  The parser will be set as in error so that
    --  the <b>Has_Error</b> function will return True after parsing the whole file.
-   procedure Error (Handler : in out Parser;
+   procedure Error (Handler : in out Reader;
                     Message : in String) is
    begin
       null;
