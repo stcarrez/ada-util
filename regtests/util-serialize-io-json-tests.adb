@@ -22,6 +22,7 @@ with Ada.Calendar.Formatting;
 with Util.Test_Caller;
 with Util.Log.Loggers;
 with Util.Streams.Files;
+with Util.Beans.Objects.Readers;
 
 package body Util.Serialize.IO.JSON.Tests is
 
@@ -50,8 +51,9 @@ package body Util.Serialize.IO.JSON.Tests is
 
       procedure Check_Parse_Error (Content : in String) is
          P : Parser;
+         R : Util.Beans.Objects.Readers.Reader;
       begin
-         P.Parse_String (Content);
+         P.Parse_String (Content, R);
          Log.Error ("No exception raised for: {0}", Content);
 
       exception
@@ -85,8 +87,9 @@ package body Util.Serialize.IO.JSON.Tests is
 
       procedure Check_Parse (Content : in String) is
          P : Parser;
+         R : Util.Beans.Objects.Readers.Reader;
       begin
-         P.Parse_String (Content);
+         P.Parse_String (Content, R);
 
       exception
          when Parse_Error =>
