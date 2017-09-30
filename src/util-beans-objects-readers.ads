@@ -64,6 +64,9 @@ package Util.Beans.Objects.Readers is
                          Logger    : in out Util.Log.Logging'Class;
                          Attribute : in Boolean := False);
 
+   --  Get the root object.
+   function Get_Root (Handler : in Reader) return Object;
+
 private
 
    type Object_Context is record
@@ -77,6 +80,7 @@ private
 
    type Reader is limited new Util.Serialize.IO.Reader with record
       Context  : Object_Stack.Stack;
+      Root     : Util.Beans.Objects.Object;
    end record;
 
 end Util.Beans.Objects.Readers;
