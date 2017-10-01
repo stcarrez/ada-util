@@ -46,6 +46,26 @@ package body Util.Beans.Objects.Maps is
    end Set_Value;
 
    --  ------------------------------
+   --  Iterate over the members of the map.
+   --  ------------------------------
+   procedure Iterate (From    : in Object;
+                      Process : not null access procedure (Name : in String;
+                                                           Item : in Object)) is
+      procedure Process_One (Pos : in Maps.Cursor);
+
+      procedure Process_One (Pos : in Maps.Cursor) is
+      begin
+         Process (Maps.Key (Pos), Maps.Element (Pos));
+      end Process_One;
+
+      Bean : constant access Util.Beans.Basic.Readonly_Bean'Class := To_Bean (From);
+   begin
+      if Bean /= null and then Bean.all in Util.Beans.Objects.Maps.Map_Bean'Class then
+         Map_Bean'Class (Bean.all).Iterate (Process_One'Access);
+      end if;
+   end Iterate;
+
+   --  ------------------------------
    --  Create an object that contains a <tt>Map_Bean</tt> instance.
    --  ------------------------------
    function Create return Object is
