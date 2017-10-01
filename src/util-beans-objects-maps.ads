@@ -79,6 +79,11 @@ package Util.Beans.Objects.Maps is
    --  Create an object that contains a <tt>Map_Bean</tt> instance.
    function Create return Object;
 
+   --  Iterate over the members of the map.
+   procedure Iterate (From    : in Object;
+                      Process : not null access procedure (Name : in String;
+                                                           Item : in Object));
+
 private
 
    type Map_Bean is new Maps.Map and Util.Beans.Basic.Bean with null record;
