@@ -43,7 +43,8 @@ package body Util.Beans.Objects.Readers is
    begin
       Object_Stack.Push (Handler.Context);
       Next := Object_Stack.Current (Handler.Context);
-      Next.Map := new Maps.Map_Bean;
+      Next.Map  := new Maps.Map_Bean;
+      Next.List := null;
       if Current = null then
          Handler.Root := To_Object (Next.Map, DYNAMIC);
       elsif Current.Map /= null then
@@ -77,6 +78,7 @@ package body Util.Beans.Objects.Readers is
       Object_Stack.Push (Handler.Context);
       Next := Object_Stack.Current (Handler.Context);
       Next.List := new Vectors.Vector_Bean;
+      Next.Map  := null;
       if Current = null then
          Handler.Root := To_Object (Next.List, DYNAMIC);
       elsif Current.Map /= null then
