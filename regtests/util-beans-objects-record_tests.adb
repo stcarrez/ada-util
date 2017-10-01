@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-record_tests -- Unit tests for objects.records package
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -127,7 +127,7 @@ package body Util.Beans.Objects.Record_Tests is
 
             --  Verify each bean of the list
             for J in 1 .. 1_000 + 1 loop
-               Value := List.Element (J - 1);
+               Value := List.Element (J);
 
                --  Check some common status.
                T.Assert (not Is_Null (Value), "The value should hold a bean");
