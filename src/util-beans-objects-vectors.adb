@@ -25,20 +25,35 @@ package body Util.Beans.Objects.Vectors is
    function Get_Value (From : in Vector_Bean;
                        Name : in String) return Object is
    begin
-      return Null_Object;
+      if Name = "count" then
+         return To_Object (Natural (From.Length));
+      else
+         return Null_Object;
+      end if;
    end Get_Value;
 
-   --  Set the value identified by the name.
-   --  If the map contains the given name, the value changed.
-   --  Otherwise name is added to the map and the value associated with it.
-   procedure Set_Value (From  : in out Vector_Bean;
-                        Name  : in String;
-                        Value : in Object) is
+   --  ------------------------------
+   --  Get the number of elements in the list.
+   --  ------------------------------
+   overriding
+   function Get_Count (From : in Vector_Bean) return Natural is
    begin
-      null;
-   end Set_Value;
+      return Natural (From.Length);
+   end Get_Count;
 
+   --  ------------------------------
+   --  Get the element at the given position.
+   --  ------------------------------
+   overriding
+   function Get_Row (From     : in Vector_Bean;
+                     Position : in Natural) return Util.Beans.Objects.Object is
+   begin
+      return From.Element (Position);
+   end Get_Row;
+
+   --  -----------------------
    --  Create an object that contains a <tt>Vector_Bean</tt> instance.
+   --  -----------------------
    function Create return Object is
       M : constant access Vector_Bean'Class := new Vector_Bean;
    begin
