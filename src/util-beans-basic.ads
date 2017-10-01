@@ -71,4 +71,21 @@ package Util.Beans.Basic is
    --  Get the element at the current row index.
    function Get_Row (From  : in List_Bean) return Util.Beans.Objects.Object is abstract;
 
+   --  ------------------------------
+   --  Arrays of objects
+   --  ------------------------------
+   --  The <tt>Array_Bean</tt> interface gives access to an array of objects.
+   --  Unlike the <tt>List_Bean</tt> interface, it does not maintain any current position.
+   --  The drawback is that there is no current row concept and a position must be specified
+   --  to return a given row.
+   type Array_Bean is limited interface and Readonly_Bean;
+   type Array_Bean_Access is access all Array_Bean'Class;
+
+   --  Get the number of elements in the array.
+   function Get_Count (From : in Array_Bean) return Natural is abstract;
+
+   --  Get the element at the given position.
+   function Get_Row (From     : in Array_Bean;
+                     Position : in Natural) return Util.Beans.Objects.Object is abstract;
+
 end Util.Beans.Basic;
