@@ -25,9 +25,6 @@ package body Util.Beans.Objects.Readers is
    procedure Start_Document (Handler : in out Reader) is
    begin
       Object_Stack.Clear (Handler.Context);
-      Object_Stack.Push (Handler.Context);
-      Object_Stack.Current (Handler.Context).Map := new Maps.Map_Bean;
-      Handler.Root := To_Object (Object_Stack.Current (Handler.Context).Map, DYNAMIC);
    end Start_Document;
 
    --  -----------------------
@@ -47,7 +44,9 @@ package body Util.Beans.Objects.Readers is
       Object_Stack.Push (Handler.Context);
       Next := Object_Stack.Current (Handler.Context);
       Next.Map := new Maps.Map_Bean;
-      if Current.Map /= null then
+      if Current = null then
+         Handler.Root := To_Object (Next.Map, DYNAMIC);
+      elsif Current.Map /= null then
          Current.Map.Include (Name, To_Object (Next.Map, DYNAMIC));
       else
          Current.List.Append (To_Object (Next.Map, DYNAMIC));
@@ -78,7 +77,9 @@ package body Util.Beans.Objects.Readers is
       Object_Stack.Push (Handler.Context);
       Next := Object_Stack.Current (Handler.Context);
       Next.List := new Vectors.Vector_Bean;
-      if Current.Map /= null then
+      if Current = null then
+         Handler.Root := To_Object (Next.List, DYNAMIC);
+      elsif Current.Map /= null then
          Current.Map.Include (Name, To_Object (Next.List, DYNAMIC));
       else
          Current.List.Append (To_Object (Next.List, DYNAMIC));
