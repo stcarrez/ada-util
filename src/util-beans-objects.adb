@@ -869,12 +869,29 @@ package body Util.Beans.Objects is
       return Value.Type_Def.Is_Empty (Value.V);
    end Is_Empty;
 
+   function Get_Array_Bean (Value : in Object) return Util.Beans.Basic.Array_Bean_Access is
+      Bean : constant access Util.Beans.Basic.Readonly_Bean'Class := To_Bean (Value);
+   begin
+      if Bean = null or else not (Bean.all in Util.Beans.Basic.Array_Bean'Class) then
+         return null;
+      else
+         return Util.Beans.Basic.Array_Bean'Class (Bean.all)'Access;
+      end if;
+   end Get_Array_Bean;
+
    --  ------------------------------
    --  Returns True if the object is an array.
    --  ------------------------------
    function Is_Array (Value : in Object) return Boolean is
+      use type Util.Beans.Basic.Array_Bean_Access;
    begin
-      return Value.V.Of_Type = TYPE_ARRAY;
+      if Value.V.Of_Type = TYPE_ARRAY then
+         return True;
+      elsif Value.V.Of_Type /= TYPE_BEAN then
+         return False;
+      else
+         return Get_Array_Bean (Value) /= null;
+      end if;
    end Is_Array;
 
    --  ------------------------------
@@ -940,11 +957,20 @@ package body Util.Beans.Objects is
    --  Returns 0 if the object is not an array.
    --  ------------------------------
    function Get_Count (From : in Object) return Natural is
+      use type Util.Beans.Basic.Array_Bean_Access;
+      Bean : Util.Beans.Basic.Array_Bean_Access;
    begin
-      if From.V.Of_Type /= TYPE_ARRAY then
+      if From.V.Of_Type = TYPE_ARRAY then
+         return From.V.Array_Proxy.Len;
+      elsif From.V.Of_Type /= TYPE_BEAN or else From.V.Proxy = null then
          return 0;
       else
-         return From.V.Array_Proxy.Len;
+         Bean := Get_Array_Bean (From);
+         if Bean = null then
+            return 0;
+         else
+            return Bean.Get_Count;
+         end if;
       end if;
    end Get_Count;
 
@@ -953,10 +979,19 @@ package body Util.Beans.Objects is
    --  ------------------------------
    function Get_Value (From     : in Object;
                        Position : in Positive) return Object is
+      use type Util.Beans.Basic.Array_Bean_Access;
+      Bean : Util.Beans.Basic.Array_Bean_Access;
    begin
-      if From.V.Of_Type /= TYPE_ARRAY then
+      if From.V.Of_Type = TYPE_BEAN then
+         Bean := Get_Array_Bean (From);
+         if Bean /= null then
+            return Bean.Get_Row (Position);
+         else
+            return Null_Object;
+         end if;
+      elsif From.V.Of_Type /= TYPE_ARRAY then
          return Null_Object;
-      elsif From.V.Array_Proxy.Len < Position then
+       elsif From.V.Array_Proxy.Len < Position then
          return Null_Object;
       else
          return From.V.Array_Proxy.Values (Position);
