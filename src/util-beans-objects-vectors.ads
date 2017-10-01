@@ -21,7 +21,7 @@ with Util.Beans.Basic;
 package Util.Beans.Objects.Vectors is
 
    package Vectors is
-     new Ada.Containers.Vectors (Index_Type       => Natural,
+     new Ada.Containers.Vectors (Index_Type   => Positive,
                                  Element_Type => Object);
 
    subtype Cursor is Vectors.Cursor;
@@ -59,26 +59,29 @@ package Util.Beans.Objects.Vectors is
    --  ------------------------------
    --  The <b>Map_Bean</b> is a map of objects that also exposes the <b>Bean</b> interface.
    --  This allows the map to be available and accessed from an Object instance.
-   type Vector_Bean is new Vectors.Vector and Util.Beans.Basic.Bean with private;
+   type Vector_Bean is new Vectors.Vector and Util.Beans.Basic.Array_Bean with private;
    type Vector_Bean_Access is access all Vector_Bean'Class;
 
    --  Get the value identified by the name.
    --  If the name cannot be found, the method should return the Null object.
+   overriding
    function Get_Value (From : in Vector_Bean;
                        Name : in String) return Object;
 
-   --  Set the value identified by the name.
-   --  If the map contains the given name, the value changed.
-   --  Otherwise name is added to the map and the value associated with it.
-   procedure Set_Value (From  : in out Vector_Bean;
-                        Name  : in String;
-                        Value : in Object);
+   --  Get the number of elements in the list.
+   overriding
+   function Get_Count (From : in Vector_Bean) return Natural;
+
+   --  Get the element at the given position.
+   overriding
+   function Get_Row (From     : in Vector_Bean;
+                     Position : in Natural) return Util.Beans.Objects.Object;
 
    --  Create an object that contains a <tt>Vector_Bean</tt> instance.
    function Create return Object;
 
 private
 
-   type Vector_Bean is new Vectors.Vector and Util.Beans.Basic.Bean with null record;
+   type Vector_Bean is new Vectors.Vector and Util.Beans.Basic.Array_Bean with null record;
 
 end Util.Beans.Objects.Vectors;
