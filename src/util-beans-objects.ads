@@ -547,6 +547,8 @@ private
    function Is_Empty (Type_Def : in Array_Type;
                       Value    : in Object_Value) return Boolean;
 
+   function Get_Array_Bean (Value : in Object) return Util.Beans.Basic.Array_Bean_Access;
+
    subtype Proxy_Data_Type is Data_Type range TYPE_STRING .. TYPE_BEAN;
 
    type Proxy is tagged limited record
