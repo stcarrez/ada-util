@@ -177,6 +177,11 @@ package Util.Http.Clients is
                   Data    : in String;
                   Reply   : out Response'Class);
 
+   --  Execute a http DELETE request on the given URL.
+   procedure Delete (Request : in out Client;
+                     URL     : in String;
+                     Reply   : out Response'Class);
+
 private
 
    subtype Http_Request is Abstract_Request;
@@ -207,6 +212,11 @@ private
                      URI      : in String;
                      Data     : in String;
                      Reply    : out Response'Class) is abstract;
+
+   procedure Do_Delete (Manager  : in Http_Manager;
+                        Http     : in Client'Class;
+                        URI      : in String;
+                        Reply    : out Response'Class) is abstract;
 
    --  Set the timeout for the connection.
    procedure Set_Timeout (Manager : in Http_Manager;
