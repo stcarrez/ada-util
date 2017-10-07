@@ -253,6 +253,16 @@ package body Util.Http.Clients is
    end Put;
 
    --  ------------------------------
+   --  Execute a http DELETE request on the given URL.
+   --  ------------------------------
+   procedure Delete (Request : in out Client;
+                     URL     : in String;
+                     Reply   : out Response'Class) is
+   begin
+      Request.Manager.Do_Delete (Request, URL, Reply);
+   end Delete;
+
+   --  ------------------------------
    --  Set the timeout for the connection.
    --  ------------------------------
    procedure Set_Timeout (Request : in out Client;
