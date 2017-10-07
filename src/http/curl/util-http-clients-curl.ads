@@ -90,6 +90,12 @@ private
                      Data     : in String;
                      Reply    : out Response'Class);
 
+   overriding
+   procedure Do_Delete (Manager  : in Curl_Http_Manager;
+                        Http     : in Client'Class;
+                        URI      : in String;
+                        Reply    : out Response'Class);
+
    --  Set the timeout for the connection.
    overriding
    procedure Set_Timeout (Manager : in Curl_Http_Manager;
