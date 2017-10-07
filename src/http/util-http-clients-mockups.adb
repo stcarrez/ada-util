@@ -89,6 +89,15 @@ package body Util.Http.Clients.Mockups is
       Manager.Do_Get (Http, URI, Reply);
    end Do_Put;
 
+   overriding
+   procedure Do_Delete (Manager  : in File_Http_Manager;
+                        Http     : in Client'Class;
+                        URI      : in String;
+                        Reply    : out Response'Class) is
+   begin
+      Manager.Do_Get (Http, URI, Reply);
+   end Do_Delete;
+
    --  ------------------------------
    --  Set the timeout for the connection.
    --  ------------------------------
