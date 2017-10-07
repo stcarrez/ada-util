@@ -198,6 +198,24 @@ package body Util.Http.Clients.Web is
                                         Timeouts => Req.Timeouts);
    end Do_Put;
 
+   overriding
+   procedure Do_Delete (Manager  : in AWS_Http_Manager;
+                        Http     : in Client'Class;
+                        URI      : in String;
+                        Reply    : out Response'Class) is
+      pragma Unreferenced (Manager);
+
+      Req     : constant AWS_Http_Request_Access
+        := AWS_Http_Request'Class (Http.Delegate.all)'Access;
+      Rep     : constant AWS_Http_Response_Access := new AWS_Http_Response;
+   begin
+      Log.Info ("Delete {0}", URI);
+
+      Reply.Delegate := Rep.all'Access;
+      Rep.Data       := AWS.Client.Delete (URL => URI, Data => "", Headers => Req.Headers,
+                                           Timeouts => Req.Timeouts);
+   end Do_Delete;
+
    --  ------------------------------
    --  Set the timeout for the connection.
    --  ------------------------------
