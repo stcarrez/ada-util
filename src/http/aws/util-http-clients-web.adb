@@ -212,8 +212,12 @@ package body Util.Http.Clients.Web is
       Log.Info ("Delete {0}", URI);
 
       Reply.Delegate := Rep.all'Access;
-      Rep.Data       := AWS.Client.Delete (URL => URI, Data => "", Headers => Req.Headers,
-                                           Timeouts => Req.Timeouts);
+      --  Rep.Data       := AWS.Client.Delete (URL => URI, Data => "", Headers => Req.Headers,
+      --                                       Timeouts => Req.Timeouts);
+      raise Program_Error with "Delete is not supported by AWS and there is no easy conditional"
+        & " compilation in Ada to enable Delete support for the latest AWS version. "
+        & "For now, you have to use curl, or install the latest AWS version and then "
+        & "uncomment the AWS.Client.Delete call and remove this exception.";
    end Do_Delete;
 
    --  ------------------------------
