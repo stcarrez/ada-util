@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-xunit - Unit tests on top of AHven
---  Copyright (C) 2011, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,9 +24,16 @@ with Ada.Calendar;
 with Ahven.Listeners.Basic;
 with Ahven.XML_Runner;
 with Ahven.Text_Runner;
+with Ahven.AStrings;
 
 with Util.Tests;
+with Util.Strings;
 package body Util.XUnit is
+
+   function Image (Time : in Duration) return String;
+   procedure Report_XML_Summary (Path    : in String;
+                                 Result  : in Ahven.Results.Result_Collection;
+                                 Time    : in Duration);
 
    --  ------------------------------
    --  Build a message from a string (Adaptation for AUnit API).
@@ -134,6 +141,68 @@ package body Util.XUnit is
 
    end Report_Results;
 
+   function Image (Time : in Duration) return String is
+      Result : constant String := Duration'Image (Time);
+   begin
+      if Result (Result'First) = ' ' then
+         return Result (Result'First + 1 .. Result'Last);
+      else
+         return Result;
+      end if;
+   end Image;
+
+   --  ------------------------------
+   --  Write a XML summary report in the JUnit format so that the result file
+   --  can be used by Jenkins performance plugin.
+   --  ------------------------------
+   procedure Report_XML_Summary (Path    : in String;
+                                 Result  : in Ahven.Results.Result_Collection;
+                                 Time    : in Duration) is
+      use Ahven.Results;
+      File : Ada.Text_IO.File_Type;
+      Group : Result_Collection_Cursor;
+      Iter : Result_Collection_Cursor;
+      Test : Result_Collection_Access;
+   begin
+      Ada.Text_IO.Create (File => File,
+                          Mode => Ada.Text_IO.Out_File,
+                          Name => Path);
+      Ada.Text_IO.Put_Line (File, "<?xml version='1.0'?>");
+      Ada.Text_IO.Put (File, "<testsuite ");
+      Ada.Text_IO.Put (File, "errors='"
+                       & Util.Strings.Image (Error_Count (Result)) & "' ");
+      Ada.Text_IO.Put (File, "failures='"
+                       & Util.Strings.Image (Failure_Count (Result)) & "' ");
+      Ada.Text_IO.Put (File, "tests='"
+                       & Util.Strings.Image (Test_Count (Result)) & "' ");
+      Ada.Text_IO.Put (File, "time='" & Image (Time) & "' ");
+      Ada.Text_IO.Put (File, "name='");
+      Ada.Text_IO.Put (File, Ahven.AStrings.To_String (Get_Test_Name (Result)));
+      Ada.Text_IO.Put_Line (File, "'>");
+      Group := First_Child (Result);
+      while Is_Valid (Group) loop
+         Iter := First_Child (Data (Group).all);
+         while Is_Valid (Iter) loop
+            Test := Data (Iter);
+            Ada.Text_IO.Put (File, "<testcase name='");
+            Ada.Text_IO.Put (File, Ahven.AStrings.To_String (Get_Test_Name (Test.all)));
+            Ada.Text_IO.Put (File, "' errors='");
+            Ada.Text_IO.Put (File, Util.Strings.Image (Error_Count (Test.all)));
+            Ada.Text_IO.Put (File, "' failures='");
+            Ada.Text_IO.Put (File, Util.Strings.Image (Failure_Count (Test.all)));
+            Ada.Text_IO.Put (File, "' tests='");
+            Ada.Text_IO.Put (File, Util.Strings.Image (Test_Count (Test.all)));
+            Ada.Text_IO.Put (File, "' time='");
+            Ada.Text_IO.Put (File, Image (Get_Execution_Time (Test.all)));
+            Ada.Text_IO.Put_Line (File, "'/>");
+            Iter := Next (Iter);
+         end loop;
+         Group := Next (Group);
+      end loop;
+      Ada.Text_IO.Put_Line (File, "</testsuite>");
+      Ada.Text_IO.Close (File);
+   end Report_XML_Summary;
+
    --  ------------------------------
    --  The main testsuite program.  This launches the tests, collects the
    --  results, create performance logs and set the program exit status
@@ -142,7 +211,6 @@ package body Util.XUnit is
    procedure Harness (Output : in Ada.Strings.Unbounded.Unbounded_String;
                       XML    : in Boolean;
                       Result : out Status) is
-      pragma Unreferenced (XML, Output);
 
       use Ahven.Listeners.Basic;
       use Ahven.Framework;
@@ -155,6 +223,7 @@ package body Util.XUnit is
       Timeout  : constant Test_Duration := Test_Duration (Util.Tests.Get_Test_Timeout ("all"));
       Out_Dir  : constant String := Util.Tests.Get_Test_Path ("regtests/result");
       Start    : Ada.Calendar.Time;
+      Dt       : Duration;
    begin
       while T /= null loop
          Ahven.Framework.Add_Static_Test (Tests.all, T.Test.all);
@@ -167,7 +236,8 @@ package body Util.XUnit is
 
       Start := Ada.Calendar.Clock;
       Ahven.Framework.Execute (Tests.all, Listener, Timeout);
-      Report_Results (Listener.Main_Result, Ada.Calendar.Clock - Start);
+      Dt := Ada.Calendar.Clock - Start;
+      Report_Results (Listener.Main_Result, Dt);
 
       Ahven.XML_Runner.Report_Results (Listener.Main_Result, Out_Dir);
 
@@ -177,6 +247,11 @@ package body Util.XUnit is
          Result := Failure;
       else
          Result := Success;
+      end if;
+
+      if XML then
+         Report_XML_Summary (Ada.Strings.Unbounded.To_String (Output),
+                             Listener.Main_Result, Dt);
       end if;
 
    exception
