@@ -869,7 +869,7 @@ package body Util.Beans.Objects is
       return Value.Type_Def.Is_Empty (Value.V);
    end Is_Empty;
 
-   function Get_Array_Bean (Value : in Object) return Util.Beans.Basic.Array_Bean_Access is
+   function Get_Array_Bean (Value : in Object) return access Util.Beans.Basic.Array_Bean'Class is
       Bean : constant access Util.Beans.Basic.Readonly_Bean'Class := To_Bean (Value);
    begin
       if Bean = null or else not (Bean.all in Util.Beans.Basic.Array_Bean'Class) then
