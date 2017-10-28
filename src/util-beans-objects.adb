@@ -991,7 +991,7 @@ package body Util.Beans.Objects is
          end if;
       elsif From.V.Of_Type /= TYPE_ARRAY then
          return Null_Object;
-       elsif From.V.Array_Proxy.Len < Position then
+      elsif From.V.Array_Proxy.Len < Position then
          return Null_Object;
       else
          return From.V.Array_Proxy.Values (Position);
