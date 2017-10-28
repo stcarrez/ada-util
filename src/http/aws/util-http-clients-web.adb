@@ -16,7 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with AWS.Headers.Set;
+with Ada.Strings.Unbounded;
 with AWS.Messages;
 with Util.Log.Loggers;
 package body Util.Http.Clients.Web is
@@ -203,10 +203,10 @@ package body Util.Http.Clients.Web is
                         Http     : in Client'Class;
                         URI      : in String;
                         Reply    : out Response'Class) is
-      pragma Unreferenced (Manager);
+      pragma Unreferenced (Manager, Http);
 
-      Req     : constant AWS_Http_Request_Access
-        := AWS_Http_Request'Class (Http.Delegate.all)'Access;
+--      Req     : constant AWS_Http_Request_Access
+--        := AWS_Http_Request'Class (Http.Delegate.all)'Access;
       Rep     : constant AWS_Http_Response_Access := new AWS_Http_Response;
    begin
       Log.Info ("Delete {0}", URI);
@@ -227,6 +227,7 @@ package body Util.Http.Clients.Web is
    procedure Set_Timeout (Manager : in AWS_Http_Manager;
                           Http    : in Client'Class;
                           Timeout : in Duration) is
+      pragma Unreferenced (Manager);
    begin
       AWS_Http_Request'Class (Http.Delegate.all).Timeouts
          := AWS.Client.Timeouts (Connect  => Timeout,
@@ -241,21 +242,30 @@ package body Util.Http.Clients.Web is
    --  ------------------------------
    function Contains_Header (Http : in AWS_Http_Request;
                              Name : in String) return Boolean is
+      Values : constant AWS.Headers.VString_Array
+        := AWS.Headers.Get_Values (Http.Headers, Name);
    begin
-      raise Program_Error with "Contains_Header is not implemented";
-      return False;
+      return Values'Length > 0;
    end Contains_Header;
 
+   --  ------------------------------
    --  Returns the value of the specified request header as a String. If the request
    --  did not include a header of the specified name, this method returns null.
    --  If there are multiple headers with the same name, this method returns the
    --  first head in the request. The header name is case insensitive. You can use
    --  this method with any response header.
+   --  ------------------------------
    overriding
    function Get_Header (Request : in AWS_Http_Request;
                         Name    : in String) return String is
+      Values : constant AWS.Headers.VString_Array
+        := AWS.Headers.Get_Values (Request.Headers, Name);
    begin
-      return "";
+      if Values'Length > 0 then
+         return Ada.Strings.Unbounded.To_String (Values (Values'First));
+      else
+         return "";
+      end if;
    end Get_Header;
 
    --  ------------------------------
@@ -268,7 +278,7 @@ package body Util.Http.Clients.Web is
                          Name  : in String;
                          Value : in String) is
    begin
-      AWS.Headers.Set.Add (Http.Headers, Name, Value);
+      AWS.Headers.Add (Http.Headers, Name, Value);
    end Set_Header;
 
    --  ------------------------------
@@ -280,7 +290,7 @@ package body Util.Http.Clients.Web is
                          Name  : in String;
                          Value : in String) is
    begin
-      AWS.Headers.Set.Add (Http.Headers, Name, Value);
+      AWS.Headers.Add (Http.Headers, Name, Value);
    end Add_Header;
 
    --  Iterate over the request headers and executes the <b>Process</b> procedure.
