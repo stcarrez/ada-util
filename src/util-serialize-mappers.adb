@@ -487,10 +487,16 @@ package body Util.Serialize.Mappers is
       end if;
    end Finalize;
 
+   --  ------------------------------
    --  Start a document.
+   --  ------------------------------
    procedure Start_Document (Stream : in out Processing) is
+      Context        : Element_Context_Access;
    begin
       Context_Stack.Clear (Stream.Stack);
+      Context_Stack.Push (Stream.Stack);
+      Context := Context_Stack.Current (Stream.Stack);
+      Context.Active_Nodes (1) := Stream.Mapping_Tree'Unchecked_Access;
    end Start_Document;
 
    --  ------------------------------
