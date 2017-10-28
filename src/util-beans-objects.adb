@@ -1706,6 +1706,11 @@ package body Util.Beans.Objects is
                Util.Concurrent.Counters.Increment (Obj.V.Proxy.Ref_Counter);
             end if;
 
+         when TYPE_ARRAY =>
+            if Obj.V.Array_Proxy /= null then
+               Util.Concurrent.Counters.Increment (Obj.V.Array_Proxy.Ref_Counter);
+            end if;
+
          when TYPE_STRING =>
             if Obj.V.String_Proxy /= null then
                Util.Concurrent.Counters.Increment (Obj.V.String_Proxy.Ref_Counter);
