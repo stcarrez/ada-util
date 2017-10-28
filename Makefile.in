@@ -96,10 +96,10 @@ TEST_TIMEOUT=30
 
 ifeq (${BUILDS_SHARED},yes)
 all:     static shared
-install: install_static install_shared install-info
+install: uninstall install_static install_shared install-info
 else
 all:     static
-install: install_static install-info
+install: uninstall install_static install-info
 endif
 
 UTIL_GEN_FILES=src/util-systems-constants.ads
