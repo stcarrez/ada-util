@@ -409,6 +409,7 @@ package body Util.Strings.Tests is
    --  Benchmark comparison between the use of Iterate vs Query_Element.
    --  ------------------------------
    procedure Test_Perf_Vector (T : in out Test) is
+      pragma Unreferenced (T);
       procedure Iterate_Item (Item : in String);
       procedure Iterate (Pos : in Util.Strings.Vectors.Cursor);
 
