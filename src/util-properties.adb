@@ -440,6 +440,7 @@ package body Util.Properties is
                               File   : in File_Type;
                               Prefix : in String := "";
                               Strip  : in Boolean := False) is
+      pragma Unreferenced (Strip);
       Line    : Unbounded_String;
       Name    : Unbounded_String;
       Value   : Unbounded_String;
@@ -471,7 +472,7 @@ package body Util.Properties is
                   if Pos > 0 and then Prefix'Length > 0 and then Index (Line, Prefix) = 1 then
                      Name  := Unbounded_Slice (Line, Prefix'Length + 1, Pos - 1);
                      Value := Tail (Line, Len - Pos);
-                     Trim (Name, Trim_Chars, Trim_Chars );
+                     Trim (Name, Trim_Chars, Trim_Chars);
                      Trim (Value, Trim_Chars, Trim_Chars);
                      Current.Set (Name, Value);
 
@@ -520,13 +521,22 @@ package body Util.Properties is
       procedure Save_Property (Name : in String;
                                Item : in Util.Beans.Objects.Object) is
       begin
+         if Prefix'Length > 0 then
+            if Name'Length < Prefix'Length then
+               return;
+            end if;
+            if Name (Name'First .. Prefix'Length - 1) /= Prefix then
+               return;
+            end if;
+         end if;
          Put (F, Name);
          Put (F, "=");
          Put (F, Util.Beans.Objects.To_String (Item));
          New_Line (F);
       end Save_Property;
 
-      --  Rename a file (the Ada.Directories.Rename does not allow to use the Unix atomic file rename!)
+      --  Rename a file (the Ada.Directories.Rename does not allow to use the
+      --  Unix atomic file rename!)
       function Sys_Rename (Oldpath  : in Interfaces.C.Strings.chars_ptr;
                            Newpath  : in Interfaces.C.Strings.chars_ptr) return Integer;
       pragma Import (C, Sys_Rename, "rename");
