@@ -128,6 +128,7 @@ package body Util.Http.Clients.Curl is
    --  Prepare to setup the headers in the request.
    --  ------------------------------
    procedure Set_Headers (Request : in out Curl_Http_Request) is
+      procedure Process (Name, Value : in String);
 
       procedure Process (Name, Value : in String) is
          S : Chars_Ptr := Strings.New_String (Name & ": " & Value);
