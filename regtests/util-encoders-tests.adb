@@ -505,7 +505,7 @@ package body Util.Encoders.Tests is
    end Test_HMAC_SHA256_RFC4231_T4;
 
    procedure Test_HMAC_SHA256_RFC4231_T5 (T : in out Test) is
-      Key  : constant String (1 .. 20) := (others => Character'Val (16#0c#)); 
+      Key  : constant String (1 .. 20) := (others => Character'Val (16#0c#));
       H    : constant String := Util.Encoders.HMAC.SHA256.Sign (Key, "Test With Truncation");
    begin
       Assert_Equals (T, "a3b6167473100ee06e0c796c2955552b",
@@ -532,7 +532,7 @@ package body Util.Encoders.Tests is
    procedure Test_AES (T : in out Test) is
       use type Ada.Streams.Stream_Element;
 
-      PK   : Ada.Streams.Stream_Element_Array (1 .. 32) := (others => 1);
+      PK   : constant Ada.Streams.Stream_Element_Array (1 .. 32) := (others => 1);
       Key  : Util.Encoders.AES.Key_Type;
       B    : Util.Encoders.AES.Block_Type := (others => 1);
       E    : Util.Encoders.AES.Block_Type := (others => 0);

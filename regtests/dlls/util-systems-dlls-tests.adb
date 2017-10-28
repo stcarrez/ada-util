@@ -38,20 +38,24 @@ package body Util.Systems.DLLs.Tests is
 
    function Get_Test_Library return String is
    begin
+      pragma Warnings (Off);
       if Util.Systems.Os.Directory_Separator = '/' then
          return "libcrypto.so";
       else
          return "libz.dll";
       end if;
+      pragma Warnings (On);
    end Get_Test_Library;
 
    function Get_Test_Symbol return String is
    begin
+      pragma Warnings (Off);
       if Util.Systems.Os.Directory_Separator = '/' then
          return "EVP_sha1";
       else
          return "compress";
       end if;
+      pragma Warnings (On);
    end Get_Test_Symbol;
 
    --  ------------------------------
