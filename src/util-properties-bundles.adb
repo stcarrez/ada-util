@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2017 Stephane Carrez
+--  Copyright (C) 2001 - 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,6 @@ package body Util.Properties.Bundles is
    package Interface_P is
 
       type Manager is new Util.Properties.Interface_P.Manager with private;
-      type Manager_Object_Access is access all Manager;
 
       --  Get the value identified by the name.
       --  If the name cannot be found, the method should return the Null object.
@@ -92,9 +91,6 @@ package body Util.Properties.Bundles is
          Props : aliased Util.Properties.Manager;
       end record;
 
-      procedure Free is
-        new Ada.Unchecked_Deallocation (Manager,
-                                        Manager_Object_Access);
    end Interface_P;
 
 
