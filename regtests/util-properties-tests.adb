@@ -219,6 +219,7 @@ package body Util.Properties.Tests is
          when NO_PROPERTY =>
             null;
       end;
+      T.Assert (Ada.Strings.Unbounded.Length (V) = 0, "Variable get's corrupted");
 
       Props.Set ("a", "b");
       T.Assert (Util.Beans.Objects.Is_Null (Props.Get_Value ("missing")),
