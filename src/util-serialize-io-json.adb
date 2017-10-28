@@ -590,6 +590,7 @@ package body Util.Serialize.IO.JSON is
       --  ------------------------------
       procedure Peek (P     : in out Parser'Class;
                       Token : out Token_Type) is
+         use Ada.Characters;
          C, C1 : Character;
       begin
          --  If a token was put back, return it.
@@ -718,7 +719,7 @@ package body Util.Serialize.IO.JSON is
                   Append (P.Token, C);
                end loop;
             end if;
-            if not (C in ' ' | Ada.Characters.Latin_1.HT | Ada.Characters.Latin_1.LF | Ada.Characters.Latin_1.CR) then
+            if not (C in ' ' | Latin_1.HT | Latin_1.LF | Latin_1.CR) then
                P.Has_Pending_Char := True;
                P.Pending_Char := C;
             end if;
@@ -736,7 +737,7 @@ package body Util.Serialize.IO.JSON is
                Append (P.Token, C);
             end loop;
             --  Putback the last character unless we can ignore it.
-            if not (C in ' ' | Ada.Characters.Latin_1.HT | Ada.Characters.Latin_1.LF | Ada.Characters.Latin_1.CR) then
+            if not (C in ' ' | Latin_1.HT | Latin_1.LF | Latin_1.CR) then
                P.Has_Pending_Char := True;
                P.Pending_Char := C;
             end if;
