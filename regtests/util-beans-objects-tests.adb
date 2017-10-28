@@ -91,9 +91,7 @@ package body Util.Beans.Objects.Tests is
    --  Test the Set_Value operation.
    --  ------------------------------
    procedure Test_Set_Value (T : in out Test) is
-      List  : Object_Array (1 .. 10);
-      Value : Object := Maps.Create;
-      Item  : Object;
+      Value : constant Object := Maps.Create;
    begin
       Set_Value (Value, "username", To_Object (String '("joe")));
       Set_Value (Value, "age", To_Object (Integer (32)));
