@@ -89,6 +89,8 @@ MAKE_ARGS += -XXMLADA_BUILD=relocatable -XAWS_BUILD=relocatable
 MAKE_ARGS += -XLIBRARY_TYPE=relocatable
 endif
 
+MAKE_ARGS += -XHARDWARE_PLATFORM=@HARDWARE_PLATFORM@
+
 # The timeout execution time in second for a test case.
 # The concurrent fifo test takes arround 120 seconds on some ARM but only 4 seconds on an i7.
 # Make this a make configuration variable so that it can be given when launching make.
