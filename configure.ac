@@ -85,6 +85,11 @@ UTIL_OS_VERSION=$os_version
 AC_SUBST(UTIL_OS_DIR)
 AC_SUBST(UTIL_OS_VERSION)
 
+AC_MSG_CHECKING([hardware platform])
+HARDWARE_PLATFORM=`uname -i || uname -m || echo "unknown"`
+AC_MSG_RESULT($HARDWARE_PLATFORM)
+AC_SUBST(HARDWARE_PLATFORM)
+
 # Check for gcc intrinsics
 AM_HAS_INTRINSIC_SYNC_COUNTERS(src_asm='src/asm-intrinsic',src_asm='')
 AC_MSG_CHECKING([specific processor support])
