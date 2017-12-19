@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Lists -- List bean holding some object
---  Copyright (C) 2013 Stephane Carrez
+--  Copyright (C) 2013, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +40,7 @@ package body Util.Beans.Objects.Lists is
    --  ------------------------------
    function Get_Row (From : in List_Bean) return Util.Beans.Objects.Object is
    begin
-      return Vectors.Element (From.List, From.Current - 1);
+      return Vectors.Element (From.List, From.Current);
    end Get_Row;
 
    --  ------------------------------
