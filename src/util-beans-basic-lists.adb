@@ -45,7 +45,7 @@ package body Util.Beans.Basic.Lists is
                             Index : in Natural) is
    begin
       From.Current_Index := Index;
-      From.Current := Vectors.Element (From.List, Index - 1);
+      From.Current := Vectors.Element (From.List, Index);
    end Set_Row_Index;
 
    --  ------------------------------
