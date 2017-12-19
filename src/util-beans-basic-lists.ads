@@ -31,7 +31,7 @@ package Util.Beans.Basic.Lists is
    --  (gcc 4.4 crashes if this package is defined as generic parameter.
    package Vectors is
      new Ada.Containers.Vectors (Element_Type => Element_Type,
-                                 Index_Type   => Natural);
+                                 Index_Type   => Positive);
 
    --  The list of elements is defined in a public part so that applications
    --  can easily add or remove elements in the target list.  The <b>List_Bean</b>
