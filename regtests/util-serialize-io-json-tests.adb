@@ -42,6 +42,8 @@ package body Util.Serialize.IO.JSON.Tests is
                        Test_Output'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.JSON.Write (Simple)",
                        Test_Simple_Output'Access);
+      Caller.Add_Test (Suite, "Test Util.Serialize.IO.JSON.Write (Nullable)",
+                       Test_Nullable'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.JSON.Read",
                        Test_Read'Access);
    end Add_Tests;
@@ -302,6 +304,39 @@ package body Util.Serialize.IO.JSON.Tests is
       Util.Tests.Assert_Equals (T, """test""", S3,
                                 "Invalid JSON struct");
    end Test_Simple_Output;
+
+   --  ------------------------------
+   --  Test the JSON output stream generation and parsing for nullable basic types.
+   --  ------------------------------
+   procedure Test_Nullable (T : in out Test) is
+      Buffer : aliased Util.Streams.Texts.Print_Stream;
+      Stream : Util.Serialize.IO.JSON.Output_Stream;
+      S      : Util.Nullables.Nullable_String;
+      B      : Util.Nullables.Nullable_Boolean;
+      I      : Util.Nullables.Nullable_Integer;
+      D      : Util.Nullables.Nullable_Time;
+   begin
+      Buffer.Initialize (Output => null, Input => null, Size => 10000);
+      Stream.Initialize (Output => Buffer'Unchecked_Access);
+      Stream.Start_Document;
+      Stream.Start_Entity ("");
+      Stream.Write_Entity ("string", S);
+      Stream.Write_Entity ("bool", B);
+      Stream.Write_Entity ("int", I);
+      Stream.Write_Entity ("date", D);
+      Stream.End_Entity ("");
+      Stream.End_Document;
+      Stream.Close;
+      declare
+         Data : constant String := Util.Streams.Texts.To_String (Buffer);
+      begin
+         Log.Error ("JSON: {0}", Data);
+         Util.Tests.Assert_Equals (T,
+                                   "{""string"":null,""bool"":null,""int"":null,""date"":null}",
+                                   Data,
+                                   "Invalid JSON for nullable values");
+      end;
+   end Test_Nullable;
 
    --  ------------------------------
    --  Test reading a JSON content into an Object tree.
