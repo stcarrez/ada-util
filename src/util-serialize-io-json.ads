@@ -123,6 +123,11 @@ package Util.Serialize.IO.JSON is
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object);
 
+   --  Write the attribute with a null value.
+   overriding
+   procedure Write_Null_Attribute (Stream : in out Output_Stream;
+                                   Name   : in String);
+
    --  Write a JSON name/value pair (see Write_Attribute).
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
@@ -168,6 +173,11 @@ package Util.Serialize.IO.JSON is
    procedure Write_Enum_Entity (Stream : in out Output_Stream;
                                 Name   : in String;
                                 Value  : in String);
+
+   --  Write an entity with a null value.
+   overriding
+   procedure Write_Null_Entity (Stream : in out Output_Stream;
+                                Name   : in String);
 
    --  Starts a JSON array.
    --  Example:  "list": [
