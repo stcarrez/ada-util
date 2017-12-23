@@ -53,10 +53,6 @@ package Util.Serialize.IO is
                               Name   : in String;
                               Value  : in String) is abstract;
 
-   procedure Write_Attribute (Stream : in out Output_Stream;
-                              Name   : in String;
-                              Value  : in Util.Nullables.Nullable_String) is abstract;
-
    procedure Write_Wide_Attribute (Stream : in out Output_Stream;
                                    Name   : in String;
                                    Value  : in Wide_Wide_String) is abstract;
@@ -85,10 +81,6 @@ package Util.Serialize.IO is
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in String) is abstract;
-
-   procedure Write_Entity (Stream : in out Output_Stream;
-                           Name   : in String;
-                           Value  : in Util.Nullables.Nullable_String) is abstract;
 
    procedure Write_Wide_Entity (Stream : in out Output_Stream;
                                 Name   : in String;
@@ -121,6 +113,26 @@ package Util.Serialize.IO is
    procedure Write_Entity (Stream : in out Output_Stream'Class;
                            Name   : in String;
                            Value  : in Ada.Strings.Unbounded.Unbounded_String);
+
+   procedure Write_Entity (Stream : in out Output_Stream'Class;
+                           Name   : in String;
+                           Value  : in Util.Nullables.Nullable_String);
+
+   procedure Write_Entity (Stream : in out Output_Stream'Class;
+                           Name   : in String;
+                           Value  : in Util.Nullables.Nullable_Time);
+
+   procedure Write_Entity (Stream : in out Output_Stream'Class;
+                           Name   : in String;
+                           Value  : in Util.Nullables.Nullable_Boolean);
+
+   procedure Write_Entity (Stream : in out Output_Stream'Class;
+                           Name   : in String;
+                           Value  : in Util.Nullables.Nullable_Integer);
+
+   procedure Write_Entity (Stream : in out Output_Stream'Class;
+                           Name   : in String;
+                           Value  : in Util.Nullables.Nullable_Long);
 
    --  Write an entity with a null value.
    procedure Write_Null_Entity (Stream : in out Output_Stream;
