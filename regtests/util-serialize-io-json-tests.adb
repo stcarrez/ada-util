@@ -40,6 +40,8 @@ package body Util.Serialize.IO.JSON.Tests is
                        Test_Parser'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.JSON.Write",
                        Test_Output'Access);
+      Caller.Add_Test (Suite, "Test Util.Serialize.IO.JSON.Write (Simple)",
+                       Test_Simple_Output'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.JSON.Read",
                        Test_Read'Access);
    end Add_Tests;
@@ -189,6 +191,117 @@ package body Util.Serialize.IO.JSON.Tests is
                                      Test    => Path,
                                      Message => "JSON output serialization");
    end Test_Output;
+
+   --  ------------------------------
+   --  Test the JSON output stream generation (simple JSON documents).
+   --  ------------------------------
+   procedure Test_Simple_Output (T : in out Test) is
+      function Get_Array return String;
+      function Get_Struct return String;
+      function Get_Named_Struct return String;
+      function Get_Integer return String;
+      function Get_String return String;
+
+      function Get_Array return String is
+         Buffer : aliased Util.Streams.Texts.Print_Stream;
+         Stream : Util.Serialize.IO.JSON.Output_Stream;
+      begin
+         Buffer.Initialize (Output => null, Input => null, Size => 10000);
+         Stream.Initialize (Output => Buffer'Unchecked_Access);
+         Stream.Start_Document;
+         Stream.Start_Array ("");
+         Stream.Write_Entity ("", 23);
+         Stream.Write_Entity ("", 45);
+         Stream.End_Array ("");
+         Stream.End_Document;
+         Stream.Close;
+         return Util.Streams.Texts.To_String (Buffer);
+      end Get_Array;
+
+      function Get_Struct return String is
+         Buffer : aliased Util.Streams.Texts.Print_Stream;
+         Stream : Util.Serialize.IO.JSON.Output_Stream;
+      begin
+         Buffer.Initialize (Output => null, Input => null, Size => 10000);
+         Stream.Initialize (Output => Buffer'Unchecked_Access);
+         Stream.Start_Document;
+         Stream.Start_Entity ("");
+         Stream.Write_Entity ("age", 23);
+         Stream.Write_Entity ("id", 45);
+         Stream.End_Entity ("");
+         Stream.End_Document;
+         Stream.Close;
+         return Util.Streams.Texts.To_String (Buffer);
+      end Get_Struct;
+
+      function Get_Named_Struct return String is
+         Buffer : aliased Util.Streams.Texts.Print_Stream;
+         Stream : Util.Serialize.IO.JSON.Output_Stream;
+      begin
+         Buffer.Initialize (Output => null, Input => null, Size => 10000);
+         Stream.Initialize (Output => Buffer'Unchecked_Access);
+         Stream.Start_Document;
+         Stream.Start_Entity ("name");
+         Stream.Write_Entity ("age", 23);
+         Stream.Write_Entity ("id", 45);
+         Stream.End_Entity ("");
+         Stream.End_Document;
+         Stream.Close;
+         return Util.Streams.Texts.To_String (Buffer);
+      end Get_Named_Struct;
+
+      function Get_Integer return String is
+         Buffer : aliased Util.Streams.Texts.Print_Stream;
+         Stream : Util.Serialize.IO.JSON.Output_Stream;
+      begin
+         Buffer.Initialize (Output => null, Input => null, Size => 10000);
+         Stream.Initialize (Output => Buffer'Unchecked_Access);
+         Stream.Start_Document;
+         Stream.Write_Entity ("", 23);
+         Stream.End_Document;
+         Stream.Close;
+         return Util.Streams.Texts.To_String (Buffer);
+      end Get_Integer;
+
+      function Get_String return String is
+         Buffer : aliased Util.Streams.Texts.Print_Stream;
+         Stream : Util.Serialize.IO.JSON.Output_Stream;
+      begin
+         Buffer.Initialize (Output => null, Input => null, Size => 10000);
+         Stream.Initialize (Output => Buffer'Unchecked_Access);
+         Stream.Start_Document;
+         Stream.Write_Entity ("", "test");
+         Stream.End_Document;
+         Stream.Close;
+         return Util.Streams.Texts.To_String (Buffer);
+      end Get_String;
+
+      A1 : constant String := Get_Array;
+      S1 : constant String := Get_Struct;
+      S2 : constant String := Get_Named_Struct;
+      I1 : constant String := Get_Integer;
+      S3 : constant String := Get_String;
+   begin
+      Log.Error ("Array: {0}", A1);
+      Util.Tests.Assert_Equals (T, "[ 23, 45]", A1,
+                                "Invalid JSON array");
+
+      Log.Error ("Struct: {0}", S1);
+      Util.Tests.Assert_Equals (T, "{""age"": 23,""id"": 45}", S1,
+                                "Invalid JSON struct");
+
+      Log.Error ("Struct: {0}", S2);
+      Util.Tests.Assert_Equals (T, "{""name"":{""age"": 23,""id"": 45}}", S2,
+                                "Invalid JSON struct");
+
+      Log.Error ("Struct: {0}", I1);
+      Util.Tests.Assert_Equals (T, " 23", I1,
+                                "Invalid JSON struct");
+
+      Log.Error ("Struct: {0}", S3);
+      Util.Tests.Assert_Equals (T, """test""", S3,
+                                "Invalid JSON struct");
+   end Test_Simple_Output;
 
    --  ------------------------------
    --  Test reading a JSON content into an Object tree.
