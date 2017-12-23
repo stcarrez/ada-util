@@ -23,6 +23,7 @@ with Util.Beans.Objects;
 with Util.Streams;
 with Util.Streams.Buffered;
 with Util.Log.Loggers;
+with Util.Nullables;
 package Util.Serialize.IO is
 
    Parse_Error : exception;
@@ -52,6 +53,10 @@ package Util.Serialize.IO is
                               Name   : in String;
                               Value  : in String) is abstract;
 
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Util.Nullables.Nullable_String) is abstract;
+
    procedure Write_Wide_Attribute (Stream : in out Output_Stream;
                                    Name   : in String;
                                    Value  : in Wide_Wide_String) is abstract;
@@ -76,6 +81,10 @@ package Util.Serialize.IO is
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in String) is abstract;
+
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Util.Nullables.Nullable_String) is abstract;
 
    procedure Write_Wide_Entity (Stream : in out Output_Stream;
                                 Name   : in String;
