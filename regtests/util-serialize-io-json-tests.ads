@@ -34,6 +34,9 @@ package Util.Serialize.IO.JSON.Tests is
    --  Test the JSON output stream generation.
    procedure Test_Output (T : in out Test);
 
+   --  Test the JSON output stream generation (simple JSON documents).
+   procedure Test_Simple_Output (T : in out Test);
+
    --  Test reading a JSON content into an Object tree.
    procedure Test_Read (T : in out Test);
 
