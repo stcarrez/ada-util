@@ -100,17 +100,23 @@ package body Util.Serialize.IO.JSON is
    --  Start a JSON document.  This operation writes the initial JSON marker ('{').
    --  -----------------------
    procedure Start_Document (Stream : in out Output_Stream) is
+      Current : access Node_Info;
    begin
       Node_Info_Stack.Push (Stream.Stack);
-      Stream.Write ('{');
+      Current := Node_Info_Stack.Current (Stream.Stack);
+      Current.Is_Root := True;
    end Start_Document;
 
    --  -----------------------
    --  Finish a JSON document by writing the final JSON marker ('}').
    --  -----------------------
    procedure End_Document (Stream : in out Output_Stream) is
+      Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
    begin
-      Stream.Write ('}');
+      if Current /= null and then Current.Has_Fields and then not Current.Is_Array then
+         Stream.Write ('}');
+      end if;
+      Node_Info_Stack.Pop (Stream.Stack);
    end End_Document;
 
    --  -----------------------
@@ -215,7 +221,7 @@ package body Util.Serialize.IO.JSON is
       if Current /= null then
          if Current.Has_Fields then
             Stream.Write (',');
-         else
+         elsif Name'Length > 0 or else not Current.Is_Root then
             Current.Has_Fields := True;
          end if;
       end if;
@@ -233,11 +239,20 @@ package body Util.Serialize.IO.JSON is
                            Name   : in String) is
       Current : access Node_Info := Node_Info_Stack.Current (Stream.Stack);
    begin
-      Stream.Write_Field_Name (Name);
+      if Current /= null and then Current.Is_Root then
+         if Name'Length > 0 then
+            Stream.Write ('{');
+            Stream.Write_Field_Name (Name);
+            Current.Has_Fields := True;
+         end if;
+      else
+         Stream.Write_Field_Name (Name);
+      end if;
       Node_Info_Stack.Push (Stream.Stack);
       Current := Node_Info_Stack.Current (Stream.Stack);
       Current.Has_Fields := False;
       Current.Is_Array := False;
+      Current.Is_Root := False;
       Stream.Write ('{');
    end Start_Entity;
 
@@ -409,16 +424,24 @@ package body Util.Serialize.IO.JSON is
       if Current /= null then
          if Current.Has_Fields then
             Stream.Write (',');
-         else
+         elsif not Current.Is_Root then
             Current.Has_Fields := True;
+         elsif Name'Length > 0 then
+            Stream.Write ('{');
+            Current.Has_Fields := True;
+         else
+            Current.Is_Array := True;
          end if;
       end if;
       Node_Info_Stack.Push (Stream.Stack);
       Current := Node_Info_Stack.Current (Stream.Stack);
       Current.Has_Fields := False;
       Current.Is_Array := True;
-      Stream.Write_String (Name);
-      Stream.Write (':');
+      Current.Is_Root := False;
+      if Name'Length > 0 then
+         Stream.Write_String (Name);
+         Stream.Write (':');
+      end if;
       Stream.Write ('[');
    end Start_Array;
 
