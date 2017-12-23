@@ -147,6 +147,12 @@ package Util.Serialize.IO.XML is
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object);
+
+   --  Write the attribute with a null value.
+   overriding
+   procedure Write_Null_Attribute (Stream : in out Output_Stream;
+                                   Name   : in String);
+
    --  Write the entity value.
    overriding
    procedure Write_Entity (Stream : in out Output_Stream;
@@ -193,6 +199,11 @@ package Util.Serialize.IO.XML is
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object);
+
+   --  Write an entity with a null value.
+   overriding
+   procedure Write_Null_Entity (Stream : in out Output_Stream;
+                                Name   : in String);
 
    --  Starts a XML array.
    overriding
