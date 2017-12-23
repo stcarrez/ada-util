@@ -353,6 +353,17 @@ package body Util.Serialize.IO.JSON is
    end Write_Attribute;
 
    --  -----------------------
+   --  Write the attribute with a null value.
+   --  -----------------------
+   overriding
+   procedure Write_Null_Attribute (Stream : in out Output_Stream;
+                                   Name   : in String) is
+   begin
+      Stream.Write_Field_Name (Name);
+      Stream.Write ("null");
+   end Write_Null_Attribute;
+
+   --  -----------------------
    --  Write an object value as an entity
    --  -----------------------
    procedure Write_Entity (Stream : in out Output_Stream;
@@ -407,6 +418,16 @@ package body Util.Serialize.IO.JSON is
    begin
       Stream.Write_Entity (Name, Util.Dates.ISO8601.Image (Value, Util.Dates.ISO8601.SUBSECOND));
    end Write_Entity;
+
+   --  -----------------------
+   --  Write an entity with a null value.
+   --  -----------------------
+   overriding
+   procedure Write_Null_Entity (Stream : in out Output_Stream;
+                                Name   : in String) is
+   begin
+      Stream.Write_Null_Attribute (Name);
+   end Write_Null_Entity;
 
    overriding
    procedure Write_Entity (Stream : in out Output_Stream;
