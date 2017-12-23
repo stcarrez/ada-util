@@ -186,6 +186,7 @@ private
 
    type Node_Info is record
       Is_Array   : Boolean := False;
+      Is_Root    : Boolean := False;
       Has_Fields : Boolean := False;
    end record;
    type Node_Info_Access is access all Node_Info;
