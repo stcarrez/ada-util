@@ -285,6 +285,25 @@ package body Util.Serialize.IO.CSV is
    end Write_Enum_Entity;
 
    --  ------------------------------
+   --  Write the attribute with a null value.
+   --  ------------------------------
+   overriding
+   procedure Write_Null_Attribute (Stream : in out Output_Stream;
+                                   Name   : in String) is
+   begin
+      Stream.Write_Entity (Name, "");
+   end Write_Null_Attribute;
+
+   --  ------------------------------
+   --  Write an entity with a null value.
+   --  ------------------------------
+   procedure Write_Null_Entity (Stream : in out Output_Stream;
+                                Name   : in String) is
+   begin
+      Stream.Write_Null_Attribute (Name);
+   end Write_Null_Entity;
+
+   --  ------------------------------
    --  Get the header name for the given column.
    --  If there was no header line, build a default header for the column.
    --  ------------------------------
