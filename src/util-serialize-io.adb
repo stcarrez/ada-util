@@ -42,6 +42,61 @@ package body Util.Serialize.IO is
       Stream.Write_Entity (Name, Ada.Strings.Unbounded.To_String (Value));
    end Write_Entity;
 
+   procedure Write_Entity (Stream : in out Output_Stream'Class;
+                           Name   : in String;
+                           Value  : in Util.Nullables.Nullable_String) is
+   begin
+      if Value.Is_Null then
+         Stream.Write_Null_Entity (Name);
+      else
+         Stream.Write_Entity (Name, Value.Value);
+      end if;
+   end Write_Entity;
+
+   procedure Write_Entity (Stream : in out Output_Stream'Class;
+                           Name   : in String;
+                           Value  : in Util.Nullables.Nullable_Time) is
+   begin
+      if Value.Is_Null then
+         Stream.Write_Null_Entity (Name);
+      else
+         Stream.Write_Entity (Name, Value.Value);
+      end if;
+   end Write_Entity;
+
+   procedure Write_Entity (Stream : in out Output_Stream'Class;
+                           Name   : in String;
+                           Value  : in Util.Nullables.Nullable_Boolean) is
+   begin
+      if Value.Is_Null then
+         Stream.Write_Null_Entity (Name);
+      else
+         Stream.Write_Entity (Name, Value.Value);
+      end if;
+   end Write_Entity;
+
+   procedure Write_Entity (Stream : in out Output_Stream'Class;
+                           Name   : in String;
+                           Value  : in Util.Nullables.Nullable_Integer) is
+   begin
+      if Value.Is_Null then
+         Stream.Write_Null_Entity (Name);
+      else
+         Stream.Write_Entity (Name, Value.Value);
+      end if;
+   end Write_Entity;
+
+   procedure Write_Entity (Stream : in out Output_Stream'Class;
+                           Name   : in String;
+                           Value  : in Util.Nullables.Nullable_Long) is
+   begin
+      if Value.Is_Null then
+         Stream.Write_Null_Entity (Name);
+      else
+         Stream.Write_Entity (Name, Integer (Value.Value));
+      end if;
+   end Write_Entity;
+
    --  ------------------------------
    --  Read the file and parse it using the JSON parser.
    --  ------------------------------
