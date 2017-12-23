@@ -622,16 +622,6 @@ package body Util.Serialize.IO.XML is
    end Write_Attribute;
 
    overriding
-   procedure Write_Attribute (Stream : in out Output_Stream;
-                              Name   : in String;
-                              Value  : in Util.Nullables.Nullable_String) is
-   begin
-      if not Value.Is_Null then
-         Stream.Write_Attribute (Name, Value.Value);
-      end if;
-   end Write_Attribute;
-
-   overriding
    procedure Write_Wide_Attribute (Stream : in out Output_Stream;
                                    Name   : in String;
                                    Value  : in Wide_Wide_String) is
@@ -727,16 +717,6 @@ package body Util.Serialize.IO.XML is
       Stream.Write ("</");
       Stream.Write (Name);
       Stream.Write ('>');
-   end Write_Entity;
-
-   overriding
-   procedure Write_Entity (Stream : in out Output_Stream;
-                           Name   : in String;
-                           Value  : in Util.Nullables.Nullable_String) is
-   begin
-      if not Value.Is_Null then
-         Stream.Write_Entity (Name, Value.Value);
-      end if;
    end Write_Entity;
 
    overriding
