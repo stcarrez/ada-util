@@ -64,11 +64,6 @@ package Util.Serialize.IO.CSV is
                               Value  : in String);
 
    overriding
-   procedure Write_Attribute (Stream : in out Output_Stream;
-                              Name   : in String;
-                              Value  : in Util.Nullables.Nullable_String);
-
-   overriding
    procedure Write_Wide_Attribute (Stream : in out Output_Stream;
                                    Name   : in String;
                                    Value  : in Wide_Wide_String);
@@ -98,11 +93,6 @@ package Util.Serialize.IO.CSV is
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in String);
-
-   overriding
-   procedure Write_Entity (Stream : in out Output_Stream;
-                           Name   : in String;
-                           Value  : in Util.Nullables.Nullable_String);
 
    overriding
    procedure Write_Wide_Entity (Stream : in out Output_Stream;
