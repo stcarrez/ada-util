@@ -162,6 +162,15 @@ package body Util.Serialize.IO.CSV is
    end Write_Attribute;
 
    overriding
+   procedure Write_Attribute (Stream : in out Output_Stream;
+                              Name   : in String;
+                              Value  : in Util.Nullables.Nullable_String) is
+      pragma Unreferenced (Name);
+   begin
+      Stream.Write_Cell (Ada.Strings.Unbounded.To_String (Value.Value));
+   end Write_Attribute;
+
+   overriding
    procedure Write_Wide_Attribute (Stream : in out Output_Stream;
                                    Name   : in String;
                                    Value  : in Wide_Wide_String) is
@@ -214,6 +223,15 @@ package body Util.Serialize.IO.CSV is
       pragma Unreferenced (Name);
    begin
       Stream.Write_Cell (Value);
+   end Write_Entity;
+
+   overriding
+   procedure Write_Entity (Stream : in out Output_Stream;
+                           Name   : in String;
+                           Value  : in Util.Nullables.Nullable_String) is
+      pragma Unreferenced (Name);
+   begin
+      Stream.Write_Cell (Ada.Strings.Unbounded.To_String (Value.Value));
    end Write_Entity;
 
    overriding
