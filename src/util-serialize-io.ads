@@ -73,6 +73,10 @@ package Util.Serialize.IO is
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object) is abstract;
 
+   --  Write the attribute with a null value.
+   procedure Write_Null_Attribute (Stream : in out Output_Stream;
+                                   Name   : in String) is abstract;
+
    procedure Write_Attribute (Stream : in out Output_Stream'Class;
                               Name   : in String;
                               Value  : in Ada.Strings.Unbounded.Unbounded_String);
@@ -117,6 +121,10 @@ package Util.Serialize.IO is
    procedure Write_Entity (Stream : in out Output_Stream'Class;
                            Name   : in String;
                            Value  : in Ada.Strings.Unbounded.Unbounded_String);
+
+   --  Write an entity with a null value.
+   procedure Write_Null_Entity (Stream : in out Output_Stream;
+                                Name   : in String) is abstract;
 
    procedure Start_Array (Stream : in out Output_Stream;
                           Name   : in String) is null;
