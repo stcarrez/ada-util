@@ -702,6 +702,16 @@ package body Util.Serialize.IO.XML is
    end Write_Attribute;
 
    --  ------------------------------
+   --  Write the attribute with a null value.
+   --  ------------------------------
+   overriding
+   procedure Write_Null_Attribute (Stream : in out Output_Stream;
+                                   Name   : in String) is
+   begin
+      null;
+   end Write_Null_Attribute;
+
+   --  ------------------------------
    --  Write the entity value.
    --  ------------------------------
    overriding
@@ -824,6 +834,16 @@ package body Util.Serialize.IO.XML is
       Stream.Write (Name);
       Stream.Write ('>');
    end Write_Entity;
+
+   --  ------------------------------
+   --  Write an entity with a null value.
+   --  ------------------------------
+   overriding
+   procedure Write_Null_Entity (Stream : in out Output_Stream;
+                                Name   : in String) is
+   begin
+      null;
+   end Write_Null_Entity;
 
    --  ------------------------------
    --  Starts a XML array.
