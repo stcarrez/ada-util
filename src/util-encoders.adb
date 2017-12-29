@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009, 2010, 2011, 2016 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-
+with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 with Util.Encoders.Base16;
 with Util.Encoders.Base64;
@@ -96,7 +96,7 @@ package body Util.Encoders is
    --  Raises the <b>Encoding_Error</b> exception if the source string
    --  cannot be transformed
    --  ------------------------------
-   function Transform (E    : in Transformer'Class;
+   function Transform (E    : in out Transformer'Class;
                        Data : in String) return String is
       Buf_Size : constant Streams.Stream_Element_Offset := Best_Size (Data'Length);
       Buf      : Streams.Stream_Element_Array (1 .. Buf_Size);
@@ -162,7 +162,7 @@ package body Util.Encoders is
    --  Raises the <b>Encoding_Error</b> exception if the source string
    --  cannot be transformed
    --  ------------------------------
-   procedure Transform (E    : in Transformer'Class;
+   procedure Transform (E    : in out Transformer'Class;
                         Data : in String;
                         Into : out Ada.Streams.Stream_Element_Array;
                         Last : out Ada.Streams.Stream_Element_Offset) is
@@ -221,7 +221,7 @@ package body Util.Encoders is
    --  Raises the <b>Encoding_Error</b> exception if the source string
    --  cannot be transformed
    --  ------------------------------
-   function Transform (E    : in Transformer'Class;
+   function Transform (E    : in out Transformer'Class;
                        Data : in Streams.Stream_Element_Array) return String is
       Buf_Size : constant Streams.Stream_Element_Offset := Best_Size (Data'Length);
       Res      : Streams.Stream_Element_Array (1 .. Buf_Size);
