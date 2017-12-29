@@ -22,6 +22,8 @@ with Interfaces;
 --  RFC3174 or [FIPS-180-1].
 package Util.Encoders.AES is
 
+   type AES_Mode is (ECB, CBC, PCBC, CFB, OFB, CTR);
+
    type Key_Type is private;
 
    --  ------------------------------
@@ -73,9 +75,12 @@ package Util.Encoders.AES is
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset);
 
-private
+   --  Set the encryption key to use.
+   procedure Set_Key (E    : in out Encoder;
+                      Data : in Ada.Streams.Stream_Element_Array;
+                      Mode : in AES_Mode := CBC);
 
-   type Encoder is new Util.Encoders.Transformer with null record;
+private
 
    use Interfaces;
 
@@ -84,6 +89,11 @@ private
    type Key_Type is record
       Key    : Block_Key;
       Rounds : Natural := 0;
+   end record;
+
+   type Encoder is new Util.Encoders.Transformer with record
+      Key  : Key_Type;
+      Mode : AES_Mode := CBC;
    end record;
 
 end Util.Encoders.AES;
