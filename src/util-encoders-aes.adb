@@ -846,6 +846,17 @@ package body Util.Encoders.AES is
       null;
    end Transform;
 
+   --  ------------------------------
+   --  Set the encryption key to use.
+   --  ------------------------------
+   procedure Set_Key (E    : in out Encoder;
+                      Data : in Ada.Streams.Stream_Element_Array;
+                      Mode : in AES_Mode := CBC) is
+   begin
+      Set_Encrypt_Key (E.Key, Data);
+      E.Mode := Mode;
+   end Set_Key;
+
    procedure Encrypt (Input  : in Ada.Streams.Stream_Element_Array;
                       Output : out Ada.Streams.Stream_Element_Array;
                       Last   : out Ada.Streams.Stream_Element_Offset;
