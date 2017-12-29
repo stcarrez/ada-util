@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base16 -- Encode/Decode a stream in hexadecimal
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -153,7 +153,7 @@ package body Util.Encoders.Base16 is
    --  stream cannot be transformed.
    --  ------------------------------
    overriding
-   procedure Transform (E       : in Encoder;
+   procedure Transform (E       : in out Encoder;
                         Data    : in Ada.Streams.Stream_Element_Array;
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
@@ -178,7 +178,7 @@ package body Util.Encoders.Base16 is
    --  stream cannot be transformed.
    --  ------------------------------
    overriding
-   procedure Transform (E       : in Decoder;
+   procedure Transform (E       : in out Decoder;
                         Data    : in Ada.Streams.Stream_Element_Array;
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
