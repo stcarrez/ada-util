@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-sha1 -- Compute SHA-1 hash
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -77,7 +77,7 @@ package Util.Encoders.SHA1 is
    --  The <b>Encoding_Error</b> exception is raised if the input
    --  stream cannot be transformed.
    overriding
-   procedure Transform (E       : in Encoder;
+   procedure Transform (E       : in out Encoder;
                         Data    : in Ada.Streams.Stream_Element_Array;
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
