@@ -836,7 +836,7 @@ package body Util.Encoders.AES is
    --  stream cannot be transformed.
    --  ------------------------------
    overriding
-   procedure Transform (E       : in Encoder;
+   procedure Transform (E       : in out Encoder;
                         Data    : in Ada.Streams.Stream_Element_Array;
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
