@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009, 2010, 2011, 2012, 2016 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 with Ada.Streams;
 with Ada.Finalization;
-with Ada.Strings.Unbounded;
 with Interfaces;
 
 --  The <b>Util.Encoders</b> package defines the <b>Encoder</b> object
@@ -102,15 +101,11 @@ package Util.Encoders is
    --
    --  The <b>Encoding_Error</b> exception is raised if the input
    --  stream cannot be transformed.
-   procedure Transform (E       : in Transformer;
+   procedure Transform (E       : in out Transformer;
                         Data    : in Ada.Streams.Stream_Element_Array;
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset) is abstract;
-
-   procedure Transform (E    : in Transformer;
-                        Data : in String;
-                        Result : out Ada.Strings.Unbounded.Unbounded_String) is null;
 
    --  Transform the input string <b>Data</b> using the transformation
    --  rules provided by the <b>E</b> transformer.
@@ -119,7 +114,7 @@ package Util.Encoders is
    --
    --  Raises the <b>Encoding_Error</b> exception if the source string
    --  cannot be transformed
-   function Transform (E    : in Transformer'Class;
+   function Transform (E    : in out Transformer'Class;
                        Data : in String) return String;
 
    --  Transform the input string <b>Data</b> using the transformation
@@ -129,7 +124,7 @@ package Util.Encoders is
    --
    --  Raises the <b>Encoding_Error</b> exception if the source string
    --  cannot be transformed
-   function Transform (E    : in Transformer'Class;
+   function Transform (E    : in out Transformer'Class;
                        Data : in Ada.Streams.Stream_Element_Array) return String;
 
    --  Transform the input string <b>Data</b> using the transformation
@@ -138,7 +133,7 @@ package Util.Encoders is
    --
    --  Raises the <b>Encoding_Error</b> exception if the source string
    --  cannot be transformed
-   procedure Transform (E    : in Transformer'Class;
+   procedure Transform (E    : in out Transformer'Class;
                         Data : in String;
                         Into : out Ada.Streams.Stream_Element_Array;
                         Last : out Ada.Streams.Stream_Element_Offset);
