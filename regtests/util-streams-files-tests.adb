@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.files.tests -- Unit tests for buffered streams
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ with Ada.Strings.Unbounded;
 with Util.Test_Caller;
 
 with Util.Files;
-with Util.Streams.Buffered;
+with Util.Streams.Texts;
 package body Util.Streams.Files.Tests is
 
    use Util.Tests;
@@ -41,7 +41,7 @@ package body Util.Streams.Files.Tests is
    --  ------------------------------
    procedure Test_Read_Write (T : in out Test) is
       Stream     : aliased File_Stream;
-      Buffer     : Util.Streams.Buffered.Buffered_Stream;
+      Buffer     : Util.Streams.Texts.Print_Stream;
    begin
       for I in 1 .. 32 loop
          Buffer.Initialize (Output => Stream'Unchecked_Access,
