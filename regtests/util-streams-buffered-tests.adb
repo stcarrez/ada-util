@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.buffered.tests -- Unit tests for buffered streams
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +17,11 @@
 -----------------------------------------------------------------------
 
 with Util.Test_Caller;
-
+with Util.Streams.Texts;
 package body Util.Streams.Buffered.Tests is
 
    use Util.Tests;
+   use Util.Streams.Texts;
 
    package Caller is new Util.Test_Caller (Test, "Streams.Buffered");
 
@@ -38,7 +39,7 @@ package body Util.Streams.Buffered.Tests is
    --  Write on a buffered stream and read what was written.
    --  ------------------------------
    procedure Test_Read_Write (T : in out Test) is
-      Stream     : Buffered_Stream;
+      Stream     : Print_Stream;
       C          : Character;
    begin
       Stream.Initialize (Size => 4);
@@ -70,31 +71,31 @@ package body Util.Streams.Buffered.Tests is
       Big_Stream : aliased Buffered_Stream;
       Stream     : Buffered_Stream;
       Size       : Stream_Element_Offset := 0;
-      Count      : constant Natural := 1000;
-      Max_Size   : constant Natural := (Count * (Count + 1)) / 2;
+      Count      : constant Stream_Element_Offset := 1000;
+      Max_Size   : constant Stream_Element_Offset := (Count * (Count + 1)) / 2;
    begin
-      Big_Stream.Initialize (Size => Max_Size);
+      Big_Stream.Initialize (Size => Natural (Max_Size));
       Stream.Initialize (Output => Big_Stream'Unchecked_Access,
                          Input  => Big_Stream'Unchecked_Access, Size => 13);
 
       for I in 1 .. Count loop
          declare
-            S : String (1 .. I);
+            S : Stream_Element_Array (1 .. I);
          begin
             for J in S'Range loop
-               S (J) := Character'Val (J mod 255);
+               S (J) := Stream_Element (J mod 255);
             end loop;
 
             Stream.Write (S);
             Stream.Flush;
 
-            Size := Size + Stream_Element_Offset (I);
+            Size := Size + I;
             Assert_Equals (T, 1, Integer (Stream.Write_Pos), "Stream must be flushed");
 
             --  Verify that 'Big_Stream' holds the expected number of bytes.
             Assert_Equals (T, Integer (Size), Integer (Big_Stream.Write_Pos) - 1,
                            "Target stream has an invalid write position at "
-                          & Integer'Image (I));
+                          & Stream_Element_Offset'Image (I));
          end;
       end loop;
    end Test_Write;
