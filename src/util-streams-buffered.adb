@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  util-streams-buffered -- Buffered streams Stream utilities
+--  util-streams-buffered -- Buffered streams utilities
 --  Copyright (C) 2010, 2011, 2013, 2014, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -15,7 +15,6 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Interfaces;
 with Ada.IO_Exceptions;
 with Ada.Unchecked_Deallocation;
 package body Util.Streams.Buffered is
@@ -28,16 +27,14 @@ package body Util.Streams.Buffered is
    --  Initialize the stream to read or write on the given streams.
    --  An internal buffer is allocated for writing the stream.
    --  ------------------------------
-   procedure Initialize (Stream  : in out Buffered_Stream;
+   procedure Initialize (Stream  : in out Output_Buffer_Stream;
                          Output  : in Output_Stream_Access;
-                         Input   : in Input_Stream_Access;
                          Size    : in Positive) is
    begin
       Free_Buffer (Stream.Buffer);
       Stream.Last      := Stream_Element_Offset (Size);
       Stream.Buffer    := new Stream_Element_Array (1 .. Stream.Last);
       Stream.Output    := Output;
-      Stream.Input     := Input;
       Stream.Write_Pos := 1;
       Stream.Read_Pos  := 1;
       Stream.No_Flush  := False;
@@ -46,17 +43,15 @@ package body Util.Streams.Buffered is
    --  ------------------------------
    --  Initialize the stream to read from the string.
    --  ------------------------------
-   procedure Initialize (Stream  : in out Buffered_Stream;
+   procedure Initialize (Stream  : in out Input_Buffer_Stream;
                          Content : in String) is
    begin
       Free_Buffer (Stream.Buffer);
       Stream.Last      := Stream_Element_Offset (Content'Length);
       Stream.Buffer    := new Stream_Element_Array (1 .. Content'Length);
-      Stream.Output    := null;
       Stream.Input     := null;
       Stream.Write_Pos := Stream.Last + 1;
       Stream.Read_Pos  := 1;
-      Stream.No_Flush  := False;
       for I in Content'Range loop
          Stream.Buffer (Stream_Element_Offset (I - Content'First + 1))
            := Character'Pos (Content (I));
@@ -66,22 +61,38 @@ package body Util.Streams.Buffered is
    --  ------------------------------
    --  Initialize the stream with a buffer of <b>Size</b> bytes.
    --  ------------------------------
-   procedure Initialize (Stream  : in out Buffered_Stream;
+   procedure Initialize (Stream  : in out Output_Buffer_Stream;
                          Size    : in Positive) is
    begin
-      Stream.Initialize (Output => null, Input => null, Size => Size);
+      Stream.Initialize (Output => null, Size => Size);
       Stream.No_Flush := True;
       Stream.Read_Pos := 1;
+   end Initialize;
+
+   --  ------------------------------
+   --  Initialize the stream to read or write on the given streams.
+   --  An internal buffer is allocated for writing the stream.
+   --  ------------------------------
+   procedure Initialize (Stream  : in out Input_Buffer_Stream;
+                         Input   : in Input_Stream_Access;
+                         Size    : in Positive) is
+   begin
+      Free_Buffer (Stream.Buffer);
+      Stream.Last      := Stream_Element_Offset (Size);
+      Stream.Buffer    := new Stream_Element_Array (1 .. Stream.Last);
+      Stream.Input     := Input;
+      Stream.Write_Pos := 1;
+      Stream.Read_Pos  := 1;
    end Initialize;
 
    --  ------------------------------
    --  Close the sink.
    --  ------------------------------
    overriding
-   procedure Close (Stream : in out Buffered_Stream) is
+   procedure Close (Stream : in out Output_Buffer_Stream) is
    begin
       if Stream.Output /= null then
-         Buffered_Stream'Class (Stream).Flush;
+         Output_Buffer_Stream'Class (Stream).Flush;
          Stream.Output.Close;
       end if;
    end Close;
@@ -89,7 +100,7 @@ package body Util.Streams.Buffered is
    --  ------------------------------
    --  Get the direct access to the buffer.
    --  ------------------------------
-   function Get_Buffer (Stream : in Buffered_Stream) return Buffer_Access is
+   function Get_Buffer (Stream : in Output_Buffer_Stream) return Buffer_Access is
    begin
       return Stream.Buffer;
    end Get_Buffer;
@@ -97,7 +108,7 @@ package body Util.Streams.Buffered is
    --  ------------------------------
    --  Get the number of element in the stream.
    --  ------------------------------
-   function Get_Size (Stream : in Buffered_Stream) return Natural is
+   function Get_Size (Stream : in Output_Buffer_Stream) return Natural is
    begin
       return Natural (Stream.Write_Pos - Stream.Read_Pos);
    end Get_Size;
@@ -106,7 +117,7 @@ package body Util.Streams.Buffered is
    --  Write the buffer array to the output stream.
    --  ------------------------------
    overriding
-   procedure Write (Stream : in out Buffered_Stream;
+   procedure Write (Stream : in out Output_Buffer_Stream;
                     Buffer : in Ada.Streams.Stream_Element_Array) is
       Start : Stream_Element_Offset := Buffer'First;
       Pos   : Stream_Element_Offset := Stream.Write_Pos;
@@ -146,7 +157,7 @@ package body Util.Streams.Buffered is
    --  Flush the stream.
    --  ------------------------------
    overriding
-   procedure Flush (Stream : in out Buffered_Stream) is
+   procedure Flush (Stream : in out Output_Buffer_Stream) is
    begin
       if Stream.Write_Pos > 1 and not Stream.No_Flush then
          if Stream.Output = null then
@@ -163,7 +174,7 @@ package body Util.Streams.Buffered is
    --  Fill the buffer by reading the input stream.
    --  Raises Data_Error if there is no input stream;
    --  ------------------------------
-   procedure Fill (Stream : in out Buffered_Stream) is
+   procedure Fill (Stream : in out Input_Buffer_Stream) is
    begin
       if Stream.Input = null then
          Stream.Eof := True;
@@ -180,7 +191,7 @@ package body Util.Streams.Buffered is
    --  ------------------------------
    --  Read one character from the input stream.
    --  ------------------------------
-   procedure Read (Stream : in out Buffered_Stream;
+   procedure Read (Stream : in out Input_Buffer_Stream;
                    Char   : out Character) is
    begin
       if Stream.Read_Pos >= Stream.Write_Pos then
@@ -198,7 +209,7 @@ package body Util.Streams.Buffered is
    --  <b>last</b> the position of the last byte read.
    --  ------------------------------
    overriding
-   procedure Read (Stream : in out Buffered_Stream;
+   procedure Read (Stream : in out Input_Buffer_Stream;
                    Into   : out Ada.Streams.Stream_Element_Array;
                    Last   : out Ada.Streams.Stream_Element_Offset) is
       Start : Stream_Element_Offset := Into'First;
@@ -232,7 +243,7 @@ package body Util.Streams.Buffered is
    --  Read into the buffer as many bytes as possible and return in
    --  <b>last</b> the position of the last byte read.
    --  ------------------------------
-   procedure Read (Stream : in out Buffered_Stream;
+   procedure Read (Stream : in out Input_Buffer_Stream;
                    Into   : in out Ada.Strings.Unbounded.Unbounded_String) is
       Pos   : Stream_Element_Offset := Stream.Read_Pos;
       Avail : Stream_Element_Offset;
@@ -259,7 +270,7 @@ package body Util.Streams.Buffered is
    --  Flush the stream and release the buffer.
    --  ------------------------------
    overriding
-   procedure Finalize (Object : in out Buffered_Stream) is
+   procedure Finalize (Object : in out Output_Buffer_Stream) is
    begin
       if Object.Buffer /= null then
          if Object.Output /= null then
@@ -272,9 +283,20 @@ package body Util.Streams.Buffered is
    --  ------------------------------
    --  Returns True if the end of the stream is reached.
    --  ------------------------------
-   function Is_Eof (Stream : in Buffered_Stream) return Boolean is
+   function Is_Eof (Stream : in Input_Buffer_Stream) return Boolean is
    begin
       return Stream.Eof;
    end Is_Eof;
+
+   --  ------------------------------
+   --  Flush the stream and release the buffer.
+   --  ------------------------------
+   overriding
+   procedure Finalize (Object : in out Input_Buffer_Stream) is
+   begin
+      if Object.Buffer /= null then
+         Free_Buffer (Object.Buffer);
+      end if;
+   end Finalize;
 
 end Util.Streams.Buffered;
