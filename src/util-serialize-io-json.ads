@@ -183,7 +183,7 @@ package Util.Serialize.IO.JSON is
 
    --  Parse the stream using the JSON parser.
    procedure Parse (Handler : in out Parser;
-                    Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class;
+                    Stream  : in out Util.Streams.Buffered.Input_Buffer_Stream'Class;
                     Sink    : in out Reader'Class);
 
    --  Get the current location (file and line) to report an error message.
