@@ -18,7 +18,6 @@
 with Ada.Containers;
 
 with Util.Streams.Texts;
-with Util.Streams.Buffered;
 with Util.Serialize.Mappers.Record_Mapper;
 package body Util.Serialize.Tools is
 
@@ -115,7 +114,7 @@ package body Util.Serialize.Tools is
          Output.Start_Document;
          To_JSON (Output, "params", Map);
          Output.End_Document;
-         return Util.Streams.Texts.To_String (Util.Streams.Buffered.Buffered_Stream (Buffer));
+         return Util.Streams.Texts.To_String (Buffer);
       end;
    end To_JSON;
 
