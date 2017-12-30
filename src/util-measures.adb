@@ -155,7 +155,7 @@ package body Util.Measures is
                     Title    : in String;
                     Stream   : in Ada.Text_IO.File_Type) is
 
-      Buffer : aliased Util.Streams.Buffered.Buffered_Stream;
+      Buffer : aliased Util.Streams.Buffered.Output_Buffer_Stream;
       Output : Util.Streams.Texts.Print_Stream;
 
    begin
