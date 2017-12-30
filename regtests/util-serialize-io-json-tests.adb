@@ -184,7 +184,7 @@ package body Util.Serialize.IO.JSON.Tests is
       Path   : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.json");
    begin
       File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Path);
-      Buffer.Initialize (Output => File'Unchecked_Access, Input => null, Size => 10000);
+      Buffer.Initialize (Output => File'Unchecked_Access, Size => 10000);
       Stream.Initialize (Output => Buffer'Unchecked_Access);
       Write_Stream (Stream);
       Stream.Close;
@@ -208,7 +208,7 @@ package body Util.Serialize.IO.JSON.Tests is
          Buffer : aliased Util.Streams.Texts.Print_Stream;
          Stream : Util.Serialize.IO.JSON.Output_Stream;
       begin
-         Buffer.Initialize (Output => null, Input => null, Size => 10000);
+         Buffer.Initialize (Output => null, Size => 10000);
          Stream.Initialize (Output => Buffer'Unchecked_Access);
          Stream.Start_Document;
          Stream.Start_Array ("");
@@ -224,7 +224,7 @@ package body Util.Serialize.IO.JSON.Tests is
          Buffer : aliased Util.Streams.Texts.Print_Stream;
          Stream : Util.Serialize.IO.JSON.Output_Stream;
       begin
-         Buffer.Initialize (Output => null, Input => null, Size => 10000);
+         Buffer.Initialize (Output => null, Size => 10000);
          Stream.Initialize (Output => Buffer'Unchecked_Access);
          Stream.Start_Document;
          Stream.Start_Entity ("");
@@ -240,7 +240,7 @@ package body Util.Serialize.IO.JSON.Tests is
          Buffer : aliased Util.Streams.Texts.Print_Stream;
          Stream : Util.Serialize.IO.JSON.Output_Stream;
       begin
-         Buffer.Initialize (Output => null, Input => null, Size => 10000);
+         Buffer.Initialize (Output => null, Size => 10000);
          Stream.Initialize (Output => Buffer'Unchecked_Access);
          Stream.Start_Document;
          Stream.Start_Entity ("name");
@@ -256,7 +256,7 @@ package body Util.Serialize.IO.JSON.Tests is
          Buffer : aliased Util.Streams.Texts.Print_Stream;
          Stream : Util.Serialize.IO.JSON.Output_Stream;
       begin
-         Buffer.Initialize (Output => null, Input => null, Size => 10000);
+         Buffer.Initialize (Output => null, Size => 10000);
          Stream.Initialize (Output => Buffer'Unchecked_Access);
          Stream.Start_Document;
          Stream.Write_Entity ("", 23);
@@ -269,7 +269,7 @@ package body Util.Serialize.IO.JSON.Tests is
          Buffer : aliased Util.Streams.Texts.Print_Stream;
          Stream : Util.Serialize.IO.JSON.Output_Stream;
       begin
-         Buffer.Initialize (Output => null, Input => null, Size => 10000);
+         Buffer.Initialize (Output => null, Size => 10000);
          Stream.Initialize (Output => Buffer'Unchecked_Access);
          Stream.Start_Document;
          Stream.Write_Entity ("", "test");
@@ -316,7 +316,7 @@ package body Util.Serialize.IO.JSON.Tests is
       I      : Util.Nullables.Nullable_Integer;
       D      : Util.Nullables.Nullable_Time;
    begin
-      Buffer.Initialize (Output => null, Input => null, Size => 10000);
+      Buffer.Initialize (Output => null, Size => 10000);
       Stream.Initialize (Output => Buffer'Unchecked_Access);
       Stream.Start_Document;
       Stream.Start_Entity ("");
