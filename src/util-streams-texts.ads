@@ -18,9 +18,6 @@
 with Ada.Strings.Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded;
 with Util.Streams.Buffered;
-with Util.Texts.Transforms;
-with Ada.Characters.Handling;
-with Ada.Wide_Wide_Characters.Handling;
 with Ada.Calendar;
 with GNAT.Calendar.Time_IO;
 package Util.Streams.Texts is
@@ -30,7 +27,7 @@ package Util.Streams.Texts is
    --  -----------------------
    --  The <b>Print_Stream</b> is an output stream which provides helper methods
    --  for writing text streams.
-   type Print_Stream is new Buffered.Buffered_Stream with private;
+   type Print_Stream is new Buffered.Output_Buffer_Stream with private;
    type Print_Stream_Access is access all Print_Stream'Class;
 
    procedure Initialize (Stream : in out Print_Stream;
@@ -76,7 +73,7 @@ package Util.Streams.Texts is
                     := GNAT.Calendar.Time_IO.ISO_Date);
 
    --  Get the output stream content as a string.
-   function To_String (Stream : in Buffered.Buffered_Stream'Class) return String;
+   function To_String (Stream : in Buffered.Output_Buffer_Stream'Class) return String;
 
    --  Write a character on the stream.
    procedure Write_Char (Stream : in out Print_Stream'Class;
@@ -91,7 +88,7 @@ package Util.Streams.Texts is
    --  -----------------------
    --  The <b>Reader_Stream</b> is an input stream which provides helper methods
    --  for reading text streams.
-   type Reader_Stream is new Buffered.Buffered_Stream with private;
+   type Reader_Stream is new Buffered.Input_Buffer_Stream with private;
    type Reader_Stream_Access is access all Reader_Stream'Class;
 
    --  Initialize the reader to read the input from the input stream given in <b>From</b>.
@@ -107,8 +104,8 @@ package Util.Streams.Texts is
 
 private
 
-   type Print_Stream is new Buffered.Buffered_Stream with null record;
+   type Print_Stream is new Buffered.Output_Buffer_Stream with null record;
 
-   type Reader_Stream is new Buffered.Buffered_Stream with null record;
+   type Reader_Stream is new Buffered.Input_Buffer_Stream with null record;
 
 end Util.Streams.Texts;
