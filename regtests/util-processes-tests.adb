@@ -98,10 +98,10 @@ package body Util.Processes.Tests is
    begin
       P.Open ("bin/util_test_process 0 write b c d e f test_marker");
       declare
-         Buffer  : Util.Streams.Buffered.Buffered_Stream;
+         Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
          Content : Ada.Strings.Unbounded.Unbounded_String;
       begin
-         Buffer.Initialize (null, P'Unchecked_Access, 19);
+         Buffer.Initialize (P'Unchecked_Access, 19);
          Buffer.Read (Content);
          P.Close;
          Util.Tests.Assert_Matches (T, "b\s+c\s+d\s+e\s+f\s+test_marker\s+", Content,
@@ -119,10 +119,10 @@ package body Util.Processes.Tests is
    begin
       P.Open ("bin/util_test_process 0 write 'b c d e f' test_marker");
       declare
-         Buffer  : Util.Streams.Buffered.Buffered_Stream;
+         Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
          Content : Ada.Strings.Unbounded.Unbounded_String;
       begin
-         Buffer.Initialize (null, P'Unchecked_Access, 19);
+         Buffer.Initialize (P'Unchecked_Access, 19);
          Buffer.Read (Content);
          P.Close;
          Util.Tests.Assert_Matches (T, "b c d e f\s+test_marker\s+", Content,
@@ -141,7 +141,7 @@ package body Util.Processes.Tests is
    begin
       P.Open ("bin/util_test_process 0 read -", READ_WRITE);
       declare
-         Buffer  : Util.Streams.Buffered.Buffered_Stream;
+         Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
          Content : Ada.Strings.Unbounded.Unbounded_String;
          Print   : Util.Streams.Texts.Print_Stream;
       begin
@@ -151,7 +151,7 @@ package body Util.Processes.Tests is
          Print.Close;
 
          --  Read the output.
-         Buffer.Initialize (null, P'Unchecked_Access, 19);
+         Buffer.Initialize (P'Unchecked_Access, 19);
          Buffer.Read (Content);
 
          --  Wait for the process to finish.
@@ -203,10 +203,10 @@ package body Util.Processes.Tests is
                --  Read their output
                for I in 1 .. Cnt loop
                   declare
-                     Buffer  : Util.Streams.Buffered.Buffered_Stream;
+                     Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
                      Content : Ada.Strings.Unbounded.Unbounded_String;
                   begin
-                     Buffer.Initialize (null, Pipes (I)'Unchecked_Access, 19);
+                     Buffer.Initialize (Pipes (I)'Unchecked_Access, 19);
                      Buffer.Read (Content);
                      Pipes (I).Close;
 
