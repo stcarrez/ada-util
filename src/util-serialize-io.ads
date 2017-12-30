@@ -187,7 +187,7 @@ package Util.Serialize.IO is
 
    --  Parse the stream using the JSON parser.
    procedure Parse (Handler : in out Parser;
-                    Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class;
+                    Stream  : in out Util.Streams.Buffered.Input_Buffer_Stream'Class;
                     Sink    : in out Reader'Class) is abstract;
 
    --  Read the file and parse it using the parser.
