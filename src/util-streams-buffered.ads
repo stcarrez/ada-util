@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  util-streams-buffered -- Buffered streams Stream utilities
+--  util-streams-buffered -- Buffered streams utilities
 --  Copyright (C) 2010, 2013, 2015, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -16,90 +16,94 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Strings.Unbounded;
-with Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Finalization;
 package Util.Streams.Buffered is
 
    pragma Preelaborate;
 
+   type Buffer_Access is access Ada.Streams.Stream_Element_Array;
+
    --  -----------------------
-   --  Buffered stream
+   --  Output buffer stream
    --  -----------------------
-   --  The <b>Buffered_Stream</b> is an output/input stream which uses
-   --  an intermediate buffer.  It can be configured to read or write to
-   --  another stream that it will read or write using the buffer.
+   --  The <b>Output_Buffer_Stream</b> is an output stream which uses
+   --  an intermediate buffer to write the data.
    --
    --  It is necessary to call <b>Flush</b> to make sure the data
    --  is written to the target stream.  The <b>Flush</b> operation will
-   --  be called when finalizing the buffered stream.
-   type Buffered_Stream is limited new Output_Stream and Input_Stream with private;
+   --  be called when finalizing the output buffer stream.
+   type Output_Buffer_Stream is limited new Output_Stream with private;
 
-   type Buffer_Access is access Ada.Streams.Stream_Element_Array;
-
-   --  Initialize the stream to read or write on the given streams.
+   --  Initialize the stream to write on the given streams.
    --  An internal buffer is allocated for writing the stream.
-   procedure Initialize (Stream  : in out Buffered_Stream;
+   procedure Initialize (Stream  : in out Output_Buffer_Stream;
                          Output  : in Output_Stream_Access;
-                         Input   : in Input_Stream_Access;
                          Size    : in Positive);
 
    --  Initialize the stream with a buffer of <b>Size</b> bytes.
-   procedure Initialize (Stream  : in out Buffered_Stream;
+   procedure Initialize (Stream  : in out Output_Buffer_Stream;
                          Size    : in Positive);
-
-   --  Initialize the stream to read from the string.
-   procedure Initialize (Stream  : in out Buffered_Stream;
-                         Content : in String);
 
    --  Close the sink.
    overriding
-   procedure Close (Stream : in out Buffered_Stream);
+   procedure Close (Stream : in out Output_Buffer_Stream);
 
    --  Get the direct access to the buffer.
-   function Get_Buffer (Stream : in Buffered_Stream) return Buffer_Access;
+   function Get_Buffer (Stream : in Output_Buffer_Stream) return Buffer_Access;
 
    --  Write the buffer array to the output stream.
    overriding
-   procedure Write (Stream : in out Buffered_Stream;
+   procedure Write (Stream : in out Output_Buffer_Stream;
                     Buffer : in Ada.Streams.Stream_Element_Array);
 
    --  Flush the buffer by writing on the output stream.
    --  Raises Data_Error if there is no output stream.
    overriding
-   procedure Flush (Stream : in out Buffered_Stream);
+   procedure Flush (Stream : in out Output_Buffer_Stream);
 
    --  Get the number of element in the stream.
-   function Get_Size (Stream : in Buffered_Stream) return Natural;
+   function Get_Size (Stream : in Output_Buffer_Stream) return Natural;
+
+   type Input_Buffer_Stream is limited new Input_Stream with private;
+
+   --  Initialize the stream to read from the string.
+   procedure Initialize (Stream  : in out Input_Buffer_Stream;
+                         Content : in String);
+
+   --  Initialize the stream to read the given streams.
+   procedure Initialize (Stream  : in out Input_Buffer_Stream;
+                         Input   : in Input_Stream_Access;
+                         Size    : in Positive);
 
    --  Fill the buffer by reading the input stream.
    --  Raises Data_Error if there is no input stream;
-   procedure Fill (Stream : in out Buffered_Stream);
+   procedure Fill (Stream : in out Input_Buffer_Stream);
 
    --  Read one character from the input stream.
-   procedure Read (Stream : in out Buffered_Stream;
+   procedure Read (Stream : in out Input_Buffer_Stream;
                    Char   : out Character);
 
    --  Read into the buffer as many bytes as possible and return in
    --  <b>last</b> the position of the last byte read.
    overriding
-   procedure Read (Stream : in out Buffered_Stream;
+   procedure Read (Stream : in out Input_Buffer_Stream;
                    Into   : out Ada.Streams.Stream_Element_Array;
                    Last   : out Ada.Streams.Stream_Element_Offset);
 
    --  Read into the buffer as many bytes as possible and return in
    --  <b>last</b> the position of the last byte read.
-   procedure Read (Stream : in out Buffered_Stream;
+   procedure Read (Stream : in out Input_Buffer_Stream;
                    Into   : in out Ada.Strings.Unbounded.Unbounded_String);
 
    --  Returns True if the end of the stream is reached.
-   function Is_Eof (Stream : in Buffered_Stream) return Boolean;
+   function Is_Eof (Stream : in Input_Buffer_Stream) return Boolean;
 
 private
 
    use Ada.Streams;
 
-   type Buffered_Stream is limited new Ada.Finalization.Limited_Controlled
-     and Output_Stream and Input_Stream with record
+   type Output_Buffer_Stream is limited new Ada.Finalization.Limited_Controlled
+     and Output_Stream with record
       --  The buffer where the data is written before being flushed.
       Buffer      : Buffer_Access := null;
 
@@ -115,17 +119,36 @@ private
       --  The output stream to use for flushing the buffer.
       Output      : Output_Stream_Access := null;
 
+      No_Flush    : Boolean := False;
+   end record;
+
+   --  Flush the stream and release the buffer.
+   overriding
+   procedure Finalize (Object : in out Output_Buffer_Stream);
+
+   type Input_Buffer_Stream is limited new Ada.Finalization.Limited_Controlled
+     and Input_Stream with record
+      --  The buffer where the data is written before being flushed.
+      Buffer      : Buffer_Access := null;
+
+      --  The next write position within the buffer.
+      Write_Pos   : Stream_Element_Offset := 0;
+
+      --  The next read position within the buffer.
+      Read_Pos    : Stream_Element_Offset := 1;
+
+      --  The last valid write position within the buffer.
+      Last        : Stream_Element_Offset := 0;
+
       --  The input stream to use to fill the buffer.
       Input       : Input_Stream_Access := null;
-
-      No_Flush    : Boolean := False;
 
       --  Reached end of file when reading.
       Eof         : Boolean := False;
    end record;
 
-   --  Flush the stream and release the buffer.
+   --  Release the buffer.
    overriding
-   procedure Finalize (Object : in out Buffered_Stream);
+   procedure Finalize (Object : in out Input_Buffer_Stream);
 
 end Util.Streams.Buffered;
