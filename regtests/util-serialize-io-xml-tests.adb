@@ -19,7 +19,6 @@ with Ada.Strings.Unbounded;
 with Ada.Streams.Stream_IO;
 with Util.Test_Caller;
 with Util.Log.Loggers;
-with Util.Streams.Buffered;
 with Util.Streams.Files;
 with Util.Serialize.IO.JSON.Tests;
 with Util.Serialize.IO.XML;
@@ -382,7 +381,7 @@ package body Util.Serialize.IO.XML.Tests is
          Buffer.Initialize (Size => 10000);
          Output.Initialize (Output => Buffer'Unchecked_Access);
          Mapping.Write (Output, Value);
-         return Util.Streams.Texts.To_String (Buffered_Stream (Buffer));
+         return Util.Streams.Texts.To_String (Buffer);
       end Serialize;
 
    begin
@@ -416,7 +415,7 @@ package body Util.Serialize.IO.XML.Tests is
       Path   : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.xml");
    begin
       File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Path);
-      Buffer.Initialize (Output => File'Unchecked_Access, Input => null, Size => 10000);
+      Buffer.Initialize (Output => File'Unchecked_Access, Size => 10000);
       Stream.Initialize (Output => Buffer'Unchecked_Access);
       Util.Serialize.IO.JSON.Tests.Write_Stream (Stream);
       Stream.Close;
