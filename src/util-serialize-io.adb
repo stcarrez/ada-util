@@ -104,7 +104,7 @@ package body Util.Serialize.IO is
                     File    : in String;
                     Sink    : in out Reader'Class) is
       Stream     : aliased Util.Streams.Files.File_Stream;
-      Buffer     : Util.Streams.Buffered.Buffered_Stream;
+      Buffer     : Util.Streams.Buffered.Input_Buffer_Stream;
    begin
       if Handler.Error_Logger = null then
          Handler.Error_Logger := Log'Access;
@@ -112,8 +112,7 @@ package body Util.Serialize.IO is
       Handler.Error_Logger.Info ("Reading file {0}", File);
 
       Handler.File := Ada.Strings.Unbounded.To_Unbounded_String (File);
-      Buffer.Initialize (Output => null,
-                         Input  => Stream'Unchecked_Access,
+      Buffer.Initialize (Input  => Stream'Unchecked_Access,
                          Size   => 1024);
       Stream.Open (Mode => Ada.Streams.Stream_IO.In_File, Name => File);
       Sink.Start_Document;
@@ -138,7 +137,7 @@ package body Util.Serialize.IO is
    procedure Parse_String (Handler : in out Parser;
                            Content : in String;
                            Sink    : in out Reader'Class) is
-      Stream : aliased Util.Streams.Buffered.Buffered_Stream;
+      Stream : aliased Util.Streams.Buffered.Input_Buffer_Stream;
    begin
       if Handler.Error_Logger = null then
          Handler.Error_Logger := Log'Access;
