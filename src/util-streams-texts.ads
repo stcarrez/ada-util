@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  Util.Streams.Files -- File Stream utilities
+--  util-streams-texts -- Text stream utilities
 --  Copyright (C) 2010, 2011, 2012, 2015, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Strings.Unbounded;
+with Ada.Strings.Wide_Wide_Unbounded;
 with Util.Streams.Buffered;
 with Util.Texts.Transforms;
 with Ada.Characters.Handling;
@@ -35,6 +36,27 @@ package Util.Streams.Texts is
    procedure Initialize (Stream : in out Print_Stream;
                          To     : in Output_Stream_Access);
 
+   --  Write a raw character on the stream.
+   procedure Write (Stream : in out Print_Stream;
+                    Char   : in Character);
+
+   --  Write a wide character on the stream doing some conversion if necessary.
+   --  The default implementation translates the wide character to a UTF-8 sequence.
+   procedure Write_Wide (Stream : in out Print_Stream;
+                         Item   : in Wide_Wide_Character);
+
+   --  Write a raw string on the stream.
+   procedure Write (Stream : in out Print_Stream;
+                    Item   : in String);
+
+   --  Write a raw string on the stream.
+   procedure Write (Stream : in out Print_Stream;
+                    Item   : in Ada.Strings.Unbounded.Unbounded_String);
+
+   --  Write a raw string on the stream.
+   procedure Write (Stream : in out Print_Stream;
+                    Item   : in Ada.Strings.Wide_Wide_Unbounded.Unbounded_Wide_Wide_String);
+
    --  Write an integer on the stream.
    procedure Write (Stream : in out Print_Stream;
                     Item   : in Integer);
@@ -44,8 +66,8 @@ package Util.Streams.Texts is
                     Item   : in Long_Long_Integer);
 
    --  Write a string on the stream.
-   procedure Write (Stream : in out Print_Stream;
-                    Item   : in Ada.Strings.Unbounded.Unbounded_String);
+--     procedure Write (Stream : in out Print_Stream;
+--                      Item   : in Ada.Strings.Unbounded.Unbounded_String);
 
    --  Write a date on the stream.
    procedure Write (Stream : in out Print_Stream;
@@ -57,28 +79,12 @@ package Util.Streams.Texts is
    function To_String (Stream : in Buffered.Buffered_Stream'Class) return String;
 
    --  Write a character on the stream.
-   procedure Write_Char (Stream : in out Buffered.Buffered_Stream'Class;
+   procedure Write_Char (Stream : in out Print_Stream'Class;
                          Item   : in Character);
 
    --  Write a character on the stream.
-   procedure Write_Char (Stream : in out Buffered.Buffered_Stream'Class;
+   procedure Write_Char (Stream : in out Print_Stream'Class;
                          Item   : in Wide_Wide_Character);
-
-   package TR is
-     new Util.Texts.Transforms (Stream => Buffered.Buffered_Stream'Class,
-                                Char   => Character,
-                                Input  => String,
-                                Put    => Write_Char,
-                                To_Upper => Ada.Characters.Handling.To_Upper,
-                                To_Lower => Ada.Characters.Handling.To_Lower);
-
-   package WTR is
-     new Util.Texts.Transforms (Stream => Buffered.Buffered_Stream'Class,
-                                Char   => Wide_Wide_Character,
-                                Input  => Wide_Wide_String,
-                                Put    => Write_Char,
-                                To_Upper => Ada.Wide_Wide_Characters.Handling.To_Upper,
-                                To_Lower => Ada.Wide_Wide_Characters.Handling.To_Lower);
 
    --  -----------------------
    --  Reader stream
