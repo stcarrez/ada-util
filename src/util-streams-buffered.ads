@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Streams.Buffered -- Buffered streams Stream utilities
---  Copyright (C) 2010, 2013, 2015, 2016 Stephane Carrez
+--  util-streams-buffered -- Buffered streams Stream utilities
+--  Copyright (C) 2010, 2013, 2015, 2016, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,27 +57,6 @@ package Util.Streams.Buffered is
 
    --  Get the direct access to the buffer.
    function Get_Buffer (Stream : in Buffered_Stream) return Buffer_Access;
-
-   --  Write a raw character on the stream.
-   procedure Write (Stream : in out Buffered_Stream;
-                    Char   : in Character);
-
-   --  Write a wide character on the stream doing some conversion if necessary.
-   --  The default implementation translates the wide character to a UTF-8 sequence.
-   procedure Write_Wide (Stream : in out Buffered_Stream;
-                         Item   : in Wide_Wide_Character);
-
-   --  Write a raw string on the stream.
-   procedure Write (Stream : in out Buffered_Stream;
-                    Item   : in String);
-
-   --  Write a raw string on the stream.
-   procedure Write (Stream : in out Buffered_Stream;
-                    Item   : in Ada.Strings.Unbounded.Unbounded_String);
-
-   --  Write a raw string on the stream.
-   procedure Write (Stream : in out Buffered_Stream;
-                    Item   : in Ada.Strings.Wide_Wide_Unbounded.Unbounded_Wide_Wide_String);
 
    --  Write the buffer array to the output stream.
    overriding
