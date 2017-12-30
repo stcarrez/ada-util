@@ -25,7 +25,7 @@ package body Util.Streams.Texts is
    procedure Initialize (Stream : in out Print_Stream;
                          To     : in Output_Stream_Access) is
    begin
-      Stream.Initialize (Output => To, Input => null, Size => 4096);
+      Stream.Initialize (Output => To, Size => 4096);
    end Initialize;
 
    --  ------------------------------
@@ -164,7 +164,7 @@ package body Util.Streams.Texts is
    --  ------------------------------
    --  Get the output stream content as a string.
    --  ------------------------------
-   function To_String (Stream : in Buffered.Buffered_Stream'Class) return String is
+   function To_String (Stream : in Buffered.Output_Buffer_Stream'Class) return String is
       Size   : constant Natural := Stream.Get_Size;
       Buffer : constant Streams.Buffered.Buffer_Access := Stream.Get_Buffer;
       Result : String (1 .. Size);
@@ -199,7 +199,7 @@ package body Util.Streams.Texts is
    procedure Initialize (Stream : in out Reader_Stream;
                          From   : in Input_Stream_Access) is
    begin
-      Stream.Initialize (Output => null, Input => From, Size => 4096);
+      Stream.Initialize (Input => From, Size => 4096);
    end Initialize;
 
    --  ------------------------------
