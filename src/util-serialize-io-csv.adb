@@ -404,7 +404,7 @@ package body Util.Serialize.IO.CSV is
    --  ------------------------------
    overriding
    procedure Parse (Handler : in out Parser;
-                    Stream  : in out Util.Streams.Buffered.Buffered_Stream'Class;
+                    Stream  : in out Util.Streams.Buffered.Input_Buffer_Stream'Class;
                     Sink    : in out Reader'Class) is
       use Ada.Strings.Unbounded;
 
