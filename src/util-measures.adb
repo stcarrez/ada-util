@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  measure -- Benchmark tools
---  Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2015 Stephane Carrez
+--  Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@ with Ada.Unchecked_Deallocation;
 with GNAT.Calendar.Time_IO;
 
 with Util.Streams.Buffered;
+with Util.Streams.Texts.TR;
 package body Util.Measures is
 
    ISO_DATE_TIME : constant GNAT.Calendar.Time_IO.Picture_String := "%Y-%m-%d %H:%M:%S";
@@ -101,7 +102,7 @@ package body Util.Measures is
             Stream.Write (Total (Total'First + 1 .. Total'Last));
          end if;
          Stream.Write (""" title=""");
-         Util.Streams.Texts.TR.Escape_Java_Script (Into => Buffered_Stream (Stream),
+         Util.Streams.Texts.TR.Escape_Java_Script (Into => Stream,
                                                    Content => Item.Name.all);
          Stream.Write ("""/>");
          Stream.Write (ASCII.LF);
@@ -113,7 +114,7 @@ package body Util.Measures is
    begin
       Measures.Data.Steal_Map (Buckets, TS, TE);
       Stream.Write ("<measures title=""");
-      Util.Streams.Texts.TR.Escape_Java_Script (Into    => Buffered_Stream (Stream),
+      Util.Streams.Texts.TR.Escape_Java_Script (Into    => Stream,
                                                 Content => Title);
       Stream.Write (""" start=""");
       Stream.Write (TS, ISO_DATE_TIME);
