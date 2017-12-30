@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-sockets-tests -- Unit tests for socket streams
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -85,7 +85,6 @@ package body Util.Streams.Sockets.Tests is
       --  Get a connection and write 10 lines.
       Stream.Connect (Server => Addr);
       Writer.Initialize (Output => Stream'Unchecked_Access,
-                         Input  => null,
                          Size   => 1024);
       for I in 1 .. 10 loop
          Writer.Write ("Sending a line on the socket test-"
