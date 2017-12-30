@@ -22,6 +22,8 @@ with Unicode.CES.Utf8;
 with Util.Log.Loggers;
 with Util.Strings;
 with Util.Dates.ISO8601;
+with Util.Streams.Texts.TR;
+with Util.Streams.Texts.WTR;
 package body Util.Serialize.IO.XML is
 
    use Sax.Readers;
