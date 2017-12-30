@@ -87,7 +87,7 @@ package body Util.Serialize.IO.CSV.Tests is
       Path   : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.csv");
    begin
       File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Path);
-      Stream.Initialize (Output => File'Unchecked_Access, Input => null, Size => 10000);
+      Stream.Initialize (Output => File'Unchecked_Access, Size => 10000);
       Util.Serialize.IO.JSON.Tests.Write_Stream (Stream);
       Stream.Close;
       Util.Tests.Assert_Equal_Files (T       => T,
