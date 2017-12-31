@@ -48,6 +48,8 @@ package body Util.Encoders.Base64 is
                    Into    => Buf,
                    Last    => Last,
                    Encoded => Encoded);
+      E.Finish (Into => Buf (Last + 1 .. Buf'Last),
+                Last => Last);
 
       --  Strip the '=' or '==' at end of base64url.
       if Result (Positive (Last)) /= '=' then
@@ -73,6 +75,9 @@ package body Util.Encoders.Base64 is
       End_Pos : constant Ada.Streams.Stream_Element_Offset
         := Value'Length + ((4 - (Value'Length mod 4)) mod 4);
    begin
+      if Buf'Length < End_Pos then
+         raise Encoding_Error with "Input string is too short";
+      end if;
       Util.Streams.Copy (Into => Buf (1 .. Value'Length), From => Value);
 
       --  Set back the '=' for the base64url (pad to multiple of 4.
@@ -130,10 +135,30 @@ package body Util.Encoders.Base64 is
       Alphabet : constant Alphabet_Access := E.Alphabet;
 
    begin
+      while E.Count /= 0 and I <= Data'Last loop
+         if E.Count = 2 then
+            C1 := E.Value;
+            C2 := Unsigned_8 (Data (I));
+            Into (Pos) := Alphabet (Shift_Left (C1 and 16#03#, 4) or Shift_Right (C2, 4));
+            Pos := Pos + 1;
+            I := I + 1;
+            E.Count := 1;
+            E.Value := C2;
+         else
+            C2 := E.Value;
+            C1 := Unsigned_8 (Data (I));
+            Into (Pos) := Alphabet (Shift_Left (C2 and 16#0F#, 2) or Shift_Right (C1, 6));
+            Into (Pos + 1) := Alphabet (C1 and 16#03F#);
+            Pos := Pos + 2;
+            I := I + 1;
+            E.Count := 0;
+         end if;
+      end loop;
       while I <= Data'Last loop
          if Pos + 4 > Into'Last + 1 then
             Last    := Pos - 1;
             Encoded := I - 1;
+            E.Count := 0;
             return;
          end if;
 
@@ -141,10 +166,9 @@ package body Util.Encoders.Base64 is
          C1 := Unsigned_8 (Data (I));
          Into (Pos) := Alphabet (Shift_Right (C1, 2));
          if I = Data'Last then
-            Into (Pos + 1) := Alphabet (Shift_Left (C1 and 3, 4));
-            Into (Pos + 2) := Character'Pos ('=');
-            Into (Pos + 3) := Character'Pos ('=');
-            Last := Pos + 3;
+            E.Value := C1;
+            E.Count := 2;
+            Last := Pos;
             Encoded := Data'Last;
             return;
          end if;
@@ -153,9 +177,9 @@ package body Util.Encoders.Base64 is
          C2 := Unsigned_8 (Data (I + 1));
          Into (Pos + 1) := Alphabet (Shift_Left (C1 and 16#03#, 4) or Shift_Right (C2, 4));
          if I = Data'Last - 1 then
-            Into (Pos + 2) := Alphabet (Shift_Left (C2 and 16#0F#, 2));
-            Into (Pos + 3) := Character'Pos ('=');
-            Last := Pos + 3;
+            E.Value := C2;
+            E.Count := 1;
+            Last := Pos + 1;
             Encoded := Data'Last;
             return;
          end if;
@@ -167,9 +191,35 @@ package body Util.Encoders.Base64 is
          Pos := Pos + 4;
          I   := I + 3;
       end loop;
+      E.Count := 0;
       Last    := Pos - 1;
       Encoded := Data'Last;
    end Transform;
+
+   --  ------------------------------
+   --  Finish encoding the input array.
+   --  ------------------------------
+   overriding
+   procedure Finish (E    : in out Encoder;
+                     Into : in out Ada.Streams.Stream_Element_Array;
+                     Last : in out Ada.Streams.Stream_Element_Offset) is
+      Pos : constant Ada.Streams.Stream_Element_Offset := Into'First;
+   begin
+      if E.Count = 2 then
+         Into (Pos) := E.Alphabet (Shift_Left (E.Value and 3, 4));
+         Into (Pos + 1) := Character'Pos ('=');
+         Into (Pos + 2) := Character'Pos ('=');
+         Last := Pos + 2;
+         E.Count := 0;
+      elsif E.Count = 1 then
+         Into (Pos) := E.Alphabet (Shift_Left (E.Value and 16#0F#, 2));
+         Into (Pos + 1) := Character'Pos ('=');
+         Last := Pos + 1;
+         E.Count := 0;
+      else
+         Last := Pos - 1;
+      end if;
+   end Finish;
 
    --  ------------------------------
    --  Set the encoder to use the base64 URL alphabet when <b>Mode</b> is True.
@@ -191,7 +241,7 @@ package body Util.Encoders.Base64 is
    --  ------------------------------
    function Create_URL_Encoder return Transformer_Access is
    begin
-      return new Encoder '(Alphabet => BASE64_URL_ALPHABET'Access);
+      return new Encoder '(Alphabet => BASE64_URL_ALPHABET'Access, others => <>);
    end Create_URL_Encoder;
 
    --  ------------------------------
