@@ -27,6 +27,9 @@ package body Util.Encoders is
 
    use type Ada.Streams.Stream_Element_Offset;
 
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Transformer'Class, Transformer_Access);
+
    --  ------------------------------
    --  Encodes the input string <b>Data</b> using the transformation
    --  rules provided by the <b>E</b> encoder.
@@ -58,7 +61,7 @@ package body Util.Encoders is
    --  Raises the <b>Not_Supported</b> exception if the decoding is not
    --  supported.
    --  ------------------------------
-   function Decode (E    : in Encoder;
+   function Decode (E    : in Decoder;
                     Data : in String) return String is
    begin
       if E.Decode = null then
@@ -104,12 +107,12 @@ package body Util.Encoders is
       Tmp      : String (1 .. Natural (Buf_Size));
       Result   : Ada.Strings.Unbounded.Unbounded_String;
       Pos      : Natural := Data'First;
+      Last          : Streams.Stream_Element_Offset;
    begin
       while Pos <= Data'Last loop
          declare
             Last_Encoded  : Streams.Stream_Element_Offset;
             First_Encoded : Streams.Stream_Element_Offset := 1;
-            Last          : Streams.Stream_Element_Offset;
             Size          : Streams.Stream_Element_Offset;
             Next_Pos      : Natural;
          begin
@@ -151,6 +154,15 @@ package body Util.Encoders is
             Pos := Next_Pos;
          end;
       end loop;
+      Last := 0;
+      E.Finish (Into => Res,
+                Last => Last);
+      if Last > 0 then
+         for I in 1 .. Last loop
+            Tmp (Natural (I)) := Character'Val (Res (I));
+         end loop;
+         Append (Result, Tmp (1 .. Natural (Last)));
+      end if;
       return To_String (Result);
    end Transform;
 
@@ -237,6 +249,7 @@ package body Util.Encoders is
                    Encoded => Last_Encoded,
                    Last    => Last);
 
+      E.Finish (Res (Last + 1 .. Res'Last), Last);
       for I in 1 .. Last loop
          Tmp (Natural (I)) := Character'Val (Res (I));
       end loop;
@@ -312,24 +325,48 @@ package body Util.Encoders is
       if Name = BASE_16 or Name = HEX then
          return E : Encoder do
             E.Encode := new Util.Encoders.Base16.Encoder;
-            E.Decode := new Util.Encoders.Base16.Decoder;
          end return;
 
       elsif Name = BASE_64 then
          return E : Encoder do
             E.Encode := new Util.Encoders.Base64.Encoder;
-            E.Decode := new Util.Encoders.Base64.Decoder;
          end return;
 
       elsif Name = BASE_64_URL then
          return E : Encoder do
             E.Encode := Util.Encoders.Base64.Create_URL_Encoder;
-            E.Decode := Util.Encoders.Base64.Create_URL_Decoder;
          end return;
 
       elsif Name = HASH_SHA1 then
          return E : Encoder do
             E.Encode := new Util.Encoders.SHA1.Encoder;
+         end return;
+      end if;
+      raise Not_Supported with "Invalid encoder: " & Name;
+   end Create;
+
+   --  ------------------------------
+   --  Create the encoder object for the specified algorithm.
+   --  ------------------------------
+   function Create (Name : String) return Decoder is
+   begin
+      if Name = BASE_16 or Name = HEX then
+         return E : Decoder do
+            E.Decode := new Util.Encoders.Base16.Decoder;
+         end return;
+
+      elsif Name = BASE_64 then
+         return E : Decoder do
+            E.Decode := new Util.Encoders.Base64.Decoder;
+         end return;
+
+      elsif Name = BASE_64_URL then
+         return E : Decoder do
+            E.Decode := Util.Encoders.Base64.Create_URL_Decoder;
+         end return;
+
+      elsif Name = HASH_SHA1 then
+         return E : Decoder do
             E.Decode := new Util.Encoders.Base64.Decoder;
          end return;
       end if;
@@ -342,11 +379,16 @@ package body Util.Encoders is
    overriding
    procedure Finalize (E : in out Encoder) is
 
-      procedure Free is
-        new Ada.Unchecked_Deallocation (Transformer'Class, Transformer_Access);
-
    begin
       Free (E.Encode);
+   end Finalize;
+
+   --  ------------------------------
+   --  Delete the transformers
+   --  ------------------------------
+   overriding
+   procedure Finalize (E : in out Decoder) is
+   begin
       Free (E.Decode);
    end Finalize;
 
