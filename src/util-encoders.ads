@@ -67,8 +67,8 @@ package Util.Encoders is
    --  supported.
    function Encode (E    : in Encoder;
                     Data : in String) return String;
-   function Encode (E    : in Encoder;
-                    Data : in Ada.Streams.Stream_Element_Array) return String;
+   function Encode_Binary (E    : in Encoder;
+                           Data : in Ada.Streams.Stream_Element_Array) return String;
 
    --  Create the encoder object for the specified encoding format.
    function Create (Name : in String) return Encoder;
@@ -86,6 +86,8 @@ package Util.Encoders is
    --  supported.
    function Decode (E    : in Decoder;
                     Data : in String) return String;
+   function Decode_Binary (E    : in Decoder;
+                           Data : in String) return Ada.Streams.Stream_Element_Array;
 
    --  Create the decoder object for the specified encoding format.
    function Create (Name : in String) return Decoder;
@@ -142,6 +144,9 @@ package Util.Encoders is
    --  cannot be transformed
    function Transform (E    : in out Transformer'Class;
                        Data : in Ada.Streams.Stream_Element_Array) return String;
+   function Transform (E    : in out Transformer'Class;
+                       Data : in Ada.Streams.Stream_Element_Array)
+                       return Ada.Streams.Stream_Element_Array;
 
    --  Transform the input string <b>Data</b> using the transformation
    --  rules provided by the <b>E</b> transformer and return the data in
