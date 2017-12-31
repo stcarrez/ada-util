@@ -306,6 +306,24 @@ package body Util.Encoders is
    end Transform;
 
    --  ------------------------------
+   --  Transform the input data into the target string.
+   --  ------------------------------
+   procedure Convert (E    : in out Transformer'Class;
+                      Data : in Ada.Streams.Stream_Element_Array;
+                      Into : out String) is
+      Buf : Ada.Streams.Stream_Element_Array (Offset (Into'First) .. Offset (Into'Last));
+      for Buf'Address use Into'Address;
+      Last_Encoded : Offset;
+      Last         : Offset;
+   begin
+      E.Transform (Data    => Data,
+                   Into    => Buf,
+                   Last    => Last,
+                   Encoded => Last_Encoded);
+      E.Finish (Buf (Last + 1 .. Buf'Last), Last);
+   end Convert;
+
+   --  ------------------------------
    --  Encode the value represented by <tt>Val</tt> in the stream array <tt>Into</tt> starting
    --  at position <tt>Pos</tt> in that array.  The value is encoded using LEB128 format, 7-bits
    --  at a time until all non zero bits are written.  The <tt>Last</tt> parameter is updated
