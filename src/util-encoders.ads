@@ -19,9 +19,13 @@ with Ada.Streams;
 with Ada.Finalization;
 with Interfaces;
 
---  The <b>Util.Encoders</b> package defines the <b>Encoder</b> object
---  which represents a mechanism to transform a stream from one format into
+--  === Encoder and Decoders ===
+--  The <b>Util.Encoders</b> package defines the <b>Encoder</b> and <b>Decode</b> objects
+--  which provide a mechanism to transform a stream from one format into
 --  another format.
+--
+--  ==== Simple encoding and decoding ====
+--
 package Util.Encoders is
 
    pragma Preelaborate;
@@ -64,6 +68,11 @@ package Util.Encoders is
    function Encode (E    : in Encoder;
                     Data : in String) return String;
 
+   --  Create the encoder object for the specified encoding format.
+   function Create (Name : in String) return Encoder;
+
+   type Decoder is tagged limited private;
+
    --  Decodes the input string <b>Data</b> using the transformation
    --  rules provided by the <b>E</b> encoder.
    --
@@ -73,11 +82,11 @@ package Util.Encoders is
    --  cannot be decoded.
    --  Raises the <b>Not_Supported</b> exception if the decoding is not
    --  supported.
-   function Decode (E    : in Encoder;
+   function Decode (E    : in Decoder;
                     Data : in String) return String;
 
-   --  Create the encoder object for the specified encoding format.
-   function Create (Name : String) return Encoder;
+   --  Create the decoder object for the specified encoding format.
+   function Create (Name : in String) return Decoder;
 
    --  ------------------------------
    --  Stream Transformation interface
@@ -87,25 +96,30 @@ package Util.Encoders is
    type Transformer is limited interface;
    type Transformer_Access is access all Transformer'Class;
 
-   --  Transform the input stream represented by <b>Data</b> into
-   --  the output stream <b>Into</b>.  The transformation made by
+   --  Transform the input array represented by <b>Data</b> into
+   --  the output array <b>Into</b>.  The transformation made by
    --  the object can be of any nature (Hex encoding, Base64 encoding,
-   --  Hex decoding, Base64 decoding, ...).
+   --  Hex decoding, Base64 decoding, encryption, compression, ...).
    --
    --  If the transformer does not have enough room to write the result,
    --  it must return in <b>Encoded</b> the index of the last encoded
-   --  position in the <b>Data</b> stream.
+   --  position in the <b>Data</b> array.
    --
    --  The transformer returns in <b>Last</b> the last valid position
-   --  in the output stream <b>Into</b>.
+   --  in the output array <b>Into</b>.
    --
    --  The <b>Encoding_Error</b> exception is raised if the input
-   --  stream cannot be transformed.
+   --  array cannot be transformed.
    procedure Transform (E       : in out Transformer;
                         Data    : in Ada.Streams.Stream_Element_Array;
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset) is abstract;
+
+   --  Finish encoding the input array.
+   procedure Finish (E    : in out Transformer;
+                     Into : in out Ada.Streams.Stream_Element_Array;
+                     Last : in out Ada.Streams.Stream_Element_Offset) is null;
 
    --  Transform the input string <b>Data</b> using the transformation
    --  rules provided by the <b>E</b> transformer.
@@ -159,11 +173,18 @@ private
 
    type Encoder is new Ada.Finalization.Limited_Controlled with record
       Encode : Transformer_Access := null;
-      Decode : Transformer_Access := null;
    end record;
 
    --  Delete the transformers
    overriding
    procedure Finalize (E : in out Encoder);
+
+   type Decoder is new Ada.Finalization.Limited_Controlled with record
+      Decode : Transformer_Access := null;
+   end record;
+
+   --  Delete the transformers
+   overriding
+   procedure Finalize (E : in out Decoder);
 
 end Util.Encoders;
