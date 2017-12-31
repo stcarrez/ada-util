@@ -95,7 +95,7 @@ begin
          end if;
 
          declare
-            Buffer : aliased Util.Streams.Buffered.Buffered_Stream;
+            Buffer : aliased Util.Streams.Buffered.Output_Buffer_Stream;
             Print  : aliased Util.Streams.Texts.Print_Stream;
             Output : Util.Serialize.IO.JSON.Output_Stream;
          begin
@@ -108,7 +108,7 @@ begin
          end;
 
          declare
-            Buffer : aliased Util.Streams.Buffered.Buffered_Stream;
+            Buffer : aliased Util.Streams.Buffered.Output_Buffer_Stream;
             Print  : aliased Util.Streams.Texts.Print_Stream;
             Output : Util.Serialize.IO.JSON.Output_Stream;
          begin
@@ -120,7 +120,7 @@ begin
             Output.Write ("}");
 
             Ada.Text_IO.Put_Line ("IO:");
-            Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Buffered_Stream (Print)));
+            Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Print));
          end;
       end;
    end loop;
