@@ -27,11 +27,11 @@ procedure Popen is
    Command : constant String := "gnatmake --version";
 
    Pipe    : aliased Util.Streams.Pipes.Pipe_Stream;
-   Buffer  : Util.Streams.Buffered.Buffered_Stream;
+   Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
    Content : Ada.Strings.Unbounded.Unbounded_String;
 begin
    Pipe.Open (Command, Util.Processes.READ);
-   Buffer.Initialize (null, Pipe'Unchecked_Access, 1024);
+   Buffer.Initialize (Pipe'Unchecked_Access, 1024);
    Buffer.Read (Content);
    Pipe.Close;
 
