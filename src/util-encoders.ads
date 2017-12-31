@@ -178,6 +178,11 @@ package Util.Encoders is
 
 private
 
+   --  Transform the input data into the target string.
+   procedure Convert (E    : in out Transformer'Class;
+                      Data : in Ada.Streams.Stream_Element_Array;
+                      Into : out String);
+
    type Encoder is new Ada.Finalization.Limited_Controlled with record
       Encode : Transformer_Access := null;
    end record;
