@@ -128,12 +128,14 @@ package body Util.Streams.Buffered is
          Size := Buffer'Last - Start + 1;
          Avail := Stream.Last - Pos + 1;
          if Avail = 0 then
-            Stream.Flush;
-            Pos := Stream.Write_Pos;
-            Avail := Stream.Last - Pos + 1;
-            if Avail = 0 then
+            if Stream.Output = null then
                raise Ada.IO_Exceptions.End_Error with "Buffer is full";
             end if;
+            Stream.Output.Write (Stream.Buffer (1 .. Pos - 1));
+            Stream.Write_Pos := 1;
+            --  Stream.Flush;
+            Pos := 1;
+            Avail := Stream.Last - Pos + 1;
          end if;
          if Avail < Size then
             Size := Avail;
@@ -146,7 +148,11 @@ package body Util.Streams.Buffered is
          --  If we have still more data that the buffer size, flush and write
          --  the buffer directly.
          if Start < Buffer'Last and then Buffer'Last - Start > Stream.Buffer'Length then
-            Stream.Flush;
+            if Stream.Output = null then
+               raise Ada.IO_Exceptions.End_Error with "Buffer is full";
+            end if;
+            Stream.Output.Write (Stream.Buffer (1 .. Pos - 1));
+            Stream.Write_Pos := 1;
             Stream.Output.Write (Buffer (Start .. Buffer'Last));
             return;
          end if;
