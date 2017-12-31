@@ -168,17 +168,11 @@ package body Util.Encoders.HMAC.SHA256 is
    --  ------------------------------
    procedure Finish (E    : in out Context;
                      Hash : out Util.Encoders.SHA256.Digest) is
-      Buf : Ada.Streams.Stream_Element_Array (1 .. Hash'Length);
-      for Buf'Address use Hash'Address;
-      pragma Import (Ada, Buf);
-
       H       : Util.Encoders.SHA256.Hash_Array;
       B       : Util.Encoders.Base16.Encoder;
-      Last    : Ada.Streams.Stream_Element_Offset;
-      Encoded : Ada.Streams.Stream_Element_Offset;
    begin
       Finish (E, H);
-      B.Transform (Data => H, Into => Buf, Last => Last, Encoded => Encoded);
+      B.Convert (H, Hash);
    end Finish;
 
    --  ------------------------------
@@ -189,18 +183,12 @@ package body Util.Encoders.HMAC.SHA256 is
    procedure Finish_Base64 (E    : in out Context;
                             Hash : out Util.Encoders.SHA256.Base64_Digest;
                             URL  : in Boolean := False) is
-      Buf : Ada.Streams.Stream_Element_Array (1 .. Hash'Length);
-      for Buf'Address use Hash'Address;
-      pragma Import (Ada, Buf);
-
       H       : Util.Encoders.SHA256.Hash_Array;
       B       : Util.Encoders.Base64.Encoder;
-      Last    : Ada.Streams.Stream_Element_Offset;
-      Encoded : Ada.Streams.Stream_Element_Offset;
    begin
       Finish (E, H);
       B.Set_URL_Mode (URL);
-      B.Transform (Data => H, Into => Buf, Last => Last, Encoded => Encoded);
+      B.Convert (H, Hash);
    end Finish_Base64;
 
    --  Initialize the SHA-1 context.
