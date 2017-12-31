@@ -50,6 +50,15 @@ package body Util.Encoders is
       return E.Encode.Transform (Data);
    end Encode;
 
+   function Encode (E    : in Encoder;
+                    Data : in Ada.Streams.Stream_Element_Array) return String is
+   begin
+      if E.Encode = null then
+         raise Not_Supported with "There is no encoder";
+      end if;
+      return E.Encode.Transform (Data);
+   end Encode;
+
    --  ------------------------------
    --  Decodes the input string <b>Data</b> using the transformation
    --  rules provided by the <b>E</b> encoder.
