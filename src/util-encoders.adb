@@ -26,6 +26,7 @@ package body Util.Encoders is
    use Ada.Strings.Unbounded;
 
    use type Ada.Streams.Stream_Element_Offset;
+   subtype Offset is Ada.Streams.Stream_Element_Offset;
 
    procedure Free is
      new Ada.Unchecked_Deallocation (Transformer'Class, Transformer_Access);
@@ -50,14 +51,14 @@ package body Util.Encoders is
       return E.Encode.Transform (Data);
    end Encode;
 
-   function Encode (E    : in Encoder;
-                    Data : in Ada.Streams.Stream_Element_Array) return String is
+   function Encode_Binary (E    : in Encoder;
+                           Data : in Ada.Streams.Stream_Element_Array) return String is
    begin
       if E.Encode = null then
          raise Not_Supported with "There is no encoder";
       end if;
-      return E.Encode.Transform (Data);
-   end Encode;
+      return E.Encode.all.Transform (Data);
+   end Encode_Binary;
 
    --  ------------------------------
    --  Decodes the input string <b>Data</b> using the transformation
@@ -78,6 +79,17 @@ package body Util.Encoders is
       end if;
       return E.Decode.Transform (Data);
    end Decode;
+
+   function Decode_Binary (E    : in Decoder;
+                           Data : in String) return Ada.Streams.Stream_Element_Array is
+      Buf : Ada.Streams.Stream_Element_Array (Offset (Data'First) .. Offset (Data'Last));
+      for Buf'Address use Data'Address;
+   begin
+      if E.Decode = null then
+         raise Not_Supported with "There is no decoder";
+      end if;
+      return E.Decode.all.Transform (Buf);
+   end Decode_Binary;
 
    MIN_BUFFER_SIZE : constant Streams.Stream_Element_Offset := 64;
    MAX_BUFFER_SIZE : constant Streams.Stream_Element_Offset := 2_048;
@@ -264,6 +276,33 @@ package body Util.Encoders is
       end loop;
       Append (Result, Tmp (1 .. Natural (Last)));
       return To_String (Result);
+   end Transform;
+
+   --  ------------------------------
+   --  Transform the input string <b>Data</b> using the transformation
+   --  rules provided by the <b>E</b> transformer.
+   --
+   --  Returns the transformed string.
+   --
+   --  Raises the <b>Encoding_Error</b> exception if the source string
+   --  cannot be transformed
+   --  ------------------------------
+   function Transform (E    : in out Transformer'Class;
+                       Data : in Streams.Stream_Element_Array) return Streams.Stream_Element_Array is
+      Buf_Size : constant Streams.Stream_Element_Offset := Best_Size (Data'Length);
+      Res      : Streams.Stream_Element_Array (1 .. Buf_Size);
+      Tmp      : String (1 .. Natural (Buf_Size));
+      Last_Encoded  : Streams.Stream_Element_Offset;
+      Last          : Streams.Stream_Element_Offset;
+   begin
+      --  Encode that buffer and put the result in out result string.
+      E.Transform (Data    => Data,
+                   Into    => Res,
+                   Encoded => Last_Encoded,
+                   Last    => Last);
+
+      E.Finish (Res (Last + 1 .. Res'Last), Last);
+      return Res (1 .. Last);
    end Transform;
 
    --  ------------------------------
