@@ -102,46 +102,53 @@ package body Util.Encoders.Tests is
 
    procedure Test_Base64_Encode (T : in out Test) is
       C : constant Util.Encoders.Encoder := Create ("base64");
+      D : constant Util.Encoders.Decoder := Create ("base64");
    begin
       Assert_Equals (T, "YQ==", Util.Encoders.Encode (C, "a"));
       Assert_Equals (T, "fA==", Util.Encoders.Encode (C, "|"));
       Assert_Equals (T, "fHw=", Util.Encoders.Encode (C, "||"));
       Assert_Equals (T, "fH5+", Util.Encoders.Encode (C, "|~~"));
+      Test_Encoder (T, C, D);
    end Test_Base64_Encode;
 
    procedure Test_Base64_Decode (T : in out Test) is
-      C : Util.Encoders.Encoder := Create ("base64");
+      C : constant Util.Encoders.Encoder := Create ("base64");
+      D : constant Util.Encoders.Decoder := Create ("base64");
    begin
-      Assert_Equals (T, "a", Util.Encoders.Decode (C, "YQ=="));
-      Assert_Equals (T, "|", Util.Encoders.Decode (C, "fA=="));
-      Assert_Equals (T, "||", Util.Encoders.Decode (C, "fHw="));
-      Assert_Equals (T, "|~~", Util.Encoders.Decode (C, "fH5+"));
-      Test_Encoder (T, C);
+      Assert_Equals (T, "a", Util.Encoders.Decode (D, "YQ=="));
+      Assert_Equals (T, "|", Util.Encoders.Decode (D, "fA=="));
+      Assert_Equals (T, "||", Util.Encoders.Decode (D, "fHw="));
+      Assert_Equals (T, "|~~", Util.Encoders.Decode (D, "fH5+"));
+      Test_Encoder (T, C, D);
    end Test_Base64_Decode;
 
    procedure Test_Base64_URL_Encode (T : in out Test) is
       C : constant Util.Encoders.Encoder := Create ("base64url");
+      D : constant Util.Encoders.Decoder := Create ("base64url");
    begin
       Assert_Equals (T, "YQ==", Util.Encoders.Encode (C, "a"));
       Assert_Equals (T, "fA==", Util.Encoders.Encode (C, "|"));
       Assert_Equals (T, "fHw=", Util.Encoders.Encode (C, "||"));
       Assert_Equals (T, "fH5-", Util.Encoders.Encode (C, "|~~"));
       Assert_Equals (T, "fH5_", Util.Encoders.Encode (C, "|~" & ASCII.DEL));
+      Test_Encoder (T, C, D);
    end Test_Base64_URL_Encode;
 
    procedure Test_Base64_URL_Decode (T : in out Test) is
-      C : Util.Encoders.Encoder := Create ("base64url");
+      C : constant Util.Encoders.Encoder := Create ("base64url");
+      D : constant Util.Encoders.Decoder := Create ("base64url");
    begin
-      Assert_Equals (T, "a", Util.Encoders.Decode (C, "YQ=="));
-      Assert_Equals (T, "|", Util.Encoders.Decode (C, "fA=="));
-      Assert_Equals (T, "||", Util.Encoders.Decode (C, "fHw="));
-      Assert_Equals (T, "|~~", Util.Encoders.Decode (C, "fH5-"));
-      Assert_Equals (T, "|~" & ASCII.DEL, Util.Encoders.Decode (C, "fH5_"));
-      Test_Encoder (T, C);
+      Assert_Equals (T, "a", Util.Encoders.Decode (D, "YQ=="));
+      Assert_Equals (T, "|", Util.Encoders.Decode (D, "fA=="));
+      Assert_Equals (T, "||", Util.Encoders.Decode (D, "fHw="));
+      Assert_Equals (T, "|~~", Util.Encoders.Decode (D, "fH5-"));
+      Assert_Equals (T, "|~" & ASCII.DEL, Util.Encoders.Decode (D, "fH5_"));
+      Test_Encoder (T, C, D);
    end Test_Base64_URL_Decode;
 
    procedure Test_Encoder (T : in out Test;
-                           C : in out Util.Encoders.Encoder) is
+                           C : in Util.Encoders.Encoder;
+                           D : in Util.Encoders.Decoder) is
    begin
       for I in 1 .. 334 loop
          declare
@@ -152,9 +159,9 @@ package body Util.Encoders.Tests is
             end loop;
             declare
                E : constant String := Util.Encoders.Encode (C, Pattern);
-               D : constant String := Util.Encoders.Decode (C, E);
+               R : constant String := Util.Encoders.Decode (D, E);
             begin
-               Assert_Equals (T, Pattern, D, "Encoding failed for length "
+               Assert_Equals (T, Pattern, R, "Encoding failed for length "
                               & Integer'Image (I) & " code: " & E);
             end;
          exception
@@ -166,11 +173,12 @@ package body Util.Encoders.Tests is
    end Test_Encoder;
 
    procedure Test_Hex (T : in out Test) is
-      C : Util.Encoders.Encoder := Create ("hex");
+      C : constant Util.Encoders.Encoder := Create ("hex");
+      D : constant Util.Encoders.Decoder := Create ("hex");
    begin
       Assert_Equals (T, "41424344", Util.Encoders.Encode (C, "ABCD"));
-      Assert_Equals (T, "ABCD", Util.Encoders.Decode (C, "41424344"));
-      Test_Encoder (T, C);
+      Assert_Equals (T, "ABCD", Util.Encoders.Decode (D, "41424344"));
+      Test_Encoder (T, C, D);
    end Test_Hex;
 
    procedure Test_Base64_Benchmark (T : in out Test) is
@@ -343,10 +351,23 @@ package body Util.Encoders.Tests is
                             Key    : in String;
                             Value  : in String;
                             Expect : in String) is
+      use type Ada.Streams.Stream_Element_Array;
       H : constant String := Util.Encoders.HMAC.SHA256.Sign (Key, Value);
+      B : constant Util.Encoders.SHA256.Hash_Array := Util.Encoders.HMAC.SHA256.Sign (Key, Value);
+      C : constant Encoders.SHA256.Base64_Digest := Encoders.HMAC.SHA256.Sign_Base64 (Key, Value);
+      B16 : Encoder := Create ("hex");
+      B64 : Decoder := Create ("base64");
+      B2 : Ada.Streams.Stream_Element_Array := B;
+      S  : constant String := B16.Encode_Binary (B2);
+      B3 : constant Util.Encoders.SHA256.Hash_Array := B64.Decode_Binary (C);
    begin
       Assert_Equals (T, Expect, Util.Strings.Transforms.To_Lower_Case (H),
                      "Invalid HMAC-SHA256");
+      Assert_Equals (T, H, S, "Invalid HMAC-SHA256 binary");
+      if B /= B3 then
+         Ada.Text_IO.Put_Line ("Invalid binary");
+      end if;
+      Assert_Equals (T, H, B16.Encode_Binary (B3), "Invalid HMAC-SHA256 base64");
    end Check_HMAC256;
 
    --  ------------------------------
@@ -373,7 +394,7 @@ package body Util.Encoders.Tests is
    end Test_HMAC_SHA1_RFC2202_T3;
 
    procedure Test_HMAC_SHA1_RFC2202_T4 (T : in out Test) is
-      C    : constant Util.Encoders.Encoder := Create ("hex");
+      C    : constant Util.Encoders.Decoder := Create ("hex");
       Key  : constant String := Util.Encoders.Decode (C, "0102030405060708090a0b0c0d0e0f"
                                                       & "10111213141516171819");
       Data : constant String (1 .. 50) := (others => Character'Val (16#cd#));
@@ -495,7 +516,7 @@ package body Util.Encoders.Tests is
    end Test_HMAC_SHA256_RFC4231_T3;
 
    procedure Test_HMAC_SHA256_RFC4231_T4 (T : in out Test) is
-      C    : constant Util.Encoders.Encoder := Create ("hex");
+      C    : constant Util.Encoders.Decoder := Create ("hex");
       Key  : constant String := Util.Encoders.Decode (C, "0102030405060708090a0b0c0d0e0f"
                                                       & "10111213141516171819");
       Data : constant String (1 .. 50) := (others => Character'Val (16#cd#));
