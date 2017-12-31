@@ -67,6 +67,8 @@ package Util.Encoders is
    --  supported.
    function Encode (E    : in Encoder;
                     Data : in String) return String;
+   function Encode (E    : in Encoder;
+                    Data : in Ada.Streams.Stream_Element_Array) return String;
 
    --  Create the encoder object for the specified encoding format.
    function Create (Name : in String) return Encoder;
