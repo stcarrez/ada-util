@@ -27,13 +27,13 @@ procedure Launch is
    use Ada.Strings.Unbounded;
 
    Pipe    : aliased Util.Streams.Pipes.Pipe_Stream;
-   Buffer  : Util.Streams.Buffered.Buffered_Stream;
+   Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
    Content : Unbounded_String;
    Print   : Util.Streams.Texts.Print_Stream;
 begin
       --  Write on the process input stream
    Pipe.Open ("nslookup", Util.Processes.READ_WRITE);
-   Buffer.Initialize (null, Pipe'Unchecked_Access, 1024);
+   Buffer.Initialize (Pipe'Unchecked_Access, 1024);
    Print.Initialize (Pipe'Unchecked_Access);
 
    --  Write on the 'nslookup' input pipe a list of domains to resolve.
