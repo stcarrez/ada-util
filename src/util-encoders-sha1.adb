@@ -117,18 +117,11 @@ package body Util.Encoders.SHA1 is
    --  ------------------------------
    procedure Finish (E    : in out Context;
                      Hash : out Digest) is
-      Buf : Ada.Streams.Stream_Element_Array (1 .. Hash'Length);
-      for Buf'Address use Hash'Address;
-      pragma Import (Ada, Buf);
-
       H       : Hash_Array;
       B       : Util.Encoders.Base16.Encoder;
-      Last    : Ada.Streams.Stream_Element_Offset;
-      Encoded : Ada.Streams.Stream_Element_Offset;
-
    begin
       Finish (E, H);
-      B.Transform (Data => H, Into => Buf, Last => Last, Encoded => Encoded);
+      B.Convert (H, Hash);
    end Finish;
 
    --  ------------------------------
@@ -136,18 +129,11 @@ package body Util.Encoders.SHA1 is
    --  ------------------------------
    procedure Finish_Base64 (E    : in out Context;
                             Hash : out Base64_Digest) is
-      Buf : Ada.Streams.Stream_Element_Array (1 .. Hash'Length);
-      for Buf'Address use Hash'Address;
-      pragma Import (Ada, Buf);
-
       H       : Hash_Array;
       B       : Util.Encoders.Base64.Encoder;
-      Last    : Ada.Streams.Stream_Element_Offset;
-      Encoded : Ada.Streams.Stream_Element_Offset;
-
    begin
       Finish (E, H);
-      B.Transform (Data => H, Into => Buf, Last => Last, Encoded => Encoded);
+      B.Convert (H, Hash);
    end Finish_Base64;
 
    function To_Unsigned_32 (C3, C2, C1, C0 : in Character) return Unsigned_32;
