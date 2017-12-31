@@ -57,6 +57,12 @@ package Util.Encoders.Base64 is
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset);
 
+   --  Finish encoding the input array.
+   overriding
+   procedure Finish (E    : in out Encoder;
+                     Into : in out Ada.Streams.Stream_Element_Array;
+                     Last : in out Ada.Streams.Stream_Element_Offset);
+
    --  Set the encoder to use the base64 URL alphabet when <b>Mode</b> is True.
    --  The URL alphabet uses the '-' and '_' instead of the '+' and '/' characters.
    procedure Set_URL_Mode (E    : in out Encoder;
@@ -145,6 +151,9 @@ private
 
    type Encoder is new Util.Encoders.Transformer with record
       Alphabet : Alphabet_Access := BASE64_ALPHABET'Access;
+      Column   : Natural := 0;
+      Count    : Natural := 0;
+      Value    : Interfaces.Unsigned_8;
    end record;
 
    type Alphabet_Values is array (Ada.Streams.Stream_Element) of Interfaces.Unsigned_8;
