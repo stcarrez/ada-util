@@ -5,11 +5,12 @@ UTIL_LIBRARY_TYPE=static
 
 # You may edit this makefile as long as you keep these original 
 # target names defined.
-MODE=distrib
+MODE=debug
 GNATMAKE=@GNATMAKE@
-GNATCLEAN=gnatclean
+GNATCLEAN=@GNATCLEAN@
 GPRINSTALL=@GPRINSTALL@
 INSTALL=@INSTALL@
+DYNAMO=dynamo
 
 GPRPATH=util.gpr
 UTIL_HTTP_GPRPATH=util_http.gpr
@@ -78,12 +79,14 @@ projectdir=${prefix}/${infix_prj}
 bindir=${prefix}/bin
 libdir=${prefix}/${infix_lib}
 alidir=${prefix}/${infix_ali}
+dynamodir=${prefix}/share/dynamo
 
 libname=libada_util
 libprefix=$(libname)_
 
 PROCESSORS=@NR_CPUS@
-MAKE_ARGS=-XMODE=${MODE} -XUTIL_LIBRARY_TYPE=${UTIL_LIBRARY_TYPE} -XPROCESSORS=$(PROCESSORS)
+COVERAGE=no
+MAKE_ARGS=-XMODE=${MODE} -XCOVERAGE=${COVERAGE} -XUTIL_LIBRARY_TYPE=${UTIL_LIBRARY_TYPE} -XPROCESSORS=$(PROCESSORS)
 ifeq ($(UTIL_LIBRARY_TYPE),relocatable)
 MAKE_ARGS += -XXMLADA_BUILD=relocatable -XAWS_BUILD=relocatable
 MAKE_ARGS += -XLIBRARY_TYPE=relocatable
@@ -154,14 +157,12 @@ regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile
 autobuild:
 	$(GNATMAKE) -gnatc -c -k  -P "$(GPRPATH)"
 
+CLEAN_FILES=$(UTIL_GEN_FILES) bin/util_harness bin/util_test_process bin/utilgen
+
 # Clean the root project of all build products.
 clean:	clean_test
-	-rm -rf obj/* $(UTIL_GEN_FILES) bin/utilgen
-	-rm -rf lib/util
-	-rm -rf lib/util-curl
-	-rm -rf lib/util-aws
-	-rm -rf lib/testutil
-	-rm -f bin/util_harness bin/util_test_process
+	-rm -rf lib obj bin
+	-rm -f $(CLEAN_FILES)
 
 # Clean the files produced by the unit tests
 clean_test:
@@ -170,12 +171,12 @@ clean_test:
 
 # Clean root project and all imported projects too.
 clean_tree:
-	$(GNATCLEAN) -P "$(GPRPATH)" -r
+	$(GNATCLEAN) -q -P "$(GPRPATH)" -r
 
 # Check *all* sources for errors, even those not changed.
 # Does not build executables.
 analyze:
-	$(GNATMAKE) -f  -gnatc -c -k  -P "$(GPRPATH)"
+	$(GNATMAKE) $(MAKE_ARGS) -f  -gnatc -c -k  -P "$(GPRPATH)"
 
 # Clean, then build executables for all mains defined by the project.
 rebuild: clean build
