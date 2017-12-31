@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  util-encoders-sha256 -- Compute SHA-1 hash
+--  util-encoders-sha256 -- Compute SHA-256 hash
 --  Copyright (C) 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -44,18 +44,12 @@ package body Util.Encoders.SHA256 is
    --  ------------------------------
    procedure Finish_Base64 (E    : in out Context;
                             Hash : out Base64_Digest) is
-      Buf : Ada.Streams.Stream_Element_Array (1 .. Hash'Length);
-      for Buf'Address use Hash'Address;
-      pragma Import (Ada, Buf);
-
       H       : Hash_Array;
       B       : Util.Encoders.Base64.Encoder;
-      Last    : Ada.Streams.Stream_Element_Offset;
-      Encoded : Ada.Streams.Stream_Element_Offset;
    begin
       Finish (E, H);
+      B.Convert (H, Hash);
       E := GNAT.SHA256.Initial_Context;
-      B.Transform (Data => H, Into => Buf, Last => Last, Encoded => Encoded);
    end Finish_Base64;
 
 end Util.Encoders.SHA256;
