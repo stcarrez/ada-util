@@ -33,6 +33,7 @@ with Util.Streams.Buffered.Tests;
 with Util.Streams.Files.Tests;
 with Util.Streams.Texts.Tests;
 with Util.Streams.Sockets.Tests;
+with Util.Streams.Buffered.Encoders.Tests;
 with Util.Texts.Builders_Tests;
 with Util.Beans.Objects.Discretes;
 with Util.Beans.Objects.Record_Tests;
@@ -80,6 +81,7 @@ package body Util.Testsuite is
       Util.Encoders.Tests.Add_Tests (Result);
       Util.Streams.Buffered.Tests.Add_Tests (Result);
       Util.Streams.Files.Tests.Add_Tests (Result);
+      Util.Streams.Buffered.Encoders.Tests.Add_Tests (Result);
       Util.Streams.Texts.Tests.Add_Tests (Result);
       Util.Streams.Sockets.Tests.Add_Tests (Result);
       Util.Texts.Builders_Tests.Add_Tests (Result);
