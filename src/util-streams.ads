@@ -23,11 +23,11 @@ with Ada.Streams;
 --  composition of input and output streams.
 --
 --  @include util-streams-buffered.ads
+--  @include util-streams-texts.ads
 --  @include util-streams-files.ads
 --  @include util-streams-pipes.ads
 --  @include util-streams-sockets.ads
 --  @include util-streams-raw.ads
---  @include util-streams-texts.ads
 --  @include util-streams-buffered-encoders.ads
 package Util.Streams is
 
