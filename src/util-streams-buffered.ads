@@ -67,6 +67,10 @@ package Util.Streams.Buffered is
                     Into   : out Ada.Streams.Stream_Element_Array;
                     Last   : out Ada.Streams.Stream_Element_Offset);
 
+   --  Flush the buffer stream to the unbounded string.
+   procedure Flush (Stream : in out Output_Buffer_Stream;
+                    Into   : out Ada.Strings.Unbounded.Unbounded_String);
+
    --  Get the number of element in the stream.
    function Get_Size (Stream : in Output_Buffer_Stream) return Natural;
 
