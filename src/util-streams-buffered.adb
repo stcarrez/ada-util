@@ -183,10 +183,26 @@ package body Util.Streams.Buffered is
    begin
       if Stream.Write_Pos > 1 then
          Into (Into'First .. Into'First + Stream.Write_Pos - 1) :=
-           Stream.Buffer (Stream.Buffer'First .. Stream.Write_Pos);
+           Stream.Buffer (Stream.Buffer'First .. Stream.Write_Pos - 1);
+         Stream.Write_Pos := 1;
          Last := Into'First + Stream.Write_Pos - 1;
       else
          Last := Into'First - 1;
+      end if;
+   end Flush;
+
+   --  ------------------------------
+   --  Flush the buffer stream to the unbounded string.
+   --  ------------------------------
+   procedure Flush (Stream : in out Output_Buffer_Stream;
+                    Into   : out Ada.Strings.Unbounded.Unbounded_String) is
+   begin
+      Ada.Strings.Unbounded.Set_Unbounded_String (Into, "");
+      if Stream.Write_Pos > 1 then
+         for I in 1 .. Stream.Write_Pos - 1 loop
+            Ada.Strings.Unbounded.Append (Into, Character'Val (Stream.Buffer (I)));
+         end loop;
+         Stream.Write_Pos := 1;
       end if;
    end Flush;
 
