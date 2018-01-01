@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.buffered.tests -- Unit tests for buffered streams
---  Copyright (C) 2010, 2011, 2017 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,44 +39,34 @@ package body Util.Streams.Buffered.Tests is
    --  Write on a buffered stream and read what was written.
    --  ------------------------------
    procedure Test_Read_Write (T : in out Test) is
-      Stream     : Print_Stream;
-      C          : Character;
+      Stream  : Print_Stream;
+      Buf     : Ada.Strings.Unbounded.Unbounded_String;
    begin
       Stream.Initialize (Size => 4);
       Stream.Write ("abcd");
 
       Assert_Equals (T, 4, Integer (Stream.Get_Size), "Invalid size for stream");
 
-      Stream.Read (C);
-      Assert_Equals (T, 'a', C, "Invalid character read from the stream");
+      Stream.Flush (Buf);
+      Assert_Equals (T, 4, Ada.Strings.Unbounded.Length (Buf), "Invalid size for string");
 
-      Stream.Read (C);
-      Assert_Equals (T, 'b', C, "Invalid character read from the stream");
+      Assert_Equals (T, "abcd", Ada.Strings.Unbounded.To_String (Buf), "Invalid stream content");
 
-      Stream.Read (C);
-      Assert_Equals (T, 'c', C, "Invalid character read from the stream");
-
-      Stream.Read (C);
-      Assert_Equals (T, 'd', C, "Invalid character read from the stream");
-
-      Assert_Equals (T, 0, Integer (Stream.Get_Size), "Invalid size for stream");
-
---        Stream.Write ("abc");
+      Assert_Equals (T, 0, Integer (Stream.Get_Size), "Invalid size for stream after Flush");
    end Test_Read_Write;
 
    --  ------------------------------
    --  Write on a buffer and force regular flush on a larger buffer
    --  ------------------------------
    procedure Test_Write (T : in out Test) is
-      Big_Stream : aliased Buffered_Stream;
-      Stream     : Buffered_Stream;
+      Big_Stream : aliased Output_Buffer_Stream;
+      Stream     : Output_Buffer_Stream;
       Size       : Stream_Element_Offset := 0;
       Count      : constant Stream_Element_Offset := 1000;
       Max_Size   : constant Stream_Element_Offset := (Count * (Count + 1)) / 2;
    begin
       Big_Stream.Initialize (Size => Natural (Max_Size));
-      Stream.Initialize (Output => Big_Stream'Unchecked_Access,
-                         Input  => Big_Stream'Unchecked_Access, Size => 13);
+      Stream.Initialize (Output => Big_Stream'Unchecked_Access, Size => 13);
 
       for I in 1 .. Count loop
          declare
@@ -104,8 +94,8 @@ package body Util.Streams.Buffered.Tests is
    --  Write on a buffer and force regular flush on a larger buffer
    --  ------------------------------
    procedure Test_Write_Stream (T : in out Test) is
-      Big_Stream : aliased Buffered_Stream;
-      Stream     : Buffered_Stream;
+      Big_Stream : aliased Output_Buffer_Stream;
+      Stream     : Output_Buffer_Stream;
       Size       : Stream_Element_Offset := 0;
       Count      : constant Stream_Element_Offset := 200;
       Max_Size   : constant Stream_Element_Offset := 5728500;
@@ -113,7 +103,7 @@ package body Util.Streams.Buffered.Tests is
       Big_Stream.Initialize (Size => Natural (Max_Size));
       for Buf_Size in 1 .. 19 loop
          Stream.Initialize (Output => Big_Stream'Unchecked_Access,
-                            Input  => Big_Stream'Unchecked_Access, Size => Buf_Size);
+                            Size => Buf_Size);
 
          for I in 1 .. Count loop
             for Repeat in 1 .. 5 loop
