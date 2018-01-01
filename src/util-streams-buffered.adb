@@ -174,6 +174,23 @@ package body Util.Streams.Buffered is
    end Flush;
 
    --  ------------------------------
+   --  Flush the buffer in the <tt>Into</tt> array and return the index of the
+   --  last element (inclusive) in <tt>Last</tt>.
+   --  ------------------------------
+   procedure Flush (Stream : in out Output_Buffer_Stream;
+                    Into   : out Ada.Streams.Stream_Element_Array;
+                    Last   : out Ada.Streams.Stream_Element_Offset) is
+   begin
+      if Stream.Write_Pos > 1 then
+         Into (Into'First .. Into'First + Stream.Write_Pos - 1) :=
+           Stream.Buffer (Stream.Buffer'First .. Stream.Write_Pos);
+         Last := Into'First + Stream.Write_Pos - 1;
+      else
+         Last := Into'First - 1;
+      end if;
+   end Flush;
+
+   --  ------------------------------
    --  Fill the buffer by reading the input stream.
    --  Raises Data_Error if there is no input stream;
    --  ------------------------------
