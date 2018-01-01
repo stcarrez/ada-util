@@ -20,9 +20,60 @@ with Ada.Finalization;
 with Util.Processes;
 
 --  === Pipes ===
---  The <b>Util.Streams.Pipes</b> package defines a pipe stream to or from a process.
---  The process is created and launched by the <b>Open</b> operation.  The pipe allows
---  to read or write to the process through the <b>Read</b> and <b>Write</b> operation.
+--  The `Util.Streams.Pipes` package defines a pipe stream to or from a process.
+--  It allows to launch an external program while getting the program standard output or
+--  providing the program standard input.  The `Pipe_Stream` type represents the input or
+--  output stream for the external program.  This is a portable interface that works on
+--  Unix and Windows.
+--
+--  The process is created and launched by the `Open` operation.  The pipe allows
+--  to read or write to the process through the `Read` and `Write` operation.
+--  It is very close to the *popen* operation provided by the C stdio library.
+--  First, create the pipe instance:
+--
+--    with Util.Streams.Pipes;
+--    ...
+--       Pipe : aliased Util.Streams.Pipes.Pipe_Stream;
+--
+--  The pipe instance can be associated with only one process at a time.
+--  The process is launched by using the `Open` command and by specifying the command
+--  to execute as well as the pipe redirection mode:
+--
+--  * `READ` to read the process standard output,
+--  * `WRITE` to write the process standard input.
+--
+--  For example to run the `ls -l` command and read its output, we could run it by using:
+--
+--    Pipe.Open (Command => "ls -l", Mode => Util.Processes.READ);
+--
+--  The `Pipe_Stream` is not buffered and a buffer can be configured easily by using the
+--  `Input_Buffer_Stream` type and doing:
+--
+--    with Util.Streams.Buffered;
+--    ...
+--       Buffer : Util.Streams.Buffered.Input_Buffer_Stream;
+--       ...
+--       Buffer.Initialize (Input => Pipe'Unchecked_Access, Size => 1024);
+--
+--  And to read the process output, one can use the following:
+--
+--     Content : Ada.Strings.Unbounded.Unbounded_String;
+--     ...
+--     Buffer.Read (Into => Content);
+--
+--  The pipe object should be closed when reading or writing to it is finished.
+--  By closing the pipe, the caller will wait for the termination of the process.
+--  The process exit status can be obtained by using the `Get_Exit_Status` function.
+--
+--     Pipe.Close;
+--     if Pipe.Get_Exit_Status /= 0 then
+--        Ada.Text_IO.Put_Line ("Command exited with status "
+--                              & Integer'Image (Pipe.Get_Exit_Status));
+--     end if;
+--
+--  You will note that the `Pipe_Stream` is a limited type and thus cannot be copied.
+--  When leaving the scope of the `Pipe_Stream` instance, the application will wait for
+--  the process to terminate.
 package Util.Streams.Pipes is
 
    use Util.Processes;
