@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-texts -- Text stream utilities
---  Copyright (C) 2010, 2011, 2012, 2015, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2015, 2016, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -61,10 +61,6 @@ package Util.Streams.Texts is
    --  Write an integer on the stream.
    procedure Write (Stream : in out Print_Stream;
                     Item   : in Long_Long_Integer);
-
-   --  Write a string on the stream.
---     procedure Write (Stream : in out Print_Stream;
---                      Item   : in Ada.Strings.Unbounded.Unbounded_String);
 
    --  Write a date on the stream.
    procedure Write (Stream : in out Print_Stream;
