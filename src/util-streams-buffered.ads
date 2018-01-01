@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered -- Buffered streams utilities
---  Copyright (C) 2010, 2013, 2015, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2010, 2013, 2015, 2016, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,6 +60,12 @@ package Util.Streams.Buffered is
    --  Raises Data_Error if there is no output stream.
    overriding
    procedure Flush (Stream : in out Output_Buffer_Stream);
+
+   --  Flush the buffer in the <tt>Into</tt> array and return the index of the
+   --  last element (inclusive) in <tt>Last</tt>.
+   procedure Flush (Stream : in out Output_Buffer_Stream;
+                    Into   : out Ada.Streams.Stream_Element_Array;
+                    Last   : out Ada.Streams.Stream_Element_Offset);
 
    --  Get the number of element in the stream.
    function Get_Size (Stream : in Output_Buffer_Stream) return Natural;
