@@ -19,15 +19,46 @@ with Ada.Strings.Unbounded;
 with Ada.Finalization;
 
 --  === Buffered Streams ===
---  The <tt>Output_Buffer_Stream</tt> and <tt>Input_Buffer_Stream</tt> implements an output
---  and input stream respectively which manages an output or input buffer.
+--  The `Output_Buffer_Stream` and `Input_Buffer_Stream` implement an output
+--  and input stream respectively which manages an output or input buffer.  The data is
+--  first written to the buffer and when the buffer is full or flushed, it gets written
+--  to the target output stream.
 --
---  The <tt>Output_Buffer_Stream</tt> must be initialized to indicate the buffer size as well
---  as the target output stream onto which the data will be flushed.
+--  The `Output_Buffer_Stream` must be initialized to indicate the buffer size as well
+--  as the target output stream onto which the data will be flushed.  For example, a
+--  pipe stream could be created and configured to use the buffer as follows:
 --
---  The <tt>Input_Buffer_Stream</tt> must also be initialized to also indicate the buffer size
+--    with Util.Streams.Buffered;
+--    with Util.Streams.Pipes;
+--    ...
+--       Pipe   : aliased Util.Streams.Pipes.Pipe_Stream;
+--       Buffer : Util.Streams.Buffered.Output_Buffer_Stream;
+--       ...
+--          Buffer.Initialize (Output => Pipe'Unchecked_Access, Size => 1024);
+--
+--  In this example, the buffer of 1024 bytes is configured to flush its content to the
+--  pipe input stream so that what is written to the buffer will be received as input by
+--  the program.
+--  The `Output_Buffer_Stream` provides write operation that deal only with binary data
+--  (`Stream_Element`).  To write text, it is best to use the `Print_Stream` type from
+--  the `Util.Streams.Texts` package as it extends the `Output_Buffer_Stream` and provides
+--  several operations to write character and strings.
+--
+--  The `Input_Buffer_Stream` must also be initialized to also indicate the buffer size
 --  and either an input stream or an input content.  When configured, the input stream is used
---  to fill the input stream buffer.
+--  to fill the input stream buffer.  The buffer configuration is very similar as the
+--  output stream:
+--
+--    with Util.Streams.Buffered;
+--    with Util.Streams.Pipes;
+--    ...
+--       Pipe   : aliased Util.Streams.Pipes.Pipe_Stream;
+--       Buffer : Util.Streams.Buffered.Input_Buffer_Stream;
+--       ...
+--          Buffer.Initialize (Input => Pipe'Unchecked_Access, Size => 1024);
+--
+--  In this case, the buffer of 1024 bytes is filled by reading the pipe stream, and thus
+--  getting the program's output.
 package Util.Streams.Buffered is
 
    pragma Preelaborate;
