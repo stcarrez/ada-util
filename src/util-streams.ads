@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Streams -- Stream utilities
---  Copyright (C) 2010, 2016 Stephane Carrez
+--  util-streams -- Stream utilities
+--  Copyright (C) 2010, 2016, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,18 @@
 -----------------------------------------------------------------------
 
 with Ada.Streams;
+
+--  == Streams ==
+--  The <tt>Util.Streams</tt> package provides several types and operations to allow the
+--  composition of input and output streams.
+--
+--  @include util-streams-buffered.ads
+--  @include util-streams-files.ads
+--  @include util-streams-pipes.ads
+--  @include util-streams-sockets.ads
+--  @include util-streams-raw.ads
+--  @include util-streams-texts.ads
+--  @include util-streams-buffered-encoders.ads
 package Util.Streams is
 
    pragma Preelaborate;
