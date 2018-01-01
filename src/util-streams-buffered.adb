@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered -- Buffered streams utilities
---  Copyright (C) 2010, 2011, 2013, 2014, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2013, 2014, 2016, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -133,7 +133,6 @@ package body Util.Streams.Buffered is
             end if;
             Stream.Output.Write (Stream.Buffer (1 .. Pos - 1));
             Stream.Write_Pos := 1;
-            --  Stream.Flush;
             Pos := 1;
             Avail := Stream.Last - Pos + 1;
          end if;
@@ -145,7 +144,7 @@ package body Util.Streams.Buffered is
          Pos   := Pos + Size;
          Stream.Write_Pos := Pos;
 
-         --  If we have still more data that the buffer size, flush and write
+         --  If we have still more data than the buffer size, flush and write
          --  the buffer directly.
          if Start < Buffer'Last and then Buffer'Last - Start > Stream.Buffer'Length then
             if Stream.Output = null then
@@ -166,9 +165,7 @@ package body Util.Streams.Buffered is
    procedure Flush (Stream : in out Output_Buffer_Stream) is
    begin
       if Stream.Write_Pos > 1 and not Stream.No_Flush then
-         if Stream.Output = null then
-            raise Ada.IO_Exceptions.Data_Error with "Output buffer is full";
-         else
+         if Stream.Output /= null then
             Stream.Output.Write (Stream.Buffer (1 .. Stream.Write_Pos - 1));
             Stream.Output.Flush;
          end if;
