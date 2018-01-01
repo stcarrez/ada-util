@@ -17,6 +17,17 @@
 -----------------------------------------------------------------------
 with Ada.Strings.Unbounded;
 with Ada.Finalization;
+
+--  === Buffered Streams ===
+--  The <tt>Output_Buffer_Stream</tt> and <tt>Input_Buffer_Stream</tt> implements an output
+--  and input stream respectively which manages an output or input buffer.
+--
+--  The <tt>Output_Buffer_Stream</tt> must be initialized to indicate the buffer size as well
+--  as the target output stream onto which the data will be flushed.
+--
+--  The <tt>Input_Buffer_Stream</tt> must also be initialized to also indicate the buffer size
+--  and either an input stream or an input content.  When configured, the input stream is used
+--  to fill the input stream buffer.
 package Util.Streams.Buffered is
 
    pragma Preelaborate;
