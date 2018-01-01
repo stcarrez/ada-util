@@ -20,6 +20,14 @@ with Ada.Strings.Wide_Wide_Unbounded;
 with Util.Streams.Buffered;
 with Ada.Calendar;
 with GNAT.Calendar.Time_IO;
+
+--  === Texts ===
+--  The <tt>Util.Streams.Texts</tt> package implements text oriented input and output streams.
+--  The <tt>Print_Stream</tt> type extends the <tt>Output_Buffer_Stream</tt> to allow writing
+--  text content.
+--
+--  The <tt>Reader_Stream</tt> package extends the <tt>Input_Buffer_Stream</tt> and allows to
+--  read text content.
 package Util.Streams.Texts is
 
    --  -----------------------
