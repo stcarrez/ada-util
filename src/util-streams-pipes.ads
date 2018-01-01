@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-pipes -- Pipe stream to or from a process
---  Copyright (C) 2011, 2013, 2015, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2015, 2016, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@ with Ada.Finalization;
 
 with Util.Processes;
 
+--  === Pipes ===
 --  The <b>Util.Streams.Pipes</b> package defines a pipe stream to or from a process.
 --  The process is created and launched by the <b>Open</b> operation.  The pipe allows
 --  to read or write to the process through the <b>Read</b> and <b>Write</b> operation.
