@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2014, 2017 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2014, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,55 @@ with Util.Beans.Objects;
 with Util.Beans.Basic;
 with Util.Strings.Vectors;
 private with Util.Concurrent.Counters;
+
+--  = Property Files =
+--  The `Util.Properties` package and children implements support to read, write and use
+--  property files either in the Java property file format or the Windows INI configuration file.
+--  Each property is assigned a key and a value.  The list of properties are stored in the
+--  `Util.Properties.Manager` tagged record and they are indexed by the key name.  A property
+--  is therefore unique in the list.  Properties can be grouped together in sub-properties so
+--  that a key can represent another list of properties.
+--
+--  == File formats ==
+--  The property file consists of a simple name and value pair separated by the `=` sign.
+--  Thanks to the Windows INI file format, list of properties can be grouped together
+--  in sections by using the `[section-name`] notation.
+--
+--    test.count=20
+--    test.repeat=5
+--    [FileTest]
+--    test.count=5
+--    test.repeat=2
+--
+--  == Using property files ==
+--  An instance of the `Util.Properties.Manager` tagged record must be declared and it provides
+--  various operations that can be used.  When created, the property manager is empty.  One way
+--  to fill it is by using the `Load_Properties` procedure to read the property file.  Another
+--  way is by using the `Set` procedure to insert or change a property by giving its name
+--  and its value.
+--
+--  In this example, the property file `test.properties` is loaded and assuming that it contains
+--  the above configuration example, the `Get ("test.count")` will return the string `"20"`.
+--
+--    with Util.Properties;
+--    ...
+--       Props : Util.Properties.Manager;
+--       ...
+--          Props.Load_Properties (Path => "test.properties");
+--          Ada.Text_IO.Put_Line ("Count: " & Props.Get ("test.count");
+--          Props.Set ("test.repeat", "23");
+--          Props.Save_Properties (Path => "test.properties");
+--
+--  To be able to access a section from the property manager, it is necessary to retrieve it
+--  by using the `Get` function and giving the section name.  For example, to retrieve the
+--  `test.count` property of the `FileTest` section, the following code is used:
+--
+--       FileTest : Util.Properties.Manager := Props.Get ("FileTest");
+--       ...
+--          Ada.Text_IO.Put_Line ("[FileTest] Count: " & FileTest.Get ("test.count");
+--
+--  @include util-properties-json.ads
+--  @include util-properties-bundles.ads
 package Util.Properties is
 
    NO_PROPERTY : exception;
