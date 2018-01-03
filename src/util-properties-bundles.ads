@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  properties-bundles -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,40 @@ with Ada.Finalization;
 with Ada.Containers.Hashed_Maps;
 with Util.Strings;
 with Util.Concurrent.Locks;
+
+--  == Property bundles ==
+--  Property bundles represent several property files that share some overriding rules and
+--  capabilities.  Their introduction comes from Java resource bundles which allow to
+--  localize easily some configuration files or some message.  When loading a property bundle
+--  a locale is defined to specify the target language and locale.  If a specific property
+--  file for that locale exists, it is used first.  Otherwise, the property bundle will use
+--  the default property file.
+--
+--  A rule exists on the name of the specific property locale file: it must start with the
+--  bundle name followed by `_` and the name of the locale.  The default property file must
+--  be the bundle name.  For example, the bundle `dates` is associated with the following
+--  property files:
+--
+--    dates.properties           Default values (English locale)
+--    dates_fr.properties        French locale
+--    dates_de.properties        German locale
+--    dates_es.properties        Spain locale
+--
+--  Because a bundle can be associated with one or several property files, a specific loader is
+--  used.  The loader instance must be declared and configured to indicate one or several search
+--  directories that contain property files.
+--
+--    with Util.Properties.Bundles;
+--    ...
+--       Loader : Util.Properties.Bundles.Loader;
+--       Bundle : Util.Properties.Bundles.Manager;
+--       ...
+--       Util.Properties.Bundles.Initialize (Loader, "bundles;/usr/share/bundles");
+--       Util.Properties.Bundles.Load_Bundle (Loader, "dates", "fr", Bundle);
+--       Ada.Text_IO.Put_Line (Bundle.Get ("util.month1.long");
+--
+--  In this example, the `util.month1.long` key is first search in the `dates_fr` French locale
+--  and if it is not found it is searched in the default locale.
 package Util.Properties.Bundles is
 
    NO_BUNDLE : exception;
