@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-mail -- Mail Utility Library
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,14 +30,19 @@ package body Util.Mail is
       Result    : Email_Address;
       First_Pos : constant Natural := Index (E_Mail, "<");
       Last_Pos  : constant Natural := Index (E_Mail, ">");
+      At_Pos    : constant Natural := Index (E_Mail, "@");
    begin
       if First_Pos > 0 and Last_Pos > 0 then
          Result.Name := To_Unbounded_String (Trim (E_Mail (E_Mail'First .. First_Pos - 1),
                                              Both));
          Result.Address := To_Unbounded_String (Trim (E_Mail (First_Pos + 1 .. Last_Pos - 1),
                                                 Both));
+         if Length (Result.Name) = 0 and At_Pos < Last_Pos then
+            Result.Name := To_Unbounded_String (Trim (E_Mail (First_Pos + 1 .. At_Pos - 1), Both));
+         end if;
       else
          Result.Address := To_Unbounded_String (Trim (E_Mail, Both));
+         Result.Name := To_Unbounded_String (Trim (E_Mail (E_Mail'First .. At_Pos - 1), Both));
       end if;
       return Result;
    end Parse_Address;
