@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util testsuite - Util Testsuite
---  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2017 Stephane Carrez
+--  Copyright (C) 2009 - 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,7 @@ with Util.Locales.Tests;
 with Util.Strings.Tests;
 with Util.Dates.Formats.Tests;
 with Util.Encoders.Tests;
+with Util.Mail.Tests;
 with Util.Streams.Buffered.Tests;
 with Util.Streams.Files.Tests;
 with Util.Streams.Texts.Tests;
@@ -71,6 +72,7 @@ package body Util.Testsuite is
       Util.Properties.Bundles.Tests.Add_Tests (Result);
       Util.Locales.Tests.Add_Tests (Result);
       Util.Strings.Tests.Add_Tests (Result);
+      Util.Mail.Tests.Add_Tests (Result);
       Util.Dates.Formats.Tests.Add_Tests (Result);
       Util.Log.Tests.Add_Tests (Result);
       Util.Files.Tests.Add_Tests (Result);
