@@ -65,4 +65,22 @@ package body Util.Mail is
       end if;
    end Get_First_Name;
 
+   --  ------------------------------
+   --  Extract a last name from the email address.
+   --  ------------------------------
+   function Get_Last_Name (From : in Email_Address) return String is
+      Name : constant String := To_String (From.Name);
+      Pos  : Natural := Index (Name, " ");
+   begin
+      if Pos > 0 then
+         return Trim (Name (Pos + 1 .. Name'Last), Both);
+      end if;
+      Pos := Index (Name, ".");
+      if Pos > 0 then
+         return Name (Pos + 1 .. Name'Last);
+      else
+         return Name;
+      end if;
+   end Get_Last_Name;
+
 end Util.Mail;
