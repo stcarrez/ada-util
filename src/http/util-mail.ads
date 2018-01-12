@@ -33,4 +33,7 @@ package Util.Mail is
    --  Extract a first name from the email address.
    function Get_First_Name (From : in Email_Address) return String;
 
+   --  Extract a last name from the email address.
+   function Get_Last_Name (From : in Email_Address) return String;
+
 end Util.Mail;
