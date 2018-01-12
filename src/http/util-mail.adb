@@ -19,14 +19,14 @@ with Ada.Strings.Fixed;
 
 package body Util.Mail is
 
+   use Ada.Strings.Unbounded;
+   use Ada.Strings.Fixed;
+   use Ada.Strings;
+
    --  ------------------------------
    --  Parse the email address and separate the name from the address.
    --  ------------------------------
    function Parse_Address (E_Mail : in String) return Email_Address is
-      use Ada.Strings.Unbounded;
-      use Ada.Strings.Fixed;
-      use Ada.Strings;
-
       Result    : Email_Address;
       First_Pos : constant Natural := Index (E_Mail, "<");
       Last_Pos  : constant Natural := Index (E_Mail, ">");
@@ -46,5 +46,23 @@ package body Util.Mail is
       end if;
       return Result;
    end Parse_Address;
+
+   --  ------------------------------
+   --  Extract a first name from the email address.
+   --  ------------------------------
+   function Get_First_Name (From : in Email_Address) return String is
+      Name : constant String := To_String (From.Name);
+      Pos  : Natural := Index (Name, " ");
+   begin
+      if Pos > 0 then
+         return Name (Name'First .. Pos - 1);
+      end if;
+      Pos := Index (Name, ".");
+      if Pos > 0 then
+         return Name (Name'First .. Pos - 1);
+      else
+         return "";
+      end if;
+   end Get_First_Name;
 
 end Util.Mail;
