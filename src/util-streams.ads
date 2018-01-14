@@ -19,7 +19,7 @@
 with Ada.Streams;
 
 --  == Streams ==
---  The <tt>Util.Streams</tt> package provides several types and operations to allow the
+--  The `Util.Streams` package provides several types and operations to allow the
 --  composition of input and output streams.
 --
 --  @include util-streams-buffered.ads
