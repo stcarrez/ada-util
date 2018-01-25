@@ -42,6 +42,7 @@ with Util.Beans.Objects.Datasets.Tests;
 with Util.Beans.Objects.Tests;
 with Util.Beans.Ranges.Tests;
 with Util.Serialize.IO.JSON.Tests;
+with Util.Serialize.IO.Form.Tests;
 #if HAVE_XML = "yes"
 with Util.Serialize.IO.XML.Tests;
 # end if;
@@ -93,6 +94,7 @@ package body Util.Testsuite is
       Util.Beans.Objects.Tests.Add_Tests (Result);
       Util.Beans.Ranges.Tests.Add_Tests (Result);
       Util.Serialize.IO.JSON.Tests.Add_Tests (Result);
+      Util.Serialize.IO.Form.Tests.Add_Tests (Result);
       Util.Properties.JSON.Tests.Add_Tests (Result);
 #if HAVE_XML = "yes"
       Util.Serialize.IO.XML.Tests.Add_Tests (Result);
