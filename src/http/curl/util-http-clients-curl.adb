@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-curl -- HTTP Clients with CURL
---  Copyright (C) 2012, 2017 Stephane Carrez
+--  Copyright (C) 2012, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -248,6 +248,10 @@ package body Util.Http.Clients.Curl is
       Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
       Check_Code (Result, "get response code");
       Response.Status := Natural (Status);
+      if Req.Curl_Headers /= null then
+         Curl_Slist_Free_All (Req.Curl_Headers);
+         Req.Curl_Headers := null;
+      end if;
    end Do_Post;
 
    overriding
@@ -309,6 +313,14 @@ package body Util.Http.Clients.Curl is
       Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
       Check_Code (Result, "get response code");
       Response.Status := Natural (Status);
+
+      Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_CUSTOMREQUEST,
+                                         Interfaces.C.Strings.Null_Ptr);
+      Check_Code (Result, "restore set http default");
+      if Req.Curl_Headers /= null then
+         Curl_Slist_Free_All (Req.Curl_Headers);
+         Req.Curl_Headers := null;
+      end if;
    end Do_Put;
 
    overriding
@@ -349,6 +361,12 @@ package body Util.Http.Clients.Curl is
       Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_URL, Req.URL);
       Check_Code (Result, "set url");
 
+--        Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_POSTFIELDS, Req.Content);
+--        Check_Code (Result, "set post data");
+
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_POSTFIELDSIZE, 0);
+      Check_Code (Result, "set post data");
+
       Response := new Curl_Http_Response;
       Result := Curl_Easy_Setopt_Data (Req.Data, Constants.CURLOPT_WRITEDATA, Response);
       Check_Code (Result, "set write data");
@@ -360,6 +378,10 @@ package body Util.Http.Clients.Curl is
       Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
       Check_Code (Result, "get response code");
       Response.Status := Natural (Status);
+
+      Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_CUSTOMREQUEST,
+                                         Interfaces.C.Strings.Null_Ptr);
+      Check_Code (Result, "restore set http default");
    end Do_Delete;
 
    --  ------------------------------
