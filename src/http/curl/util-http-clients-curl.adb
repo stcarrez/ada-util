@@ -92,9 +92,14 @@ package body Util.Http.Clients.Curl is
                            Response : in Curl_Http_Response_Access) return Size_T is
 
       Total : constant Size_T := Size * Nmemb;
+      Last  : Natural;
       Line  : constant String := Interfaces.C.Strings.Value (Data, Total);
    begin
-      Log.Info ("RCV: {0}", Line);
+      Last := Line'Last;
+      while Last > Line'First and then (Line (Last) = ASCII.CR or Line (Last) = ASCII.LF) loop
+         Last := Last - 1;
+      end loop;
+      Log.Debug ("RCV: {0}", Line (Line'First .. Last));
       if Response.Parsing_Body then
          Ada.Strings.Unbounded.Append (Response.Content, Line);
 
@@ -105,16 +110,11 @@ package body Util.Http.Clients.Curl is
          declare
             Pos   : constant Natural := Util.Strings.Index (Line, ':');
             Start : Natural;
-            Last  : Natural;
          begin
             if Pos > 0 then
                Start := Pos + 1;
                while Start <= Line'Last and Line (Start) = ' ' loop
                   Start := Start + 1;
-               end loop;
-               Last := Line'Last;
-               while Last >= Start and (Line (Last) = ASCII.CR or Line (Last) = ASCII.LF) loop
-                  Last := Last - 1;
                end loop;
                Response.Add_Header (Name  => Line (Line'First .. Pos - 1),
                                     Value => Line (Start .. Last));
