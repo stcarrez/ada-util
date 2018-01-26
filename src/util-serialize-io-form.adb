@@ -274,6 +274,10 @@ package body Util.Serialize.IO.Form is
                Ada.Strings.Unbounded.Append (Into, C1);
             end if;
          end loop;
+
+      exception
+         when Ada.IO_Exceptions.Data_Error =>
+            return;
       end Parse_Token;
 
    begin
@@ -285,13 +289,14 @@ package body Util.Serialize.IO.Form is
          end if;
          Parse_Token (Value);
          Sink.Set_Member (To_String (Name), Util.Beans.Objects.To_Object (Value), Handler);
-
+         if Stream.Is_Eof then
+            Sink.Finish_Object ("", Handler);
+            return;
+         end if;
+         if Last /= '&' then
+            raise Parse_Error with "Missing '&' after parameter value";
+         end if;
       end loop;
-
-   exception
-      when Ada.IO_Exceptions.Data_Error =>
-         Sink.Finish_Object ("", Handler);
-         return;
    end Parse;
 
    --  ------------------------------
