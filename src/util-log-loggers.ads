@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Logs -- Utility Log Package
---  Copyright (C) 2006, 2008, 2009, 2011 Free Software Foundation, Inc.
+--  util-log-loggers -- Utility Log Package
+--  Copyright (C) 2006, 2008, 2009, 2011, 2018 Free Software Foundation, Inc.
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
