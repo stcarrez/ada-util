@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-mappers -- Serialize objects in various formats
---  Copyright (C) 2010, 2011, 2012, 2014, 2017 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2014, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -90,7 +90,7 @@ package body Util.Serialize.Mappers is
             end if;
          end if;
          if Node.Name = Name then
-            if (Attribute = False and Node.Mapping = null)
+            if (not Attribute and Node.Mapping = null)
               or else not Node.Mapping.Is_Attribute
             then
                return Node;
