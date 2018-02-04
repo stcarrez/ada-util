@@ -188,6 +188,39 @@ version:
 	gnatprep `svn info | grep '^[UR][eR][Lv]' | sed -e 's,URL: \(.*\),-DURL="\1",' -e 's,Revision: ,-DREVISION=,'` \
 		  src/util.gpb src/util.ads
 
+doc:  util-book.pdf
+	$(DYNAMO) build-doc -markdown wiki
+
+UTIL_DOC= \
+  doc/title.md \
+  doc/pagebreak.tex \
+  doc/intro.md \
+  doc/pagebreak.tex \
+  doc/Installation.md \
+  doc/pagebreak.tex \
+  doc/Util_Log.md \
+  doc/pagebreak.tex \
+  doc/Util_Properties.md \
+  doc/pagebreak.tex \
+  doc/Beans.md \
+  doc/pagebreak.tex \
+  doc/Serialization.md \
+  doc/pagebreak.tex \
+  doc/Util_Streams.md \
+  doc/pagebreak.tex \
+  doc/Util_Encoders.md \
+  doc/pagebreak.tex \
+  doc/Util_Events_Timers.md \
+  doc/pagebreak.tex \
+  doc/Measures.md
+
+DOC_OPTIONS=-f markdown -o util-book.pdf --listings --number-sections --toc
+
+util-book.pdf:  force
+	# test -d wiki || git clone git@github.com:stcarrez/ada-ado.wiki.git wiki
+	$(DYNAMO) build-doc -pandoc doc
+	pandoc $(DOC_OPTIONS) --template=./doc/eisvogel.tex $(UTIL_DOC)
+
 dist:
 	git archive -o $(DIST_FILE) --prefix=$(distdir)/ HEAD
 
