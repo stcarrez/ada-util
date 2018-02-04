@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-system-os -- Unix system operations
---  Copyright (C) 2011, 2012, 2014, 2015, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2014, 2015, 2016, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,7 @@ package Util.Systems.Os is
    subtype Ptr_Array is Interfaces.C.Strings.chars_ptr_array;
    type Ptr_Ptr_Array is access all Ptr_Array;
 
-   type File_Type is new Integer;
+   type File_Type is new Interfaces.C.int;
 
    --  Standard file streams Posix, X/Open standard values.
    STDIN_FILENO  : constant File_Type := 0;
