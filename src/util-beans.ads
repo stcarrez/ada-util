@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Beans -- Interface Definition with Getter and Setters
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  util-beans -- Interface Definition with Getter and Setters
+--  Copyright (C) 2009, 2010, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
