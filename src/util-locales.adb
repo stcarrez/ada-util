@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Locales -- Locale
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2015 Stephane Carrez
+--  util-locales -- Locale support
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2015, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,20 +18,6 @@
 
 with Ada.Strings.Hash;
 
---  The <b>Locales</b> package defines the <b>Locale</b> type to represent
---  the language, country and variant.
---
---  The language is a valid <b>ISO language code</b>.  This is a two-letter
---  lower case code defined by IS-639
---  See http://www.loc.gov/standards/iso639-2/englangn.html
---
---  The country is a valid <b>ISO country code</b>.  These codes are
---  a two letter upper-case code defined by ISO-3166.
---  See http://www.iso.ch/iso/en/prods-services/iso3166ma/02iso-3166-code-lists/list-en1.html
---
---  The variant part is a vendor or browser specific code.
---
---  The <b>Locales</b> package tries to follow the Java <b>Locale</b> class.
 package body Util.Locales is
 
    --  ------------------------------
