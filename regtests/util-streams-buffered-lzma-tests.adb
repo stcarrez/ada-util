@@ -18,7 +18,6 @@
 with Util.Test_Caller;
 with Util.Streams.Files;
 with Util.Streams.Texts;
-with Util.Files;
 with Ada.Streams.Stream_IO;
 package body Util.Streams.Buffered.Lzma.Tests is
 
