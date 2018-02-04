@@ -18,7 +18,7 @@
 with Ada.Finalization;
 with Ada.Streams.Stream_IO;
 
---  === File streams ===
+--  == File streams ==
 --  The <tt>Util.Streams.Files</tt> package provides input and output streams that access
 --  files on top of the Ada <tt>Stream_IO</tt> standard package.
 package Util.Streams.Files is

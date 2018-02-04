@@ -18,7 +18,7 @@
 with Ada.Strings.Unbounded;
 with Ada.Finalization;
 
---  === Buffered Streams ===
+--  == Buffered Streams ==
 --  The `Output_Buffer_Stream` and `Input_Buffer_Stream` implement an output
 --  and input stream respectively which manages an output or input buffer.  The data is
 --  first written to the buffer and when the buffer is full or flushed, it gets written

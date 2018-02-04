@@ -18,7 +18,7 @@
 
 with Ada.Streams;
 
---  == Streams ==
+--  = Streams =
 --  The `Util.Streams` package provides several types and operations to allow the
 --  composition of input and output streams.
 --

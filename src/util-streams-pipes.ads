@@ -19,7 +19,7 @@ with Ada.Finalization;
 
 with Util.Processes;
 
---  === Pipes ===
+--  == Pipes ==
 --  The `Util.Streams.Pipes` package defines a pipe stream to or from a process.
 --  It allows to launch an external program while getting the program standard output or
 --  providing the program standard input.  The `Pipe_Stream` type represents the input or

@@ -18,7 +18,7 @@
 with Ada.Finalization;
 with GNAT.Sockets;
 
---  === Sockets ===
+--  == Sockets ==
 --  The <b>Util.Streams.Sockets</b> package defines a socket stream.
 package Util.Streams.Sockets is
 

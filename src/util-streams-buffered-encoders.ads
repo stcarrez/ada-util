@@ -18,7 +18,7 @@
 
 with Util.Encoders;
 
---  === Encoding Streams ===
+--  == Encoding Streams ==
 --  The <tt>Encoding_Stream</tt> tagged record represents a stream with encoding capabilities.
 --  The stream passes the data to be written to the <tt>Transformer</tt> interface that
 --  allows to make transformations on the data before being written.
