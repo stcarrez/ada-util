@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  properties -- Generic name/value property management
+--  util-properties-bundles -- Generic name/value property management
 --  Copyright (C) 2001 - 2017 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
