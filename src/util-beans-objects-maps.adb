@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Beans.Objects.Maps -- Object maps
---  Copyright (C) 2010, 2011, 2012, 2017 Stephane Carrez
+--  util-beans-objects-maps -- Object maps
+--  Copyright (C) 2010, 2011, 2012, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
