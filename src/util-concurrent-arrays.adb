@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Concurrent.Arrays -- Concurrent Arrays
---  Copyright (C) 2012 Stephane Carrez
+--  util-concurrent-arrays -- Concurrent Arrays
+--  Copyright (C) 2012, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
