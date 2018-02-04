@@ -16,7 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Util.Encoders.Base64;
+with Util.Encoders.Lzma;
 package body Util.Streams.Buffered.Lzma is
 
    --  -----------------------
@@ -74,7 +74,7 @@ package body Util.Streams.Buffered.Lzma is
    --  -----------------------
    overriding
    procedure Flush (Stream : in out Compress_Stream) is
-      Last_Pos : Ada.Streams.Stream_Element_Offset;
+      Last_Pos : Ada.Streams.Stream_Element_Offset := Stream.Write_Pos - 1;
    begin
       loop
          Stream.Transform.Finish (Stream.Buffer (Stream.Write_Pos .. Stream.Buffer'Last),
