@@ -1,5 +1,5 @@
 dnl Autoconf configure script for Ada Util
-dnl Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016 Stephane Carrez
+dnl Copyright (C) 2001 - 2018 Stephane Carrez
 dnl Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 dnl
 dnl  Licensed under the Apache License, Version 2.0 (the "License");
@@ -203,6 +203,41 @@ AC_SUBST(WITH_XML_ADA)
 AC_SUBST(UTIL_XML_DIR)
 AC_SUBST(UTIL_XML_VERSION)
 AC_SUBST(UTIL_HAVE_XML)
+
+##########################################
+# Ada/LZMA library
+##########################################
+AC_ARG_WITH(lzma,
+AS_HELP_STRING([--with-ada-lzma=], [Enable LZMA streams with Ada LZMA]),
+[
+  if test T${withval} = Tno ; then
+    UTIL_HAVE_LZMA=no;
+  else
+    WITH_LZMA_ADA="with \"${withval}\";";
+    UTIL_LZMA_DIR='src/lzma';
+    UTIL_HAVE_LZMA='yes';
+  fi
+],
+[
+  WITH_LZMA_ADA='';
+  UTIL_LZMA_DIR='src';
+  UTIL_HAVE_LZMA='yes';
+])
+
+AM_GNAT_CHECK_PROJECT([lzma],[lzma])
+if test T$gnat_project_lzma = Tno; then
+  WITH_LZMA_ADA="";
+  UTIL_LZMA_DIR=''
+  UTIL_HAVE_LZMA='no'
+else
+  WITH_LZMA_ADA="with \"lzma\";";
+  UTIL_LZMA_DIR='src/lzma'
+  UTIL_HAVE_LZMA='yes'
+fi
+
+AC_SUBST(WITH_LZMA_ADA)
+AC_SUBST(UTIL_LZMA_DIR)
+AC_SUBST(UTIL_HAVE_LZMA)
 
 ##########################################
 # Check to enable/disable shared library
