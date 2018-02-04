@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Concurrent.Pools -- Concurrent Pools
---  Copyright (C) 2011, 2015 Stephane Carrez
+--  util-concurrent-pools -- Concurrent Pools
+--  Copyright (C) 2011, 2015, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
