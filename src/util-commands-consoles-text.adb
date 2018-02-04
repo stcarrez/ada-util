@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  util-commands-consoles-text - Text console interface
---  Copyright (C) 2014, 2015, 2017 Stephane Carrez
+--  util-commands-consoles-text -- Text console interface
+--  Copyright (C) 2014, 2015, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
