@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.beans.factory -- Bean Registration and Factory
---  Copyright (C) 2009, 2010, 2015 Stephane Carrez
+--  util-beans-factory -- Bean Registration and Factory
+--  Copyright (C) 2009, 2010, 2015, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
