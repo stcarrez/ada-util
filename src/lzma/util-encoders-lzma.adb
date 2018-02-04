@@ -47,16 +47,14 @@ package body Util.Encoders.Lzma is
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset) is
-      Action : Base.lzma_action := Base.LZMA_RUN;
       Result : Base.lzma_ret;
-      Pos    : Ada.Streams.Stream_Element_Offset := Data'First;
    begin
       E.Stream.next_out := Into (Into'First)'Unchecked_Access;
       E.Stream.avail_out := Into'Length;
-      E.Stream.next_in := Data (Pos)'Unrestricted_Access;
+      E.Stream.next_in := Data (Data'First)'Unrestricted_Access;
       E.Stream.avail_in := Interfaces.C.size_t (Data'Length);
       loop
-         Result := Base.lzma_code (E.Stream'Unchecked_Access, Action);
+         Result := Base.lzma_code (E.Stream'Unchecked_Access, Base.LZMA_RUN);
 
          --  Write the output data when the buffer is full or we reached the end of stream.
          if E.Stream.avail_out = 0 or E.Stream.avail_in = 0 or Result = Base.LZMA_STREAM_END then
@@ -76,6 +74,7 @@ package body Util.Encoders.Lzma is
                      Into : in out Ada.Streams.Stream_Element_Array;
                      Last : in out Ada.Streams.Stream_Element_Offset) is
       Result : Base.lzma_ret;
+      pragma Unreferenced (Result);
    begin
       E.Stream.next_out := Into (Into'First)'Unchecked_Access;
       E.Stream.avail_out := Into'Length;
@@ -88,6 +87,7 @@ package body Util.Encoders.Lzma is
    overriding
    procedure Initialize (E : in out Compress) is
       Result : Base.lzma_ret;
+      pragma Unreferenced (Result);
    begin
       Result := Container.lzma_easy_encoder (E.Stream'Unchecked_Access, 6,
                                              Check.LZMA_CHECK_CRC64);
