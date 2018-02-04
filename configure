@@ -641,6 +641,9 @@ UTIL_CURL_LIBRARY_OPTIONS
 UTIL_LIBRARY_OPTIONS
 UTIL_GNAT_TRACEBACK
 BUILDS_SHARED
+UTIL_HAVE_LZMA
+UTIL_LZMA_DIR
+WITH_LZMA_ADA
 UTIL_HAVE_XML
 UTIL_XML_VERSION
 UTIL_XML_DIR
@@ -731,6 +734,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 with_xmlada
+with_lzma
 enable_shared
 enable_traceback
 enable_ahven
@@ -1379,6 +1383,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-xmlada=          Enable XML serialization
+  --with-ada-lzma=        Enable LZMA streams with Ada LZMA
   --with-aws=x            Path for the Ada Web Server library
                           (http://libre.adacore.com/libre/tools/aws/)
 
@@ -4102,6 +4107,66 @@ if test T$UTIL_HAVE_XML = Tno; then
   UTIL_HAVE_XML='no';
 fi
 
+
+
+
+
+
+##########################################
+# Ada/LZMA library
+##########################################
+
+# Check whether --with-lzma was given.
+if test "${with_lzma+set}" = set; then :
+  withval=$with_lzma;
+  if test T${withval} = Tno ; then
+    UTIL_HAVE_LZMA=no;
+  else
+    WITH_LZMA_ADA="with \"${withval}\";";
+    UTIL_LZMA_DIR='src/lzma';
+    UTIL_HAVE_LZMA='yes';
+  fi
+
+else
+
+  WITH_LZMA_ADA='';
+  UTIL_LZMA_DIR='src';
+  UTIL_HAVE_LZMA='yes';
+
+fi
+
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether lzma project exists" >&5
+$as_echo_n "checking whether lzma project exists... " >&6; }
+  echo "with \"lzma\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
+  if { ac_try='gnat ls -Pconftest.gpr system.ads > /dev/null 2>conftest.out'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }
+  then
+    gnat_project_lzma=yes
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes, using lzma" >&5
+$as_echo "yes, using lzma" >&6; }
+    gnat_project_with_lzma="with \"lzma\";";
+  else
+    gnat_project_lzma=no
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+  fi
+  rm -f conftest.gpr
+
+if test T$gnat_project_lzma = Tno; then
+  WITH_LZMA_ADA="";
+  UTIL_LZMA_DIR=''
+  UTIL_HAVE_LZMA='no'
+else
+  WITH_LZMA_ADA="with \"lzma\";";
+  UTIL_LZMA_DIR='src/lzma'
+  UTIL_HAVE_LZMA='yes'
+fi
 
 
 
