@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util-texts -- Various Text Transformation Utilities
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2015 Stephane Carrez
+--  util-strings-transforms -- Various Text Transformation Utilities
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2015, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
