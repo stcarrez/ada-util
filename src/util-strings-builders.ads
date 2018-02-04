@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util-strings-builders --  Set of strings
---  Copyright (C) 2013 Stephane Carrez
+--  util-strings-builders --  Set of strings
+--  Copyright (C) 2013, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
