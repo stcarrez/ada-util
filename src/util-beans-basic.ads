@@ -17,6 +17,12 @@
 -----------------------------------------------------------------------
 
 with Util.Beans.Objects;
+
+--  == Bean Interface ==
+--  An Ada Bean is an object which implements the `Util.Beans.Basic.Readonly_Bean` or the
+--  `Util.Beans.Basic.Bean` interface.  By implementing these interface, the object provides
+--  a behavior that is close to the Java Beans: a getter and a setter operation are available.
+--
 package Util.Beans.Basic is
 
    pragma Preelaborate;
