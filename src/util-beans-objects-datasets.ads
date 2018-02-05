@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Datasets -- Datasets
---  Copyright (C) 2013 Stephane Carrez
+--  Copyright (C) 2013, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,12 +21,12 @@ with Ada.Containers.Indefinite_Hashed_Maps;
 
 with Util.Beans.Basic;
 
---  == Introduction ==
---  The <tt>Datasets</tt> package implements the <tt>Dataset</tt> list bean which
---  defines a set of objects organized in rows and columns.  The <tt>Dataset</tt>
---  implements the <tt>List_Bean</tt> interface and allows to iterate over its rows.
---  Each row defines a <tt>Bean</tt> instance and allows to access each column value.
---  Each column is associated with a unique name.  The row <tt>Bean</tt> allows to
+--  == Datasets ==
+--  The `Datasets` package implements the `Dataset` list bean which
+--  defines a set of objects organized in rows and columns.  The `Dataset`
+--  implements the `List_Bean` interface and allows to iterate over its rows.
+--  Each row defines a `Bean` instance and allows to access each column value.
+--  Each column is associated with a unique name.  The row `Bean` allows to
 --  get or set the column by using the column name.
 package Util.Beans.Objects.Datasets is
 
