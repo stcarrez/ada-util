@@ -20,7 +20,7 @@ with Ada.Finalization;
 with Util.Systems.Os;
 with Util.Systems.Types;
 
---  === Raw files ===
+--  == Raw files ==
 --  The <b>Util.Streams.Raw</b> package provides a stream directly on top of
 --  file system operations <b>read</b> and <b>write</b>.
 package Util.Streams.Raw is
