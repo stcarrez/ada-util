@@ -34,7 +34,7 @@ private with Util.Concurrent.Counters;
 --  == File formats ==
 --  The property file consists of a simple name and value pair separated by the `=` sign.
 --  Thanks to the Windows INI file format, list of properties can be grouped together
---  in sections by using the `[section-name`] notation.
+--  in sections by using the `[section-name]` notation.
 --
 --    test.count=20
 --    test.repeat=5
@@ -51,6 +51,8 @@ private with Util.Concurrent.Counters;
 --
 --  In this example, the property file `test.properties` is loaded and assuming that it contains
 --  the above configuration example, the `Get ("test.count")` will return the string `"20"`.
+--  The property `test.repeat` is then modified to have the value `"23"` and the properties are
+--  then saved in the file.
 --
 --    with Util.Properties;
 --    ...
@@ -67,10 +69,27 @@ private with Util.Concurrent.Counters;
 --
 --       FileTest : Util.Properties.Manager := Props.Get ("FileTest");
 --       ...
---          Ada.Text_IO.Put_Line ("[FileTest] Count: " & FileTest.Get ("test.count");
+--          Ada.Text_IO.Put_Line ("[FileTest] Count: "
+--                                & FileTest.Get ("test.count");
+--
+--  When getting or removing a property, the `NO_PROPERTY` exception is raised if the property
+--  name was not found in the map.  To avoid that exception, it is possible to check whether
+--  the name is known by using the `Exists` function.
+--
+--       if Props.Exists ("test.old_count") then
+--          ... --  Property exist
+--       end if;
 --
 --  @include util-properties-json.ads
 --  @include util-properties-bundles.ads
+--
+--  == Advance usage of properties ==
+--  The property manager holds the name and value pairs by using an Ada Bean object.
+--
+--  It is possible to iterate over the properties by using the `Iterate` procedure that
+--  accepts as parameter a `Process` procedure that gets the property name as well as the
+--  property value.  The value itself is passed as an `Util.Beans.Objects.Object` type.
+--
 package Util.Properties is
 
    NO_PROPERTY : exception;
