@@ -16,6 +16,11 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+--  = Ada Beans =
+--
+--  @include util-beans-objects.ads
+--  @include util-beans-objects-datasets.ads
+--  @include util-beans-basic.ads
 package Util.Beans is
 
    pragma Preelaborate;
