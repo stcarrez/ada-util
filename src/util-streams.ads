@@ -20,7 +20,11 @@ with Ada.Streams;
 
 --  = Streams =
 --  The `Util.Streams` package provides several types and operations to allow the
---  composition of input and output streams.
+--  composition of input and output streams.  Input streams can be chained together so that
+--  they traverse the different stream objects when the data is read from them.  Similarly,
+--  output streams can be chained and the data that is written will traverse the different
+--  streams from the first one up to the last one in the chain.  During such traversal, the
+--  stream object is able to bufferize the data or make transformations on the data.
 --
 --  @include util-streams-buffered.ads
 --  @include util-streams-texts.ads
