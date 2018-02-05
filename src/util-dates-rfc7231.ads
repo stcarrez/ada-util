@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-rfc7231-- RFC7231 date format utilities
---  Copyright (C) 2015 Stephane Carrez
+--  Copyright (C) 2015, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,17 @@
 
 with Ada.Calendar;
 with Util.Strings.Builders;
+
+--  == RFC7231 Dates ==
+--  The RFC7231 defines a standard date format that is used by HTTP headers.
+--  The `Util.Dates.RFC7231` package provides an `Image` function to convert a date into
+--  that target format and a `Value` function to parse such format string and return the date.
+--
+--      Now  : constant Ada.Calendar.Time := Ada.Calendar.Clock;
+--      S    : constant String := Util.Dates.RFC7231.Image (Now);
+--      Date : Ada.Calendar.time := Util.Dates.RFC7231.Value (S);
+--
+--  A `Constraint_Error` exception is raised when the date string is not in the correct format.
 package Util.Dates.RFC7231 is
 
    --  Parses a HTTP date that follows the RFC7231 or RFC2616 format.
