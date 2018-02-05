@@ -20,6 +20,25 @@ with Ada.Calendar;
 with Ada.Calendar.Formatting;
 with Ada.Calendar.Arithmetic;
 with Ada.Calendar.Time_Zones;
+
+--  = Date Utilities =
+--  The `Util.Dates` package provides various date utilities to help in formatting and parsing
+--  dates in various standard formats.  It completes the standard `Ada.Calendar.Formatting` and
+--  other packages by implementing specific formatting and parsing.
+--
+--  == Date Operations ==
+--  Several operations allow to compute:
+--
+--    * The start of the day (0:00),
+--    * The end of the day (24:00),
+--    * The start of the week,
+--    * The end of the week,
+--    * The start of the month,
+--    * The end of the month
+--
+--  @include util-dates-rfc7231.ads
+--  @include util-dates-iso8601.ads
+--  @include util-dates-formats.ads
 package Util.Dates is
 
    --  The Unix equivalent of 'struct tm'.
