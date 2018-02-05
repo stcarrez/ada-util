@@ -202,7 +202,9 @@ UTIL_DOC= \
   doc/pagebreak.tex \
   doc/Util_Properties.md \
   doc/pagebreak.tex \
-  doc/Beans.md \
+  doc/Util_Dates.md \
+  doc/pagebreak.tex \
+  doc/Util_Beans.md \
   doc/pagebreak.tex \
   doc/Serialization.md \
   doc/pagebreak.tex \
@@ -212,7 +214,7 @@ UTIL_DOC= \
   doc/pagebreak.tex \
   doc/Util_Events_Timers.md \
   doc/pagebreak.tex \
-  doc/Measures.md
+  doc/Util_Measures.md
 
 DOC_OPTIONS=-f markdown -o util-book.pdf --listings --number-sections --toc
 
