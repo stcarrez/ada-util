@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects -- Generic Typed Data Representation
---  Copyright (C) 2009, 2010, 2011, 2013, 2017 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,20 +16,24 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
---  Provides a data type to manage entities of different types using the
---  same abstraction.
+--  == Objects ==
+--  The `Util.Beans.Objects` package provides a data type to manage entities of different types
+--  by using the same abstraction.  The `Object` type allows to hold various values of different
+--  types.
 --
---  An ''Object' can hold one of the following values:
---   o a boolean
---   o a long long integer
---   o a date
---   o a string
---   o a wide wide string
---   o a generic data
+--  An `Object` can hold one of the following values:
 --
+--    * a boolean,
+--    * a long long integer,
+--    * a date,
+--    * a string,
+--    * a wide wide string,
+--    * a generic data
 --
---  Value : Object := To_Object ("something");
---  Value := Value + To_Object ("12");
+--  Several operations are provided to convert a value into an `Object`.
+--
+--    Value : Util.Beans.Objects.Object := Util.Beans.Objects.To_Object ("something");
+--    Value := Value + To_Object ("12");
 --
 with Ada.Strings.Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded;
