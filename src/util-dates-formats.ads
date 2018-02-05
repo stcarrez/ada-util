@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-formats -- Date Format ala strftime
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,58 +19,66 @@
 with Ada.Strings.Unbounded;
 with Util.Properties;
 
---  The <b>Util.Dates.Formats</b> provides a date formatting operation similar to the
---  Unix <b>strftime</b> or the <b>GNAT.Calendar.Time_IO</b>.  The localization of month
---  and day labels is however handled through <b>Util.Properties.Bundle</b> (similar to
---  the Java world).  Unlike <b>strftime</b>, this allows to have a multi-threaded application
---  that reports dates in several languages.  The <b>GNAT.Calendar.Time_IO</b> only supports
+--  == Localized date formatting ==
+--  The `Util.Dates.Formats` provides a date formatting operation similar to the
+--  Unix `strftime` or the `GNAT.Calendar.Time_IO`.  The localization of month
+--  and day labels is however handled through `Util.Properties.Bundle` (similar to
+--  the Java world).  Unlike `strftime`, this allows to have a multi-threaded application
+--  that reports dates in several languages.  The `GNAT.Calendar.Time_IO` only supports
 --  English and this is the reason why it is not used here.
 --
 --  The date pattern recognizes the following formats:
 --
---  %a     The abbreviated weekday name according to the current locale.
---  %A     The full weekday name according to the current locale.
---  %b     The abbreviated month name according to the current locale.
---  %h     Equivalent to %b.  (SU)
---  %B     The full month name according to the current locale.
---  %c     The preferred date and time representation for the current locale.
---  %C     The century number (year/100) as a 2-digit integer. (SU)
---  %d     The day of the month as a decimal number (range 01 to 31).
---  %D     Equivalent to %m/%d/%y
---  %e     Like %d, the day of the month as a decimal number,
---  but a leading zero is replaced by a space. (SU)
---  %F     Equivalent to %Y-%m-%d (the ISO 8601 date format). (C99)
---  %G     The ISO 8601 week-based year
---  %g     Like %G, but without century, that is, with a 2-digit year (00-99). (TZ)
---  %H     The hour as a decimal number using a 24-hour clock (range 00 to 23).
---  %I     The hour as a decimal number using a 12-hour clock (range 01 to 12).
---  %j     The day of the year as a decimal number (range 001 to 366).
---  %k     The hour (24-hour clock) as a decimal number (range 0 to 23);
---  %l     The  hour (12-hour clock) as a decimal number (range 1 to 12);
---  %m     The month as a decimal number (range 01 to 12).
---  %M     The minute as a decimal number (range 00 to 59).
---  %n     A newline character. (SU)
---  %p     Either "AM" or "PM"
---  %P     Like %p but in lowercase: "am" or "pm"
---  %r     The time in a.m. or p.m. notation.
---         In the POSIX locale this is equivalent to %I:%M:%S %p.  (SU)
---  %R     The time in 24-hour notation (%H:%M).
---  %s     The number of seconds since the Epoch, that is,
---         since 1970-01-01 00:00:00 UTC. (TZ)
---  %S     The  second as a decimal number (range 00 to 60).
---  %t     A tab character. (SU)
---  %T     The time in 24-hour notation (%H:%M:%S). (SU)
---  %u     The day of the week as a decimal, range 1 to 7, Monday being 1.  See also %w.  (SU)
---  %U     The week number of the current year as a decimal number, range 00 to 53
---  %V     The  ISO 8601 week number
---  %w     The day of the week as a decimal, range 0 to 6, Sunday being 0.  See also %u.
---  %W     The week number of the current year as a decimal number, range 00 to 53
---  %x     The preferred date representation for the current locale without the time.
---  %X     The preferred time representation for the current locale without the date.
---  %y     The year as a decimal number without a century (range 00 to 99).
---  %Y     The year as a decimal number including the century.
---  %z     The   time-zone   as   hour   offset   from   GMT.
---  %Z     The timezone or name or abbreviation.
+--  | Format | Description |
+--  | --- | ---------- |
+--  | %a  | The abbreviated weekday name according to the current locale.
+--  | %A  | The full weekday name according to the current locale.
+--  | %b  | The abbreviated month name according to the current locale.
+--  | %h  | Equivalent to %b. (SU)
+--  | %B  | The full month name according to the current locale.
+--  | %c  | The preferred date and time representation for the current locale.
+--  | %C  | The century number (year/100) as a 2-digit integer. (SU)
+--  | %d  | The day of the month as a decimal number (range 01 to 31).
+--  | %D  | Equivalent to %m/%d/%y
+--  | %e  | Like %d, the day of the month as a decimal number,
+--  |     | but a leading zero is replaced by a space. (SU)
+--  | %F  | Equivalent to %Y\-%m\-%d (the ISO 8601 date format). (C99)
+--  | %G  | The ISO 8601 week-based year
+--  | %H  | The hour as a decimal number using a 24-hour clock (range 00 to 23).
+--  | %I  | The hour as a decimal number using a 12-hour clock (range 01 to 12).
+--  | %j  | The day of the year as a decimal number (range 001 to 366).
+--  | %k  | The hour (24 hour clock) as a decimal number (range 0 to 23);
+--  | %l  | The hour (12 hour clock) as a decimal number (range 1 to 12);
+--  | %m  | The month as a decimal number (range 01 to 12).
+--  | %M  | The minute as a decimal number (range 00 to 59).
+--  | %n  | A newline character. (SU)
+--  | %p  | Either "AM" or "PM"
+--  | %P  | Like %p but in lowercase: "am" or "pm"
+--  | %r  | The time in a.m. or p.m. notation.
+--  |     | In the POSIX locale this is equivalent to %I:%M:%S %p. (SU)
+--  | %R  | The time in 24 hour notation (%H:%M).
+--  | %s  | The number of seconds since the Epoch, that is,
+--  |     | since 1970\-01\-01 00:00:00 UTC. (TZ)
+--  | %S  | The second as a decimal number (range 00 to 60).
+--  | %t  | A tab character. (SU)
+--  | %T  | The time in 24 hour notation (%H:%M:%S). (SU)
+--  | %u  | The day of the week as a decimal, range 1 to 7,
+--  |     | Monday being 1. See also %w. (SU)
+--  | %U  | The week number of the current year as a decimal
+--  |     | number, range 00 to 53
+--  | %V  | The ISO 8601 week number
+--  | %w  | The day of the week as a decimal, range 0 to 6,
+--  |     | Sunday being 0. See also %u.
+--  | %W  | The week number of the current year as a decimal number,
+--  |     | range 00 to 53
+--  | %x  | The preferred date representation for the current locale
+--  |     | without the time.
+--  | %X  | The preferred time representation for the current locale
+--  |     | without the date.
+--  | %y  | The year as a decimal number without a century (range 00 to 99).
+--  | %Y  | The year as a decimal number including the century.
+--  | %z  | The timezone as hour offset from GMT.
+--  | %Z  | The timezone or name or abbreviation.
 --
 --  The following strftime flags are ignored:
 --
