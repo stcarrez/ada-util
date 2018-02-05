@@ -48,12 +48,19 @@ with Util.Concurrent.Locks;
 --       Loader : Util.Properties.Bundles.Loader;
 --       Bundle : Util.Properties.Bundles.Manager;
 --       ...
---       Util.Properties.Bundles.Initialize (Loader, "bundles;/usr/share/bundles");
+--       Util.Properties.Bundles.Initialize (Loader,
+--                                           "bundles;/usr/share/bundles");
 --       Util.Properties.Bundles.Load_Bundle (Loader, "dates", "fr", Bundle);
 --       Ada.Text_IO.Put_Line (Bundle.Get ("util.month1.long");
 --
---  In this example, the `util.month1.long` key is first search in the `dates_fr` French locale
+--  In this example, the `util.month1.long` key is first searched in the `dates_fr` French locale
 --  and if it is not found it is searched in the default locale.
+--
+--  The restriction when using bundles is that they don't allow changing any value and the
+--  `NOT_WRITEABLE` exception is raised when one of the `Set` operation is used.
+--
+--  When a bundle cannot be loaded, the `NO_BUNDLE` exception is raised by the `Load_Bundle`
+--  operation.
 package Util.Properties.Bundles is
 
    NO_BUNDLE : exception;
