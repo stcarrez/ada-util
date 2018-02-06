@@ -82,13 +82,31 @@ with Util.Properties;
 --
 --  The following strftime flags are ignored:
 --
---  %E     Modifier: use alternative format, see below. (SU)
---  %O     Modifier: use alternative format, see below. (SU)
+--  | Format | Description |
+--  | --- | ---------- |
+--  | %E  |  Modifier: use alternative format, see below. (SU)
+--  | %O  |  Modifier: use alternative format, see below. (SU)
 --
 --  SU:  Single Unix Specification
 --  C99: C99 standard, POSIX.1-2001
 --
 --  See strftime (3) manual page
+--
+--  To format and use the localize date, it is first necessary to get a bundle
+--  for the `dates` so that date elements are translated into the given locale.
+--
+--     Factory     : Util.Properties.Bundles.Loader;
+--     Bundle      : Util.Properties.Bundles.Manager;
+--     ...
+--        Load_Bundle (Factory, "dates", "fr", Bundle);
+--
+--  The date is formatted according to the pattern string described above.
+--  The bundle is used by the formatter to use the day and month names in the
+--  expected locale.
+--
+--     Date : String := Util.Dates.Formats.Format (Pattern => Pattern,
+--                                                 Date    => Ada.Calendar.Clock,
+--                                                 Bundle  => Bundle);
 package Util.Dates.Formats is
 
    --  Month labels.
