@@ -40,6 +40,8 @@ HAVE_AWS=@UTIL_HAVE_AWS@
 HAVE_LZMA=@UTIL_HAVE_LZMA@
 HAVE_VECTOR_MAPPERS=@UTIL_HAVE_VECTOR_MAPPERS@
 HAVE_PRJ_DIRECTORIES=@UTIL_HAVE_PRJ_DIRECTORIES@
+HAVE_PANDOC=@HAVE_PANDOC@
+HAVE_DYNAMO=@HAVE_DYNAMO@
 
 LN_S=@LN_S@
 MKDIR=mkdir
@@ -188,6 +190,8 @@ version:
 	gnatprep `svn info | grep '^[UR][eR][Lv]' | sed -e 's,URL: \(.*\),-DURL="\1",' -e 's,Revision: ,-DREVISION=,'` \
 		  src/util.gpb src/util.ads
 
+ifeq (${HAVE_PANDOC},yes)
+ifeq (${HAVE_DYNAMO},yes)
 doc:  util-book.pdf
 	$(DYNAMO) build-doc -markdown wiki
 
@@ -206,7 +210,7 @@ UTIL_DOC= \
   doc/pagebreak.tex \
   doc/Util_Beans.md \
   doc/pagebreak.tex \
-  doc/Serialization.md \
+  doc/Util_Http.md \
   doc/pagebreak.tex \
   doc/Util_Streams.md \
   doc/pagebreak.tex \
@@ -222,6 +226,8 @@ util-book.pdf:  force
 	# test -d wiki || git clone git@github.com:stcarrez/ada-ado.wiki.git wiki
 	$(DYNAMO) build-doc -pandoc doc
 	pandoc $(DOC_OPTIONS) --template=./doc/eisvogel.tex $(UTIL_DOC)
+endif
+endif
 
 dist:
 	git archive -o $(DIST_FILE) --prefix=$(distdir)/ HEAD
