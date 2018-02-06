@@ -47,7 +47,8 @@ with Util.Processes;
 --    Pipe.Open (Command => "ls -l", Mode => Util.Processes.READ);
 --
 --  The `Pipe_Stream` is not buffered and a buffer can be configured easily by using the
---  `Input_Buffer_Stream` type and doing:
+--  `Input_Buffer_Stream` type and connecting the buffer to the pipe so that it reads
+--  the pipe to fill the buffer.  The initialization of the buffer is the following:
 --
 --    with Util.Streams.Buffered;
 --    ...
@@ -74,6 +75,17 @@ with Util.Processes;
 --  You will note that the `Pipe_Stream` is a limited type and thus cannot be copied.
 --  When leaving the scope of the `Pipe_Stream` instance, the application will wait for
 --  the process to terminate.
+--
+--  Before opening the pipe, it is possible to have some control on the process that
+--  will be created to configure:
+--
+--    * The shell that will be used to launch the process,
+--    * The process working directory,
+--    * Redirect the process output to a file,
+--    * Redirect the process error to a file,
+--    * Redirect the process input from a file.
+--
+--  All these operations must be made before calling the `Open` procedure.
 package Util.Streams.Pipes is
 
    use Util.Processes;
