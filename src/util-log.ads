@@ -36,7 +36,7 @@
 --  * An *appender* is the abstraction that writes the message either to a console, a file
 --    or some other final mechanism.
 --
---  === Logger Declaration ===
+--  == Logger Declaration ==
 --  Similar to other logging framework such as Log4j and Log4cxx, it is necessary to have
 --  and instance of a logger to write a log message.  The logger instance holds the configuration
 --  for the log to enable, disable and control the format and the appender that will receive
@@ -51,15 +51,17 @@
 --      Log : constant Util.Log.Loggers := Util.Log.Loggers.Create ("X.Y");
 --    end X.Y;
 --
---  === Logger Messages ===
+--  == Logger Messages ==
 --  A log message is associated with a log level which is used by the logger instance to
 --  decide to emit or drop the log message.  To keep the logging API simple and make it easily
 --  usable in the application, several operations are provided to write a message with different
 --  log level.
 --
 --  A log message is a string that contains optional formatting markers that follow more or
---  less the Java MessageFormat class.  A parameter is represented by a number enclosed by `{}`.
---  The first parameter is represented by `{0}`, the second by `{1}` and so on.
+--  less the Java `MessageFormat` class.  A parameter is represented by a number enclosed by `{}`.
+--  The first parameter is represented by `{0}`, the second by `{1}` and so on.  Parameters are
+--  replaced in the final message only when the message is enabled by the log configuration.
+--  The use of parameters allows to avoid formatting the log message when the log is not used.
 --
 --  The example below shows several calls to emit a log message with different levels:
 --
@@ -68,7 +70,20 @@
 --     Log.Info ("Opening file {0}", Path);
 --     Log.Debug ("Reading line {0}", Line);
 --
---  === Log Configuration ===
+--  The logger also provides a special `Error` procedure that accepts an Ada exception
+--  occurence as parameter.  The exception name and message are printed together with
+--  the error message.  It is also possible to activate a complete traceback of the
+--  exception and report it in the error message.  With this mechanism, an exception
+--  can be handled and reported easily:
+--
+--     begin
+--        ...
+--     exception
+--        when E : others =>
+--           Log.Error ("Something bad occurred", E, Trace => True);
+--     end;
+--
+--  == Log Configuration ==
 --  The log configuration uses property files close to the Apache Log4j and to the
 --  Apache Log4cxx configuration files.
 --  The configuration file contains several parts to configure the logging framework:
