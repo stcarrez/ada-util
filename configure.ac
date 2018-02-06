@@ -52,6 +52,9 @@ NR_CPUS=`getconf _NPROCESSORS_CONF 2>/dev/null || getconf NPROCESSORS_CONF 2>/de
 AC_MSG_RESULT($NR_CPUS)
 AC_SUBST(NR_CPUS)
 
+AC_CHECK_PROG(HAVE_PANDOC,pandoc,yes)
+AC_CHECK_PROG(HAVE_DYNAMO,dynamo,yes)
+
 os_version='os-none'
 AC_MSG_CHECKING([specific operating system sources])
 case "${target_os}" in
