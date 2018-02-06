@@ -26,6 +26,10 @@ with Ada.Streams;
 --  streams from the first one up to the last one in the chain.  During such traversal, the
 --  stream object is able to bufferize the data or make transformations on the data.
 --
+--  The `Input_Stream` interface represents the stream to read data.  It only provides a
+--  `Read` procedure.  The `Output_Stream` interface represents the stream to write data.
+--  It provides a `Write`, `Flush` and `Close` operation.
+--
 --  @include util-streams-buffered.ads
 --  @include util-streams-texts.ads
 --  @include util-streams-files.ads
