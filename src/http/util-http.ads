@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http -- HTTP Utility Library
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,9 +17,10 @@
 -----------------------------------------------------------------------
 with Ada.Calendar;
 
---  == Introduction ==
---  The <tt>Util.Http</tt> package provides a set of APIs that allows applications to use
---  the HTTP protocol.
+--  = HTTP =
+--  The `Util.Http` package provides a set of APIs that allows applications to use
+--  the HTTP protocol.  It defines a common interface on top of CURL and AWS so that
+--  it is possible to use one of these two libraries in a transparent manner.
 --
 --  @include util-http-clients.ads
 package Util.Http is
