@@ -27,14 +27,21 @@ with Ada.Calendar.Time_Zones;
 --  other packages by implementing specific formatting and parsing.
 --
 --  == Date Operations ==
---  Several operations allow to compute:
+--  Several operations allow to compute from a given date:
 --
---    * The start of the day (0:00),
---    * The end of the day (24:00),
---    * The start of the week,
---    * The end of the week,
---    * The start of the month,
---    * The end of the month
+--    * `Get_Day_Start`: The start of the day (0:00),
+--    * `Get_Day_End`: The end of the day (23:59:59),
+--    * `Get_Week_Start`: The start of the week,
+--    * `Get_Week_End`: The end of the week,
+--    * `Get_Month_Start`: The start of the month,
+--    * `Get_Month_End`: The end of the month
+--
+--  The `Date_Record` type represents a date in a split format allowing
+--  to access easily the day, month, hour and other information.
+--
+--    Now        : Ada.Calendar.Time := Ada.Calendar.Clock;
+--    Week_Start : Ada.Calendar.Time := Get_Week_Start (Now);
+--    Week_End   : Ada.Calendar.Time := Get_Week_End (Now);
 --
 --  @include util-dates-rfc7231.ads
 --  @include util-dates-iso8601.ads
