@@ -1,0 +1,7 @@
+<project>
+    <name>util</name>
+    <property name="links">doc/links.txt</property>
+    <property name="author_email">Stephane.Carrez@gmail.com</property>
+    <property name="search_dirs">.</property>
+    <property name="author">Stephane Carrez</property>
+</project>
