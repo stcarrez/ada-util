@@ -37,8 +37,7 @@
 --  That step being done later through some external configuration or presentation file.
 --
 --  The Ada Bean framework is the basis for the implementation of
---  [Ada Server Faces](http://code.google.com/p/ada-asf/) and
---  [Ada EL](http://code.google.com/p/ada-el/).  It allows the presentation layer to
+--  Ada Server Faces and Ada EL.  It allows the presentation layer to
 --  access information provided by Ada beans.
 --
 --  @include util-beans-objects.ads
