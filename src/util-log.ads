@@ -37,7 +37,7 @@
 --    or some other final mechanism.
 --
 --  == Logger Declaration ==
---  Similar to other logging framework such as Log4j and Log4cxx, it is necessary to have
+--  Similar to other logging framework such as Java Log4j and Log4cxx, it is necessary to have
 --  and instance of a logger to write a log message.  The logger instance holds the configuration
 --  for the log to enable, disable and control the format and the appender that will receive
 --  the message.  The logger instance is associated with a name that is used for the
@@ -108,6 +108,36 @@
 --    log4j.appender.result.layout=level-message
 --    log4j.logger.X.Y=WARN
 --
+--  By default when the `layout` is not set or has an invalid value, the full message is
+--  reported and the generated log messages will look as follows:
+--
+--    [2018-02-07 20:39:51] ERROR - X.Y - Cannot open file test.txt: File does not exist
+--    [2018-02-07 20:39:51] WARN  - X.Y - The file test.txt is empty
+--    [2018-02-07 20:39:51] INFO  - X.Y - Opening file test.txt
+--    [2018-02-07 20:39:51] DEBUG - X.Y - Reading line ......
+--
+--  When the `layout` configuration is set to `data-level-message`, the message is printed
+--  with the date and message level.
+--
+--    [2018-02-07 20:39:51] ERROR: Cannot open file test.txt: File does not exist
+--    [2018-02-07 20:39:51] WARN : The file test.txt is empty
+--    [2018-02-07 20:39:51] INFO : X.Y - Opening file test.txt
+--    [2018-02-07 20:39:51] DEBUG: X.Y - Reading line ......
+--
+--  When the `layout` configuration is set to `level-message`, only the message and its
+--  level are reported.
+--
+--    ERROR: Cannot open file test.txt: File does not exist
+--    WARN : The file test.txt is empty
+--    INFO : X.Y - Opening file test.txt
+--    DEBUG: X.Y - Reading line ......
+--
+--  The last possible configuration for `layout` is `message` which only prints the message.
+--
+--    Cannot open file test.txt: File does not exist
+--    The file test.txt is empty
+--    Opening file test.txt
+--    Reading line ......
 --
 package Util.Log is
 
