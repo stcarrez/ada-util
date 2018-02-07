@@ -192,7 +192,7 @@ version:
 
 ifeq (${HAVE_PANDOC},yes)
 ifeq (${HAVE_DYNAMO},yes)
-doc:  util-book.pdf
+doc:  doc/util-book.pdf doc/util-book.html
 	$(DYNAMO) build-doc -markdown wiki
 
 UTIL_DOC= \
@@ -220,12 +220,15 @@ UTIL_DOC= \
   doc/pagebreak.tex \
   doc/Util_Measures.md
 
-DOC_OPTIONS=-f markdown -o util-book.pdf --listings --number-sections --toc
+DOC_OPTIONS=-f markdown -o doc/util-book.pdf --listings --number-sections --toc
+HTML_OPTIONS=-f markdown -o doc/util-book.html --listings --number-sections --toc --css doc/pandoc.css
 
-util-book.pdf:  force
-	# test -d wiki || git clone git@github.com:stcarrez/ada-ado.wiki.git wiki
+doc/util-book.pdf:  force
 	$(DYNAMO) build-doc -pandoc doc
 	pandoc $(DOC_OPTIONS) --template=./doc/eisvogel.tex $(UTIL_DOC)
+
+doc/util-book.html: doc/util-book.pdf force
+	pandoc $(HTML_OPTIONS) $(UTIL_DOC)
 endif
 endif
 
