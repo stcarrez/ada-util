@@ -1,0 +1,15 @@
+site_name: Ada Utility Library
+docs_dir: doc
+pages:
+  - Introduction: intro.md
+  - Installation: Installation.md
+  - Log: Util_Log.md
+  - Properties: Util_Properties.md
+  - Dates: Util_Dates.md
+  - Ada Beans: Util_Beans.md
+  - HTTP: Util_Http.md
+  - Streams: Util_Streams.md
+  - Encoders: Util_Encoders.md
+  - Measures: Util_Measures.md
+  - Timers: Util_Events_Timers.md
+theme: readthedocs
