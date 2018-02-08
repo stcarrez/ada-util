@@ -38,7 +38,6 @@ util_http.gpr
 util_http_aws.gpr
 util_http_curl.gpr
 util_unit.gpr
-doc/Util_*.md
 doc/util-book.pdf
 doc/util-book.html
 
