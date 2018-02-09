@@ -1,7 +1,7 @@
 site_name: Ada Utility Library
 docs_dir: doc
 pages:
-  - Introduction: intro.md
+  - Introduction: index.md
   - Installation: Installation.md
   - Log: Util_Log.md
   - Properties: Util_Properties.md
