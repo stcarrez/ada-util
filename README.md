@@ -23,34 +23,34 @@ Ada05 applications.  This includes:
 * HTTP client library on top of CURL or AWS
 
 Ada Util also provides a small test utility library on top of
-Ahven or AUnit to help in writing unit tests.
-To use Ahven testing framework, configure as follows:
+Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
+framework as it provides better reports.
+
+# Build
+
+For a detailed description on how you can configure, build and install the library
+refer to the [Installation](http://ada-util.readthedocs.io/en/latest/Installation/) guide.
+Otherwise, you can easily configure and build the library with the steps described below.
+
+To use Ahven testing framework, configure and build as follows:
 
 ```
-./configure --enable-ahven
+./configure
 make
 ```
 
 To use AUnit, build with the following commands:
 ```
-./configure
+./configure --enable-aunit
 make
 ```
-The samples can be built using:
-```
-   gnatmake -Psamples
-```   
    
 The unit tests are built and executed with:
 ```
    make test
 ```
-Or manually build with:
-```
-   gnatmake -Ptests
-```
 
-And unit tests are executed with (216 success, 0 failed):
+And unit tests are executed with (256 success, 0 failed):
 ```
    bin/util_harness
 ```
@@ -59,8 +59,14 @@ For the installation, use the following command:
    make install
 ```
 
+# Samples
+
+The samples can be built using:
+```
+   gnatmake -Psamples
+```   
+
 # Documentation
 
-The Ada Util sources as well as a wiki documentation is provided on:
-
-   https://github.com/stcarrez/ada-util/wiki
+* [Ada Utility Library Programmer's Guide](http://ada-util.readthedocs.io/en/latest/intro/)
+* [Wiki Documentation](https://github.com/stcarrez/ada-util/wiki)
