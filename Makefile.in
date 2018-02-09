@@ -198,7 +198,7 @@ doc:  doc/util-book.pdf doc/util-book.html
 UTIL_DOC= \
   doc/title.md \
   doc/pagebreak.tex \
-  doc/intro.md \
+  doc/index.md \
   doc/pagebreak.tex \
   doc/Installation.md \
   doc/pagebreak.tex \
