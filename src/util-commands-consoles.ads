@@ -90,7 +90,7 @@ private
 
    type Field_Size_Array is array (Field_Type) of Natural;
 
-   type Field_List_Array is array (1 .. Field_Type'Pos (Field_Type'Last)) of Field_Type;
+   type Field_List_Array is array (1 .. Field_Size_Array'Length) of Field_Type;
 
    type Console_Type is abstract tagged limited record
       Sizes       : Field_Size_Array := (others => 1);
