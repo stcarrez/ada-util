@@ -22,6 +22,14 @@ package body Util.Http.Clients is
 
    Log   : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Http.Clients");
 
+   procedure Initialize (Form : in out Form_Data;
+                         Size : in Positive) is
+   begin
+      Form.Buffer.Initialize (Output => null,
+                              Size   => Size);
+      Form.Initialize (Form.Buffer'Unchecked_Access);
+   end Initialize;
+
    --  ------------------------------
    --  Returns a boolean indicating whether the named response header has already
    --  been set.
@@ -238,6 +246,14 @@ package body Util.Http.Clients is
                    Reply   : out Response'Class) is
    begin
       Request.Manager.Do_Post (Request, URL, Data, Reply);
+   end Post;
+
+   procedure Post (Request : in out Client;
+                   URL     : in String;
+                   Data    : in Form_Data'Class;
+                   Reply   : out Response'Class) is
+   begin
+      Request.Manager.Do_Post (Request, URL, Util.Streams.Texts.To_String (Data.Buffer), Reply);
    end Post;
 
    --  ------------------------------
