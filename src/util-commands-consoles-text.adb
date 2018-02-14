@@ -59,7 +59,7 @@ package body Util.Commands.Consoles.Text is
    begin
       case Justify is
          when J_LEFT =>
-            if Value'Length > Size then
+            if Value'Length > Size and Size > 0 then
                Start := Last - Size + 1;
             end if;
 
