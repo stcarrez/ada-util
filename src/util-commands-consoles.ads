@@ -93,7 +93,7 @@ private
    type Field_List_Array is array (1 .. Field_Size_Array'Length) of Field_Type;
 
    type Console_Type is abstract tagged limited record
-      Sizes       : Field_Size_Array := (others => 1);
+      Sizes       : Field_Size_Array := (others => 0);
       Cols        : Field_Size_Array := (others => 1);
       Fields      : Field_List_Array;
       Field_Count : Natural := 0;
