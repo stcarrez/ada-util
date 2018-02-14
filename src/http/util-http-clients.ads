@@ -18,6 +18,8 @@
 
 with Ada.Finalization;
 
+with Util.Streams.Texts;
+with Util.Serialize.IO.Form;
 with Util.Http.Cookies;
 
 --  == Client ==
@@ -48,6 +50,11 @@ with Util.Http.Cookies;
 package Util.Http.Clients is
 
    Connection_Error : exception;
+
+   type Form_Data is limited new Util.Serialize.IO.Form.Output_Stream with private;
+
+   procedure Initialize (Form : in out Form_Data;
+                         Size : in Positive);
 
    --  ------------------------------
    --  Http response
@@ -169,6 +176,10 @@ package Util.Http.Clients is
                    URL     : in String;
                    Data    : in String;
                    Reply   : out Response'Class);
+   procedure Post (Request : in out Client;
+                   URL     : in String;
+                   Data    : in Form_Data'Class;
+                   Reply   : out Response'Class);
 
    --  Execute an http PUT request on the given URL.  The post data is passed in <b>Data</b>.
    --  Additional request cookies and headers should have been set on the client object.
@@ -246,5 +257,9 @@ private
 
    overriding
    procedure Finalize (Http : in out Client);
+
+   type Form_Data is limited new Util.Serialize.IO.Form.Output_Stream with record
+      Buffer : aliased Util.Streams.Texts.Print_Stream;
+   end record;
 
 end Util.Http.Clients;
