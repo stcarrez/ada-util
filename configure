@@ -3494,7 +3494,7 @@ case "${target_os}" in
 	os_version='os-linux'
 	;;
 
-     mingw32*|cygwin*)
+     mingw32*|cygwin*|mingw64*)
 	src_os='src/os-win32'
 	os_version='os-win32'
 	;;
@@ -4390,7 +4390,7 @@ if test x$ac_enable_ahven = 'xyes'; then
 	UTIL_AHVEN_OS_DIR="testutil/ahven/unix"
 	;;
 
-     mingw32*|cygwin*)
+     mingw32*|cygwin*|mingw64*)
         UTIL_XUNIT_DIR='"testutil/ahven", "testutil/ahven/windows"'
 	UTIL_AHVEN_OS_DIR="testutil/ahven/windows"
 	;;
