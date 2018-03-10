@@ -124,6 +124,9 @@ package Util.Properties is
                         Name  : in String;
                         Value : in Util.Beans.Objects.Object);
 
+   --  Returns TRUE if the property manager is empty.
+   function Is_Empty (Self : in Manager'Class) return Boolean;
+
    --  Returns TRUE if the property exists.
    function Exists (Self : in Manager'Class;
                     Name : in Unbounded_String) return Boolean;
