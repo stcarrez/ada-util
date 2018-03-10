@@ -186,6 +186,18 @@ package body Util.Properties is
       From.Impl.Set_Value (Name, Value);
    end Set_Value;
 
+   --  ------------------------------
+   --  Returns TRUE if the property manager is empty.
+   --  ------------------------------
+   function Is_Empty (Self : in Manager'Class) return Boolean is
+   begin
+      if Self.Impl = null then
+         return True;
+      else
+         return False;
+      end if;
+   end Is_Empty;
+
    function Exists (Self : in Manager'Class;
                     Name : in String) return Boolean is
    begin
