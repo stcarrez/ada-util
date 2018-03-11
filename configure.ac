@@ -246,6 +246,8 @@ AC_SUBST(UTIL_HAVE_LZMA)
 # Check to enable/disable shared library
 ##########################################
 AM_SHARED_LIBRARY_SUPPORT
+AM_DISTRIB_SUPPORT
+AM_COVERAGE_SUPPORT
 
 ##########################################
 # Check for GNAT traceback in Util.Log.Loggers
