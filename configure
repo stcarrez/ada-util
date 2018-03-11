@@ -640,6 +640,9 @@ UTIL_HAVE_VECTOR_MAPPERS
 UTIL_CURL_LIBRARY_OPTIONS
 UTIL_LIBRARY_OPTIONS
 UTIL_GNAT_TRACEBACK
+BUILDS_COVERAGE
+MODE
+BUILDS_DISTRIB
 BUILDS_SHARED
 UTIL_HAVE_LZMA
 UTIL_LZMA_DIR
@@ -739,6 +742,8 @@ enable_option_checking
 with_xmlada
 with_lzma
 enable_shared
+enable_distrib
+enable_coverage
 enable_traceback
 enable_ahven
 enable_aunit
@@ -1382,6 +1387,8 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-shared         Enable the shared libraries (disabled)
+  --enable-distrib        build for distribution, optimized and strip symbols (enabled)
+  --enable-coverage       build with coverage support -fprofile-arcs -ftest-coverage (disabled)
   --enable-traceback      Enable the symbolic traceback dump in logged exceptions (enabled)
   --enable-ahven          Enable internal Ahven support for testutil library and Ada util unit tests (enabled)
   --enable-aunit          Enable AUnit support for testutil library and Ada util unit tests (disabled)
@@ -4279,6 +4286,48 @@ fi
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_enable_shared}" >&5
 $as_echo "${ac_enable_shared}" >&6; }
   BUILDS_SHARED=$ac_enable_shared
+
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking distribution build" >&5
+$as_echo_n "checking distribution build... " >&6; }
+  ac_enable_distrib=yes
+  ac_build_mode=distrib
+  # Check whether --enable-distrib was given.
+if test "${enable_distrib+set}" = set; then :
+  enableval=$enable_distrib; case "${enableval}" in
+      no|none)  ac_enable_distrib=no
+                ac_build_mode=debug
+                ;;
+      *)        ac_enable_distrib=yes
+                ac_build_mode=distrib
+                ;;
+    esac
+fi
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_enable_distrib}" >&5
+$as_echo "${ac_enable_distrib}" >&6; }
+  BUILDS_DISTRIB=$ac_enable_distrib
+
+
+  MODE=$ac_build_mode
+
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking coverage support" >&5
+$as_echo_n "checking coverage support... " >&6; }
+  ac_enable_coverage=no
+  # Check whether --enable-coverage was given.
+if test "${enable_coverage+set}" = set; then :
+  enableval=$enable_coverage; case "${enableval}" in
+      no|none)  ac_enable_coverage=no ;;
+      *)        ac_enable_coverage=yes ;;
+    esac
+fi
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_enable_coverage}" >&5
+$as_echo "${ac_enable_coverage}" >&6; }
+  BUILDS_COVERAGE=$ac_enable_coverage
 
 
 
