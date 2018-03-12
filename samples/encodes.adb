@@ -38,6 +38,7 @@ begin
    declare
       Name : constant String := Ada.Command_Line.Argument (1);
       C    : constant Encoder := Util.Encoders.Create (Name);
+      D    : constant Decoder := Util.Encoders.Create (Name);
    begin
       for I in 2 .. Count loop
          declare
@@ -50,7 +51,8 @@ begin
             elsif Encode then
                Ada.Text_IO.Put_Line ("Encodes " & Name & ": " & C.Encode (S));
             else
-               Ada.Text_IO.Put_Line ("Decodes " & Name & ": " & C.Decode (S));
+	       null;
+               Ada.Text_IO.Put_Line ("Decodes " & Name & ": " & D.Decode (S));
             end if;
          end;
       end loop;
