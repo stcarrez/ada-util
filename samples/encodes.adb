@@ -51,7 +51,6 @@ begin
             elsif Encode then
                Ada.Text_IO.Put_Line ("Encodes " & Name & ": " & C.Encode (S));
             else
-	       null;
                Ada.Text_IO.Put_Line ("Decodes " & Name & ": " & D.Decode (S));
             end if;
          end;
