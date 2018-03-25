@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 private with Util.Strings.Vectors;
+private with Ada.Strings.Unbounded;
 package Util.Commands is
 
    --  The argument list interface that gives access to command arguments.
@@ -94,6 +95,7 @@ private
 
    type Dynamic_Argument_List is limited new Argument_List with record
       List : Util.Strings.Vectors.Vector;
+      Name : Ada.Strings.Unbounded.Unbounded_String;
    end record;
 
 end Util.Commands;
