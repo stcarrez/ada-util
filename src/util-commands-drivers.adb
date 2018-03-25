@@ -174,10 +174,23 @@ package body Util.Commands.Drivers is
                       Name    : in String;
                       Args    : in Argument_List'Class;
                       Context : in out Context_Type) is
+      procedure Execute (Cmd_Args : in Argument_List'Class);
+
       Command : constant Command_Access := Driver.Find_Command (Name);
+
+      procedure Execute (Cmd_Args : in Argument_List'Class) is
+      begin
+         Command.Execute (Name, Cmd_Args, Context);
+      end Execute;
+
    begin
       if Command /= null then
-         Command.Execute (Name, Args, Context);
+         declare
+            Config  : Config_Type;
+         begin
+            Command.Setup (Config);
+            Config_Parser.Execute (Config, Args, Execute'Access);
+         end;
       else
          Logs.Error ("Unkown command {0}", Name);
       end if;
