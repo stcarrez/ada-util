@@ -45,7 +45,7 @@ package body Util.Commands.Tests is
    end record;
 
    overriding
-   procedure Execute (Command   : in Test_Command_Type;
+   procedure Execute (Command   : in out Test_Command_Type;
                       Name      : in String;
                       Args      : in Argument_List'Class;
                       Context   : in out Test_Context_Type);
@@ -69,7 +69,7 @@ package body Util.Commands.Tests is
    end Add_Tests;
 
    overriding
-   procedure Execute (Command   : in Test_Command_Type;
+   procedure Execute (Command   : in out Test_Command_Type;
                       Name      : in String;
                       Args      : in Argument_List'Class;
                       Context   : in out Test_Context_Type) is
