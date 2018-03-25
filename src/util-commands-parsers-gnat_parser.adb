@@ -36,28 +36,38 @@ package body Util.Commands.Parsers.GNAT_Parser is
    procedure Execute (Config : in out Config_Type;
                       Args   : in Util.Commands.Argument_List'Class;
                       Process : access procedure (Cmd_Args : in Commands.Argument_List'Class)) is
-      Parser   : GNAT.Command_Line.Opt_Parser;
-      Cmd_Args : Dynamic_Argument_List;
-      Params   : GNAT.OS_Lib.Argument_List_Access
-        := To_OS_Lib_Argument_List (Args);
-   begin
-      GNAT.Command_Line.Initialize_Option_Scan (Parser, Params);
-      GNAT.Command_Line.Getopt (Config => Config, Parser => Parser);
-      loop
-         declare
-            S : constant String := GNAT.Command_Line.Get_Argument (Parser => Parser);
-         begin
-            exit when S'Length = 0;
-            Cmd_Args.List.Append (S);
-         end;
-      end loop;
-      Process (Cmd_Args);
-      GNAT.OS_Lib.Free (Params);
+      use type GNAT.Command_Line.Command_Line_Configuration;
 
-   exception
-      when others =>
-         GNAT.OS_Lib.Free (Params);
-         raise;
+      Empty    : Config_Type;
+    begin
+      if Config /= Empty then
+         declare
+            Parser   : GNAT.Command_Line.Opt_Parser;
+            Cmd_Args : Dynamic_Argument_List;
+            Params   : GNAT.OS_Lib.Argument_List_Access
+              := To_OS_Lib_Argument_List (Args);
+         begin
+            GNAT.Command_Line.Initialize_Option_Scan (Parser, Params);
+            GNAT.Command_Line.Getopt (Config => Config, Parser => Parser);
+            loop
+               declare
+                  S : constant String := GNAT.Command_Line.Get_Argument (Parser => Parser);
+               begin
+                  exit when S'Length = 0;
+                  Cmd_Args.List.Append (S);
+               end;
+            end loop;
+            Process (Cmd_Args);
+            GNAT.OS_Lib.Free (Params);
+
+         exception
+            when others =>
+               GNAT.OS_Lib.Free (Params);
+               raise;
+         end;
+      else
+         Process (Args);
+      end if;
    end Execute;
 
 end Util.Commands.Parsers.GNAT_Parser;
