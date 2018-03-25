@@ -30,6 +30,7 @@ with Util.Strings.Tests;
 with Util.Dates.Formats.Tests;
 with Util.Encoders.Tests;
 with Util.Mail.Tests;
+with Util.Commands.Tests;
 with Util.Streams.Buffered.Tests;
 with Util.Streams.Files.Tests;
 with Util.Streams.Texts.Tests;
@@ -80,6 +81,7 @@ package body Util.Testsuite is
       Util.Dates.Formats.Tests.Add_Tests (Result);
       Util.Log.Tests.Add_Tests (Result);
       Util.Files.Tests.Add_Tests (Result);
+      Util.Commands.Tests.Add_Tests (Result);
       Util.Concurrent.Tests.Add_Tests (Result);
       Util.Events.Channels.Tests.Add_Tests (Result);
       Util.Events.Timers.Tests.Add_Tests (Result);
