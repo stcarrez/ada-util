@@ -43,7 +43,7 @@ package Util.Commands.Drivers is
 
    --  Execute the command with the arguments.  The command name is passed with the command
    --  arguments.
-   procedure Execute (Command   : in Command_Type;
+   procedure Execute (Command   : in out Command_Type;
                       Name      : in String;
                       Args      : in Argument_List'Class;
                       Context   : in out Context_Type) is abstract;
@@ -57,7 +57,8 @@ package Util.Commands.Drivers is
                    Context   : in out Context_Type) is abstract;
 
    --  Write the command usage.
-   procedure Usage (Command : in Command_Type);
+   procedure Usage (Command : in out Command_Type;
+                    Name    : in String);
 
    --  Print a message for the command.  The level indicates whether the message is an error,
    --  warning or informational.  The command name can be used to known the originator.
@@ -72,7 +73,7 @@ package Util.Commands.Drivers is
    --  Execute the help command with the arguments.
    --  Print the help for every registered command.
    overriding
-   procedure Execute (Command   : in Help_Command_Type;
+   procedure Execute (Command   : in out Help_Command_Type;
                       Name      : in String;
                       Args      : in Argument_List'Class;
                       Context   : in out Context_Type);
@@ -85,7 +86,8 @@ package Util.Commands.Drivers is
 
    --  Report the command usage.
    procedure Usage (Driver : in Driver_Type;
-                    Args   : in Argument_List'Class);
+                    Args   : in Argument_List'Class;
+                    Name   : in String := "");
 
    --  Set the driver description printed in the usage.
    procedure Set_Description (Driver      : in out Driver_Type;
@@ -142,7 +144,7 @@ private
 
    --  Execute the command with the arguments.
    overriding
-   procedure Execute (Command   : in Handler_Command_Type;
+   procedure Execute (Command   : in out Handler_Command_Type;
                       Name      : in String;
                       Args      : in Argument_List'Class;
                       Context   : in out Context_Type);
