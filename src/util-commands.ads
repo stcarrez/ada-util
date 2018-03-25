@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands -- Support to make command line tools
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,7 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+private with Util.Strings.Vectors;
 package Util.Commands is
 
    --  The argument list interface that gives access to command arguments.
@@ -64,6 +65,19 @@ package Util.Commands is
    overriding
    function Get_Command_Name (List : in String_Argument_List) return String;
 
+   --  The argument list interface that gives access to command arguments.
+   type Dynamic_Argument_List is limited new Argument_List with private;
+
+   --  Get the number of arguments available.
+   function Get_Count (List : in Dynamic_Argument_List) return Natural;
+
+   --  Get the argument at the given position.
+   function Get_Argument (List : in Dynamic_Argument_List;
+                          Pos  : in Positive) return String;
+
+   --  Get the command name.
+   function Get_Command_Name (List : in Dynamic_Argument_List) return String;
+
 private
 
    type Argument_Pos is array (Natural range <>) of Natural;
@@ -76,6 +90,10 @@ private
       Line      : String (1 .. Max_Length);
       Start_Pos : Argument_Pos (0 .. Max_Args);
       End_Pos   : Argument_Pos (0 .. Max_Args);
+   end record;
+
+   type Dynamic_Argument_List is limited new Argument_List with record
+      List : Util.Strings.Vectors.Vector;
    end record;
 
 end Util.Commands;
