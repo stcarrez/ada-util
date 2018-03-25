@@ -36,6 +36,8 @@ package Util.Commands.Parsers is
                               Args    : in Argument_List'Class;
                               Process : not null access
                                 procedure (Cmd_Args : in Argument_List'Class)) is <>;
+      with procedure Usage (Name   : in String;
+                            Config : in out Config_Type) is <>;
    package Config_Parser is
    end Config_Parser;
 
@@ -48,9 +50,13 @@ package Util.Commands.Parsers is
                       Process : not null access
                                 procedure (Cmd_Args : in Argument_List'Class));
 
+   procedure Usage (Name   : in String;
+                    Config : in out No_Config_Type) is null;
+
    --  A parser that executes the command immediately (no parsing of arguments).
    package No_Parser is
      new Config_Parser (Config_Type => No_Config_Type,
-                        Execute     => Execute);
+                        Execute     => Execute,
+                        Usage       => Usage);
 
 end Util.Commands.Parsers;
