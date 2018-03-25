@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-drivers -- Support to make command line tools
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Log;
+with Util.Commands.Parsers;
 private with Ada.Strings.Unbounded;
 private with Ada.Containers.Indefinite_Ordered_Maps;
 
@@ -25,8 +26,11 @@ private with Ada.Containers.Indefinite_Ordered_Maps;
 generic
    --  The command execution context.
    type Context_Type (<>) is limited private;
+   with package Config_Parser is new Util.Commands.Parsers.Config_Parser (<>);
    Driver_Name : String := "Drivers";
 package Util.Commands.Drivers is
+
+   subtype Config_Type is Config_Parser.Config_Type;
 
    --  A simple command handler executed when the command with the given name is executed.
    type Command_Handler is not null access procedure (Name    : in String;
@@ -43,6 +47,10 @@ package Util.Commands.Drivers is
                       Name      : in String;
                       Args      : in Argument_List'Class;
                       Context   : in out Context_Type) is abstract;
+
+   --  Setup the command before parsing the arguments and executing it.
+   procedure Setup (Command : in out Command_Type;
+                    Config  : in out Config_Type) is null;
 
    --  Write the help associated with the command.
    procedure Help (Command   : in Command_Type;
