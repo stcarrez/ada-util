@@ -131,7 +131,7 @@ package body Util.Commands is
    --  ------------------------------
    function Get_Command_Name (List : in Dynamic_Argument_List) return String is
    begin
-      return List.List.Element (1);
+      return Ada.Strings.Unbounded.To_String (List.Name);
    end Get_Command_Name;
 
 end Util.Commands;
