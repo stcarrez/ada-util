@@ -27,9 +27,12 @@ package body Util.Commands.Drivers is
    --  ------------------------------
    --  Write the command usage.
    --  ------------------------------
-   procedure Usage (Command : in Command_Type) is
+   procedure Usage (Command : in out Command_Type;
+                    Name    : in String) is
+      Config  : Config_Type;
    begin
-      null;
+      Command_Type'Class (Command).Setup (Config);
+      Config_Parser.Usage (Name, Config);
    end Usage;
 
    --  ------------------------------
@@ -50,7 +53,7 @@ package body Util.Commands.Drivers is
    --  Print the help for every registered command.
    --  ------------------------------
    overriding
-   procedure Execute (Command   : in Help_Command_Type;
+   procedure Execute (Command   : in out Help_Command_Type;
                       Name      : in String;
                       Args      : in Argument_List'Class;
                       Context   : in out Context_Type) is
@@ -102,14 +105,27 @@ package body Util.Commands.Drivers is
    --  Report the command usage.
    --  ------------------------------
    procedure Usage (Driver : in Driver_Type;
-                    Args   : in Argument_List'Class) is
+                    Args   : in Argument_List'Class;
+                    Name   : in String := "") is
    begin
       Put_Line (To_String (Driver.Desc));
       New_Line;
-      Put ("Usage: ");
-      Put (Args.Get_Command_Name);
-      Put (" ");
-      Put_Line (To_String (Driver.Usage));
+      if Name'Length > 0 then
+         declare
+            Command : constant Command_Access := Driver.Find_Command (Name);
+         begin
+            if Command /= null then
+               Command.Usage (Name);
+            else
+               Put ("Invalid command");
+            end if;
+         end;
+      else
+         Put ("Usage: ");
+         Put (Args.Get_Command_Name);
+         Put (" ");
+         Put_Line (To_String (Driver.Usage));
+      end if;
    end Usage;
 
    --  ------------------------------
@@ -213,7 +229,7 @@ package body Util.Commands.Drivers is
    --  Execute the command with the arguments.
    --  ------------------------------
    overriding
-   procedure Execute (Command   : in Handler_Command_Type;
+   procedure Execute (Command   : in out Handler_Command_Type;
                       Name      : in String;
                       Args      : in Argument_List'Class;
                       Context   : in out Context_Type) is
