@@ -39,7 +39,7 @@ package body Util.Commands.Parsers.GNAT_Parser is
       use type GNAT.Command_Line.Command_Line_Configuration;
 
       Empty    : Config_Type;
-    begin
+   begin
       if Config /= Empty then
          declare
             Parser   : GNAT.Command_Line.Opt_Parser;
@@ -69,5 +69,12 @@ package body Util.Commands.Parsers.GNAT_Parser is
          Process (Args);
       end if;
    end Execute;
+
+   procedure Usage (Name   : in String;
+                    Config : in out Config_Type) is
+   begin
+      GNAT.Command_Line.Set_Usage (Config, Usage => Name & " [switches] [arguments]");
+      GNAT.Command_Line.Display_Help (Config);
+   end Usage;
 
 end Util.Commands.Parsers.GNAT_Parser;
