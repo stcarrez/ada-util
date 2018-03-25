@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands -- Support to make command line tools
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -107,6 +107,31 @@ package body Util.Commands is
    function Get_Command_Name (List : in String_Argument_List) return String is
    begin
       return List.Line (List.Start_Pos (0) .. List.End_Pos (0));
+   end Get_Command_Name;
+
+   --  ------------------------------
+   --  Get the number of arguments available.
+   --  ------------------------------
+   function Get_Count (List : in Dynamic_Argument_List) return Natural is
+   begin
+      return Natural (List.List.Length);
+   end Get_Count;
+
+   --  ------------------------------
+   --  Get the argument at the given position.
+   --  ------------------------------
+   function Get_Argument (List : in Dynamic_Argument_List;
+                          Pos  : in Positive) return String is
+   begin
+      return List.List.Element (Pos);
+   end Get_Argument;
+
+   --  ------------------------------
+   --  Get the command name.
+   --  ------------------------------
+   function Get_Command_Name (List : in Dynamic_Argument_List) return String is
+   begin
+      return List.List.Element (1);
    end Get_Command_Name;
 
 end Util.Commands;
