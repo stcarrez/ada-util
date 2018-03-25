@@ -25,6 +25,9 @@ package Util.Commands.Parsers.GNAT_Parser is
                       Args   : in Util.Commands.Argument_List'Class;
                       Process : access procedure (Cmd_Args : in Commands.Argument_List'Class));
 
+   procedure Usage (Name   : in String;
+                    Config : in out Config_Type);
+
    package Config_Parser is
      new Util.Commands.Parsers.Config_Parser (Config_Type => Config_Type,
                                               Execute     => Execute);
