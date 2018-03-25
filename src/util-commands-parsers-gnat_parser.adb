@@ -49,6 +49,7 @@ package body Util.Commands.Parsers.GNAT_Parser is
          begin
             GNAT.Command_Line.Initialize_Option_Scan (Parser, Params);
             GNAT.Command_Line.Getopt (Config => Config, Parser => Parser);
+            Cmd_Args.Name := Ada.Strings.Unbounded.To_Unbounded_String (Args.Get_Command_Name);
             loop
                declare
                   S : constant String := GNAT.Command_Line.Get_Argument (Parser => Parser);
