@@ -205,6 +205,7 @@ package body Util.Commands.Tests is
       D.Add_Command ("list", C1'Unchecked_Access);
       D.Add_Command ("print", C2'Unchecked_Access);
       D.Add_Command ("help", H'Unchecked_Access);
+      Args.Initialize (Line => "cmd list");
       D.Usage (Args);
       declare
          Ctx   : Test_Context_Type;
