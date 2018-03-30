@@ -89,8 +89,8 @@ private
       Count     : Natural := 0;
       Length    : Natural := 0;
       Line      : String (1 .. Max_Length);
-      Start_Pos : Argument_Pos (0 .. Max_Args);
-      End_Pos   : Argument_Pos (0 .. Max_Args);
+      Start_Pos : Argument_Pos (0 .. Max_Args) := (others => 0);
+      End_Pos   : Argument_Pos (0 .. Max_Args) := (others => 0);
    end record;
 
    type Dynamic_Argument_List is limited new Argument_List with record
