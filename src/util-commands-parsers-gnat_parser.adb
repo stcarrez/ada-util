@@ -59,11 +59,13 @@ package body Util.Commands.Parsers.GNAT_Parser is
                end;
             end loop;
             Process (Cmd_Args);
+            GNAT.Command_Line.Free (Config);
             GNAT.OS_Lib.Free (Params);
 
          exception
             when others =>
                GNAT.OS_Lib.Free (Params);
+               GNAT.Command_Line.Free (Config);
                raise;
          end;
       else
