@@ -74,6 +74,10 @@ package Util.Dates is
    --  Returns true if the given year is a leap year.
    function Is_Leap_Year (Year : in Ada.Calendar.Year_Number) return Boolean;
 
+   --  Returns true if both dates are on the same day.
+   function Is_Same_Day (Date1, Date2 : in Ada.Calendar.Time) return Boolean;
+   function Is_Same_Day (Date1, Date2 : in Date_Record) return Boolean;
+
    --  Get the number of days in the given year.
    function Get_Day_Count (Year : in Ada.Calendar.Year_Number)
                            return Ada.Calendar.Arithmetic.Day_Count;
