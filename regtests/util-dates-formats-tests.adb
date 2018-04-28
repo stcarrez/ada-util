@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-formats-tests - Test for date formats
---  Copyright (C) 2011, 2013, 2014, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2016, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 
 with Ada.Calendar.Formatting;
+with Ada.Exceptions;
 with Util.Test_Caller;
 with Util.Assertions;
 with Util.Properties.Bundles;
@@ -50,6 +51,8 @@ package body Util.Dates.Formats.Tests is
                        Test_Split'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.Formats.Format",
                        Test_Format'Access);
+      Caller.Add_Test (Suite, "Test Util.Dates.Formats.Parse",
+                       Test_Parse'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.Get_Day_Start",
                        Test_Get_Day_Start'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.Get_Week_Start",
@@ -111,6 +114,55 @@ package body Util.Dates.Formats.Tests is
       Check ("%g", T1, "80W01");
 
    end Test_Format;
+
+   --  ------------------------------
+   --  Test parsing a date using several formats and different locales.
+   --  ------------------------------
+   procedure Test_Parse (T : in out Test) is
+      Bundle  : Util.Properties.Bundles.Manager;
+
+      procedure Check (Pattern : in String;
+                       Date    : in String;
+                       Year        : Natural;
+                       Month       : Natural;
+                       Day         : Natural;
+                       Hour        : Natural;
+                       Minute      : Natural;
+                       Second      : Natural) is
+         Result : Date_Record;
+      begin
+         Result := Util.Dates.Formats.Parse (Date    => Date,
+                                             Pattern => Pattern,
+                                             Bundle  => Bundle);
+         Util.Tests.Assert_Equals (T, Year, Natural (Result.Year),
+                                   "Invalid year with pattern " & Pattern);
+         Util.Tests.Assert_Equals (T, Month, Natural (Result.Month),
+                                   "Invalid month with pattern " & Pattern);
+         Util.Tests.Assert_Equals (T, Day, Natural (Result.Month_Day),
+                                   "Invalid day with pattern " & Pattern);
+         Util.Tests.Assert_Equals (T, Hour, Natural (Result.Hour),
+                                   "Invalid hour with pattern " & Pattern);
+         Util.Tests.Assert_Equals (T, Minute, Natural (Result.Minute),
+                                   "Invalid minute with pattern " & Pattern);
+         Util.Tests.Assert_Equals (T, Second, Natural (Result.Second),
+                                   "Invalid second with pattern " & Pattern);
+
+      exception
+         when E : Constraint_Error =>
+            Util.Tests.Fail (T, "Parsing failed for pattern " & Pattern & ": "
+                             & Ada.Exceptions.Exception_Message (E));
+      end Check;
+
+   begin
+      Check ("%Y %m/%d %H:%M:%S", "1980 1/2 10:30:23", 1980, 1, 2, 10, 30, 23);
+      Check ("%C%y %m/%d %H:%M:%S", "1980 1/2 10:30:23", 1980, 1, 2, 10, 30, 23);
+      Check ("%B, %d %C%y %R:%S", "January, 2  1980  10:30:23", 1980, 1, 2, 10, 30, 23);
+      Check ("%b, %d %C%y %R:%S", "Jan, 2  1980  10:30:23", 1980, 1, 2, 10, 30, 23);
+      Check ("%b, %d %C%y %T", "Jan, 2  1980  10:30:23", 1980, 1, 2, 10, 30, 23);
+      Check ("%a %b, %d %C%y %R:%S", "Mon Jan, 2  1980  10:30:23", 1980, 1, 2, 10, 30, 23);
+      Check ("%D %H:%M:%S", "1/2/80  10:30:23", 1980, 1, 2, 10, 30, 23);
+      Check ("%F %H:%M:%S", "2018-03-23 10:30:23", 2018, 3, 23, 10, 30, 23);
+   end Test_Parse;
 
    procedure Check (T          : in out Test'Class;
                     Year       : in Ada.Calendar.Year_Number;
