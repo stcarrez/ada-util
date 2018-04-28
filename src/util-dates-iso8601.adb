@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-iso8601 -- ISO8601 dates
---  Copyright (C) 2011, 2013, 2015, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2015, 2016, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -92,14 +92,7 @@ package body Util.Dates.ISO8601 is
       else
          raise Constraint_Error with "invalid date";
       end if;
-      return Ada.Calendar.Formatting.Time_Of (Year        => Result.Year,
-                                              Month       => Result.Month,
-                                              Day         => Result.Month_Day,
-                                              Hour        => Result.Hour,
-                                              Minute      => Result.Minute,
-                                              Second      => Result.Second,
-                                              Sub_Second  => Result.Sub_Second,
-                                              Time_Zone   => Result.Time_Zone);
+      return Time_Of (Result);
    end Value;
 
    --  ------------------------------
