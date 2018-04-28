@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates -- Date utilities
---  Copyright (C) 2011, 2013, 2014 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,6 +52,21 @@ package body Util.Dates is
       D := D - Duration ((60 - Into.Minute) * 60);
       Into.Day := Ada.Calendar.Formatting.Day_Of_Week (D);
    end Split;
+
+   --  ------------------------------
+   --  Return the date from the date record (See Ada.Calendar.Formatting.Time_Of).
+   --  ------------------------------
+   function Time_Of (Date : in Date_Record) return Ada.Calendar.Time is
+   begin
+      return Ada.Calendar.Formatting.Time_Of (Year        => Date.Year,
+                                              Month       => Date.Month,
+                                              Day         => Date.Month_Day,
+                                              Hour        => Date.Hour,
+                                              Minute      => Date.Minute,
+                                              Second      => Date.Second,
+                                              Sub_Second  => Date.Sub_Second,
+                                              Time_Zone   => Date.Time_Zone);
+   end Time_Of;
 
    --  ------------------------------
    --  Returns true if the given year is a leap year.
