@@ -85,6 +85,25 @@ package body Util.Dates is
    end Is_Leap_Year;
 
    --  ------------------------------
+   --  Returns true if both dates are on the same day.
+   --  ------------------------------
+   function Is_Same_Day (Date1, Date2 : in Ada.Calendar.Time) return Boolean is
+      Split_Date1 : Date_Record;
+      Split_Date2 : Date_Record;
+   begin
+      Split (Split_Date1, Date1);
+      Split (Split_Date2, Date2);
+      return Is_Same_Day (Split_Date1, Split_Date2);
+   end Is_Same_Day;
+
+   function Is_Same_Day (Date1, Date2 : in Date_Record) return Boolean is
+   begin
+      return Date1.Year = Date2.Year
+        and Date1.Month = Date2.Month
+        and Date1.Month_Day = Date2.Month_Day;
+   end Is_Same_Day;
+
+   --  ------------------------------
    --  Get the number of days in the given year.
    --  ------------------------------
    function Get_Day_Count (Year : in Ada.Calendar.Year_Number)
