@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-formats -- Date Format ala strftime
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,11 +15,14 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Ada.Containers;
 with Ada.Calendar;
+with Ada.Characters.Handling;
 with Ada.Calendar.Formatting;
 
 with GNAT.Calendar;
 
+with Util.Strings.Vectors;
 with Util.Strings.Transforms;
 package body Util.Dates.Formats is
 
@@ -444,5 +447,409 @@ package body Util.Dates.Formats is
       Format (Result, Pattern, Date, Bundle);
       return To_String (Result);
    end Format;
+
+   procedure Parse (Date      : in String;
+                    Pattern   : in String;
+                    Bundle    : in Util.Properties.Manager'Class;
+                    Result    : in out Date_Record;
+                    Last      : out Positive);
+
+   function Parse (Date      : in String;
+                   Pattern   : in String;
+                   Bundle    : in Util.Properties.Manager'Class) return Date_Record is
+      Last   : Positive;
+      Result : Date_Record;
+   begin
+      Parse (Date, Pattern, Bundle, Result, Last);
+      if Last <= Date'Last then
+         raise Constraint_Error with "Invalid date format";
+      end if;
+      Result.Date := Ada.Calendar.Formatting.Time_Of (Year        => Result.Year,
+                                                      Month       => Result.Month,
+                                                      Day         => Result.Month_Day,
+                                                      Hour        => Result.Hour,
+                                                      Minute      => Result.Minute,
+                                                      Second      => Result.Second,
+                                                      Sub_Second  => Result.Sub_Second,
+                                                      Time_Zone   => Result.Time_Zone);
+      return Result;
+   end Parse;
+
+   --  ------------------------------
+   --  Format the date passed in <b>Date</b> using the date pattern specified in <b>Pattern</b>.
+   --  For month and day of week strings, use the resource bundle passed in <b>Bundle</b>.
+   --  Returns the formatted date in the stream.
+   --  ------------------------------
+   procedure Parse (Date      : in String;
+                    Pattern   : in String;
+                    Bundle    : in Util.Properties.Manager'Class;
+                    Result    : in out Date_Record;
+                    Last      : out Positive) is
+      use Ada.Calendar;
+      use Ada.Calendar.Formatting;
+      use Util.Strings.Transforms;
+      use Ada.Calendar.Time_Zones;
+      use type Ada.Containers.Count_Type;
+
+      procedure Expect (C : in Character);
+      function Expect (List : in Util.Strings.Vectors.Vector) return Natural;
+      function Parse_Number (Min : in Natural;
+                             Max : in Natural) return Natural;
+      procedure Load (List   : in out Util.Strings.Vectors.Vector;
+                      First  : in Natural;
+                      Last   : in Natural;
+                      Prefix : in String;
+                      Short  : in Boolean);
+      function Parse_Short_Day return Formatting.Day_Name;
+      function Parse_Long_Day return Formatting.Day_Name;
+      function Parse_Short_Month return Month_Number;
+      function Parse_Long_Month return Month_Number;
+
+      Pattern_Pos    : Positive := Pattern'First;
+      Pos            : Natural := Date'First;
+      Pad            : Character := '0';
+      C              : Character;
+      Short_Months   : Util.Strings.Vectors.Vector;
+      Long_Months    : Util.Strings.Vectors.Vector;
+      Short_Days     : Util.Strings.Vectors.Vector;
+      Long_Days      : Util.Strings.Vectors.Vector;
+
+      procedure Expect (C : in Character) is
+      begin
+         if Date (Pos) /= C then
+            raise Constraint_Error with "Invalid date format";
+         end if;
+         Pos := Pos + 1;
+      end Expect;
+
+      function Expect (List : in Util.Strings.Vectors.Vector) return Natural is
+         Index : Natural := 0;
+      begin
+         for S of List loop
+            if Pos + S'Length - 1 <= Date'Last and then S = Date (Pos .. Pos + S'Length - 1) then
+               Pos := Pos + S'Length;
+               return Index;
+            end if;
+            Index := Index + 1;
+         end loop;
+         raise Constraint_Error with "Invalid date format";
+      end Expect;
+
+      procedure Load (List   : in out Util.Strings.Vectors.Vector;
+                      First  : in Natural;
+                      Last   : in Natural;
+                      Prefix : in String;
+                      Short  : in Boolean) is
+      begin
+         if List.Length = 0 then
+            for I in First .. Last loop
+               List.Append (Get_Label (Bundle, Prefix, I, Short));
+            end loop;
+         end if;
+      end Load;
+
+      function Parse_Short_Day return Formatting.Day_Name is
+      begin
+         Load (Short_Days, 0, 6, DAY_NAME_PREFIX, True);
+         return Formatting.Day_Name'Val (Expect (Short_Days));
+      end Parse_Short_Day;
+
+      function Parse_Long_Day return Formatting.Day_Name is
+      begin
+         Load (Long_Days, 0, 6, DAY_NAME_PREFIX, False);
+         return Formatting.Day_Name'Val (Expect (Long_Days));
+      end Parse_Long_Day;
+
+      function Parse_Short_Month return Month_Number is
+      begin
+         Load (Short_Months, 1, 12, MONTH_NAME_PREFIX, True);
+         return Month_Number (Expect (Short_Months));
+      end Parse_Short_Month;
+
+      function Parse_Long_Month return Month_Number is
+      begin
+         Load (Long_Months, 1, 12, MONTH_NAME_PREFIX, False);
+         return Month_Number (Expect (Long_Months));
+      end Parse_Long_Month;
+
+      function Parse_Number (Min : in Natural;
+                             Max : in Natural) return Natural is
+         Value : Natural := 0;
+      begin
+         if Date (Pos) < '0' or Date (Pos) > '9' then
+            raise Constraint_Error with "Invalid date format: expecting integer";
+         end if;
+         while (10 * Value) < Max and then Pos <= Date'Last
+           and then Date (Pos) >= '0' and then Date (Pos) <= '9' loop
+            Value := Value * 10;
+            Value := Value + Character'Pos (Date (Pos)) - Character'Pos ('0');
+            Pos := Pos + 1;
+         end loop;
+         if Value < Min or Value > Max then
+            raise Constraint_Error with "Invalid date format: out of range";
+         end if;
+         return Value;
+      end Parse_Number;
+
+      Century     : Integer := -1;
+      Value       : Integer;
+      Week_Number : Integer := -1;
+   begin
+      while Pattern_Pos <= Pattern'Last and Pos <= Date'Last loop
+         C := Pattern (Pattern_Pos);
+         if C = ' ' then
+            Pattern_Pos := Pattern_Pos + 1;
+            while Pos <= Date'Last and Ada.Characters.Handling.Is_Space (Date (Pos)) loop
+               Pos := Pos + 1;
+            end loop;
+         elsif C /= '%' then
+            Expect (C);
+            Pattern_Pos := Pattern_Pos + 1;
+         else
+            Pattern_Pos := Pattern_Pos + 1;
+            exit when Pattern_Pos > Pattern'Last;
+            C := Pattern (Pattern_Pos);
+            Pad := '0';
+            if C = '_' or C = '-' or C = 'E' or C  = 'O' or C = '^' then
+               exit when Pattern_Pos = Pattern'Last;
+               if C = '-' then
+                  Pad := '-';
+               elsif C = '_' then
+                  Pad := ' ';
+               end if;
+               Pattern_Pos := Pattern_Pos + 1;
+               C := Pattern (Pattern_Pos);
+            end if;
+            case C is
+               when '%' =>
+                  Expect ('%');
+
+                  --  %a     The abbreviated weekday name according to the current locale.
+               when 'a' =>
+                  Result.Day := Parse_Short_Day;
+
+                  --  %A     The full weekday name according to the current locale.
+               when 'A' =>
+                  Result.Day := Parse_Long_Day;
+
+                  --  %b     The abbreviated month name according to the current locale.
+                  --  %h     Equivalent to %b.  (SU)
+               when 'b' | 'h' =>
+                  Result.Month := Parse_Short_Month;
+
+                  --  %B     The full month name according to the current locale.
+               when 'B' =>
+                  Result.Month := Parse_Long_Month;
+
+                  --  %c     The preferred date and time representation for the current locale.
+               when 'c' =>
+                  Parse (Date (Pos .. Date'Last),
+                         Bundle.Get (DATE_TIME_LOCALE_NAME, DATE_TIME_DEFAULT_PATTERN),
+                         Bundle, Result, Pos);
+
+                  --  %C     The century number (year/100) as a 2-digit integer. (SU)
+               when 'C' =>
+                  Century := 100 * Parse_Number (Min => 1, Max => 99);
+
+                  --  %d     The day of the month as a decimal number (range 01 to 31).
+               when 'd' =>
+                  Result.Month_Day := Day_Number (Parse_Number (Min => 1, Max => 31));
+
+                  --  %D     Equivalent to %m/%d/%y
+               when 'D' =>
+                  Parse (Date (Pos .. Date'Last), "%m/%d/%y", Bundle, Result, Pos);
+
+                  --  %e     Like %d, the day of the month as a decimal number,
+                  --  but a leading zero is replaced by a space. (SU)
+               when 'e' =>
+                  Result.Month := Month_Number (Parse_Number (Min => 1,
+                                                              Max => 31));
+
+                  --  %F     Equivalent to %Y-%m-%d (the ISO 8601 date format). (C99)
+               when 'F' =>
+                  Parse (Date (Pos .. Date'Last), "%Y-%m-%d", Bundle, Result, Pos);
+
+                  --  %G     The ISO 8601 week-based year
+               when 'G' =>
+                  Parse (Date (Pos .. Date'Last), "%YW%W", Bundle, Result, Pos);
+
+                  --  %g     Like %G, but without century, that is,
+                  --  with a 2-digit year (00-99). (TZ)
+               when 'g' =>
+                  Parse (Date (Pos .. Date'Last), "%yW%W", Bundle, Result, Pos);
+
+                  --  %H     The hour as a decimal number using a 24-hour clock (range 00 to 23).
+               when 'H' =>
+                  Result.Hour := Formatting.Hour_Number (Parse_Number (Min => 1,
+                                                                       Max => 23));
+
+                  --  %I     The hour as a decimal number using a 12-hour clock (range 01 to 12).
+               when 'I' =>
+                  Result.Hour := Formatting.Hour_Number (Parse_Number (Min => 1, Max => 12));
+
+                  --  %j     The day of the year as a decimal number (range 001 to 366).
+               when 'j' =>
+                  Value := Parse_Number (Min => 1, Max => 366);
+
+                  --  %k     The hour (24-hour clock) as a decimal number (range 0 to 23);
+               when 'k' =>
+                  Result.Hour := Hour_Number (Parse_Number (Min => 0,
+                                                            Max => 23));
+
+                  --  %l     The  hour (12-hour clock) as a decimal number (range 1 to 12);
+               when 'l' =>
+                  Result.Hour := Parse_Number (Min => 1, Max => 12);
+
+                  --  %m     The month as a decimal number (range 01 to 12).
+               when 'm' =>
+                  Result.Month := Month_Number (Parse_Number (Min => 1, Max => 12));
+
+                  --  %M     The minute as a decimal number (range 00 to 59).
+               when 'M' =>
+                  Result.Minute := Minute_Number (Parse_Number (Min => 0, Max => 59));
+
+                  --  %n     A newline character. (SU)
+               when 'n' =>
+                  Expect (ASCII.LF);
+
+                  --  %p     Either "AM" or "PM"
+               when 'p' =>
+--                    if Date.Hour >= 12 then
+--                       Append (Into, Bundle.Get (PM_NAME, PM_DEFAULT));
+--                    else
+--                       Append (Into, Bundle.Get (AM_NAME, AM_DEFAULT));
+--                    end if;
+                  null;
+
+                  --  %P     Like %p but in lowercase: "am" or "pm"
+               when 'P' =>
+                  --  SCz 2011-10-01: the To_Lower_Case will not work for UTF-8 strings.
+--                    if Date.Hour >= 12 then
+--                       Append (Into, To_Lower_Case (Bundle.Get (PM_NAME, PM_DEFAULT)));
+--                    else
+--                       Append (Into, To_Lower_Case (Bundle.Get (AM_NAME, AM_DEFAULT)));
+--                    end if;
+                  null;
+
+                  --  %r     The time in a.m. or p.m. notation.
+                  --  In the POSIX locale this is equivalent to %I:%M:%S %p.  (SU)
+               when 'r' =>
+                  Parse (Date (Pos .. Date'Last), "%I:%M:%S %p", Bundle, Result, Pos);
+
+                  --  %R     The time in 24-hour notation (%H:%M).
+               when 'R' =>
+                  Parse (Date (Pos .. Date'Last), "%H:%M", Bundle, Result, Pos);
+
+                  --  %s     The number of seconds since the Epoch, that is,
+                  --  since 1970-01-01 00:00:00 UTC. (TZ)
+               when 's' =>
+                  null;
+
+                  --  %S     The  second as a decimal number (range 00 to 60).
+               when 'S' =>
+                  Result.Second := Formatting.Second_Number (Parse_Number (Min => 0, Max => 59));
+
+                  --  %t     A tab character. (SU)
+               when 't' =>
+                  Expect (ASCII.HT);
+
+                  --  %T     The time in 24-hour notation (%H:%M:%S). (SU)
+               when 'T' =>
+                  Parse (Date (Pos .. Date'Last), "%H:%M:%S", Bundle, Result, Pos);
+
+                  --  %u     The day of the week as a decimal, range 1 to 7,
+                  --  Monday being 1.  See also %w.  (SU)
+               when 'u' =>
+                  Result.Day := Day_Name'Val (Parse_Number (Min => 1, Max => 7));
+
+                  --  %U     The week number of the current year as a decimal number,
+                  --  range 00 to 53
+               when 'U' =>
+                  Week_Number := Parse_Number (Min => 0, Max => 53);
+
+                  --  %V     The  ISO 8601 week number
+               when 'V' =>
+                  Week_Number := Parse_Number (Min => 0, Max => 53);
+
+                  --  %w     The day of the week as a decimal, range 0 to 6, Sunday being 0.
+                  --  See also %u.
+               when 'w' =>
+                  Value := Parse_Number (Min => 0, Max => 6);
+                  if Value = 0 then
+                     Result.Day := Sunday;
+                  else
+                     Result.Day := Day_Name'Val (Value - 1);
+                  end if;
+
+                  --  %W     The week number of the current year as a decimal number,
+                  --  range 00 to 53
+               when 'W' =>
+                  Week_Number := Parse_Number (Min => 0, Max => 53);
+
+                  --  %x     The preferred date representation for the current locale without
+                  --  the time.
+               when 'x' =>
+                  Parse (Date (Pos .. Date'Last),
+                         Bundle.Get (DATE_LOCALE_NAME, DATE_DEFAULT_PATTERN),
+                         Bundle, Result, Pos);
+
+                  --  %X     The preferred time representation for the current locale without
+                  --  the date.
+               when 'X' =>
+                  Parse (Date (Pos .. Date'Last),
+                         Bundle.Get (TIME_LOCALE_NAME, TIME_DEFAULT_PATTERN),
+                         Bundle, Result, Pos);
+
+                  --  %y     The year as a decimal number without a century (range 00 to 99).
+               when 'y' =>
+                  Value := Parse_Number (Min => 0, Max => 99);
+                  Value := Value + (Natural (Result.Year) / 100) * 100;
+                  Result.Year := Year_Number (Value);
+
+                  --  %Y     The year as a decimal number including the century.
+               when 'Y' =>
+                  Result.Year := Parse_Number (Min => 1900, Max => 9999);
+
+                  --  %z     The time-zone as hour offset from GMT.
+               when 'z' =>
+                  if Date (Pos) = '+' then
+                     Pos := Pos + 1;
+                     Value := Parse_Number (Min => 0, Max => 12);
+                     Result.Time_Zone := Time_Offset (Value * 60);
+                  elsif Date (Pos) = '-' then
+                     Pos := Pos + 1;
+                     Value := Parse_Number (Min => 0, Max => 12);
+                     Result.Time_Zone := -Time_Offset (Value * 60);
+                  else
+                     raise Constraint_Error with "Invalid date format";
+                  end if;
+
+                  --  %Z     The timezone or name or abbreviation.
+               when 'Z' =>
+                  Expect ('U');
+                  Expect ('T');
+                  Expect ('C');
+                  if Date (Pos) = '+' then
+                     Pos := Pos + 1;
+                     Value := Parse_Number (Min => 0, Max => 12);
+                     Result.Time_Zone := Time_Offset (Value * 60);
+                  elsif Date (Pos) = '-' then
+                     Pos := Pos + 1;
+                     Value := Parse_Number (Min => 0, Max => 12);
+                     Result.Time_Zone := -Time_Offset (Value * 60);
+                  else
+                     raise Constraint_Error with "Invalid date format";
+                  end if;
+
+               when others =>
+                  Expect ('%');
+                  Expect (Pattern (Pattern_Pos));
+
+            end case;
+            Pattern_Pos := Pattern_Pos + 1;
+         end if;
+      end loop;
+      Last := Pos;
+   end Parse;
 
 end Util.Dates.Formats;
