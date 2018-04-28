@@ -529,14 +529,7 @@ package body Util.Dates.Formats is
       if Last <= Date'Last then
          raise Constraint_Error with "Invalid date format";
       end if;
-      Result.Date := Ada.Calendar.Formatting.Time_Of (Year        => Result.Year,
-                                                      Month       => Result.Month,
-                                                      Day         => Result.Month_Day,
-                                                      Hour        => Result.Hour,
-                                                      Minute      => Result.Minute,
-                                                      Second      => Result.Second,
-                                                      Sub_Second  => Result.Sub_Second,
-                                                      Time_Zone   => Result.Time_Zone);
+      Result.Date := Time_Of (Result);
       return Result;
    end Parse;
 
