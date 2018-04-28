@@ -28,6 +28,71 @@ package body Util.Dates.Formats is
 
    use Ada.Strings.Unbounded;
 
+   type String_Array is array (Positive range <>) of Util.Strings.Name_Access;
+
+   --  Week day names (long and short).
+   Monday_Name          : aliased constant String := "Monday";
+   Monday_Short_Name    : aliased constant String := "Mon";
+   Tuesday_Name         : aliased constant String := "Tuesday";
+   Tuesday_Short_Name   : aliased constant String := "Tue";
+   Wednesday_Name       : aliased constant String := "Wednesday";
+   Wednesday_Short_Name : aliased constant String := "Wed";
+   Thursday_Name        : aliased constant String := "Thursday";
+   Thursday_Short_Name  : aliased constant String := "Thu";
+   Friday_Name          : aliased constant String := "Friday";
+   Friday_Short_Name    : aliased constant String := "Fri";
+   Saturday_Name        : aliased constant String := "Saturday";
+   Saturday_Short_Name  : aliased constant String := "Sat";
+   Sunday_Name          : aliased constant String := "Sunday";
+   Sunday_Short_Name    : aliased constant String := "Sun";
+
+   --  Month names (long and short).
+   January_Name         : aliased constant String := "January";
+   January_Short_Name   : aliased constant String := "Jan";
+   February_Name        : aliased constant String := "February";
+   February_Short_Name  : aliased constant String := "Feb";
+   March_Name           : aliased constant String := "March";
+   March_Short_Name     : aliased constant String := "Mar";
+   April_Name           : aliased constant String := "April";
+   April_Short_Name     : aliased constant String := "Apr";
+   May_Name             : aliased constant String := "May";
+   May_Short_Name       : aliased constant String := "May";
+   June_Name            : aliased constant String := "June";
+   June_Short_Name      : aliased constant String := "Jun";
+   July_Name            : aliased constant String := "July";
+   July_Short_Name      : aliased constant String := "Jul";
+   August_Name          : aliased constant String := "August";
+   August_Short_Name    : aliased constant String := "Aug";
+   September_Name       : aliased constant String := "September";
+   September_Short_Name : aliased constant String := "Sep";
+   October_Name         : aliased constant String := "October";
+   October_Short_Name   : aliased constant String := "Oct";
+   November_Name        : aliased constant String := "November";
+   November_Short_Name  : aliased constant String := "Nov";
+   December_Name        : aliased constant String := "December";
+   December_Short_Name  : aliased constant String := "Dec";
+
+   Day_Names          : constant String_Array (1 .. 7)
+     := (Monday_Name'Access, Tuesday_Name'Access, Wednesday_Name'Access,
+         Thursday_Name'Access, Friday_Name'Access, Saturday_Name'Access, Sunday_Name'Access);
+
+   Day_Short_Names    : constant String_Array (1 .. 7)
+     := (Monday_Short_Name'Access, Tuesday_Short_Name'Access, Wednesday_Short_Name'Access,
+         Thursday_Short_Name'Access, Friday_Short_Name'Access,
+         Saturday_Short_Name'Access, Sunday_Short_Name'Access);
+
+   Month_Names        : constant String_Array (1 .. 12)
+     := (January_Name'Access, February_Name'Access, March_Name'Access,
+         April_Name'Access, May_Name'Access, June_Name'Access,
+         July_Name'Access, August_Name'Access, September_Name'Access,
+         October_Name'Access, November_Name'Access, December_Name'Access);
+
+   Month_Short_Names  : constant String_Array (1 .. 12)
+     := (January_Short_Name'Access, February_Short_Name'Access, March_Short_Name'Access,
+         April_Short_Name'Access, May_Short_Name'Access, June_Short_Name'Access,
+         July_Short_Name'Access, August_Short_Name'Access, September_Short_Name'Access,
+         October_Short_Name'Access, November_Short_Name'Access, December_Short_Name'Access);
+
    function Get_Label (Bundle : in Util.Properties.Manager'Class;
                        Prefix : in String;
                        Index  : in Natural;
@@ -495,11 +560,12 @@ package body Util.Dates.Formats is
       function Expect (List : in Util.Strings.Vectors.Vector) return Natural;
       function Parse_Number (Min : in Natural;
                              Max : in Natural) return Natural;
-      procedure Load (List   : in out Util.Strings.Vectors.Vector;
-                      First  : in Natural;
-                      Last   : in Natural;
-                      Prefix : in String;
-                      Short  : in Boolean);
+      procedure Load (List    : in out Util.Strings.Vectors.Vector;
+                      First   : in Natural;
+                      Last    : in Natural;
+                      Prefix  : in String;
+                      Short   : in Boolean;
+                      Default : in String_Array);
       function Parse_Short_Day return Formatting.Day_Name;
       function Parse_Long_Day return Formatting.Day_Name;
       function Parse_Short_Month return Month_Number;
@@ -517,7 +583,7 @@ package body Util.Dates.Formats is
       procedure Expect (C : in Character) is
       begin
          if Date (Pos) /= C then
-            raise Constraint_Error with "Invalid date format";
+            raise Constraint_Error with "Invalid date format at" & Natural'Image (Pos);
          end if;
          Pos := Pos + 1;
       end Expect;
@@ -532,44 +598,54 @@ package body Util.Dates.Formats is
             end if;
             Index := Index + 1;
          end loop;
-         raise Constraint_Error with "Invalid date format";
+         raise Constraint_Error with "Invalid date format at" & Natural'Image (Pos);
       end Expect;
 
-      procedure Load (List   : in out Util.Strings.Vectors.Vector;
-                      First  : in Natural;
-                      Last   : in Natural;
-                      Prefix : in String;
-                      Short  : in Boolean) is
+      procedure Load (List    : in out Util.Strings.Vectors.Vector;
+                      First   : in Natural;
+                      Last    : in Natural;
+                      Prefix  : in String;
+                      Short   : in Boolean;
+                      Default : in String_Array) is
+         Offset : Natural := Default'First - First;
       begin
          if List.Length = 0 then
             for I in First .. Last loop
-               List.Append (Get_Label (Bundle, Prefix, I, Short));
+               declare
+                  Name : constant String := Get_Label (Bundle, Prefix, I, Short);
+               begin
+                  if Name'Length = 0 then
+                     List.Append (Default (I + Offset).all);
+                  else
+                     List.Append (Name);
+                  end if;
+               end;
             end loop;
          end if;
       end Load;
 
       function Parse_Short_Day return Formatting.Day_Name is
       begin
-         Load (Short_Days, 0, 6, DAY_NAME_PREFIX, True);
+         Load (Short_Days, 0, 6, DAY_NAME_PREFIX, True, Day_Short_Names);
          return Formatting.Day_Name'Val (Expect (Short_Days));
       end Parse_Short_Day;
 
       function Parse_Long_Day return Formatting.Day_Name is
       begin
-         Load (Long_Days, 0, 6, DAY_NAME_PREFIX, False);
+         Load (Long_Days, 0, 6, DAY_NAME_PREFIX, False, Day_Names);
          return Formatting.Day_Name'Val (Expect (Long_Days));
       end Parse_Long_Day;
 
       function Parse_Short_Month return Month_Number is
       begin
-         Load (Short_Months, 1, 12, MONTH_NAME_PREFIX, True);
-         return Month_Number (Expect (Short_Months));
+         Load (Short_Months, 1, 12, MONTH_NAME_PREFIX, True, Month_Short_Names);
+         return Month_Number (Expect (Short_Months) + 1);
       end Parse_Short_Month;
 
       function Parse_Long_Month return Month_Number is
       begin
-         Load (Long_Months, 1, 12, MONTH_NAME_PREFIX, False);
-         return Month_Number (Expect (Long_Months));
+         Load (Long_Months, 1, 12, MONTH_NAME_PREFIX, False, Month_Names);
+         return Month_Number (Expect (Long_Months) + 1);
       end Parse_Long_Month;
 
       function Parse_Number (Min : in Natural;
