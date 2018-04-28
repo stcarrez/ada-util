@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates -- Date utilities
---  Copyright (C) 2011, 2013 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,16 +51,16 @@ package Util.Dates is
    --  The Unix equivalent of 'struct tm'.
    type Date_Record is record
       Date        : Ada.Calendar.Time;
-      Year        : Ada.Calendar.Year_Number;
-      Month       : Ada.Calendar.Month_Number;
-      Month_Day   : Ada.Calendar.Day_Number;
-      Day         : Ada.Calendar.Formatting.Day_Name;
-      Hour        : Ada.Calendar.Formatting.Hour_Number;
-      Minute      : Ada.Calendar.Formatting.Minute_Number;
-      Second      : Ada.Calendar.Formatting.Second_Number;
-      Sub_Second  : Ada.Calendar.Formatting.Second_Duration;
-      Time_Zone   : Ada.Calendar.Time_Zones.Time_Offset;
-      Leap_Second : Boolean;
+      Year        : Ada.Calendar.Year_Number := 1901;
+      Month       : Ada.Calendar.Month_Number := 1;
+      Month_Day   : Ada.Calendar.Day_Number := 1;
+      Day         : Ada.Calendar.Formatting.Day_Name := Ada.Calendar.Formatting.Tuesday;
+      Hour        : Ada.Calendar.Formatting.Hour_Number := 0;
+      Minute      : Ada.Calendar.Formatting.Minute_Number := 0;
+      Second      : Ada.Calendar.Formatting.Second_Number := 0;
+      Sub_Second  : Ada.Calendar.Formatting.Second_Duration := 0.0;
+      Time_Zone   : Ada.Calendar.Time_Zones.Time_Offset := 0;
+      Leap_Second : Boolean := False;
    end record;
 
    --  Split the date into a date record (See Ada.Calendar.Formatting.Split).
