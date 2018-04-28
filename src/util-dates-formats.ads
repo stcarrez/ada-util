@@ -20,12 +20,12 @@ with Ada.Strings.Unbounded;
 with Util.Properties;
 
 --  == Localized date formatting ==
---  The `Util.Dates.Formats` provides a date formatting operation similar to the
---  Unix `strftime` or the `GNAT.Calendar.Time_IO`.  The localization of month
+--  The `Util.Dates.Formats` provides a date formatting and parsing operation similar to the
+--  Unix `strftime`, `strptime` or the `GNAT.Calendar.Time_IO`.  The localization of month
 --  and day labels is however handled through `Util.Properties.Bundle` (similar to
---  the Java world).  Unlike `strftime`, this allows to have a multi-threaded application
---  that reports dates in several languages.  The `GNAT.Calendar.Time_IO` only supports
---  English and this is the reason why it is not used here.
+--  the Java world).  Unlike `strftime` and `strptime`, this allows to have a multi-threaded
+--  application that reports dates in several languages.  The `GNAT.Calendar.Time_IO` only
+--  supports English and this is the reason why it is not used here.
 --
 --  The date pattern recognizes the following formats:
 --
@@ -90,7 +90,7 @@ with Util.Properties;
 --  SU:  Single Unix Specification
 --  C99: C99 standard, POSIX.1-2001
 --
---  See strftime (3) manual page
+--  See strftime (3) and strptime (3) manual page
 --
 --  To format and use the localize date, it is first necessary to get a bundle
 --  for the `dates` so that date elements are translated into the given locale.
@@ -107,6 +107,14 @@ with Util.Properties;
 --     Date : String := Util.Dates.Formats.Format (Pattern => Pattern,
 --                                                 Date    => Ada.Calendar.Clock,
 --                                                 Bundle  => Bundle);
+--
+--  To parse a date according to a pattern and a localization, the same pattern string
+--  and bundle can be used and the `Parse` function will return the date in split format.
+--
+--     Result : Date_Record := Util.Dates.Formats.Parse (Date    => Date,
+--                                                       Pattern => Pattern,
+--                                                       Bundle  => Bundle);
+--
 package Util.Dates.Formats is
 
    --  Month labels.
@@ -199,5 +207,12 @@ package Util.Dates.Formats is
    --  Append the timezone offset
    procedure Append_Time_Offset (Into      : in out Ada.Strings.Unbounded.Unbounded_String;
                                  Offset    : in Ada.Calendar.Time_Zones.Time_Offset);
+
+   --  Parse the date according to the pattern and the given locale bundle and
+   --  return the data split record.
+   --  A `Constraint_Error` exception is raised if the date string is not in the correct format.
+   function Parse (Date      : in String;
+                   Pattern   : in String;
+                   Bundle    : in Util.Properties.Manager'Class) return Date_Record;
 
 end Util.Dates.Formats;
