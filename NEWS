@@ -6,6 +6,7 @@ Version 1.9.0   -
   - Added event timer list management
   - Fix on the HTTP curl support
   - Implementation of x-www-form-urlencoded serialization
+  - Added localized date parsing
 
 Version 1.8.0   - Dec 2015
   - Added support for immediate flush and file appending to the file logger
