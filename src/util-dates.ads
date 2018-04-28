@@ -68,6 +68,9 @@ package Util.Dates is
                     Date       : in Ada.Calendar.Time;
                     Time_Zone  : in Ada.Calendar.Time_Zones.Time_Offset := 0);
 
+   --  Return the date from the date record (See Ada.Calendar.Formatting.Time_Of).
+   function Time_Of (Date : in Date_Record) return Ada.Calendar.Time;
+
    --  Returns true if the given year is a leap year.
    function Is_Leap_Year (Year : in Ada.Calendar.Year_Number) return Boolean;
 
