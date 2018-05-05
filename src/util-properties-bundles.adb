@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties-bundles -- Generic name/value property management
---  Copyright (C) 2001 - 2017 Stephane Carrez
+--  Copyright (C) 2001 - 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -168,7 +168,7 @@ package body Util.Properties.Bundles is
       Loc_Name : constant String := '_' & Locale;
       Last_Pos : Integer := Loc_Name'Last;
    begin
-      Log.Info ("Looking for bundle {0} and language {1}", Name, Locale);
+      Log.Debug ("Looking for bundle {0} and language {1}", Name, Locale);
 
       Found := False;
       Factory.Lock.Read;
