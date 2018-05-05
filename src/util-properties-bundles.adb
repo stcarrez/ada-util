@@ -235,7 +235,7 @@ package body Util.Properties.Bundles is
          Bundle_Name : Name_Access;
          Bundle      : Bundle_Manager_Access;
       begin
-         Log.Debug ("Loading file {0}", File_Path);
+         Log.Info ("Loading file {0}", File_Path);
 
          if Bundle_Map.Has_Element (Pos) then
             Bundle := Bundle_Map.Element (Pos);
