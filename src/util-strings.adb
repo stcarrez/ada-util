@@ -263,6 +263,15 @@ package body Util.Strings is
    end Ends_With;
 
    --  ------------------------------
+   --  Returns True if the source contains the pattern.
+   --  ------------------------------
+   function Contains (Source  : in String;
+                      Pattern : in String) return Boolean is
+   begin
+      return Ada.Strings.Fixed.Index (Source, Pattern) /= 0;
+   end Contains;
+
+   --  ------------------------------
    --  Search for the first occurrence of the character in the string
    --  before the from index and going backward.
    --  This implementation is 3-times faster than the Ada.Strings.Fixed version.
