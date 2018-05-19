@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  strings.tests -- Unit tests for strings
---  Copyright (C) 2009, 2010, 2011, 2012, 2015 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2015, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,6 +63,8 @@ package body Util.Strings.Tests is
                        Test_Measure_Hash'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.String_Ref",
                        Test_String_Ref'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Starts_With",
+                       Test_Starts_With'Access);
       Caller.Add_Test (Suite, "Test perfect hash",
                        Test_Perfect_Hash'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.Tokenizers.Iterate_Token",
@@ -275,6 +277,15 @@ package body Util.Strings.Tests is
          Assert_Equals (T, 1, Pos, "Invalid rindex position");
       end;
    end Test_Rindex;
+
+   procedure Test_Starts_With (T : in out Test) is
+   begin
+      T.Assert (Starts_With ("abcde", "abc"), "Starts_With should return True");
+      T.Assert (Starts_With ("abcd", "abcd"), "Starts_With should return True");
+      T.Assert (not Starts_With ("ab", "abc"), "Starts_With should return False");
+      T.Assert (not Starts_With ("abd", "abc"), "Starts_With should return False");
+      T.Assert (not Starts_With ("abde", "abc"), "Starts_With should return False");
+   end Test_Starts_With;
 
    package String_Map is new Ada.Containers.Hashed_Maps
      (Key_Type        => Unbounded_String,
