@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  strings.tests -- Unit tests for Strings
---  Copyright (C) 2009, 2010, 2011, 2012, 2015 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2015, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,6 +39,7 @@ package Util.Strings.Tests is
    procedure Test_Measure_Copy (T : in out Test);
    procedure Test_Index (T : in out Test);
    procedure Test_Rindex (T : in out Test);
+   procedure Test_Starts_With (T : in out Test);
 
    --  Do some benchmark on String -> X hash mapped.
    procedure Test_Measure_Hash (T : in out Test);
