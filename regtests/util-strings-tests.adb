@@ -65,6 +65,8 @@ package body Util.Strings.Tests is
                        Test_String_Ref'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.Starts_With",
                        Test_Starts_With'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Ends_With",
+                       Test_Ends_With'Access);
       Caller.Add_Test (Suite, "Test perfect hash",
                        Test_Perfect_Hash'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.Tokenizers.Iterate_Token",
@@ -286,6 +288,15 @@ package body Util.Strings.Tests is
       T.Assert (not Starts_With ("abd", "abc"), "Starts_With should return False");
       T.Assert (not Starts_With ("abde", "abc"), "Starts_With should return False");
    end Test_Starts_With;
+
+   procedure Test_Ends_With (T : in out Test) is
+   begin
+      T.Assert (Ends_With ("abcde", "de"), "Ends_With should return True");
+      T.Assert (Ends_With ("abcd", "abcd"), "Ends_With should return True");
+      T.Assert (not Ends_With ("ab", "abc"), "Ends_With should return False");
+      T.Assert (not Ends_With ("abd", "abc"), "Ends_With should return False");
+      T.Assert (not Ends_With ("abde", "cde"), "Ends_With should return False");
+   end Test_Ends_With;
 
    package String_Map is new Ada.Containers.Hashed_Maps
      (Key_Type        => Unbounded_String,
