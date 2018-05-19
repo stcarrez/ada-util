@@ -243,6 +243,16 @@ package body Util.Strings is
    end Index;
 
    --  ------------------------------
+   --  Returns True if the source string starts with the given prefix.
+   --  ------------------------------
+   function Starts_With (Source  : in String;
+                         Prefix  : in String) return Boolean is
+   begin
+      return Source'Length >= Prefix'Length
+        and then Source (Source'First .. Source'First + Prefix'Length - 1) = Prefix;
+   end Starts_With;
+
+   --  ------------------------------
    --  Search for the first occurrence of the character in the string
    --  before the from index and going backward.
    --  This implementation is 3-times faster than the Ada.Strings.Fixed version.
