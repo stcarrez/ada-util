@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-files -- Various File Utility Packages
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2015, 2017 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2015, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,9 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Interfaces.C.Strings;
 with Ada.Directories;
+with Ada.IO_Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
@@ -393,5 +395,31 @@ package body Util.Files is
          return To (Last .. To'Last);
       end if;
    end Get_Relative_Path;
+
+   --  ------------------------------
+   --  Rename the old name into a new name.
+   --  ------------------------------
+   procedure Rename (Old_Name, New_Name : in String) is
+      --  Rename a file (the Ada.Directories.Rename does not allow to use the
+      --  Unix atomic file rename!)
+      function Sys_Rename (Oldpath  : in Interfaces.C.Strings.chars_ptr;
+                           Newpath  : in Interfaces.C.Strings.chars_ptr) return Integer;
+      pragma Import (C, Sys_Rename, "rename");
+
+      Old_Path : Interfaces.C.Strings.chars_ptr;
+      New_Path : Interfaces.C.Strings.chars_ptr;
+      Result   : Integer;
+   begin
+      --  Do a system atomic rename of old file in the new file.
+      --  Ada.Directories.Rename does not allow this.
+      Old_Path := Interfaces.C.Strings.New_String (Old_Name);
+      New_Path := Interfaces.C.Strings.New_String (New_Name);
+      Result := Sys_Rename (Old_Path, New_Path);
+      Interfaces.C.Strings.Free (Old_Path);
+      Interfaces.C.Strings.Free (New_Path);
+      if Result /= 0 then
+         raise Ada.IO_Exceptions.Use_Error with "Cannot rename file";
+      end if;
+   end Rename;
 
 end Util.Files;
