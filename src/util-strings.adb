@@ -253,6 +253,16 @@ package body Util.Strings is
    end Starts_With;
 
    --  ------------------------------
+   --  Returns True if the source string ends with the given suffix.
+   --  ------------------------------
+   function Ends_With (Source  : in String;
+                       Suffix  : in String) return Boolean is
+   begin
+      return Source'Length >= Suffix'Length
+        and then Source (Source'Last - Suffix'Length + 1 .. Source'Last) = Suffix;
+   end Ends_With;
+
+   --  ------------------------------
    --  Search for the first occurrence of the character in the string
    --  before the from index and going backward.
    --  This implementation is 3-times faster than the Ada.Strings.Fixed version.
