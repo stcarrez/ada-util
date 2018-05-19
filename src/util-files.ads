@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-files -- Various File Utility Packages
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2017 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -107,5 +107,8 @@ package Util.Files is
    --  path could not be found.  Both paths must have at least one root component in common.
    function Get_Relative_Path (From : in String;
                                To   : in String) return String;
+
+   --  Rename the old name into a new name.
+   procedure Rename (Old_Name, New_Name : in String);
 
 end Util.Files;
