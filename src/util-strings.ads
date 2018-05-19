@@ -64,6 +64,10 @@ package Util.Strings is
    function Ends_With (Source  : in String;
                        Suffix  : in String) return Boolean;
 
+   --  Returns True if the source contains the pattern.
+   function Contains (Source  : in String;
+                      Pattern : in String) return Boolean;
+
    --  Returns Integer'Image (Value) with the possible space stripped.
    function Image (Value : in Integer) return String;
 
