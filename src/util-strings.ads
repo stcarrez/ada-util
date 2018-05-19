@@ -60,6 +60,10 @@ package Util.Strings is
    function Starts_With (Source  : in String;
                          Prefix  : in String) return Boolean;
 
+   --  Returns True if the source string ends with the given suffix.
+   function Ends_With (Source  : in String;
+                       Suffix  : in String) return Boolean;
+
    --  Returns Integer'Image (Value) with the possible space stripped.
    function Image (Value : in Integer) return String;
 
