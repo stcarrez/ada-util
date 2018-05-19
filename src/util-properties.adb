@@ -16,12 +16,11 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Ada.IO_Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Strings.Maps;
-with Interfaces.C.Strings;
 with Ada.Unchecked_Deallocation;
+with Util.Files;
 with Util.Beans.Objects.Maps;
 package body Util.Properties is
 
@@ -547,15 +546,6 @@ package body Util.Properties is
          New_Line (F);
       end Save_Property;
 
-      --  Rename a file (the Ada.Directories.Rename does not allow to use the
-      --  Unix atomic file rename!)
-      function Sys_Rename (Oldpath  : in Interfaces.C.Strings.chars_ptr;
-                           Newpath  : in Interfaces.C.Strings.chars_ptr) return Integer;
-      pragma Import (C, Sys_Rename, "rename");
-
-      Old_Path : Interfaces.C.Strings.chars_ptr;
-      New_Path : Interfaces.C.Strings.chars_ptr;
-      Result   : Integer;
    begin
       Create (File => F, Name => Tmp);
       Self.Iterate (Save_Property'Access);
@@ -563,14 +553,7 @@ package body Util.Properties is
 
       --  Do a system atomic rename of old file in the new file.
       --  Ada.Directories.Rename does not allow this.
-      Old_Path := Interfaces.C.Strings.New_String (Tmp);
-      New_Path := Interfaces.C.Strings.New_String (Path);
-      Result := Sys_Rename (Old_Path, New_Path);
-      Interfaces.C.Strings.Free (Old_Path);
-      Interfaces.C.Strings.Free (New_Path);
-      if Result /= 0 then
-         raise Ada.IO_Exceptions.Use_Error with "Cannot rename file";
-      end if;
+      Util.Files.Rename (Tmp, Path);
    end Save_Properties;
 
    --  ------------------------------
