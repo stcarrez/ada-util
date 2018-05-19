@@ -56,6 +56,10 @@ package Util.Strings is
                    From    : in Positive;
                    Going   : in Ada.Strings.Direction := Ada.Strings.Forward) return Natural;
 
+   --  Returns True if the source string starts with the given prefix.
+   function Starts_With (Source  : in String;
+                         Prefix  : in String) return Boolean;
+
    --  Returns Integer'Image (Value) with the possible space stripped.
    function Image (Value : in Integer) return String;
 
