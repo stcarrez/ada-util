@@ -57,7 +57,7 @@ package body Util.Serialize.IO.Form.Tests is
       begin
          P.Parse_String (Content, R);
          Log.Error ("No exception raised for: {0}", Content);
-         --  T.Fail ("No exception for " & Content);
+         T.Fail ("No exception for " & Content);
 
       exception
          when Parse_Error =>
