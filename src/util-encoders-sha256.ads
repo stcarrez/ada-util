@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  util-encoders-sha256 -- Compute SHA-1 hash
---  Copyright (C) 2017 Stephane Carrez
+--  util-encoders-sha256 -- Compute SHA-256 hash
+--  Copyright (C) 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
