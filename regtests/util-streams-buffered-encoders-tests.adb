@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered-encoders-tests -- Unit tests for encoding buffered streams
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,6 @@
 with Util.Test_Caller;
 with Util.Streams.Files;
 with Util.Streams.Texts;
-with Util.Files;
 with Ada.Streams.Stream_IO;
 package body Util.Streams.Buffered.Encoders.Tests is
 
