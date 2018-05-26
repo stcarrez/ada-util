@@ -31,6 +31,8 @@ package body Util.Streams.Buffered.Lzma.Tests is
    begin
       Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Lzma.Write",
                        Test_Compress_Stream'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Lzma.Write (2)",
+                       Test_Compress_File_Stream'Access);
    end Add_Tests;
 
    procedure Test_Compress_Stream (T : in out Test) is
@@ -58,5 +60,28 @@ package body Util.Streams.Buffered.Lzma.Tests is
                                      Test    => Path,
                                      Message => "LZMA stream");
    end Test_Compress_Stream;
+
+   procedure Test_Compress_File_Stream (T : in out Test) is
+      Stream    : aliased File_Stream;
+      In_Stream : aliased File_Stream;
+      Buffer    : aliased Util.Streams.Buffered.Lzma.Compress_Stream;
+      Print     : Util.Streams.Texts.Print_Stream;
+      Path      : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-big-stream.lzma");
+      Expect    : constant String := Util.Tests.Get_Path ("regtests/expect/test-big-stream.lzma");
+   begin
+      In_Stream.Open (Ada.Streams.Stream_IO.In_File,
+                      Util.Tests.Get_Path ("regtests/files/test-big-stream.bin"));
+      Stream.Create (Mode => Out_File, Name => Path);
+      Buffer.Initialize (Output => Stream'Unchecked_Access,
+                         Size   => 32768,
+                         Format => Util.Encoders.BASE_64);
+      Util.Streams.Copy (From => In_Stream, Into => Buffer);
+      Buffer.Flush;
+      Buffer.Close;
+      Util.Tests.Assert_Equal_Files (T       => T,
+                                     Expect  => Expect,
+                                     Test    => Path,
+                                     Message => "LZMA stream");
+   end Test_Compress_File_Stream;
 
 end Util.Streams.Buffered.Lzma.Tests;
