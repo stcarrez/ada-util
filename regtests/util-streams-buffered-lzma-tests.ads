@@ -26,4 +26,6 @@ package Util.Streams.Buffered.Lzma.Tests is
 
    procedure Test_Compress_Stream (T : in out Test);
 
+   procedure Test_Compress_File_Stream (T : in out Test);
+
 end Util.Streams.Buffered.Lzma.Tests;
