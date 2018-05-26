@@ -58,7 +58,7 @@ package body Util.Streams.Buffered.Lzma is
             Into    => Stream.Buffer (Stream.Write_Pos .. Stream.Buffer'Last),
             Last    => Last_Pos,
             Encoded => Last_Encoded);
-         if Last_Encoded < Buffer'Last then
+         if Last_Pos + 1 >= Stream.Buffer'Last then
             Stream.Output.Write (Stream.Buffer (Stream.Buffer'First .. Last_Pos));
             Stream.Write_Pos := Stream.Buffer'First;
          else
