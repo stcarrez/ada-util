@@ -73,6 +73,7 @@ package body Util.Commands.Tests is
                       Name      : in String;
                       Args      : in Argument_List'Class;
                       Context   : in out Test_Context_Type) is
+      pragma Unreferenced (Name);
    begin
       Context.Success := Command.Opt_Count = Command.Expect_C and
         Command.Opt_V = Command.Expect_V and
