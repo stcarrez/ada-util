@@ -566,7 +566,6 @@ package body Util.Dates.Formats is
 
       Pattern_Pos    : Positive := Pattern'First;
       Pos            : Natural := Date'First;
-      Pad            : Character := '0';
       C              : Character;
       Short_Months   : Util.Strings.Vectors.Vector;
       Long_Months    : Util.Strings.Vectors.Vector;
@@ -600,7 +599,7 @@ package body Util.Dates.Formats is
                       Prefix  : in String;
                       Short   : in Boolean;
                       Default : in String_Array) is
-         Offset : Natural := Default'First - First;
+         Offset : constant Natural := Default'First - First;
       begin
          if List.Length = 0 then
             for I in First .. Last loop
@@ -678,14 +677,8 @@ package body Util.Dates.Formats is
             Pattern_Pos := Pattern_Pos + 1;
             exit when Pattern_Pos > Pattern'Last;
             C := Pattern (Pattern_Pos);
-            Pad := '0';
             if C = '_' or C = '-' or C = 'E' or C  = 'O' or C = '^' then
                exit when Pattern_Pos = Pattern'Last;
-               if C = '-' then
-                  Pad := '-';
-               elsif C = '_' then
-                  Pad := ' ';
-               end if;
                Pattern_Pos := Pattern_Pos + 1;
                C := Pattern (Pattern_Pos);
             end if;
@@ -731,8 +724,7 @@ package body Util.Dates.Formats is
                   --  %e     Like %d, the day of the month as a decimal number,
                   --  but a leading zero is replaced by a space. (SU)
                when 'e' =>
-                  Result.Month := Month_Number (Parse_Number (Min => 1,
-                                                              Max => 31));
+                  Result.Month := Month_Number (Parse_Number (Min => 1, Max => 31));
 
                   --  %F     Equivalent to %Y-%m-%d (the ISO 8601 date format). (C99)
                when 'F' =>
@@ -749,8 +741,7 @@ package body Util.Dates.Formats is
 
                   --  %H     The hour as a decimal number using a 24-hour clock (range 00 to 23).
                when 'H' =>
-                  Result.Hour := Formatting.Hour_Number (Parse_Number (Min => 1,
-                                                                       Max => 23));
+                  Result.Hour := Formatting.Hour_Number (Parse_Number (Min => 1, Max => 23));
 
                   --  %I     The hour as a decimal number using a 12-hour clock (range 01 to 12).
                when 'I' =>
@@ -762,8 +753,7 @@ package body Util.Dates.Formats is
 
                   --  %k     The hour (24-hour clock) as a decimal number (range 0 to 23);
                when 'k' =>
-                  Result.Hour := Hour_Number (Parse_Number (Min => 0,
-                                                            Max => 23));
+                  Result.Hour := Hour_Number (Parse_Number (Min => 0, Max => 23));
 
                   --  %l     The  hour (12-hour clock) as a decimal number (range 1 to 12);
                when 'l' =>
