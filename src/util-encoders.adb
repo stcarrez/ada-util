@@ -291,7 +291,6 @@ package body Util.Encoders is
                        Data : in Streams.Stream_Element_Array) return Streams.Stream_Element_Array is
       Buf_Size : constant Streams.Stream_Element_Offset := Best_Size (Data'Length);
       Res      : Streams.Stream_Element_Array (1 .. Buf_Size);
-      Tmp      : String (1 .. Natural (Buf_Size));
       Last_Encoded  : Streams.Stream_Element_Offset;
       Last          : Streams.Stream_Element_Offset;
    begin
