@@ -106,7 +106,7 @@ TEST_TIMEOUT=30
 
 ifeq (${BUILDS_SHARED},yes)
 all:     static shared
-install: uninstall install_static install_shared install-info
+install: uninstall install_shared install_static install-info
 else
 all:     static
 install: uninstall install_static install-info
