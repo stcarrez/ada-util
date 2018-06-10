@@ -31,11 +31,31 @@ and you may use:
   * `--with-xmlada=PATH` to control the installation path of [XML/Ada](http://libre.adacore.com/libre/tools/xmlada/),
   * `--with-aws=PATH` to control the installation path of [AWS](http://libre.adacore.com/libre/tools/aws/),
   * `--with-ada-lzma=PATH` to control the installation path of [Ada LZMA](https://github.com/stcarrez/ada-lzma),
+  * `--enable-link-options-util=opts` to add some linker options when building the Ada Util shared library,
+  * `--enable-link-options-curl=opts` to add some linker options when building the Ada Util Curl shared library,
   * `--help` to get a detailed list of supported options.
 
 In most cases you will configure with the following command:
 ```
 ./configure
+```
+
+Building to get a shared library can sometimes be a real challenge.  With GNAT 2018, you
+can configure as follows:
+
+```
+./configure --enable-shared
+```
+
+But with some other versions of the Ada compiler, you may need to add some linker options
+to make sure that the generated shared library is useable.  Basically, it happens that
+the `-ldl` is not passed correctly when the shared library is created and when it is used
+you end up with missing symbols such as `dlopen`, `dlclose`, `dlsym` and `dlerror`.
+When this happens, you can fix by re-configuring and adding the missing option
+with the following command:
+
+```
+./configure --enable-shared --enable-link-options-util=--no-as-needed,-ldl,--as-needed
 ```
 
 ## Build
