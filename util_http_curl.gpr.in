@@ -15,7 +15,6 @@ library project Util_Http_Curl is
          for Library_Name use "ada_util_curl";
          for Library_Kind use Library_Type;
          for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
-         for Library_Options use (@UTIL_CURL_LIBRARY_OPTIONS@);
 
          for Library_Dir use "lib/util-curl/" & Project'Library_Kind;
          for Object_Dir use "obj/util-curl/" & Project'Library_Kind;
@@ -23,6 +22,7 @@ library project Util_Http_Curl is
          case Library_Type is
             when "relocatable" =>
                 for Library_Interface use ("Util.Http.Clients.Curl");
+                for Library_Options use (@UTIL_CURL_LIBRARY_OPTIONS@);
 
             when others =>
                 null;
