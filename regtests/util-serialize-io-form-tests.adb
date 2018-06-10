@@ -56,16 +56,11 @@ package body Util.Serialize.IO.Form.Tests is
          R : Util.Beans.Objects.Readers.Reader;
       begin
          P.Parse_String (Content, R);
-         Log.Error ("No exception raised for: {0}", Content);
-         T.Fail ("No exception for " & Content);
-
-      exception
-         when Parse_Error =>
-            null;
+         T.Assert (P.Has_Error, "No error detected for '" & Content & "'");
       end Check_Parse_Error;
 
    begin
-      --  Check_Parse_Error ("bad");
+      Check_Parse_Error ("bad");
       Check_Parse_Error ("bad=%rw%ad");
    end Test_Parse_Error;
 
