@@ -65,7 +65,7 @@ package body Util.Serialize.IO.Form.Tests is
       end Check_Parse_Error;
 
    begin
-      Check_Parse_Error ("bad");
+      --  Check_Parse_Error ("bad");
       Check_Parse_Error ("bad=%rw%ad");
    end Test_Parse_Error;
 
