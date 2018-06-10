@@ -1,5 +1,5 @@
 /* Generate a package from system header definitions
---  Copyright (C) 2011, 2013, 2014, 2015, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2015, 2016, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -432,7 +432,7 @@ int main(int argc, char** argv)
 
     printf("\n");
 #ifdef HAVE_DLOPEN
-printf("   DLL_OPTIONS : constant String := \"-ldl\";\n");
+    printf("   DLL_OPTIONS : constant String := \"-ldl\";\n");
 #else
     printf("   DLL_OPTIONS : constant String := \"\";\n");
 #endif
