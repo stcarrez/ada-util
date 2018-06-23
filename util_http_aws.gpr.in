@@ -21,8 +21,8 @@ library project Util_Http_Aws is
    for Library_Kind use Util.Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
-   for Library_Dir use "lib/util-aws/" & Project'Library_Kind;
-   for Object_Dir use "obj/util-aws/" & Project'Library_Kind;
+   for Library_Dir use "lib/util_aws/" & Project'Library_Kind;
+   for Object_Dir use "obj/util_aws/" & Project'Library_Kind;
 
    package Builder  renames Config.Builder;
    package Compiler renames Config.Compiler;
