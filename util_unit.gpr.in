@@ -10,8 +10,8 @@ library project Util_Unit is
    for Library_Kind use Util.Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
-   for Library_Dir use Util.Library_Dir & "/testutil/" & Project'Library_Kind;
-   for Object_Dir use "obj/testutil/" & Project'Library_Kind;
+   for Library_Dir use Util.Library_Dir & "/util_unit/" & Project'Library_Kind;
+   for Object_Dir use "obj/util_unit/" & Project'Library_Kind;
 
    package compiler is
       --  Disable some comment style checks to avoid several warnings in Ahven files.
