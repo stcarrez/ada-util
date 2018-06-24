@@ -20,8 +20,8 @@ library project Util is
    for Library_Dir use Util_Config.Libdir;
    for Library_Kind use "LIBRARY_TYPE";
 
-   for Source_Dirs use (Util_Config.Includedir & "/ada-util");
-   for Library_ALI_Dir use Util_Config.Alidir & "/ada-util/";
+   for Source_Dirs use (Util_Config.Includedir & "/util");
+   for Library_ALI_Dir use Util_Config.Alidir & "/util/";
    for Externally_Built use "true";
 
    package Linker is
