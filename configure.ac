@@ -27,13 +27,8 @@ UTIL_MINOR_VERSION=9
 UTIL_MICRO_VERSION=0b
 UTIL_VERSION=$UTIL_MAJOR_VERSION.$UTIL_MINOR_VERSION.$UTIL_MICRO_VERSION
 
-AM_GNAT_CHECK_GPRBUILD
-
 # checking for local tools
 AC_PROG_CC
-AC_PROG_MAKE_SET
-AC_PROG_INSTALL
-AC_PROG_LN_S
 
 # Set the version number of Ada Util
 AC_SUBST(UTIL_VERSION)
@@ -46,11 +41,6 @@ AC_SUBST(EXEC_PREFIX)
 
 UTIL_LIBDIR="lib"
 AC_SUBST(UTIL_LIBDIR)
-
-AC_MSG_CHECKING([number of processors])
-NR_CPUS=`getconf _NPROCESSORS_CONF 2>/dev/null || getconf NPROCESSORS_CONF 2>/dev/null || echo 1`
-AC_MSG_RESULT($NR_CPUS)
-AC_SUBST(NR_CPUS)
 
 AC_CHECK_PROG(HAVE_PANDOC,pandoc,yes)
 AC_CHECK_PROG(HAVE_DYNAMO,dynamo,yes)
@@ -245,9 +235,7 @@ AC_SUBST(UTIL_HAVE_LZMA)
 ##########################################
 # Check to enable/disable shared library
 ##########################################
-AM_SHARED_LIBRARY_SUPPORT
-AM_DISTRIB_SUPPORT
-AM_COVERAGE_SUPPORT
+AM_GNAT_LIBRARY_PROJECT(util)
 
 ##########################################
 # Check for GNAT traceback in Util.Log.Loggers
