@@ -4956,6 +4956,8 @@ $as_echo "<prefix>/${ADA_PRJ_BASE}" >&6; }
 
 
 
+mkdir -p obj/util/static obj/util/relocatable lib/util/static lib/util/relocatable
+
 ac_config_files="$ac_config_files Makefile util.gpr util_http.gpr util_unit.gpr util_http_curl.gpr util_http_aws.gpr distrib/util_unit.gpr distrib/util.gpr distrib/util_http.gpr distrib/util_http_curl.gpr distrib/util_http_aws.gpr"
 
 cat >confcache <<\_ACEOF
