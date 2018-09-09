@@ -52,10 +52,11 @@ package body Util.Commands.Tests is
 
    --  Setup the command before parsing the arguments and executing it.
    procedure Setup (Command : in out Test_Command_Type;
-                    Config  : in out GNAT.Command_Line.Command_Line_Configuration);
+                    Config  : in out GNAT.Command_Line.Command_Line_Configuration;
+                    Context : in out Test_Context_Type);
 
    --  Write the help associated with the command.
-   procedure Help (Command   : in Test_Command_Type;
+   procedure Help (Command   : in out Test_Command_Type;
                    Context   : in out Test_Context_Type);
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -86,7 +87,8 @@ package body Util.Commands.Tests is
    --  Setup the command before parsing the arguments and executing it.
    --  ------------------------------
    procedure Setup (Command : in out Test_Command_Type;
-                    Config  : in out GNAT.Command_Line.Command_Line_Configuration) is
+                    Config  : in out GNAT.Command_Line.Command_Line_Configuration;
+                    Context : in out Test_Context_Type) is
    begin
       GNAT.Command_Line.Define_Switch (Config      => Config,
                                        Switch      => "-c:",
@@ -113,7 +115,7 @@ package body Util.Commands.Tests is
    --  ------------------------------
    --  Write the help associated with the command.
    --  ------------------------------
-   procedure Help (Command   : in Test_Command_Type;
+   procedure Help (Command   : in out Test_Command_Type;
                    Context   : in out Test_Context_Type) is
 
    begin
@@ -207,10 +209,10 @@ package body Util.Commands.Tests is
       D.Add_Command ("print", C2'Unchecked_Access);
       D.Add_Command ("help", H'Unchecked_Access);
       Args.Initialize (Line => "cmd list");
-      D.Usage (Args);
       declare
          Ctx   : Test_Context_Type;
       begin
+         D.Usage (Args, Ctx);
          C1.Expect_Help := True;
          Initialize (Args, "help list");
          D.Execute ("help", Args, Ctx);
