@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-drivers -- Support to make command line tools
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,10 +28,11 @@ package body Util.Commands.Drivers is
    --  Write the command usage.
    --  ------------------------------
    procedure Usage (Command : in out Command_Type;
-                    Name    : in String) is
+                    Name    : in String;
+                    Context : in out Context_Type) is
       Config  : Config_Type;
    begin
-      Command_Type'Class (Command).Setup (Config);
+      Command_Type'Class (Command).Setup (Config, Context);
       Config_Parser.Usage (Name, Config);
    end Usage;
 
@@ -69,7 +70,7 @@ package body Util.Commands.Drivers is
       Logs.Debug ("Execute command {0}", Name);
 
       if Args.Get_Count = 0 then
-         Usage (Command.Driver.all, Args);
+         Usage (Command.Driver.all, Args, Context);
          New_Line;
          Put ("Type '");
          Put (Args.Get_Command_Name);
@@ -95,7 +96,7 @@ package body Util.Commands.Drivers is
    --  ------------------------------
    --  Write the help associated with the command.
    --  ------------------------------
-   procedure Help (Command   : in Help_Command_Type;
+   procedure Help (Command   : in out Help_Command_Type;
                    Context   : in out Context_Type) is
    begin
       null;
@@ -104,9 +105,10 @@ package body Util.Commands.Drivers is
    --  ------------------------------
    --  Report the command usage.
    --  ------------------------------
-   procedure Usage (Driver : in Driver_Type;
-                    Args   : in Argument_List'Class;
-                    Name   : in String := "") is
+   procedure Usage (Driver  : in Driver_Type;
+                    Args    : in Argument_List'Class;
+                    Context : in out Context_Type;
+                    Name    : in String := "") is
    begin
       Put_Line (To_String (Driver.Desc));
       New_Line;
@@ -115,7 +117,7 @@ package body Util.Commands.Drivers is
             Command : constant Command_Access := Driver.Find_Command (Name);
          begin
             if Command /= null then
-               Command.Usage (Name);
+               Command.Usage (Name, Context);
             else
                Put ("Invalid command");
             end if;
@@ -204,7 +206,7 @@ package body Util.Commands.Drivers is
          declare
             Config  : Config_Type;
          begin
-            Command.Setup (Config);
+            Command.Setup (Config, Context);
             Config_Parser.Execute (Config, Args, Execute'Access);
          end;
       else
@@ -241,7 +243,7 @@ package body Util.Commands.Drivers is
    --  Write the help associated with the command.
    --  ------------------------------
    overriding
-   procedure Help (Command   : in Handler_Command_Type;
+   procedure Help (Command   : in out Handler_Command_Type;
                    Context   : in out Context_Type) is
    begin
       null;
