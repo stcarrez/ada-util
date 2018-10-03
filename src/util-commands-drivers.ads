@@ -50,15 +50,17 @@ package Util.Commands.Drivers is
 
    --  Setup the command before parsing the arguments and executing it.
    procedure Setup (Command : in out Command_Type;
-                    Config  : in out Config_Type) is null;
+                    Config  : in out Config_Type;
+                    Context : in out Context_Type) is null;
 
    --  Write the help associated with the command.
-   procedure Help (Command   : in Command_Type;
+   procedure Help (Command   : in out Command_Type;
                    Context   : in out Context_Type) is abstract;
 
    --  Write the command usage.
    procedure Usage (Command : in out Command_Type;
-                    Name    : in String);
+                    Name    : in String;
+                    Context : in out Context_Type);
 
    --  Print a message for the command.  The level indicates whether the message is an error,
    --  warning or informational.  The command name can be used to known the originator.
@@ -79,15 +81,16 @@ package Util.Commands.Drivers is
                       Context   : in out Context_Type);
 
    --  Write the help associated with the command.
-   procedure Help (Command   : in Help_Command_Type;
+   procedure Help (Command   : in out Help_Command_Type;
                    Context   : in out Context_Type);
 
    type Driver_Type is tagged limited private;
 
    --  Report the command usage.
-   procedure Usage (Driver : in Driver_Type;
-                    Args   : in Argument_List'Class;
-                    Name   : in String := "");
+   procedure Usage (Driver  : in Driver_Type;
+                    Args    : in Argument_List'Class;
+                    Context : in out Context_Type;
+                    Name    : in String := "");
 
    --  Set the driver description printed in the usage.
    procedure Set_Description (Driver      : in out Driver_Type;
@@ -151,7 +154,7 @@ private
 
    --  Write the help associated with the command.
    overriding
-   procedure Help (Command   : in Handler_Command_Type;
+   procedure Help (Command   : in out Handler_Command_Type;
                    Context   : in out Context_Type);
 
    type Driver_Type is tagged limited record
