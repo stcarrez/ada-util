@@ -335,6 +335,9 @@ int main(int argc, char** argv)
     struct stat64 st;
 #endif
       
+#ifdef _WIN32
+    printf("with System;\n");
+#endif
     printf("with Interfaces.C;\n");
     printf("package Util.Systems.Types is\n");
     printf("\n");
