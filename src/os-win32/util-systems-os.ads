@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-system-os -- Windows system operations
---  Copyright (C) 2011, 2012, 2015 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2015, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,7 +52,7 @@ package Util.Systems.Os is
    --  ------------------------------
 
    --  The windows HANDLE is defined as a void* in the C API.
-   subtype HANDLE is System.Address;
+   subtype HANDLE is Util.Systems.Types.HANDLE;
 
    type PHANDLE is access all HANDLE;
    for PHANDLE'Size use Standard'Address_Size;
@@ -72,7 +72,7 @@ package Util.Systems.Os is
    --  ------------------------------
    --  File operations
    --  ------------------------------
-   subtype File_Type is HANDLE;
+   subtype File_Type is Util.Systems.Types.File_Type;
 
    NO_FILE : constant File_Type := System.Null_Address;
 
@@ -82,6 +82,9 @@ package Util.Systems.Os is
 
    function Get_Std_Handle (Kind : in DWORD) return File_Type;
    pragma Import (Stdcall, Get_Std_Handle, "GetStdHandle");
+
+   function STDIN_FILENO return File_Type
+     is (Get_Std_Handle (STD_INPUT_HANDLE));
 
    function Close_Handle (Fd : in File_Type) return BOOL;
    pragma Import (Stdcall, Close_Handle, "CloseHandle");
