@@ -37,7 +37,7 @@ package Util.Systems.Os is
    subtype Ptr_Array is Interfaces.C.Strings.chars_ptr_array;
    type Ptr_Ptr_Array is access all Ptr_Array;
 
-   type File_Type is new Interfaces.C.int;
+   subtype File_Type is Util.Systems.Types.File_Type;
 
    --  Standard file streams Posix, X/Open standard values.
    STDIN_FILENO  : constant File_Type := 0;
@@ -45,6 +45,7 @@ package Util.Systems.Os is
    STDERR_FILENO : constant File_Type := 2;
 
    --  File is not opened
+   use type Util.Systems.Types.File_Type;  --  This use clause is required by GNAT 2018 for the -1!
    NO_FILE       : constant File_Type := -1;
 
    --  The following values should be externalized.  They are valid for GNU/Linux.
