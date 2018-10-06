@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes -- Process creation and control
---  Copyright (C) 2011, 2012, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Streams;
+with Util.Systems.Types;
 
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
@@ -46,6 +47,8 @@ package Util.Processes is
    type Pipe_Mode is (NONE, READ, READ_ERROR, READ_ALL, WRITE, READ_WRITE, READ_WRITE_ALL);
 
    subtype String_Access is Ada.Strings.Unbounded.String_Access;
+
+   subtype File_Type is Util.Systems.Types.File_Type;
 
    type Argument_List is array (Positive range <>) of String_Access;
 
@@ -85,6 +88,10 @@ package Util.Processes is
    --  <tt>Spawn</tt> procedure.
    procedure Set_Shell (Proc  : in out Process;
                         Shell : in String);
+
+   --  Closes the given file descriptor in the child process before executing the command.
+   procedure Add_Close (Proc  : in out Process;
+                        Fd    : in File_Type);
 
    --  Append the argument to the current process argument list.
    --  Raises <b>Invalid_State</b> if the process is running.
@@ -130,6 +137,9 @@ package Util.Processes is
 
 private
 
+   type File_Type_Array is array (Positive range <>) of File_Type;
+   type File_Type_Array_Access is access all File_Type_Array;
+
    --  The <b>System_Process</b> interface is specific to the system.  On Unix, it holds the
    --  process identifier.  On Windows, more information is necessary, including the process
    --  and thread handles.  It's a little bit overkill to setup an interface for this but
@@ -151,6 +161,7 @@ private
       Output     : Util.Streams.Input_Stream_Access := null;
       Input      : Util.Streams.Output_Stream_Access := null;
       Error      : Util.Streams.Input_Stream_Access := null;
+      To_Close   : File_Type_Array_Access;
    end record;
 
    --  Initialize the process instance.
@@ -188,7 +199,8 @@ private
                           Output        : in String;
                           Error         : in String;
                           Append_Output : in Boolean;
-                          Append_Error  : in Boolean) is abstract;
+                          Append_Error  : in Boolean;
+                          To_Close      : in File_Type_Array_Access) is abstract;
 
    --  Deletes the storage held by the system process.
    procedure Finalize (Sys : in out System_Process) is abstract;
