@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-raw -- Raw streams for Unix based systems
---  Copyright (C) 2011, 2013, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2016, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,6 +63,15 @@ package body Util.Streams.Pipes is
    begin
       Util.Processes.Set_Error_Stream (Stream.Proc, File, Append);
    end Set_Error_Stream;
+
+   --  -----------------------
+   --  Closes the given file descriptor in the child process before executing the command.
+   --  -----------------------
+   procedure Add_Close (Stream : in out Pipe_Stream;
+                        Fd     : in Util.Processes.File_Type) is
+   begin
+      Util.Processes.Add_Close (Stream.Proc, Fd);
+   end Add_Close;
 
    --  -----------------------
    --  Set the working directory that the process will use once it is created.
