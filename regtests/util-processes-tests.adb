@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-tests - Test for processes
---  Copyright (C) 2011, 2012, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,16 +19,16 @@
 with Util.Log.Loggers;
 with Util.Test_Caller;
 with Util.Files;
+with Util.Strings.Vectors;
 with Util.Streams.Pipes;
 with Util.Streams.Buffered;
 with Util.Streams.Texts;
 with Util.Systems.Os;
+with Util.Processes.Tools;
 package body Util.Processes.Tests is
 
-   use Util.Log;
-
    --  The logger
-   Log : constant Loggers.Logger := Loggers.Create ("Util.Processes.Tests");
+   Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Processes.Tests");
 
    package Caller is new Util.Test_Caller (Test, "Processes");
 
@@ -54,6 +54,8 @@ package body Util.Processes.Tests is
 
       Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Open/Read/Close (Multi spawn)",
                        Test_Multi_Spawn'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Tools.Execute",
+                       Test_Tools_Execute'Access);
 
    end Add_Tests;
 
@@ -280,5 +282,22 @@ package body Util.Processes.Tests is
                                  "Invalid content");
 
    end Test_Output_Redirect;
+
+   --  ------------------------------
+   --  Test the Tools.Execute operation.
+   --  ------------------------------
+   procedure Test_Tools_Execute (T : in out Test) is
+      List   : Util.Strings.Vectors.Vector;
+      Status : Integer;
+   begin
+      Tools.Execute (Command => "bin/util_test_process 23 write 'b c d e f' test_marker",
+                     Output  => List,
+                     Status  => Status);
+      Util.Tests.Assert_Equals (T, 23, Status, "Invalid exit status");
+      Util.Tests.Assert_Equals (T, 2, Integer (List.Length),
+                                "Invalid output collected by Execute");
+      Util.Tests.Assert_Equals (T, "b c d e f", List.Element (1), "");
+      Util.Tests.Assert_Equals (T, "test_marker", List.Element (2), "");
+   end Test_Tools_Execute;
 
 end Util.Processes.Tests;
