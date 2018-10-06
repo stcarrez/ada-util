@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@ package body Util.Processes.Os is
 
    use Util.Systems.Os;
    use type Interfaces.C.size_t;
+   use type Util.Systems.Types.File_Type;
 
    type Pipe_Type is array (0 .. 1) of File_Type;
    procedure Close (Pipes : in out Pipe_Type);
@@ -108,7 +109,6 @@ package body Util.Processes.Os is
    procedure Spawn (Sys  : in out System_Process;
                     Proc : in out Process'Class;
                     Mode : in Pipe_Mode := NONE) is
-      use Util.Streams.Raw;
       use Interfaces.C.Strings;
       use type Interfaces.C.int;
 
@@ -163,6 +163,13 @@ package body Util.Processes.Os is
       if Proc.Pid = 0 then
 
          --  Do not use any Ada type while in the child process.
+
+         if Proc.To_Close /= null then
+            for Fd of Proc.To_Close.all loop
+               Result := Sys_Close (Fd);
+            end loop;
+         end if;
+
          if Mode = READ_ALL or Mode = READ_WRITE_ALL then
             Result := Sys_Dup2 (Stdout_Pipes (1), STDERR_FILENO);
          end if;
@@ -301,7 +308,8 @@ package body Util.Processes.Os is
                           Output        : in String;
                           Error         : in String;
                           Append_Output : in Boolean;
-                          Append_Error  : in Boolean) is
+                          Append_Error  : in Boolean;
+                          To_Close      : in File_Type_Array_Access) is
    begin
       if Input'Length > 0 then
          Sys.In_File := Interfaces.C.Strings.New_String (Input);
@@ -314,6 +322,7 @@ package body Util.Processes.Os is
          Sys.Err_File   := Interfaces.C.Strings.New_String (Error);
          Sys.Err_Append := Append_Error;
       end if;
+      Sys.To_Close := To_Close;
    end Set_Streams;
 
    --  ------------------------------
