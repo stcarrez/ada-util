@@ -129,6 +129,10 @@ package Util.Streams.Pipes is
    procedure Set_Working_Directory (Stream : in out Pipe_Stream;
                                     Path   : in String);
 
+   --  Closes the given file descriptor in the child process before executing the command.
+   procedure Add_Close (Stream : in out Pipe_Stream;
+                        Fd     : in Util.Processes.File_Type);
+
    --  Open a pipe to read or write to an external process.  The pipe is created and the
    --  command is executed with the input and output streams redirected through the pipe.
    procedure Open (Stream  : in out Pipe_Stream;
