@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,6 +31,7 @@ private package Util.Processes.Os is
       In_File    : Util.Systems.Os.Ptr := Interfaces.C.Strings.Null_Ptr;
       Out_File   : Util.Systems.Os.Ptr := Interfaces.C.Strings.Null_Ptr;
       Err_File   : Util.Systems.Os.Ptr := Interfaces.C.Strings.Null_Ptr;
+      To_Close   : File_Type_Array_Access;
       Out_Append : Boolean := False;
       Err_Append : Boolean := False;
    end record;
@@ -67,7 +68,8 @@ private package Util.Processes.Os is
                           Output        : in String;
                           Error         : in String;
                           Append_Output : in Boolean;
-                          Append_Error  : in Boolean);
+                          Append_Error  : in Boolean;
+                          To_Close      : in File_Type_Array_Access);
 
    --  Deletes the storage held by the system process.
    overriding
