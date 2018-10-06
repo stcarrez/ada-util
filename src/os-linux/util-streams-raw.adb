@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-raw -- Raw streams (OS specific)
---  Copyright (C) 2011, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@ with Ada.IO_Exceptions;
 package body Util.Streams.Raw is
 
    use Util.Systems.Os;
+   use type Util.Systems.Types.File_Type;
 
    --  -----------------------
    --  Initialize the raw stream to read and write on the given file descriptor.
@@ -81,7 +82,7 @@ package body Util.Streams.Raw is
    procedure Seek (Stream : in out Raw_Stream;
                    Pos    : in Util.Systems.Types.off_t;
                    Mode   : in Util.Systems.Types.Seek_Mode) is
-      use type Util.Systems.Types.off_t;
+      --  use type Util.Systems.Types.off_t;
 
       Res : Util.Systems.Types.off_t;
    begin
