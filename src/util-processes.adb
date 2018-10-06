@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes -- Process creation and control
---  Copyright (C) 2011, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,6 +31,10 @@ package body Util.Processes is
    procedure Free is
      new Ada.Unchecked_Deallocation (Object => Util.Processes.System_Process'Class,
                                      Name   => Util.Processes.System_Process_Access);
+
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Object => File_Type_Array,
+                                     Name   => File_Type_Array_Access);
 
    --  ------------------------------
    --  Before launching the process, redirect the input stream of the process
@@ -107,6 +111,25 @@ package body Util.Processes is
    end Set_Shell;
 
    --  ------------------------------
+   --  Closes the given file descriptor in the child process before executing the command.
+   --  ------------------------------
+   procedure Add_Close (Proc  : in out Process;
+                        Fd    : in File_Type) is
+      List : File_Type_Array_Access;
+   begin
+      if Proc.To_Close /= null then
+         List := new File_Type_Array (1 .. Proc.To_Close'Last + 1);
+         List (1 .. Proc.To_Close'Last) := Proc.To_Close.all;
+         List (List'Last) := Fd;
+         Free (Proc.To_Close);
+      else
+         List := new File_Type_Array (1 .. 1);
+         List (1) := Fd;
+      end if;
+      Proc.To_Close := List;
+   end Add_Close;
+
+   --  ------------------------------
    --  Append the argument to the current process argument list.
    --  Raises <b>Invalid_State</b> if the process is running.
    --  ------------------------------
@@ -150,7 +173,8 @@ package body Util.Processes is
                             Output        => To_String (Proc.Out_File),
                             Error         => To_String (Proc.Err_File),
                             Append_Output => Proc.Out_Append,
-                            Append_Error  => Proc.Err_Append);
+                            Append_Error  => Proc.Err_Append,
+                            To_Close      => Proc.To_Close);
 
       --  System specific spawn
       Proc.Exit_Value := -1;
@@ -201,7 +225,8 @@ package body Util.Processes is
                             Output        => To_String (Proc.Out_File),
                             Error         => To_String (Proc.Err_File),
                             Append_Output => Proc.Out_Append,
-                            Append_Error  => Proc.Err_Append);
+                            Append_Error  => Proc.Err_Append,
+                            To_Close      => Proc.To_Close);
 
       --  System specific spawn
       Proc.Exit_Value := -1;
@@ -311,6 +336,7 @@ package body Util.Processes is
       Free (Proc.Input);
       Free (Proc.Output);
       Free (Proc.Error);
+      Free (Proc.To_Close);
    end Finalize;
 
 end Util.Processes;
