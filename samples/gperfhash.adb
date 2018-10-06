@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  gperfhash -- Perfect hash Ada generator
---  Copyright (C) 2011, 2012, 2013 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2013, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -224,25 +224,22 @@ procedure Gperfhash is
          declare
             L : constant String := Lines.Element (I);
          begin
-            --  Replace the char position table by ours.  The lower case letter are just
-            --  mapped to the corresponding upper case letter.
-            if Ignore_Case and I >= 6 and I <= 16 then
-               if I = 6 then
-                  Generate_Char_Position;
-               end if;
-            else
-               Put_Line (File, L);
-            end if;
+            Put_Line (File, L);
 
             --  Generate the Is_Keyword function before the package end.
             if I = Count - 1 then
                Put_Line (File, "   --  Returns true if the string <b>S</b> is a keyword.");
                Put_Line (File, "   function Is_Keyword (S : in String) return Boolean is");
-               Put_Line (File, "      H : constant Natural := Hash (S);");
+               if Ignore_Case then
+                  Put_Line (File, "      K : constant String := "
+                            & "Util.Strings.Transforms.To_Upper_Case (S);");
+                  Put_Line (File, "      H : constant Natural := Hash (K);");
+               else
+                  Put_Line (File, "      H : constant Natural := Hash (S);");
+               end if;
                Put_Line (File, "   begin");
                if Ignore_Case then
-                  Put_Line (File, "      return Keywords (H).all = "
-                            & "Util.Strings.Transforms.To_Upper_Case (S);");
+                  Put_Line (File, "      return Keywords (H).all = K;");
                else
                   Put_Line (File, "      return Keywords (H).all = S;");
                end if;
