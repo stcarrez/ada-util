@@ -369,6 +369,7 @@ int main(int argc, char** argv)
     printf("   S_IEXEC  : constant mode_t := 8#%08o#;\n", S_IEXEC);
     printf("\n");
 #ifndef _WIN32
+    printf("   type File_Type is new Interfaces.C.int;\n");
     printf("   subtype Time_Type is %s;\n", get_type(UNSIGNED, sizeof(tv.tv_sec)));
     printf("\n");
     printf("   type Timespec is record\n");
@@ -376,6 +377,9 @@ int main(int argc, char** argv)
     printf("      tv_nsec : %s;\n", get_type(SIGNED, sizeof(tv.tv_nsec)));
     printf("   end record;\n");
 #else
+    printf("   --  The windows HANDLE is defined as a void* in the C API.\n");
+    printf("   subtype HANDLE is System.Address;\n");
+    printf("   subtype File_Type is HANDLE;\n");
     printf("   subtype Time_Type is %s;\n", get_type(UNSIGNED, sizeof(st.st_mtime)));
     printf("\n");
     printf("   type Timespec is record\n");
