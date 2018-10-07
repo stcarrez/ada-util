@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-xml-tests -- Unit tests for XML serialization
---  Copyright (C) 2011, 2012, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -321,7 +321,6 @@ package body Util.Serialize.IO.XML.Tests is
 
       procedure Check_Error (Content : in String;
                              Msg     : in String) is
-         use type Util.Beans.Objects.Data_Type;
 
          Mapping : aliased Map_Test_Mapper.Mapper;
          Result  : aliased Map_Test;
@@ -367,7 +366,6 @@ package body Util.Serialize.IO.XML.Tests is
    --  Test XML serialization
    --  ------------------------------
    procedure Test_Writer (T : in out Test) is
-      use Util.Streams.Buffered;
       function Serialize (Value : in Map_Test) return String;
 
       Mapping : aliased Map_Test_Mapper.Mapper;
