@@ -23,11 +23,9 @@ with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 package body Util.Serialize.Mappers is
 
-   use Util.Log;
-
    --  The logger
-   Log : constant Loggers.Logger := Loggers.Create ("Util.Serialize.Mappers",
-                                                    Util.Log.WARN_LEVEL);
+   Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Serialize.Mappers",
+                                                                      Util.Log.WARN_LEVEL);
 
    --  -----------------------
    --  Execute the mapping operation on the object associated with the current context.
@@ -308,7 +306,7 @@ package body Util.Serialize.Mappers is
          end loop;
       end Copy;
 
-      use type Util.Log.Level_Type;
+--      use type Util.Log.Level_Type;
    begin
       if Log.Get_Level >= Util.Log.INFO_LEVEL then
          Log.Info ("Mapping '{0}' for mapper {1}",
@@ -503,7 +501,6 @@ package body Util.Serialize.Mappers is
    --  Push the current context when entering in an element.
    --  ------------------------------
    procedure Push (Handler : in out Processing) is
-      use type Util.Serialize.Mappers.Mapper_Access;
    begin
       Context_Stack.Push (Handler.Stack);
    end Push;
@@ -533,7 +530,6 @@ package body Util.Serialize.Mappers is
                            Name    : in String;
                            Logger  : in out Util.Log.Logging'Class) is
       pragma Unreferenced (Logger);
-      use type Util.Serialize.Mappers.Mapper_Access;
 
       Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
       Next    : Element_Context_Access;
@@ -582,7 +578,6 @@ package body Util.Serialize.Mappers is
                             Name    : in String;
                             Logger  : in out Util.Log.Logging'Class) is
       pragma Unreferenced (Logger);
-      use type Util.Serialize.Mappers.Mapper_Access;
    begin
       Log.Debug ("Finish object {0}", Name);
 
@@ -630,8 +625,6 @@ package body Util.Serialize.Mappers is
                          Value     : in Util.Beans.Objects.Object;
                          Logger    : in out Util.Log.Logging'Class;
                          Attribute : in Boolean := False) is
-      use Util.Serialize.Mappers;
-
       Current : constant Element_Context_Access := Context_Stack.Current (Handler.Stack);
    begin
       Log.Debug ("Set member {0}", Name);
