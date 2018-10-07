@@ -21,7 +21,6 @@ with Util.Streams.Texts;
 with Ada.Streams.Stream_IO;
 package body Util.Streams.Buffered.Lzma.Tests is
 
-   use Util.Tests;
    use Util.Streams.Files;
    use Ada.Streams.Stream_IO;
 
@@ -65,9 +64,10 @@ package body Util.Streams.Buffered.Lzma.Tests is
       Stream    : aliased File_Stream;
       In_Stream : aliased File_Stream;
       Buffer    : aliased Util.Streams.Buffered.Lzma.Compress_Stream;
-      Print     : Util.Streams.Texts.Print_Stream;
-      Path      : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-big-stream.lzma");
-      Expect    : constant String := Util.Tests.Get_Path ("regtests/expect/test-big-stream.lzma");
+      Path      : constant String
+        := Util.Tests.Get_Test_Path ("regtests/result/test-big-stream.lzma");
+      Expect    : constant String
+        := Util.Tests.Get_Path ("regtests/expect/test-big-stream.lzma");
    begin
       In_Stream.Open (Ada.Streams.Stream_IO.In_File,
                       Util.Tests.Get_Path ("regtests/files/test-big-stream.bin"));
