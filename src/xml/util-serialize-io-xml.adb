@@ -363,7 +363,7 @@ package body Util.Serialize.IO.XML is
             From.Index := From.Buffer'First;
          end if;
          begin
-            loop
+            while not Stream.Is_Eof loop
                Stream.Read (From.Buffer (Last));
                Last := Last + 1;
                exit when Last > From.Buffer'Last;
@@ -805,7 +805,6 @@ package body Util.Serialize.IO.XML is
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object) is
-      use Util.Beans.Objects;
    begin
       Close_Current (Stream);
       Stream.Write ('<');
