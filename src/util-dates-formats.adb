@@ -545,7 +545,6 @@ package body Util.Dates.Formats is
                     Last      : out Positive) is
       use Ada.Calendar;
       use Ada.Calendar.Formatting;
-      use Util.Strings.Transforms;
       use Ada.Calendar.Time_Zones;
       use type Ada.Containers.Count_Type;
 
@@ -662,6 +661,7 @@ package body Util.Dates.Formats is
       Century     : Integer := -1;
       Value       : Integer;
       Week_Number : Integer := -1;
+      pragma Unreferenced (Week_Number, Century);
    begin
       while Pattern_Pos <= Pattern'Last and Pos <= Date'Last loop
          C := Pattern (Pattern_Pos);
