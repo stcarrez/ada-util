@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Discrete_Tests - Generic simple test for discrete object types
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,6 @@ package body Util.Beans.Objects.Discrete_Tests is
 
    use Ada.Strings.Fixed;
    use Ada.Containers;
-   use Util.Tests;
 
    procedure Test_Eq (T : Test; V : String; N : Test_Type);
    procedure Test_Conversion (T : Test; V : String; N : Test_Type);
