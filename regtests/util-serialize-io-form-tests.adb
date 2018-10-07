@@ -171,7 +171,6 @@ package body Util.Serialize.IO.Form.Tests is
    --  Test reading a form content into an Object tree.
    --  ------------------------------
    procedure Test_Read (T : in out Test) is
-      use Util.Beans.Objects;
       Path  : constant String := Util.Tests.Get_Test_Path ("regtests/files/pass-01.form");
       Root  : Util.Beans.Objects.Object;
       Value : Util.Beans.Objects.Object;
