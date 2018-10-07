@@ -28,6 +28,10 @@ package body Util.Encoders.AES is
                             Offset : in Stream_Element_Offset) return Unsigned_32;
    pragma Inline_Always (To_Unsigned_32);
 
+   procedure Put_Unsigned_32 (Data   : in out Block_Type;
+                              Value  : in Unsigned_32;
+                              Offset : in Stream_Element_Offset);
+
    Te0 : constant Sbox := (
     16#c66363a5#, 16#f87c7c84#, 16#ee777799#, 16#f67b7b8d#,
     16#fff2f20d#, 16#d66b6bbd#, 16#de6f6fb1#, 16#91c5c554#,
@@ -226,7 +230,7 @@ package body Util.Encoders.AES is
     16#41c38241#, 16#99b02999#, 16#2d775a2d#, 16#0f111e0f#,
     16#b0cb7bb0#, 16#54fca854#, 16#bbd66dbb#, 16#163a2c16#);
 
-  Te3 : constant Sbox := (
+   Te3 : constant Sbox := (
     16#6363a5c6#, 16#7c7c84f8#, 16#777799ee#, 16#7b7b8df6#,
     16#f2f20dff#, 16#6b6bbdd6#, 16#6f6fb1de#, 16#c5c55491#,
     16#30305060#, 16#01010302#, 16#6767a9ce#, 16#2b2b7d56#,
@@ -424,7 +428,7 @@ package body Util.Encoders.AES is
     16#39a80171#, 16#080cb3de#, 16#d8b4e49c#, 16#6456c190#,
     16#7bcb8461#, 16#d532b670#, 16#486c5c74#, 16#d0b85742#);
 
-  Td1 : constant Sbox := (
+   Td1 : constant Sbox := (
     16#5051f4a7#, 16#537e4165#, 16#c31a17a4#, 16#963a275e#,
     16#cb3bab6b#, 16#f11f9d45#, 16#abacfa58#, 16#934be303#,
     16#552030fa#, 16#f6ad766d#, 16#9188cc76#, 16#25f5024c#,
@@ -490,7 +494,7 @@ package body Util.Encoders.AES is
     16#7139a801#, 16#de080cb3#, 16#9cd8b4e4#, 16#906456c1#,
     16#617bcb84#, 16#70d532b6#, 16#74486c5c#, 16#42d0b857#);
 
-  Td2 : constant Sbox := (
+   Td2 : constant Sbox := (
     16#a75051f4#, 16#65537e41#, 16#a4c31a17#, 16#5e963a27#,
     16#6bcb3bab#, 16#45f11f9d#, 16#58abacfa#, 16#03934be3#,
     16#fa552030#, 16#6df6ad76#, 16#769188cc#, 16#4c25f502#,
@@ -556,7 +560,7 @@ package body Util.Encoders.AES is
     16#017139a8#, 16#b3de080c#, 16#e49cd8b4#, 16#c1906456#,
     16#84617bcb#, 16#b670d532#, 16#5c74486c#, 16#5742d0b8#);
 
-  Td3 : constant Sbox := (
+   Td3 : constant Sbox := (
     16#f4a75051#, 16#4165537e#, 16#17a4c31a#, 16#275e963a#,
     16#ab6bcb3b#, 16#9d45f11f#, 16#fa58abac#, 16#e303934b#,
     16#30fa5520#, 16#766df6ad#, 16#cc769188#, 16#024c25f5#,
@@ -622,7 +626,7 @@ package body Util.Encoders.AES is
     16#a8017139#, 16#0cb3de08#, 16#b4e49cd8#, 16#56c19064#,
     16#cb84617b#, 16#32b670d5#, 16#6c5c7448#, 16#b85742d0#);
 
-  Td4 : constant Final_Sbox := (
+   Td4 : constant Final_Sbox := (
     16#52#, 16#09#, 16#6a#, 16#d5#, 16#30#, 16#36#, 16#a5#, 16#38#,
     16#bf#, 16#40#, 16#a3#, 16#9e#, 16#81#, 16#f3#, 16#d7#, 16#fb#,
     16#7c#, 16#e3#, 16#39#, 16#82#, 16#9b#, 16#2f#, 16#ff#, 16#87#,
@@ -656,10 +660,11 @@ package body Util.Encoders.AES is
     16#17#, 16#2b#, 16#04#, 16#7e#, 16#ba#, 16#77#, 16#d6#, 16#26#,
     16#e1#, 16#69#, 16#14#, 16#63#, 16#55#, 16#21#, 16#0c#, 16#7d#);
 
+   --  for 128-bit blocks, Rijndael never uses more than 10 rcon values
    Rcon : constant Key_Sbox := (
-	16#01000000#, 16#02000000#, 16#04000000#, 16#08000000#,
-	16#10000000#, 16#20000000#, 16#40000000#, 16#80000000#,
-	16#1B000000#, 16#36000000#); --  for 128-bit blocks, Rijndael never uses more than 10 rcon values
+     16#01000000#, 16#02000000#, 16#04000000#, 16#08000000#,
+     16#10000000#, 16#20000000#, 16#40000000#, 16#80000000#,
+     16#1B000000#, 16#36000000#);
 
    function To_Unsigned_32 (Data   : in Stream_Element_Array;
                             Offset : in Stream_Element_Offset) return Unsigned_32 is
@@ -685,6 +690,7 @@ package body Util.Encoders.AES is
       Temp : Unsigned_32;
       N    : Natural := 0;
       I    : Natural := 0;
+      pragma Style_Checks ("-mr");
    begin
       Key.Key (0) := To_Unsigned_32 (Data, 0);
       Key.Key (1) := To_Unsigned_32 (Data, 4);
@@ -694,7 +700,7 @@ package body Util.Encoders.AES is
          Key.Rounds := 10;
          loop
             Temp := Key.Key (N + 3);
-            Key.Key (N + 4) := Key.Key (n + 0)
+            Key.Key (N + 4) := Key.Key (N + 0)
               xor (Te2 (Shift_Right (Temp, 16) and 16#0ff#) and 16#ff000000#)
               xor (Te3 (Shift_Right (Temp, 8) and 16#0ff#) and 16#00ff0000#)
               xor (Te0 (Temp and 16#0ff#) and 16#0000ff00#)
@@ -771,6 +777,8 @@ package body Util.Encoders.AES is
       end if;
    end Set_Encrypt_Key;
 
+   procedure Swap (A, B : in out Unsigned_32);
+
    procedure Swap (A, B : in out Unsigned_32) is
       Temp : constant Unsigned_32 := A;
    begin
@@ -841,10 +849,117 @@ package body Util.Encoders.AES is
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset) is
-      pragma Unreferenced (E);
+      pragma Unreferenced (Encoded);
+      Pos : Ada.Streams.Stream_Element_Offset := Data'First;
+      R   : Word_Block_Type;
+   begin
+      Last := Into'First;
+      case E.Mode is
+         when ECB =>
+            while Pos + Block_Type'Length - 1 <= Data'Last loop
+               Encrypt (Data (Pos .. Pos + Block_Type'Length - 1),
+                        Into (Last .. Last + Block_Type'Length - 1),
+                        E.Key);
+               Last := Last + Block_Type'Length;
+               Pos  := Pos + Block_Type'Length;
+            end loop;
+
+         when CBC =>
+            while Pos + Block_Type'Length - 1 <= Data'Last loop
+               E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
+               E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
+               E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
+               E.IV (4) := E.IV (4) xor To_Unsigned_32 (Data, Pos + 12);
+               Encrypt (E.IV,
+                        E.IV,
+                        E.Key);
+               Put_Unsigned_32 (Into, E.IV (1), Last);
+               Put_Unsigned_32 (Into, E.IV (2), Last + 4);
+               Put_Unsigned_32 (Into, E.IV (3), Last + 8);
+               Put_Unsigned_32 (Into, E.IV (4), Last + 12);
+               Last := Last + Block_Type'Length;
+               Pos  := Pos + Block_Type'Length;
+            end loop;
+
+         when PCBC =>
+            while Pos + Block_Type'Length - 1 <= Data'Last loop
+               E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
+               E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
+               E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
+               E.IV (4) := E.IV (4) xor To_Unsigned_32 (Data, Pos + 12);
+               Encrypt (E.IV,
+                        E.IV,
+                        E.Key);
+               Put_Unsigned_32 (Into, E.IV (1), Last);
+               Put_Unsigned_32 (Into, E.IV (2), Last + 4);
+               Put_Unsigned_32 (Into, E.IV (3), Last + 8);
+               Put_Unsigned_32 (Into, E.IV (4), Last + 12);
+               E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
+               E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
+               E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
+               E.IV (4) := E.IV (4) xor To_Unsigned_32 (Data, Pos + 12);
+               Last := Last + Block_Type'Length;
+               Pos  := Pos + Block_Type'Length;
+            end loop;
+
+         when CFB =>
+            while Pos + Block_Type'Length - 1 <= Data'Last loop
+               Encrypt (E.IV,
+                        E.IV,
+                        E.Key);
+               E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
+               E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
+               E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
+               E.IV (4) := E.IV (4) xor To_Unsigned_32 (Data, Pos + 12);
+               Put_Unsigned_32 (Into, E.IV (1), Last);
+               Put_Unsigned_32 (Into, E.IV (2), Last + 4);
+               Put_Unsigned_32 (Into, E.IV (3), Last + 8);
+               Put_Unsigned_32 (Into, E.IV (4), Last + 12);
+               Last := Last + Block_Type'Length;
+               Pos  := Pos + Block_Type'Length;
+            end loop;
+
+         when OFB =>
+            while Pos + Block_Type'Length - 1 <= Data'Last loop
+               Encrypt (E.IV,
+                        E.IV,
+                        E.Key);
+               Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (Data, Pos), Last);
+               Put_Unsigned_32 (Into, E.IV (2) xor To_Unsigned_32 (Data, Pos + 4), Last + 4);
+               Put_Unsigned_32 (Into, E.IV (3) xor To_Unsigned_32 (Data, Pos + 8), Last + 8);
+               Put_Unsigned_32 (Into, E.IV (4) xor To_Unsigned_32 (Data, Pos + 12), Last + 12);
+               Last := Last + Block_Type'Length;
+               Pos  := Pos + Block_Type'Length;
+            end loop;
+
+         when CTR =>
+            while Pos + Block_Type'Length - 1 <= Data'Last loop
+               Encrypt (E.IV,
+                        R,
+                        E.Key);
+               Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (Data, Pos), Last);
+               Put_Unsigned_32 (Into, E.IV (2) xor To_Unsigned_32 (Data, Pos + 4), Last + 4);
+               Put_Unsigned_32 (Into, E.IV (3) xor To_Unsigned_32 (Data, Pos + 8), Last + 8);
+               Put_Unsigned_32 (Into, E.IV (4) xor To_Unsigned_32 (Data, Pos + 12), Last + 12);
+               E.IV (4) := E.IV (4) + 1;
+               if E.IV (4) = 0 then
+                  E.IV (3) := E.IV (3) + 1;
+               end if;
+               Last := Last + Block_Type'Length;
+               Pos  := Pos + Block_Type'Length;
+            end loop;
+
+      end case;
+   end Transform;
+
+   --  Finish encoding the input array.
+   overriding
+   procedure Finish (E    : in out Encoder;
+                     Into : in out Ada.Streams.Stream_Element_Array;
+                     Last : in out Ada.Streams.Stream_Element_Offset) is
    begin
       null;
-   end Transform;
+   end Finish;
 
    --  ------------------------------
    --  Set the encryption key to use.
@@ -867,8 +982,8 @@ package body Util.Encoders.AES is
    begin
       Last := Output'First;
       while First + 16 <= Input'Last loop
-         Encrypt (Input (First .. First + 16),
-                  Output (Last .. Last + 16),
+         Encrypt (Input (First .. First + 15),
+                  Output (Last .. Last + 15),
                   Key);
          First := First + 16;
          Last  := Last + 16;
@@ -885,6 +1000,103 @@ package body Util.Encoders.AES is
             Last := Last + 16;
          end;
       end if;
+   end Encrypt;
+
+   procedure Encrypt (Input  : in Word_Block_Type;
+                      Output : out Word_Block_Type;
+                      Key    : in Key_Type) is
+      S0, S1, S2, S3 : Unsigned_32;
+      T0, T1, T2, T3 : Unsigned_32;
+      N : Natural := 0;
+      R : Natural := Key.Rounds / 2;
+   begin
+      S0 := Input (1) xor Key.Key (0);
+      S1 := Input (2) xor Key.Key (1);
+      S2 := Input (3) xor Key.Key (2);
+      S3 := Input (4) xor Key.Key (3);
+      loop
+         T0 := Te0 (Shift_Right (S0, 24) and 16#0ff#)
+           xor Te1 (Shift_Right (S1, 16) and 16#0ff#)
+           xor Te2 (Shift_Right (S2, 8) and 16#0ff#)
+           xor Te3 (S3 and 16#0ff#)
+           xor Key.Key (N + 4);
+
+         T1 := Te0 (Shift_Right (S1, 24) and 16#0ff#)
+           xor Te1 (Shift_Right (S2, 16) and 16#0ff#)
+           xor Te2 (Shift_Right (S3, 8) and 16#0ff#)
+           xor Te3 (S0 and 16#0ff#)
+           xor Key.Key (N + 5);
+
+         T2 := Te0 (Shift_Right (S2, 24) and 16#0ff#)
+           xor Te1 (Shift_Right (S3, 16) and 16#0ff#)
+           xor Te2 (Shift_Right (S0, 8) and 16#0ff#)
+           xor Te3 (S1 and 16#0ff#)
+           xor Key.Key (N + 6);
+
+         T3 := Te0 (Shift_Right (S3, 24) and 16#0ff#)
+           xor Te1 (Shift_Right (S0, 16) and 16#0ff#)
+           xor Te2 (Shift_Right (S1, 8) and 16#0ff#)
+           xor Te3 (S2 and 16#0ff#)
+           xor Key.Key (N + 7);
+
+         N := N + 8;
+         R := R - 1;
+         exit when R = 0;
+
+         S0 := Te0 (Shift_Right (T0, 24) and 16#0ff#)
+           xor Te1 (Shift_Right (T1, 16) and 16#0ff#)
+           xor Te2 (Shift_Right (T2, 8) and 16#0ff#)
+           xor Te3 (T3 and 16#0ff#)
+           xor Key.Key (N + 0);
+
+         S1 := Te0 (Shift_Right (T1, 24) and 16#0ff#)
+           xor Te1 (Shift_Right (T2, 16) and 16#0ff#)
+           xor Te2 (Shift_Right (T3, 8) and 16#0ff#)
+           xor Te3 (T0 and 16#0ff#)
+           xor Key.Key (N + 1);
+
+         S2 := Te0 (Shift_Right (T2, 24) and 16#0ff#)
+           xor Te1 (Shift_Right (T3, 16) and 16#0ff#)
+           xor Te2 (Shift_Right (T0, 8) and 16#0ff#)
+           xor Te3 (T1 and 16#0ff#)
+           xor Key.Key (N + 2);
+
+         S3 := Te0 (Shift_Right (T3, 24) and 16#0ff#)
+           xor Te1 (Shift_Right (T0, 16) and 16#0ff#)
+           xor Te2 (Shift_Right (T1, 8) and 16#0ff#)
+           xor Te3 (T2 and 16#0ff#)
+           xor Key.Key (N + 3);
+
+      end loop;
+
+      S0 := (Te2 (Shift_Right (T0, 24) and 16#0ff#) and 16#ff000000#)
+           xor (Te3 (Shift_Right (T1, 16) and 16#0ff#) and 16#00ff0000#)
+           xor (Te0 (Shift_Right (T2, 8) and 16#0ff#) and 16#0ff00#)
+           xor (Te1 (T3 and 16#0ff#) and 16#0ff#)
+           xor Key.Key (N);
+      Output (1) := S0;
+
+      S1 := (Te2 (Shift_Right (T1, 24) and 16#0ff#) and 16#ff000000#)
+           xor (Te3 (Shift_Right (T2, 16) and 16#0ff#) and 16#00ff0000#)
+           xor (Te0 (Shift_Right (T3, 8) and 16#0ff#) and 16#0ff00#)
+           xor (Te1 (T0 and 16#0ff#) and 16#0ff#)
+           xor Key.Key (N + 1);
+      Output (2) := S1;
+
+      S2 := (Te2 (Shift_Right (T2, 24) and 16#0ff#) and 16#ff000000#)
+           xor (Te3 (Shift_Right (T3, 16) and 16#0ff#) and 16#00ff0000#)
+           xor (Te0 (Shift_Right (T0, 8) and 16#0ff#) and 16#0ff00#)
+           xor (Te1 (T1 and 16#0ff#) and 16#0ff#)
+           xor Key.Key (N + 2);
+      Output (3) := S2;
+
+      S3 := (Te2 (Shift_Right (T3, 24) and 16#0ff#) and 16#ff000000#)
+           xor (Te3 (Shift_Right (T0, 16) and 16#0ff#) and 16#00ff0000#)
+           xor (Te0 (Shift_Right (T1, 8) and 16#0ff#) and 16#0ff00#)
+           xor (Te1 (T2 and 16#0ff#) and 16#0ff#)
+           xor Key.Key (N + 3);
+      Output (4) := S3;
+
    end Encrypt;
 
    procedure Encrypt (Input  : in Block_Type;
