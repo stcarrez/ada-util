@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-listeners-tests -- Unit tests for listeners
---  Copyright (C) 2012, 2013 Stephane Carrez
+--  Copyright (C) 2012, 2013, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +22,6 @@ with Util.Test_Caller;
 with Util.Listeners.Observers;
 with Util.Listeners.Lifecycles;
 package body Util.Listeners.Tests is
-
-   use Util.Tests;
 
    Test_Error : exception;
 
@@ -74,7 +72,6 @@ package body Util.Listeners.Tests is
    overriding
    procedure Update (Listener : in Integer_Listener;
                      Item     : in Integer) is
-      use type Ada.Strings.Unbounded.Unbounded_String;
    begin
       if Item /= Listener.Expect then
          raise Test_Error;
