@@ -89,6 +89,7 @@ package body Util.Commands.Tests is
    procedure Setup (Command : in out Test_Command_Type;
                     Config  : in out GNAT.Command_Line.Command_Line_Configuration;
                     Context : in out Test_Context_Type) is
+      pragma Unreferenced (Context);
    begin
       GNAT.Command_Line.Define_Switch (Config      => Config,
                                        Switch      => "-c:",
