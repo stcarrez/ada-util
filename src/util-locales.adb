@@ -171,7 +171,6 @@ package body Util.Locales is
    --  Compute the hash value of the locale.
    --  ------------------------------
    function Hash (Loc : in Locale) return Ada.Containers.Hash_Type is
-      use type Ada.Containers.Hash_Type;
    begin
       return Ada.Strings.Hash (Loc.all);
    end Hash;
