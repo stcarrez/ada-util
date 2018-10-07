@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  log.tests -- Unit tests for loggers
---  Copyright (C) 2009, 2010, 2011, 2013, 2015 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013, 2015, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,8 +26,6 @@ with Util.Log.Loggers;
 with Util.Properties;
 with Util.Measures;
 package body Util.Log.Tests is
-
-   use Util;
 
    Log : constant Loggers.Logger := Loggers.Create ("util.log.test");
 
