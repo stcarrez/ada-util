@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encodes-tests - Test for encoding
---  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -355,9 +355,9 @@ package body Util.Encoders.Tests is
       H : constant String := Util.Encoders.HMAC.SHA256.Sign (Key, Value);
       B : constant Util.Encoders.SHA256.Hash_Array := Util.Encoders.HMAC.SHA256.Sign (Key, Value);
       C : constant Encoders.SHA256.Base64_Digest := Encoders.HMAC.SHA256.Sign_Base64 (Key, Value);
-      B16 : Encoder := Create ("hex");
-      B64 : Decoder := Create ("base64");
-      B2 : Ada.Streams.Stream_Element_Array := B;
+      B16 : constant Encoder := Create ("hex");
+      B64 : constant Decoder := Create ("base64");
+      B2 : constant Ada.Streams.Stream_Element_Array := B;
       S  : constant String := B16.Encode_Binary (B2);
       B3 : constant Util.Encoders.SHA256.Hash_Array := B64.Decode_Binary (C);
    begin
