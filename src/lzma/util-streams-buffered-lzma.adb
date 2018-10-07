@@ -27,6 +27,7 @@ package body Util.Streams.Buffered.Lzma is
                          Output  : in Output_Stream_Access;
                          Size    : in Natural;
                          Format  : in String) is
+      pragma Unreferenced (Format);
    begin
       Stream.Initialize (Output, Size);
       Stream.Transform := new Util.Encoders.Lzma.Compress;
