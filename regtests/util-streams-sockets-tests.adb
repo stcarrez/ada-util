@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-sockets-tests -- Unit tests for socket streams
---  Copyright (C) 2012, 2017 Stephane Carrez
+--  Copyright (C) 2012, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +24,6 @@ with Util.Test_Caller;
 with Util.Streams.Texts;
 with Util.Tests.Servers;
 package body Util.Streams.Sockets.Tests is
-
-   use Util.Tests;
 
    package Caller is new Util.Test_Caller (Test, "Streams.Sockets");
 
