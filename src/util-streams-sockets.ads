@@ -55,8 +55,6 @@ package Util.Streams.Sockets is
 
 private
 
-   use Ada.Streams;
-
    type Socket_Stream is limited new Ada.Finalization.Limited_Controlled
      and Output_Stream and Input_Stream with record
       Sock : GNAT.Sockets.Socket_Type := GNAT.Sockets.No_Socket;
