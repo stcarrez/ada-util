@@ -52,7 +52,7 @@ with Util.Streams.Texts;
 --  A measure is made by creating a variable of type `Stamp`.  The declaration of
 --  this variable marks the begining of the measure.  The measure ends at the
 --  next call to the `Report` procedure.
---  
+--
 --     with Util.Measures;
 --     ...
 --       declare
