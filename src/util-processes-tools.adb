@@ -18,23 +18,16 @@
 
 with Util.Systems.Os;
 with Util.Streams.Texts;
-with Util.Streams.Pipes;
 package body Util.Processes.Tools is
 
-   --  ------------------------------
-   --  Execute the command and append the output in the vector array.
-   --  The program output is read line by line and the standard input is closed.
-   --  Return the program exit status.
-   --  ------------------------------
    procedure Execute (Command : in String;
+                      Process : in out Util.Streams.Pipes.Pipe_Stream;
                       Output  : in out Util.Strings.Vectors.Vector;
                       Status  : out Integer) is
-      Proc    : aliased Util.Streams.Pipes.Pipe_Stream;
-      Text    : Util.Streams.Texts.Reader_Stream;
+      Text : Util.Streams.Texts.Reader_Stream;
    begin
-      Proc.Add_Close (Util.Systems.Os.STDIN_FILENO);
-      Text.Initialize (Proc'Unchecked_Access);
-      Proc.Open (Command, Util.Processes.READ);
+      Text.Initialize (Process'Unchecked_Access);
+      Process.Open (Command, Util.Processes.READ);
       while not Text.Is_Eof loop
          declare
             Line : Ada.Strings.Unbounded.Unbounded_String;
@@ -44,8 +37,32 @@ package body Util.Processes.Tools is
             Output.Append (Ada.Strings.Unbounded.To_String (Line));
          end;
       end loop;
-      Proc.Close;
-      Status := Proc.Get_Exit_Status;
+      Process.Close;
+      Status := Process.Get_Exit_Status;
+   end Execute;
+
+   --  ------------------------------
+   --  Execute the command and append the output in the vector array.
+   --  The program output is read line by line and the standard input is closed.
+   --  Return the program exit status.
+   --  ------------------------------
+   procedure Execute (Command : in String;
+                      Output  : in out Util.Strings.Vectors.Vector;
+                      Status  : out Integer) is
+      Proc : Util.Streams.Pipes.Pipe_Stream;
+   begin
+      Proc.Add_Close (Util.Systems.Os.STDIN_FILENO);
+      Execute (Command, Proc, Output, Status);
+   end Execute;
+
+   procedure Execute (Command    : in String;
+                      Input_Path : in String;
+                      Output     : in out Util.Strings.Vectors.Vector;
+                      Status     : out Integer) is
+      Proc : Util.Streams.Pipes.Pipe_Stream;
+   begin
+      Proc.Set_Input_Stream (Input_Path);
+      Execute (Command, Proc, Output, Status);
    end Execute;
 
 end Util.Processes.Tools;
