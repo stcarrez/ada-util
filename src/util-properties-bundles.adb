@@ -27,8 +27,6 @@ package body Util.Properties.Bundles is
 
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Properties.Bundles");
 
-   use type Util.Properties.Manager_Access;
-
    procedure Free is
      new Ada.Unchecked_Deallocation (Manager'Class,
                                      Bundle_Manager_Access);
