@@ -59,7 +59,6 @@ package body Util.Concurrent.Counters is
    --  Decrement the counter atomically.
    --  ------------------------------
    procedure Decrement (C : in out Counter) is
-      use type Interfaces.Unsigned_32;
    begin
       Sync_Sub (C.Value'Unrestricted_Access, 1);
    end Decrement;
