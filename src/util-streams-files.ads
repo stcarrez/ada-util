@@ -60,8 +60,6 @@ package Util.Streams.Files is
 
 private
 
-   use Ada.Streams;
-
    type File_Stream is limited new Ada.Finalization.Limited_Controlled
      and Output_Stream and Input_Stream with record
       File : Ada.Streams.Stream_IO.File_Type;
