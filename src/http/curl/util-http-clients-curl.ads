@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-curl -- HTTP Clients with CURL
---  Copyright (C) 2012, 2017 Stephane Carrez
+--  Copyright (C) 2012, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +32,6 @@ private
    package Strings renames Interfaces.C.Strings;
 
    use type C.size_t;
-   use type C.int;
 
    --  Define 'Int' and 'Chars_Ptr' with capitals to avoid GNAT warnings due
    --  to Eclipse capitalization.
