@@ -27,6 +27,8 @@ package body Util.Properties.Bundles is
 
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Properties.Bundles");
 
+   use type Util.Properties.Manager_Access;
+
    procedure Free is
      new Ada.Unchecked_Deallocation (Manager'Class,
                                      Bundle_Manager_Access);
@@ -79,7 +81,6 @@ package body Util.Properties.Bundles is
       procedure Add_Bundle (Self : in out Manager;
                             Props : in Util.Properties.Manager_Access);
    private
-      use type Util.Properties.Manager_Access;
 
       package PropertyList is new Ada.Containers.Vectors
         (Element_Type => Util.Properties.Manager_Access,
@@ -96,7 +97,6 @@ package body Util.Properties.Bundles is
 
    procedure Add_Bundle (Self  : in out Manager;
                          Props : in Manager_Access) is
-      use type Util.Properties.Interface_P.Manager_Access;
    begin
       Interface_P.Manager'Class (Self.Impl.all).Add_Bundle (Props);
    end Add_Bundle;
@@ -163,7 +163,6 @@ package body Util.Properties.Bundles is
                           Bundle  : out Manager'Class;
                           Found   : out Boolean) is
       use Ada.Strings;
-      use type Util.Properties.Manager_Access;
 
       Loc_Name : constant String := '_' & Locale;
       Last_Pos : Integer := Loc_Name'Last;
