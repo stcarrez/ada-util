@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009, 2010, 2011, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2016, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -288,7 +288,8 @@ package body Util.Encoders is
    --  cannot be transformed
    --  ------------------------------
    function Transform (E    : in out Transformer'Class;
-                       Data : in Streams.Stream_Element_Array) return Streams.Stream_Element_Array is
+                       Data : in Streams.Stream_Element_Array)
+                       return Streams.Stream_Element_Array is
       Buf_Size : constant Streams.Stream_Element_Offset := Best_Size (Data'Length);
       Res      : Streams.Stream_Element_Array (1 .. Buf_Size);
       Last_Encoded  : Streams.Stream_Element_Offset;
