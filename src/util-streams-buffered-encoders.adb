@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-encoders -- Streams with encoding and decoding capabilities
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,7 @@ package body Util.Streams.Buffered.Encoders is
                          Output  : in Output_Stream_Access;
                          Size    : in Natural;
                          Format  : in String) is
+      pragma Unreferenced (Format);
    begin
       Stream.Initialize (Output, Size);
       Stream.Transform := new Util.Encoders.Base64.Encoder;
@@ -74,7 +75,7 @@ package body Util.Streams.Buffered.Encoders is
    --  -----------------------
    overriding
    procedure Flush (Stream : in out Encoding_Stream) is
-      Last_Pos : Ada.Streams.Stream_Element_Offset;
+      Last_Pos : Ada.Streams.Stream_Element_Offset := Stream.Write_Pos - 1;
    begin
       Stream.Transform.Finish (Stream.Buffer (Stream.Write_Pos .. Stream.Buffer'Last),
                                Last_Pos);
