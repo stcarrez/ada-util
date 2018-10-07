@@ -30,6 +30,8 @@ package Util.Encoders.AES is
    --  ------------------------------
    subtype Block_Type is Ada.Streams.Stream_Element_Array (1 .. 16);
 
+   type Word_Block_Type is array (1 .. 4) of Interfaces.Unsigned_32;
+
    procedure Set_Encrypt_Key (Key  : out Key_Type;
                               Data : in Ada.Streams.Stream_Element_Array);
 
@@ -38,6 +40,9 @@ package Util.Encoders.AES is
 
    procedure Encrypt (Input  : in Block_Type;
                       Output : out Block_Type;
+                      Key    : in Key_Type);
+   procedure Encrypt (Input  : in Word_Block_Type;
+                      Output : out Word_Block_Type;
                       Key    : in Key_Type);
 
    procedure Encrypt (Input  : in Ada.Streams.Stream_Element_Array;
@@ -75,6 +80,12 @@ package Util.Encoders.AES is
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset);
 
+   --  Finish encoding the input array.
+   overriding
+   procedure Finish (E    : in out Encoder;
+                     Into : in out Ada.Streams.Stream_Element_Array;
+                     Last : in out Ada.Streams.Stream_Element_Offset);
+
    --  Set the encryption key to use.
    procedure Set_Key (E    : in out Encoder;
                       Data : in Ada.Streams.Stream_Element_Array;
@@ -92,6 +103,7 @@ private
    end record;
 
    type Encoder is new Util.Encoders.Transformer with record
+      IV   : Word_Block_Type;
       Key  : Key_Type;
       Mode : AES_Mode := CBC;
    end record;
