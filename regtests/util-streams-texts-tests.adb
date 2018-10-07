@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.files.tests -- Unit tests for buffered streams
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,6 @@ with Util.Streams.Files;
 with Util.Streams.Texts;
 package body Util.Streams.Texts.Tests is
 
-   use Util.Tests;
    use Ada.Streams.Stream_IO;
 
    package Caller is new Util.Test_Caller (Test, "Streams.Texts");
