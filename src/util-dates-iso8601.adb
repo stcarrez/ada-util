@@ -28,6 +28,7 @@ package body Util.Dates.ISO8601 is
 
       Result : Date_Record;
       Pos    : Natural;
+      pragma Unreferenced (Pos);
    begin
       if Date'Length < 4 then
          raise Constraint_Error with "Invalid date";
