@@ -17,11 +17,17 @@
 -----------------------------------------------------------------------
 
 with Ada.IO_Exceptions;
-
+with Interfaces.C;
 package body Util.Streams.Raw is
 
    use Util.Systems.Os;
    use type Util.Systems.Types.File_Type;
+
+   --  GNAT 2018 issues a warning due to the use type Interfaces.C.int clause.
+   --  But gcc 7.3 and older fails to compile and requires this use clause.
+   pragma Warnings (Off);
+   use type Interfaces.C.int;
+   pragma Warnings (On);
 
    --  -----------------------
    --  Initialize the raw stream to read and write on the given file descriptor.
