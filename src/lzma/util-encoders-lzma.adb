@@ -64,6 +64,7 @@ package body Util.Encoders.Lzma is
          end if;
          exit when Result /= Base.LZMA_OK;
       end loop;
+      Encoded := Into'First;
    end Transform;
 
    --  ------------------------------
