@@ -30,6 +30,8 @@ package Util.Nullables is
    use type Ada.Strings.Unbounded.Unbounded_String;
    use type Ada.Calendar.Time;
 
+   DEFAULT_TIME : constant Ada.Calendar.Time;
+
    --  ------------------------------
    --  A boolean which can be null.
    --  ------------------------------
@@ -37,6 +39,8 @@ package Util.Nullables is
       Value   : Boolean := False;
       Is_Null : Boolean := True;
    end record;
+
+   Null_Boolean : constant Nullable_Boolean;
 
    --  Return True if the two nullable times are identical (both null or both same value).
    function "=" (Left, Right : in Nullable_Boolean) return Boolean is
@@ -50,6 +54,8 @@ package Util.Nullables is
       Is_Null : Boolean := True;
    end record;
 
+   Null_Integer : constant Nullable_Integer;
+
    --  Return True if the two nullable times are identical (both null or both same value).
    function "=" (Left, Right : in Nullable_Integer) return Boolean is
       (Left.Is_Null = Right.Is_Null and (Left.Is_Null or else Left.Value = Right.Value));
@@ -61,6 +67,8 @@ package Util.Nullables is
       Value   : Long_Long_Integer := 0;
       Is_Null : Boolean := True;
    end record;
+
+   Null_Long : constant Nullable_Long;
 
    --  Return True if the two nullable times are identical (both null or both same value).
    function "=" (Left, Right : in Nullable_Long) return Boolean is
@@ -74,6 +82,8 @@ package Util.Nullables is
       Is_Null : Boolean := True;
    end record;
 
+   Null_String : constant Nullable_String;
+
    --  Return True if the two nullable times are identical (both null or both same value).
    function "=" (Left, Right : in Nullable_String) return Boolean is
       (Left.Is_Null = Right.Is_Null and (Left.Is_Null or else Left.Value = Right.Value));
@@ -82,12 +92,40 @@ package Util.Nullables is
    --  A date which can be null.
    --  ------------------------------
    type Nullable_Time is record
-      Value   : Ada.Calendar.Time;
+      Value   : Ada.Calendar.Time := DEFAULT_TIME;
       Is_Null : Boolean := True;
    end record;
+
+   Null_Time : constant Nullable_Time;
 
    --  Return True if the two nullable times are identical (both null or both same time).
    function "=" (Left, Right : in Nullable_Time) return Boolean is
       (Left.Is_Null = Right.Is_Null and (Left.Is_Null or else Left.Value = Right.Value));
+
+private
+
+   DEFAULT_TIME : constant Ada.Calendar.Time := Ada.Calendar.Time_Of (Year    => 1901,
+                                                                      Month   => 1,
+                                                                      Day     => 2,
+                                                                      Seconds => 0.0);
+   Null_Boolean : constant Nullable_Boolean
+     := Nullable_Boolean '(Is_Null => True,
+                           Value   => False);
+
+   Null_Integer : constant Nullable_Integer
+     := Nullable_Integer '(Is_Null => True,
+                           Value   => 0);
+
+   Null_Long : constant Nullable_Long
+     := Nullable_Long '(Is_Null => True,
+                        Value   => 0);
+
+   Null_String : constant Nullable_String
+     := Nullable_String '(Is_Null => True,
+                          Value   => Ada.Strings.Unbounded.Null_Unbounded_String);
+
+   Null_Time : constant Nullable_Time
+     := Nullable_Time '(Is_Null => True,
+                        Value   => DEFAULT_TIME);
 
 end Util.Nullables;
