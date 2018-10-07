@@ -303,6 +303,7 @@ package body Util.Serialize.IO.Form is
    --  Get the current location (file and line) to report an error message.
    --  ------------------------------
    function Get_Location (Handler : in Parser) return String is
+      pragma Unreferenced (Handler);
    begin
       return "";
    end Get_Location;
