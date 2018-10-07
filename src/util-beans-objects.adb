@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects -- Generic Typed Data Representation
---  Copyright (C) 2009, 2010, 2011, 2013, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013, 2016, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,14 +20,11 @@ with Ada.Characters.Conversions;
 with Ada.Unchecked_Deallocation;
 with Ada.Tags;
 with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
-with Interfaces.C;
 with Util.Beans.Basic;
 package body Util.Beans.Objects is
 
    use Util.Concurrent.Counters;
    use Ada.Characters.Conversions;
-
-   use type Interfaces.C.long;
 
    function UTF8_Decode (S : in String) return Wide_Wide_String
       renames Ada.Strings.UTF_Encoding.Wide_Wide_Strings.Decode;
@@ -883,7 +880,6 @@ package body Util.Beans.Objects is
    --  Returns True if the object is an array.
    --  ------------------------------
    function Is_Array (Value : in Object) return Boolean is
-      use type Util.Beans.Basic.Array_Bean_Access;
    begin
       if Value.V.Of_Type = TYPE_ARRAY then
          return True;
