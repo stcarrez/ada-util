@@ -26,7 +26,6 @@ with Util.Dates.RFC7231;
 with Util.Dates.ISO8601;
 package body Util.Dates.Formats.Tests is
 
-   use Util.Tests;
    use Ada.Strings.Unbounded;
 
    --  The logger
@@ -119,6 +118,15 @@ package body Util.Dates.Formats.Tests is
    --  Test parsing a date using several formats and different locales.
    --  ------------------------------
    procedure Test_Parse (T : in out Test) is
+      procedure Check (Pattern : in String;
+                       Date    : in String;
+                       Year        : Natural;
+                       Month       : Natural;
+                       Day         : Natural;
+                       Hour        : Natural;
+                       Minute      : Natural;
+                       Second      : Natural);
+
       Bundle  : Util.Properties.Bundles.Manager;
 
       procedure Check (Pattern : in String;
