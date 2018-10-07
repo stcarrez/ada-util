@@ -85,8 +85,6 @@ package body Util.Measures is
                     Title    : in String;
                     Stream   : in out Util.Streams.Texts.Print_Stream'Class) is
 
-      use Util.Streams.Buffered;
-
       procedure Dump_XML (Item : in Measure_Access);
 
       procedure Dump_XML (Item : in Measure_Access) is
@@ -263,7 +261,6 @@ package body Util.Measures is
                      Count : in Positive := 1) is
 
          use Ada.Containers;
-         use Ada.Calendar;
 
          Pos  : Hash_Type;
          Node : Measure_Access;
