@@ -163,8 +163,6 @@ package Util.Streams.Pipes is
 
 private
 
-   use Ada.Streams;
-
    type Pipe_Stream is limited new Ada.Finalization.Limited_Controlled
      and Output_Stream and Input_Stream with record
       Proc   : Util.Processes.Process;
