@@ -21,7 +21,6 @@ with Util.Streams.Texts;
 with Ada.Streams.Stream_IO;
 package body Util.Streams.Buffered.Encoders.Tests is
 
-   use Util.Tests;
    use Util.Streams.Files;
    use Ada.Streams.Stream_IO;
 
