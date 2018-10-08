@@ -21,7 +21,7 @@ library project Util_Http_Curl is
 
          case Library_Type is
             when "relocatable" =>
-                for Library_Interface use ("Util.Http.Clients.Curl");
+                --  for Library_Interface use ("Util.Http.Clients.Curl");
                 for Library_Options use (@UTIL_CURL_LIBRARY_OPTIONS@);
 
             when others =>
