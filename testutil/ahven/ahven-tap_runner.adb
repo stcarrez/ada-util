@@ -127,8 +127,6 @@ package body Ahven.Tap_Runner is
 
    procedure Add_Pass (Listener : in out Tap_Listener;
                        Info     :        Context) is
-      use Ada.Strings;
-      use Ada.Strings.Fixed;
    begin
       if Listener.Capture_Output then
          Temporary_Output.Restore_Output;
@@ -145,9 +143,6 @@ package body Ahven.Tap_Runner is
                             Info     :        Context;
                             Severity :        String) is
       pragma Unreferenced (Severity);
-
-      use Ada.Strings;
-      use Ada.Strings.Fixed;
    begin
       if Listener.Capture_Output then
          Temporary_Output.Restore_Output;
@@ -183,8 +178,6 @@ package body Ahven.Tap_Runner is
 
    procedure Add_Skipped (Listener : in out Tap_Listener;
                           Info     :        Context) is
-      use Ada.Strings;
-      use Ada.Strings.Fixed;
    begin
       if Listener.Capture_Output then
          Temporary_Output.Restore_Output;
