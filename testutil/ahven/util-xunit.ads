@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-xunit - Unit tests on top of AHven
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,8 +30,6 @@ with GNAT.Source_Info;
 --  Ahven is written by Tero Koskinen and licensed under permissive ISC license.
 --  See http://ahven.stronglytyped.org/
 package Util.XUnit is
-
-   use Ada.Strings.Unbounded;
 
    type Status is (Success, Failure);
 
