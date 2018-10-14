@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-xunit - Unit tests on top of AHven
---  Copyright (C) 2011, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -234,6 +234,7 @@ package body Util.XUnit is
          Ada.Directories.Create_Path (Out_Dir);
       end if;
 
+      Ahven.Framework.Set_Logging (Util.Tests.Verbose);
       Start := Ada.Calendar.Clock;
       Ahven.Framework.Execute (Tests.all, Listener, Timeout);
       Dt := Ada.Calendar.Clock - Start;
