@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Ada.Directories;
 with Ada.Unchecked_Deallocation;
 
 package body Util.Processes.Os is
@@ -23,6 +24,7 @@ package body Util.Processes.Os is
    use Util.Systems.Os;
    use type Interfaces.C.size_t;
    use type Util.Systems.Types.File_Type;
+   use type Ada.Directories.File_Kind;
 
    type Pipe_Type is array (0 .. 1) of File_Type;
    procedure Close (Pipes : in out Pipe_Type);
@@ -102,6 +104,20 @@ package body Util.Processes.Os is
       end if;
    end Close;
 
+   procedure Prepare_Working_Directory (Sys : in out System_Process;
+                                        Proc : in out Process'Class) is
+      Dir : constant String := Ada.Strings.Unbounded.To_String (Proc.Dir);
+   begin
+      Interfaces.C.Strings.Free (Sys.Dir);
+      if Dir'Length > 0 then
+         if not Ada.Directories.Exists (Dir)
+           or else Ada.Directories.Kind (Dir) /= Ada.Directories.Directory then
+            raise Ada.Directories.Name_Error with "Invalid directory: " & Dir;
+         end if;
+         Sys.Dir := Interfaces.C.Strings.New_String (Dir);
+      end if;
+   end Prepare_Working_Directory;
+
    --  ------------------------------
    --  Spawn a new process.
    --  ------------------------------
@@ -132,6 +148,8 @@ package body Util.Processes.Os is
       end Cleanup;
 
    begin
+      Sys.Prepare_Working_Directory (Proc);
+
       --  Since checks are disabled, verify by hand that the argv table is correct.
       if Sys.Argv = null or else Sys.Argc < 1 or else Sys.Argv (0) = Null_Ptr then
          raise Program_Error with "Invalid process argument list";
@@ -245,6 +263,13 @@ package body Util.Processes.Os is
             end;
          end if;
 
+         if Sys.Dir /= Null_Ptr then
+            Result := Sys_Chdir (Sys.Dir);
+            if Result < 0 then
+               Sys_Exit (253);
+            end if;
+         end if;
+
          Result := Sys_Execvp (Sys.Argv (0), Sys.Argv.all);
          Sys_Exit (255);
       end if;
@@ -340,6 +365,7 @@ package body Util.Processes.Os is
       Interfaces.C.Strings.Free (Sys.In_File);
       Interfaces.C.Strings.Free (Sys.Out_File);
       Interfaces.C.Strings.Free (Sys.Err_File);
+      Interfaces.C.Strings.Free (Sys.Dir);
    end Finalize;
 
 end Util.Processes.Os;
