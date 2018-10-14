@@ -31,6 +31,7 @@ private package Util.Processes.Os is
       In_File    : Util.Systems.Os.Ptr := Interfaces.C.Strings.Null_Ptr;
       Out_File   : Util.Systems.Os.Ptr := Interfaces.C.Strings.Null_Ptr;
       Err_File   : Util.Systems.Os.Ptr := Interfaces.C.Strings.Null_Ptr;
+      Dir        : Util.Systems.Os.Ptr := Interfaces.C.Strings.Null_Ptr;
       To_Close   : File_Type_Array_Access;
       Out_Append : Boolean := False;
       Err_Append : Boolean := False;
@@ -81,6 +82,9 @@ private
    --  Setup the file to be closed on exec.
    function Create_Stream (File : in Util.Systems.Os.File_Type)
                            return Util.Streams.Raw.Raw_Stream_Access;
+
+   procedure Prepare_Working_Directory (Sys : in out System_Process;
+                                        Proc : in out Process'Class);
 
 end Util.Processes.Os;
 
