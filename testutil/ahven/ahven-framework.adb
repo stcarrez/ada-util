@@ -15,6 +15,7 @@
 --
 
 with Ada.Strings;
+with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 with Ada.Exceptions;
 with Ahven.Long_AStrings;
@@ -23,6 +24,11 @@ with Util.Log.Loggers;
 
 package body Ahven.Framework is
    use Ahven.AStrings;
+
+   procedure Log_Test_Start (Name : in String);
+   procedure Log_Test_End;
+   procedure Log_Test_Fail;
+   procedure Log_Test_Timeout;
 
    -- A few local procedures, so we do not need to duplicate code.
    procedure Free_Test is
@@ -35,6 +41,63 @@ package body Ahven.Framework is
      (Test_Object     : in out Test'Class;
       Listener_Object : in out Listeners.Result_Listener'Class);
    -- Logic for Execute procedures. Action is specified by the caller.
+
+   --  When `Log_Enable_Flag` is set, a message is printed before immediately running
+   --  a test and after its execution.  Such verbose execution is intended to help in
+   --  trouble shotting test execution when nasty problem occurs (timeout, crashes, ...).
+   Log_Output_File : Ada.Text_IO.File_Type := Ada.Text_IO.Standard_Output;
+   Log_Enable_Flag : Boolean := False;
+
+   procedure Set_Logging (Flag : in Boolean) is
+   begin
+      Log_Enable_Flag := Flag;
+   end Set_Logging;
+
+   procedure Log_Test_Start (Name : in String) is
+   begin
+      if Log_Enable_Flag then
+         Ada.Text_IO.Put (Log_Output_File, "Run '");
+         Ada.Text_IO.Put (Log_Output_File, Name);
+         Ada.Text_IO.Put (Log_Output_File, "' ...");
+      end if;
+
+   exception
+      when others =>
+         null; --  corruption guard: we don't want exceptions to be raised here.
+   end Log_Test_Start;
+
+   procedure Log_Test_End is
+   begin
+      if Log_Enable_Flag then
+         Ada.Text_IO.Put_Line (Log_Output_File, ": PASS");
+      end if;
+
+   exception
+      when others =>
+         null; --  corruption guard: we don't want exceptions to be raised here.
+   end Log_Test_End;
+
+   procedure Log_Test_Fail is
+   begin
+      if Log_Enable_Flag then
+         Ada.Text_IO.Put_Line (Log_Output_File, ": FAIL");
+      end if;
+
+   exception
+      when others =>
+         null; --  corruption guard: we don't want exceptions to be raised here.
+   end Log_Test_Fail;
+
+   procedure Log_Test_Timeout is
+   begin
+      if Log_Enable_Flag then
+         Ada.Text_IO.Put_Line (Log_Output_File, ": TIMEOUT");
+      end if;
+
+   exception
+      when others =>
+         null; --  corruption guard: we don't want exceptions to be raised here.
+   end Log_Test_Timeout;
 
    procedure Set_Up (T : in out Test) is
    begin
@@ -295,6 +358,7 @@ package body Ahven.Framework is
                Command_Runner.End_Command;
             or
                delay Duration (Timeout);
+               Log_Test_Timeout;
                abort Command_Runner;
                Result.Set_Status (TEST_TIMEOUT);
             end select;
@@ -440,7 +504,6 @@ package body Ahven.Framework is
    function Test_Count (T : Test_Case; Test_Name : String)
      return Test_Count_Type
    is
-      use Test_Command_List;
 
       Counter  : Test_Count_Type := 0;
 
@@ -691,7 +754,9 @@ package body Ahven.Framework is
    end Release_Suite;
 
    procedure Run (Command : Test_Command; T : in out Test_Case'Class) is
+      Name : constant String := To_String (Command.Name);
    begin
+      Log_Test_Start (Name);
       case Command.Command_Kind is
          when SIMPLE =>
             Command.Simple_Routine.all;
@@ -703,10 +768,12 @@ package body Ahven.Framework is
                when others =>
                   --  Make sure Tear_Down is called even if the test failed.
                   Tear_Down (T);
+                  Log_Test_Fail;
                   raise;
             end;
             Tear_Down (T);
       end case;
+      Log_Test_End;
    end Run;
 
 
