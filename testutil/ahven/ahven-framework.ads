@@ -264,6 +264,9 @@ package Ahven.Framework is
    -- Release the memory of Test_Suite.
    -- All added tests are released automatically.
 
+   procedure Set_Logging (Flag : in Boolean);
+   -- Enable or disable traces before/after test execution.
+
 private
    type Command_Object_Enum is (SIMPLE, OBJECT);
 
