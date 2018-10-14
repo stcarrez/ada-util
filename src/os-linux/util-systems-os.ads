@@ -153,6 +153,10 @@ package Util.Systems.Os is
                        Mode  : in Util.Systems.Types.mode_t) return Integer;
    pragma Import (C, Sys_Chmod, "chmod");
 
+   --  Change working directory.
+   function Sys_Chdir (Path : in Ptr) return Integer;
+   pragma Import (C, Sys_Chdir, "chdir");
+
    --  Rename a file (the Ada.Directories.Rename does not allow to use
    --  the Unix atomic file rename!)
    function Sys_Rename (Oldpath  : in Ptr;
