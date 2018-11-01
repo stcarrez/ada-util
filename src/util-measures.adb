@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  measure -- Benchmark tools
---  Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017 Stephane Carrez
+--  Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -120,6 +120,7 @@ package body Util.Measures is
       Stream.Write (TE, ISO_DATE_TIME);
       Stream.Write (""">");
       if Buckets /= null then
+         Stream.Write (ASCII.LF);
          begin
             for I in Buckets'Range loop
                declare
