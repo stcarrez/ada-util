@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -111,7 +111,8 @@ package body Util.Processes.Os is
       Interfaces.C.Strings.Free (Sys.Dir);
       if Dir'Length > 0 then
          if not Ada.Directories.Exists (Dir)
-           or else Ada.Directories.Kind (Dir) /= Ada.Directories.Directory then
+           or else Ada.Directories.Kind (Dir) /= Ada.Directories.Directory
+         then
             raise Ada.Directories.Name_Error with "Invalid directory: " & Dir;
          end if;
          Sys.Dir := Interfaces.C.Strings.New_String (Dir);
@@ -134,7 +135,6 @@ package body Util.Processes.Os is
       pragma Suppress (All_Checks);
 
       Result : Integer;
-      pragma Unreferenced (Result);
 
       Stdin_Pipes   : aliased Pipe_Type := (others => NO_FILE);
       Stdout_Pipes  : aliased Pipe_Type := (others => NO_FILE);
