@@ -45,7 +45,7 @@ package body Ahven.Framework is
    --  When `Log_Enable_Flag` is set, a message is printed before immediately running
    --  a test and after its execution.  Such verbose execution is intended to help in
    --  trouble shotting test execution when nasty problem occurs (timeout, crashes, ...).
-   Log_Output_File : Ada.Text_IO.File_Type := Ada.Text_IO.Standard_Output;
+   Log_Output_File : constant Ada.Text_IO.File_Type := Ada.Text_IO.Standard_Output;
    Log_Enable_Flag : Boolean := False;
 
    procedure Set_Logging (Flag : in Boolean) is
