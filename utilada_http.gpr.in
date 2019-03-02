@@ -1,13 +1,13 @@
 with "config";
-with "util";
+with "utilada_sys";
 @WITH_UTIL_CURL@
 @WITH_UTIL_AWS@
 
-abstract project Util_Http is
-   Version     := Util.Version;
-   Library_Dir := Util.Library_Dir;
+abstract project UtilAda_Http is
+   Version := "@UTIL_VERSION@";
+   Library_Dir := "lib";
 
    Has_Curl    : Config.Yes_No := "@UTIL_HAVE_CURL@";
    Has_AWS     : Config.Yes_No := "@UTIL_HAVE_AWS@";
    
-end Util_Http;
+end UtilAda_Http;

@@ -1,16 +1,18 @@
 with "config";
-with "util";
-with "util_http";
-with "util_unit";
+with "utilada_core";
+with "utilada_base";
+with "utilada_sys";
+with "utilada_http";
+with "utilada_unit";
 with "tests_proc";
 
-project Util_Tests is
+project UtilAda_Tests is
 
    for Languages use ("Ada");
    Mains := ("util_harness.adb");
    for Source_Dirs use ("regtests/");
 
-   case Util_Http.Has_Curl is
+   case UtilAda_Http.Has_Curl is
       when "yes" =>
           for Source_Dirs use project'Source_Dirs & ("regtests/curl");
 
@@ -18,7 +20,7 @@ project Util_Tests is
 
    end case;
 
-   case Util_Http.Has_Aws is
+   case UtilAda_Http.Has_Aws is
       when "yes" =>
           for Source_Dirs use project'Source_Dirs & ("regtests/aws");
 
@@ -26,12 +28,12 @@ project Util_Tests is
 
    end case;
 
-   case Util.Os_Version is
-      when "os-linux" =>
+   case UtilAda_Sys.Os_Version is
+      when "linux" | "netbsd" | "freebsd" =>
 	  	 for Source_Dirs use project'Source_Dirs & ("regtests/dlls");
 	  	 for Source_Dirs use project'Source_Dirs & ("regtests/systems");
 
-      when "os-win32" =>
+      when "windows" =>
 	  	 for Source_Dirs use project'Source_Dirs & ("regtests/dlls");
 	  	 for Source_Dirs use project'Source_Dirs & ("regtests/systems");
 
@@ -56,4 +58,4 @@ project Util_Tests is
       for Compiler_Command ("c") use "gcc";
    end Ide;
 
-end Util_Tests;
+end UtilAda_Tests;
