@@ -11,7 +11,6 @@ acc.xml
 ChangeLog
 .settings
 configure.lineno
-Makefile
 util.gpr
 tests.xml
 util-test.xml
@@ -29,15 +28,18 @@ lib/
 obj/
 regtests/util-testsuite.adb
 src/http/curl/util-http-clients-curl-constants.ads
-src/util-systems-constants.ads
-src/util-systems-types.ads
+src/sys/util-systems-constants.ads
+src/sys/util-systems-types.ads
 string-append.csv
 string.csv
 util-tests.xml
-util_http.gpr
-util_http_aws.gpr
-util_http_curl.gpr
-util_unit.gpr
+utilada_http.gpr
+utilada_core.gpr
+utilada_sys.gpr
+utilada_base.gpr
+utilada_aws.gpr
+utilada_curl.gpr
+utilada_unit.gpr
 doc/util-book.pdf
 doc/util-book.html
 
