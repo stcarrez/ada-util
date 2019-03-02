@@ -1,5 +1,5 @@
 dnl Autoconf configure script for Ada Util
-dnl Copyright (C) 2001 - 2018 Stephane Carrez
+dnl Copyright (C) 2001 - 2019 Stephane Carrez
 dnl Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 dnl
 dnl  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,7 @@ dnl  limitations under the License.
 dnl 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(src/util.ads)
-
-AC_CANONICAL_SYSTEM
-dnl AM_MAINTAINER_MODE
+AC_INIT(src/core/util.ads)
 
 # Current release settings
 UTIL_MAJOR_VERSION=1
@@ -36,46 +33,45 @@ AC_SUBST(UTIL_MAJOR_VERSION)
 AC_SUBST(UTIL_MINOR_VERSION)
 AC_SUBST(UTIL_MICRO_VERSION)
 
+AM_GNAT_LIBRARY_PROJECT(utilada_core)
+AM_GNAT_LIBRARY_PROJECT(utilada_base)
+AM_GNAT_LIBRARY_PROJECT(utilada_sys)
+
 EXEC_PREFIX="$prefix"
 AC_SUBST(EXEC_PREFIX)
-
-UTIL_LIBDIR="lib"
-AC_SUBST(UTIL_LIBDIR)
 
 AC_CHECK_PROG(HAVE_PANDOC,pandoc,yes)
 AC_CHECK_PROG(HAVE_DYNAMO,dynamo,yes)
 
-os_version='os-none'
-AC_MSG_CHECKING([specific operating system sources])
+os_version='none'
+AC_MSG_CHECKING([operating system])
 case "${target_os}" in
      linux|linux-*|solaris*|sysv-*)
-	src_os='src/os-linux'
-	os_version='os-linux'
+	os_version='linux'
 	;;
 
-     netbsdelf*|openbsd*|dragonfly*|freebsd*)
-	src_os='src/os-linux'
-	os_version='os-linux'
+     netbsdelf*|dragonfly*)
+	os_version='netbsd'
+	;;
+
+     openbsd*|freebsd*)
+	# Let OpenBSD people cry 
+	os_version='freebsd'
 	;;
 
      macos*|darwin*)
-	src_os='src/os-linux'
-	os_version='os-linux'
+	os_version='macos'
 	;;
 
      mingw32*|cygwin*|mingw64*)
-	src_os='src/os-win32'
-	os_version='os-win32'
+	os_version='windows'
 	;;
 
      *)
-	src_os='src/os-none'
 	;;
 esac
-AC_MSG_RESULT(using $src_os)
-UTIL_OS_DIR=$src_os
+AC_MSG_RESULT($os_version)
 UTIL_OS_VERSION=$os_version
-AC_SUBST(UTIL_OS_DIR)
 AC_SUBST(UTIL_OS_VERSION)
 
 AC_MSG_CHECKING([hardware platform])
@@ -84,24 +80,24 @@ AC_MSG_RESULT($HARDWARE_PLATFORM)
 AC_SUBST(HARDWARE_PLATFORM)
 
 # Check for gcc intrinsics
-AM_HAS_INTRINSIC_SYNC_COUNTERS(src_asm='src/asm-intrinsic',src_asm='')
+AM_HAS_INTRINSIC_SYNC_COUNTERS(src_asm='intrinsic',src_asm='')
 AC_MSG_CHECKING([specific processor support])
 if test T$src_asm = T; then
    case "${target}" in
    ## Intel 386 machines where we don't care about the manufacturer
      i[[34567]]86-*-* | x86_* | x86-*)
-       src_asm='src/asm-x86'
+       src_asm='x86'
        ;;
 
      *)
-       src_asm='src/asm-none'
+       src_asm='none'
        ;;
 
    esac
 fi
 AC_MSG_RESULT(using $src_asm)
-UTIL_ASM_DIR="$src_asm"
-AC_SUBST(UTIL_ASM_DIR)
+UTIL_ASM_TYPE="$src_asm"
+AC_SUBST(UTIL_ASM_TYPE)
 
 UTIL_HAS_LIBDL="no"
 AC_CHECK_HEADERS(dlfcn.h)
@@ -130,7 +126,7 @@ AS_HELP_STRING([--with-xmlada=], [Enable XML serialization]),
   else
     gnat_xml_ada=${withval}/xmlada-config;
     WITH_XML_ADA="with \"${withval}\";";
-    UTIL_XML_DIR='src/xml';
+    UTIL_XML_DIR='src/sys/serialize/xml';
     UTIL_HAVE_XML='yes';
   fi
 ],
@@ -149,7 +145,7 @@ case $ac_xml_version in
   XmlAda-3.2*)
       AC_MSG_RESULT($ac_xml_version)
       WITH_XML_ADA="with \"xmlada\";";
-      UTIL_XML_DIR='src/xml';
+      UTIL_XML_DIR='src/sys/serialize/xml';
       UTIL_XML_VERSION='3';
       UTIL_HAVE_XML='yes';
       ;;
@@ -157,7 +153,7 @@ case $ac_xml_version in
   XmlAda-4.*|XmlAda-2013|XmlAda-2014)
       AC_MSG_RESULT($ac_xml_version)
       WITH_XML_ADA="with \"xmlada\";";
-      UTIL_XML_DIR='src/xml';
+      UTIL_XML_DIR='src/sys/serialize/xml';
       UTIL_XML_VERSION='4';
       UTIL_HAVE_XML='yes';
       ;;
@@ -179,7 +175,7 @@ if test T$UTIL_HAVE_XML = Tyes ; then
   else
     WITH_XML_ADA="with \"xmlada_sax\";";
     UTIL_XML_VERSION='4'
-    UTIL_XML_DIR='src/xml'
+    UTIL_XML_DIR='src/serialize/xml'
   fi
 else
   gnat_project_xmlada_sax='no'
@@ -231,11 +227,6 @@ fi
 AC_SUBST(WITH_LZMA_ADA)
 AC_SUBST(UTIL_LZMA_DIR)
 AC_SUBST(UTIL_HAVE_LZMA)
-
-##########################################
-# Check to enable/disable shared library
-##########################################
-AM_GNAT_LIBRARY_PROJECT(util)
 
 ##########################################
 # Check for GNAT traceback in Util.Log.Loggers
@@ -296,32 +287,25 @@ if test x$ac_enable_ahven = 'xyes' -a x$ac_enable_aunit = 'xyes'; then
    AC_MSG_ERROR(Both Ahven and AUnit testing framework are selected.  Please, choose one of them.)
 fi
 
-UTIL_XUNIT_DIR=
-UTIL_AUNIT_DIR=
-UTIL_AHVEN_DIR=
+UTIL_XUNIT_TYPE=
 WITH_AUNIT=
 
 if test x$ac_enable_aunit = 'xyes'; then
-  UTIL_AUNIT_DIR=testutil/aunit
-  UTIL_XUNIT_DIR='"testutil/aunit"'
   WITH_AUNIT="with \"aunit\";"
 fi
 if test x$ac_enable_ahven = 'xyes'; then
   UTIL_AHVEN_DIR=testutil/ahven
   case "${target_os}" in
      linux|linux-*|solaris*|sysv-*)
-        UTIL_XUNIT_DIR='"testutil/ahven", "testutil/ahven/unix"'
-	UTIL_AHVEN_OS_DIR="testutil/ahven/unix"
+        UTIL_XUNIT_TYPE="ahven-unix"
 	;;
 
      mingw32*|cygwin*|mingw64*)
-        UTIL_XUNIT_DIR='"testutil/ahven", "testutil/ahven/windows"'
-	UTIL_AHVEN_OS_DIR="testutil/ahven/windows"
+        UTIL_XUNIT_TYPE="ahven-windows"
 	;;
 
      *)
-        UTIL_XUNIT_DIR='"testutil/ahven", "testutil/ahven/unix"'
-	UTIL_AHVEN_OS_DIR="testutil/ahven/unix"
+        UTIL_XUNIT_TYPE="aunit"
 	;;
   esac
 fi
@@ -348,8 +332,10 @@ if test T$ac_enable_curl = Tyes; then
   AC_CHECK_LIB($UTIL_CURL_LIB,curl_easy_perform,[
     UTIL_HAVE_CURL=yes
     CFLAGS="$CFLAGS -DHAVE_CURL"
-    WITH_UTIL_CURL="with \"util_http_curl\";";
+    WITH_UTIL_CURL="with \"utilada_curl\";";
   ])
+
+  AM_GNAT_LIBRARY_PROJECT(utilada_curl)
 fi
 
 ##########################################
@@ -362,8 +348,9 @@ AM_GNAT_CHECK_AWS(
     WITH_UTIL_AWS="";
   ], [
     UTIL_HAVE_AWS=yes
-    WITH_UTIL_AWS="with \"util_http_aws\";";
+    WITH_UTIL_AWS="with \"utilada_aws\";";
     WITH_SERVER="with \"$gnat_project_name\";";
+    AM_GNAT_LIBRARY_PROJECT(utilada_aws)
   ])
 
 ##########################################
@@ -405,7 +392,7 @@ AC_ARG_ENABLE(link-options-util,
 [
   UTIL_LIBRARY_OPTIONS=${enableval}
 ])
-AC_MSG_CHECKING([for additional linker options for libada_util])
+AC_MSG_CHECKING([for additional linker options for libutilada])
 if test "T${UTIL_LIBRARY_OPTIONS}" != T; then
     UTIL_LIBRARY_OPTIONS="\"-Wl,${UTIL_LIBRARY_OPTIONS}\""
     opts=${UTIL_LIBRARY_OPTIONS}
@@ -421,7 +408,7 @@ AC_ARG_ENABLE(link-options-curl,
 [
   UTIL_CURL_LIBRARY_OPTIONS=${enableval}
 ])
-AC_MSG_CHECKING([for additional linker options for libada_util_curl])
+AC_MSG_CHECKING([for additional linker options for libutilada_curl])
 if test "T${UTIL_CURL_LIBRARY_OPTIONS}" != T; then
     UTIL_CURL_LIBRARY_OPTIONS="\"-Wl,${UTIL_CURL_LIBRARY_OPTIONS}\""
     opts=${UTIL_CURL_LIBRARY_OPTIONS}
@@ -439,10 +426,7 @@ AC_SUBST(WITH_SERVER)
 AC_SUBST(UTIL_HAVE_CURL)
 AC_SUBST(WITH_UTIL_CURL)
 AC_SUBST(WITH_AUNIT)
-AC_SUBST(UTIL_AUNIT_DIR)
-AC_SUBST(UTIL_AHVEN_DIR)
-AC_SUBST(UTIL_AHVEN_OS_DIR)
-AC_SUBST(UTIL_XUNIT_DIR)
+AC_SUBST(UTIL_XUNIT_TYPE)
 
 AM_GNAT_CHECK_INSTALL
 
@@ -452,7 +436,13 @@ dnl AC_MSG_NOTICE(  AWS support:   $WITH_UTIL_AWS)
 dnl AC_MSG_NOTICE(  XUnit support: $UTIL_XUNIT_DIR)
 
 AC_OUTPUT(
-Makefile util.gpr util_http.gpr util_unit.gpr util_http_curl.gpr util_http_aws.gpr
-distrib/util_unit.gpr distrib/util.gpr distrib/util_http.gpr distrib/util_http_curl.gpr
-distrib/util_http_aws.gpr
+Makefile.conf
+util.gpr
+utilada_http.gpr
+utilada_unit.gpr
+utilada_curl.gpr
+utilada_aws.gpr
+utilada_core.gpr
+utilada_base.gpr
+utilada_sys.gpr
 )
