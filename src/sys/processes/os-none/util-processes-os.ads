@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- Dummy system specific and low level operations
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,8 @@
 
 private package Util.Processes.Os is
 
+   SHELL : constant String := "/bin/sh";
+
    --  The directory separator.
    Directory_Separator : constant Character := '/';
 
@@ -29,6 +31,11 @@ private package Util.Processes.Os is
                    Proc    : in out Process'Class;
                    Timeout : in Duration);
 
+   overriding
+   procedure Stop (Sys    : in out System_Process;
+                   Proc   : in out Process'Class;
+                   Signal : in Positive := 15) is null;
+
    --  Spawn a new process.
    overriding
    procedure Spawn (Sys  : in out System_Process;
@@ -39,6 +46,15 @@ private package Util.Processes.Os is
    overriding
    procedure Append_Argument (Sys : in out System_Process;
                               Arg : in String);
+
+   --  Set the process input, output and error streams to redirect and use specified files.
+   procedure Set_Streams (Sys           : in out System_Process;
+                          Input         : in String;
+                          Output        : in String;
+                          Error         : in String;
+                          Append_Output : in Boolean;
+                          Append_Error  : in Boolean;
+                          To_Close      : in File_Type_Array_Access) is null;
 
    --  Deletes the storage held by the system process.
    overriding
