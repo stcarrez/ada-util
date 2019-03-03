@@ -1,3 +1,6 @@
+Version 1.10.0  -
+  - Rename GNAT projects and split the library in several parts
+
 Version 1.9.0   - Jul 2018
   - Improvement and fixes of the JSON, XML, CSV serialization
   - Improvement of properties to also read and describe INI files
