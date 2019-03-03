@@ -44,7 +44,7 @@ build-test:: regtests/util-testsuite.adb
 	$(GNATMAKE) $(GPRFLAGS) -p -Putilada_tests $(MAKE_ARGS)
 
 # Build and run the unit tests
-test:	build-test
+test:	build
 	-bin/util_harness -xml util-aunit.xml -timeout ${TEST_TIMEOUT}
 
 regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile
