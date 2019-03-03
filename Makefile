@@ -117,6 +117,6 @@ src/sys/http/curl/util-http-clients-curl-constants.ads:	bin/utilgen
 	bin/utilgen curl > $@
 
 # Utility for the generation of util-systems-constants.ads
-bin/utilgen:    support/utilgen.c Makefile
+bin/utilgen:    support/utilgen.c Makefile.conf
 	mkdir -p bin
 	$(CC) -o $@ $(CFLAGS) -g support/utilgen.c
