@@ -28,7 +28,7 @@ distrib/util_unit.gpr
 lib/
 obj/
 regtests/util-testsuite.adb
-src/http/curl/util-http-clients-curl-constants.ads
+src/sys/http/curl/util-http-clients-curl-constants.ads
 src/sys/util-systems-constants.ads
 src/sys/util-systems-types.ads
 string-append.csv
