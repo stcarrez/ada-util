@@ -2,6 +2,7 @@
 *.log
 config.status
 CHANGES
+Makefile.conf
 access.xml
 acc.xml
 *.cproject
