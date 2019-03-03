@@ -8,6 +8,7 @@ GNATMAKE?=gprbuild
 GNATCLEAN?=gnatclean
 GPRINSTALL?=gprinstall
 INSTALL?=install
+DYNAMO?=dynamo
 PROCESSORS?=1
 MKDIR?=mkdir
 CP?=cp
@@ -74,7 +75,8 @@ clean_tree:
 
 # Clean the root project of all build products.
 clean::
-	-rm -rf lib obj bin
+	-rm -rf lib obj bin $(CLEAN_FILES)
+	-rm -rf regtests/result
 
 doc::
 	$(DYNAMO) build-doc -markdown wiki

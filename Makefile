@@ -57,13 +57,8 @@ regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile
 CLEAN_FILES=$(UTIL_GEN_FILES) bin/util_harness bin/util_test_process bin/utilgen
 
 # Clean the root project of all build products.
-clean::	clean_test
-	-rm -f $(CLEAN_FILES)
-
-# Clean the files produced by the unit tests
-clean_test:
+clean::
 	-rm -f test?.log test.log test-stream.txt test-write.txt util-tests.xml
-	-rm -rf regtests/result
 
 ifeq (${HAVE_PANDOC},yes)
 ifeq (${HAVE_DYNAMO},yes)
