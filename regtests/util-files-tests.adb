@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  files.tests -- Unit tests for files
---  Copyright (C) 2009, 2010, 2011, 2012, 2013 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -149,8 +149,8 @@ package body Util.Files.Tests is
    --  ------------------------------
    procedure Test_Compose_Path (T : in out Test) is
    begin
-      Assert_Equals (T, "src/os-none",
-                     Compose_Path ("src;regtests", "os-none"),
+      Assert_Equals (T, "src/sys/processes/os-none",
+                     Compose_Path ("src;regtests;src/sys/processes", "os-none"),
                      "Invalid path composition");
       Assert_Equals (T, "regtests/bundles",
                      Compose_Path ("src;regtests", "bundles"),
