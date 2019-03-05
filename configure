@@ -633,7 +633,6 @@ UTIL_CURL_LIBRARY_OPTIONS
 UTIL_LIBRARY_OPTIONS
 UTIL_GNAT_TRACEBACK
 UTIL_HAVE_LZMA
-UTIL_LZMA_DIR
 WITH_LZMA_ADA
 UTIL_HAVE_XML
 UTIL_XML_VERSION
@@ -739,7 +738,7 @@ enable_shared
 enable_distrib
 enable_coverage
 with_xmlada
-with_lzma
+with_ada_lzma
 enable_traceback
 enable_ahven
 enable_aunit
@@ -1400,7 +1399,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-xmlada=          Enable XML serialization
-  --with-ada-lzma=        Enable LZMA streams with Ada LZMA
+  --with-ada-lzma=x       Path for Ada LZMA Library
   --with-aws=x            Path for the Ada Web Server library
                           (http://libre.adacore.com/libre/tools/aws/)
 
@@ -6179,34 +6178,57 @@ fi
 
 
 
-##########################################
-# Ada/LZMA library
-##########################################
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Ada LZMA Library" >&5
+$as_echo_n "checking Ada LZMA Library... " >&6; }
 
-# Check whether --with-lzma was given.
-if test "${with_lzma+set}" = set; then :
-  withval=$with_lzma;
+# Check whether --with-ada-lzma was given.
+if test "${with_ada_lzma+set}" = set; then :
+  withval=$with_ada_lzma;
   if test T${withval} = Tno ; then
-    UTIL_HAVE_LZMA=no;
+    UTIL_WITH_LZMA=no;
   else
-    WITH_LZMA_ADA="with \"${withval}\";";
-    UTIL_LZMA_DIR='src/lzma';
-    UTIL_HAVE_LZMA='yes';
+    UTIL_WITH_LZMA='yes';
   fi
 
 else
 
-  WITH_LZMA_ADA='';
-  UTIL_LZMA_DIR='src';
-  UTIL_HAVE_LZMA='yes';
+  UTIL_USE_LZMA=yes;
 
 fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${UTIL_WITH_LZMA}" >&5
+$as_echo "${UTIL_WITH_LZMA}" >&6; }
 
+##########################################
+# Ada LZMA library
+##########################################
+if test T${UTIL_WITH_LZMA} = Tyes; then
 
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether lzma project exists" >&5
-$as_echo_n "checking whether lzma project exists... " >&6; }
-  echo "with \"lzma\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking Ada LZMA Library" >&5
+$as_echo_n "checking Ada LZMA Library... " >&6; }
+
+# Check whether --with-ada-lzma was given.
+if test "${with_ada_lzma+set}" = set; then :
+  withval=$with_ada_lzma;
+      gnat_project_name_lzmada=${withval}/
+      if test -d "${withval}"; then
+	    gnat_project_name_lzmada=${withval}/lzmada
+	  fi
+
+else
+
+      gnat_project_name_lzmada=lzmada
+
+fi
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: trying ${gnat_project_name_lzmada}" >&5
+$as_echo "trying ${gnat_project_name_lzmada}" >&6; }
+
+  rm -f conftest.gpr
+  # Search in the GNAT project path.
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${gnat_project_name_lzmada} project exists in gnatmake's search path" >&5
+$as_echo_n "checking whether ${gnat_project_name_lzmada} project exists in gnatmake's search path... " >&6; }
+  echo "with \"${gnat_project_name_lzmada}\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
   if { ac_try='gnat ls -Pconftest.gpr system.ads > /dev/null 2>conftest.out'
   { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
   (eval $ac_try) 2>&5
@@ -6214,28 +6236,76 @@ $as_echo_n "checking whether lzma project exists... " >&6; }
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; }
   then
-    gnat_project_lzma=yes
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes, using lzma" >&5
-$as_echo "yes, using lzma" >&6; }
-    gnat_project_with_lzma="with \"lzma\";";
+    gnat_project_lzmada=yes
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
   else
-    gnat_project_lzma=no
+    gnat_project_lzmada=no
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
+
+    # Search in ../ada-lzma-*/lzmada.gpr
+    files=`ls -r ../ada-lzma/lzmada.gpr ../lzmada/lzmada.gpr ../ada-lzma-*/lzmada.gpr 2>/dev/null`
+    for name in $files; do
+      dir=`dirname $name`
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Ada LZMA Library project in ${dir}" >&5
+$as_echo_n "checking for Ada LZMA Library project in ${dir}... " >&6; }
+      echo "with \"${name}\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
+      if { ac_try='gnat ls -Pconftest.gpr system.ads > /dev/null 2>conftest.out'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }
+      then
+         gnat_project_lzmada=yes
+		 gnat_project_name_lzmada=${name}
+         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+         break
+      else
+         gnat_project_lzmada=no
+         { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+      fi
+    done
   fi
   rm -f conftest.gpr
+  if test x${gnat_project_lzmada} = xyes; then
+    gnat_project_with_lzmada="with \"${gnat_project_name_lzmada}\";";
+    gnat_project_dir_lzmada=`dirname ${gnat_project_name_lzmada}`
+    if test ${gnat_project_dir_lzmada} = . ; then
+       gnat_project_dir_lzmada=
+    else
+       gnat_project_dir_lzmada="${gnat_project_dir_lzmada}/"
+    fi
 
-if test T$gnat_project_lzma = Tno; then
-  WITH_LZMA_ADA="";
-  UTIL_LZMA_DIR=''
-  UTIL_HAVE_LZMA='no'
+    LZMA_DIR=${gnat_project_dir_lzmada}
+
+  else
+    gnat_project_dir_lzmada=
+    gnat_project_name_lzmada=
+    if test x"Building Ada Utility Library with LZMA support." != x; then
+      as_fn_error $? "Building Ada Utility Library with LZMA support.
+  You should build and install the Ada LZMA Library component.
+  It must be available and found by ${GNATMAKE}.
+  This project was not found in the ADA_PROJECT_PATH environment variable.
+  This project was not found in ../lzmada nor in ../ada-lzma-*.
+  The component is available at git@github.com:stcarrez/ada-lzma.git.
+  Please, download and configure Ada LZMA Library.
+  The current configuration was using:
+    ${GNATMAKE}
+    ADA_PROJECT_PATH=$ADA_PROJECT_PATH
+" "$LINENO" 5
+    fi
+  fi
+
+  WITH_LZMA_ADA="with \"${LZMA_DIR}lzmada\";";
+  UTIL_HAVE_LZMA='yes';
 else
-  WITH_LZMA_ADA="with \"lzma\";";
-  UTIL_LZMA_DIR='src/lzma'
-  UTIL_HAVE_LZMA='yes'
+  WITH_LZMA_ADA=''
+  UTIL_HAVE_LZMA=no;
 fi
-
-
 
 
 
