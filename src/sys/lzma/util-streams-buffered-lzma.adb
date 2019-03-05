@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered-lzma -- LZMA streams
---  Copyright (C) 2018 Stephane Carrez
+--  Copyright (C) 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,22 +15,32 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-
-with Util.Encoders.Lzma;
+with Lzma.Check;
+with Lzma.Container;
+with Interfaces.C;
 package body Util.Streams.Buffered.Lzma is
+
+   use type Interfaces.C.size_t;
+   use type Base.lzma_ret;
+
+   subtype Offset is Ada.Streams.Stream_Element_Offset;
 
    --  -----------------------
    --  Initialize the stream to write on the given stream.
    --  An internal buffer is allocated for writing the stream.
    --  -----------------------
+   overriding
    procedure Initialize (Stream  : in out Compress_Stream;
                          Output  : in Output_Stream_Access;
-                         Size    : in Natural;
-                         Format  : in String) is
-      pragma Unreferenced (Format);
+                         Size    : in Positive) is
+      Result : Base.lzma_ret;
    begin
-      Stream.Initialize (Output, Size);
-      Stream.Transform := new Util.Encoders.Lzma.Compress;
+      Output_Buffer_Stream (Stream).Initialize (Output, Size);
+
+      Stream.Stream.next_out := Stream.Buffer (Stream.Buffer'First)'Unchecked_Access;
+      Stream.Stream.avail_out := Stream.Buffer'Length;
+      Result := Container.lzma_easy_encoder (Stream.Stream'Unchecked_Access, 6,
+                                             Check.LZMA_CHECK_CRC64);
    end Initialize;
 
    --  -----------------------
@@ -49,23 +59,28 @@ package body Util.Streams.Buffered.Lzma is
    overriding
    procedure Write (Stream : in out Compress_Stream;
                     Buffer : in Ada.Streams.Stream_Element_Array) is
-      First_Encoded : Ada.Streams.Stream_Element_Offset := Buffer'First;
-      Last_Encoded  : Ada.Streams.Stream_Element_Offset;
-      Last_Pos      : Ada.Streams.Stream_Element_Offset;
+      Last_Pos  : Ada.Streams.Stream_Element_Offset;
+      Encoded   : Boolean := False;
+      Result    : Base.lzma_ret;
    begin
-      while First_Encoded <= Buffer'Last loop
-         Stream.Transform.Transform
-           (Data    => Buffer (First_Encoded .. Buffer'Last),
-            Into    => Stream.Buffer (Stream.Write_Pos .. Stream.Buffer'Last),
-            Last    => Last_Pos,
-            Encoded => Last_Encoded);
-         if Last_Pos + 1 >= Stream.Buffer'Last then
-            Stream.Output.Write (Stream.Buffer (Stream.Buffer'First .. Last_Pos));
-            Stream.Write_Pos := Stream.Buffer'First;
-         else
-            Stream.Write_Pos := Last_Pos + 1;
+      loop
+         if Stream.Stream.avail_in = 0 then
+            Stream.Stream.next_in := Buffer (Buffer'First)'Unrestricted_Access;
+            Stream.Stream.avail_in := Interfaces.C.size_t (Buffer'Length);
+            Encoded := True;
          end if;
-         First_Encoded := Last_Encoded + 1;
+
+         Result := Base.lzma_code (Stream.Stream'Unchecked_Access, Base.LZMA_RUN);
+
+         --  Write the output data when the buffer is full or we reached the end of stream.
+         if Stream.Stream.avail_out = 0 or Result = Base.LZMA_STREAM_END then
+            Last_Pos := Stream.Buffer'First + Stream.Buffer'Length
+              - Offset (Stream.Stream.avail_out) - 1;
+            Stream.Output.Write (Stream.Buffer (Stream.Buffer'First .. Last_Pos));
+            Stream.Stream.next_out := Stream.Buffer (Stream.Buffer'First)'Unchecked_Access;
+            Stream.Stream.avail_out := Stream.Buffer'Length;
+         end if;
+         exit when Result /= Base.LZMA_OK or (Stream.Stream.avail_in = 0 and Encoded);
       end loop;
    end Write;
 
@@ -75,15 +90,22 @@ package body Util.Streams.Buffered.Lzma is
    --  -----------------------
    overriding
    procedure Flush (Stream : in out Compress_Stream) is
-      Last_Pos : Ada.Streams.Stream_Element_Offset := Stream.Write_Pos - 1;
+      Last_Pos : Ada.Streams.Stream_Element_Offset;
+      Result : Base.lzma_ret;
    begin
+      Stream.Stream.next_in := null;
+      Stream.Stream.avail_in := 0;
       loop
-         Stream.Transform.Finish (Stream.Buffer (Stream.Write_Pos .. Stream.Buffer'Last),
-                                  Last_Pos);
-         Stream.Write_Pos := Last_Pos + 1;
-         Output_Buffer_Stream (Stream).Flush;
-         exit when Stream.Write_Pos < Stream.Buffer'Last;
-         Stream.Write_Pos := 1;
+         Result := Base.lzma_code (Stream.Stream'Unchecked_Access, Base.LZMA_FINISH);
+
+         if Stream.Stream.avail_out = 0 or Result = Base.LZMA_STREAM_END then
+            Last_Pos := Stream.Buffer'First + Stream.Buffer'Length
+              - Offset (Stream.Stream.avail_out) - 1;
+            Stream.Output.Write (Stream.Buffer (Stream.Buffer'First .. Last_Pos));
+            Stream.Stream.next_out := Stream.Buffer (Stream.Buffer'First)'Unchecked_Access;
+            Stream.Stream.avail_out := Stream.Buffer'Length;
+         end if;
+         exit when Result /= Base.LZMA_OK;
       end loop;
    end Flush;
 
