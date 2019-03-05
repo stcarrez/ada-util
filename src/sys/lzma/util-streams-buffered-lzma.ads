@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered-lzma -- LZMA streams
---  Copyright (C) 2018 Stephane Carrez
+--  Copyright (C) 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,9 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Util.Encoders;
+with Lzma.Base;
+use Lzma;
+
 package Util.Streams.Buffered.Lzma is
 
    --  -----------------------
@@ -27,10 +29,10 @@ package Util.Streams.Buffered.Lzma is
 
    --  Initialize the stream to write on the given stream.
    --  An internal buffer is allocated for writing the stream.
+   overriding
    procedure Initialize (Stream  : in out Compress_Stream;
                          Output  : in Output_Stream_Access;
-                         Size    : in Natural;
-                         Format  : in String);
+                         Size    : in Positive);
 
    --  Close the sink.
    overriding
@@ -49,7 +51,7 @@ package Util.Streams.Buffered.Lzma is
 private
 
    type Compress_Stream is limited new Util.Streams.Buffered.Output_Buffer_Stream with record
-      Transform   : Util.Encoders.Transformer_Access;
+      Stream : aliased Base.lzma_stream := Base.LZMA_STREAM_INIT;
    end record;
 
    --  Flush the stream and release the buffer.
