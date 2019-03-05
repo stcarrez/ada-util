@@ -193,39 +193,38 @@ AC_SUBST(UTIL_XML_DIR)
 AC_SUBST(UTIL_XML_VERSION)
 AC_SUBST(UTIL_HAVE_XML)
 
-##########################################
-# Ada/LZMA library
-##########################################
-AC_ARG_WITH(lzma,
-AS_HELP_STRING([--with-ada-lzma=], [Enable LZMA streams with Ada LZMA]),
+AC_MSG_CHECKING([Ada LZMA Library])
+AC_ARG_WITH(ada-lzma,
+AS_HELP_STRING([--with-ada-lzma=x], [Path for Ada LZMA Library]),
 [
   if test T${withval} = Tno ; then
-    UTIL_HAVE_LZMA=no;
+    UTIL_WITH_LZMA=no;
   else
-    WITH_LZMA_ADA="with \"${withval}\";";
-    UTIL_LZMA_DIR='src/lzma';
-    UTIL_HAVE_LZMA='yes';
+    UTIL_WITH_LZMA='yes';
   fi
 ],
 [
-  WITH_LZMA_ADA='';
-  UTIL_LZMA_DIR='src';
-  UTIL_HAVE_LZMA='yes';
+  UTIL_USE_LZMA=yes;
 ])
+AC_MSG_RESULT(${UTIL_WITH_LZMA})
 
-AM_GNAT_CHECK_PROJECT([lzma],[lzma])
-if test T$gnat_project_lzma = Tno; then
-  WITH_LZMA_ADA="";
-  UTIL_LZMA_DIR=''
-  UTIL_HAVE_LZMA='no'
+##########################################
+# Ada LZMA library
+##########################################
+if test T${UTIL_WITH_LZMA} = Tyes; then
+AM_GNAT_FIND_PROJECT([ada-lzma],[Ada LZMA Library],[lzmada],
+  [git@github.com:stcarrez/ada-lzma.git],
+  [Building Ada Utility Library with LZMA support.],
+  [
+    LZMA_DIR=${gnat_project_dir_lzmada}
+  ])
+  WITH_LZMA_ADA="with \"${LZMA_DIR}lzmada\";";
+  UTIL_HAVE_LZMA='yes';
 else
-  WITH_LZMA_ADA="with \"lzma\";";
-  UTIL_LZMA_DIR='src/lzma'
-  UTIL_HAVE_LZMA='yes'
+  WITH_LZMA_ADA=''
+  UTIL_HAVE_LZMA=no;
 fi
-
 AC_SUBST(WITH_LZMA_ADA)
-AC_SUBST(UTIL_LZMA_DIR)
 AC_SUBST(UTIL_HAVE_LZMA)
 
 ##########################################
