@@ -6,11 +6,10 @@ STATIC_MAKE_ARGS = $(MAKE_ARGS) -XUTIL_LIBRARY_TYPE=static
 SHARED_MAKE_ARGS = $(MAKE_ARGS) -XUTIL_LIBRARY_TYPE=relocatable
 SHARED_MAKE_ARGS += -XXMLADA_BUILD=relocatable
 SHARED_MAKE_ARGS += -XLIBRARY_TYPE=relocatable
-SHARED_MAKE_ARGS += -XLZMA_BUILD=relocatable
+SHARED_MAKE_ARGS += -XLZMA_LIBRARY_TYPE=relocatable -XLZMA_BUILD=relocatable
 ifeq ($(HAVE_AWS),yes)
 SHARED_MAKE_ARGS += -XAWS_BUILD=relocatable
 endif
-
 
 # The timeout execution time in second for a test case.
 # The concurrent fifo test takes arround 120 seconds on some ARM but only 4 seconds
