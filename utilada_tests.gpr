@@ -5,6 +5,7 @@ with "utilada_sys";
 with "utilada_http";
 with "utilada_unit";
 with "tests_proc";
+with "utilada_lzma";
 
 project UtilAda_Tests is
 
