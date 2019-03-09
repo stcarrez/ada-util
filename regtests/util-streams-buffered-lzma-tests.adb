@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered-lzma-tests -- Unit tests for encoding buffered streams
---  Copyright (C) 2018 Stephane Carrez
+--  Copyright (C) 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,8 +43,7 @@ package body Util.Streams.Buffered.Lzma.Tests is
    begin
       Stream.Create (Mode => Out_File, Name => Path);
       Buffer.Initialize (Output => Stream'Unchecked_Access,
-                         Size   => 1024,
-                         Format => Util.Encoders.BASE_64);
+                         Size   => 1024);
       Print.Initialize (Output => Buffer'Unchecked_Access, Size => 5);
       for I in 1 .. 32 loop
          Print.Write ("abcd");
@@ -73,8 +72,7 @@ package body Util.Streams.Buffered.Lzma.Tests is
                       Util.Tests.Get_Path ("regtests/files/test-big-stream.bin"));
       Stream.Create (Mode => Out_File, Name => Path);
       Buffer.Initialize (Output => Stream'Unchecked_Access,
-                         Size   => 32768,
-                         Format => Util.Encoders.BASE_64);
+                         Size   => 32768);
       Util.Streams.Copy (From => In_Stream, Into => Buffer);
       Buffer.Flush;
       Buffer.Close;
