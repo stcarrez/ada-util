@@ -1,6 +1,6 @@
 with "config";
-with "util";
-with "util_http";
+with "utilada_sys";
+with "utilada_http";
 
 project Samples is
 
@@ -8,30 +8,30 @@ project Samples is
    "bundles.adb", "escape.adb", "encodes.adb", "popen.adb",
    "multipro.adb", "multipro_refs.adb", "date.adb",
    "csv_reader.adb", "launch.adb", "gperfhash.adb", "proplist.adb",
-   "cut.adb", "xmi.adb", "serialize.adb");
+   "cut.adb", "xmi.adb", "serialize.adb", "json.adb");
 
    for Main use Mains;
 
    --  GCC 4.7 fails to instantiate the Vector_Mapper generic package.
-   case Util.Has_Vector_Mappers is
+   case UtilAda_Sys.Has_Vector_Mappers is
       when "yes" =>
-         for Main use Mains & ("json.adb", "xmlrd.adb", "csv_city.adb");
+         Mains := Mains & ("csv_city.adb");
 
       when "no" =>
          null;
 
    end case;
 
-   case Util_Http.Has_Curl is
+   case UtilAda_Http.Has_Curl is
       when "yes" =>
-         for Main use Mains & ("wget.adb");
+         Mains := Mains & ("wget.adb",  "wput.adb");
 
       when others =>
          null;
 
    end case;
 
-   case Util_Http.Has_Aws is
+   case UtilAda_Http.Has_Aws is
       when "yes" =>
          for Main use Mains & ("facebook.adb");
 
