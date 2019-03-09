@@ -39,6 +39,10 @@ ifeq ($(HAVE_AWS),yes)
 $(eval $(call ada_library,utilada_aws))
 endif
 
+ifeq ($(HAVE_LZMA),yes)
+$(eval $(call ada_library,utilada_lzma))
+endif
+
 $(eval $(call ada_library,utilada_unit))
 $(eval $(call ada_library,utilada_http))
 
