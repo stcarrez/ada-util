@@ -2,7 +2,6 @@ with "config";
 with "utilada_core";
 with "utilada_base";
 @WITH_XML_ADA@
-@WITH_LZMA_ADA@
 
 library project UtilAda_Sys is
    Version := "@UTIL_VERSION@";
@@ -50,14 +49,6 @@ library project UtilAda_Sys is
    case Has_XML is
       when "yes" =>
           for Source_Dirs use Project'Source_Dirs & ("src/sys/serialize/xml");
-
-      when "no" =>
-         null;
-   end case;
-
-   case Has_LZMA is
-      when "yes" =>
-          for Source_Dirs use Project'Source_Dirs & ("src/sys/lzma");
 
       when "no" =>
          null;
