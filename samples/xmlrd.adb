@@ -136,7 +136,7 @@ procedure Xmlrd is
 
    Service_Mapping        : aliased Service_Mapper.Mapper;
    Service_Vector_Mapping : aliased Service_Vector_Mapper.Mapper;
-
+   Mapper                 : Util.Serialize.Mappers.Processing;
 begin
    Util.Log.Loggers.Initialize ("samples/log4j.properties");
 
@@ -152,7 +152,7 @@ begin
    Service_Mapping.Bind (Get_Member'Access);
    Service_Vector_Mapping.Set_Mapping (Service_Mapping'Unchecked_Access);
 
-   Reader.Add_Mapping ("XRDS/XRD/Service", Service_Vector_Mapping'Unchecked_Access);
+   Mapper.Add_Mapping ("XRDS/XRD/Service", Service_Vector_Mapping'Unchecked_Access);
 
    for I in 1 .. Count loop
       declare
@@ -160,8 +160,8 @@ begin
 
          List : aliased Service_Vector_Mapper.Vector;
       begin
-         Service_Vector_Mapper.Set_Context (Reader, List'Unchecked_Access);
-         Reader.Parse (S);
+         Service_Vector_Mapper.Set_Context (Mapper, List'Unchecked_Access);
+         Reader.Parse (S, Mapper);
 
          Ada.Text_IO.Put_Line ("Rule count: " & Count_Type'Image (List.Length));
 
@@ -169,6 +169,7 @@ begin
          List.Iterate (Process => Print'Access);
 
          declare
+
             Output : Util.Serialize.IO.XML.Output_Stream;
          begin
             Output.Initialize (Size => 10000);
