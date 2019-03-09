@@ -219,12 +219,15 @@ AM_GNAT_FIND_PROJECT([ada-lzma],[Ada LZMA Library],[lzmada],
     LZMA_DIR=${gnat_project_dir_lzmada}
   ])
   WITH_LZMA_ADA="with \"${LZMA_DIR}lzmada\";";
+  WITH_UTILADA_LZMA="with \"utilada_lzma\";";
   UTIL_HAVE_LZMA='yes';
 else
   WITH_LZMA_ADA=''
+  WITH_UTILADA_LZMA="";
   UTIL_HAVE_LZMA=no;
 fi
 AC_SUBST(WITH_LZMA_ADA)
+AC_SUBST(WITH_UTILADA_LZMA)
 AC_SUBST(UTIL_HAVE_LZMA)
 
 ##########################################
@@ -444,4 +447,6 @@ utilada_aws.gpr
 utilada_core.gpr
 utilada_base.gpr
 utilada_sys.gpr
+utilada_lzma.gpr
+utilada_tests.gpr
 )
