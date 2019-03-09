@@ -633,6 +633,7 @@ UTIL_CURL_LIBRARY_OPTIONS
 UTIL_LIBRARY_OPTIONS
 UTIL_GNAT_TRACEBACK
 UTIL_HAVE_LZMA
+WITH_UTILADA_LZMA
 WITH_LZMA_ADA
 UTIL_HAVE_XML
 UTIL_XML_VERSION
@@ -6301,11 +6302,14 @@ $as_echo "no" >&6; }
   fi
 
   WITH_LZMA_ADA="with \"${LZMA_DIR}lzmada\";";
+  WITH_UTILADA_LZMA="with \"utilada_lzma\";";
   UTIL_HAVE_LZMA='yes';
 else
   WITH_LZMA_ADA=''
+  WITH_UTILADA_LZMA="";
   UTIL_HAVE_LZMA=no;
 fi
+
 
 
 
@@ -8401,7 +8405,7 @@ $as_echo "<prefix>/${ADA_PRJ_BASE}" >&6; }
 
 
 
-ac_config_files="$ac_config_files Makefile.conf util.gpr utilada_http.gpr utilada_unit.gpr utilada_curl.gpr utilada_aws.gpr utilada_core.gpr utilada_base.gpr utilada_sys.gpr"
+ac_config_files="$ac_config_files Makefile.conf util.gpr utilada_http.gpr utilada_unit.gpr utilada_curl.gpr utilada_aws.gpr utilada_core.gpr utilada_base.gpr utilada_sys.gpr utilada_lzma.gpr utilada_tests.gpr"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -9118,6 +9122,8 @@ do
     "utilada_core.gpr") CONFIG_FILES="$CONFIG_FILES utilada_core.gpr" ;;
     "utilada_base.gpr") CONFIG_FILES="$CONFIG_FILES utilada_base.gpr" ;;
     "utilada_sys.gpr") CONFIG_FILES="$CONFIG_FILES utilada_sys.gpr" ;;
+    "utilada_lzma.gpr") CONFIG_FILES="$CONFIG_FILES utilada_lzma.gpr" ;;
+    "utilada_tests.gpr") CONFIG_FILES="$CONFIG_FILES utilada_tests.gpr" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
