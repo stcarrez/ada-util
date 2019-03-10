@@ -1,5 +1,5 @@
 /* Generate a package from system header definitions
---  Copyright (C) 2011, 2013, 2014, 2015, 2016, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2011 - 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -230,25 +230,37 @@ void gen_stat(void)
     printf("   type Stat_Type is record\n");
     printf("      st_dev      : dev_t;\n");
     printf("      st_ino      : ino_t;\n");
-    printf("      st_mode     : mode_t;\n");
     printf("      st_nlink    : nlink_t;\n");
+    printf("      st_mode     : mode_t;\n");
+    printf("      st_padding0 : %s;\n", get_type(UNSIGNED, sizeof(st.st_padding0)));
     printf("      st_uid      : uid_t;\n");
     printf("      st_gid      : gid_t;\n");
+    printf("      st_padding1 : %s;\n", get_type(UNSIGNED, sizeof(st.st_padding1)));
     printf("      st_rdev     : dev_t;\n");
+#ifdef	__STAT_TIME_T_EXT
+    printf("      st_atim_ext : %s;\n", get_type(UNSIGNED, sizeof(st.st_atim_ext)));
+#endif
     printf("      st_atim     : Timespec;\n");
+#ifdef	__STAT_TIME_T_EXT
+    printf("      st_mtim_ext : %s;\n", get_type(UNSIGNED, sizeof(st.st_mtim_ext)));
+#endif
     printf("      st_mtim     : Timespec;\n");
+#ifdef	__STAT_TIME_T_EXT
+    printf("      st_ctim_ext : %s;\n", get_type(UNSIGNED, sizeof(st.st_ctim_ext)));
+#endif
     printf("      st_ctim     : Timespec;\n");
+#ifdef	__STAT_TIME_T_EXT
+    printf("      st_btim_ext : %s;\n", get_type(UNSIGNED, sizeof(st.st_btim_ext)));
+#endif
+    printf("      st_birthtim : Timespec;\n");
     printf("      st_size     : off_t;\n");
     printf("      st_blocks   : blkcnt_t;\n");
     printf("      st_blksize  : blksize_t;\n");
     printf("      st_flags    : fflags_t;\n");
     printf("      st_gen      : %s;\n", get_type(UNSIGNED, sizeof(st.st_gen)));
-    printf("      st_lspare   : %s;\n", get_type(UNSIGNED, sizeof(st.st_lspare)));
-    printf("      st_birthtim : Timespec;\n");
-    printf("      st_spare1   : %s;\n", get_type(UNSIGNED, sizeof(unsigned)));
-    printf("      st_spare2   : %s;\n", get_type(UNSIGNED, sizeof(unsigned)));
     printf("   end record;\n");
     printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
+    printf("   for Stat_Type'Size use %d;\n", 8 * sizeof(st));
     printf("\n");
 #elif defined(__NetBSD__)
     struct stat st;
