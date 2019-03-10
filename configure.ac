@@ -75,7 +75,7 @@ UTIL_OS_VERSION=$os_version
 AC_SUBST(UTIL_OS_VERSION)
 
 AC_MSG_CHECKING([hardware platform])
-HARDWARE_PLATFORM=`uname -i || uname -m || echo "unknown"`
+HARDWARE_PLATFORM=`uname -i 2>/dev/null || uname -m 2>/dev/null || echo "unknown"`
 AC_MSG_RESULT($HARDWARE_PLATFORM)
 AC_SUBST(HARDWARE_PLATFORM)
 
@@ -298,7 +298,7 @@ fi
 if test x$ac_enable_ahven = 'xyes'; then
   UTIL_AHVEN_DIR=testutil/ahven
   case "${target_os}" in
-     linux|linux-*|solaris*|sysv-*)
+     linux|linux-*|solaris*|sysv-*|netbsd*|kfreebsd*)
         UTIL_XUNIT_TYPE="ahven-unix"
 	;;
 
@@ -435,7 +435,6 @@ AM_GNAT_CHECK_INSTALL
 dnl AC_MSG_NOTICE(  XML support:   $WITH_XML_ADA)
 dnl AC_MSG_NOTICE(  CURL support:  $WITH_UTIL_CURL)
 dnl AC_MSG_NOTICE(  AWS support:   $WITH_UTIL_AWS)
-dnl AC_MSG_NOTICE(  XUnit support: $UTIL_XUNIT_DIR)
 
 AC_OUTPUT(
 Makefile.conf
