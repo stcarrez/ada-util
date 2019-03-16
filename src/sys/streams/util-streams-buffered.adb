@@ -28,7 +28,7 @@ package body Util.Streams.Buffered is
    --  An internal buffer is allocated for writing the stream.
    --  ------------------------------
    procedure Initialize (Stream  : in out Output_Buffer_Stream;
-                         Output  : in Output_Stream_Access;
+                         Output  : access Output_Stream'Class;
                          Size    : in Positive) is
    begin
       Free_Buffer (Stream.Buffer);
@@ -74,7 +74,7 @@ package body Util.Streams.Buffered is
    --  An internal buffer is allocated for writing the stream.
    --  ------------------------------
    procedure Initialize (Stream  : in out Input_Buffer_Stream;
-                         Input   : in Input_Stream_Access;
+                         Input   : access Input_Stream'Class;
                          Size    : in Positive) is
    begin
       Free_Buffer (Stream.Buffer);
