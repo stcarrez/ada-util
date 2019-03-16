@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-texts -- Text stream utilities
---  Copyright (C) 2010, 2011, 2012, 2015, 2016, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,7 +39,7 @@ package Util.Streams.Texts is
    type Print_Stream_Access is access all Print_Stream'Class;
 
    procedure Initialize (Stream : in out Print_Stream;
-                         To     : in Output_Stream_Access);
+                         To     : access Output_Stream'Class);
 
    --  Write a raw character on the stream.
    procedure Write (Stream : in out Print_Stream;
@@ -97,7 +97,7 @@ package Util.Streams.Texts is
 
    --  Initialize the reader to read the input from the input stream given in <b>From</b>.
    procedure Initialize (Stream : in out Reader_Stream;
-                         From   : in Input_Stream_Access);
+                         From   : access Input_Stream'Class);
 
    --  Read an input line from the input stream.  The line is terminated by ASCII.LF.
    --  When <b>Strip</b> is set, the line terminators (ASCII.CR, ASCII.LF) are removed.
