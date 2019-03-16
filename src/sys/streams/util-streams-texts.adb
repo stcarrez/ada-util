@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-texts -- Text stream utilities
---  Copyright (C) 2010, 2011, 2012, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@ package body Util.Streams.Texts is
    subtype Offset is Ada.Streams.Stream_Element_Offset;
 
    procedure Initialize (Stream : in out Print_Stream;
-                         To     : in Output_Stream_Access) is
+                         To     : access Output_Stream'Class) is
    begin
       Stream.Initialize (Output => To, Size => 4096);
    end Initialize;
@@ -197,7 +197,7 @@ package body Util.Streams.Texts is
    --  Initialize the reader to read the input from the input stream given in <b>From</b>.
    --  ------------------------------
    procedure Initialize (Stream : in out Reader_Stream;
-                         From   : in Input_Stream_Access) is
+                         From   : access Input_Stream'Class) is
    begin
       Stream.Initialize (Input => From, Size => 4096);
    end Initialize;
