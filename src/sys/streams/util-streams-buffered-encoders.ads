@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-encoders -- Streams with encoding and decoding capabilities
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +46,7 @@ package Util.Streams.Buffered.Encoders is
    --  Initialize the stream to write on the given stream.
    --  An internal buffer is allocated for writing the stream.
    procedure Initialize (Stream  : in out Encoding_Stream;
-                         Output  : in Output_Stream_Access;
+                         Output  : access Output_Stream'Class;
                          Size    : in Natural;
                          Format  : in String);
 
