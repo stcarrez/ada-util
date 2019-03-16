@@ -80,7 +80,7 @@ package Util.Streams.Buffered is
    --  Initialize the stream to write on the given streams.
    --  An internal buffer is allocated for writing the stream.
    procedure Initialize (Stream  : in out Output_Buffer_Stream;
-                         Output  : in Output_Stream_Access;
+                         Output  : access Output_Stream'Class;
                          Size    : in Positive);
 
    --  Initialize the stream with a buffer of <b>Size</b> bytes.
@@ -125,7 +125,7 @@ package Util.Streams.Buffered is
 
    --  Initialize the stream to read the given streams.
    procedure Initialize (Stream  : in out Input_Buffer_Stream;
-                         Input   : in Input_Stream_Access;
+                         Input   : access Input_Stream'Class;
                          Size    : in Positive);
 
    --  Fill the buffer by reading the input stream.
@@ -170,7 +170,7 @@ private
       Last        : Stream_Element_Offset := 0;
 
       --  The output stream to use for flushing the buffer.
-      Output      : Output_Stream_Access := null;
+      Output      : access Output_Stream'Class;
 
       No_Flush    : Boolean := False;
    end record;
@@ -194,7 +194,7 @@ private
       Last        : Stream_Element_Offset := 0;
 
       --  The input stream to use to fill the buffer.
-      Input       : Input_Stream_Access := null;
+      Input       : access Input_Stream'Class;
 
       --  Reached end of file when reading.
       Eof         : Boolean := False;
