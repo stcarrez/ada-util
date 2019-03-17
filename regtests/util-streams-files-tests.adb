@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.files.tests -- Unit tests for buffered streams
---  Copyright (C) 2010, 2011, 2017 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,7 +44,7 @@ package body Util.Streams.Files.Tests is
       Buffer     : Util.Streams.Texts.Print_Stream;
    begin
       for I in 1 .. 32 loop
-         Buffer.Initialize (Output => Stream'Unchecked_Access,
+         Buffer.Initialize (Output => Stream'Access,
                             Size   => I);
          Stream.Create (Mode => Out_File, Name => "test-stream.txt");
          Buffer.Write ("abcd");
