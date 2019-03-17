@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-aes -- AES encryption and decryption
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,8 @@ with Interfaces;
 --  RFC3174 or [FIPS-180-1].
 package Util.Encoders.AES is
 
+   use type Ada.Streams.Stream_Element_Offset;
+
    type AES_Mode is (ECB, CBC, PCBC, CFB, OFB, CTR);
 
    type Key_Type is private;
@@ -33,7 +35,8 @@ package Util.Encoders.AES is
    type Word_Block_Type is array (1 .. 4) of Interfaces.Unsigned_32;
 
    procedure Set_Encrypt_Key (Key  : out Key_Type;
-                              Data : in Ada.Streams.Stream_Element_Array);
+                              Data : in Ada.Streams.Stream_Element_Array)
+     with Pre => Data'Length = 16 or Data'Length = 24 or Data'Length = 32;
 
    procedure Set_Decrypt_Key (Key  : out Key_Type;
                               Data : in Ada.Streams.Stream_Element_Array);
@@ -84,12 +87,18 @@ package Util.Encoders.AES is
    overriding
    procedure Finish (E    : in out Encoder;
                      Into : in out Ada.Streams.Stream_Element_Array;
-                     Last : in out Ada.Streams.Stream_Element_Offset);
+                     Last : in out Ada.Streams.Stream_Element_Offset)
+     with Pre => Into'Length >= Block_Type'Length,
+     Post => Last = Into'First - 1 or Last = Into'First + Block_Type'Length;
 
    --  Set the encryption key to use.
    procedure Set_Key (E    : in out Encoder;
                       Data : in Ada.Streams.Stream_Element_Array;
                       Mode : in AES_Mode := CBC);
+
+   --  Set the encryption initialization vector before starting the encryption.
+   procedure Set_IV (E  : in out Encoder;
+                     IV : in Word_Block_Type);
 
 private
 
@@ -103,9 +112,11 @@ private
    end record;
 
    type Encoder is new Util.Encoders.Transformer with record
-      IV   : Word_Block_Type;
-      Key  : Key_Type;
-      Mode : AES_Mode := CBC;
+      IV         : Word_Block_Type;
+      Key        : Key_Type;
+      Mode       : AES_Mode := CBC;
+      Data_Count : Ada.Streams.Stream_Element_Offset := 0;
+      Data       : Block_Type;
    end record;
 
 end Util.Encoders.AES;
