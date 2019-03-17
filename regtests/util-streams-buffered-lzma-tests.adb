@@ -42,9 +42,9 @@ package body Util.Streams.Buffered.Lzma.Tests is
       Expect  : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.lzma");
    begin
       Stream.Create (Mode => Out_File, Name => Path);
-      Buffer.Initialize (Output => Stream'Unchecked_Access,
+      Buffer.Initialize (Output => Stream'Access,
                          Size   => 1024);
-      Print.Initialize (Output => Buffer'Unchecked_Access, Size => 5);
+      Print.Initialize (Output => Buffer'Access, Size => 5);
       for I in 1 .. 32 loop
          Print.Write ("abcd");
          Print.Write (" fghij");
@@ -71,7 +71,7 @@ package body Util.Streams.Buffered.Lzma.Tests is
       In_Stream.Open (Ada.Streams.Stream_IO.In_File,
                       Util.Tests.Get_Path ("regtests/files/test-big-stream.bin"));
       Stream.Create (Mode => Out_File, Name => Path);
-      Buffer.Initialize (Output => Stream'Unchecked_Access,
+      Buffer.Initialize (Output => Stream'Access,
                          Size   => 32768);
       Util.Streams.Copy (From => In_Stream, Into => Buffer);
       Buffer.Flush;
