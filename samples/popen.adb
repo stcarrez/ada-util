@@ -31,7 +31,7 @@ procedure Popen is
    Content : Ada.Strings.Unbounded.Unbounded_String;
 begin
    Pipe.Open (Command, Util.Processes.READ);
-   Buffer.Initialize (Pipe'Unchecked_Access, 1024);
+   Buffer.Initialize (Pipe'Access, 1024);
    Buffer.Read (Content);
    Pipe.Close;
 
