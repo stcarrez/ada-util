@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  util-streams-buffered-encoders-tests -- Unit tests for encoding buffered streams
+--  util-streams-tests -- Unit tests for encoding buffered streams
 --  Copyright (C) 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -18,31 +18,31 @@
 with Util.Test_Caller;
 with Util.Streams.Files;
 with Util.Streams.Texts;
+with Util.Streams.Base64;
 with Ada.Streams.Stream_IO;
-package body Util.Streams.Buffered.Encoders.Tests is
+package body Util.Streams.Tests is
 
    use Util.Streams.Files;
    use Ada.Streams.Stream_IO;
 
-   package Caller is new Util.Test_Caller (Test, "Streams.Buffered.Encoders");
+   package Caller is new Util.Test_Caller (Test, "Streams");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
-      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Encoders.Write, Read",
+      Caller.Add_Test (Suite, "Test Util.Streams.Base64.Write, Read",
                        Test_Base64_Stream'Access);
    end Add_Tests;
 
    procedure Test_Base64_Stream (T : in out Test) is
       Stream  : aliased File_Stream;
-      Buffer  : aliased Util.Streams.Buffered.Encoders.Encoding_Stream;
+      Buffer  : aliased Util.Streams.Base64.Encoding_Stream;
       Print   : Util.Streams.Texts.Print_Stream;
       Path    : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.b64");
       Expect  : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.b64");
    begin
       Print.Initialize (Output => Buffer'Access, Size => 5);
       Buffer.Initialize (Output => Stream'Access,
-                         Size   => 1024,
-                         Format => Util.Encoders.BASE_64);
+                         Size   => 1024);
       Stream.Create (Mode => Out_File, Name => Path);
       for I in 1 .. 32 loop
          Print.Write ("abcd");
@@ -58,4 +58,4 @@ package body Util.Streams.Buffered.Encoders.Tests is
                                      Message => "Base64 stream");
    end Test_Base64_Stream;
 
-end Util.Streams.Buffered.Encoders.Tests;
+end Util.Streams.Tests;
