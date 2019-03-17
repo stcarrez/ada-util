@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.buffered.tests -- Unit tests for buffered streams
---  Copyright (C) 2010, 2011, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,7 +66,7 @@ package body Util.Streams.Buffered.Tests is
       Max_Size   : constant Stream_Element_Offset := (Count * (Count + 1)) / 2;
    begin
       Big_Stream.Initialize (Size => Natural (Max_Size));
-      Stream.Initialize (Output => Big_Stream'Unchecked_Access, Size => 13);
+      Stream.Initialize (Output => Big_Stream'Access, Size => 13);
 
       for I in 1 .. Count loop
          declare
@@ -102,7 +102,7 @@ package body Util.Streams.Buffered.Tests is
    begin
       Big_Stream.Initialize (Size => Natural (Max_Size));
       for Buf_Size in 1 .. 19 loop
-         Stream.Initialize (Output => Big_Stream'Unchecked_Access,
+         Stream.Initialize (Output => Big_Stream'Access,
                             Size => Buf_Size);
 
          for I in 1 .. Count loop
