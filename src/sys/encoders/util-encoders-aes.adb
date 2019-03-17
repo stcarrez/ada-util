@@ -830,6 +830,34 @@ package body Util.Encoders.AES is
    end Set_Decrypt_Key;
 
    --  ------------------------------
+   --  Set the encryption initialization vector before starting the encryption.
+   --  ------------------------------
+   procedure Set_IV (E  : in out Cipher;
+                     IV : in Word_Block_Type) is
+   begin
+      E.IV := IV;
+   end Set_IV;
+
+   overriding
+   procedure Finalize (Object : in out Cipher) is
+   begin
+      Object.Key.Key := (others => 0);
+      Object.IV := (others => 0);
+      Object.Data := (others => 0);
+   end Finalize;
+
+   --  ------------------------------
+   --  Set the encryption key to use.
+   --  ------------------------------
+   procedure Set_Key (E    : in out Encoder;
+                      Data : in Ada.Streams.Stream_Element_Array;
+                      Mode : in AES_Mode := CBC) is
+   begin
+      Set_Encrypt_Key (E.Key, Data);
+      E.Mode := Mode;
+   end Set_Key;
+
+   --  ------------------------------
    --  Encodes the binary input stream represented by <b>Data</b> into
    --  an SHA-1 hash output stream <b>Into</b>.
    --
@@ -1000,22 +1028,184 @@ package body Util.Encoders.AES is
    --  ------------------------------
    --  Set the encryption key to use.
    --  ------------------------------
-   procedure Set_Key (E    : in out Encoder;
+   procedure Set_Key (E    : in out Decoder;
                       Data : in Ada.Streams.Stream_Element_Array;
                       Mode : in AES_Mode := CBC) is
    begin
-      Set_Encrypt_Key (E.Key, Data);
+      Set_Decrypt_Key (E.Key, Data);
       E.Mode := Mode;
    end Set_Key;
 
    --  ------------------------------
-   --  Set the encryption initialization vector before starting the encryption.
+   --  Encodes the binary input stream represented by <b>Data</b> into
+   --  an SHA-1 hash output stream <b>Into</b>.
+   --
+   --  If the transformer does not have enough room to write the result,
+   --  it must return in <b>Encoded</b> the index of the last encoded
+   --  position in the <b>Data</b> stream.
+   --
+   --  The transformer returns in <b>Last</b> the last valid position
+   --  in the output stream <b>Into</b>.
+   --
+   --  The <b>Encoding_Error</b> exception is raised if the input
+   --  stream cannot be transformed.
    --  ------------------------------
-   procedure Set_IV (E  : in out Encoder;
-                     IV : in Word_Block_Type) is
+   overriding
+   procedure Transform (E       : in out Decoder;
+                        Data    : in Ada.Streams.Stream_Element_Array;
+                        Into    : out Ada.Streams.Stream_Element_Array;
+                        Last    : out Ada.Streams.Stream_Element_Offset;
+                        Encoded : out Ada.Streams.Stream_Element_Offset) is
+      Pos : Ada.Streams.Stream_Element_Offset := Data'First;
+      R   : Word_Block_Type;
+      Pos_Limit : Ada.Streams.Stream_Element_Offset;
+      Last_Limit : Ada.Streams.Stream_Element_Offset;
    begin
-      E.IV := IV;
-   end Set_IV;
+      Last := Into'First;
+      if E.Data_Count > 0 then
+         loop
+            E.Data_Count := E.Data_Count + 1;
+            E.Data (E.Data_Count) := Data (Pos);
+            Pos := Pos + 1;
+            exit when E.Data_Count = 16;
+            if Pos > Data'Last then
+               Encoded := Data'Last;
+               return;
+            end if;
+         end loop;
+
+         --  Decrypt current block.
+         Decrypt (E.Data, Into (Last .. Last + Block_Type'Length - 1), E.Key);
+         Last := Last + Block_Type'Length;
+         E.Data_Count := 0;
+      end if;
+
+      Pos_Limit := Data'Last - Block_Type'Length;
+      Last_Limit := Into'Last - Block_Type'Length;
+      case E.Mode is
+         when ECB =>
+            while Pos <= Pos_Limit and Last <= Last_Limit loop
+               Decrypt (Data (Pos .. Pos + Block_Type'Length - 1),
+                        Into (Last .. Last + Block_Type'Length - 1),
+                        E.Key);
+               Last := Last + Block_Type'Length;
+               Pos  := Pos + Block_Type'Length;
+            end loop;
+
+         when CBC =>
+            while Pos <= Pos_Limit and Last <= Last_Limit loop
+               E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
+               E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
+               E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
+               E.IV (4) := E.IV (4) xor To_Unsigned_32 (Data, Pos + 12);
+               Decrypt (E.IV,
+                        E.IV,
+                        E.Key);
+               Put_Unsigned_32 (Into, E.IV (1), Last);
+               Put_Unsigned_32 (Into, E.IV (2), Last + 4);
+               Put_Unsigned_32 (Into, E.IV (3), Last + 8);
+               Put_Unsigned_32 (Into, E.IV (4), Last + 12);
+               Last := Last + Block_Type'Length;
+               Pos  := Pos + Block_Type'Length;
+            end loop;
+
+         when PCBC =>
+            while Pos <= Pos_Limit and Last <= Last_Limit loop
+               E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
+               E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
+               E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
+               E.IV (4) := E.IV (4) xor To_Unsigned_32 (Data, Pos + 12);
+               Decrypt (E.IV,
+                        E.IV,
+                        E.Key);
+               Put_Unsigned_32 (Into, E.IV (1), Last);
+               Put_Unsigned_32 (Into, E.IV (2), Last + 4);
+               Put_Unsigned_32 (Into, E.IV (3), Last + 8);
+               Put_Unsigned_32 (Into, E.IV (4), Last + 12);
+               E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
+               E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
+               E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
+               E.IV (4) := E.IV (4) xor To_Unsigned_32 (Data, Pos + 12);
+               Last := Last + Block_Type'Length;
+               Pos  := Pos + Block_Type'Length;
+            end loop;
+
+         when CFB =>
+            while Pos <= Pos_Limit and Last <= Last_Limit loop
+               Decrypt (E.IV,
+                        E.IV,
+                        E.Key);
+               E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
+               E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
+               E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
+               E.IV (4) := E.IV (4) xor To_Unsigned_32 (Data, Pos + 12);
+               Put_Unsigned_32 (Into, E.IV (1), Last);
+               Put_Unsigned_32 (Into, E.IV (2), Last + 4);
+               Put_Unsigned_32 (Into, E.IV (3), Last + 8);
+               Put_Unsigned_32 (Into, E.IV (4), Last + 12);
+               Last := Last + Block_Type'Length;
+               Pos  := Pos + Block_Type'Length;
+            end loop;
+
+         when OFB =>
+            while Pos <= Pos_Limit and Last <= Last_Limit loop
+               Decrypt (E.IV,
+                        E.IV,
+                        E.Key);
+               Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (Data, Pos), Last);
+               Put_Unsigned_32 (Into, E.IV (2) xor To_Unsigned_32 (Data, Pos + 4), Last + 4);
+               Put_Unsigned_32 (Into, E.IV (3) xor To_Unsigned_32 (Data, Pos + 8), Last + 8);
+               Put_Unsigned_32 (Into, E.IV (4) xor To_Unsigned_32 (Data, Pos + 12), Last + 12);
+               Last := Last + Block_Type'Length;
+               Pos  := Pos + Block_Type'Length;
+            end loop;
+
+         when CTR =>
+            while Pos <= Pos_Limit and Last <= Last_Limit loop
+               Decrypt (E.IV,
+                        R,
+                        E.Key);
+               Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (Data, Pos), Last);
+               Put_Unsigned_32 (Into, E.IV (2) xor To_Unsigned_32 (Data, Pos + 4), Last + 4);
+               Put_Unsigned_32 (Into, E.IV (3) xor To_Unsigned_32 (Data, Pos + 8), Last + 8);
+               Put_Unsigned_32 (Into, E.IV (4) xor To_Unsigned_32 (Data, Pos + 12), Last + 12);
+               E.IV (4) := E.IV (4) + 1;
+               if E.IV (4) = 0 then
+                  E.IV (3) := E.IV (3) + 1;
+               end if;
+               Last := Last + Block_Type'Length;
+               Pos  := Pos + Block_Type'Length;
+            end loop;
+
+      end case;
+
+      --  Save data that must be encoded in the next 16-byte AES block.
+      while Pos <= Data'Last loop
+         E.Data_Count := E.Data_Count + 1;
+         E.Data (E.Data_Count) := Data (Pos);
+         Pos := Pos + 1;
+      end loop;
+      Encoded := Pos;
+   end Transform;
+
+   --  Finish encoding the input array.
+   overriding
+   procedure Finish (E    : in out Decoder;
+                     Into : in out Ada.Streams.Stream_Element_Array;
+                     Last : in out Ada.Streams.Stream_Element_Offset) is
+      Data    : Block_Type;
+      Count   : Ada.Streams.Stream_Element_Offset;
+   begin
+      Decrypt (E.Data, Data, E.Key);
+      if Data (Data'Last) = 0 then
+         Last := Into'First - 1;
+      elsif Data (Data'Last) < 15 then
+         Count := Data'Length - Ada.Streams.Stream_Element_Offset (Data (Data'Last));
+         Last := Into'First + Count - 1;
+         Into (Into'First .. Last) := Data (Data'First .. Data'First + Count - 1);
+         Last := Last + 1;
+      end if;
+   end Finish;
 
    procedure Encrypt (Input  : in Ada.Streams.Stream_Element_Array;
                       Output : out Ada.Streams.Stream_Element_Array;
@@ -1335,6 +1525,103 @@ package body Util.Encoders.AES is
            xor Unsigned_32 (Td4 (T0 and 16#0ff#))
            xor Key.Key (N + 3);
       Put_Unsigned_32 (Output, S3, 12);
+
+   end Decrypt;
+
+   procedure Decrypt (Input  : in Word_Block_Type;
+                      Output : out Word_Block_Type;
+                      Key    : in Key_Type) is
+      S0, S1, S2, S3 : Unsigned_32;
+      T0, T1, T2, T3 : Unsigned_32;
+      N : Natural := 0;
+      R : Natural := Key.Rounds / 2;
+   begin
+      S0 := Input (1) xor Key.Key (0);
+      S1 := Input (2) xor Key.Key (1);
+      S2 := Input (3) xor Key.Key (2);
+      S3 := Input (4) xor Key.Key (3);
+      loop
+         T0 := Td0 (Shift_Right (S0, 24) and 16#0ff#)
+           xor Td1 (Shift_Right (S3, 16) and 16#0ff#)
+           xor Td2 (Shift_Right (S2, 8) and 16#0ff#)
+           xor Td3 (S1 and 16#0ff#)
+           xor Key.Key (N + 4);
+
+         T1 := Td0 (Shift_Right (S1, 24) and 16#0ff#)
+           xor Td1 (Shift_Right (S0, 16) and 16#0ff#)
+           xor Td2 (Shift_Right (S3, 8) and 16#0ff#)
+           xor Td3 (S2 and 16#0ff#)
+           xor Key.Key (N + 5);
+
+         T2 := Td0 (Shift_Right (S2, 24) and 16#0ff#)
+           xor Td1 (Shift_Right (S1, 16) and 16#0ff#)
+           xor Td2 (Shift_Right (S0, 8) and 16#0ff#)
+           xor Td3 (S3 and 16#0ff#)
+           xor Key.Key (N + 6);
+
+         T3 := Td0 (Shift_Right (S3, 24) and 16#0ff#)
+           xor Td1 (Shift_Right (S2, 16) and 16#0ff#)
+           xor Td2 (Shift_Right (S1, 8) and 16#0ff#)
+           xor Td3 (S0 and 16#0ff#)
+           xor Key.Key (N + 7);
+
+         N := N + 8;
+         R := R - 1;
+         exit when R = 0;
+
+         S0 := Td0 (Shift_Right (T0, 24) and 16#0ff#)
+           xor Td1 (Shift_Right (T3, 16) and 16#0ff#)
+           xor Td2 (Shift_Right (T2, 8) and 16#0ff#)
+           xor Td3 (T1 and 16#0ff#)
+           xor Key.Key (N + 0);
+
+         S1 := Td0 (Shift_Right (T1, 24) and 16#0ff#)
+           xor Td1 (Shift_Right (T0, 16) and 16#0ff#)
+           xor Td2 (Shift_Right (T3, 8) and 16#0ff#)
+           xor Td3 (T2 and 16#0ff#)
+           xor Key.Key (N + 1);
+
+         S2 := Td0 (Shift_Right (T2, 24) and 16#0ff#)
+           xor Td1 (Shift_Right (T1, 16) and 16#0ff#)
+           xor Td2 (Shift_Right (T0, 8) and 16#0ff#)
+           xor Td3 (T3 and 16#0ff#)
+           xor Key.Key (N + 2);
+
+         S3 := Td0 (Shift_Right (T3, 24) and 16#0ff#)
+           xor Td1 (Shift_Right (T2, 16) and 16#0ff#)
+           xor Td2 (Shift_Right (T1, 8) and 16#0ff#)
+           xor Td3 (T0 and 16#0ff#)
+           xor Key.Key (N + 3);
+
+      end loop;
+
+      S0 := Shift_Left (Unsigned_32 (Td4 (Shift_Right (T0, 24) and 16#0ff#)), 24)
+           xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T3, 16) and 16#0ff#)), 16)
+           xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T2, 8) and 16#0ff#)), 8)
+           xor Unsigned_32 (Td4 (T1 and 16#0ff#))
+           xor Key.Key (N);
+      Output (1) := S0;
+
+      S1 := Shift_Left (Unsigned_32 (Td4 (Shift_Right (T1, 24) and 16#0ff#)), 24)
+           xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T0, 16) and 16#0ff#)), 16)
+           xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T3, 8) and 16#0ff#)), 8)
+           xor Unsigned_32 (Td4 (T2 and 16#0ff#))
+           xor Key.Key (N + 1);
+      Output (2) := S1;
+
+      S2 := Shift_Left (Unsigned_32 (Td4 (Shift_Right (T2, 24) and 16#0ff#)), 24)
+           xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T1, 16) and 16#0ff#)), 16)
+           xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T0, 8) and 16#0ff#)), 8)
+           xor Unsigned_32 (Td4 (T3 and 16#0ff#))
+           xor Key.Key (N + 2);
+      Output (3) := S2;
+
+      S3 := Shift_Left (Unsigned_32 (Td4 (Shift_Right (T3, 24) and 16#0ff#)), 24)
+           xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T2, 16) and 16#0ff#)), 16)
+           xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T1, 8) and 16#0ff#)), 8)
+           xor Unsigned_32 (Td4 (T0 and 16#0ff#))
+           xor Key.Key (N + 3);
+      Output (4) := S3;
 
    end Decrypt;
 
