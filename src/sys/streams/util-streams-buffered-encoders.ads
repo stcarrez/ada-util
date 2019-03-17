@@ -31,9 +31,9 @@ with Util.Encoders;
 --
 --     Encode.Initialize (Output => File'Access, Size => 4096, Format => "base64");
 --
+generic
+   type Encoder is limited new Util.Encoders.Transformer with private;
 package Util.Streams.Buffered.Encoders is
-
-   pragma Preelaborate;
 
    --  -----------------------
    --  Encoding stream
@@ -41,37 +41,29 @@ package Util.Streams.Buffered.Encoders is
    --  The <b>Encoding_Stream</b> is an output stream which uses an encoder to
    --  transform the data before writing it to the output.  The transformer can
    --  change the data by encoding it in Base64, Base16 or encrypting it.
-   type Encoding_Stream is limited new Util.Streams.Buffered.Output_Buffer_Stream with private;
+   type Encoder_Stream is limited new Util.Streams.Buffered.Output_Buffer_Stream with record
+      Transform   : Encoder;
+   end record;
 
    --  Initialize the stream to write on the given stream.
    --  An internal buffer is allocated for writing the stream.
-   procedure Initialize (Stream  : in out Encoding_Stream;
+   overriding
+   procedure Initialize (Stream  : in out Encoder_Stream;
                          Output  : access Output_Stream'Class;
-                         Size    : in Natural;
-                         Format  : in String);
+                         Size    : in Positive);
 
    --  Close the sink.
    overriding
-   procedure Close (Stream : in out Encoding_Stream);
+   procedure Close (Stream : in out Encoder_Stream);
 
    --  Write the buffer array to the output stream.
    overriding
-   procedure Write (Stream : in out Encoding_Stream;
+   procedure Write (Stream : in out Encoder_Stream;
                     Buffer : in Ada.Streams.Stream_Element_Array);
 
    --  Flush the buffer by writing on the output stream.
    --  Raises Data_Error if there is no output stream.
    overriding
-   procedure Flush (Stream : in out Encoding_Stream);
-
-private
-
-   type Encoding_Stream is limited new Util.Streams.Buffered.Output_Buffer_Stream with record
-      Transform   : Util.Encoders.Transformer_Access;
-   end record;
-
-   --  Flush the stream and release the buffer.
-   overriding
-   procedure Finalize (Object : in out Encoding_Stream);
+   procedure Flush (Stream : in out Encoder_Stream);
 
 end Util.Streams.Buffered.Encoders;
