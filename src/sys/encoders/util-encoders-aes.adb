@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-aes -- AES encryption and decryption
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,7 @@ package body Util.Encoders.AES is
                             Offset : in Stream_Element_Offset) return Unsigned_32;
    pragma Inline_Always (To_Unsigned_32);
 
-   procedure Put_Unsigned_32 (Data   : in out Block_Type;
+   procedure Put_Unsigned_32 (Data   : in out Stream_Element_Array;
                               Value  : in Unsigned_32;
                               Offset : in Stream_Element_Offset);
 
@@ -675,7 +675,7 @@ package body Util.Encoders.AES is
         Unsigned_32 (Data (Data'First + Offset + 3));
    end To_Unsigned_32;
 
-   procedure Put_Unsigned_32 (Data   : in out Block_Type;
+   procedure Put_Unsigned_32 (Data   : in out Stream_Element_Array;
                               Value  : in Unsigned_32;
                               Offset : in Stream_Element_Offset) is
    begin
@@ -849,14 +849,35 @@ package body Util.Encoders.AES is
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset) is
-      pragma Unreferenced (Encoded);
       Pos : Ada.Streams.Stream_Element_Offset := Data'First;
       R   : Word_Block_Type;
+      Pos_Limit : Ada.Streams.Stream_Element_Offset;
+      Last_Limit : Ada.Streams.Stream_Element_Offset;
    begin
       Last := Into'First;
+      if E.Data_Count > 0 then
+         loop
+            E.Data_Count := E.Data_Count + 1;
+            E.Data (E.Data_Count) := Data (Pos);
+            Pos := Pos + 1;
+            exit when E.Data_Count = 16;
+            if Pos > Data'Last then
+               Encoded := Data'Last;
+               return;
+            end if;
+         end loop;
+
+         --  Encrypt current block.
+         Encrypt (E.Data, Into (Last .. Last + Block_Type'Length - 1), E.Key);
+         Last := Last + Block_Type'Length;
+         E.Data_Count := 0;
+      end if;
+
+      Pos_Limit := Data'Last - Block_Type'Length;
+      Last_Limit := Into'Last - Block_Type'Length;
       case E.Mode is
          when ECB =>
-            while Pos + Block_Type'Length - 1 <= Data'Last loop
+            while Pos <= Pos_Limit and Last <= Last_Limit loop
                Encrypt (Data (Pos .. Pos + Block_Type'Length - 1),
                         Into (Last .. Last + Block_Type'Length - 1),
                         E.Key);
@@ -865,7 +886,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when CBC =>
-            while Pos + Block_Type'Length - 1 <= Data'Last loop
+            while Pos <= Pos_Limit and Last <= Last_Limit loop
                E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
                E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
                E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
@@ -882,7 +903,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when PCBC =>
-            while Pos + Block_Type'Length - 1 <= Data'Last loop
+            while Pos <= Pos_Limit and Last <= Last_Limit loop
                E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
                E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
                E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
@@ -903,7 +924,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when CFB =>
-            while Pos + Block_Type'Length - 1 <= Data'Last loop
+            while Pos <= Pos_Limit and Last <= Last_Limit loop
                Encrypt (E.IV,
                         E.IV,
                         E.Key);
@@ -920,7 +941,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when OFB =>
-            while Pos + Block_Type'Length - 1 <= Data'Last loop
+            while Pos <= Pos_Limit and Last <= Last_Limit loop
                Encrypt (E.IV,
                         E.IV,
                         E.Key);
@@ -933,7 +954,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when CTR =>
-            while Pos + Block_Type'Length - 1 <= Data'Last loop
+            while Pos <= Pos_Limit and Last <= Last_Limit loop
                Encrypt (E.IV,
                         R,
                         E.Key);
@@ -950,6 +971,14 @@ package body Util.Encoders.AES is
             end loop;
 
       end case;
+
+      --  Save data that must be encoded in the next 16-byte AES block.
+      while Pos <= Data'Last loop
+         E.Data_Count := E.Data_Count + 1;
+         E.Data (E.Data_Count) := Data (Pos);
+         Pos := Pos + 1;
+      end loop;
+      Encoded := Pos;
    end Transform;
 
    --  Finish encoding the input array.
@@ -957,8 +986,15 @@ package body Util.Encoders.AES is
    procedure Finish (E    : in out Encoder;
                      Into : in out Ada.Streams.Stream_Element_Array;
                      Last : in out Ada.Streams.Stream_Element_Offset) is
+      Padding : constant Ada.Streams.Stream_Element_Offset := 16 - E.Data_Count;
+      Pad     : constant Ada.Streams.Stream_Element_Array (1 .. Padding)
+        := (others => Ada.Streams.Stream_Element (Padding));
+      Encoded : Ada.Streams.Stream_Element_Offset;
    begin
-      null;
+      E.Transform (Pad, Into, Last, Encoded);
+
+      pragma Assert (Encoded = Pad'Last + 1);
+      pragma Assert (E.Data_Count = 0);
    end Finish;
 
    --  ------------------------------
@@ -971,6 +1007,15 @@ package body Util.Encoders.AES is
       Set_Encrypt_Key (E.Key, Data);
       E.Mode := Mode;
    end Set_Key;
+
+   --  ------------------------------
+   --  Set the encryption initialization vector before starting the encryption.
+   --  ------------------------------
+   procedure Set_IV (E  : in out Encoder;
+                     IV : in Word_Block_Type) is
+   begin
+      E.IV := IV;
+   end Set_IV;
 
    procedure Encrypt (Input  : in Ada.Streams.Stream_Element_Array;
                       Output : out Ada.Streams.Stream_Element_Array;
