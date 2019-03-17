@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  util-streams-buffered-encoders-tests -- Unit tests for encoding buffered streams
---  Copyright (C) 2017 Stephane Carrez
+--  util-streams-tests -- Unit tests for encoding buffered streams
+--  Copyright (C) 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@
 
 with Util.Tests;
 
-package Util.Streams.Buffered.Encoders.Tests is
+package Util.Streams.Tests is
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite);
 
@@ -26,4 +26,4 @@ package Util.Streams.Buffered.Encoders.Tests is
 
    procedure Test_Base64_Stream (T : in out Test);
 
-end Util.Streams.Buffered.Encoders.Tests;
+end Util.Streams.Tests;
