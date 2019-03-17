@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.files.tests -- Unit tests for buffered streams
---  Copyright (C) 2012, 2018 Stephane Carrez
+--  Copyright (C) 2012, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,7 +44,7 @@ package body Util.Streams.Texts.Tests is
       Count  : Natural := 0;
    begin
       Stream.Open (Name => "Makefile", Mode => In_File);
-      Reader.Initialize (From => Stream'Unchecked_Access);
+      Reader.Initialize (From => Stream'Access);
 
       while not Reader.Is_Eof loop
          declare
