@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered-encoders-tests -- Unit tests for encoding buffered streams
---  Copyright (C) 2017, 2018 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,8 +39,8 @@ package body Util.Streams.Buffered.Encoders.Tests is
       Path    : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.b64");
       Expect  : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.b64");
    begin
-      Print.Initialize (Output => Buffer'Unchecked_Access, Size => 5);
-      Buffer.Initialize (Output => Stream'Unchecked_Access,
+      Print.Initialize (Output => Buffer'Access, Size => 5);
+      Buffer.Initialize (Output => Stream'Access,
                          Size   => 1024,
                          Format => Util.Encoders.BASE_64);
       Stream.Create (Mode => Out_File, Name => Path);
