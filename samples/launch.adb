@@ -33,8 +33,8 @@ procedure Launch is
 begin
       --  Write on the process input stream
    Pipe.Open ("nslookup", Util.Processes.READ_WRITE);
-   Buffer.Initialize (Pipe'Unchecked_Access, 1024);
-   Print.Initialize (Pipe'Unchecked_Access);
+   Buffer.Initialize (Pipe'Access, 1024);
+   Print.Initialize (Pipe'Access);
 
    --  Write on the 'nslookup' input pipe a list of domains to resolve.
    Print.Write ("www.google.com" & ASCII.LF);
