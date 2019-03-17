@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with Ada.Streams;
 with Interfaces;
+private with Ada.Finalization;
 
 --  The <b>Util.Encodes.SHA1</b> package generates SHA-1 hash according to
 --  RFC3174 or [FIPS-180-1].
@@ -57,12 +58,27 @@ package Util.Encoders.AES is
                       Output : out Block_Type;
                       Key    : in Key_Type);
 
+   procedure Decrypt (Input  : in Word_Block_Type;
+                      Output : out Word_Block_Type;
+                      Key    : in Key_Type);
+
+   type Cipher is tagged limited private;
+
+   --  Set the encryption initialization vector before starting the encryption.
+   procedure Set_IV (E  : in out Cipher;
+                     IV : in Word_Block_Type);
+
    --  ------------------------------
    --  AES encoder
    --  ------------------------------
    --  This <b>Encoder</b> translates the (binary) input stream into
    --  an SHA1 hexadecimal stream.  The encoding alphabet is: 0123456789ABCDEF.
-   type Encoder is new Util.Encoders.Transformer with private;
+   type Encoder is new Cipher and Util.Encoders.Transformer with private;
+
+   --  Set the encryption key to use.
+   procedure Set_Key (E    : in out Encoder;
+                      Data : in Ada.Streams.Stream_Element_Array;
+                      Mode : in AES_Mode := CBC);
 
    --  Encodes the binary input stream represented by <b>Data</b> into
    --  an SHA-1 hash output stream <b>Into</b>.
@@ -91,14 +107,42 @@ package Util.Encoders.AES is
      with Pre => Into'Length >= Block_Type'Length,
      Post => Last = Into'First - 1 or Last = Into'First + Block_Type'Length;
 
-   --  Set the encryption key to use.
-   procedure Set_Key (E    : in out Encoder;
+   --  ------------------------------
+   --  AES encoder
+   --  ------------------------------
+   --  This <b>Encoder</b> translates the (binary) input stream into
+   --  an SHA1 hexadecimal stream.  The encoding alphabet is: 0123456789ABCDEF.
+   type Decoder is new Cipher and Util.Encoders.Transformer with private;
+
+   --  Set the decryption key to use.
+   procedure Set_Key (E    : in out Decoder;
                       Data : in Ada.Streams.Stream_Element_Array;
                       Mode : in AES_Mode := CBC);
 
-   --  Set the encryption initialization vector before starting the encryption.
-   procedure Set_IV (E  : in out Encoder;
-                     IV : in Word_Block_Type);
+   --  Encodes the binary input stream represented by <b>Data</b> into
+   --  an SHA-1 hash output stream <b>Into</b>.
+   --
+   --  If the transformer does not have enough room to write the result,
+   --  it must return in <b>Encoded</b> the index of the last encoded
+   --  position in the <b>Data</b> stream.
+   --
+   --  The transformer returns in <b>Last</b> the last valid position
+   --  in the output stream <b>Into</b>.
+   --
+   --  The <b>Encoding_Error</b> exception is raised if the input
+   --  stream cannot be transformed.
+   overriding
+   procedure Transform (E       : in out Decoder;
+                        Data    : in Ada.Streams.Stream_Element_Array;
+                        Into    : out Ada.Streams.Stream_Element_Array;
+                        Last    : out Ada.Streams.Stream_Element_Offset;
+                        Encoded : out Ada.Streams.Stream_Element_Offset);
+
+   --  Finish encoding the input array.
+   overriding
+   procedure Finish (E    : in out Decoder;
+                     Into : in out Ada.Streams.Stream_Element_Array;
+                     Last : in out Ada.Streams.Stream_Element_Offset);
 
 private
 
@@ -111,12 +155,19 @@ private
       Rounds : Natural := 0;
    end record;
 
-   type Encoder is new Util.Encoders.Transformer with record
+   type Cipher is limited new Ada.Finalization.Limited_Controlled with record
       IV         : Word_Block_Type;
       Key        : Key_Type;
       Mode       : AES_Mode := CBC;
       Data_Count : Ada.Streams.Stream_Element_Offset := 0;
       Data       : Block_Type;
    end record;
+
+   overriding
+   procedure Finalize (Object : in out Cipher);
+
+   type Encoder is new Cipher and Util.Encoders.Transformer with null record;
+
+   type Decoder is new Cipher and Util.Encoders.Transformer with null record;
 
 end Util.Encoders.AES;
