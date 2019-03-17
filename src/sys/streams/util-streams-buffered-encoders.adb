@@ -16,28 +16,25 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Util.Encoders.Base64;
 package body Util.Streams.Buffered.Encoders is
 
    --  -----------------------
    --  Initialize the stream to write on the given stream.
    --  An internal buffer is allocated for writing the stream.
    --  -----------------------
-   procedure Initialize (Stream  : in out Encoding_Stream;
+   overriding
+   procedure Initialize (Stream  : in out Encoder_Stream;
                          Output  : access Output_Stream'Class;
-                         Size    : in Natural;
-                         Format  : in String) is
-      pragma Unreferenced (Format);
+                         Size    : in Positive) is
    begin
-      Stream.Initialize (Output, Size);
-      Stream.Transform := new Util.Encoders.Base64.Encoder;
+      Util.Streams.Buffered.Output_Buffer_Stream (Stream).Initialize (Output, Size);
    end Initialize;
 
    --  -----------------------
    --  Close the sink.
    --  -----------------------
    overriding
-   procedure Close (Stream : in out Encoding_Stream) is
+   procedure Close (Stream : in out Encoder_Stream) is
    begin
       Stream.Flush;
       Stream.Output.Close;
@@ -47,7 +44,7 @@ package body Util.Streams.Buffered.Encoders is
    --  Write the buffer array to the output stream.
    --  -----------------------
    overriding
-   procedure Write (Stream : in out Encoding_Stream;
+   procedure Write (Stream : in out Encoder_Stream;
                     Buffer : in Ada.Streams.Stream_Element_Array) is
       First_Encoded : Ada.Streams.Stream_Element_Offset := Buffer'First;
       Last_Encoded  : Ada.Streams.Stream_Element_Offset;
@@ -63,7 +60,7 @@ package body Util.Streams.Buffered.Encoders is
             Stream.Output.Write (Stream.Buffer (Stream.Buffer'First .. Last_Pos));
             Stream.Write_Pos := Stream.Buffer'First;
          else
-            Stream.Write_Pos := Last_Pos + 1;
+            Stream.Write_Pos := Last_Pos;
          end if;
          First_Encoded := Last_Encoded + 1;
       end loop;
@@ -74,22 +71,13 @@ package body Util.Streams.Buffered.Encoders is
    --  Raises Data_Error if there is no output stream.
    --  -----------------------
    overriding
-   procedure Flush (Stream : in out Encoding_Stream) is
+   procedure Flush (Stream : in out Encoder_Stream) is
       Last_Pos : Ada.Streams.Stream_Element_Offset := Stream.Write_Pos - 1;
    begin
       Stream.Transform.Finish (Stream.Buffer (Stream.Write_Pos .. Stream.Buffer'Last),
                                Last_Pos);
-      Stream.Write_Pos := Last_Pos + 1;
+      Stream.Write_Pos := Last_Pos;
       Output_Buffer_Stream (Stream).Flush;
    end Flush;
-
-   --  -----------------------
-   --  Flush the stream and release the buffer.
-   --  -----------------------
-   overriding
-   procedure Finalize (Object : in out Encoding_Stream) is
-   begin
-      null;
-   end Finalize;
 
 end Util.Streams.Buffered.Encoders;
