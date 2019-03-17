@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util testsuite - Util Testsuite
---  Copyright (C) 2009 - 2018 Stephane Carrez
+--  Copyright (C) 2009 - 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,7 +35,7 @@ with Util.Streams.Buffered.Tests;
 with Util.Streams.Files.Tests;
 with Util.Streams.Texts.Tests;
 with Util.Streams.Sockets.Tests;
-with Util.Streams.Buffered.Encoders.Tests;
+with Util.Streams.Tests;
 #if HAVE_LZMA = "yes"
 with Util.Streams.Buffered.Lzma.Tests;
 # end if;
@@ -89,7 +89,7 @@ package body Util.Testsuite is
       Util.Encoders.Tests.Add_Tests (Result);
       Util.Streams.Buffered.Tests.Add_Tests (Result);
       Util.Streams.Files.Tests.Add_Tests (Result);
-      Util.Streams.Buffered.Encoders.Tests.Add_Tests (Result);
+      Util.Streams.Tests.Add_Tests (Result);
 #if HAVE_LZMA = "yes"
       Util.Streams.Buffered.Lzma.Tests.Add_Tests (Result);
 #end if;
