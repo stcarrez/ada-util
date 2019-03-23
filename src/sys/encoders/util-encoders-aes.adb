@@ -669,20 +669,20 @@ package body Util.Encoders.AES is
    function To_Unsigned_32 (Data   : in Stream_Element_Array;
                             Offset : in Stream_Element_Offset) return Unsigned_32 is
    begin
-      return Shift_Left (Unsigned_32 (Data (Data'First + Offset)), 24) or
-        Shift_Left (Unsigned_32 (Data (Data'First + Offset + 1)), 16) or
-        Shift_Left (Unsigned_32 (Data (Data'First + Offset + 2)), 8) or
-        Unsigned_32 (Data (Data'First + Offset + 3));
+      return Shift_Left (Unsigned_32 (Data (Offset)), 24) or
+        Shift_Left (Unsigned_32 (Data (Offset + 1)), 16) or
+        Shift_Left (Unsigned_32 (Data (Offset + 2)), 8) or
+        Unsigned_32 (Data (Offset + 3));
    end To_Unsigned_32;
 
    procedure Put_Unsigned_32 (Data   : in out Stream_Element_Array;
                               Value  : in Unsigned_32;
                               Offset : in Stream_Element_Offset) is
    begin
-      Data (Data'First + Offset) := Stream_Element (Shift_Right (Value, 24));
-      Data (Data'First + Offset + 1) := Stream_Element (Shift_Right (Value, 16) and 16#0ff#);
-      Data (Data'First + Offset + 2) := Stream_Element (Shift_Right (Value, 8) and 16#0ff#);
-      Data (Data'First + Offset + 3) := Stream_Element (Value and 16#0ff#);
+      Data (Offset) := Stream_Element (Shift_Right (Value, 24));
+      Data (Offset + 1) := Stream_Element (Shift_Right (Value, 16) and 16#0ff#);
+      Data (Offset + 2) := Stream_Element (Shift_Right (Value, 8) and 16#0ff#);
+      Data (Offset + 3) := Stream_Element (Value and 16#0ff#);
    end Put_Unsigned_32;
 
    procedure Set_Encrypt_Key (Key  : out Key_Type;
@@ -692,19 +692,19 @@ package body Util.Encoders.AES is
       I    : Natural := 0;
       pragma Style_Checks ("-mr");
    begin
-      Key.Key (0) := To_Unsigned_32 (Data, 0);
-      Key.Key (1) := To_Unsigned_32 (Data, 4);
-      Key.Key (2) := To_Unsigned_32 (Data, 8);
-      Key.Key (3) := To_Unsigned_32 (Data, 12);
+      Key.Key (0) := To_Unsigned_32 (Data, Data'First + 0);
+      Key.Key (1) := To_Unsigned_32 (Data, Data'First + 4);
+      Key.Key (2) := To_Unsigned_32 (Data, Data'First + 8);
+      Key.Key (3) := To_Unsigned_32 (Data, Data'First + 12);
       if Data'Length = 128 / 8 then
          Key.Rounds := 10;
          loop
             Temp := Key.Key (N + 3);
             Key.Key (N + 4) := Key.Key (N + 0)
-              xor (Te2 (Shift_Right (Temp, 16) and 16#0ff#) and 16#ff000000#)
-              xor (Te3 (Shift_Right (Temp, 8) and 16#0ff#) and 16#00ff0000#)
-              xor (Te0 (Temp and 16#0ff#) and 16#0000ff00#)
-              xor (Te1 (Shift_Right (Temp, 24) and 16#0ff#) and 16#00ff#)
+              xor (Te4 (Shift_Right (Temp, 16) and 16#0ff#) and 16#ff000000#)
+              xor (Te4 (Shift_Right (Temp, 8) and 16#0ff#) and 16#00ff0000#)
+              xor (Te4 (Temp and 16#0ff#) and 16#0000ff00#)
+              xor (Te4 (Shift_Right (Temp, 24) and 16#0ff#) and 16#00ff#)
               xor Rcon (I);
             Key.Key (N + 5) := Key.Key (N + 1) xor Key.Key (N + 4);
             Key.Key (N + 6) := Key.Key (N + 2) xor Key.Key (N + 5);
@@ -715,17 +715,17 @@ package body Util.Encoders.AES is
          end loop;
          return;
       end if;
-      Key.Key (4) := To_Unsigned_32 (Data, 16);
-      Key.Key (5) := To_Unsigned_32 (Data, 20);
+      Key.Key (4) := To_Unsigned_32 (Data, Data'First + 16);
+      Key.Key (5) := To_Unsigned_32 (Data, Data'First + 20);
       if Data'Length = 192 / 8 then
          Key.Rounds := 12;
          loop
             Temp := Key.Key (N + 5);
             Key.Key (N + 6) := Key.Key (N + 0)
-              xor (Te2 (Shift_Right (Temp, 16) and 16#0ff#) and 16#ff000000#)
-              xor (Te3 (Shift_Right (Temp, 8) and 16#0ff#) and 16#00ff0000#)
-              xor (Te0 (Temp and 16#0ff#) and 16#0000ff00#)
-              xor (Te1 (Shift_Right (Temp, 24) and 16#0ff#) and 16#00ff#)
+              xor (Te4 (Shift_Right (Temp, 16) and 16#0ff#) and 16#ff000000#)
+              xor (Te4 (Shift_Right (Temp, 8) and 16#0ff#) and 16#00ff0000#)
+              xor (Te4 (Temp and 16#0ff#) and 16#0000ff00#)
+              xor (Te4 (Shift_Right (Temp, 24) and 16#0ff#) and 16#00ff#)
               xor Rcon (I);
             Key.Key (N + 7) := Key.Key (N + 1) xor Key.Key (N + 6);
             Key.Key (N + 8) := Key.Key (N + 2) xor Key.Key (N + 7);
@@ -738,23 +738,23 @@ package body Util.Encoders.AES is
          end loop;
          return;
       end if;
-      Key.Key (6) := To_Unsigned_32 (Data, 24);
-      Key.Key (7) := To_Unsigned_32 (Data, 28);
+      Key.Key (6) := To_Unsigned_32 (Data, Data'First + 24);
+      Key.Key (7) := To_Unsigned_32 (Data, Data'First + 28);
       if Data'Length = 256 / 8 then
          Key.Rounds := 14;
          loop
             Temp := Key.Key (N + 7);
             Key.Key (N + 8) := Key.Key (N + 0)
-              xor (Te2 (Shift_Right (Temp, 16) and 16#0ff#) and 16#ff000000#)
-              xor (Te3 (Shift_Right (Temp, 8) and 16#0ff#) and 16#00ff0000#)
-              xor (Te0 (Temp and 16#0ff#) and 16#0000ff00#)
-              xor (Te1 (Shift_Right (Temp, 24) and 16#0ff#) and 16#00ff#)
+              xor (Te4 (Shift_Right (Temp, 16) and 16#0ff#) and 16#ff000000#)
+              xor (Te4 (Shift_Right (Temp, 8) and 16#0ff#) and 16#00ff0000#)
+              xor (Te4 (Temp and 16#0ff#) and 16#0000ff00#)
+              xor (Te4 (Shift_Right (Temp, 24) and 16#0ff#) and 16#00ff#)
               xor Rcon (I);
             Key.Key (N + 8) := Key.Key (N + 0);
-            Key.Key (N + 8) := Key.Key (N + 8) xor (Te2 (Shift_Right (Temp, 16) and 16#0ff#) and 16#ff000000#);
-            Key.Key (N + 8) := Key.Key (N + 8) xor (Te3 (Shift_Right (Temp, 8) and 16#0ff#) and 16#00ff0000#);
-            Key.Key (N + 8) := Key.Key (N + 8) xor (Te0 (Temp and 16#0ff#) and 16#0000ff00#);
-            Key.Key (N + 8) := Key.Key (N + 8) xor (Te1 (Shift_Right (Temp, 24) and 16#0ff#) and 16#00ff#);
+            Key.Key (N + 8) := Key.Key (N + 8) xor (Te4 (Shift_Right (Temp, 16) and 16#0ff#) and 16#ff000000#);
+            Key.Key (N + 8) := Key.Key (N + 8) xor (Te4 (Shift_Right (Temp, 8) and 16#0ff#) and 16#00ff0000#);
+            Key.Key (N + 8) := Key.Key (N + 8) xor (Te4 (Temp and 16#0ff#) and 16#0000ff00#);
+            Key.Key (N + 8) := Key.Key (N + 8) xor (Te4 (Shift_Right (Temp, 24) and 16#0ff#) and 16#00ff#);
             Key.Key (N + 8) := Key.Key (N + 8) xor Rcon (I);
             Key.Key (N + 9) := Key.Key (N + 1) xor Key.Key (N + 8);
             Key.Key (N + 10) := Key.Key (N + 2) xor Key.Key (N + 9);
@@ -764,10 +764,10 @@ package body Util.Encoders.AES is
 
             Temp := Key.Key (N + 11);
             Key.Key (N + 12) := Key.Key (N + 4)
-              xor (Te2 (Shift_Right (Temp, 24) and 16#0ff#) and 16#ff000000#)
-              xor (Te3 (Shift_Right (Temp, 16) and 16#0ff#) and 16#00ff0000#)
-              xor (Te0 (Shift_Right (Temp, 8) and 16#0ff#) and 16#0000ff00#)
-              xor (Te1 (Temp and 16#0ff#) and 16#00ff#);
+              xor (Te4 (Shift_Right (Temp, 24) and 16#0ff#) and 16#ff000000#)
+              xor (Te4 (Shift_Right (Temp, 16) and 16#0ff#) and 16#00ff0000#)
+              xor (Te4 (Shift_Right (Temp, 8) and 16#0ff#) and 16#0000ff00#)
+              xor (Te4 (Temp and 16#0ff#) and 16#00ff#);
             Key.Key (N + 13) := Key.Key (N + 5) xor Key.Key (N + 12);
             Key.Key (N + 14) := Key.Key (N + 6) xor Key.Key (N + 13);
             Key.Key (N + 15) := Key.Key (N + 7) xor Key.Key (N + 14);
@@ -804,7 +804,7 @@ package body Util.Encoders.AES is
          J := J - 4;
       end loop;
       I := 4;
-      while I < Last - 4 loop
+      while I <= Last - 4 loop
          Key.Key (I) := Td0 (Te4 (Shift_Right (Key.Key (I), 24) and 16#0ff#) and 16#0ff#)
             xor Td1 (Te4 (Shift_Right (Key.Key (I), 16) and 16#0ff#) and 16#0ff#)
             xor Td2 (Te4 (Shift_Right (Key.Key (I), 8) and 16#0ff#) and 16#0ff#)
@@ -901,8 +901,8 @@ package body Util.Encoders.AES is
          E.Data_Count := 0;
       end if;
 
-      Pos_Limit := Data'Last - Block_Type'Length;
-      Last_Limit := Into'Last - Block_Type'Length;
+      Pos_Limit := Data'Last - Block_Type'Length + 1;
+      Last_Limit := Into'Last - Block_Type'Length + 1;
       case E.Mode is
          when ECB =>
             while Pos <= Pos_Limit and Last <= Last_Limit loop
@@ -1063,11 +1063,10 @@ package body Util.Encoders.AES is
    begin
       Last := Into'First;
       if E.Data_Count > 0 then
-         loop
+         while E.Data_Count /= 16 loop
             E.Data_Count := E.Data_Count + 1;
             E.Data (E.Data_Count) := Data (Pos);
             Pos := Pos + 1;
-            exit when E.Data_Count = 16;
             if Pos > Data'Last then
                Encoded := Data'Last;
                return;
@@ -1080,6 +1079,7 @@ package body Util.Encoders.AES is
          E.Data_Count := 0;
       end if;
 
+      --  Exclude the last 16 bytes
       Pos_Limit := Data'Last - Block_Type'Length;
       Last_Limit := Into'Last - Block_Type'Length;
       case E.Mode is
@@ -1342,10 +1342,10 @@ package body Util.Encoders.AES is
       N : Natural := 0;
       R : Natural := Key.Rounds / 2;
    begin
-      S0 := To_Unsigned_32 (Input,  0) xor Key.Key (0);
-      S1 := To_Unsigned_32 (Input,  4) xor Key.Key (1);
-      S2 := To_Unsigned_32 (Input,  8) xor Key.Key (2);
-      S3 := To_Unsigned_32 (Input, 12) xor Key.Key (3);
+      S0 := To_Unsigned_32 (Input, Input'First + 0) xor Key.Key (0);
+      S1 := To_Unsigned_32 (Input, Input'First + 4) xor Key.Key (1);
+      S2 := To_Unsigned_32 (Input, Input'First + 8) xor Key.Key (2);
+      S3 := To_Unsigned_32 (Input, Input'First + 12) xor Key.Key (3);
       loop
          T0 := Te0 (Shift_Right (S0, 24) and 16#0ff#)
            xor Te1 (Shift_Right (S1, 16) and 16#0ff#)
@@ -1406,28 +1406,28 @@ package body Util.Encoders.AES is
            xor (Te0 (Shift_Right (T2, 8) and 16#0ff#) and 16#0ff00#)
            xor (Te1 (T3 and 16#0ff#) and 16#0ff#)
            xor Key.Key (N);
-      Put_Unsigned_32 (Output, S0, 0);
+      Put_Unsigned_32 (Output, S0, Output'First + 0);
 
       S1 := (Te2 (Shift_Right (T1, 24) and 16#0ff#) and 16#ff000000#)
            xor (Te3 (Shift_Right (T2, 16) and 16#0ff#) and 16#00ff0000#)
            xor (Te0 (Shift_Right (T3, 8) and 16#0ff#) and 16#0ff00#)
            xor (Te1 (T0 and 16#0ff#) and 16#0ff#)
            xor Key.Key (N + 1);
-      Put_Unsigned_32 (Output, S1, 4);
+      Put_Unsigned_32 (Output, S1, Output'First + 4);
 
       S2 := (Te2 (Shift_Right (T2, 24) and 16#0ff#) and 16#ff000000#)
            xor (Te3 (Shift_Right (T3, 16) and 16#0ff#) and 16#00ff0000#)
            xor (Te0 (Shift_Right (T0, 8) and 16#0ff#) and 16#0ff00#)
            xor (Te1 (T1 and 16#0ff#) and 16#0ff#)
            xor Key.Key (N + 2);
-      Put_Unsigned_32 (Output, S2, 8);
+      Put_Unsigned_32 (Output, S2, Output'First + 8);
 
       S3 := (Te2 (Shift_Right (T3, 24) and 16#0ff#) and 16#ff000000#)
            xor (Te3 (Shift_Right (T0, 16) and 16#0ff#) and 16#00ff0000#)
            xor (Te0 (Shift_Right (T1, 8) and 16#0ff#) and 16#0ff00#)
            xor (Te1 (T2 and 16#0ff#) and 16#0ff#)
            xor Key.Key (N + 3);
-      Put_Unsigned_32 (Output, S3, 12);
+      Put_Unsigned_32 (Output, S3, Output'First + 12);
 
    end Encrypt;
 
@@ -1439,10 +1439,10 @@ package body Util.Encoders.AES is
       N : Natural := 0;
       R : Natural := Key.Rounds / 2;
    begin
-      S0 := To_Unsigned_32 (Input,  0) xor Key.Key (0);
-      S1 := To_Unsigned_32 (Input,  4) xor Key.Key (1);
-      S2 := To_Unsigned_32 (Input,  8) xor Key.Key (2);
-      S3 := To_Unsigned_32 (Input, 12) xor Key.Key (3);
+      S0 := To_Unsigned_32 (Input, Input'First + 0) xor Key.Key (0);
+      S1 := To_Unsigned_32 (Input, Input'First + 4) xor Key.Key (1);
+      S2 := To_Unsigned_32 (Input, Input'First + 8) xor Key.Key (2);
+      S3 := To_Unsigned_32 (Input, Input'First + 12) xor Key.Key (3);
       loop
          T0 := Td0 (Shift_Right (S0, 24) and 16#0ff#)
            xor Td1 (Shift_Right (S3, 16) and 16#0ff#)
@@ -1503,28 +1503,28 @@ package body Util.Encoders.AES is
            xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T2, 8) and 16#0ff#)), 8)
            xor Unsigned_32 (Td4 (T1 and 16#0ff#))
            xor Key.Key (N);
-      Put_Unsigned_32 (Output, S0, 0);
+      Put_Unsigned_32 (Output, S0, Output'First + 0);
 
       S1 := Shift_Left (Unsigned_32 (Td4 (Shift_Right (T1, 24) and 16#0ff#)), 24)
            xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T0, 16) and 16#0ff#)), 16)
            xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T3, 8) and 16#0ff#)), 8)
            xor Unsigned_32 (Td4 (T2 and 16#0ff#))
            xor Key.Key (N + 1);
-      Put_Unsigned_32 (Output, S1, 4);
+      Put_Unsigned_32 (Output, S1, Output'First + 4);
 
       S2 := Shift_Left (Unsigned_32 (Td4 (Shift_Right (T2, 24) and 16#0ff#)), 24)
            xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T1, 16) and 16#0ff#)), 16)
            xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T0, 8) and 16#0ff#)), 8)
            xor Unsigned_32 (Td4 (T3 and 16#0ff#))
            xor Key.Key (N + 2);
-      Put_Unsigned_32 (Output, S2, 8);
+      Put_Unsigned_32 (Output, S2, Output'First + 8);
 
       S3 := Shift_Left (Unsigned_32 (Td4 (Shift_Right (T3, 24) and 16#0ff#)), 24)
            xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T2, 16) and 16#0ff#)), 16)
            xor Shift_Left (Unsigned_32 (Td4 (Shift_Right (T1, 8) and 16#0ff#)), 8)
            xor Unsigned_32 (Td4 (T0 and 16#0ff#))
            xor Key.Key (N + 3);
-      Put_Unsigned_32 (Output, S3, 12);
+      Put_Unsigned_32 (Output, S3, Output'First + 12);
 
    end Decrypt;
 
