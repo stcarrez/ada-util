@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-sha256 -- Compute SHA-256 hash
---  Copyright (C) 2017, 2018 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,11 +20,13 @@ with GNAT.SHA256;
 
 package Util.Encoders.SHA256 is
 
+   HASH_SIZE : constant := 32;
+
    --  The SHA-256 binary hash (256-bit).
-   subtype Hash_Array is Ada.Streams.Stream_Element_Array (0 .. 31);
+   subtype Hash_Array is Ada.Streams.Stream_Element_Array (0 .. HASH_SIZE - 1);
 
    --  The SHA-256 hash as hexadecimal string.
-   subtype Digest is String (1 .. 64);
+   subtype Digest is String (1 .. 2 * HASH_SIZE);
 
    subtype Base64_Digest is String (1 .. 44);
 
