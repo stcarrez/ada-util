@@ -16,9 +16,12 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Test_Caller;
+with Util.Encoders.AES;
 with Util.Streams.Files;
 with Util.Streams.Texts;
 with Util.Streams.Base64;
+with Util.Streams.AES;
+with Ada.IO_Exceptions;
 with Ada.Streams.Stream_IO;
 package body Util.Streams.Tests is
 
@@ -31,6 +34,8 @@ package body Util.Streams.Tests is
    begin
       Caller.Add_Test (Suite, "Test Util.Streams.Base64.Write, Read",
                        Test_Base64_Stream'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.AES.Write, Read",
+                       Test_AES_Stream'Access);
    end Add_Tests;
 
    procedure Test_Base64_Stream (T : in out Test) is
@@ -57,5 +62,64 @@ package body Util.Streams.Tests is
                                      Test    => Path,
                                      Message => "Base64 stream");
    end Test_Base64_Stream;
+
+   procedure Test_AES_Stream (T : in out Test) is
+
+      procedure Test (Item  : in String;
+                      Count : in Positive);
+
+      procedure Test (Item  : in String;
+                      Count : in Positive) is
+         Reader   : aliased Util.Streams.Texts.Reader_Stream;
+         Decipher : aliased Util.Streams.AES.Decoding_Stream;
+         Cipher   : aliased Util.Streams.AES.Encoding_Stream;
+         Print    : Util.Streams.Texts.Print_Stream;
+         Key      : Util.Encoders.Secret_Key
+           := Util.Encoders.Create ("0123456789abcdef0123456789abcdef");
+      begin
+         --  Print -> Cipher -> Decipher
+         Decipher.Initialize (64 * 1024);
+         Decipher.Set_Key (Key, Util.Encoders.AES.ECB);
+         Cipher.Initialize (Decipher'Access, 1024);
+         Cipher.Set_Key (Key, Util.Encoders.AES.ECB);
+         Print.Initialize (Cipher'Access);
+         for I in 1 .. Count loop
+            Print.Write (Item);
+         end loop;
+         Print.Flush;
+         Util.Tests.Assert_Equals (T,
+                                   Item'Length * Count,
+                                   Decipher.Get_Size,
+                                   "Decipher buffer has the wrong size");
+
+         --  Read content in Decipher
+         Reader.Initialize (Decipher);
+         for I in 1 .. Count loop
+            declare
+               L : String (Item'Range) := (others => ' ');
+            begin
+               for J in L'Range loop
+                  Reader.Read (L (J));
+               end loop;
+               Util.Tests.Assert_Equals (T, Item, L, "Wrong value");
+
+            exception
+               when Ada.IO_Exceptions.Data_Error =>
+                  Util.Tests.Assert_Equals (T, Item, L, "Wrong value (DATA error)");
+            end;
+         end loop;
+      end Test;
+
+   begin
+      for I in 1 .. 128 loop
+         Test ("a", I);
+      end loop;
+      for I in 1 .. 128 loop
+         Test ("ab", 120);
+      end loop;
+      for I in 1 .. 128 loop
+         Test ("abc", 123);
+      end loop;
+   end Test_AES_Stream;
 
 end Util.Streams.Tests;
