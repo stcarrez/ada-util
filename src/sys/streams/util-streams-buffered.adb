@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered -- Buffered streams utilities
---  Copyright (C) 2010, 2011, 2013, 2014, 2016, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2013, 2014, 2016, 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -86,6 +86,21 @@ package body Util.Streams.Buffered is
    end Initialize;
 
    --  ------------------------------
+   --  Initialize the stream from the buffer created for an output stream.
+   --  ------------------------------
+   procedure Initialize (Stream  : in out Input_Buffer_Stream;
+                         From    : in out Output_Buffer_Stream'Class) is
+   begin
+      Free_Buffer (Stream.Buffer);
+      Stream.Buffer := From.Buffer;
+      From.Buffer := null;
+      Stream.Input := null;
+      Stream.Read_Pos := 1;
+      Stream.Write_Pos := From.Write_Pos + 1;
+      Stream.Last := From.Last;
+   end Initialize;
+
+   --  ------------------------------
    --  Close the sink.
    --  ------------------------------
    overriding
@@ -164,12 +179,16 @@ package body Util.Streams.Buffered is
    overriding
    procedure Flush (Stream : in out Output_Buffer_Stream) is
    begin
-      if Stream.Write_Pos > 1 and not Stream.No_Flush then
+      if not Stream.No_Flush then
+         if Stream.Write_Pos > 1 then
+            if Stream.Output /= null then
+               Stream.Output.Write (Stream.Buffer (1 .. Stream.Write_Pos - 1));
+            end if;
+            Stream.Write_Pos := 1;
+         end if;
          if Stream.Output /= null then
-            Stream.Output.Write (Stream.Buffer (1 .. Stream.Write_Pos - 1));
             Stream.Output.Flush;
          end if;
-         Stream.Write_Pos := 1;
       end if;
    end Flush;
 
