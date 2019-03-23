@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-sha1 -- Compute SHA-1 hash
---  Copyright (C) 2011, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,13 +25,16 @@ package Util.Encoders.SHA1 is
 
    pragma Preelaborate;
 
+   HASH_SIZE : constant := 20;
+
    --  The SHA-1 binary hash (160-bit).
-   subtype Hash_Array is Ada.Streams.Stream_Element_Array (0 .. 19);
+   subtype Hash_Array is Ada.Streams.Stream_Element_Array (0 .. HASH_SIZE - 1);
 
    --  The SHA-1 hash as hexadecimal string.
-   subtype Digest is String (1 .. 40);
+   subtype Digest is String (1 .. 2 * HASH_SIZE);
 
    subtype Base64_Digest is String (1 .. 28);
+
    --  ------------------------------
    --  SHA1 Context
    --  ------------------------------
