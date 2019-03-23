@@ -33,6 +33,10 @@ package Util.Encoders.AES is
    --  ------------------------------
    subtype Block_Type is Ada.Streams.Stream_Element_Array (1 .. 16);
 
+   subtype AES_128_Key is Ada.Streams.Stream_Element_Array (1 .. 16);
+   subtype AES_192_Key is Ada.Streams.Stream_Element_Array (1 .. 24);
+   subtype AES_256_Key is Ada.Streams.Stream_Element_Array (1 .. 32);
+
    type Word_Block_Type is array (1 .. 4) of Interfaces.Unsigned_32;
 
    procedure Set_Encrypt_Key (Key  : out Key_Type;
@@ -151,7 +155,7 @@ private
    type Block_Key is array (0 .. 59) of Unsigned_32;
 
    type Key_Type is record
-      Key    : Block_Key;
+      Key    : Block_Key := (others => 0);
       Rounds : Natural := 0;
    end record;
 
