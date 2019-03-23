@@ -18,8 +18,6 @@
 
 package body Util.Encoders.AES is
 
-   use Ada.Streams;
-
    type Sbox is array (Unsigned_32 range 0 .. 255) of Unsigned_32;
    type Final_Sbox is array (Unsigned_32 range 0 .. 255) of Unsigned_8;
    type Key_Sbox is array (Natural range 0 .. 9) of Unsigned_32;
@@ -686,17 +684,17 @@ package body Util.Encoders.AES is
    end Put_Unsigned_32;
 
    procedure Set_Encrypt_Key (Key  : out Key_Type;
-                              Data : in Stream_Element_Array) is
+                              Data : in Secret_Key) is
       Temp : Unsigned_32;
       N    : Natural := 0;
       I    : Natural := 0;
       pragma Style_Checks ("-mr");
    begin
-      Key.Key (0) := To_Unsigned_32 (Data, Data'First + 0);
-      Key.Key (1) := To_Unsigned_32 (Data, Data'First + 4);
-      Key.Key (2) := To_Unsigned_32 (Data, Data'First + 8);
-      Key.Key (3) := To_Unsigned_32 (Data, Data'First + 12);
-      if Data'Length = 128 / 8 then
+      Key.Key (0) := To_Unsigned_32 (Data.Secret, Data.Secret'First + 0);
+      Key.Key (1) := To_Unsigned_32 (Data.Secret, Data.Secret'First + 4);
+      Key.Key (2) := To_Unsigned_32 (Data.Secret, Data.Secret'First + 8);
+      Key.Key (3) := To_Unsigned_32 (Data.Secret, Data.Secret'First + 12);
+      if Data.Length = 128 / 8 then
          Key.Rounds := 10;
          loop
             Temp := Key.Key (N + 3);
@@ -715,9 +713,9 @@ package body Util.Encoders.AES is
          end loop;
          return;
       end if;
-      Key.Key (4) := To_Unsigned_32 (Data, Data'First + 16);
-      Key.Key (5) := To_Unsigned_32 (Data, Data'First + 20);
-      if Data'Length = 192 / 8 then
+      Key.Key (4) := To_Unsigned_32 (Data.Secret, Data.Secret'First + 16);
+      Key.Key (5) := To_Unsigned_32 (Data.Secret, Data.Secret'First + 20);
+      if Data.Length = 192 / 8 then
          Key.Rounds := 12;
          loop
             Temp := Key.Key (N + 5);
@@ -738,9 +736,9 @@ package body Util.Encoders.AES is
          end loop;
          return;
       end if;
-      Key.Key (6) := To_Unsigned_32 (Data, Data'First + 24);
-      Key.Key (7) := To_Unsigned_32 (Data, Data'First + 28);
-      if Data'Length = 256 / 8 then
+      Key.Key (6) := To_Unsigned_32 (Data.Secret, Data.Secret'First + 24);
+      Key.Key (7) := To_Unsigned_32 (Data.Secret, Data.Secret'First + 28);
+      if Data.Length = 256 / 8 then
          Key.Rounds := 14;
          loop
             Temp := Key.Key (N + 7);
@@ -787,7 +785,7 @@ package body Util.Encoders.AES is
    end Swap;
 
    procedure Set_Decrypt_Key (Key  : out Key_Type;
-                              Data : in Ada.Streams.Stream_Element_Array) is
+                              Data : in Secret_Key) is
       I : Natural := 0;
       J : Natural := 0;
       Last : Natural;
@@ -850,7 +848,7 @@ package body Util.Encoders.AES is
    --  Set the encryption key to use.
    --  ------------------------------
    procedure Set_Key (E    : in out Encoder;
-                      Data : in Ada.Streams.Stream_Element_Array;
+                      Data : in Secret_Key;
                       Mode : in AES_Mode := CBC) is
    begin
       Set_Encrypt_Key (E.Key, Data);
@@ -1029,7 +1027,7 @@ package body Util.Encoders.AES is
    --  Set the encryption key to use.
    --  ------------------------------
    procedure Set_Key (E    : in out Decoder;
-                      Data : in Ada.Streams.Stream_Element_Array;
+                      Data : in Secret_Key;
                       Mode : in AES_Mode := CBC) is
    begin
       Set_Decrypt_Key (E.Key, Data);
