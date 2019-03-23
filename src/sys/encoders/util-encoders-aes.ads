@@ -111,7 +111,7 @@ package Util.Encoders.AES is
                      Into : in out Ada.Streams.Stream_Element_Array;
                      Last : in out Ada.Streams.Stream_Element_Offset)
      with Pre => Into'Length >= Block_Type'Length,
-     Post => Last = Into'First - 1 or Last = Into'First + Block_Type'Length;
+     Post => Last = Into'First - 1 or Last = Into'First + Block_Type'Length - 1;
 
    --  ------------------------------
    --  AES encoder
