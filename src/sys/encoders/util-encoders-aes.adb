@@ -1014,7 +1014,7 @@ package body Util.Encoders.AES is
                      Last : in out Ada.Streams.Stream_Element_Offset) is
       Padding : constant Ada.Streams.Stream_Element_Offset := 16 - E.Data_Count;
       Pad     : constant Ada.Streams.Stream_Element_Array (1 .. Padding)
-        := (others => Ada.Streams.Stream_Element (Padding));
+        := (others => Ada.Streams.Stream_Element (Padding mod 16));
       Encoded : Ada.Streams.Stream_Element_Offset;
    begin
       E.Transform (Pad, Into, Last, Encoded);
@@ -1196,8 +1196,8 @@ package body Util.Encoders.AES is
    begin
       Decrypt (E.Data, Data, E.Key);
       if Data (Data'Last) = 0 then
-         Last := Into'First - 1;
-      elsif Data (Data'Last) < 15 then
+         Last := Into'First;
+      elsif Data (Data'Last) <= 15 then
          Count := Data'Length - Ada.Streams.Stream_Element_Offset (Data (Data'Last));
          Last := Into'First + Count - 1;
          Into (Into'First .. Last) := Data (Data'First .. Data'First + Count - 1);
