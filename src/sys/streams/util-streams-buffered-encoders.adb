@@ -74,10 +74,13 @@ package body Util.Streams.Buffered.Encoders is
    procedure Flush (Stream : in out Encoder_Stream) is
       Last_Pos : Ada.Streams.Stream_Element_Offset := Stream.Write_Pos - 1;
    begin
-      Stream.Transform.Finish (Stream.Buffer (Stream.Write_Pos .. Stream.Buffer'Last),
-                               Last_Pos);
-      Stream.Write_Pos := Last_Pos;
-      Output_Buffer_Stream (Stream).Flush;
+      if not Stream.Flushed then
+         Stream.Transform.Finish (Stream.Buffer (Stream.Write_Pos .. Stream.Buffer'Last),
+                                  Last_Pos);
+         Stream.Write_Pos := Last_Pos;
+         Output_Buffer_Stream (Stream).Flush;
+         Stream.Flushed := True;
+      end if;
    end Flush;
 
 end Util.Streams.Buffered.Encoders;
