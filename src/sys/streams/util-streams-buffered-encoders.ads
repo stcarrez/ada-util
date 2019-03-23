@@ -43,6 +43,7 @@ package Util.Streams.Buffered.Encoders is
    --  change the data by encoding it in Base64, Base16 or encrypting it.
    type Encoder_Stream is limited new Util.Streams.Buffered.Output_Buffer_Stream with record
       Transform   : Encoder;
+      Flushed     : Boolean := False;
    end record;
 
    --  Initialize the stream to write on the given stream.
