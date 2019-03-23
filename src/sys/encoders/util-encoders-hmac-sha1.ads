@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-hmac-sha1 -- Compute HMAC-SHA1 authentication code
---  Copyright (C) 2011, 2012, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +32,11 @@ package Util.Encoders.HMAC.SHA1 is
    --  Sign the data string with the key and return the HMAC-SHA1 code as hexadecimal string.
    function Sign (Key  : in String;
                   Data : in String) return Util.Encoders.SHA1.Digest;
+
+   --  Sign the data array with the key and return the HMAC-SHA256 code in the result.
+   procedure Sign (Key    : in Ada.Streams.Stream_Element_Array;
+                   Data   : in Ada.Streams.Stream_Element_Array;
+                   Result : out Util.Encoders.SHA1.Hash_Array);
 
    --  Sign the data string with the key and return the HMAC-SHA1 code as base64 string.
    --  When <b>URL</b> is True, use the base64 URL alphabet to encode in base64.
