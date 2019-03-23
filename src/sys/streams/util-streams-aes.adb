@@ -22,10 +22,10 @@ package body Util.Streams.AES is
    --  Set the encryption key and mode to be used.
    --  -----------------------
    procedure Set_Key (Stream : in out Encoding_Stream;
-                      Data   : in Ada.Streams.Stream_Element_Array;
+                      Secret : in Util.Encoders.Secret_Key;
                       Mode   : in Util.Encoders.AES.AES_Mode := Util.Encoders.AES.CBC) is
    begin
-      Stream.Transform.Set_Key (Data, Mode);
+      Stream.Transform.Set_Key (Secret, Mode);
    end Set_Key;
 
    --  -----------------------
@@ -41,10 +41,10 @@ package body Util.Streams.AES is
    --  Set the encryption key and mode to be used.
    --  -----------------------
    procedure Set_Key (Stream : in out Decoding_Stream;
-                      Data   : in Ada.Streams.Stream_Element_Array;
+                      Secret : in Util.Encoders.Secret_Key;
                       Mode   : in Util.Encoders.AES.AES_Mode := Util.Encoders.AES.CBC) is
    begin
-      Stream.Transform.Set_Key (Data, Mode);
+      Stream.Transform.Set_Key (Secret, Mode);
    end Set_Key;
 
    --  -----------------------
