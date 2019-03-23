@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-sha1 -- Compute SHA-1 hash
---  Copyright (C) 2011, 2012, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +22,6 @@ with Util.Encoders.Base64;
 --  The <b>Util.Encodes.SHA1</b> package generates SHA-1 hash according to
 --  RFC3174 or [FIPS-180-1].
 package body Util.Encoders.SHA1 is
-
-   use Ada.Streams;
 
    --  ------------------------------
    --  Encodes the binary input stream represented by <b>Data</b> into
