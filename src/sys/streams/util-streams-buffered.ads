@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered -- Buffered streams utilities
---  Copyright (C) 2010, 2013, 2015, 2016, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2010, 2013, 2015, 2016, 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -127,6 +127,10 @@ package Util.Streams.Buffered is
    procedure Initialize (Stream  : in out Input_Buffer_Stream;
                          Input   : access Input_Stream'Class;
                          Size    : in Positive);
+
+   --  Initialize the stream from the buffer created for an output stream.
+   procedure Initialize (Stream  : in out Input_Buffer_Stream;
+                         From    : in out Output_Buffer_Stream'Class);
 
    --  Fill the buffer by reading the input stream.
    --  Raises Data_Error if there is no input stream;
