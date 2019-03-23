@@ -1004,6 +1004,7 @@ package body Util.Encoders.AES is
          E.Data (E.Data_Count) := Data (Pos);
          Pos := Pos + 1;
       end loop;
+      Last := Last - 1;
       Encoded := Pos;
    end Transform;
 
@@ -1183,6 +1184,7 @@ package body Util.Encoders.AES is
          E.Data (E.Data_Count) := Data (Pos);
          Pos := Pos + 1;
       end loop;
+      Last := Last - 1;
       Encoded := Pos;
    end Transform;
 
@@ -1196,12 +1198,11 @@ package body Util.Encoders.AES is
    begin
       Decrypt (E.Data, Data, E.Key);
       if Data (Data'Last) = 0 then
-         Last := Into'First;
+         Last := Into'First - 1;
       elsif Data (Data'Last) <= 15 then
          Count := Data'Length - Ada.Streams.Stream_Element_Offset (Data (Data'Last));
          Last := Into'First + Count - 1;
          Into (Into'First .. Last) := Data (Data'First .. Data'First + Count - 1);
-         Last := Last + 1;
       end if;
    end Finish;
 
