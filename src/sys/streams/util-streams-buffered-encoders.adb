@@ -60,7 +60,7 @@ package body Util.Streams.Buffered.Encoders is
             Stream.Output.Write (Stream.Buffer (Stream.Buffer'First .. Last_Pos));
             Stream.Write_Pos := Stream.Buffer'First;
          else
-            Stream.Write_Pos := Last_Pos;
+            Stream.Write_Pos := Last_Pos + 1;
          end if;
          First_Encoded := Last_Encoded + 1;
       end loop;
@@ -77,7 +77,7 @@ package body Util.Streams.Buffered.Encoders is
       if not Stream.Flushed then
          Stream.Transform.Finish (Stream.Buffer (Stream.Write_Pos .. Stream.Buffer'Last),
                                   Last_Pos);
-         Stream.Write_Pos := Last_Pos;
+         Stream.Write_Pos := Last_Pos + 1;
          Output_Buffer_Stream (Stream).Flush;
          Stream.Flushed := True;
       end if;
