@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-hmac-sha1 -- Compute HMAC-SHA1 authentication code
---  Copyright (C) 2011, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,6 +52,19 @@ package body Util.Encoders.HMAC.SHA1 is
    end Sign;
 
    --  ------------------------------
+   --  Sign the data array with the key and return the HMAC-SHA256 code in the result.
+   --  ------------------------------
+   procedure Sign (Key    : in Ada.Streams.Stream_Element_Array;
+                   Data   : in Ada.Streams.Stream_Element_Array;
+                   Result : out Util.Encoders.SHA1.Hash_Array) is
+      Ctx    : Context;
+   begin
+      Set_Key (Ctx, Key);
+      Update (Ctx, Data);
+      Finish (Ctx, Result);
+   end Sign;
+
+   --  ------------------------------
    --  Sign the data string with the key and return the HMAC-SHA1 code as base64 string.
    --  When <b>URL</b> is True, use the base64 URL alphabet to encode in base64.
    --  ------------------------------
@@ -90,8 +103,6 @@ package body Util.Encoders.HMAC.SHA1 is
    --  ------------------------------
    procedure Set_Key (E   : in out Context;
                       Key : in Ada.Streams.Stream_Element_Array) is
-      use type Ada.Streams.Stream_Element_Offset;
-      use type Ada.Streams.Stream_Element;
    begin
       --  Reduce the key
       if Key'Length > 64 then
@@ -141,8 +152,6 @@ package body Util.Encoders.HMAC.SHA1 is
    --  ------------------------------
    procedure Finish (E    : in out Context;
                      Hash : out Util.Encoders.SHA1.Hash_Array) is
-      use type Ada.Streams.Stream_Element;
-      use type Ada.Streams.Stream_Element_Offset;
    begin
       Util.Encoders.SHA1.Finish (E.SHA, Hash);
 
