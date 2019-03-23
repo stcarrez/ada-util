@@ -15,15 +15,12 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Ada.Streams;
 with Interfaces;
 private with Ada.Finalization;
 
 --  The <b>Util.Encodes.SHA1</b> package generates SHA-1 hash according to
 --  RFC3174 or [FIPS-180-1].
 package Util.Encoders.AES is
-
-   use type Ada.Streams.Stream_Element_Offset;
 
    type AES_Mode is (ECB, CBC, PCBC, CFB, OFB, CTR);
 
@@ -33,6 +30,10 @@ package Util.Encoders.AES is
    --  ------------------------------
    subtype Block_Type is Ada.Streams.Stream_Element_Array (1 .. 16);
 
+   AES_128_Length : constant := 16;
+   AES_192_Length : constant := 24;
+   AES_256_Length : constant := 32;
+
    subtype AES_128_Key is Ada.Streams.Stream_Element_Array (1 .. 16);
    subtype AES_192_Key is Ada.Streams.Stream_Element_Array (1 .. 24);
    subtype AES_256_Key is Ada.Streams.Stream_Element_Array (1 .. 32);
@@ -40,11 +41,12 @@ package Util.Encoders.AES is
    type Word_Block_Type is array (1 .. 4) of Interfaces.Unsigned_32;
 
    procedure Set_Encrypt_Key (Key  : out Key_Type;
-                              Data : in Ada.Streams.Stream_Element_Array)
-     with Pre => Data'Length = 16 or Data'Length = 24 or Data'Length = 32;
+                              Data : in Secret_Key)
+     with Pre => Data.Length = 16 or Data.Length = 24 or Data.Length = 32;
 
    procedure Set_Decrypt_Key (Key  : out Key_Type;
-                              Data : in Ada.Streams.Stream_Element_Array);
+                              Data : in Secret_Key)
+     with Pre => Data.Length = 16 or Data.Length = 24 or Data.Length = 32;
 
    procedure Encrypt (Input  : in Block_Type;
                       Output : out Block_Type;
@@ -81,7 +83,7 @@ package Util.Encoders.AES is
 
    --  Set the encryption key to use.
    procedure Set_Key (E    : in out Encoder;
-                      Data : in Ada.Streams.Stream_Element_Array;
+                      Data : in Secret_Key;
                       Mode : in AES_Mode := CBC);
 
    --  Encodes the binary input stream represented by <b>Data</b> into
@@ -120,7 +122,7 @@ package Util.Encoders.AES is
 
    --  Set the decryption key to use.
    procedure Set_Key (E    : in out Decoder;
-                      Data : in Ada.Streams.Stream_Element_Array;
+                      Data : in Secret_Key;
                       Mode : in AES_Mode := CBC);
 
    --  Encodes the binary input stream represented by <b>Data</b> into
