@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +30,8 @@ package Util.Encoders is
 
    pragma Preelaborate;
 
+   use Ada.Streams;
+
    Not_Supported  : exception;
    Encoding_Error : exception;
 
@@ -46,6 +48,22 @@ package Util.Encoders is
 
    --  Encoder for SHA1 (RFC 3174)
    HASH_SHA1   : constant String := "sha1";
+
+   --  ------------------------------
+   --  Secret key
+   --  ------------------------------
+   --  A secret key of the given length, it cannot be copied and is safely erased.
+   subtype Key_Length is Stream_Element_Offset range 1 .. Stream_Element_Offset'Last;
+
+   type Secret_Key (Length : Key_Length) is limited private;
+
+   --  Create the secret key from the password string.
+   function Create (Password : in String) return Secret_Key
+     with Pre => Password'Length > 0, Post => Create'Result.Length = Password'Length;
+
+   procedure Create (Password : in String;
+                     Key      : out Secret_Key)
+     with Pre => Password'Length > 0, Post => Key.Length = Password'Length;
 
    --  ------------------------------
    --  Encoder context object
@@ -177,13 +195,21 @@ package Util.Encoders is
                             Last  : out Ada.Streams.Stream_Element_Offset);
 
 private
+   use Ada.Finalization;
+
+   type Secret_Key (Length : Key_Length) is limited new Limited_Controlled with record
+      Secret : Ada.Streams.Stream_Element_Array (1 .. Length) := (others => 0);
+   end record;
+
+   overriding
+   procedure Finalize (Object : in out Secret_Key);
 
    --  Transform the input data into the target string.
    procedure Convert (E    : in out Transformer'Class;
                       Data : in Ada.Streams.Stream_Element_Array;
                       Into : out String);
 
-   type Encoder is new Ada.Finalization.Limited_Controlled with record
+   type Encoder is limited new Limited_Controlled with record
       Encode : Transformer_Access := null;
    end record;
 
@@ -191,7 +217,7 @@ private
    overriding
    procedure Finalize (E : in out Encoder);
 
-   type Decoder is new Ada.Finalization.Limited_Controlled with record
+   type Decoder is limited new Limited_Controlled with record
       Decode : Transformer_Access := null;
    end record;
 
