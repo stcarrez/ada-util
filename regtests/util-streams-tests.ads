@@ -26,4 +26,6 @@ package Util.Streams.Tests is
 
    procedure Test_Base64_Stream (T : in out Test);
 
+   procedure Test_AES_Stream (T : in out Test);
+
 end Util.Streams.Tests;
