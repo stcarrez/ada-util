@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009, 2010, 2011, 2016, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2016, 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +30,39 @@ package body Util.Encoders is
 
    procedure Free is
      new Ada.Unchecked_Deallocation (Transformer'Class, Transformer_Access);
+
+   --  ------------------------------
+   --  Create the secret key from the password string.
+   --  ------------------------------
+   function Create (Password : in String) return Secret_Key is
+      I : Stream_Element_Offset := 1;
+   begin
+      return Key : Secret_Key (Length => Password'Length) do
+
+         for C of Password loop
+            Key.Secret (I) := Character'Pos (C);
+            I := I + 1;
+         end loop;
+      end return;
+   end Create;
+
+   procedure Create (Password : in String;
+                     Key      : out Secret_Key) is
+      I : Stream_Element_Offset := 1;
+   begin
+      for C of Password loop
+         Key.Secret (I) := Character'Pos (C);
+         I := I + 1;
+      end loop;
+   end Create;
+
+   overriding
+   procedure Finalize (Object : in out Secret_Key) is
+   begin
+      for I in Object.Secret'Range loop
+         Object.Secret (I) := 0;
+      end loop;
+   end Finalize;
 
    --  ------------------------------
    --  Encodes the input string <b>Data</b> using the transformation
