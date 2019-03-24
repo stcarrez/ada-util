@@ -19,6 +19,12 @@ The Ada Bean framework is the basis for the implementation of
 [Ada Server Faces](https://github.com/stcarrez/ada-asf) and [Ada EL](https://github.com/stcarrez/ada-el).  It allows the presentation layer to
 access information provided by Ada beans.
 
+To use the packages described here, use the following GNAT project:
+
+```Ada
+with "utilada_base";
+```
+
 ## Objects
 The `Util.Beans.Objects` package provides a data type to manage entities of different types
 by using the same abstraction.  The `Object` type allows to hold various values of different

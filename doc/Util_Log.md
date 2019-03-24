@@ -6,7 +6,11 @@ log messages in large applications is very helpful to understand, track and fix 
 issues, some of them being related to configuration issues or interaction with other
 systems.  The overhead of calling a log operation is negligeable when the log is disabled
 as it is in the order of 30ns and reasonable for a file appender has it is in the order
-of 5us.
+of 5us.  To use the packages described here, use the following GNAT project:
+
+```Ada
+with "utilada_base";
+```
 
 ## Using the log framework
 A bit of terminology:

@@ -2,7 +2,12 @@
 # Date Utilities
 The `Util.Dates` package provides various date utilities to help in formatting and parsing
 dates in various standard formats.  It completes the standard `Ada.Calendar.Formatting` and
-other packages by implementing specific formatting and parsing.
+other packages by implementing specific formatting and parsing. To use the packages
+described here, use the following GNAT project:
+
+```Ada
+with "utilada_base";
+```
 
 ## Date Operations
 Several operations allow to compute from a given date:

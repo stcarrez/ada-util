@@ -4,7 +4,12 @@ property files either in the Java property file format or the Windows INI config
 Each property is assigned a key and a value.  The list of properties are stored in the
 `Util.Properties.Manager` tagged record and they are indexed by the key name.  A property
 is therefore unique in the list.  Properties can be grouped together in sub-properties so
-that a key can represent another list of properties.
+that a key can represent another list of properties.  To use the packages described here,
+use the following GNAT project:
+
+```Ada
+with "utilada_base";
+```
 
 ## File formats
 The property file consists of a simple name and value pair separated by the `=` sign.
