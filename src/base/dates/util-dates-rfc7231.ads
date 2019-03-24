@@ -20,7 +20,7 @@ with Ada.Calendar;
 with Util.Strings.Builders;
 
 --  == RFC7231 Dates ==
---  The RFC7231 defines a standard date format that is used by HTTP headers.
+--  The RFC 7231 defines a standard date format that is used by HTTP headers.
 --  The `Util.Dates.RFC7231` package provides an `Image` function to convert a date into
 --  that target format and a `Value` function to parse such format string and return the date.
 --
