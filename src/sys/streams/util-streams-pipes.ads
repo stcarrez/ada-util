@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-pipes -- Pipe stream to or from a process
---  Copyright (C) 2011, 2013, 2015, 2016, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2015, 2016, 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,7 +54,7 @@ with Util.Processes;
 --    ...
 --       Buffer : Util.Streams.Buffered.Input_Buffer_Stream;
 --       ...
---       Buffer.Initialize (Input => Pipe'Unchecked_Access, Size => 1024);
+--       Buffer.Initialize (Input => Pipe'Access, Size => 1024);
 --
 --  And to read the process output, one can use the following:
 --
