@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans -- Interface Definition with Getter and Setters
---  Copyright (C) 2009, 2010, 2018 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,6 +39,10 @@
 --  The Ada Bean framework is the basis for the implementation of
 --  Ada Server Faces and Ada EL.  It allows the presentation layer to
 --  access information provided by Ada beans.
+--
+--  To use the packages described here, use the following GNAT project:
+--
+--    with "utilada_base";
 --
 --  @include util-beans-objects.ads
 --  @include util-beans-objects-datasets.ads
