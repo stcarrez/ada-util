@@ -98,6 +98,10 @@ package body Util.Streams.Buffered.Lzma is
       Last_Pos : Ada.Streams.Stream_Element_Offset;
       Result : Base.lzma_ret;
    begin
+      --  Stream is closed, ignore the flush.
+      if Stream.Buffer = null then
+         return;
+      end if;
       Stream.Stream.next_in := null;
       Stream.Stream.avail_in := 0;
       loop
@@ -106,7 +110,9 @@ package body Util.Streams.Buffered.Lzma is
          if Stream.Stream.avail_out = 0 or Result = Base.LZMA_STREAM_END then
             Last_Pos := Stream.Buffer'First + Stream.Buffer'Length
               - Offset (Stream.Stream.avail_out) - 1;
-            Stream.Output.Write (Stream.Buffer (Stream.Buffer'First .. Last_Pos));
+            if Last_Pos >= Stream.Buffer'First then
+               Stream.Output.Write (Stream.Buffer (Stream.Buffer'First .. Last_Pos));
+            end if;
             Stream.Stream.next_out := Stream.Buffer (Stream.Buffer'First)'Unchecked_Access;
             Stream.Stream.avail_out := Stream.Buffer'Length;
          end if;
