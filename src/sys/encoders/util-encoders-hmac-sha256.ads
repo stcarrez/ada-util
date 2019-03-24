@@ -23,6 +23,8 @@ with Util.Encoders.SHA256;
 --  (See RFC 2104 - HMAC: Keyed-Hashing for Message Authentication).
 package Util.Encoders.HMAC.SHA256 is
 
+   HASH_SIZE : constant := Util.Encoders.SHA256.HASH_SIZE;
+
    --  Sign the data string with the key and return the HMAC-SHA256 code in binary.
    function Sign (Key  : in String;
                   Data : in String) return Util.Encoders.SHA256.Hash_Array;
