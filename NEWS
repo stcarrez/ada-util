@@ -1,5 +1,6 @@
 Version 1.10.0  -
   - Rename GNAT projects and split the library in several parts
+  - New samples to show compression, decompression, encryption, decryption streams
 
 Version 1.9.0   - Jul 2018
   - Improvement and fixes of the JSON, XML, CSV serialization
