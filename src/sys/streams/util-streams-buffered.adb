@@ -109,6 +109,7 @@ package body Util.Streams.Buffered is
       if Stream.Output /= null then
          Output_Buffer_Stream'Class (Stream).Flush;
          Stream.Output.Close;
+         Free_Buffer (Stream.Buffer);
       end if;
    end Close;
 
