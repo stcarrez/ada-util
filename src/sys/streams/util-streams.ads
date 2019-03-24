@@ -30,6 +30,10 @@ with Ada.Streams;
 --  `Read` procedure.  The `Output_Stream` interface represents the stream to write data.
 --  It provides a `Write`, `Flush` and `Close` operation.
 --
+--  To use the packages described here, use the following GNAT project:
+--
+--    with "utilada_sys";
+--
 --  @include util-streams-buffered.ads
 --  @include util-streams-texts.ads
 --  @include util-streams-files.ads
