@@ -83,4 +83,13 @@ package body Util.Streams.Buffered.Encoders is
       end if;
    end Flush;
 
+   overriding
+   procedure Finalize (Stream : in out Encoder_Stream) is
+   begin
+      if not Stream.Flushed then
+         Stream.Flush;
+      end if;
+      Output_Buffer_Stream (Stream).Finalize;
+   end Finalize;
+
 end Util.Streams.Buffered.Encoders;
