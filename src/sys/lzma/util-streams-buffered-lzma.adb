@@ -120,8 +120,9 @@ package body Util.Streams.Buffered.Lzma is
    overriding
    procedure Finalize (Object : in out Compress_Stream) is
    begin
-      Base.lzma_end (Object.Stream'Unchecked_Access);
+      Object.Flush;
       Output_Buffer_Stream (Object).Finalize;
+      Base.lzma_end (Object.Stream'Unchecked_Access);
    end Finalize;
 
    --  -----------------------
