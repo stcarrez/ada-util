@@ -34,7 +34,7 @@ with Ada.Finalization;
 --       Pipe   : aliased Util.Streams.Pipes.Pipe_Stream;
 --       Buffer : Util.Streams.Buffered.Output_Buffer_Stream;
 --       ...
---          Buffer.Initialize (Output => Pipe'Unchecked_Access,
+--          Buffer.Initialize (Output => Pipe'Access,
 --                             Size => 1024);
 --
 --  In this example, the buffer of 1024 bytes is configured to flush its content to the
@@ -56,7 +56,7 @@ with Ada.Finalization;
 --       Pipe   : aliased Util.Streams.Pipes.Pipe_Stream;
 --       Buffer : Util.Streams.Buffered.Input_Buffer_Stream;
 --       ...
---          Buffer.Initialize (Input => Pipe'Unchecked_Access, Size => 1024);
+--          Buffer.Initialize (Input => Pipe'Access, Size => 1024);
 --
 --  In this case, the buffer of 1024 bytes is filled by reading the pipe stream, and thus
 --  getting the program's output.
