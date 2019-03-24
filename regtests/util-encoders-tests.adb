@@ -351,7 +351,6 @@ package body Util.Encoders.Tests is
                             Key    : in String;
                             Value  : in String;
                             Expect : in String) is
-      use type Ada.Streams.Stream_Element_Array;
       H : constant String := Util.Encoders.HMAC.SHA256.Sign (Key, Value);
       B : constant Util.Encoders.SHA256.Hash_Array := Util.Encoders.HMAC.SHA256.Sign (Key, Value);
       C : constant Encoders.SHA256.Base64_Digest := Encoders.HMAC.SHA256.Sign_Base64 (Key, Value);
@@ -551,9 +550,7 @@ package body Util.Encoders.Tests is
    end Test_HMAC_SHA256_RFC4231_T7;
 
    procedure Test_AES (T : in out Test) is
-      use type Ada.Streams.Stream_Element;
-
-      PK   : constant Ada.Streams.Stream_Element_Array (1 .. 32) := (others => 1);
+      PK   : constant Secret_Key := Create ("0123456789abcdef");
       Key  : Util.Encoders.AES.Key_Type;
       B    : Util.Encoders.AES.Block_Type := (others => 1);
       E    : Util.Encoders.AES.Block_Type := (others => 0);
