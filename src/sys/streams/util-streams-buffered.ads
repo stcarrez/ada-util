@@ -75,7 +75,8 @@ package Util.Streams.Buffered is
    --  It is necessary to call <b>Flush</b> to make sure the data
    --  is written to the target stream.  The <b>Flush</b> operation will
    --  be called when finalizing the output buffer stream.
-   type Output_Buffer_Stream is limited new Output_Stream with private;
+   type Output_Buffer_Stream is limited new Ada.Finalization.Limited_Controlled
+     and Output_Stream with private;
 
    --  Initialize the stream to write on the given streams.
    --  An internal buffer is allocated for writing the stream.
@@ -113,6 +114,10 @@ package Util.Streams.Buffered is
    --  Flush the buffer stream to the unbounded string.
    procedure Flush (Stream : in out Output_Buffer_Stream;
                     Into   : out Ada.Strings.Unbounded.Unbounded_String);
+
+   --  Flush the stream and release the buffer.
+   overriding
+   procedure Finalize (Stream : in out Output_Buffer_Stream);
 
    --  Get the number of element in the stream.
    function Get_Size (Stream : in Output_Buffer_Stream) return Natural;
@@ -178,10 +183,6 @@ private
 
       No_Flush    : Boolean := False;
    end record;
-
-   --  Flush the stream and release the buffer.
-   overriding
-   procedure Finalize (Object : in out Output_Buffer_Stream);
 
    type Input_Buffer_Stream is limited new Ada.Finalization.Limited_Controlled
      and Input_Stream with record
