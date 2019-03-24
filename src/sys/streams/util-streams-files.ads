@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-files -- File Stream utilities
---  Copyright (C) 2010, 2013, 2015, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2010, 2013, 2015, 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,8 +19,8 @@ with Ada.Finalization;
 with Ada.Streams.Stream_IO;
 
 --  == File streams ==
---  The <tt>Util.Streams.Files</tt> package provides input and output streams that access
---  files on top of the Ada <tt>Stream_IO</tt> standard package.
+--  The `Util.Streams.Files` package provides input and output streams that access
+--  files on top of the Ada `Stream_IO` standard package.
 package Util.Streams.Files is
 
    --  -----------------------
