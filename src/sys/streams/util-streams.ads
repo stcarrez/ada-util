@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams -- Stream utilities
---  Copyright (C) 2010, 2016, 2018 Stephane Carrez
+--  Copyright (C) 2010, 2016, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,9 @@ with Ada.Streams;
 --  @include util-streams-pipes.ads
 --  @include util-streams-sockets.ads
 --  @include util-streams-raw.ads
---  @include util-streams-buffered-encoders.ads
+--  @include util-streams-base16.ads
+--  @include util-streams-base64.ads
+--  @include util-streams-aes.ads
 package Util.Streams is
 
    pragma Preelaborate;
