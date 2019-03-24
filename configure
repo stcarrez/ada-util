@@ -8405,7 +8405,7 @@ $as_echo "<prefix>/${ADA_PRJ_BASE}" >&6; }
 
 
 
-ac_config_files="$ac_config_files Makefile.conf util.gpr utilada_http.gpr utilada_unit.gpr utilada_curl.gpr utilada_aws.gpr utilada_core.gpr utilada_base.gpr utilada_sys.gpr utilada_lzma.gpr utilada_tests.gpr"
+ac_config_files="$ac_config_files Makefile.conf utilada.gpr utilada_http.gpr utilada_unit.gpr utilada_curl.gpr utilada_aws.gpr utilada_core.gpr utilada_base.gpr utilada_sys.gpr utilada_lzma.gpr utilada_tests.gpr"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -9114,7 +9114,7 @@ for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
     "Makefile.conf") CONFIG_FILES="$CONFIG_FILES Makefile.conf" ;;
-    "util.gpr") CONFIG_FILES="$CONFIG_FILES util.gpr" ;;
+    "utilada.gpr") CONFIG_FILES="$CONFIG_FILES utilada.gpr" ;;
     "utilada_http.gpr") CONFIG_FILES="$CONFIG_FILES utilada_http.gpr" ;;
     "utilada_unit.gpr") CONFIG_FILES="$CONFIG_FILES utilada_unit.gpr" ;;
     "utilada_curl.gpr") CONFIG_FILES="$CONFIG_FILES utilada_curl.gpr" ;;
