@@ -325,13 +325,13 @@ package body Util.Streams.Buffered is
    --  Flush the stream and release the buffer.
    --  ------------------------------
    overriding
-   procedure Finalize (Object : in out Output_Buffer_Stream) is
+   procedure Finalize (Stream : in out Output_Buffer_Stream) is
    begin
-      if Object.Buffer /= null then
-         if Object.Output /= null then
-            Object.Flush;
+      if Stream.Buffer /= null then
+         if Stream.Output /= null then
+            Stream.Flush;
          end if;
-         Free_Buffer (Object.Buffer);
+         Free_Buffer (Stream.Buffer);
       end if;
    end Finalize;
 
