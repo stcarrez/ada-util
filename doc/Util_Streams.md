@@ -209,7 +209,7 @@ Password_Key : constant Util.Encoders.Secret_Key
 
 Using a password key like this is not the good practice and it may be useful to generate
 a stronger key by using one of the key derivative function.  We will use the
-PBKDF2 HMAC-SHA256 with 20000 loops (see RFC 8018):
+PBKDF2 HMAC-SHA256 with 20000 loops (see [RFC 8018](https://tools.ietf.org/html/rfc8018)):
 
 ```Ada
 Util.Encoders.KDF.PBKDF2_HMAC_SHA256 (Password => Password_Key,

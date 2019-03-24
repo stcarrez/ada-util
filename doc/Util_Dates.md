@@ -29,7 +29,7 @@ Week_End   : Ada.Calendar.Time := Get_Week_End (Now);
 ```
 
 ## RFC7231 Dates
-The [RFC7231](https://tools.ietf.org/html/rfc7231) defines a standard date format that is used by HTTP headers.
+The [RFC 7231](https://tools.ietf.org/html/rfc7231) defines a standard date format that is used by HTTP headers.
 The `Util.Dates.RFC7231` package provides an `Image` function to convert a date into
 that target format and a `Value` function to parse such format string and return the date.
 
