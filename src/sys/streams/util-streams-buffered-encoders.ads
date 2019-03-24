@@ -67,4 +67,7 @@ package Util.Streams.Buffered.Encoders is
    overriding
    procedure Flush (Stream : in out Encoder_Stream);
 
+   overriding
+   procedure Finalize (Stream : in out Encoder_Stream);
+
 end Util.Streams.Buffered.Encoders;
