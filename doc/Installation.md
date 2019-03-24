@@ -85,3 +85,30 @@ direction as follows:
 ```
 make install prefix=/opt
 ```
+
+## Using
+
+To use the library in an Ada project, add the following line at the beginning of your
+GNAT project file:
+
+```
+with "utilada";
+```
+
+If you use only a subset of the library, you may use the following GNAT projects:
+
+| GNAT project | Description                                          |
+| ------------ | ---------------------------------------------------- |
+| utilada_core | Provides: Util.Concurrent, Util.Strings, Util.Texts, |
+|              | Util.Locales, Util.Refs, Util.Stacks, Util.Listeners |
+| utilada_base | Provides: Util.Beans, Util.Commands, Util.Dates,     |
+|              | Util.Events, Util.Files, Util.Log, Util.Properties   |
+| utilada_sys  | Provides: Util.Encoders, Util.Measures,              |
+|              | Util.Processes, Util.Serialize, Util.Streams         |
+| utilada_lzma | Provides: Util.Encoders.Lzma, Util.Streams.Buffered.Lzma    |
+| utilada_aws  | Provides HTTP client support using AWS               |
+| utilada_curl | Provides HTTP client support using CURL              |
+| utilada_http | Provides Util.Http                                          |
+| utilada      | Uses all utilada GNAT projects except the unit test library |
+| utilada_unit | Support to write unit tests on top of Ahven or AUnit |
+
