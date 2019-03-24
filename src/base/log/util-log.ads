@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log -- Utility Log Package
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2001 - 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,9 @@
 --  issues, some of them being related to configuration issues or interaction with other
 --  systems.  The overhead of calling a log operation is negligeable when the log is disabled
 --  as it is in the order of 30ns and reasonable for a file appender has it is in the order
---  of 5us.
+--  of 5us.  To use the packages described here, use the following GNAT project:
+--
+--    with "utilada_base";
 --
 --  == Using the log framework ==
 --  A bit of terminology:
