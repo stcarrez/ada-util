@@ -438,7 +438,7 @@ dnl AC_MSG_NOTICE(  AWS support:   $WITH_UTIL_AWS)
 
 AC_OUTPUT(
 Makefile.conf
-util.gpr
+utilada.gpr
 utilada_http.gpr
 utilada_unit.gpr
 utilada_curl.gpr
