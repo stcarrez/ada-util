@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates -- Date utilities
---  Copyright (C) 2011, 2013, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,10 @@ with Ada.Calendar.Time_Zones;
 --  = Date Utilities =
 --  The `Util.Dates` package provides various date utilities to help in formatting and parsing
 --  dates in various standard formats.  It completes the standard `Ada.Calendar.Formatting` and
---  other packages by implementing specific formatting and parsing.
+--  other packages by implementing specific formatting and parsing. To use the packages
+--  described here, use the following GNAT project:
+--
+--    with "utilada_base";
 --
 --  == Date Operations ==
 --  Several operations allow to compute from a given date:
