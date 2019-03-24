@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties -- Generic name/value property management
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2014, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2001 - 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,10 @@ private with Util.Concurrent.Counters;
 --  Each property is assigned a key and a value.  The list of properties are stored in the
 --  `Util.Properties.Manager` tagged record and they are indexed by the key name.  A property
 --  is therefore unique in the list.  Properties can be grouped together in sub-properties so
---  that a key can represent another list of properties.
+--  that a key can represent another list of properties.  To use the packages described here,
+--  use the following GNAT project:
+--
+--    with "utilada_base";
 --
 --  == File formats ==
 --  The property file consists of a simple name and value pair separated by the `=` sign.
