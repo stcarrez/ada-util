@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 
 with Util.Tests;
+with Util.Encoders.AES;
 
 package Util.Streams.Tests is
 
@@ -24,8 +25,12 @@ package Util.Streams.Tests is
 
    type Test is new Util.Tests.Test with null record;
 
-   procedure Test_Base64_Stream (T : in out Test);
+   procedure Test_AES (T     : in out Test;
+                       Item  : in String;
+                       Count : in Positive;
+                       Mode  : in Util.Encoders.AES.AES_Mode;
+                       Label : in String);
 
-   procedure Test_AES_Stream (T : in out Test);
+   procedure Test_Base64_Stream (T : in out Test);
 
 end Util.Streams.Tests;
