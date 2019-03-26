@@ -154,6 +154,8 @@ private
 
    use Interfaces;
 
+   subtype Count_Type is Ada.Streams.Stream_Element_Offset range 0 .. 16;
+
    type Block_Key is array (0 .. 59) of Unsigned_32;
 
    type Key_Type is record
@@ -162,11 +164,12 @@ private
    end record;
 
    type Cipher is limited new Ada.Finalization.Limited_Controlled with record
-      IV         : Word_Block_Type;
+      IV         : Word_Block_Type := (others => 0);
       Key        : Key_Type;
       Mode       : AES_Mode := CBC;
-      Data_Count : Ada.Streams.Stream_Element_Offset := 0;
+      Data_Count : Count_Type := 0;
       Data       : Block_Type;
+      Data2      : Block_Type;
    end record;
 
    overriding
