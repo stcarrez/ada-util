@@ -882,11 +882,11 @@ package body Util.Encoders.AES is
    begin
       Last := Into'First;
       if E.Data_Count > 0 then
-         loop
+         while E.Data_Count < E.Data'Last loop
             E.Data_Count := E.Data_Count + 1;
             E.Data (E.Data_Count) := Data (Pos);
             Pos := Pos + 1;
-            exit when E.Data_Count = 16;
+            exit when E.Data_Count = E.Data'Last;
             if Pos > Data'Last then
                Encoded := Data'Last;
                return;
@@ -894,7 +894,77 @@ package body Util.Encoders.AES is
          end loop;
 
          --  Encrypt current block.
-         Encrypt (E.Data, Into (Last .. Last + Block_Type'Length - 1), E.Key);
+         case E.Mode is
+         when ECB =>
+            Encrypt (E.Data, Into (Last .. Last + Block_Type'Length - 1), E.Key);
+
+         when CBC =>
+            E.IV (1) := E.IV (1) xor To_Unsigned_32 (E.Data, E.Data'First);
+            E.IV (2) := E.IV (2) xor To_Unsigned_32 (E.Data, E.Data'First + 4);
+            E.IV (3) := E.IV (3) xor To_Unsigned_32 (E.Data, E.Data'First + 8);
+            E.IV (4) := E.IV (4) xor To_Unsigned_32 (E.Data, E.Data'First + 12);
+            Encrypt (E.IV,
+                     E.IV,
+                     E.Key);
+            Put_Unsigned_32 (Into, E.IV (1), Last);
+            Put_Unsigned_32 (Into, E.IV (2), Last + 4);
+            Put_Unsigned_32 (Into, E.IV (3), Last + 8);
+            Put_Unsigned_32 (Into, E.IV (4), Last + 12);
+
+         when PCBC =>
+            E.IV (1) := E.IV (1) xor To_Unsigned_32 (E.Data, E.Data'First);
+            E.IV (2) := E.IV (2) xor To_Unsigned_32 (E.Data, E.Data'First + 4);
+            E.IV (3) := E.IV (3) xor To_Unsigned_32 (E.Data, E.Data'First + 8);
+            E.IV (4) := E.IV (4) xor To_Unsigned_32 (E.Data, E.Data'First + 12);
+            Encrypt (E.IV,
+                     E.IV,
+                     E.Key);
+            Put_Unsigned_32 (Into, E.IV (1), Last);
+            Put_Unsigned_32 (Into, E.IV (2), Last + 4);
+            Put_Unsigned_32 (Into, E.IV (3), Last + 8);
+            Put_Unsigned_32 (Into, E.IV (4), Last + 12);
+            E.IV (1) := E.IV (1) xor To_Unsigned_32 (E.Data, E.Data'First);
+            E.IV (2) := E.IV (2) xor To_Unsigned_32 (E.Data, E.Data'First + 4);
+            E.IV (3) := E.IV (3) xor To_Unsigned_32 (E.Data, E.Data'First + 8);
+            E.IV (4) := E.IV (4) xor To_Unsigned_32 (E.Data, E.Data'First + 12);
+
+         when CFB =>
+            Encrypt (E.IV,
+                     E.IV,
+                     E.Key);
+            E.IV (1) := E.IV (1) xor To_Unsigned_32 (E.Data, Pos);
+            E.IV (2) := E.IV (2) xor To_Unsigned_32 (E.Data, Pos + 4);
+            E.IV (3) := E.IV (3) xor To_Unsigned_32 (E.Data, Pos + 8);
+            E.IV (4) := E.IV (4) xor To_Unsigned_32 (E.Data, Pos + 12);
+            Put_Unsigned_32 (Into, E.IV (1), Last);
+            Put_Unsigned_32 (Into, E.IV (2), Last + 4);
+            Put_Unsigned_32 (Into, E.IV (3), Last + 8);
+            Put_Unsigned_32 (Into, E.IV (4), Last + 12);
+
+         when OFB =>
+            Encrypt (E.IV,
+                     E.IV,
+                     E.Key);
+            Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (E.Data, Pos), Last);
+            Put_Unsigned_32 (Into, E.IV (2) xor To_Unsigned_32 (E.Data, Pos + 4), Last + 4);
+            Put_Unsigned_32 (Into, E.IV (3) xor To_Unsigned_32 (E.Data, Pos + 8), Last + 8);
+            Put_Unsigned_32 (Into, E.IV (4) xor To_Unsigned_32 (E.Data, Pos + 12), Last + 12);
+
+         when CTR =>
+            Encrypt (E.IV,
+                     R,
+                     E.Key);
+            Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (E.Data, Pos), Last);
+            Put_Unsigned_32 (Into, E.IV (2) xor To_Unsigned_32 (E.Data, Pos + 4), Last + 4);
+            Put_Unsigned_32 (Into, E.IV (3) xor To_Unsigned_32 (E.Data, Pos + 8), Last + 8);
+            Put_Unsigned_32 (Into, E.IV (4) xor To_Unsigned_32 (E.Data, Pos + 12), Last + 12);
+            E.IV (4) := E.IV (4) + 1;
+            if E.IV (4) = 0 then
+               E.IV (3) := E.IV (3) + 1;
+            end if;
+
+         end case;
+
          Last := Last + Block_Type'Length;
          E.Data_Count := 0;
       end if;
@@ -945,6 +1015,7 @@ package body Util.Encoders.AES is
                E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
                E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
                E.IV (4) := E.IV (4) xor To_Unsigned_32 (Data, Pos + 12);
+
                Last := Last + Block_Type'Length;
                Pos  := Pos + Block_Type'Length;
             end loop;
@@ -1073,7 +1144,81 @@ package body Util.Encoders.AES is
          end loop;
 
          --  Decrypt current block.
-         Decrypt (E.Data, Into (Last .. Last + Block_Type'Length - 1), E.Key);
+         case E.Mode is
+         when ECB =>
+            Decrypt (E.Data, Into (Last .. Last + Block_Type'Length - 1), E.Key);
+
+         when CBC =>
+            Decrypt (E.Data,
+                     E.Data,
+                     E.Key);
+            Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (E.Data, E.Data'First),
+                             Last);
+            Put_Unsigned_32 (Into, E.IV (2) xor To_Unsigned_32 (E.Data, E.Data'First + 4),
+                             Last + 4);
+            Put_Unsigned_32 (Into, E.IV (3) xor To_Unsigned_32 (E.Data, E.Data'First + 8),
+                             Last + 8);
+            Put_Unsigned_32 (Into, E.IV (4) xor To_Unsigned_32 (E.Data, E.Data'First + 12),
+                             Last + 12);
+            E.IV (1) := To_Unsigned_32 (Data, Pos);
+            E.IV (2) := To_Unsigned_32 (Data, Pos + 4);
+            E.IV (3) := To_Unsigned_32 (Data, Pos + 8);
+            E.IV (4) := To_Unsigned_32 (Data, Pos + 12);
+
+         when PCBC =>
+            Decrypt (E.Data,
+                     E.Data2,
+                     E.Key);
+            E.IV (1) := E.IV (1) xor To_Unsigned_32 (E.Data2, Pos);
+            E.IV (2) := E.IV (2) xor To_Unsigned_32 (E.Data2, Pos + 4);
+            E.IV (3) := E.IV (3) xor To_Unsigned_32 (E.Data2, Pos + 8);
+            E.IV (4) := E.IV (4) xor To_Unsigned_32 (E.Data2, Pos + 12);
+            Put_Unsigned_32 (Into, E.IV (1), Last);
+            Put_Unsigned_32 (Into, E.IV (2), Last + 4);
+            Put_Unsigned_32 (Into, E.IV (3), Last + 8);
+            Put_Unsigned_32 (Into, E.IV (4), Last + 12);
+            E.IV (1) := E.IV (1) xor To_Unsigned_32 (E.Data, Pos);
+            E.IV (2) := E.IV (2) xor To_Unsigned_32 (E.Data, Pos + 4);
+            E.IV (3) := E.IV (3) xor To_Unsigned_32 (E.Data, Pos + 8);
+            E.IV (4) := E.IV (4) xor To_Unsigned_32 (E.Data, Pos + 12);
+
+         when CFB =>
+            Decrypt (E.IV,
+                     E.IV,
+                     E.Key);
+            E.IV (1) := E.IV (1) xor To_Unsigned_32 (E.Data, Pos);
+            E.IV (2) := E.IV (2) xor To_Unsigned_32 (E.Data, Pos + 4);
+            E.IV (3) := E.IV (3) xor To_Unsigned_32 (E.Data, Pos + 8);
+            E.IV (4) := E.IV (4) xor To_Unsigned_32 (E.Data, Pos + 12);
+            Put_Unsigned_32 (Into, E.IV (1), Last);
+            Put_Unsigned_32 (Into, E.IV (2), Last + 4);
+            Put_Unsigned_32 (Into, E.IV (3), Last + 8);
+            Put_Unsigned_32 (Into, E.IV (4), Last + 12);
+
+         when OFB =>
+            Decrypt (E.IV,
+                     E.IV,
+                     E.Key);
+            Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (E.Data, Pos), Last);
+            Put_Unsigned_32 (Into, E.IV (2) xor To_Unsigned_32 (E.Data, Pos + 4), Last + 4);
+            Put_Unsigned_32 (Into, E.IV (3) xor To_Unsigned_32 (E.Data, Pos + 8), Last + 8);
+            Put_Unsigned_32 (Into, E.IV (4) xor To_Unsigned_32 (E.Data, Pos + 12), Last + 12);
+
+         when CTR =>
+            Decrypt (E.IV,
+                     R,
+                     E.Key);
+            Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (E.Data, Pos), Last);
+            Put_Unsigned_32 (Into, E.IV (2) xor To_Unsigned_32 (E.Data, Pos + 4), Last + 4);
+            Put_Unsigned_32 (Into, E.IV (3) xor To_Unsigned_32 (E.Data, Pos + 8), Last + 8);
+            Put_Unsigned_32 (Into, E.IV (4) xor To_Unsigned_32 (E.Data, Pos + 12), Last + 12);
+            E.IV (4) := E.IV (4) + 1;
+            if E.IV (4) = 0 then
+               E.IV (3) := E.IV (3) + 1;
+            end if;
+
+         end case;
+
          Last := Last + Block_Type'Length;
          E.Data_Count := 0;
       end if;
@@ -1093,30 +1238,34 @@ package body Util.Encoders.AES is
 
          when CBC =>
             while Pos <= Pos_Limit and Last <= Last_Limit loop
-               E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
-               E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
-               E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
-               E.IV (4) := E.IV (4) xor To_Unsigned_32 (Data, Pos + 12);
-               Decrypt (E.IV,
-                        E.IV,
+               Decrypt (Data (Pos .. Pos + Block_Type'Length - 1),
+                        E.Data,
                         E.Key);
-               Put_Unsigned_32 (Into, E.IV (1), Last);
-               Put_Unsigned_32 (Into, E.IV (2), Last + 4);
-               Put_Unsigned_32 (Into, E.IV (3), Last + 8);
-               Put_Unsigned_32 (Into, E.IV (4), Last + 12);
+               Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (E.Data, E.Data'First),
+                                Last);
+               Put_Unsigned_32 (Into, E.IV (2) xor To_Unsigned_32 (E.Data, E.Data'First + 4),
+                                Last + 4);
+               Put_Unsigned_32 (Into, E.IV (3) xor To_Unsigned_32 (E.Data, E.Data'First + 8),
+                                Last + 8);
+               Put_Unsigned_32 (Into, E.IV (4) xor To_Unsigned_32 (E.Data, E.Data'First + 12),
+                                Last + 12);
+               E.IV (1) := To_Unsigned_32 (Data, Pos);
+               E.IV (2) := To_Unsigned_32 (Data, Pos + 4);
+               E.IV (3) := To_Unsigned_32 (Data, Pos + 8);
+               E.IV (4) := To_Unsigned_32 (Data, Pos + 12);
                Last := Last + Block_Type'Length;
                Pos  := Pos + Block_Type'Length;
             end loop;
 
          when PCBC =>
             while Pos <= Pos_Limit and Last <= Last_Limit loop
-               E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
-               E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
-               E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
-               E.IV (4) := E.IV (4) xor To_Unsigned_32 (Data, Pos + 12);
-               Decrypt (E.IV,
-                        E.IV,
+               Decrypt (Data (Pos .. Pos + Block_Type'Length - 1),
+                        E.Data,
                         E.Key);
+               E.IV (1) := E.IV (1) xor To_Unsigned_32 (E.Data, E.Data'First);
+               E.IV (2) := E.IV (2) xor To_Unsigned_32 (E.Data, E.Data'First + 4);
+               E.IV (3) := E.IV (3) xor To_Unsigned_32 (E.Data, E.Data'First + 8);
+               E.IV (4) := E.IV (4) xor To_Unsigned_32 (E.Data, E.Data'First + 12);
                Put_Unsigned_32 (Into, E.IV (1), Last);
                Put_Unsigned_32 (Into, E.IV (2), Last + 4);
                Put_Unsigned_32 (Into, E.IV (3), Last + 8);
@@ -1196,7 +1345,40 @@ package body Util.Encoders.AES is
       Data    : Block_Type;
       Count   : Ada.Streams.Stream_Element_Offset;
    begin
-      Decrypt (E.Data, Data, E.Key);
+      case E.Mode is
+         when ECB =>
+            Decrypt (E.Data, Data, E.Key);
+
+         when CBC =>
+            Decrypt (E.Data,
+                     E.Data,
+                     E.Key);
+            Put_Unsigned_32 (Data, E.IV (1) xor To_Unsigned_32 (E.Data, E.Data'First),
+                             Data'First);
+            Put_Unsigned_32 (Data, E.IV (2) xor To_Unsigned_32 (E.Data, E.Data'First + 4),
+                             Data'First + 4);
+            Put_Unsigned_32 (Data, E.IV (3) xor To_Unsigned_32 (E.Data, E.Data'First + 8),
+                             Data'First + 8);
+            Put_Unsigned_32 (Data, E.IV (4) xor To_Unsigned_32 (E.Data, E.Data'First + 12),
+                             Data'First + 12);
+
+         when PCBC =>
+            Decrypt (E.Data,
+                     E.Data,
+                     E.Key);
+            E.IV (1) := E.IV (1) xor To_Unsigned_32 (E.Data, E.Data'First);
+            E.IV (2) := E.IV (2) xor To_Unsigned_32 (E.Data, E.Data'First + 4);
+            E.IV (3) := E.IV (3) xor To_Unsigned_32 (E.Data, E.Data'First + 8);
+            E.IV (4) := E.IV (4) xor To_Unsigned_32 (E.Data, E.Data'First + 12);
+            Put_Unsigned_32 (Data, E.IV (1), Data'First);
+            Put_Unsigned_32 (Data, E.IV (2), Data'First + 4);
+            Put_Unsigned_32 (Data, E.IV (3), Data'First + 8);
+            Put_Unsigned_32 (Data, E.IV (4), Data'First + 12);
+
+         when others =>
+            null;
+      end case;
+
       if Data (Data'Last) = 0 then
          Last := Into'First - 1;
       elsif Data (Data'Last) <= 15 then
