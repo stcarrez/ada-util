@@ -38,6 +38,10 @@ package Util.Encoders.HMAC.SHA256 is
                    Data   : in Ada.Streams.Stream_Element_Array;
                    Result : out Util.Encoders.SHA256.Hash_Array);
 
+   procedure Sign (Key    : in Secret_Key;
+                   Data   : in Ada.Streams.Stream_Element_Array;
+                   Result : out Util.Encoders.SHA256.Hash_Array);
+
    --  Sign the data string with the key and return the HMAC-SHA256 code as base64 string.
    --  When <b>URL</b> is True, use the base64 URL alphabet to encode in base64.
    function Sign_Base64 (Key  : in String;
