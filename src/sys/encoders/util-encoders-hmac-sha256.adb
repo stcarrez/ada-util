@@ -48,6 +48,13 @@ package body Util.Encoders.HMAC.SHA256 is
       Finish (Ctx, Result);
    end Sign;
 
+   procedure Sign (Key    : in Secret_Key;
+                   Data   : in Ada.Streams.Stream_Element_Array;
+                   Result : out Util.Encoders.SHA256.Hash_Array) is
+   begin
+      Sign (Key.Secret, Data, Result);
+   end Sign;
+
    --  ------------------------------
    --  Sign the data string with the key and return the HMAC-SHA256 code as hexadecimal string.
    --  ------------------------------
