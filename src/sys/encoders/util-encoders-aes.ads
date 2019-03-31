@@ -24,6 +24,8 @@ package Util.Encoders.AES is
 
    type AES_Mode is (ECB, CBC, PCBC, CFB, OFB, CTR);
 
+   type AES_Padding is (NO_PADDING, PKCS7_PADDING);
+
    type Key_Type is private;
 
    --  ------------------------------
@@ -113,6 +115,11 @@ package Util.Encoders.AES is
      with Pre => Into'Length >= Block_Type'Length,
      Post => Last = Into'First - 1 or Last = Into'First + Block_Type'Length - 1;
 
+   --  Encrypt the secret using the encoder and return the encrypted value in the buffer.
+   procedure Encrypt_Secret (E      : in out Encoder;
+                             Secret : in Secret_Key;
+                             Into   : out Ada.Streams.Stream_Element_Array);
+
    --  ------------------------------
    --  AES encoder
    --  ------------------------------
@@ -150,6 +157,11 @@ package Util.Encoders.AES is
                      Into : in out Ada.Streams.Stream_Element_Array;
                      Last : in out Ada.Streams.Stream_Element_Offset);
 
+   --  Decrypt the content using the decoder and build the secret key.
+   procedure Decrypt_Secret (E      : in out Decoder;
+                             Data   : in Ada.Streams.Stream_Element_Array;
+                             Secret : out Secret_Key);
+
 private
 
    use Interfaces;
@@ -167,6 +179,7 @@ private
       IV         : Word_Block_Type := (others => 0);
       Key        : Key_Type;
       Mode       : AES_Mode := CBC;
+      Padding    : AES_Padding := PKCS7_PADDING;
       Data_Count : Count_Type := 0;
       Data       : Block_Type;
       Data2      : Block_Type;
