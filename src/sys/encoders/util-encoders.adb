@@ -56,6 +56,12 @@ package body Util.Encoders is
       end loop;
    end Create;
 
+   procedure Create (Password : in Stream_Element_Array;
+                     Key      : out Secret_Key) is
+   begin
+      Key.Secret := Password;
+   end Create;
+
    overriding
    procedure Finalize (Object : in out Secret_Key) is
    begin
