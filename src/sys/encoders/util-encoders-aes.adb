@@ -836,6 +836,31 @@ package body Util.Encoders.AES is
       E.IV := IV;
    end Set_IV;
 
+   --  ------------------------------
+   --  Set the padding.
+   --  ------------------------------
+   procedure Set_Padding (E       : in out Cipher;
+                          Padding : in AES_Padding) is
+   begin
+      E.Padding := Padding;
+   end Set_Padding;
+
+   --  ------------------------------
+   --  Get the padding used.
+   --  ------------------------------
+   function Padding (E : in Cipher) return AES_Padding is
+   begin
+      return E.Padding;
+   end Padding;
+
+   --  ------------------------------
+   --  Return true if the cipher has a encryption/decryption key configured.
+   --  ------------------------------
+   function Has_Key (E : in Cipher) return Boolean is
+   begin
+      return E.Key.Rounds > 0;
+   end Has_Key;
+
    overriding
    procedure Finalize (Object : in out Cipher) is
    begin
@@ -1084,9 +1109,11 @@ package body Util.Encoders.AES is
    procedure Finish (E    : in out Encoder;
                      Into : in out Ada.Streams.Stream_Element_Array;
                      Last : in out Ada.Streams.Stream_Element_Offset) is
-      Padding : constant Ada.Streams.Stream_Element_Offset := 16 - E.Data_Count;
-      Pad     : constant Ada.Streams.Stream_Element_Array (1 .. Padding)
-        := (others => Ada.Streams.Stream_Element (Padding mod 16));
+      Padding   : constant Ada.Streams.Stream_Element_Offset := 16 - E.Data_Count;
+      Pad_Value : constant Stream_Element
+        := (if E.Padding = ZERO_PADDING then 0 else Stream_Element (Padding mod 16));
+      Pad       : constant Ada.Streams.Stream_Element_Array (1 .. Padding)
+        := (others => Pad_Value);
       Encoded : Ada.Streams.Stream_Element_Offset;
    begin
       E.Transform (Pad, Into, Last, Encoded);
@@ -1094,6 +1121,24 @@ package body Util.Encoders.AES is
       pragma Assert (Encoded = Pad'Last + 1);
       pragma Assert (E.Data_Count = 0);
    end Finish;
+
+   --  ------------------------------
+   --  Encrypt the secret using the encoder and return the encrypted value in the buffer.
+   --  The target buffer must be a multiple of 16-bytes block.
+   --  ------------------------------
+   procedure Encrypt_Secret (E      : in out Encoder;
+                             Secret : in Secret_Key;
+                             Into   : out Ada.Streams.Stream_Element_Array) is
+      Last    : Ada.Streams.Stream_Element_Offset;
+      Encoded : Ada.Streams.Stream_Element_Offset;
+   begin
+      E.Transform (Data    => Secret.Secret,
+                   Into    => Into (Into'First .. Into'Last - 16),
+                   Last    => Last,
+                   Encoded => Encoded);
+      E.Finish (Into => Into (Last + 1 .. Into'Last),
+                Last => Last);
+   end Encrypt_Secret;
 
    --  ------------------------------
    --  Set the encryption key to use.
@@ -1351,16 +1396,20 @@ package body Util.Encoders.AES is
 
          when CBC =>
             Decrypt (E.Data,
-                     E.Data,
+                     Data,
                      E.Key);
-            Put_Unsigned_32 (Data, E.IV (1) xor To_Unsigned_32 (E.Data, E.Data'First),
+            Put_Unsigned_32 (Data, E.IV (1) xor To_Unsigned_32 (Data, Data'First),
                              Data'First);
-            Put_Unsigned_32 (Data, E.IV (2) xor To_Unsigned_32 (E.Data, E.Data'First + 4),
+            Put_Unsigned_32 (Data, E.IV (2) xor To_Unsigned_32 (Data, Data'First + 4),
                              Data'First + 4);
-            Put_Unsigned_32 (Data, E.IV (3) xor To_Unsigned_32 (E.Data, E.Data'First + 8),
+            Put_Unsigned_32 (Data, E.IV (3) xor To_Unsigned_32 (Data, Data'First + 8),
                              Data'First + 8);
-            Put_Unsigned_32 (Data, E.IV (4) xor To_Unsigned_32 (E.Data, E.Data'First + 12),
+            Put_Unsigned_32 (Data, E.IV (4) xor To_Unsigned_32 (Data, Data'First + 12),
                              Data'First + 12);
+            E.IV (1) := To_Unsigned_32 (E.Data, E.Data'First);
+            E.IV (2) := To_Unsigned_32 (E.Data, E.Data'First + 4);
+            E.IV (3) := To_Unsigned_32 (E.Data, E.Data'First + 8);
+            E.IV (4) := To_Unsigned_32 (E.Data, E.Data'First + 12);
 
          when PCBC =>
             Decrypt (E.Data,
@@ -1379,14 +1428,42 @@ package body Util.Encoders.AES is
             null;
       end case;
 
-      if Data (Data'Last) = 0 then
+      if E.Padding = NO_PADDING or E.Padding = ZERO_PADDING then
+         Last := Into'First + 16 - 1;
+         Into (Into'First .. Last) := Data (Data'First .. Data'Last);
+      elsif Data (Data'Last) = 0 then
          Last := Into'First - 1;
       elsif Data (Data'Last) <= 15 then
          Count := Data'Length - Ada.Streams.Stream_Element_Offset (Data (Data'Last));
          Last := Into'First + Count - 1;
          Into (Into'First .. Last) := Data (Data'First .. Data'First + Count - 1);
       end if;
+      E.Data_Count := 0;
    end Finish;
+
+   --  Decrypt the content of data using the decoder and build the secret key.
+   procedure Decrypt_Secret (E      : in out Decoder;
+                             Data   : in Ada.Streams.Stream_Element_Array;
+                             Secret : in out Secret_Key) is
+      Last    : Ada.Streams.Stream_Element_Offset;
+      Encoded : Ada.Streams.Stream_Element_Offset;
+   begin
+      if E.Padding = NO_PADDING then
+         E.Transform (Data    => Data,
+                      Into    => Secret.Secret (Secret.Secret'First .. Secret.Secret'Last),
+                      Last    => Last,
+                      Encoded => Encoded);
+         E.Finish (Into => Secret.Secret (Last + 1 .. Secret.Secret'Last),
+                   Last => Last);
+      else
+         E.Transform (Data    => Data,
+                      Into    => Secret.Secret (Secret.Secret'First .. Secret.Secret'Last - 16),
+                      Last    => Last,
+                      Encoded => Encoded);
+         E.Finish (Into => Secret.Secret (Last + 1 .. Secret.Secret'Last),
+                   Last => Last);
+      end if;
+   end Decrypt_Secret;
 
    procedure Encrypt (Input  : in Ada.Streams.Stream_Element_Array;
                       Output : out Ada.Streams.Stream_Element_Array;
