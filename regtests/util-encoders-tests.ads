@@ -65,4 +65,7 @@ package Util.Encoders.Tests is
    --  Test encrypt and decrypt operations.
    procedure Test_AES (T : in out Test);
 
+   --  Test encrypt and decrypt operations.
+   procedure Test_Encrypt_Decrypt_Secret (T : in out Test);
+
 end Util.Encoders.Tests;
