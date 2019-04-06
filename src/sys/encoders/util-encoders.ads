@@ -65,6 +65,10 @@ package Util.Encoders is
                      Key      : out Secret_Key)
      with Pre => Password'Length > 0, Post => Key.Length = Password'Length;
 
+   procedure Create (Password : in Stream_Element_Array;
+                     Key      : out Secret_Key)
+     with Pre => Password'Length > 0, Post => Key.Length = Password'Length;
+
    --  ------------------------------
    --  Encoder context object
    --  ------------------------------
