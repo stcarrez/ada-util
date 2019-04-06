@@ -108,6 +108,9 @@ package body Util.Streams.Tests is
    procedure Test_AES_OFB is
       new Test_AES_Mode (Mode => Util.Encoders.AES.PCBC, Label => "AES-OFB");
 
+   procedure Test_AES_CTR is
+      new Test_AES_Mode (Mode => Util.Encoders.AES.PCBC, Label => "AES-CTR");
+
    procedure Test_Base64_Stream (T : in out Test) is
       Stream  : aliased File_Stream;
       Buffer  : aliased Util.Streams.Base64.Encoding_Stream;
@@ -147,6 +150,8 @@ package body Util.Streams.Tests is
                        Test_AES_CFB'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.AES (AES-OFB)",
                        Test_AES_OFB'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.AES (AES-CTR)",
+                       Test_AES_CTR'Access);
    end Add_Tests;
 
 end Util.Streams.Tests;
