@@ -98,6 +98,8 @@ package body Util.Encoders.Tests is
                        Test_HMAC_SHA256_RFC4231_T7'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.AES.Encrypt",
                        Test_AES'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.AES.Encrypt_Secret",
+                       Test_Encrypt_Decrypt_Secret'Access);
    end Add_Tests;
 
    procedure Test_Base64_Encode (T : in out Test) is
@@ -572,5 +574,22 @@ package body Util.Encoders.Tests is
       T.Assert (Ok, "Encryption and decryption are invalid (block with 16#AB#)");
 
    end Test_AES;
+
+   --  Test encrypt and decrypt operations.
+   procedure Test_Encrypt_Decrypt_Secret (T : in out Test) is
+      Pk       : constant Secret_Key := Create ("0123456789abcdef");
+      Cipher   : Util.Encoders.AES.Encoder;
+      Decipher : Util.Encoders.AES.Decoder;
+      Data     : Ada.Streams.Stream_Element_Array (1 .. 16);
+      Result   : Secret_Key (16);
+   begin
+      Cipher.Set_Key (Pk, Util.Encoders.AES.CBC);
+      Cipher.Set_Padding (Util.Encoders.AES.NO_PADDING);
+      Decipher.Set_Key (Pk, Util.Encoders.AES.CBC);
+      Decipher.Set_Padding (Util.Encoders.AES.NO_PADDING);
+      Cipher.Encrypt_Secret (Pk, Data);
+      Decipher.Decrypt_Secret (Data, Result);
+      T.Assert (Result.Secret = Pk.Secret, "Encrypt_Secret and Decrypt_Secret failed");
+   end Test_Encrypt_Decrypt_Secret;
 
 end Util.Encoders.Tests;
