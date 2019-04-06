@@ -24,7 +24,7 @@ package Util.Encoders.AES is
 
    type AES_Mode is (ECB, CBC, PCBC, CFB, OFB, CTR);
 
-   type AES_Padding is (NO_PADDING, PKCS7_PADDING);
+   type AES_Padding is (NO_PADDING, ZERO_PADDING, PKCS7_PADDING);
 
    type Key_Type is private;
 
@@ -76,6 +76,16 @@ package Util.Encoders.AES is
    procedure Set_IV (E  : in out Cipher;
                      IV : in Word_Block_Type);
 
+   --  Set the padding.
+   procedure Set_Padding (E       : in out Cipher;
+                          Padding : in AES_Padding);
+
+   --  Get the padding used.
+   function Padding (E : in Cipher) return AES_Padding;
+
+   --  Return true if the cipher has a encryption/decryption key configured.
+   function Has_Key (E : in Cipher) return Boolean;
+
    --  ------------------------------
    --  AES encoder
    --  ------------------------------
@@ -105,20 +115,26 @@ package Util.Encoders.AES is
                         Data    : in Ada.Streams.Stream_Element_Array;
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
-                        Encoded : out Ada.Streams.Stream_Element_Offset);
+                        Encoded : out Ada.Streams.Stream_Element_Offset) with
+     Pre => E.Has_Key;
 
    --  Finish encoding the input array.
    overriding
    procedure Finish (E    : in out Encoder;
                      Into : in out Ada.Streams.Stream_Element_Array;
-                     Last : in out Ada.Streams.Stream_Element_Offset)
-     with Pre => Into'Length >= Block_Type'Length,
+                     Last : in out Ada.Streams.Stream_Element_Offset) with
+     Pre  => E.Has_Key and Into'Length >= Block_Type'Length,
      Post => Last = Into'First - 1 or Last = Into'First + Block_Type'Length - 1;
 
    --  Encrypt the secret using the encoder and return the encrypted value in the buffer.
+   --  The target buffer must be a multiple of 16-bytes block.
    procedure Encrypt_Secret (E      : in out Encoder;
                              Secret : in Secret_Key;
-                             Into   : out Ada.Streams.Stream_Element_Array);
+                             Into   : out Ada.Streams.Stream_Element_Array) with
+     Pre => Into'Length mod 16 = 0 and
+     (case E.Padding is
+        when NO_PADDING => Secret.Length = Into'Length,
+          when PKCS7_PADDING | ZERO_PADDING => 16 * (1 + (Secret.Length / 16)) = Into'Length);
 
    --  ------------------------------
    --  AES encoder
@@ -149,7 +165,8 @@ package Util.Encoders.AES is
                         Data    : in Ada.Streams.Stream_Element_Array;
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
-                        Encoded : out Ada.Streams.Stream_Element_Offset);
+                        Encoded : out Ada.Streams.Stream_Element_Offset) with
+     Pre => E.Has_Key;
 
    --  Finish encoding the input array.
    overriding
@@ -160,7 +177,11 @@ package Util.Encoders.AES is
    --  Decrypt the content using the decoder and build the secret key.
    procedure Decrypt_Secret (E      : in out Decoder;
                              Data   : in Ada.Streams.Stream_Element_Array;
-                             Secret : out Secret_Key);
+                             Secret : in out Secret_Key) with
+     Pre => Data'Length mod 16 = 0 and
+     (case E.Padding is
+        when NO_PADDING => Secret.Length = Data'Length,
+          when PKCS7_PADDING | ZERO_PADDING => 16 * (1 + (Secret.Length / 16)) = Data'Length);
 
 private
 
