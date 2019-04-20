@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-parsers.gnat_parser -- GNAT command line parser for command drivers
---  Copyright (C) 2018 Stephane Carrez
+--  Copyright (C) 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,39 +33,49 @@ package body Util.Commands.Parsers.GNAT_Parser is
       return new GNAT.OS_Lib.Argument_List '(New_Arg);
    end To_OS_Lib_Argument_List;
 
+   --  ------------------------------
+   --  Get all the remaining arguments from the GNAT command line parse.
+   --  ------------------------------
+   procedure Get_Arguments (List    : in out Dynamic_Argument_List;
+                            Command : in String;
+                            Parser  : in GC.Opt_Parser := GC.Command_Line_Parser) is
+   begin
+      List.Name := Ada.Strings.Unbounded.To_Unbounded_String (Command);
+      loop
+         declare
+            S : constant String := GC.Get_Argument (Parser => Parser);
+         begin
+            exit when S'Length = 0;
+            List.List.Append (S);
+         end;
+      end loop;
+   end Get_Arguments;
+
    procedure Execute (Config : in out Config_Type;
                       Args   : in Util.Commands.Argument_List'Class;
                       Process : access procedure (Cmd_Args : in Commands.Argument_List'Class)) is
-      use type GNAT.Command_Line.Command_Line_Configuration;
+      use type GC.Command_Line_Configuration;
 
       Empty    : Config_Type;
    begin
       if Config /= Empty then
          declare
-            Parser   : GNAT.Command_Line.Opt_Parser;
+            Parser   : GC.Opt_Parser;
             Cmd_Args : Dynamic_Argument_List;
             Params   : GNAT.OS_Lib.Argument_List_Access
               := To_OS_Lib_Argument_List (Args);
          begin
-            GNAT.Command_Line.Initialize_Option_Scan (Parser, Params);
-            GNAT.Command_Line.Getopt (Config => Config, Parser => Parser);
-            Cmd_Args.Name := Ada.Strings.Unbounded.To_Unbounded_String (Args.Get_Command_Name);
-            loop
-               declare
-                  S : constant String := GNAT.Command_Line.Get_Argument (Parser => Parser);
-               begin
-                  exit when S'Length = 0;
-                  Cmd_Args.List.Append (S);
-               end;
-            end loop;
+            GC.Initialize_Option_Scan (Parser, Params);
+            GC.Getopt (Config => Config, Parser => Parser);
+            Get_Arguments (Cmd_Args, Args.Get_Command_Name, Parser);
             Process (Cmd_Args);
-            GNAT.Command_Line.Free (Config);
+            GC.Free (Config);
             GNAT.OS_Lib.Free (Params);
 
          exception
             when others =>
                GNAT.OS_Lib.Free (Params);
-               GNAT.Command_Line.Free (Config);
+               GC.Free (Config);
                raise;
          end;
       else
@@ -76,8 +86,8 @@ package body Util.Commands.Parsers.GNAT_Parser is
    procedure Usage (Name   : in String;
                     Config : in out Config_Type) is
    begin
-      GNAT.Command_Line.Set_Usage (Config, Usage => Name & " [switches] [arguments]");
-      GNAT.Command_Line.Display_Help (Config);
+      GC.Set_Usage (Config, Usage => Name & " [switches] [arguments]");
+      GC.Display_Help (Config);
    end Usage;
 
 end Util.Commands.Parsers.GNAT_Parser;
