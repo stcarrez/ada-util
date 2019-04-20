@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-drivers -- Support to make command line tools
---  Copyright (C) 2017, 2018 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -85,7 +85,8 @@ package body Util.Commands.Drivers is
             Target_Cmd : constant Command_Access := Command.Driver.Find_Command (Cmd_Name);
          begin
             if Target_Cmd = null then
-               Logs.Error ("Unknown command {0}", Cmd_Name);
+               Logs.Error ("Unknown command '{0}'", Cmd_Name);
+               raise Not_Found;
             else
                Target_Cmd.Help (Context);
             end if;
@@ -210,7 +211,8 @@ package body Util.Commands.Drivers is
             Config_Parser.Execute (Config, Args, Execute'Access);
          end;
       else
-         Logs.Error ("Unkown command {0}", Name);
+         Logs.Error ("Unkown command '{0}'", Name);
+         raise Not_Found;
       end if;
    end Execute;
 
