@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands -- Support to make command line tools
---  Copyright (C) 2017, 2018 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,9 @@
 private with Util.Strings.Vectors;
 private with Ada.Strings.Unbounded;
 package Util.Commands is
+
+   --  Exception raised when a command was not found.
+   Not_Found : exception;
 
    --  The argument list interface that gives access to command arguments.
    type Argument_List is limited interface;
