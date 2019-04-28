@@ -40,6 +40,11 @@ package Util.Encoders.AES is
    subtype AES_192_Key is Ada.Streams.Stream_Element_Array (1 .. 24);
    subtype AES_256_Key is Ada.Streams.Stream_Element_Array (1 .. 32);
 
+   --  Align the size on an AES block size.
+   function Align (Size : in Ada.Streams.Stream_Element_Offset)
+                   return Ada.Streams.Stream_Element_Offset is
+      (Block_Type'Length * ((Size + Block_Type'Length - 1) / Block_Type'Length));
+
    type Word_Block_Type is array (1 .. 4) of Interfaces.Unsigned_32;
 
    procedure Set_Encrypt_Key (Key  : out Key_Type;
