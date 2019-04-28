@@ -1428,9 +1428,11 @@ package body Util.Encoders.AES is
             null;
       end case;
 
-      if E.Padding = NO_PADDING or E.Padding = ZERO_PADDING then
+      if E.Padding = NO_PADDING then
          Last := Into'First + 16 - 1;
          Into (Into'First .. Last) := Data (Data'First .. Data'Last);
+      elsif E.Padding = ZERO_PADDING then
+         Into := Data (Data'First .. Data'First + Into'Length - 1);
       elsif Data (Data'Last) = 0 then
          Last := Into'First - 1;
       elsif Data (Data'Last) <= 15 then
