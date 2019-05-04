@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-drivers -- Support to make command line tools
---  Copyright (C) 2017, 2018 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -105,10 +105,16 @@ package Util.Commands.Drivers is
                           Name    : in String;
                           Command : in Command_Access);
 
+   procedure Add_Command (Driver      : in out Driver_Type;
+                          Name        : in String;
+                          Description : in String;
+                          Command     : in Command_Access);
+
    --  Register the command under the given name.
-   procedure Add_Command (Driver  : in out Driver_Type;
-                          Name    : in String;
-                          Handler : in Command_Handler);
+   procedure Add_Command (Driver      : in out Driver_Type;
+                          Name        : in String;
+                          Description : in String;
+                          Handler     : in Command_Handler);
 
    --  Find the command having the given name.
    --  Returns null if the command was not found.
@@ -136,7 +142,8 @@ private
                                                  "<"          => "<");
 
    type Command_Type is abstract tagged limited record
-      Driver : access Driver_Type'Class;
+      Driver      : access Driver_Type'Class;
+      Description : Ada.Strings.Unbounded.Unbounded_String;
    end record;
 
    type Help_Command_Type is new Command_Type with null record;
