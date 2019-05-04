@@ -58,12 +58,30 @@ package body Util.Commands.Drivers is
                       Name      : in String;
                       Args      : in Argument_List'Class;
                       Context   : in out Context_Type) is
+      procedure Compute_Size (Position : in Command_Maps.Cursor);
       procedure Print (Position : in Command_Maps.Cursor);
 
-      procedure Print (Position : in Command_Maps.Cursor) is
+      Column : Ada.Text_IO.Positive_Count := 1;
+
+      procedure Compute_Size (Position : in Command_Maps.Cursor) is
          Name : constant String := Command_Maps.Key (Position);
       begin
-         Put_Line ("   " & Name);
+         if Column < Name'Length then
+            Column := Name'Length;
+         end if;
+      end Compute_Size;
+
+      procedure Print (Position : in Command_Maps.Cursor) is
+         Cmd  : constant Command_Access := Command_Maps.Element (Position);
+         Name : constant String := Command_Maps.Key (Position);
+      begin
+         Put ("   ");
+         Put (Name);
+         if Length (Cmd.Description) > 0 then
+            Set_Col (Column + 7);
+            Put (To_String (Cmd.Description));
+         end if;
+         New_Line;
       end Print;
 
    begin
@@ -78,6 +96,7 @@ package body Util.Commands.Drivers is
          New_Line;
          Put_Line ("Available subcommands:");
 
+         Command.Driver.List.Iterate (Process => Compute_Size'Access);
          Command.Driver.List.Iterate (Process => Print'Access);
       else
          declare
@@ -160,15 +179,28 @@ package body Util.Commands.Drivers is
       Driver.List.Include (Name, Command);
    end Add_Command;
 
+   procedure Add_Command (Driver      : in out Driver_Type;
+                          Name        : in String;
+                          Description : in String;
+                          Command     : in Command_Access) is
+   begin
+      Command.Description := Ada.Strings.Unbounded.To_Unbounded_String (Description);
+      Add_Command (Driver, Name, Command);
+   end Add_Command;
+
    --  ------------------------------
    --  Register the command under the given name.
    --  ------------------------------
-   procedure Add_Command (Driver  : in out Driver_Type;
-                          Name    : in String;
-                          Handler : in Command_Handler) is
+   procedure Add_Command (Driver      : in out Driver_Type;
+                          Name        : in String;
+                          Description : in String;
+                          Handler     : in Command_Handler) is
+      Command : constant Command_Access
+        := new Handler_Command_Type '(Driver      => Driver'Unchecked_Access,
+                                      Description => To_Unbounded_String (Description),
+                                      Handler     => Handler);
    begin
-      Driver.List.Include (Name, new Handler_Command_Type '(Driver  => Driver'Unchecked_Access,
-                                                            Handler => Handler));
+      Driver.List.Include (Name, Command);
    end Add_Command;
 
    --  ------------------------------
