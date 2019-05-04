@@ -1195,20 +1195,20 @@ package body Util.Encoders.AES is
 
          when CBC =>
             Decrypt (E.Data,
-                     E.Data,
+                     E.Data2,
                      E.Key);
-            Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (E.Data, E.Data'First),
+            Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (E.Data2, E.Data2'First),
                              Last);
-            Put_Unsigned_32 (Into, E.IV (2) xor To_Unsigned_32 (E.Data, E.Data'First + 4),
+            Put_Unsigned_32 (Into, E.IV (2) xor To_Unsigned_32 (E.Data2, E.Data2'First + 4),
                              Last + 4);
-            Put_Unsigned_32 (Into, E.IV (3) xor To_Unsigned_32 (E.Data, E.Data'First + 8),
+            Put_Unsigned_32 (Into, E.IV (3) xor To_Unsigned_32 (E.Data2, E.Data2'First + 8),
                              Last + 8);
-            Put_Unsigned_32 (Into, E.IV (4) xor To_Unsigned_32 (E.Data, E.Data'First + 12),
+            Put_Unsigned_32 (Into, E.IV (4) xor To_Unsigned_32 (E.Data2, E.Data2'First + 12),
                              Last + 12);
-            E.IV (1) := To_Unsigned_32 (Data, Pos);
-            E.IV (2) := To_Unsigned_32 (Data, Pos + 4);
-            E.IV (3) := To_Unsigned_32 (Data, Pos + 8);
-            E.IV (4) := To_Unsigned_32 (Data, Pos + 12);
+            E.IV (1) := To_Unsigned_32 (E.Data, Pos);
+            E.IV (2) := To_Unsigned_32 (E.Data, Pos + 4);
+            E.IV (3) := To_Unsigned_32 (E.Data, Pos + 8);
+            E.IV (4) := To_Unsigned_32 (E.Data, Pos + 12);
 
          when PCBC =>
             Decrypt (E.Data,
@@ -1373,11 +1373,13 @@ package body Util.Encoders.AES is
       end case;
 
       --  Save data that must be encoded in the next 16-byte AES block.
-      while Pos <= Data'Last loop
-         E.Data_Count := E.Data_Count + 1;
-         E.Data (E.Data_Count) := Data (Pos);
-         Pos := Pos + 1;
-      end loop;
+      if Data'Last - Pos < E.Data'Length then
+         while Pos <= Data'Last loop
+            E.Data_Count := E.Data_Count + 1;
+            E.Data (E.Data_Count) := Data (Pos);
+            Pos := Pos + 1;
+         end loop;
+      end if;
       Last := Last - 1;
       Encoded := Pos;
    end Transform;
@@ -1432,7 +1434,8 @@ package body Util.Encoders.AES is
          Last := Into'First + 16 - 1;
          Into (Into'First .. Last) := Data (Data'First .. Data'Last);
       elsif E.Padding = ZERO_PADDING then
-         Into := Data (Data'First .. Data'First + Into'Length - 1);
+         Last := Into'Last;
+         Into (Into'First .. Last) := Data (Data'First .. Data'First + Into'Length - 1);
       elsif Data (Data'Last) = 0 then
          Last := Into'First - 1;
       elsif Data (Data'Last) <= 15 then
