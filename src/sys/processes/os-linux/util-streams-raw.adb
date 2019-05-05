@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-raw -- Raw streams (OS specific)
---  Copyright (C) 2011, 2016, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,6 +40,23 @@ package body Util.Streams.Raw is
       end if;
       Stream.File := File;
    end Initialize;
+
+   --  -----------------------
+   --  Get the file descriptor associated with the stream.
+   --  -----------------------
+   function Get_File (Stream : in Raw_Stream) return Util.Systems.Os.File_Type is
+   begin
+      return Stream.File;
+   end Get_File;
+
+   --  -----------------------
+   --  Set the file descriptor to be used by the stream.
+   --  -----------------------
+   procedure Set_File (Stream : in out Raw_Stream;
+                       File   : in Util.Systems.Os.File_Type) is
+   begin
+      Stream.File := File;
+   end Set_File;
 
    --  -----------------------
    --  Close the stream.
