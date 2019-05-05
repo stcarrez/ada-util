@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-system-os -- Unix system operations
---  Copyright (C) 2011, 2012, 2014, 2015, 2016, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +32,9 @@ package Util.Systems.Os is
 
    --  The path separator.
    Path_Separator      : constant Character := ':';
+
+   --  The line ending separator.
+   Line_Separator      : constant String := "" & ASCII.LF;
 
    subtype Ptr is Interfaces.C.Strings.chars_ptr;
    subtype Ptr_Array is Interfaces.C.Strings.chars_ptr_array;
