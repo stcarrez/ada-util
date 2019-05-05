@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-raw -- Raw streams for Windows based systems
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,14 +25,6 @@ package Util.Streams.Raw is
 
    subtype File_Type is Util.Systems.Os.File_Type;
 
-   --  Standard file streams Posix, X/Open standard values.
---     STDIN_FILENO  : constant File_Type := 0;
---     STDOUT_FILENO : constant File_Type := 1;
---     STDERR_FILENO : constant File_Type := 2;
-
-   --  File is not opened
---     NO_FILE       : constant File_Type := -1;
-
    --  -----------------------
    --  File stream
    --  -----------------------
@@ -46,7 +38,15 @@ package Util.Streams.Raw is
    procedure Initialize (Stream  : in out Raw_Stream;
                          File    : in File_Type);
 
+   --  Get the file descriptor associated with the stream.
+   function Get_File (Stream : in Raw_Stream) return Util.Systems.Os.File_Type;
+
+   --  Set the file descriptor to be used by the stream.
+   procedure Set_File (Stream : in out Raw_Stream;
+                       File   : in Util.Systems.Os.File_Type);
+
    --  Close the stream.
+   overriding
    procedure Close (Stream : in out Raw_Stream);
 
    --  Write the buffer array to the output stream.

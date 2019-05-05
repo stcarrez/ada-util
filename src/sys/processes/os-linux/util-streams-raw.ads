@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-raw -- Raw streams for Unix based systems
---  Copyright (C) 2011, 2016, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +37,13 @@ package Util.Streams.Raw is
    --  Initialize the raw stream to read and write on the given file descriptor.
    procedure Initialize (Stream  : in out Raw_Stream;
                          File    : in Util.Systems.Os.File_Type);
+
+   --  Get the file descriptor associated with the stream.
+   function Get_File (Stream : in Raw_Stream) return Util.Systems.Os.File_Type;
+
+   --  Set the file descriptor to be used by the stream.
+   procedure Set_File (Stream : in out Raw_Stream;
+                       File   : in Util.Systems.Os.File_Type);
 
    --  Close the stream.
    overriding
