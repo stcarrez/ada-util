@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-refs -- Reference Counting
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -113,5 +113,93 @@ package body Util.Refs is
          return IR.Create (new Element_Type);
       end Create;
    end References;
+
+   package body General_References is
+
+      --  ------------------------------
+      --  Create an element and return a reference to that element.
+      --  ------------------------------
+      function Create return Ref is
+      begin
+         return Result : Ref do
+            Result.Target := new Ref_Data;
+            Util.Concurrent.Counters.Increment (Result.Target.Ref_Counter);
+         end return;
+      end Create;
+
+      --  ------------------------------
+      --  Get the element access value.
+      --  ------------------------------
+      function Value (Object : in Ref'Class) return access Element_Type is
+      begin
+         if Object.Target /= null then
+            return Object.Target.Data'Access;
+         else
+            raise Constraint_Error;
+         end if;
+      end Value;
+
+      --  ------------------------------
+      --  Returns true if the reference does not contain any element.
+      --  ------------------------------
+      function Is_Null (Object : in Ref'Class) return Boolean is
+      begin
+         return Object.Target = null;
+      end Is_Null;
+
+      protected body Atomic_Ref is
+         --  ------------------------------
+         --  Get the reference
+         --  ------------------------------
+         function Get return Ref is
+         begin
+            return Value;
+         end Get;
+
+         --  ------------------------------
+         --  Change the reference
+         --  ------------------------------
+         procedure Set (Object : in Ref) is
+         begin
+            Value := Object;
+         end Set;
+
+      end Atomic_Ref;
+
+      procedure Free is
+        new Ada.Unchecked_Deallocation (Object => Ref_Data,
+                                        Name   => Ref_Data_Access);
+
+      --  ------------------------------
+      --  Release the reference.  Invoke <b>Finalize</b> and free the storage if it was
+      --  the last reference.
+      --  ------------------------------
+      overriding
+      procedure Finalize (Obj : in out Ref) is
+         Release : Boolean;
+      begin
+         if Obj.Target /= null then
+            Util.Concurrent.Counters.Decrement (Obj.Target.Ref_Counter, Release);
+            if Release then
+               Finalize (Obj.Target.Data);
+               Free (Obj.Target);
+            else
+               Obj.Target := null;
+            end if;
+         end if;
+      end Finalize;
+
+      --  ------------------------------
+      --  Update the reference counter after an assignment.
+      --  ------------------------------
+      overriding
+      procedure Adjust (Obj : in out Ref) is
+      begin
+         if Obj.Target /= null then
+            Util.Concurrent.Counters.Increment (Obj.Target.Ref_Counter);
+         end if;
+      end Adjust;
+
+   end General_References;
 
 end Util.Refs;
