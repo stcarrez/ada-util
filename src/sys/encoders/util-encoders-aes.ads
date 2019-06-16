@@ -80,6 +80,9 @@ package Util.Encoders.AES is
    --  Set the encryption initialization vector before starting the encryption.
    procedure Set_IV (E  : in out Cipher;
                      IV : in Word_Block_Type);
+   procedure Set_IV (E   : in out Cipher;
+                     Key : in Secret_Key;
+                     IV  : in Word_Block_Type);
 
    --  Set the padding.
    procedure Set_Padding (E       : in out Cipher;
