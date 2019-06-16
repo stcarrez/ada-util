@@ -133,6 +133,12 @@ package body Util.Encoders.HMAC.SHA256 is
       end;
    end Set_Key;
 
+   procedure Set_Key (E   : in out Context;
+                      Key : in Secret_Key) is
+   begin
+      Set_Key (E, Key.Secret);
+   end Set_Key;
+
    --  ------------------------------
    --  Update the hash with the string.
    --  ------------------------------
@@ -149,6 +155,15 @@ package body Util.Encoders.HMAC.SHA256 is
                      S : in Ada.Streams.Stream_Element_Array) is
    begin
       Util.Encoders.SHA256.Update (E.SHA, S);
+   end Update;
+
+   --  ------------------------------
+   --  Update the hash with the secret key.
+   --  ------------------------------
+   procedure Update (E : in out Context;
+                     S : in Secret_Key) is
+   begin
+      Update (E, S.Secret);
    end Update;
 
    --  ------------------------------
