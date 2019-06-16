@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-vectors -- Object vectors
---  Copyright (C) 2011, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,7 +55,7 @@ package body Util.Beans.Objects.Vectors is
    --  Create an object that contains a <tt>Vector_Bean</tt> instance.
    --  -----------------------
    function Create return Object is
-      M : constant access Vector_Bean'Class := new Vector_Bean;
+      M : constant Vector_Bean_Access := new Vector_Bean;
    begin
       return To_Object (Value => M, Storage => DYNAMIC);
    end Create;
