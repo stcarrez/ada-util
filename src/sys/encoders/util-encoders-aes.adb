@@ -836,6 +836,19 @@ package body Util.Encoders.AES is
       E.IV := IV;
    end Set_IV;
 
+   procedure Set_IV (E   : in out Cipher;
+                     Key : in Secret_Key;
+                     IV  : in Word_Block_Type) is
+      Pos : Stream_Element_Offset := Key.Secret'First;
+   begin
+      E.IV := IV;
+      for I in E.IV'Range loop
+         exit when Pos + 4 > Key.Secret'Last;
+         E.IV (I) := E.IV (I) xor To_Unsigned_32 (Key.Secret, Pos);
+         Pos := Pos + 4;
+      end loop;
+   end Set_IV;
+
    --  ------------------------------
    --  Set the padding.
    --  ------------------------------
