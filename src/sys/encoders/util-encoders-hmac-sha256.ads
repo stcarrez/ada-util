@@ -62,6 +62,8 @@ package Util.Encoders.HMAC.SHA256 is
    --  procedure.
    procedure Set_Key (E   : in out Context;
                       Key : in Ada.Streams.Stream_Element_Array);
+   procedure Set_Key (E   : in out Context;
+                      Key : in Secret_Key);
 
    --  Update the hash with the string.
    procedure Update (E : in out Context;
@@ -70,6 +72,10 @@ package Util.Encoders.HMAC.SHA256 is
    --  Update the hash with the string.
    procedure Update (E : in out Context;
                      S : in Ada.Streams.Stream_Element_Array);
+
+   --  Update the hash with the secret key.
+   procedure Update (E : in out Context;
+                     S : in Secret_Key);
 
    --  Computes the HMAC-SHA256 with the private key and the data collected by
    --  the <b>Update</b> procedures.  Returns the raw binary hash in <b>Hash</b>.
