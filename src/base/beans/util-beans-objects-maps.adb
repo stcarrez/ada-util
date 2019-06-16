@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-maps -- Object maps
---  Copyright (C) 2010, 2011, 2012, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -69,7 +69,7 @@ package body Util.Beans.Objects.Maps is
    --  Create an object that contains a <tt>Map_Bean</tt> instance.
    --  ------------------------------
    function Create return Object is
-      M : constant access Map_Bean'Class := new Map_Bean;
+      M : constant Map_Bean_Access := new Map_Bean;
    begin
       return To_Object (Value => M, Storage => DYNAMIC);
    end Create;
