@@ -54,7 +54,7 @@ build-test:: regtests/util-testsuite.adb
 test:	build
 	-bin/util_harness -xml util-aunit.xml -timeout ${TEST_TIMEOUT}
 
-regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile
+regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile.conf
 	gnatprep -DHAVE_XML=$(HAVE_XML) -DHAVE_CURL=$(HAVE_CURL) \
                  -DHAVE_AWS=$(HAVE_AWS) -DHAVE_VECTOR_MAPPERS=$(HAVE_VECTOR_MAPPERS) \
                  -DHAVE_LZMA=$(HAVE_LZMA) \
