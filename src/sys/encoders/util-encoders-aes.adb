@@ -843,7 +843,7 @@ package body Util.Encoders.AES is
    begin
       E.IV := IV;
       for I in E.IV'Range loop
-         exit when Pos + 4 > Key.Secret'Last;
+         exit when Pos + 3 > Key.Secret'Last;
          E.IV (I) := E.IV (I) xor To_Unsigned_32 (Key.Secret, Pos);
          Pos := Pos + 4;
       end loop;
