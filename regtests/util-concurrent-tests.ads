@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  concurrency.tests -- Unit tests for concurrency package
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,5 +44,8 @@ package Util.Concurrent.Tests is
 
    --  Test concurrent arrays.
    procedure Test_Array (T : in out Test);
+
+   --  Test concurrent sequences.
+   procedure Test_Concurrent_Sequences (T : in out Test);
 
 end Util.Concurrent.Tests;
