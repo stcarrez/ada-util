@@ -27,6 +27,7 @@ with Util.Concurrent.Copies;
 with Util.Concurrent.Pools;
 with Util.Concurrent.Fifos;
 with Util.Concurrent.Arrays;
+with Util.Concurrent.Sequence_Queues;
 package body Util.Concurrent.Tests is
 
    use Util.Tests;
@@ -55,6 +56,9 @@ package body Util.Concurrent.Tests is
 
    package Connection_Arrays is new Util.Concurrent.Arrays (Connection);
 
+   package Connection_Sequences is
+     new Util.Concurrent.Sequence_Queues (Connection, Natural, 13);
+
    package Caller is new Util.Test_Caller (Test, "Concurrent");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -77,6 +81,8 @@ package body Util.Concurrent.Tests is
                        Test_Concurrent_Fifo'Access);
       Caller.Add_Test (Suite, "Test Util.Concurrent.Arrays",
                        Test_Array'Access);
+      Caller.Add_Test (Suite, "Test Util.Concurrent.Sequence_Queues",
+                       Test_Concurrent_Sequences'Access);
    end Add_Tests;
 
    overriding
@@ -555,5 +561,116 @@ package body Util.Concurrent.Tests is
       Util.Tests.Assert_Equals (T, 5051 - 100 - 1 - 50, Sum, "List iterate failed");
 
    end Test_Array;
+
+   --  ------------------------------
+   --  Test concurrent aspects of sequences.
+   --  ------------------------------
+   procedure Test_Concurrent_Sequences (T : in out Test) is
+      Count_By_Task : constant Natural := 60_001;
+      Task_Count    : constant Natural := 8;
+      Pool_Count    : constant Natural := 23;
+      Last_Sequence : constant Natural := 1_000;
+      Q : Connection_Sequences.Queue;
+      F : Connection_Pool.Pool;
+      S : Util.Measures.Stamp;
+      Seq_Error : Boolean := True;
+      First_Error : Natural := 0;
+      Expect_Seq  : Natural := 0;
+   begin
+      Q.Set_Size (Pool_Count * 2);
+      F.Set_Size (Pool_Count);
+      declare
+
+         --  A task that picks elements and work on them.
+         task type Worker is
+            entry Start (Count : in Natural);
+         end Worker;
+
+         task body Worker is
+            Cnt : Natural;
+         begin
+            accept Start (Count : in Natural) do
+               Cnt := Count;
+            end Start;
+            --  Send Cnt values in the queue.
+            loop
+               declare
+                  C : Connection;
+               begin
+                  F.Get_Instance (C, 3.0);
+                  Q.Enqueue (C, C.Value);
+                  exit when C.Value = Last_Sequence;
+               end;
+            end loop;
+
+         exception
+            when E : Connection_Pool.Timeout =>
+               null;
+
+            when E : others =>
+               Log.Error ("Exception raised", E);
+               Ada.Text_IO.Put_Line ("Exception raised.");
+
+         end Worker;
+
+         type Worker_Array is array (1 .. Task_Count) of Worker;
+
+         Producers : Worker_Array;
+         Value     : Long_Long_Integer;
+         Total     : Long_Long_Integer := 0;
+         Expect    : Long_Long_Integer;
+         C         : Connection;
+         Seq       : Natural;
+         Avail     : Natural;
+         Next      : Natural := 0;
+      begin
+         for I in Producers'Range loop
+            Producers (I).Start (Count_By_Task);
+         end loop;
+
+         Seq_Error := False;
+         while Next < Last_Sequence loop
+            F.Get_Available (Avail);
+            if Avail /= Pool_Count and Next - Expect_Seq <= Pool_Count then
+               C.Value := Next;
+               F.Release (C);
+               Next := Next + 1;
+            else
+               Q.Dequeue (C, Seq, 3.0);
+               if Seq /= Expect_Seq then
+                  if First_Error = 0 then
+                     Ada.Text_IO.Put_Line ("Got" & Natural'Image (Seq) & " expecting"
+                                             & Natural'Image (Expect_Seq));
+                     First_Error := Seq;
+                  end if;
+                  Seq_Error := True;
+               end if;
+               Expect_Seq := Seq + 1;
+            end if;
+         end loop;
+
+         loop
+            Q.Dequeue (C, Seq);
+            if Seq /= Expect_Seq then
+               if First_Error = 0 then
+                  First_Error := Seq;
+               end if;
+               Seq_Error := True;
+            end if;
+            Expect_Seq := Seq + 1;
+            exit when Expect_Seq = Last_Sequence - 1;
+         end loop;
+
+      exception
+         when E : Connection_Sequences.Timeout =>
+            Seq_Error := True;
+            First_Error := Expect_Seq + 1_000_000;
+      end;
+      Util.Measures.Report (S, "Executed Queue+Dequeue "
+                            & Natural'Image (Count_By_Task * Task_Count)
+                            & " task count: " & Natural'Image (Task_Count));
+      T.Assert (not Seq_Error, "Incorrect sequences " & Natural'Image (First_Error)
+               & " Expect_Seq=" & Natural'Image (Expect_Seq));
+   end Test_Concurrent_Sequences;
 
 end Util.Concurrent.Tests;
