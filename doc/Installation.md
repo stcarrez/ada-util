@@ -101,6 +101,7 @@ If you use only a subset of the library, you may use the following GNAT projects
 | ------------ | ---------------------------------------------------- |
 | utilada_core | Provides: Util.Concurrent, Util.Strings, Util.Texts, |
 |              | Util.Locales, Util.Refs, Util.Stacks, Util.Listeners |
+|              | Util.Executors                                       |
 | utilada_base | Provides: Util.Beans, Util.Commands, Util.Dates,     |
 |              | Util.Events, Util.Files, Util.Log, Util.Properties   |
 | utilada_sys  | Provides: Util.Encoders, Util.Measures,              |
