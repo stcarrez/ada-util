@@ -1,6 +1,11 @@
 Version 1.10.0  -
   - Rename GNAT projects and split the library in several parts
   - New samples to show compression, decompression, encryption, decryption streams
+  - Added AES encryption and decryption
+  - Added password based key derivation function (PBKDF2)
+  - Added encoders error correction code (ECC)
+  - Added generic concurrent sequence queues
+  - Added generic work queue executor
 
 Version 1.9.0   - Jul 2018
   - Improvement and fixes of the JSON, XML, CSV serialization
