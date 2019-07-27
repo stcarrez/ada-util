@@ -181,6 +181,10 @@ package body Util.Encoders.Tests is
       Assert_Equals (T, "41424344", Util.Encoders.Encode (C, "ABCD"));
       Assert_Equals (T, "ABCD", Util.Encoders.Decode (D, "41424344"));
       Test_Encoder (T, C, D);
+
+      Assert_Equals (T, "ABCD", C.Encode_Unsigned_16 (16#abcd#));
+      Assert_Equals (T, "12345678", C.Encode_Unsigned_32 (16#12345678#));
+      Assert_Equals (T, "0000ABCD12345678", C.Encode_Unsigned_64 (16#abcd12345678#));
    end Test_Hex;
 
    procedure Test_Base64_Benchmark (T : in out Test) is
