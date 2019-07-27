@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Beans.Objects.Time -- Helper conversion for Ada Calendar Time
---  Copyright (C) 2010, 2013, 2016 Stephane Carrez
+--  util-beans-objects-time  -- Helper conversion for Ada Calendar Time
+--  Copyright (C) 2010, 2013, 2016, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,6 +74,15 @@ package body Util.Beans.Objects.Time is
                       Type_Def  => Time_Type'Access);
    end To_Object;
 
+   function To_Object (Value : in Nullables.Nullable_Time) return Object is
+   begin
+      if Value.Is_Null then
+         return Null_Object;
+      else
+         return To_Object (Value.Value);
+      end if;
+   end To_Object;
+
    --  ------------------------------
    --  Convert the object into a time.
    --  Raises Constraint_Error if the object cannot be converter to the target type.
@@ -100,6 +109,15 @@ package body Util.Beans.Objects.Time is
          when others =>
             raise Constraint_Error with "Conversion to a date is not possible";
       end case;
+   end To_Time;
+
+   function To_Time (Value : in Object) return Nullables.Nullable_Time is
+   begin
+      if Is_Null (Value) then
+         return Nullables.Nullable_Time '(Is_Null => True, Value => Epoch);
+      else
+         return Nullables.Nullable_Time '(Is_Null => False, Value => To_Time (Value));
+      end if;
    end To_Time;
 
    --  ------------------------------
