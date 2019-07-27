@@ -25,7 +25,6 @@ package body Util.Encoders is
    use Ada;
    use Ada.Strings.Unbounded;
 
-   use type Ada.Streams.Stream_Element_Offset;
    subtype Offset is Ada.Streams.Stream_Element_Offset;
 
    procedure Free is
@@ -98,6 +97,48 @@ package body Util.Encoders is
       end if;
       return E.Encode.all.Transform (Data);
    end Encode_Binary;
+
+   function Encode_Unsigned_16 (E     : in Encoder;
+                                Value : in Interfaces.Unsigned_16) return String is
+      use type Interfaces.Unsigned_16;
+
+      Data : Ada.Streams.Stream_Element_Array (1 .. 2);
+      Val  : Interfaces.Unsigned_16 := Value;
+   begin
+      for I in reverse Data'Range loop
+         Data (I) := Stream_Element (Val and 16#0ff#);
+         Val := Interfaces.Shift_Right (Val, 8);
+      end loop;
+      return E.Encode_Binary (Data);
+   end Encode_Unsigned_16;
+
+   function Encode_Unsigned_32 (E     : in Encoder;
+                                Value : in Interfaces.Unsigned_32) return String is
+      use type Interfaces.Unsigned_32;
+
+      Data : Ada.Streams.Stream_Element_Array (1 .. 4);
+      Val  : Interfaces.Unsigned_32 := Value;
+   begin
+      for I in reverse Data'Range loop
+         Data (I) := Stream_Element (Val and 16#0ff#);
+         Val := Interfaces.Shift_Right (Val, 8);
+      end loop;
+      return E.Encode_Binary (Data);
+   end Encode_Unsigned_32;
+
+   function Encode_Unsigned_64 (E     : in Encoder;
+                                Value : in Interfaces.Unsigned_64) return String is
+      use type Interfaces.Unsigned_64;
+
+      Data : Ada.Streams.Stream_Element_Array (1 .. 8);
+      Val  : Interfaces.Unsigned_64 := Value;
+   begin
+      for I in reverse Data'Range loop
+         Data (I) := Stream_Element (Val and 16#0ff#);
+         Val := Interfaces.Shift_Right (Val, 8);
+      end loop;
+      return E.Encode_Binary (Data);
+   end Encode_Unsigned_64;
 
    --  ------------------------------
    --  Decodes the input string <b>Data</b> using the transformation
