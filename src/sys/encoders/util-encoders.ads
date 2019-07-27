@@ -92,6 +92,13 @@ package Util.Encoders is
    function Encode_Binary (E    : in Encoder;
                            Data : in Ada.Streams.Stream_Element_Array) return String;
 
+   function Encode_Unsigned_16 (E     : in Encoder;
+                                Value : in Interfaces.Unsigned_16) return String;
+   function Encode_Unsigned_32 (E     : in Encoder;
+                                Value : in Interfaces.Unsigned_32) return String;
+   function Encode_Unsigned_64 (E     : in Encoder;
+                                Value : in Interfaces.Unsigned_64) return String;
+
    --  Create the encoder object for the specified encoding format.
    function Create (Name : in String) return Encoder;
 
