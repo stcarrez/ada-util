@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-loggers -- Utility Log Package
---  Copyright (C) 2006, 2008, 2009, 2011, 2018 Free Software Foundation, Inc.
+--  Copyright (C) 2006, 2008, 2009, 2011, 2018, 2019 Free Software Foundation, Inc.
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -71,6 +71,13 @@ package Util.Log.Loggers is
 
    procedure Debug (Log     : in Logger'Class;
                     Message : in String;
+                    Arg1    : in String;
+                    Arg2    : in String;
+                    Arg3    : in String;
+                    Arg4    : in String);
+
+   procedure Debug (Log     : in Logger'Class;
+                    Message : in String;
                     Arg1    : in Unbounded_String;
                     Arg2    : in String := "";
                     Arg3    : in String := "");
@@ -86,6 +93,13 @@ package Util.Log.Loggers is
                    Arg1    : in String := "";
                    Arg2    : in String := "";
                    Arg3    : in String := "");
+
+   procedure Info (Log     : in Logger'Class;
+                   Message : in String;
+                   Arg1    : in String;
+                   Arg2    : in String;
+                   Arg3    : in String;
+                   Arg4    : in String);
 
    procedure Info (Log     : in Logger'Class;
                    Message : in String;
