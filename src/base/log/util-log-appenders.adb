@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-appenders -- Log appenders
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2015, 2018 Stephane Carrez
+--  Copyright (C) 2001 - 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -185,7 +185,7 @@ package body Util.Log.Appenders is
                      Event : in Log_Event) is
    begin
       if Self.Level >= Event.Level then
-         Text_IO.Put_Line (Format (Self, Event));
+         Text_IO.Put_Line (Self.Output.all, Format (Self, Event));
       end if;
    end Append;
 
@@ -194,9 +194,8 @@ package body Util.Log.Appenders is
    --  ------------------------------
    overriding
    procedure Flush (Self : in out Console_Appender) is
-      pragma Unreferenced (Self);
    begin
-      Text_IO.Flush;
+      Text_IO.Flush (Self.Output.all);
    end Flush;
 
    overriding
@@ -215,10 +214,14 @@ package body Util.Log.Appenders is
                                      Properties : in Util.Properties.Manager;
                                      Default    : in Level_Type)
                                      return Appender_Access is
+      use Util.Properties.Basic;
+
       Result : constant Console_Appender_Access := new Console_Appender;
+      Stderr : constant Boolean := Boolean_Property.Get (Properties, Name & ".stderr", False);
    begin
       Result.Set_Level (Name, Properties, Default);
       Result.Set_Layout (Name, Properties, FULL);
+      Result.Output := (if Stderr then Text_IO.Standard_Error else Text_IO.Standard_Output);
       return Result.all'Access;
    end Create_Console_Appender;
 
