@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-loggers -- Utility Log Package
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2012, 2015, 2018 Stephane Carrez
+--  Copyright (C) 2001 - 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -520,6 +520,16 @@ package body Util.Log.Loggers is
 
    procedure Debug (Log     : in Logger'Class;
                     Message : in String;
+                    Arg1    : in String;
+                    Arg2    : in String;
+                    Arg3    : in String;
+                    Arg4    : in String) is
+   begin
+      Print (Log, DEBUG_LEVEL, Message, Arg1, Arg2, Arg3, Arg4);
+   end Debug;
+
+   procedure Debug (Log     : in Logger'Class;
+                    Message : in String;
                     Arg1    : in Unbounded_String;
                     Arg2    : in String := "";
                     Arg3    : in String := "") is
@@ -547,6 +557,16 @@ package body Util.Log.Loggers is
                    Arg3    : in String := "") is
    begin
       Print (Log, INFO_LEVEL, Message, Arg1, Arg2, Arg3);
+   end Info;
+
+   procedure Info (Log     : in Logger'Class;
+                   Message : in String;
+                   Arg1    : in String;
+                   Arg2    : in String;
+                   Arg3    : in String;
+                   Arg4    : in String) is
+   begin
+      Print (Log, INFO_LEVEL, Message, Arg1, Arg2, Arg3, Arg4);
    end Info;
 
    procedure Info (Log     : in Logger'Class;
