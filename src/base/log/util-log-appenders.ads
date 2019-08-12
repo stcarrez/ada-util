@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-appenders -- Log appenders
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2015, 2018 Stephane Carrez
+--  Copyright (C) 2001 - 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -200,6 +200,8 @@ private
       Count     : Natural := 0;
    end record;
 
-   type Console_Appender is new Appender with null record;
+   type Console_Appender is new Appender with record
+      Output : Ada.Text_IO.File_Access;
+   end record;
 
 end Util.Log.Appenders;
