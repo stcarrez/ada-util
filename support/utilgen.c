@@ -424,6 +424,13 @@ int main(int argc, char** argv)
     printf("   O_EXCL                        : constant Interfaces.C.int := 8#%06o#;\n", O_EXCL);
     printf("   O_TRUNC                       : constant Interfaces.C.int := 8#%06o#;\n", O_TRUNC);
     printf("   O_APPEND                      : constant Interfaces.C.int := 8#%06o#;\n", O_APPEND);
+    printf("   O_CLOEXEC                     : constant Interfaces.C.int := 8#%06o#;\n", O_CLOEXEC);
+#ifdef O_SYNC
+    printf("   O_SYNC                        : constant Interfaces.C.int := 8#%06o#;\n", O_SYNC);
+#endif
+#ifdef O_DIRECT
+    printf("   O_DIRECT                      : constant Interfaces.C.int := 8#%06o#;\n", O_DIRECT);
+#endif
 #ifdef O_NONBLOCK
     printf("   O_NONBLOCK                    : constant Interfaces.C.int := 8#%06o#;\n", O_NONBLOCK);
 #endif
