@@ -148,6 +148,14 @@ package Util.Systems.Os is
                        return Util.Systems.Types.off_t
      with Import => True, Convention => C, Link_Name => "lseek";
 
+   function Sys_Ftruncate (Fs : in File_Type;
+                           Length : in Util.Systems.Types.off_t) return Integer
+     with Import => True, Convention => C, Link_Name => "ftruncate";
+
+   function Sys_Truncate (Path  : in Ptr;
+                          Length : in Util.Systems.Types.off_t) return Integer
+     with Import => True, Convention => C, Link_Name => "truncate";
+
    function Sys_Fchmod (Fd   : in File_Type;
                         Mode : in Util.Systems.Types.mode_t) return Integer
      with Import => True, Convention => C, Link_Name => "fchmod";
