@@ -63,7 +63,7 @@ case "${target_os}" in
 	os_version='macos'
 	;;
 
-     mingw32*|cygwin*|mingw64*)
+     mingw32*|cygwin*|mingw64*|msys)
 	os_version='windows'
 	;;
 
