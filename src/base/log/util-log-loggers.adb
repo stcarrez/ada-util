@@ -169,7 +169,7 @@ package body Util.Log.Loggers is
                Event.Logger  := Log'Unchecked_Access;
                Format (Event.Message, "Log configuration file {0} not found", Name, "", "", "");
                if Default_Appender = null then
-                  Default_Appender := new Console_Appender;
+                  Default_Appender := Create_Console_Appender ("root", Config, Default_Level);
                end if;
                Default_Appender.Append (Event);
             end;
@@ -193,7 +193,7 @@ package body Util.Log.Loggers is
             end;
          end if;
          if Default_Appender = null then
-            Default_Appender := new Log.Appenders.Console_Appender;
+            Default_Appender := Create_Console_Appender ("root", Config, Default_Level);
          end if;
          Appenders.Insert (Key => "root", New_Item => Default_Appender);
 
