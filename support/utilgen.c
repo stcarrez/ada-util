@@ -424,7 +424,9 @@ int main(int argc, char** argv)
     printf("   O_EXCL                        : constant Interfaces.C.int := 8#%06o#;\n", O_EXCL);
     printf("   O_TRUNC                       : constant Interfaces.C.int := 8#%06o#;\n", O_TRUNC);
     printf("   O_APPEND                      : constant Interfaces.C.int := 8#%06o#;\n", O_APPEND);
+#ifdef O_CLOEXEC
     printf("   O_CLOEXEC                     : constant Interfaces.C.int := 8#%06o#;\n", O_CLOEXEC);
+#endif
 #ifdef O_SYNC
     printf("   O_SYNC                        : constant Interfaces.C.int := 8#%06o#;\n", O_SYNC);
 #endif
