@@ -35,9 +35,9 @@ package body Util.Refs is
       --  ------------------------------
       --  Get the element access value.
       --  ------------------------------
-      function Value (Object : in Ref'Class) return Element_Access is
+      function Value (Object : in Ref'Class) return Element_Accessor is
       begin
-         return Object.Target;
+         return Element_Accessor '(Element => Object.Target);
       end Value;
 
       --  ------------------------------
@@ -48,24 +48,31 @@ package body Util.Refs is
          return Object.Target = null;
       end Is_Null;
 
-      protected body Atomic_Ref is
-         --  ------------------------------
-         --  Get the reference
-         --  ------------------------------
-         function Get return Ref is
-         begin
-            return Value;
-         end Get;
+      function "=" (Left, Right : in Ref'Class) return Boolean is
+      begin
+         return Left.Target = Right.Target;
+      end "=";
 
-         --  ------------------------------
-         --  Change the reference
-         --  ------------------------------
-         procedure Set (Object : in Ref) is
-         begin
-            Value := Object;
-         end Set;
+      package body Atomic is
+         protected body Atomic_Ref is
+            --  ------------------------------
+            --  Get the reference
+            --  ------------------------------
+            function Get return Ref is
+            begin
+               return Value;
+            end Get;
 
-      end Atomic_Ref;
+            --  ------------------------------
+            --  Change the reference
+            --  ------------------------------
+            procedure Set (Object : in Ref) is
+            begin
+               Value := Object;
+            end Set;
+
+         end Atomic_Ref;
+      end Atomic;
 
       procedure Free is
         new Ada.Unchecked_Deallocation (Object => Element_Type,
@@ -130,10 +137,10 @@ package body Util.Refs is
       --  ------------------------------
       --  Get the element access value.
       --  ------------------------------
-      function Value (Object : in Ref'Class) return access Element_Type is
+      function Value (Object : in Ref'Class) return Element_Accessor is
       begin
          if Object.Target /= null then
-            return Object.Target.Data'Access;
+            return Element_Accessor '(Element => Object.Target.Data'Access);
          else
             raise Constraint_Error;
          end if;
@@ -147,24 +154,31 @@ package body Util.Refs is
          return Object.Target = null;
       end Is_Null;
 
-      protected body Atomic_Ref is
-         --  ------------------------------
-         --  Get the reference
-         --  ------------------------------
-         function Get return Ref is
-         begin
-            return Value;
-         end Get;
+      function "=" (Left, Right : in Ref'Class) return Boolean is
+      begin
+         return Left.Target = Right.Target;
+      end "=";
 
-         --  ------------------------------
-         --  Change the reference
-         --  ------------------------------
-         procedure Set (Object : in Ref) is
-         begin
-            Value := Object;
-         end Set;
+      package body Atomic is
+         protected body Atomic_Ref is
+            --  ------------------------------
+            --  Get the reference
+            --  ------------------------------
+            function Get return Ref is
+            begin
+               return Value;
+            end Get;
 
-      end Atomic_Ref;
+            --  ------------------------------
+            --  Change the reference
+            --  ------------------------------
+            procedure Set (Object : in Ref) is
+            begin
+               Value := Object;
+            end Set;
+
+         end Atomic_Ref;
+      end Atomic;
 
       procedure Free is
         new Ada.Unchecked_Deallocation (Object => Ref_Data,
