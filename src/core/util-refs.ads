@@ -69,7 +69,7 @@ package Util.Refs is
       --  Create an element and return a reference to that element.
       function Create (Value : in Element_Access) return Ref;
 
-      function Value (Object : in Ref'Class) return Element_Accessor with Inline_Always;
+      function Value (Object : in Ref'Class) return Element_Accessor with Inline;
 
       --  Returns true if the reference does not contain any element.
       function Is_Null (Object : in Ref'Class) return Boolean with Inline_Always;
