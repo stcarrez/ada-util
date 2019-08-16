@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  concurrency.tests -- Unit tests for concurrency package
---  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Stephane Carrez
+--  util-concurrent-tests -- Unit tests for concurrency package
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -583,14 +583,13 @@ package body Util.Concurrent.Tests is
 
          --  A task that picks elements and work on them.
          task type Worker is
-            entry Start (Count : in Natural);
+            entry Start;
          end Worker;
 
          task body Worker is
-            Cnt : Natural;
          begin
-            accept Start (Count : in Natural) do
-               Cnt := Count;
+            accept Start do
+               null;
             end Start;
             --  Send Cnt values in the queue.
             loop
@@ -604,7 +603,7 @@ package body Util.Concurrent.Tests is
             end loop;
 
          exception
-            when E : Connection_Pool.Timeout =>
+            when Connection_Pool.Timeout =>
                null;
 
             when E : others =>
@@ -616,16 +615,13 @@ package body Util.Concurrent.Tests is
          type Worker_Array is array (1 .. Task_Count) of Worker;
 
          Producers : Worker_Array;
-         Value     : Long_Long_Integer;
-         Total     : Long_Long_Integer := 0;
-         Expect    : Long_Long_Integer;
          C         : Connection;
          Seq       : Natural;
          Avail     : Natural;
          Next      : Natural := 0;
       begin
          for I in Producers'Range loop
-            Producers (I).Start (Count_By_Task);
+            Producers (I).Start;
          end loop;
 
          Seq_Error := False;
@@ -662,7 +658,7 @@ package body Util.Concurrent.Tests is
          end loop;
 
       exception
-         when E : Connection_Sequences.Timeout =>
+         when Connection_Sequences.Timeout =>
             Seq_Error := True;
             First_Error := Expect_Seq + 1_000_000;
       end;
