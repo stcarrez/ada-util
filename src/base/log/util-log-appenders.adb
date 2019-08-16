@@ -185,7 +185,12 @@ package body Util.Log.Appenders is
                      Event : in Log_Event) is
    begin
       if Self.Level >= Event.Level then
-         Text_IO.Put_Line (Self.Output.all, Format (Self, Event));
+         if Self.Stderr then
+            Text_IO.Put_Line (Text_IO.Standard_Error, Format (Self, Event));
+         else
+            --  Don't use Text_IO.Standard_Output so that we honor the Set_Output definition.
+            Text_IO.Put_Line (Format (Self, Event));
+         end if;
       end if;
    end Append;
 
@@ -195,7 +200,11 @@ package body Util.Log.Appenders is
    overriding
    procedure Flush (Self : in out Console_Appender) is
    begin
-      Text_IO.Flush (Self.Output.all);
+      if Self.Stderr then
+         Text_IO.Flush (Text_IO.Standard_Error);
+      else
+         Text_IO.Flush;
+      end if;
    end Flush;
 
    overriding
@@ -217,11 +226,10 @@ package body Util.Log.Appenders is
       use Util.Properties.Basic;
 
       Result : constant Console_Appender_Access := new Console_Appender;
-      Stderr : constant Boolean := Boolean_Property.Get (Properties, Name & ".stderr", False);
    begin
       Result.Set_Level (Name, Properties, Default);
       Result.Set_Layout (Name, Properties, FULL);
-      Result.Output := (if Stderr then Text_IO.Standard_Error else Text_IO.Standard_Output);
+      Result.Stderr := Boolean_Property.Get (Properties, Name & ".stderr", False);
       return Result.all'Access;
    end Create_Console_Appender;
 

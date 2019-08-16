@@ -201,7 +201,7 @@ private
    end record;
 
    type Console_Appender is new Appender with record
-      Output : Ada.Text_IO.File_Access;
+      Stderr : Boolean := False;
    end record;
 
 end Util.Log.Appenders;
