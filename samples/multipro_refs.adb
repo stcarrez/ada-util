@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  multipro_refs -- Points out multiprocessor issues with reference counters
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,6 +38,7 @@ procedure Multipro_Refs is
    type Data_Access is access all Data;
 
    package Data_Ref is new Util.Refs.References (Data, Data_Access);
+   package Atomic_Data_Ref is new Data_Ref.IR.Atomic;
 
    package Hash_Map is new Ada.Containers.Indefinite_Hashed_Maps (String, String,
                                                                   Ada.Strings.Hash,
@@ -47,6 +48,7 @@ procedure Multipro_Refs is
    end record;
    type Cache_Access is access all Cache;
    package Hash_Ref is new Util.Refs.References (Cache, Cache_Access);
+   package Atomic_Hash_Ref is new Hash_Ref.IR.Atomic;
 
    procedure Set_Reference (O : in Data_Ref.Ref);
    function Exists (Key : in String) return Boolean;
@@ -54,7 +56,7 @@ procedure Multipro_Refs is
    procedure Add (Key : in String; Value : in String);
    function Get_Reference return Data_Ref.Ref;
 
-   R : Hash_Ref.Atomic_Ref;
+   R : Atomic_Hash_Ref.Atomic_Ref;
 
    function Exists (Key : in String) return Boolean is
       C : constant Hash_Ref.Ref := R.Get;
@@ -76,8 +78,8 @@ procedure Multipro_Refs is
       C : constant Hash_Ref.Ref := R.Get;
       N : constant Hash_Ref.Ref := Hash_Ref.Create;
    begin
-      N.Value.all.Map := C.Value.Map;
-      N.Value.all.Map.Include (Key, Value);
+      N.Value.Map := C.Value.Map;
+      N.Value.Map.Include (Key, Value);
       R.Set (N);
    end Add;
 
@@ -88,7 +90,7 @@ procedure Multipro_Refs is
    Max_Tasks         : constant Integer := 16;
 
    Unsafe_Ref : Data_Ref.Ref := Data_Ref.Create;
-   Safe_Ref   : Data_Ref.Atomic_Ref;
+   Safe_Ref   : Atomic_Data_Ref.Atomic_Ref;
 
    --  When <b>Run_Safe</b> is false, we use the Ada assignment to update a reference.
    --  The program will crash at a random time due to corruption or multiple free.
@@ -120,7 +122,7 @@ procedure Multipro_Refs is
    T       : Util.Measures.Stamp;
 begin
    Safe_Ref.Set (Data_Ref.Create);
-   Get_Reference.Value.all.Value := 0;
+   Get_Reference.Value.Value := 0;
    for Task_Count in 1 .. Max_Tasks loop
       R.Set (Hash_Ref.Create);
       declare
@@ -155,10 +157,10 @@ begin
                      Ref2 : constant Data_Ref.Ref := Data_Ref.Create;
                      Key  : constant String := "K" & Natural'Image (I / 10);
                   begin
-                     Ref2.Value.all.Value := Ref.Value.all.Value + 1;
-                     Ref2.Value.all.Rand  := Cnt;
-                     Ref2.Value.all.Result := Long_Long_Integer (Ref2.Value.all.Rand * Cnt)
-                       * Long_Long_Integer (Ref2.Value.all.Value);
+                     Ref2.Value.Value := Ref.Value.Value + 1;
+                     Ref2.Value.Rand  := Cnt;
+                     Ref2.Value.Result := Long_Long_Integer (Ref2.Value.Rand * Cnt)
+                       * Long_Long_Integer (Ref2.Value.Value);
                      Set_Reference (Ref2);
                      Util.Concurrent.Counters.Increment (Counter);
 
@@ -200,9 +202,9 @@ begin
                                Title    => "Increment counter with "
                                & Integer'Image (Task_Count) & " tasks");
 
-         Log.Info ("Data.Value  := " & Natural'Image (Get_Reference.Value.all.Value));
-         Log.Info ("Data.Rand   := " & Natural'Image (Get_Reference.Value.all.Rand));
-         Log.Info ("Data.Result := " & Long_Long_Integer'Image (Get_Reference.Value.all.Result));
+         Log.Info ("Data.Value  := " & Natural'Image (Get_Reference.Value.Value));
+         Log.Info ("Data.Rand   := " & Natural'Image (Get_Reference.Value.Rand));
+         Log.Info ("Data.Result := " & Long_Long_Integer'Image (Get_Reference.Value.Result));
       end;
    end loop;
 
