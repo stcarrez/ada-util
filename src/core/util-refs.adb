@@ -139,11 +139,7 @@ package body Util.Refs is
       --  ------------------------------
       function Value (Object : in Ref'Class) return Element_Accessor is
       begin
-         if Object.Target /= null then
-            return Element_Accessor '(Element => Object.Target.Data'Access);
-         else
-            raise Constraint_Error;
-         end if;
+         return Element_Accessor '(Element => Object.Target.Data'Access);
       end Value;
 
       --  ------------------------------
