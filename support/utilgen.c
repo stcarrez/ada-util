@@ -27,6 +27,11 @@
 #ifdef HAVE_CURL
 #include <curl/curl.h>
 #endif
+
+#if defined(__MSYS__) || defined(_WIN32) || defined(_WIN64)
+# undef HAVE_DLFCN_H
+#endif
+
 #ifdef HAVE_DLFCN_H
 #include <dlfcn.h>
 #endif
@@ -305,6 +310,23 @@ void gen_stat(void)
     printf("   end record;\n");
     printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
     printf("\n");
+#elif defined(_WIN64) || defined(__MSYS__) || defined(__CYGWIN__)
+    printf("   --  Size = %d\n", sizeof(struct stat));
+    printf("   type Stat_Type is record\n");
+    printf("      st_dev      : dev_t;\n");
+    printf("      st_ino      : ino_t;\n");
+    printf("      st_mode     : mode_t;\n");
+    printf("      st_nlink    : nlink_t;\n");
+    printf("      st_uid      : uid_t;\n");
+    printf("      st_gid      : gid_t;\n");
+    printf("      st_rdev     : dev_t;\n");
+    printf("      st_size     : off_t;\n");
+    printf("      st_atime    : Time_Type;\n");
+    printf("      st_mtime    : Time_Type;\n");
+    printf("      st_ctime    : Time_Type;\n");
+    printf("   end record;\n");
+    printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
+    printf("\n");
 #endif
 }
 
@@ -347,7 +369,7 @@ int main(int argc, char** argv)
     struct stat64 st;
 #endif
       
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64) || defined(__MSYS__) || defined(__CYGWIN__)
     printf("with System;\n");
 #endif
     printf("with Interfaces.C;\n");
@@ -362,12 +384,13 @@ int main(int argc, char** argv)
     gen_type("uid_t", UNSIGNED, sizeof(uid_t));
     gen_type("gid_t", UNSIGNED, sizeof(gid_t));
     gen_type("nlink_t", UNSIGNED, sizeof(nlink_t));
+    gen_type("mode_t", UNSIGNED, sizeof(mode_t));
 #else
     gen_type("uid_t", UNSIGNED, sizeof(st.st_uid));
     gen_type("gid_t", UNSIGNED, sizeof(st.st_gid));
     gen_type("nlink_t", UNSIGNED, sizeof(st.st_nlink));
-#endif
     gen_type("mode_t", UNSIGNED, sizeof(mode_t));
+#endif
     printf("\n");
     printf("   S_IFMT   : constant mode_t := 8#%08o#;\n", S_IFMT);
     printf("   S_IFDIR  : constant mode_t := 8#%08o#;\n", S_IFDIR);
@@ -383,15 +406,7 @@ int main(int argc, char** argv)
     printf("   S_IWRITE : constant mode_t := 8#%08o#;\n", S_IWRITE);
     printf("   S_IEXEC  : constant mode_t := 8#%08o#;\n", S_IEXEC);
     printf("\n");
-#ifndef _WIN32
-    printf("   type File_Type is new Interfaces.C.int;\n");
-    printf("   subtype Time_Type is %s;\n", get_type(UNSIGNED, sizeof(tv.tv_sec)));
-    printf("\n");
-    printf("   type Timespec is record\n");
-    printf("      tv_sec  : Time_Type;\n");
-    printf("      tv_nsec : %s;\n", get_type(SIGNED, sizeof(tv.tv_nsec)));
-    printf("   end record;\n");
-#else
+#ifdef _WIN32
     printf("   --  The windows HANDLE is defined as a void* in the C API.\n");
     printf("   subtype HANDLE is System.Address;\n");
     printf("   subtype File_Type is HANDLE;\n");
@@ -399,6 +414,24 @@ int main(int argc, char** argv)
     printf("\n");
     printf("   type Timespec is record\n");
     printf("      tv_sec  : Time_Type;\n");
+    printf("   end record;\n");
+#elif defined(_WIN64) || defined(__CYGWIN__)
+    printf("   --  The windows HANDLE is defined as a void* in the C API.\n");
+    printf("   subtype HANDLE is System.Address;\n");
+    printf("   subtype File_Type is HANDLE;\n");
+    printf("   subtype Time_Type is %s;\n", get_type(UNSIGNED, sizeof(st.st_mtime)));
+    printf("\n");
+    printf("   type Timespec is record\n");
+    printf("      tv_sec   : Time_Type;\n");
+    printf("      tv_usec  : Time_Type;\n");
+    printf("   end record;\n");
+#else
+    printf("   type File_Type is new Interfaces.C.int;\n");
+    printf("   subtype Time_Type is %s;\n", get_type(UNSIGNED, sizeof(tv.tv_sec)));
+    printf("\n");
+    printf("   type Timespec is record\n");
+    printf("      tv_sec  : Time_Type;\n");
+    printf("      tv_nsec : %s;\n", get_type(SIGNED, sizeof(tv.tv_nsec)));
     printf("   end record;\n");
 #endif
     printf("   pragma Convention (C_Pass_By_Copy, Timespec);\n\n");
@@ -426,12 +459,18 @@ int main(int argc, char** argv)
     printf("   O_APPEND                      : constant Interfaces.C.int := 8#%06o#;\n", O_APPEND);
 #ifdef O_CLOEXEC
     printf("   O_CLOEXEC                     : constant Interfaces.C.int := 8#%06o#;\n", O_CLOEXEC);
+#else
+    printf("   O_CLOEXEC                     : constant Interfaces.C.int := 0;\n");
 #endif
 #ifdef O_SYNC
     printf("   O_SYNC                        : constant Interfaces.C.int := 8#%06o#;\n", O_SYNC);
+#else
+    printf("   O_SYNC                        : constant Interfaces.C.int := 0;\n");    
 #endif
 #ifdef O_DIRECT
     printf("   O_DIRECT                      : constant Interfaces.C.int := 8#%06o#;\n", O_DIRECT);
+#else
+    printf("   O_DIRECT                      : constant Interfaces.C.int := 0;\n");
 #endif
 #ifdef O_NONBLOCK
     printf("   O_NONBLOCK                    : constant Interfaces.C.int := 8#%06o#;\n", O_NONBLOCK);
