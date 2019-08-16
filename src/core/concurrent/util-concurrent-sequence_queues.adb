@@ -137,7 +137,7 @@ package body Util.Concurrent.Sequence_Queues is
       --  ------------------------------
       entry Enqueue (Item     : in Element_Type;
                      Sequence : in Sequence_Type) when Count >= 0 is
-         Pos : Natural := Get_Index (Sequence);
+         Pos : constant Natural := Get_Index (Sequence);
       begin
          Elements (Pos) := Item;
          States (Pos) := True;
