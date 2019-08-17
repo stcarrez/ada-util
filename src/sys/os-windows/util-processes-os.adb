@@ -25,15 +25,27 @@ with Util.Log.Loggers;
 package body Util.Processes.Os is
 
    use type Interfaces.C.size_t;
+   use type Util.Systems.Os.HANDLE;
+   use type Ada.Directories.File_Kind;
 
    --  The logger
-   Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Processes.Os");
+   Log : constant Log.Loggers.Logger := Log.Loggers.Create ("Util.Processes.Os");
 
    procedure Free is
       new Ada.Unchecked_Deallocation (Object => Interfaces.C.wchar_array,
                                       Name   => Wchar_Ptr);
 
    function To_WSTR (Value : in String) return Wchar_Ptr;
+
+   procedure Prepare_Working_Directory (Sys  : in out System_Process;
+                                        Proc : in out Process'Class);
+
+   procedure Redirect_Output (Path   : in Wchar_Ptr;
+                              Append : in Boolean;
+                              Output : out HANDLE);
+
+   procedure Redirect_Input (Path  : in Wchar_Ptr;
+                             Input : out HANDLE);
 
    --  ------------------------------
    --  Wait for the process to exit.
@@ -107,6 +119,49 @@ package body Util.Processes.Os is
       end if;
    end Prepare_Working_Directory;
 
+   procedure Redirect_Output (Path   : in Wchar_Ptr;
+                              Append : in Boolean;
+                              Output : out HANDLE) is
+      Sec : aliased Security_Attributes;
+   begin
+      Sec.Length := Security_Attributes'Size / 8;
+      Sec.Security_Descriptor := System.Null_Address;
+      Sec.Inherit := True;
+
+      Output := Create_File (Path.all'Address,
+                             (if Append then FILE_APPEND_DATA else GENERIC_WRITE),
+                             FILE_SHARE_WRITE + FILE_SHARE_READ,
+                             Sec'Unchecked_Access,
+                             (if Append then OPEN_ALWAYS else CREATE_ALWAYS),
+                             FILE_ATTRIBUTE_NORMAL,
+                             NO_FILE);
+      if Output = INVALID_HANDLE_VALUE then
+         Log.Error ("Cannot create process output file: {0}", Integer'Image (Get_Last_Error));
+         raise Process_Error with "Cannot create process output file";
+      end if;
+   end Redirect_Output;
+
+   procedure Redirect_Input (Path  : in Wchar_Ptr;
+                             Input : out HANDLE) is
+      Sec : aliased Security_Attributes;
+   begin
+      Sec.Length := Security_Attributes'Size / 8;
+      Sec.Security_Descriptor := System.Null_Address;
+      Sec.Inherit := True;
+
+      Input := Create_File (Path.all'Address,
+                            GENERIC_READ,
+                            FILE_SHARE_READ,
+                            Sec'Unchecked_Access,
+                            OPEN_EXISTING,
+                            FILE_ATTRIBUTE_NORMAL,
+                            NO_FILE);
+      if Input = INVALID_HANDLE_VALUE then
+         Log.Error ("Cannot open process input file: {0}", Integer'Image (Get_Last_Error));
+         raise Process_Error with "Cannot open process input file";
+      end if;
+   end Redirect_Input;
+
    --  Spawn a new process.
    overriding
    procedure Spawn (Sys  : in out System_Process;
@@ -119,7 +174,7 @@ package body Util.Processes.Os is
 
       Result  : Integer;
       Startup : aliased Startup_Info;
-      R       : BOOL;
+      R       : BOOL with Unreferenced;
    begin
       Sys.Prepare_Working_Directory (Proc);
 
@@ -134,22 +189,45 @@ package body Util.Processes.Os is
       Startup.hStdError  := Get_Std_Handle (STD_ERROR_HANDLE);
       if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL then
          Build_Output_Pipe (Proc, Startup);
+      elsif Sys.Out_File /= null then
+         Redirect_Output (Sys.Out_File, Sys.Out_Append, Startup.hStdOutput);
+         Startup.dwFlags := 16#100#;
+      end if;
+      if Sys.Err_File /= null then
+         Redirect_Output (Sys.Err_File, Sys.Err_Append, Startup.hStdError);
+         Startup.dwFlags := 16#100#;
       end if;
       if Mode = WRITE or Mode = READ_WRITE or Mode = READ_WRITE_ALL then
          Build_Input_Pipe (Proc, Startup);
+      elsif Sys.In_File /= null then
+         Redirect_Input (Sys.In_File, Startup.hStdInput);
+         Startup.dwFlags := 16#100#;
       end if;
 
       --  Start the child process.
-      Result := Create_Process (System.Null_Address,
-                                Sys.Command.all'Address,
-                                null,
-                                null,
-                                True,
-                                16#0#,
-                                System.Null_Address,
-                                Sys.Dir.all'Address,
-                                Startup'Unchecked_Access,
-                                Sys.Process_Info'Unchecked_Access);
+      if Sys.Dir /= null then
+         Result := Create_Process (System.Null_Address,
+                                   Sys.Command.all'Address,
+                                   null,
+                                   null,
+                                   True,
+                                   16#0#,
+                                   System.Null_Address,
+                                   Sys.Dir.all'Address,
+                                   Startup'Unchecked_Access,
+                                   Sys.Process_Info'Unchecked_Access);
+      else
+         Result := Create_Process (System.Null_Address,
+                                   Sys.Command.all'Address,
+                                   null,
+                                   null,
+                                   True,
+                                   16#0#,
+                                   System.Null_Address,
+                                   System.Null_Address,
+                                   Startup'Unchecked_Access,
+                                   Sys.Process_Info'Unchecked_Access);
+      end if;
 
       --  Close the handles which are not necessary.
       if Startup.hStdInput /= Get_Std_Handle (STD_INPUT_HANDLE) then
@@ -193,6 +271,7 @@ package body Util.Processes.Os is
       Read_Pipe_Handle : aliased HANDLE;
       Error_Handle     : aliased HANDLE;
       Result           : BOOL;
+      R                : BOOL with Unreferenced;
       Current_Proc     : constant HANDLE := Get_Current_Process;
    begin
       Sec.Length  := Sec'Size / 8;
@@ -216,9 +295,10 @@ package body Util.Processes.Os is
                                   InheritHandle       => 0,
                                   Options             => 2);
       if Result = 0 then
+         Log.Error ("Cannot create pipe: {0}", Integer'Image (Get_Last_Error));
          raise Program_Error with "Cannot create pipe";
       end if;
-      Result := Close_Handle (Read_Handle);
+      R := Close_Handle (Read_Handle);
 
       Result := Duplicate_Handle (SourceProcessHandle => Current_Proc,
                                   SourceHandle        => Write_Handle,
@@ -228,6 +308,7 @@ package body Util.Processes.Os is
                                   InheritHandle       => 1,
                                   Options             => 2);
       if Result = 0 then
+         Log.Error ("Cannot create pipe: {0}", Integer'Image (Get_Last_Error));
          raise Program_Error with "Cannot create pipe";
       end if;
       Into.dwFlags    := 16#100#;
@@ -246,6 +327,7 @@ package body Util.Processes.Os is
       Write_Handle      : aliased HANDLE;
       Write_Pipe_Handle : aliased HANDLE;
       Result            : BOOL;
+      R                 : BOOL with Unreferenced;
       Current_Proc      : constant HANDLE := Get_Current_Process;
    begin
       Sec.Length  := Sec'Size / 8;
@@ -269,9 +351,10 @@ package body Util.Processes.Os is
                                   InheritHandle       => 0,
                                   Options             => 2);
       if Result = 0 then
+         Log.Error ("Cannot create pipe: {0}", Integer'Image (Get_Last_Error));
          raise Program_Error with "Cannot create pipe";
       end if;
-      Result := Close_Handle (Write_Handle);
+      R := Close_Handle (Write_Handle);
 
       Into.dwFlags   := 16#100#;
       Into.hStdInput := Read_Handle;
