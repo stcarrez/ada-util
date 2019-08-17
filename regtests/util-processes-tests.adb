@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-tests - Test for processes
---  Copyright (C) 2011, 2012, 2016, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -119,7 +119,7 @@ package body Util.Processes.Tests is
    procedure Test_Shell_Splitting_Pipe (T : in out Test) is
       P : aliased Util.Streams.Pipes.Pipe_Stream;
    begin
-      P.Open ("bin/util_test_process 0 write 'b c d e f' test_marker");
+      P.Open ("bin/util_test_process 0 write ""b c d e f"" test_marker");
       declare
          Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
          Content : Ada.Strings.Unbounded.Unbounded_String;
@@ -290,7 +290,7 @@ package body Util.Processes.Tests is
       List   : Util.Strings.Vectors.Vector;
       Status : Integer;
    begin
-      Tools.Execute (Command => "bin/util_test_process 23 write 'b c d e f' test_marker",
+      Tools.Execute (Command => "bin/util_test_process 23 write ""b c d e f"" test_marker",
                      Output  => List,
                      Status  => Status);
       Util.Tests.Assert_Equals (T, 23, Status, "Invalid exit status");
