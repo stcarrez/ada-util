@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-systems-dlls -- Windows shared library support
---  Copyright (C) 2013 Stephane Carrez
+--  Copyright (C) 2013, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,7 +60,7 @@ package body Util.Systems.DLLs is
    --  Unload the shared library.
    --  -----------------------
    procedure Unload (Lib : in Handle) is
-      Result : Interfaces.C.int;
+      Result : Interfaces.C.Int with Unreferenced;
    begin
       if Lib /= Null_Handle then
          Result := Sys_Free_Library (Lib);
@@ -76,7 +76,7 @@ package body Util.Systems.DLLs is
       use type System.Address;
 
       Symbol : Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.New_String (Name);
-      Result : System.Address := Sys_Get_Proc_Address (Lib, Symbol);
+      Result : constant System.Address := Sys_Get_Proc_Address (Lib, Symbol);
    begin
       Interfaces.C.Strings.Free (Symbol);
       if Result = System.Null_Address then
