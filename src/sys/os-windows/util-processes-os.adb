@@ -29,7 +29,7 @@ package body Util.Processes.Os is
    use type Ada.Directories.File_Kind;
 
    --  The logger
-   Log : constant Log.Loggers.Logger := Log.Loggers.Create ("Util.Processes.Os");
+   Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Processes.Os");
 
    procedure Free is
       new Ada.Unchecked_Deallocation (Object => Interfaces.C.wchar_array,
