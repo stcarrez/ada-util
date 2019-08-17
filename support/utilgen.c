@@ -369,9 +369,6 @@ int main(int argc, char** argv)
     struct stat64 st;
 #endif
       
-#if defined(_WIN32) || defined(_WIN64) || defined(__MSYS__) || defined(__CYGWIN__)
-    printf("with System;\n");
-#endif
     printf("with Interfaces.C;\n");
     printf("package Util.Systems.Types is\n");
     printf("\n");
@@ -408,7 +405,7 @@ int main(int argc, char** argv)
     printf("\n");
 #ifdef _WIN32
     printf("   --  The windows HANDLE is defined as a void* in the C API.\n");
-    printf("   subtype HANDLE is System.Address;\n");
+    printf("   subtype HANDLE is Interfaces.C.ptrdiff_t;\n");
     printf("   subtype File_Type is HANDLE;\n");
     printf("   subtype Time_Type is %s;\n", get_type(UNSIGNED, sizeof(st.st_mtime)));
     printf("\n");
@@ -417,7 +414,7 @@ int main(int argc, char** argv)
     printf("   end record;\n");
 #elif defined(_WIN64) || defined(__CYGWIN__)
     printf("   --  The windows HANDLE is defined as a void* in the C API.\n");
-    printf("   subtype HANDLE is System.Address;\n");
+    printf("   subtype HANDLE is Interfaces.C.ptrdiff_t;\n");
     printf("   subtype File_Type is HANDLE;\n");
     printf("   subtype Time_Type is %s;\n", get_type(UNSIGNED, sizeof(st.st_mtime)));
     printf("\n");
