@@ -24,6 +24,7 @@ package body Util.Streams.Raw is
 
    use System;
    use Util.Systems.Os;
+   use type Util.Systems.Os.HANDLE;
 
    --  -----------------------
    --  Initialize the raw stream to read and write on the given file descriptor.
