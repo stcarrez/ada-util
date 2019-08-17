@@ -19,6 +19,7 @@ with System;
 
 with Ada.Unchecked_Deallocation;
 with Ada.Characters.Conversions;
+with Ada.Directories;
 
 with Util.Log.Loggers;
 package body Util.Processes.Os is
@@ -146,7 +147,7 @@ package body Util.Processes.Os is
                                 True,
                                 16#0#,
                                 System.Null_Address,
-                                Sys.Dir,
+                                Sys.Dir.all'Address,
                                 Startup'Unchecked_Access,
                                 Sys.Process_Info'Unchecked_Access);
 
