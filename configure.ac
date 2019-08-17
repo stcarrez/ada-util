@@ -332,7 +332,7 @@ fi
 if test x$ac_enable_ahven = 'xyes'; then
   UTIL_AHVEN_DIR=testutil/ahven
   case "${target_os}" in
-     linux|linux-*|solaris*|sysv-*|netbsd*|kfreebsd*)
+     linux|linux-*|solaris*|sysv-*|netbsd*|kfreebsd*|freebsd*)
         UTIL_XUNIT_TYPE="ahven-unix"
 	;;
 
