@@ -19,7 +19,6 @@
 with Ada.IO_Exceptions;
 
 with System;
-with Ada.Text_IO;
 
 package body Util.Streams.Raw is
 
