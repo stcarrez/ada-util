@@ -126,6 +126,7 @@ package Util.Systems.Os is
 
 
    subtype LPWSTR is Interfaces.C.Strings.chars_ptr;
+   subtype LPCSTR is Interfaces.C.Strings.chars_ptr;
    subtype PBYTE is Interfaces.C.Strings.chars_ptr;
    subtype Ptr is Interfaces.C.Strings.chars_ptr;
    subtype LPCTSTR is System.Address;
