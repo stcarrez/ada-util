@@ -34,8 +34,8 @@ AC_SUBST(UTIL_MINOR_VERSION)
 AC_SUBST(UTIL_MICRO_VERSION)
 
 AM_GNAT_LIBRARY_PROJECT(utilada_core)
-AM_GNAT_LIBRARY_PROJECT(utilada_base)
-AM_GNAT_LIBRARY_PROJECT(utilada_sys)
+AM_GNAT_LIBRARY_SETUP(utilada_base)
+AM_GNAT_LIBRARY_SETUP(utilada_sys)
 
 EXEC_PREFIX="$prefix"
 AC_SUBST(EXEC_PREFIX)
@@ -64,20 +64,40 @@ case "${target_os}" in
 	;;
 
      mingw32*|cygwin*|mingw64*|msys)
-	os_version='windows'
+	os_version='win'
+	;;
+
+     mingw32*|cygwin*|mingw64*|msys)
+	os_version='win'
 	;;
 
      *)
+	# Be authoritative
+        os_version='linux'
 	;;
 esac
 AC_MSG_RESULT($os_version)
-UTIL_OS_VERSION=$os_version
-AC_SUBST(UTIL_OS_VERSION)
 
 AC_MSG_CHECKING([hardware platform])
-HARDWARE_PLATFORM=`uname -i 2>/dev/null || uname -m 2>/dev/null || echo "unknown"`
+case "${target_cpu}" in
+     x86_64)
+	os_version="${os_version}64"
+	HARDWARE_PLATFORM=${target_cpu}
+        ;;
+
+     i386|i486|i586|i686)
+	os_version="${os_version}32"
+        HARDWARE_PLATFORM='x86'
+	;;
+
+     *)
+       HARDWARE_PLATFORM=${target_cpu}
+       ;;
+esac
 AC_MSG_RESULT($HARDWARE_PLATFORM)
 AC_SUBST(HARDWARE_PLATFORM)
+UTIL_OS_VERSION=$os_version
+AC_SUBST(UTIL_OS_VERSION)
 
 # Check for gcc intrinsics
 AM_HAS_INTRINSIC_SYNC_COUNTERS(src_asm='intrinsic',src_asm='')
@@ -99,13 +119,27 @@ AC_MSG_RESULT(using $src_asm)
 UTIL_ASM_TYPE="$src_asm"
 AC_SUBST(UTIL_ASM_TYPE)
 
-UTIL_HAS_LIBDL="no"
-AC_CHECK_HEADERS(dlfcn.h)
-AC_CHECK_LIB(dl,dlopen,[
-  CFLAGS="$CFLAGS -DHAVE_DLOPEN=1"
-  UTIL_HAS_LIBDL="yes"
-])
-AC_SUBST(UTIL_HAS_LIBDL)
+ac_enable_utilgen=no
+AC_ARG_ENABLE(utilgen,
+[  --enable-utilgen        Enable the support to port Ada Util on other platforms (disable)],
+[case "${enableval}" in
+  no|none)  ac_enable_utilgen=no ;;
+  *)        ac_enable_utilgen=yes ;;
+esac])dnl
+
+AC_MSG_CHECKING([whether utilgen support is required])
+HAVE_UTILGEN=$ac_enable_utilgen
+AC_MSG_RESULT(${HAVE_UTILGEN})
+AC_SUBST(HAVE_UTILGEN)
+
+if test T$ac_enable_utilgen = Tyes; then
+
+  AC_CHECK_HEADERS(dlfcn.h)
+  AC_CHECK_LIB(dl,dlopen,[
+    CFLAGS="$CFLAGS -DHAVE_DLOPEN=1"
+  ])
+
+fi
 
 # directories GNAT project gives the installation paths
 AM_GNAT_CHECK_PROJECT([directories],[directories])
@@ -337,7 +371,7 @@ if test T$ac_enable_curl = Tyes; then
     WITH_UTIL_CURL="with \"utilada_curl\";";
   ])
 
-  AM_GNAT_LIBRARY_PROJECT(utilada_curl)
+  AM_GNAT_LIBRARY_SETUP(utilada_curl)
 fi
 
 ##########################################
@@ -352,7 +386,7 @@ AM_GNAT_CHECK_AWS(
     UTIL_HAVE_AWS=yes
     WITH_UTIL_AWS="with \"utilada_aws\";";
     WITH_SERVER="with \"$gnat_project_name\";";
-    AM_GNAT_LIBRARY_PROJECT(utilada_aws)
+    AM_GNAT_LIBRARY_SETUP(utilada_aws)
   ])
 
 ##########################################
@@ -429,8 +463,6 @@ AC_SUBST(UTIL_HAVE_CURL)
 AC_SUBST(WITH_UTIL_CURL)
 AC_SUBST(WITH_AUNIT)
 AC_SUBST(UTIL_XUNIT_TYPE)
-
-AM_GNAT_CHECK_INSTALL
 
 dnl AC_MSG_NOTICE(  XML support:   $WITH_XML_ADA)
 dnl AC_MSG_NOTICE(  CURL support:  $WITH_UTIL_CURL)
