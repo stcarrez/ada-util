@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,12 @@ package body Util.Processes.Os is
 
    --  The logger
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Processes.Os");
+
+   procedure Free is
+      new Ada.Unchecked_Deallocation (Object => Interfaces.C.wchar_array,
+                                      Name   => Wchar_Ptr);
+
+   function To_WSTR (Value : in String) return Wchar_Ptr;
 
    --  ------------------------------
    --  Wait for the process to exit.
@@ -78,10 +84,27 @@ package body Util.Processes.Os is
    procedure Stop (Sys    : in out System_Process;
                    Proc   : in out Process'Class;
                    Signal : in Positive := 15) is
+      pragma Unreferenced (Proc);
       Result : Integer;
+      pragma Unreferenced (Result);
    begin
       Result := Terminate_Process (Sys.Process_Info.hProcess, DWORD (Signal));
    end Stop;
+
+   procedure Prepare_Working_Directory (Sys  : in out System_Process;
+                                        Proc : in out Process'Class) is
+      Dir : constant String := Ada.Strings.Unbounded.To_String (Proc.Dir);
+   begin
+      Free (Sys.Dir);
+      if Dir'Length > 0 then
+         if not Ada.Directories.Exists (Dir)
+           or else Ada.Directories.Kind (Dir) /= Ada.Directories.Directory
+         then
+            raise Ada.Directories.Name_Error with "Invalid directory: " & Dir;
+         end if;
+         Sys.Dir := To_WSTR (Dir);
+      end if;
+   end Prepare_Working_Directory;
 
    --  Spawn a new process.
    overriding
@@ -97,6 +120,8 @@ package body Util.Processes.Os is
       Startup : aliased Startup_Info;
       R       : BOOL;
    begin
+      Sys.Prepare_Working_Directory (Proc);
+
       --  Since checks are disabled, verify by hand that the argv table is correct.
       if Sys.Command = null or else Sys.Command'Length < 1 then
          raise Program_Error with "Invalid process argument list";
@@ -121,7 +146,7 @@ package body Util.Processes.Os is
                                 True,
                                 16#0#,
                                 System.Null_Address,
-                                System.Null_Address,
+                                Sys.Dir,
                                 Startup'Unchecked_Access,
                                 Sys.Process_Info'Unchecked_Access);
 
@@ -172,7 +197,7 @@ package body Util.Processes.Os is
       Sec.Length  := Sec'Size / 8;
       Sec.Inherit := True;
       Sec.Security_Descriptor := System.Null_Address;
-      
+
       Result := Create_Pipe (Read_Handle  => Read_Handle'Unchecked_Access,
                              Write_Handle => Write_Handle'Unchecked_Access,
                              Attributes   => Sec'Unchecked_Access,
@@ -252,10 +277,6 @@ package body Util.Processes.Os is
       Proc.Input     := Create_Stream (Write_Pipe_Handle).all'Access;
    end Build_Input_Pipe;
 
-   procedure Free is
-      new Ada.Unchecked_Deallocation (Object => Interfaces.C.wchar_array,
-                                      Name   => Wchar_Ptr);
-
    --  ------------------------------
    --  Append the argument to the process argument list.
    --  ------------------------------
@@ -288,6 +309,19 @@ package body Util.Processes.Os is
       Sys.Command (Sys.Pos) := Interfaces.C.wide_nul;
    end Append_Argument;
 
+   function To_WSTR (Value : in String) return Wchar_Ptr is
+      Result : constant Wchar_Ptr := new Interfaces.C.wchar_array (0 .. Value'Length + 1);
+      Pos    : Interfaces.C.size_t := 0;
+   begin
+      for C of Value loop
+         Result (Pos)
+           := Interfaces.C.To_C (Ada.Characters.Conversions.To_Wide_Character (C));
+         Pos := Pos + 1;
+      end loop;
+      Result (Pos) := Interfaces.C.wide_nul;
+      return Result;
+   end To_WSTR;
+
    --  ------------------------------
    --  Set the process input, output and error streams to redirect and use specified files.
    --  ------------------------------
@@ -300,6 +334,17 @@ package body Util.Processes.Os is
                           Append_Error  : in Boolean;
                           To_Close      : in File_Type_Array_Access) is
    begin
+      if Input'Length > 0 then
+         Sys.In_File := To_WSTR (Input);
+      end if;
+      if Output'Length > 0 then
+         Sys.Out_File   := To_WSTR (Output);
+         Sys.Out_Append := Append_Output;
+      end if;
+      if Error'Length > 0 then
+         Sys.Err_File   := To_WSTR (Error);
+         Sys.Err_Append := Append_Error;
+      end if;
       Sys.To_Close := To_Close;
    end Set_Streams;
 
@@ -321,6 +366,10 @@ package body Util.Processes.Os is
          Result := Close_Handle (Sys.Process_Info.hThread);
          Sys.Process_Info.hThread := NO_FILE;
       end if;
+      Free (Sys.In_File);
+      Free (Sys.Out_File);
+      Free (Sys.Err_File);
+      Free (Sys.Dir);
       Free (Sys.Command);
    end Finalize;
 
