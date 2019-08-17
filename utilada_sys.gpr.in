@@ -9,7 +9,8 @@ library project UtilAda_Sys is
 
    type Xml_Version_Type is ("none", "3", "4");
 
-   type Os_Version_Type is ("none", "linux", "windows", "netbsd", "freebsd");
+   type Os_Version_Type is ("none", "linux32", "linux64", "win32", "win64",
+                            "netbsd32", "netbsd64", "freebsd32", "freebsd64");
 
    Xml_Version : Xml_Version_Type := "@UTIL_XML_VERSION@";
    Has_Xml     : Config.Yes_No := "@UTIL_HAVE_XML@";
@@ -24,7 +25,6 @@ library project UtilAda_Sys is
 
    for Source_Dirs use ("src/sys",
                         "src/sys/serialize",
-                        "src/sys/processes",
                         "src/sys/streams",
                         "src/sys/measures",
                         "src/sys/encoders",
@@ -32,13 +32,19 @@ library project UtilAda_Sys is
 
    case Os_Version is
       when "none" =>
-         for Source_Dirs use Project'Source_Dirs & ("src/sys/processes/os-none");
+         null;
 
-      when "windows" =>
-         for Source_Dirs use Project'Source_Dirs & ("src/sys/processes/os-win32");
+      when "win64" | "win32" =>
+         for Source_Dirs use Project'Source_Dirs
+            & ("src/sys/processes",
+               "src/sys/os-windows",
+               "src/sys/os-" & Os_Version);
 
-      when "netbsd" | "freebsd" | "linux" =>
-         for Source_Dirs use Project'Source_Dirs & ("src/sys/processes/os-linux");
+      when others =>
+         for Source_Dirs use Project'Source_Dirs
+            & ("src/sys/processes",
+               "src/sys/os-unix",
+               "src/sys/os-" & Os_Version);
 
    end case;
 
