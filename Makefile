@@ -12,15 +12,17 @@ SHARED_MAKE_ARGS += -XAWS_BUILD=relocatable
 endif
 
 # The timeout execution time in second for a test case.
-# The concurrent fifo test takes arround 120 seconds on some ARM but only 4 seconds
-# on an i7.  Make this a make configuration variable so that it can be given when
-# launching make.
+# The concurrent fifo test takes arround 120 seconds on some ARM but only
+# 4 seconds on an i7.  Make this a make configuration variable so that it
+# can be given when launching make.
 TEST_TIMEOUT=30
 
+ifeq ($(HAVE_UTILGEN),yes)
 UTIL_GEN_FILES=src/sys/util-systems-constants.ads
 UTIL_GEN_FILES+=src/sys/util-systems-types.ads
 ifeq ($(HAVE_CURL),yes)
 UTIL_GEN_FILES+=src/sys/http/curl/util-http-clients-curl-constants.ads
+endif
 endif
 
 include Makefile.defaults
@@ -56,12 +58,14 @@ test:	build
 
 regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile.conf
 	gnatprep -DHAVE_XML=$(HAVE_XML) -DHAVE_CURL=$(HAVE_CURL) \
-                 -DHAVE_AWS=$(HAVE_AWS) -DHAVE_VECTOR_MAPPERS=$(HAVE_VECTOR_MAPPERS) \
+                 -DHAVE_AWS=$(HAVE_AWS) \
+				 -DHAVE_VECTOR_MAPPERS=$(HAVE_VECTOR_MAPPERS) \
                  -DHAVE_LZMA=$(HAVE_LZMA) \
 		 -DOS_VERSION='"$(OS_VERSION)"' \
 		 regtests/util-testsuite.gpb $@
 
-CLEAN_FILES=$(UTIL_GEN_FILES) bin/util_harness bin/util_test_process bin/utilgen
+CLEAN_FILES=$(UTIL_GEN_FILES) bin/util_harness
+CLEAN_FILES+= bin/util_test_process bin/utilgen
 
 # Clean the root project of all build products.
 clean::
@@ -97,8 +101,10 @@ UTIL_DOC= \
   doc/pagebreak.tex \
   doc/Util_Measures.md
 
-DOC_OPTIONS=-f markdown -o doc/util-book.pdf --listings --number-sections --toc
-HTML_OPTIONS=-f markdown -o doc/util-book.html --listings --number-sections --toc --css doc/pandoc.css
+DOC_OPTIONS=-f markdown -o doc/util-book.pdf
+DOC_OPTIONS+= --listings --number-sections --toc
+HTML_OPTIONS=-f markdown -o doc/util-book.html
+HTML_OPTIONS+= --listings --number-sections --toc --css doc/pandoc.css
 
 doc/util-book.pdf:  force
 	$(DYNAMO) build-doc -pandoc doc
@@ -127,3 +133,4 @@ src/sys/http/curl/util-http-clients-curl-constants.ads:	bin/utilgen
 bin/utilgen:    support/utilgen.c Makefile.conf
 	mkdir -p bin
 	$(CC) -o $@ $(CFLAGS) -g support/utilgen.c
+
