@@ -26,7 +26,7 @@ package Util.Systems.Types is
    S_IEXEC  : constant mode_t := 8#00000100#;
 
    --  The windows HANDLE is defined as a void* in the C API.
-   subtype HANDLE is System.Address;
+   subtype HANDLE is Interfaces.C.ptrdiff_t;
    subtype File_Type is HANDLE;
    subtype Time_Type is Long_Long_Integer;
 
