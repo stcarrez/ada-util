@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- Windows specific and low level operations
---  Copyright (C) 2011, 2012, 2016, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,13 @@ private package Util.Processes.Os is
       Process_Info : aliased Util.Systems.Os.PROCESS_INFORMATION;
       Command      : Wchar_Ptr := null;
       Pos          : Interfaces.C.size_t := 0;
+      In_File      : Wchar_Ptr := null;
+      Out_File     : Wchar_Ptr := null;
+      Err_File     : Wchar_Ptr := null;
+      Dir          : Wchar_Ptr := null;
       To_Close     : File_Type_Array_Access;
+      Out_Append   : Boolean := False;
+      Err_Append   : Boolean := False;
    end record;
 
    --  Wait for the process to exit.
