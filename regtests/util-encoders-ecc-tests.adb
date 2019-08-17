@@ -17,16 +17,22 @@
 -----------------------------------------------------------------------
 with Interfaces;
 with Util.Test_Caller;
-with Util.Measures;
-with Util.Strings.Transforms;
-with Ada.Text_IO;
 
 package body Util.Encoders.ECC.Tests is
 
-   use Util.Tests;
    use Interfaces;
 
    package Caller is new Util.Test_Caller (Test, "Encoders.ECC");
+
+   procedure Assert_Equals (T       : in out Test;
+                            Expect  : in ECC_Code;
+                            Code    : in ECC_Code;
+                            Message : in String);
+
+   procedure Test_ECC_Block (T      : in out Test;
+                             Data   : in Ada.Streams.Stream_Element_Array;
+                             Expect : in ECC_Code;
+                             Title  : in String);
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
@@ -59,6 +65,7 @@ package body Util.Encoders.ECC.Tests is
       Data2  : Ada.Streams.Stream_Element_Array := Data;
       Code1  : ECC_Code;
       Code2  : ECC_Code;
+      Code3  : ECC_Code;
       Result : ECC_Result;
    begin
       Make (Data, Code1);
@@ -69,14 +76,13 @@ package body Util.Encoders.ECC.Tests is
          for J in 0 .. 7 loop
             Data2 (I) := Data2 (I) xor Stream_Element (Shift_Left (Unsigned_8 (1), J));
             Make (Data2, Code2);
-            --  Assert_Equals (T, (16#59#, 16#a6#, 16#5a#), Code2, "Zero block (1 bit error)");
 
             Result := Correct (Data2, Expect);
             T.Assert (Result = CORRECTABLE_ERROR, Title & ": not corrected"
                      & Natural'Image (Natural (I)) & " bit" & Natural'Image (J));
 
-            Make (Data2, Code2);
-            Assert_Equals (T, Expect, Code2, Title & ": bad ECC"
+            Make (Data2, Code3);
+            Assert_Equals (T, Expect, Code3, Title & ": bad ECC"
                            & Natural'Image (Natural (I)) & " bit" & Natural'Image (J));
             T.Assert (Data = Data2, Title & ": invalid data block");
          end loop;
