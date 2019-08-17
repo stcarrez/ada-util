@@ -57,6 +57,10 @@ package Util.Systems.Os is
    --  The windows HANDLE is defined as a void* in the C API.
    subtype HANDLE is Util.Systems.Types.HANDLE;
 
+   use type Util.Systems.Types.HANDLE;
+
+   INVALID_HANDLE_VALUE : constant HANDLE := -1;
+
    type PHANDLE is access all HANDLE;
    for PHANDLE'Size use Standard'Address_Size;
 
@@ -77,7 +81,7 @@ package Util.Systems.Os is
    --  ------------------------------
    subtype File_Type is Util.Systems.Types.File_Type;
 
-   NO_FILE : constant File_Type := System.Null_Address;
+   NO_FILE : constant File_Type := 0;
 
    STD_INPUT_HANDLE  : constant DWORD := -10;
    STD_OUTPUT_HANDLE : constant DWORD := -11;
@@ -151,9 +155,9 @@ package Util.Systems.Os is
       wShowWindow     : WORD := 0;
       cbReserved2     : WORD := 0;
       lpReserved2     : PBYTE := Interfaces.C.Strings.Null_Ptr;
-      hStdInput       : HANDLE := System.Null_Address;
-      hStdOutput      : HANDLE := System.Null_Address;
-      hStdError       : HANDLE := System.Null_Address;
+      hStdInput       : HANDLE := 0;
+      hStdOutput      : HANDLE := 0;
+      hStdError       : HANDLE := 0;
    end record;
 --   pragma Pack (Startup_Info);
    type Startup_Info_Access is access all Startup_Info;
@@ -197,6 +201,35 @@ package Util.Systems.Os is
    function Sys_Fstat (Fs : in File_Type;
                        Stat : access Util.Systems.Types.Stat_Type) return Integer;
    pragma Import (C, Sys_Fstat, "_fstat64");
+
+   FILE_SHARE_WRITE         : constant DWORD := 16#02#;
+   FILE_SHARE_READ          : constant DWORD := 16#01#;
+
+   GENERIC_READ             : constant DWORD := 16#80000000#;
+   GENERIC_WRITE            : constant DWORD := 16#40000000#;
+
+   CREATE_NEW               : constant DWORD := 1;
+   CREATE_ALWAYS            : constant DWORD := 2;
+   OPEN_EXISTING            : constant DWORD := 3;
+   OPEN_ALWAYS              : constant DWORD := 4;
+   TRUNCATE_EXISTING        : constant DWORD := 5;
+
+   FILE_APPEND_DATA         : constant DWORD := 4;
+
+   FILE_ATTRIBUTE_ARCHIVE   : constant DWORD := 16#20#;
+   FILE_ATTRIBUTE_HIDDEN    : constant DWORD := 16#02#;
+   FILE_ATTRIBUTE_NORMAL    : constant DWORD := 16#80#;
+   FILE_ATTRIBUTE_READONLY  : constant DWORD := 16#01#;
+   FILE_ATTRIBUTE_TEMPORARY : constant DWORD := 16#100#;
+
+   function Create_File (Name           : in LPCTSTR;
+                         Desired_Access : in DWORD;
+                         Share_Mode     : in DWORD;
+                         Attributes     : in LPSECURITY_ATTRIBUTES;
+                         Creation       : in DWORD;
+                         Flags          : in DWORD;
+                         Template_File  : HANDLE) return HANDLE;
+   pragma Import (Stdcall, Create_File, "CreateFileW");
 
 private
 
