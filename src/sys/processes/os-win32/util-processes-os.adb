@@ -172,7 +172,7 @@ package body Util.Processes.Os is
       Sec.Length  := Sec'Size / 8;
       Sec.Inherit := True;
       Sec.Security_Descriptor := System.Null_Address;
-
+      
       Result := Create_Pipe (Read_Handle  => Read_Handle'Unchecked_Access,
                              Write_Handle => Write_Handle'Unchecked_Access,
                              Attributes   => Sec'Unchecked_Access,

@@ -154,7 +154,7 @@ package Util.Systems.Os is
       hStdOutput      : HANDLE := System.Null_Address;
       hStdError       : HANDLE := System.Null_Address;
    end record;
-   pragma Pack (Startup_Info);
+--   pragma Pack (Startup_Info);
    type Startup_Info_Access is access all Startup_Info;
 
    type PROCESS_INFORMATION is record

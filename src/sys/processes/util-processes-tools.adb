@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-tools -- System specific and low level operations
---  Copyright (C) 2018 Stephane Carrez
+--  Copyright (C) 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,8 +33,9 @@ package body Util.Processes.Tools is
             Line : Ada.Strings.Unbounded.Unbounded_String;
          begin
             Text.Read_Line (Line, Strip => True);
-            exit when Ada.Strings.Unbounded.Length (Line) = 0;
-            Output.Append (Ada.Strings.Unbounded.To_String (Line));
+            if Ada.Strings.Unbounded.Length (Line) > 0 then
+	       Output.Append (Ada.Strings.Unbounded.To_String (Line));
+	    end if;
          end;
       end loop;
       Process.Close;
