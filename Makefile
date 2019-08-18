@@ -46,6 +46,11 @@ $(eval $(call ada_library,utilada_lzma))
 endif
 
 $(eval $(call ada_library,utilada_unit))
+
+install::
+	mkdir -p $(DESTDIR)${prefix}/${ADA_PRJ_BASE}
+	cp utilada_http.gpr $(DESTDIR)${prefix}/${ADA_PRJ_BASE}
+
 $(eval $(call ada_library,utilada_http))
 
 build-test:: regtests/util-testsuite.adb
