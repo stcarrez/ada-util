@@ -23,7 +23,6 @@ with Util.Strings.Vectors;
 with Util.Streams.Pipes;
 with Util.Streams.Buffered;
 with Util.Streams.Texts;
-with Util.Systems.Os;
 with Util.Processes.Tools;
 package body Util.Processes.Tests is
 
@@ -46,6 +45,8 @@ package body Util.Processes.Tests is
                        Test_Shell_Splitting_Pipe'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn(OUTPUT redirect)",
                        Test_Output_Redirect'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Spawn(INPUT redirect)",
+                       Test_Input_Redirect'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Open/Read/Close (Multi spawn)",
                        Test_Multi_Spawn'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Tools.Execute",
@@ -250,7 +251,7 @@ package body Util.Processes.Tests is
    --  ------------------------------
    procedure Test_Output_Redirect (T : in out Test) is
       P       : Process;
-      Path    : constant String := Util.Tests.Get_Test_Path ("proc-output.txt");
+      Path    : constant String := Util.Tests.Get_Test_Path ("regtests/result/proc-output.txt");
       Content : Ada.Strings.Unbounded.Unbounded_String;
    begin
       Util.Processes.Set_Output_Stream (P, Path);
@@ -276,6 +277,29 @@ package body Util.Processes.Tests is
                                  "Invalid content");
 
    end Test_Output_Redirect;
+
+   --  ------------------------------
+   --  Test input file redirection.
+   --  ------------------------------
+   procedure Test_Input_Redirect (T : in out Test) is
+      P        : Process;
+      In_Path  : constant String := Util.Tests.Get_Test_Path ("regtests/files/proc-input.txt");
+      Out_Path : constant String := Util.Tests.Get_Test_Path ("regtests/result/proc-inres.txt");
+      Exp_Path : constant String := Util.Tests.Get_Test_Path ("regtests/expect/proc-inres.txt");
+   begin
+      Util.Processes.Set_Input_Stream (P, In_Path);
+      Util.Processes.Set_Output_Stream (P, Out_Path);
+      Util.Processes.Spawn (P, "bin/util_test_process 0 read -");
+      Util.Processes.Wait (P);
+
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Process failed");
+
+      Util.Tests.Assert_Equal_Files (T       => T,
+                                     Expect  => Exp_Path,
+                                     Test    => Out_Path,
+                                     Message => "Process input/output redirection");
+   end Test_Input_Redirect;
 
    --  ------------------------------
    --  Test the Tools.Execute operation.
