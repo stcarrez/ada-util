@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Test_Caller;
-with Util.Encoders.AES;
 with Util.Streams.Files;
 with Util.Streams.Texts;
 with Util.Streams.Base64;
