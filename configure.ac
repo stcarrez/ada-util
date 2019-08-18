@@ -93,9 +93,19 @@ case "${target_cpu}" in
         HARDWARE_PLATFORM='x86'
         ;;
 
+     armv7*)
+        os_version="${os_version}32"
+        HARDWARE_PLATFORM=${target_cpu}
+        ;;
+
+     armv8*)
+        os_version="${os_version}64"
+        HARDWARE_PLATFORM=${target_cpu}
+        ;;
+
      *)
-       HARDWARE_PLATFORM=${target_cpu}
-       ;;
+        HARDWARE_PLATFORM=${target_cpu}
+        ;;
 esac
 AC_MSG_RESULT($HARDWARE_PLATFORM)
 AC_SUBST(HARDWARE_PLATFORM)
