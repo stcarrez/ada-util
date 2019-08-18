@@ -9,7 +9,8 @@ library project UtilAda_Sys is
 
    type Xml_Version_Type is ("none", "3", "4");
 
-   type Os_Version_Type is ("none", "linux32", "linux64", "win32", "win64",
+   type Os_Version_Type is ("none", "unix", "windows",
+                            "linux32", "linux64", "win32", "win64",
                             "netbsd32", "netbsd64", "freebsd32", "freebsd64");
 
    Xml_Version : Xml_Version_Type := "@UTIL_XML_VERSION@";
@@ -39,6 +40,21 @@ library project UtilAda_Sys is
             & ("src/sys/processes",
                "src/sys/os-windows",
                "src/sys/os-" & Os_Version);
+
+      when "unix" =>
+         --  Unix with utilgen generated files
+         for Source_Dirs use Project'Source_Dirs
+            & ("src/sys/processes",
+               "src/sys/os-unix",
+               "src/sys/os-generated");
+
+      when "windows" =>
+         --  Windows with utilgen generated files
+         -- (!!! requires correct gcc version to compile utilgen)
+         for Source_Dirs use Project'Source_Dirs
+            & ("src/sys/processes",
+               "src/sys/os-windows",
+               "src/sys/os-generated");
 
       when others =>
          for Source_Dirs use Project'Source_Dirs
