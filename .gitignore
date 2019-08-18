@@ -29,8 +29,7 @@ lib/
 obj/
 regtests/util-testsuite.adb
 src/sys/http/curl/util-http-clients-curl-constants.ads
-src/sys/util-systems-constants.ads
-src/sys/util-systems-types.ads
+src/sys/os-generated
 string-append.csv
 string.csv
 util-tests.xml
