@@ -43,52 +43,55 @@ AC_SUBST(EXEC_PREFIX)
 AC_CHECK_PROG(HAVE_PANDOC,pandoc,yes)
 AC_CHECK_PROG(HAVE_DYNAMO,dynamo,yes)
 
+os_base='unix'
 os_version='none'
 AC_MSG_CHECKING([operating system])
 case "${target_os}" in
      linux|linux-*|solaris*|sysv-*)
-	os_version='linux'
-	;;
+        os_version='linux'
+        ;;
 
      netbsdelf*|dragonfly*)
-	os_version='netbsd'
-	;;
+        os_version='netbsd'
+        ;;
 
      openbsd*|freebsd*)
-	# Let OpenBSD people cry 
-	os_version='freebsd'
-	;;
+        # Let OpenBSD people cry 
+        os_version='freebsd'
+        ;;
 
      macos*|darwin*)
-	os_version='macos'
-	;;
+        os_version='macos'
+        ;;
 
      mingw32*|cygwin*|mingw64*|msys)
-	os_version='win'
-	;;
+        os_version='win'
+        os_base='windows'
+        ;;
 
      mingw32*|cygwin*|mingw64*|msys)
-	os_version='win'
-	;;
+        os_version='win'
+        os_base='windows'
+        ;;
 
      *)
-	# Be authoritative
+        # Be authoritative
         os_version='linux'
-	;;
+        ;;
 esac
 AC_MSG_RESULT($os_version)
 
 AC_MSG_CHECKING([hardware platform])
 case "${target_cpu}" in
      x86_64)
-	os_version="${os_version}64"
-	HARDWARE_PLATFORM=${target_cpu}
+        os_version="${os_version}64"
+        HARDWARE_PLATFORM=${target_cpu}
         ;;
 
      i386|i486|i586|i686)
-	os_version="${os_version}32"
+        os_version="${os_version}32"
         HARDWARE_PLATFORM='x86'
-	;;
+        ;;
 
      *)
        HARDWARE_PLATFORM=${target_cpu}
@@ -96,8 +99,6 @@ case "${target_cpu}" in
 esac
 AC_MSG_RESULT($HARDWARE_PLATFORM)
 AC_SUBST(HARDWARE_PLATFORM)
-UTIL_OS_VERSION=$os_version
-AC_SUBST(UTIL_OS_VERSION)
 
 # Check for gcc intrinsics
 AM_HAS_INTRINSIC_SYNC_COUNTERS(src_asm='intrinsic',src_asm='')
@@ -138,8 +139,11 @@ if test T$ac_enable_utilgen = Tyes; then
   AC_CHECK_LIB(dl,dlopen,[
     CFLAGS="$CFLAGS -DHAVE_DLOPEN=1"
   ])
+  UTIL_OS_VERSION=$os_base
 
 fi
+UTIL_OS_VERSION=$os_version
+AC_SUBST(UTIL_OS_VERSION)
 
 # directories GNAT project gives the installation paths
 AM_GNAT_CHECK_PROJECT([directories],[directories])
@@ -312,10 +316,10 @@ AC_MSG_RESULT($ac_enable_ahven)
 if test T$ac_enable_aunit = Tyes; then
    AM_GNAT_CHECK_PROJECT([aunit],[aunit])
    if test T$gnat_project_aunit = Tno; then
-	  if test T$ac_enable_ahven = Tno; then
-	     AC_MSG_WARN(AUnit is not installed and Ahven is not enabled.)
-	     AC_MSG_ERROR(Please install AUnit or enable Ahven with --enable-ahven.)
-	  fi
+          if test T$ac_enable_ahven = Tno; then
+             AC_MSG_WARN(AUnit is not installed and Ahven is not enabled.)
+             AC_MSG_ERROR(Please install AUnit or enable Ahven with --enable-ahven.)
+          fi
    fi
 fi
 
@@ -331,19 +335,7 @@ if test x$ac_enable_aunit = 'xyes'; then
 fi
 if test x$ac_enable_ahven = 'xyes'; then
   UTIL_AHVEN_DIR=testutil/ahven
-  case "${target_os}" in
-     linux|linux-*|solaris*|sysv-*|netbsd*|kfreebsd*|freebsd*)
-        UTIL_XUNIT_TYPE="ahven-unix"
-	;;
-
-     mingw32*|cygwin*|mingw64*)
-        UTIL_XUNIT_TYPE="ahven-windows"
-	;;
-
-     *)
-        UTIL_XUNIT_TYPE="aunit"
-	;;
-  esac
+  UTIL_XUNIT_TYPE="ahven-${os_base}"
 fi
 
 ##########################################
