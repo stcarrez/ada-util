@@ -17,20 +17,14 @@
 -----------------------------------------------------------------------
 
 with Util.Test_Caller;
-with Util.Measures;
-with Util.Strings.Transforms;
-with Ada.Text_IO;
 with Util.Encoders.SHA1;
 with Util.Encoders.SHA256;
 with Util.Encoders.HMAC.SHA1;
 with Util.Encoders.HMAC.SHA256;
 with Util.Encoders.Base16;
-with Util.Encoders.Base64;
 with Util.Encoders.AES;
 with Util.Encoders.KDF.PBKDF2;
 package body Util.Encoders.KDF.Tests is
-
-   use Util.Tests;
 
    procedure PBKDF2_HMAC_SHA256 is
      new KDF.PBKDF2 (Length => Util.Encoders.SHA256.HASH_SIZE,
@@ -57,7 +51,6 @@ package body Util.Encoders.KDF.Tests is
       Pass : Secret_Key := Create (Password => "password");
       Salt : Secret_Key := Create (Password => "salt");
       Key  : Secret_Key (Length => 20);
-      B    : Util.Encoders.Base64.Encoder;
       Hex  : Util.Encoders.Base16.Encoder;
    begin
       --  RFC6070 - test vector 1
@@ -89,7 +82,6 @@ package body Util.Encoders.KDF.Tests is
       Pass : Secret_Key := Create (Password => "password");
       Salt : Secret_Key := Create (Password => "salt");
       Key  : Secret_Key (Length => 32);
-      B    : Util.Encoders.Base64.Encoder;
       Hex  : Util.Encoders.Base16.Encoder;
    begin
       --  RFC6070 - test vector 1
