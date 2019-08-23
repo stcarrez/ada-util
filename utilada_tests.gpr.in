@@ -30,7 +30,7 @@ project UtilAda_Tests is
    end case;
 
    case UtilAda_Sys.Os_Version is
-      when "linux32" | "linux64" | "netbsd32" | "netbsd64" | "freebsd32" | "freebsd64" =>
+      when "linux32" | "linux64" | "netbsd32" | "netbsd64" | "freebsd32" | "freebsd64" | "macos64" =>
 	  	 for Source_Dirs use project'Source_Dirs & ("regtests/dlls");
 	  	 for Source_Dirs use project'Source_Dirs & ("regtests/systems");
 
