@@ -23,7 +23,6 @@ package body Util.Systems.DLLs.Tests is
    use Util.Tests;
    use type System.Address;
 
-   function Get_Test_Library return String;
    function Get_Test_Symbol return String;
 
    package Caller is new Util.Test_Caller (Test, "Systems.Dlls");
@@ -36,17 +35,6 @@ package body Util.Systems.DLLs.Tests is
                        Test_Get_Symbol'Access);
    end Add_Tests;
 
-   function Get_Test_Library return String is
-   begin
-      pragma Warnings (Off);
-      if Util.Systems.Os.Directory_Separator = '/' then
-         return "libcrypto.so";
-      else
-         return "zlib1.dll";
-      end if;
-      pragma Warnings (On);
-   end Get_Test_Library;
-
    function Get_Test_Symbol return String is
    begin
       pragma Warnings (Off);
@@ -58,15 +46,50 @@ package body Util.Systems.DLLs.Tests is
       pragma Warnings (On);
    end Get_Test_Symbol;
 
+   procedure Load_Library (T : in out Test;
+                           Lib : out Handle) is
+      Lib1 : Handle;
+      Lib2 : Handle;
+      Lib3 : Handle;
+   begin
+     begin
+         Lib1 := Util.Systems.DLLs.Load ("libcrypto.so");
+         T.Assert (Lib1 /= Null_Handle, "Load operation returned null");
+         Lib := Lib1;
+      exception
+         when Load_Error =>
+            Lib1 := Null_Handle;
+      end;
+
+      begin
+         Lib2 := Util.Systems.DLLs.Load ("libcrypto.dylib");
+         T.Assert (Lib2 /= Null_Handle, "Load operation returned null");
+         Lib := Lib2;
+      exception
+         when Load_Error =>
+            Lib2 := Null_Handle;
+      end;
+
+      begin
+         Lib3 := Util.Systems.DLLs.Load ("zlib1.dll");
+         T.Assert (Lib2 /= Null_Handle, "Load operation returned null");
+         Lib := Lib3;
+      exception
+         when Load_Error =>
+            Lib3 := Null_Handle;
+      end;
+
+      T.Assert (Lib1 /= Null_Handle or Lib2 /= Null_Handle or Lib3 = Null_Handle,
+                "At least on Load operation should have failedreturned null");
+   end Load_Library;
+
    --  ------------------------------
    --  Test the loading a shared library.
    --  ------------------------------
    procedure Test_Load (T : in out Test) is
       Lib : Handle;
    begin
-      Lib := Util.Systems.DLLs.Load (Get_Test_Library);
-      T.Assert (Lib /= Null_Handle, "Load operation returned null");
-
+      Load_Library (T, Lib);
       begin
          Lib := Util.Systems.DLLs.Load ("some-invalid-library");
 
@@ -83,12 +106,30 @@ package body Util.Systems.DLLs.Tests is
    --  ------------------------------
    procedure Test_Get_Symbol (T : in out Test) is
       Lib : Handle;
-      Sym : System.Address;
+      Sym : System.Address := System.Null_Address;
    begin
-      Lib := Util.Systems.DLLs.Load (Get_Test_Library);
+      Load_Library (T, Lib);
       T.Assert (Lib /= Null_Handle, "Load operation returned null");
 
-      Sym := Util.Systems.DLLs.Get_Symbol (Lib, Get_Test_Symbol);
+      begin
+         Sym := Util.Systems.DLLs.Get_Symbol (Lib, "EVP_sha1");
+         T.Assert (Sym /= System.Null_Address, "Get_Symbol returned null");
+
+      exception
+         when Not_Found =>
+            null;
+      end;
+
+      begin
+         Sym := Util.Systems.DLLs.Get_Symbol (Lib, "compress");
+         T.Assert (Sym /= System.Null_Address, "Get_Symbol returned null");
+
+      exception
+         when Not_Found =>
+            null;
+      end;
+
+      --  We must have found one of the two symbols
       T.Assert (Sym /= System.Null_Address, "Get_Symbol returned null");
 
       begin
