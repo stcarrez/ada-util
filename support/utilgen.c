@@ -18,6 +18,7 @@
 # define _LARGEFILE64_SOURCE
 #endif
 #include <stdio.h>
+#include <stddef.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -266,6 +267,45 @@ void gen_stat(void)
     printf("   end record;\n");
     printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
     printf("   for Stat_Type'Size use %d;\n", 8 * sizeof(st));
+    printf("\n");
+#elif defined(__APPLE__)
+    struct stat st;
+
+    printf("   --  Size = %lu\n", sizeof(struct stat));
+    printf("   --  st_dev = %lu\n", sizeof(dev_t));
+    printf("   --  st_mode = %lu\n", sizeof(mode_t));
+    printf("   --  st_uid = %lu\n", sizeof(uid_t));
+    printf("   --  st_atim = %lu\n", sizeof(st.st_atime));
+    printf("   --  st_nlink@ %lu\n", offsetof(struct stat, st_nlink));
+    printf("   --  st_rdev@ %lu\n", offsetof(struct stat, st_rdev));
+    printf("   --  st_size@ %lu\n", offsetof(struct stat, st_size));
+
+    printf("   STAT_NAME  : constant String := \"_stat64\";\n");
+    printf("   FSTAT_NAME : constant String := \"_fstat64\";\n");
+    printf("   type Stat_Type is record\n");
+    printf("      st_dev      : dev_t;\n");
+    printf("      st_mode     : mode_t;\n");
+    printf("      st_nlink    : nlink_t;\n");
+    printf("      st_ino      : ino_t;\n");
+    printf("      st_uid      : uid_t;\n");
+    printf("      st_gid      : gid_t;\n");
+    printf("      st_rdev     : dev_t;\n");
+    printf("      st_atim     : Timespec;\n");
+    printf("      st_mtim     : Timespec;\n");
+    printf("      st_ctim     : Timespec;\n");
+    printf("      st_birthtim : Timespec;\n");
+    printf("      st_size     : off_t;\n");
+    printf("      st_blocks   : blkcnt_t;\n");
+    printf("      st_blksize  : blksize_t;\n");
+    printf("      st_flags    : %s;\n", get_type(UNSIGNED, sizeof(unsigned)));
+    printf("      st_gen      : %s;\n", get_type(UNSIGNED, sizeof(st.st_gen)));
+    printf("      st_lspare   : %s;\n", get_type(UNSIGNED, sizeof(st.st_lspare)));
+    printf("      st_qspare1  : %s;\n", get_type(UNSIGNED, sizeof(unsigned)));
+    printf("      st_qspare2  : %s;\n", get_type(UNSIGNED, sizeof(unsigned)));
+    printf("      st_qspare3  : %s;\n", get_type(UNSIGNED, sizeof(unsigned)));
+    printf("      st_qspare4  : %s;\n", get_type(UNSIGNED, sizeof(unsigned)));
+    printf("   end record;\n");
+    printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
     printf("\n");
 #elif defined(__NetBSD__)
     struct stat st;
