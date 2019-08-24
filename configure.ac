@@ -33,15 +33,12 @@ AC_SUBST(UTIL_MAJOR_VERSION)
 AC_SUBST(UTIL_MINOR_VERSION)
 AC_SUBST(UTIL_MICRO_VERSION)
 
+AC_CHECK_PROG(HAVE_PANDOC,pandoc,yes)
+AC_CHECK_PROG(HAVE_DYNAMO,dynamo,yes)
+
 AM_GNAT_LIBRARY_PROJECT(utilada_core)
 AM_GNAT_LIBRARY_SETUP(utilada_base)
 AM_GNAT_LIBRARY_SETUP(utilada_sys)
-
-EXEC_PREFIX="$prefix"
-AC_SUBST(EXEC_PREFIX)
-
-AC_CHECK_PROG(HAVE_PANDOC,pandoc,yes)
-AC_CHECK_PROG(HAVE_DYNAMO,dynamo,yes)
 
 os_base='unix'
 os_version='none'
@@ -157,89 +154,10 @@ AC_SUBST(UTIL_OS_VERSION)
 
 # directories GNAT project gives the installation paths
 AM_GNAT_CHECK_PROJECT([directories],[directories])
-UTIL_HAVE_PRJ_DIRECTORIES=${gnat_project_directories}
+UTIL_HAVE_PRJ_DIRECTORIES=${ac_cv_gnat_project_directories}
 AC_SUBST(UTIL_HAVE_PRJ_DIRECTORIES)
 
-##########################################
-# XMLAda library
-##########################################
-
-gnat_xml_ada=xmlada-config
-AC_MSG_CHECKING([xmlada library])
-AC_ARG_WITH(xmlada,
-AS_HELP_STRING([--with-xmlada=], [Enable XML serialization]),
-[
-  if test T${withval} = Tno ; then
-    UTIL_HAVE_XML=no;
-  else
-    gnat_xml_ada=${withval}/xmlada-config;
-    WITH_XML_ADA="with \"${withval}\";";
-    UTIL_XML_DIR='src/sys/serialize/xml';
-    UTIL_HAVE_XML='yes';
-  fi
-],
-[
-  WITH_XML_ADA='';
-  UTIL_XML_DIR='src';
-  UTIL_HAVE_XML='yes';
-])
-
-if test T$UTIL_HAVE_XML = Tyes ; then
-  ac_xml_version=`$gnat_xml_ada --version 2>/dev/null | sed -e 's, ,-,g'`
-else
-  ac_xml_version=none
-fi
-case $ac_xml_version in
-  XmlAda-3.2*)
-      AC_MSG_RESULT($ac_xml_version)
-      WITH_XML_ADA="with \"xmlada\";";
-      UTIL_XML_DIR='src/sys/serialize/xml';
-      UTIL_XML_VERSION='3';
-      UTIL_HAVE_XML='yes';
-      ;;
-
-  XmlAda-4.*|XmlAda-2013|XmlAda-2014)
-      AC_MSG_RESULT($ac_xml_version)
-      WITH_XML_ADA="with \"xmlada\";";
-      UTIL_XML_DIR='src/sys/serialize/xml';
-      UTIL_XML_VERSION='4';
-      UTIL_HAVE_XML='yes';
-      ;;
-
-  *)
-      AC_MSG_RESULT(no)
-      ;;
-
-esac
-if test T$UTIL_HAVE_XML = Tyes ; then
-  AM_GNAT_CHECK_PROJECT([xmlada_sax],[xmlada_sax])
-  if test T$gnat_project_xmlada_sax = Tno; then
-    AM_GNAT_CHECK_PROJECT([xmlada],[xmlada])
-    if test T$gnat_project_xmlada != Tno; then
-      WITH_XML_ADA="with \"xmlada\";";
-    else
-      UTIL_HAVE_XML=no
-    fi
-  else
-    WITH_XML_ADA="with \"xmlada_sax\";";
-    UTIL_XML_VERSION='4'
-    UTIL_XML_DIR='src/serialize/xml'
-  fi
-else
-  gnat_project_xmlada_sax='no'
-fi
-
-if test T$UTIL_HAVE_XML = Tno; then
-  WITH_XML_ADA='';
-  UTIL_XML_DIR='src';
-  UTIL_XML_VERSION='none';
-  UTIL_HAVE_XML='no';
-fi
-
-AC_SUBST(WITH_XML_ADA)
-AC_SUBST(UTIL_XML_DIR)
-AC_SUBST(UTIL_XML_VERSION)
-AC_SUBST(UTIL_HAVE_XML)
+AM_GNAT_FIND_XML_ADA([], [])
 
 AC_MSG_CHECKING([Ada LZMA Library])
 AC_ARG_WITH(ada-lzma,
@@ -264,7 +182,7 @@ AM_GNAT_FIND_PROJECT([ada-lzma],[Ada LZMA Library],[lzmada],
   [git@github.com:stcarrez/ada-lzma.git],
   [Building Ada Utility Library with LZMA support.],
   [
-    LZMA_DIR=${gnat_project_dir_lzmada}
+    LZMA_DIR=${ac_cv_gnat_project_dir_lzmada}
   ])
   WITH_LZMA_ADA="with \"${LZMA_DIR}lzmada\";";
   WITH_UTILADA_LZMA="with \"utilada_lzma\";";
@@ -325,7 +243,7 @@ AC_MSG_RESULT($ac_enable_ahven)
 
 if test T$ac_enable_aunit = Tyes; then
    AM_GNAT_CHECK_PROJECT([aunit],[aunit])
-   if test T$gnat_project_aunit = Tno; then
+   if test T$ac_cv_gnat_project_aunit = Tno; then
           if test T$ac_enable_ahven = Tno; then
              AC_MSG_WARN(AUnit is not installed and Ahven is not enabled.)
              AC_MSG_ERROR(Please install AUnit or enable Ahven with --enable-ahven.)
@@ -387,9 +305,27 @@ AM_GNAT_CHECK_AWS(
   ], [
     UTIL_HAVE_AWS=yes
     WITH_UTIL_AWS="with \"utilada_aws\";";
-    WITH_SERVER="with \"$gnat_project_name\";";
+    WITH_SERVER=$ac_cv_gnat_project_with_aws
     AM_GNAT_LIBRARY_SETUP(utilada_aws)
   ])
+AM_GNAT_AWS_VERSION
+
+AC_MSG_CHECKING([using AWS secure mail client])
+UTIL_AWS_VERSION=1
+case $AWS_VERSION in
+  *2017*|*2018*|*2019*|*202*)
+     UTIL_AWS_VERSION=2
+     ;;
+
+  3.3.2)
+     UTIL_AWS_VERSION=2
+     ;;
+
+  *)
+     UTIL_AWS_VERSION=1
+     ;;
+esac
+AC_SUBST(UTIL_AWS_VERSION)
 
 ##########################################
 # Check for Util.Serialize.Mappers.Vector_Mappers support
@@ -455,6 +391,8 @@ else
 fi
 AC_MSG_RESULT($opts)
 AC_SUBST(UTIL_CURL_LIBRARY_OPTIONS)
+
+AM_GNAT_CHECK_INSTALL
 
 AC_SUBST(UTIL_HAVE_VECTOR_MAPPERS)
 AC_SUBST(UTIL_HAVE_AWS)
