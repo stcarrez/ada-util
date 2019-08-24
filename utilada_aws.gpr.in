@@ -6,6 +6,9 @@ library project UtilAda_Aws is
    Version := "@UTIL_VERSION@";
    Library_Dir := "lib";
 
+   type AWS_Impl_Type is ("1", "2");
+
+   AWS_Impl    : AWS_Impl_Type := "@UTIL_AWS_VERSION@";
    Has_Aws     : Config.Yes_No := "@UTIL_HAVE_AWS@";
    
    case Has_Aws is
@@ -17,6 +20,19 @@ library project UtilAda_Aws is
         
    end case;
    
+   package Naming is
+      case AWS_Impl is
+         when "1" =>
+            for Implementation ("Util.Http.Clients.AWS")
+               use "util-http-clients-aws__1.adb";
+
+         when "2" =>
+            for Implementation ("Util.Http.Clients.AWS")
+               use "util-http-clients-aws__2.adb";
+
+      end case;
+   end Naming;
+
    for Library_Name use "utilada_aws";
    for Library_Kind use UtilAda_Sys.Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
