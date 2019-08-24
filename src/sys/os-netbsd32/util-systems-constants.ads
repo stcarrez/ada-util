@@ -31,6 +31,7 @@ package Util.Systems.Constants is
    RTLD_LOCAL                    : constant Interfaces.C.int := 8#001000#;
    RTLD_NODELETE                 : constant Interfaces.C.int := 8#010000#;
 
-   DLL_OPTIONS : constant String := "";
+   DLL_OPTIONS   : constant String := "";
+   SYMBOL_PREFIX : constant String := "";
 
 end Util.Systems.Constants;
