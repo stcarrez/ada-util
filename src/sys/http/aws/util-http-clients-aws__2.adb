@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-web -- HTTP Clients with AWS implementation
---  Copyright (C) 2011, 2012, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +17,9 @@
 -----------------------------------------------------------------------
 
 with Ada.Strings.Unbounded;
-with AWS.Messages;
-with AWS.Headers.Set;
+with Util.Http.Clients.AWS_I.Messages;
 with Util.Log.Loggers;
-package body Util.Http.Clients.Web is
+package body Util.Http.Clients.AWS is
 
    Log   : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Http.Clients.Web");
 
@@ -34,10 +33,10 @@ package body Util.Http.Clients.Web is
       Default_Http_Manager := Manager'Access;
    end Register;
 
-   function To_Status (Code : in AWS.Messages.Status_Code) return Natural;
+   function To_Status (Code : in AWS_I.Messages.Status_Code) return Natural;
 
-   function To_Status (Code : in AWS.Messages.Status_Code) return Natural is
-      use AWS.Messages;
+   function To_Status (Code : in AWS_I.Messages.Status_Code) return Natural is
+      use AWS_I.Messages;
    begin
       case Code is
          when S100 =>
@@ -156,7 +155,7 @@ package body Util.Http.Clients.Web is
       Log.Info ("Get {0}", URI);
 
       Reply.Delegate := Rep.all'Access;
-      Rep.Data       := AWS.Client.Get (URL => URI, Headers => Req.Headers,
+      Rep.Data       := AWS_I.Client.Get (URL => URI, Headers => Req.Headers,
                                         Timeouts => Req.Timeouts);
    end Do_Get;
 
@@ -175,7 +174,7 @@ package body Util.Http.Clients.Web is
       Log.Info ("Post {0}", URI);
 
       Reply.Delegate := Rep.all'Access;
-      Rep.Data       := AWS.Client.Post (URL => URI, Data => Data,
+      Rep.Data       := AWS_I.Client.Post (URL => URI, Data => Data,
                                          Headers => Req.Headers,
                                          Timeouts => Req.Timeouts);
    end Do_Post;
@@ -195,7 +194,7 @@ package body Util.Http.Clients.Web is
       Log.Info ("Put {0}", URI);
 
       Reply.Delegate := Rep.all'Access;
-      Rep.Data       := AWS.Client.Put (URL => URI, Data => Data, Headers => Req.Headers,
+      Rep.Data       := AWS_I.Client.Put (URL => URI, Data => Data, Headers => Req.Headers,
                                         Timeouts => Req.Timeouts);
    end Do_Put;
 
@@ -204,21 +203,21 @@ package body Util.Http.Clients.Web is
                         Http     : in Client'Class;
                         URI      : in String;
                         Reply    : out Response'Class) is
-      pragma Unreferenced (Manager, Http);
+      pragma Unreferenced (Manager);
 
---      Req     : constant AWS_Http_Request_Access
---        := AWS_Http_Request'Class (Http.Delegate.all)'Access;
+      Req     : constant AWS_Http_Request_Access
+        := AWS_Http_Request'Class (Http.Delegate.all)'Access;
       Rep     : constant AWS_Http_Response_Access := new AWS_Http_Response;
    begin
       Log.Info ("Delete {0}", URI);
 
       Reply.Delegate := Rep.all'Access;
-      --  Rep.Data       := AWS.Client.Delete (URL => URI, Data => "", Headers => Req.Headers,
-      --                                       Timeouts => Req.Timeouts);
-      raise Program_Error with "Delete is not supported by AWS and there is no easy conditional"
-        & " compilation in Ada to enable Delete support for the latest AWS version. "
-        & "For now, you have to use curl, or install the latest AWS version and then "
-        & "uncomment the AWS.Client.Delete call and remove this exception.";
+      Rep.Data       := AWS_I.Client.Delete (URL => URI, Data => "", Headers => Req.Headers,
+                                             Timeouts => Req.Timeouts);
+--      raise Program_Error with "Delete is not supported by AWS and there is no easy conditional"
+--        & " compilation in Ada to enable Delete support for the latest AWS version. "
+--        & "For now, you have to use curl, or install the latest AWS version and then "
+--        & "uncomment the AWS.Client.Delete call and remove this exception.";
    end Do_Delete;
 
    --  ------------------------------
@@ -231,7 +230,7 @@ package body Util.Http.Clients.Web is
       pragma Unreferenced (Manager);
    begin
       AWS_Http_Request'Class (Http.Delegate.all).Timeouts
-         := AWS.Client.Timeouts (Connect  => Timeout,
+         := AWS_I.Client.Timeouts (Connect  => Timeout,
                                  Send     => Timeout,
                                  Receive  => Timeout,
                                  Response => Timeout);
@@ -243,8 +242,8 @@ package body Util.Http.Clients.Web is
    --  ------------------------------
    function Contains_Header (Http : in AWS_Http_Request;
                              Name : in String) return Boolean is
-      Values : constant AWS.Headers.VString_Array
-        := AWS.Headers.Get_Values (Http.Headers, Name);
+      Values : constant AWS_I.Headers.VString_Array
+        := AWS_I.Headers.Get_Values (Http.Headers, Name);
    begin
       return Values'Length > 0;
    end Contains_Header;
@@ -259,8 +258,8 @@ package body Util.Http.Clients.Web is
    overriding
    function Get_Header (Request : in AWS_Http_Request;
                         Name    : in String) return String is
-      Values : constant AWS.Headers.VString_Array
-        := AWS.Headers.Get_Values (Request.Headers, Name);
+      Values : constant AWS_I.Headers.VString_Array
+        := AWS_I.Headers.Get_Values (Request.Headers, Name);
    begin
       if Values'Length > 0 then
          return Ada.Strings.Unbounded.To_String (Values (Values'First));
@@ -279,7 +278,7 @@ package body Util.Http.Clients.Web is
                          Name  : in String;
                          Value : in String) is
    begin
-      AWS.Headers.Set.Add (Http.Headers, Name, Value);
+      AWS_I.Headers.Add (Http.Headers, Name, Value);
    end Set_Header;
 
    --  ------------------------------
@@ -291,7 +290,7 @@ package body Util.Http.Clients.Web is
                          Name  : in String;
                          Value : in String) is
    begin
-      AWS.Headers.Set.Add (Http.Headers, Name, Value);
+      AWS_I.Headers.Add (Http.Headers, Name, Value);
    end Add_Header;
 
    --  Iterate over the request headers and executes the <b>Process</b> procedure.
@@ -311,7 +310,7 @@ package body Util.Http.Clients.Web is
    function Contains_Header (Reply : in AWS_Http_Response;
                              Name  : in String) return Boolean is
    begin
-      return AWS.Response.Header (Reply.Data, Name) /= "";
+      return AWS_I.Response.Header (Reply.Data, Name) /= "";
    end Contains_Header;
 
    --  ------------------------------
@@ -324,7 +323,7 @@ package body Util.Http.Clients.Web is
    function Get_Header (Reply  : in AWS_Http_Response;
                         Name   : in String) return String is
    begin
-      return AWS.Response.Header (Reply.Data, Name);
+      return AWS_I.Response.Header (Reply.Data, Name);
    end Get_Header;
 
    --  Sets a message header with the given name and value. If the header had already
@@ -363,14 +362,14 @@ package body Util.Http.Clients.Web is
    --  ------------------------------
    function Get_Body (Reply : in AWS_Http_Response) return String is
    begin
-      return AWS.Response.Message_Body (Reply.Data);
+      return AWS_I.Response.Message_Body (Reply.Data);
    end Get_Body;
 
    --  Get the response status code.
    overriding
    function Get_Status (Reply : in AWS_Http_Response) return Natural is
    begin
-      return To_Status (AWS.Response.Status_Code (Reply.Data));
+      return To_Status (AWS_I.Response.Status_Code (Reply.Data));
    end Get_Status;
 
-end Util.Http.Clients.Web;
+end Util.Http.Clients.AWS;
