@@ -32,7 +32,7 @@ project Samples is
 
    case UtilAda.Has_Curl is
       when "yes" =>
-         Mains := Mains & ("wget.adb",  "wput.adb");
+         Mains := Mains & ("wget.adb");
 
       when others =>
          null;
