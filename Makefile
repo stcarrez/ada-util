@@ -1,3 +1,4 @@
+NAME=utilada
 
 -include Makefile.conf
 
@@ -59,10 +60,10 @@ build-test:: regtests/util-testsuite.adb
 
 # Build and run the unit tests
 test:	build
-	-bin/util_harness -xml util-aunit.xml -timeout ${TEST_TIMEOUT}
+	-bin/util_harness -l $(NAME): -xml util-aunit.xml -timeout ${TEST_TIMEOUT}
 
 regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile.conf
-	gnatprep -DHAVE_XML=$(HAVE_XML) -DHAVE_CURL=$(HAVE_CURL) \
+	gnatprep -DHAVE_XML=$(HAVE_XML_ADA) -DHAVE_CURL=$(HAVE_CURL) \
                  -DHAVE_AWS=$(HAVE_AWS) \
 				 -DHAVE_VECTOR_MAPPERS=$(HAVE_VECTOR_MAPPERS) \
                  -DHAVE_LZMA=$(HAVE_LZMA) \
