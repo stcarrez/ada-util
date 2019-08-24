@@ -74,6 +74,12 @@
 #define SIGNED   1
 #define UNSIGNED 0
 
+#ifdef __APPLE__
+# define SYMBOL_PREFIX "_"
+#else
+# define SYMBOL_PREFIX ""
+#endif
+
 const char* get_type(int is_signed, int size)
 {
     if (is_signed) {
@@ -536,10 +542,12 @@ int main(int argc, char** argv)
 
     printf("\n");
 #ifdef HAVE_DLOPEN
-    printf("   DLL_OPTIONS : constant String := \"-ldl\";\n");
+    printf("   DLL_OPTIONS   : constant String := \"-ldl\";\n");
 #else
-    printf("   DLL_OPTIONS : constant String := \"\";\n");
+    printf("   DLL_OPTIONS   : constant String := \"\";\n");
 #endif
+    printf("   SYMBOL_PREFIX : constant String := \"%s\";\n", SYMBOL_PREFIX);
+    
     printf("\n");
 
     printf("end Util.Systems.Constants;\n");
