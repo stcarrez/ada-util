@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-xunit - Unit tests on top of AUnit
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,8 +66,9 @@ package Util.XUnit is
    --  according to the testsuite execution status.
    generic
       with function Suite return Access_Test_Suite;
-   procedure Harness (Output : in Ada.Strings.Unbounded.Unbounded_String;
+   procedure Harness (Output : in String;
                       XML    : in Boolean;
+                      Label  : in String;
                       Result : out Status);
 
 end Util.XUnit;
