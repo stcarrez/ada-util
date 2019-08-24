@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-xunit - Unit tests on top of AHven
---  Copyright (C) 2011, 2016, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2017, 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -121,6 +121,7 @@ package body Util.XUnit is
    --  Report passes, skips, failures, and errors from the result collection.
    --  ------------------------------
    procedure Report_Results (Result  : in Ahven.Results.Result_Collection;
+                             Label   : in String;
                              Time    : in Duration) is
       T_Count : constant Integer := Ahven.Results.Test_Count (Result);
       F_Count : constant Integer := Ahven.Results.Failure_Count (Result);
@@ -133,7 +134,8 @@ package body Util.XUnit is
       if E_Count > 0 then
          Ahven.Text_Runner.Print_Errors (Result, 0);
       end if;
-      Ada.Text_IO.Put_Line ("Tests run:" & Integer'Image (T_Count - S_Count)
+      Ada.Text_IO.Put_Line (Label
+                            & "Tests run:" & Integer'Image (T_Count - S_Count)
                             & ", Failures:" & Integer'Image (F_Count)
                             & ", Errors:" & Integer'Image (E_Count)
                             & ", Skipped:" & Integer'Image (S_Count)
@@ -208,8 +210,9 @@ package body Util.XUnit is
    --  results, create performance logs and set the program exit status
    --  according to the testsuite execution status.
    --  ------------------------------
-   procedure Harness (Output : in Ada.Strings.Unbounded.Unbounded_String;
+   procedure Harness (Output : in String;
                       XML    : in Boolean;
+                      Label  : in String;
                       Result : out Status) is
 
       use Ahven.Listeners.Basic;
@@ -238,7 +241,7 @@ package body Util.XUnit is
       Start := Ada.Calendar.Clock;
       Ahven.Framework.Execute (Tests.all, Listener, Timeout);
       Dt := Ada.Calendar.Clock - Start;
-      Report_Results (Listener.Main_Result, Dt);
+      Report_Results (Listener.Main_Result, Label, Dt);
 
       Ahven.XML_Runner.Report_Results (Listener.Main_Result, Out_Dir);
 
@@ -251,8 +254,7 @@ package body Util.XUnit is
       end if;
 
       if XML then
-         Report_XML_Summary (Ada.Strings.Unbounded.To_String (Output),
-                             Listener.Main_Result, Dt);
+         Report_XML_Summary (Output, Listener.Main_Result, Dt);
       end if;
 
    exception
