@@ -1,10 +1,10 @@
 # Ada Utility Library
 
-[![Build Status](https://img.shields.io/jenkins/s/http/jenkins.vacs.fr/Ada-Util.svg)](http://jenkins.vacs.fr/job/Ada-Util/)
-[![Test Status](https://img.shields.io/jenkins/t/http/jenkins.vacs.fr/Ada-Util.svg)](http://jenkins.vacs.fr/job/Ada-Util/)
-[![Documentation Status](https://readthedocs.org/projects/ada-util/badge/?version=latest)](http://ada-util.readthedocs.io/en/latest/?badge=latest)
+[![Build Status](https://img.shields.io/jenkins/s/http/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)
+[![Test Status](https://img.shields.io/jenkins/t/http/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)
+[![Documentation Status](https://readthedocs.org/projects/ada-util/badge/?version=latest)](https://ada-util.readthedocs.io/en/latest/?badge=latest)
 [![Download](https://img.shields.io/badge/download-1.9.0-brightgreen.svg)](http://download.vacs.fr/ada-util/ada-util-1.9.0.tar.gz)
-[![License](http://img.shields.io/badge/license-APACHE2-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-APACHE2-blue.svg)](LICENSE)
 ![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/1.9.0.svg)
 
 
@@ -29,7 +29,7 @@ framework as it provides better reports.
 # Build
 
 For a detailed description on how you can configure, build and install the library
-refer to the [Installation](http://ada-util.readthedocs.io/en/latest/Installation/) guide.
+refer to the [Installation](https://ada-util.readthedocs.io/en/latest/Installation/) guide.
 Otherwise, you can easily configure and build the library with the steps described below.
 
 To use Ahven testing framework, configure and build as follows:
@@ -68,5 +68,5 @@ The samples can be built using:
 
 # Documentation
 
-* [Ada Utility Library Programmer's Guide](http://ada-util.readthedocs.io/en/latest/intro/)
+* [Ada Utility Library Programmer's Guide](https://ada-util.readthedocs.io/en/latest/intro/)
 * [Wiki Documentation](https://github.com/stcarrez/ada-util/wiki)
