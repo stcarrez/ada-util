@@ -14,6 +14,7 @@ package Util.Systems.Constants is
    O_APPEND                      : constant Interfaces.C.int := 8#000010#;
 
 
-   DLL_OPTIONS : constant String := "";
+   DLL_OPTIONS   : constant String := "";
+   SYMBOL_PREFIX : constant String := "";
 
 end Util.Systems.Constants;
