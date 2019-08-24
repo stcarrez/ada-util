@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  AUnit utils - Helper for writing unit tests
---  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2017 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -443,9 +443,10 @@ package body Util.Tests is
       procedure Help is
       begin
          Put_Line ("Test harness: " & Name);
-         Put ("Usage: harness [-xml result.xml] [-t timeout] [-p prefix] [-v]"
+         Put ("Usage: harness [-l label] [-xml result.xml] [-t timeout] [-p prefix] [-v]"
               & "[-config file.properties] [-d dir] [-r testname]");
          Put_Line ("[-update]");
+         Put_Line ("-l label       Print the label in the test summary result");
          Put_Line ("-xml file      Produce an XML test report");
          Put_Line ("-config file   Specify a test configuration file");
          Put_Line ("-d dir         Change the current directory to <dir>");
@@ -464,9 +465,10 @@ package body Util.Tests is
       XML       : Boolean := False;
       Output    : Ada.Strings.Unbounded.Unbounded_String;
       Chdir     : Ada.Strings.Unbounded.Unbounded_String;
+      Label     : String (1 .. 16) := (others => ' ');
    begin
       loop
-         case Getopt ("h u v x: t: p: c: config: d: r: update help xml: timeout:") is
+         case Getopt ("h u v l: x: t: p: c: config: d: r: update help xml: timeout:") is
             when ASCII.NUL =>
                exit;
 
@@ -487,6 +489,14 @@ package body Util.Tests is
 
             when 'd' =>
                Chdir := To_Unbounded_String (Parameter);
+
+            when 'l' =>
+               if Parameter'Length > Label'Length then
+                  Label := Parameter (Parameter'First .. Parameter'First + Label'Length - 1);
+               else
+                  Label := (others => ' ');
+                  Label (Label'First .. Label'First + Parameter'Length - 1) := Parameter;
+               end if;
 
             when 'u' =>
                Update_Test_Files := True;
@@ -546,7 +556,8 @@ package body Util.Tests is
          S  : Util.Measures.Stamp;
       begin
          Util.Measures.Set_Current (Perf'Unchecked_Access);
-         Runner (Output, XML, Result);
+         Runner (To_String (Output), XML,
+                 (if (for all C of Label => C = ' ') then "" else Label), Result);
          Util.Measures.Report (Perf, S, "Testsuite execution");
          Util.Measures.Write (Perf, "Test measures", Name);
       end;
