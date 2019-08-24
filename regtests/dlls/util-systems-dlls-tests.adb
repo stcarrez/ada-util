@@ -17,13 +17,10 @@
 -----------------------------------------------------------------------
 
 with Util.Test_Caller;
-with Util.Systems.Os;
 package body Util.Systems.DLLs.Tests is
 
    use Util.Tests;
    use type System.Address;
-
-   function Get_Test_Symbol return String;
 
    package Caller is new Util.Test_Caller (Test, "Systems.Dlls");
 
@@ -34,17 +31,6 @@ package body Util.Systems.DLLs.Tests is
       Caller.Add_Test (Suite, "Test Util.Systems.Dlls.Get_Symbol",
                        Test_Get_Symbol'Access);
    end Add_Tests;
-
-   function Get_Test_Symbol return String is
-   begin
-      pragma Warnings (Off);
-      if Util.Systems.Os.Directory_Separator = '/' then
-         return "EVP_sha1";
-      else
-         return "compress";
-      end if;
-      pragma Warnings (On);
-   end Get_Test_Symbol;
 
    procedure Load_Library (T : in out Test;
                            Lib : out Handle) is
