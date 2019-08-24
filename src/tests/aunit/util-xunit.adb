@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-xunit - Unit tests on top of AUnit
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,8 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+
+with Ada.Strings.Unbounded;
 
 with AUnit.Options;
 with AUnit.Reporter.Text;
@@ -49,8 +51,9 @@ package body Util.XUnit is
    --  results, create performance logs and set the program exit status
    --  according to the testsuite execution status.
    --  ------------------------------
-   procedure Harness (Output : in Ada.Strings.Unbounded.Unbounded_String;
+   procedure Harness (Output : in String;
                       XML    : in Boolean;
+                      Label  : in String;
                       Result : out Status) is
       use type AUnit.Status;
 
@@ -64,7 +67,7 @@ package body Util.XUnit is
          declare
             Reporter : Util.Tests.Reporter.XML_Reporter;
          begin
-            Reporter.File := Output;
+            Reporter.File := Ada.Strings.Unbounded.To_Unbounded_String (Output);
             Result := Runner (Reporter, O);
          end;
       else
