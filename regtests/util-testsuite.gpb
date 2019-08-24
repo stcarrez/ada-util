@@ -62,7 +62,7 @@ with Util.Http.Cookies.Tests;
 with Util.Http.Clients.Curl.Tests;
 # end if;
 #if HAVE_AWS = "yes"
-with Util.Http.Clients.Web.Tests;
+with Util.Http.Clients.AWS.Tests;
 # end if;
 #if not (OS_VERSION = "os-none")
 with Util.Systems.DLLs.Tests;
@@ -121,7 +121,7 @@ package body Util.Testsuite is
       Util.Http.Clients.Curl.Tests.Add_Tests (Result);
 #end if;
 #if HAVE_AWS = "yes"
-      Util.Http.Clients.Web.Tests.Add_Tests (Result);
+      Util.Http.Clients.AWS.Tests.Add_Tests (Result);
 #end if;
 #if not(OS_VERSION = "os-none")
       Util.Systems.DLLs.Tests.Add_Tests (Result);
