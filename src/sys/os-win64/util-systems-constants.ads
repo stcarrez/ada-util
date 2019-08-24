@@ -17,6 +17,7 @@ package Util.Systems.Constants is
    O_DIRECT                      : constant Interfaces.C.int := 0;
 
 
-   DLL_OPTIONS : constant String := "-ldl";
+   DLL_OPTIONS   : constant String := "-ldl";
+   SYMBOL_PREFIX : constant String := "";
 
 end Util.Systems.Constants;
