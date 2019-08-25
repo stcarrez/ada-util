@@ -1,4 +1,4 @@
-Version 1.10.0  -
+Version 2.0.0  -
   - Rename GNAT projects and split the library in several parts
   - New samples to show compression, decompression, encryption, decryption streams
   - Added AES encryption and decryption
