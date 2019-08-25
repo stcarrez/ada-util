@@ -179,7 +179,7 @@ package Util.Systems.Os is
 
    --  Libc errno.  The __get_errno function is provided by the GNAT runtime.
    function Errno return Integer
-     with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "_get_errno";
+     with Import => True, Convention => C, Link_Name => "__get_errno";
 
    function Strerror (Errno : in Integer) return Interfaces.C.Strings.chars_ptr
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "strerror";
