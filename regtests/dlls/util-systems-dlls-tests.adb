@@ -58,7 +58,7 @@ package body Util.Systems.DLLs.Tests is
 
       begin
          Lib3 := Util.Systems.DLLs.Load ("zlib1.dll");
-         T.Assert (Lib2 /= Null_Handle, "Load operation returned null");
+         T.Assert (Lib3 /= Null_Handle, "Load operation returned null");
          Lib := Lib3;
       exception
          when Load_Error =>
