@@ -65,7 +65,7 @@ package body Util.Systems.DLLs.Tests is
             Lib3 := Null_Handle;
       end;
 
-      T.Assert (Lib1 /= Null_Handle or Lib2 /= Null_Handle or Lib3 = Null_Handle,
+      T.Assert (Lib1 /= Null_Handle or Lib2 /= Null_Handle or Lib3 /= Null_Handle,
                 "At least on Load operation should have failedreturned null");
    end Load_Library;
 
