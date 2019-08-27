@@ -4926,11 +4926,11 @@ $as_echo "$ac_cv_gnat_aws_version" >&6; }
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking using AWS secure mail client" >&5
-$as_echo_n "checking using AWS secure mail client... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking using AWS http client" >&5
+$as_echo_n "checking using AWS http client... " >&6; }
 UTIL_AWS_VERSION=1
 case $AWS_VERSION in
-  *2017*|*2018*|*2019*|*202*)
+  *2017*|*2018*|*2019*|*202*|20.0)
      UTIL_AWS_VERSION=2
      ;;
 
@@ -4942,6 +4942,8 @@ case $AWS_VERSION in
      UTIL_AWS_VERSION=1
      ;;
 esac
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${UTIL_AWS_VERSION}" >&5
+$as_echo "${UTIL_AWS_VERSION}" >&6; }
 
 
 ##########################################
