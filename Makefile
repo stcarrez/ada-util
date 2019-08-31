@@ -79,44 +79,44 @@ clean::
 
 ifeq (${HAVE_PANDOC},yes)
 ifeq (${HAVE_DYNAMO},yes)
-doc::  doc/util-book.pdf doc/util-book.html
+doc::  docs/util-book.pdf docs/util-book.html
 	$(DYNAMO) build-doc -markdown wiki
 
 UTIL_DOC= \
-  doc/title.md \
-  doc/pagebreak.tex \
-  doc/index.md \
-  doc/pagebreak.tex \
-  doc/Installation.md \
-  doc/pagebreak.tex \
-  doc/Util_Log.md \
-  doc/pagebreak.tex \
-  doc/Util_Properties.md \
-  doc/pagebreak.tex \
-  doc/Util_Dates.md \
-  doc/pagebreak.tex \
-  doc/Util_Beans.md \
-  doc/pagebreak.tex \
-  doc/Util_Http.md \
-  doc/pagebreak.tex \
-  doc/Util_Streams.md \
-  doc/pagebreak.tex \
-  doc/Util_Encoders.md \
-  doc/pagebreak.tex \
-  doc/Util_Events_Timers.md \
-  doc/pagebreak.tex \
-  doc/Util_Measures.md
+  docs/title.md \
+  docs/pagebreak.tex \
+  docs/index.md \
+  docs/pagebreak.tex \
+  docs/Installation.md \
+  docs/pagebreak.tex \
+  docs/Util_Log.md \
+  docs/pagebreak.tex \
+  docs/Util_Properties.md \
+  docs/pagebreak.tex \
+  docs/Util_Dates.md \
+  docs/pagebreak.tex \
+  docs/Util_Beans.md \
+  docs/pagebreak.tex \
+  docs/Util_Http.md \
+  docs/pagebreak.tex \
+  docs/Util_Streams.md \
+  docs/pagebreak.tex \
+  docs/Util_Encoders.md \
+  docs/pagebreak.tex \
+  docs/Util_Events_Timers.md \
+  docs/pagebreak.tex \
+  docs/Util_Measures.md
 
-DOC_OPTIONS=-f markdown -o doc/util-book.pdf
+DOC_OPTIONS=-f markdown -o docs/util-book.pdf
 DOC_OPTIONS+= --listings --number-sections --toc
-HTML_OPTIONS=-f markdown -o doc/util-book.html
-HTML_OPTIONS+= --listings --number-sections --toc --css doc/pandoc.css
+HTML_OPTIONS=-f markdown -o docs/util-book.html
+HTML_OPTIONS+= --listings --number-sections --toc --css docs/pandoc.css
 
-doc/util-book.pdf:  force
-	$(DYNAMO) build-doc -pandoc doc
-	pandoc $(DOC_OPTIONS) --template=./doc/eisvogel.tex $(UTIL_DOC)
+docs/util-book.pdf:  force
+	$(DYNAMO) build-doc -pandoc docs
+	pandoc $(DOC_OPTIONS) --template=./docs/eisvogel.tex $(UTIL_DOC)
 
-doc/util-book.html: doc/util-book.pdf force
+docs/util-book.html: docs/util-book.pdf force
 	pandoc $(HTML_OPTIONS) $(UTIL_DOC)
 endif
 endif

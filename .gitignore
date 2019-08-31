@@ -24,7 +24,6 @@ distrib/util_http.gpr
 distrib/util_http_aws.gpr
 distrib/util_http_curl.gpr
 distrib/util_unit.gpr
-*.txt
 lib/
 obj/
 regtests/util-testsuite.adb
