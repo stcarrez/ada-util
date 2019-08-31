@@ -5,7 +5,7 @@ with "utilada_sys";
 library project UtilAda_Unit is
    Version      := "@UTIL_VERSION@";
 
-   Library_Type : Config.Library_Type_Type := external ("UTIL_LIBRARY_TYPE", "static");
+   Library_Type : Config.Library_Type_Type := external ("UTIL_LIBRARY_TYPE", "@DEFAULT_LIBRARY_TYPE@");
 
    type Unit_Type is ("none", "ahven-unix", "ahven-windows", "aunit");
 

@@ -8,7 +8,7 @@ library project UtilAda_Core is
 
    Asm_Version := "@UTIL_ASM_TYPE@";
 
-   Library_Type : Config.Library_Type_Type := external ("UTIL_LIBRARY_TYPE", "static");
+   Library_Type : Config.Library_Type_Type := external ("UTIL_LIBRARY_TYPE", "@DEFAULT_LIBRARY_TYPE@");
 
    for Source_Dirs use ("src/core",
                         "src/core/concurrent",
