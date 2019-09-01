@@ -19,7 +19,7 @@ with Ada.Text_IO;
 with Ada.Command_Line;
 with Ada.Strings.Unbounded;
 
-with Util.Http.Clients.Web;
+with Util.Http.Clients.AWS;
 with Util.Http.Rest;
 
 with Mapping;
@@ -62,7 +62,7 @@ begin
    Person_Mapping.Add_Mapping ("link", Mapping.FIELD_LINK);
    Person_Mapping.Add_Mapping ("username", Mapping.FIELD_USER_NAME);
    Person_Mapping.Add_Mapping ("gender", Mapping.FIELD_GENDER);
-   Util.Http.Clients.Web.Register;
+   Util.Http.Clients.AWS.Register;
    for I in 1 .. Count loop
       declare
          URI      : constant String := Ada.Command_Line.Argument (I);
