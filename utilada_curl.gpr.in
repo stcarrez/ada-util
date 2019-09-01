@@ -34,16 +34,20 @@ library project UtilAda_Curl is
 
    end case;
    
-   package Linker is
-      case Has_Curl is
+   case Library_Type is
+     when "relocatable" =>
+       case Has_Curl is
          when "yes" =>
-            for Linker_Options use ("-lcurl");
+            for Library_Options use ("-lcurl");
 
          when "no" =>
             null;
 
-      end case;
-   end Linker;
+       end case;
+
+     when others =>
+       null;
+   end case;
 
    package Builder  renames Config.Builder;
    package Compiler renames Config.Compiler;
