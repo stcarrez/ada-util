@@ -85,9 +85,12 @@ package body Util.Commands.Parsers.GNAT_Parser is
 
    procedure Usage (Name   : in String;
                     Config : in out Config_Type) is
+      Opts : constant String := GC.Get_Switches (Config);
    begin
-      GC.Set_Usage (Config, Usage => Name & " [switches] [arguments]");
-      GC.Display_Help (Config);
+      if Opts'Length > 0 then
+         GC.Set_Usage (Config, Usage => Name & " [switches] [arguments]");
+         GC.Display_Help (Config);
+      end if;
    end Usage;
 
 end Util.Commands.Parsers.GNAT_Parser;
