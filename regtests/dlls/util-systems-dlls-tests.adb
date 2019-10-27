@@ -22,6 +22,9 @@ package body Util.Systems.DLLs.Tests is
    use Util.Tests;
    use type System.Address;
 
+   procedure Load_Library (T : in out Test;
+                           Lib : out Handle);
+
    package Caller is new Util.Test_Caller (Test, "Systems.Dlls");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -37,8 +40,9 @@ package body Util.Systems.DLLs.Tests is
       Lib1 : Handle;
       Lib2 : Handle;
       Lib3 : Handle;
+      Lib4 : Handle;
    begin
-     begin
+      begin
          Lib1 := Util.Systems.DLLs.Load ("libcrypto.so");
          T.Assert (Lib1 /= Null_Handle, "Load operation returned null");
          Lib := Lib1;
@@ -65,7 +69,17 @@ package body Util.Systems.DLLs.Tests is
             Lib3 := Null_Handle;
       end;
 
-      T.Assert (Lib1 /= Null_Handle or Lib2 /= Null_Handle or Lib3 /= Null_Handle,
+      begin
+         Lib4 := Util.Systems.DLLs.Load ("libz.so");
+         T.Assert (Lib4 /= Null_Handle, "Load operation returned null");
+         Lib := Lib4;
+      exception
+         when Load_Error =>
+            Lib4 := Null_Handle;
+      end;
+
+      T.Assert (Lib1 /= Null_Handle or Lib2 /= Null_Handle or Lib3 /= Null_Handle
+                or Lib4 /= Null_Handle,
                 "At least on Load operation should have failedreturned null");
    end Load_Library;
 
