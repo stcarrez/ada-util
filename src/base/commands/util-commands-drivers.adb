@@ -107,7 +107,7 @@ package body Util.Commands.Drivers is
                Logs.Error ("Unknown command '{0}'", Cmd_Name);
                raise Not_Found;
             else
-               Target_Cmd.Help (Context);
+               Target_Cmd.Help (Cmd_Name, Context);
             end if;
          end;
       end if;
@@ -117,6 +117,7 @@ package body Util.Commands.Drivers is
    --  Write the help associated with the command.
    --  ------------------------------
    procedure Help (Command   : in out Help_Command_Type;
+                   Name      : in String;
                    Context   : in out Context_Type) is
    begin
       null;
@@ -278,6 +279,7 @@ package body Util.Commands.Drivers is
    --  ------------------------------
    overriding
    procedure Help (Command   : in out Handler_Command_Type;
+                   Name      : in String;
                    Context   : in out Context_Type) is
    begin
       null;
