@@ -55,6 +55,7 @@ package Util.Commands.Drivers is
 
    --  Write the help associated with the command.
    procedure Help (Command   : in out Command_Type;
+                   Name      : in String;
                    Context   : in out Context_Type) is abstract;
 
    --  Write the command usage.
@@ -81,7 +82,9 @@ package Util.Commands.Drivers is
                       Context   : in out Context_Type);
 
    --  Write the help associated with the command.
+   overriding
    procedure Help (Command   : in out Help_Command_Type;
+                   Name      : in String;
                    Context   : in out Context_Type);
 
    type Driver_Type is tagged limited private;
@@ -162,6 +165,7 @@ private
    --  Write the help associated with the command.
    overriding
    procedure Help (Command   : in out Handler_Command_Type;
+                   Name      : in String;
                    Context   : in out Context_Type);
 
    type Driver_Type is tagged limited record
