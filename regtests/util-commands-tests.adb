@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-tests - Test for commands
---  Copyright (C) 2018 Stephane Carrez
+--  Copyright (C) 2018, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,6 +57,7 @@ package body Util.Commands.Tests is
 
    --  Write the help associated with the command.
    procedure Help (Command   : in out Test_Command_Type;
+                   Name      : in String;
                    Context   : in out Test_Context_Type);
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -117,8 +118,9 @@ package body Util.Commands.Tests is
    --  Write the help associated with the command.
    --  ------------------------------
    procedure Help (Command   : in out Test_Command_Type;
+                   Name      : in String;
                    Context   : in out Test_Context_Type) is
-
+      pragma Unreferenced (Name);
    begin
       Context.Success := Command.Expect_Help;
    end Help;
