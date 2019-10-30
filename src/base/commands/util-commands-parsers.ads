@@ -16,7 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
---  === Command line parsers ===
+--  == Command line parsers ==
 --  Parsing command line arguments before their execution is handled by the
 --  `Config_Parser` generic package.  This allows to customize how the arguments are
 --  parsed.

@@ -21,8 +21,18 @@ private with Ada.Strings.Unbounded;
 private with Ada.Containers.Indefinite_Ordered_Maps;
 
 --  == Command line driver ==
---  The <tt>Util.Commands.Drivers</tt> generic package provides a support to build command line
---  tools that have different commands identified by a name.
+--  The `Util.Commands.Drivers` generic package provides a support to build command line
+--  tools that have different commands identified by a name.  It defines the `Driver_Type`
+--  tagged record that provides a registry of application commands.  It gives entry points
+--  to register commands and execute them.
+--
+--  The `Context_Type` package parameter defines the type for the `Context` parameter
+--  that is passed to the command when it is executed.  It can be used to provide
+--  application specific context to the command.
+--
+--  The `Config_Parser` describes the parser package that will handle the analysis of
+--  command line options.  To use the GNAT options parser, it is possible to use the
+--  `Util.Commands.Parsers.GNAT_Parser` package.
 generic
    --  The command execution context.
    type Context_Type (<>) is limited private;
