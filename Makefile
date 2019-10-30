@@ -97,6 +97,8 @@ UTIL_DOC= \
   docs/pagebreak.tex \
   docs/Util_Beans.md \
   docs/pagebreak.tex \
+  docs/Util_Commands.md \
+  docs/pagebreak.tex \
   docs/Util_Http.md \
   docs/pagebreak.tex \
   docs/Util_Streams.md \
