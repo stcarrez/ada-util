@@ -8,6 +8,7 @@ pages:
   - Dates: Util_Dates.md
   - Ada Beans: Util_Beans.md
   - Commands: Util_Commands.md
+  - Serialization: Serialization.md
   - HTTP: Util_Http.md
   - Streams: Util_Streams.md
   - Encoders: Util_Encoders.md
