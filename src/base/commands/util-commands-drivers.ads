@@ -37,6 +37,7 @@ generic
    --  The command execution context.
    type Context_Type (<>) is limited private;
    with package Config_Parser is new Util.Commands.Parsers.Config_Parser (<>);
+   with function Translate (Message : in String) return String is No_Translate;
    Driver_Name : String := "Drivers";
 package Util.Commands.Drivers is
 
