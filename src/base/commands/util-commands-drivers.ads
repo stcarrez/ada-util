@@ -51,6 +51,12 @@ package Util.Commands.Drivers is
    type Command_Type is abstract tagged limited private;
    type Command_Access is access all Command_Type'Class;
 
+   --  Get the description associated with the command.
+   function Get_Description (Command : in Command_Type) return String;
+
+   --  Get the name used to register the command.
+   function Get_Name (Command : in Command_Type) return String;
+
    --  Execute the command with the arguments.  The command name is passed with the command
    --  arguments.
    procedure Execute (Command   : in out Command_Type;
@@ -156,6 +162,7 @@ private
 
    type Command_Type is abstract tagged limited record
       Driver      : access Driver_Type'Class;
+      Name        : Ada.Strings.Unbounded.Unbounded_String;
       Description : Ada.Strings.Unbounded.Unbounded_String;
    end record;
 
