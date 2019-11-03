@@ -24,6 +24,8 @@ package body Util.Commands.Drivers is
    --  The logger
    Logs : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create (Driver_Name);
 
+   function "-" (Message : in String) return String is (Translate (Message)) with Inline;
+
    --  ------------------------------
    --  Get the description associated with the command.
    --  ------------------------------
@@ -107,10 +109,10 @@ package body Util.Commands.Drivers is
          Usage (Command.Driver.all, Args, Context);
          New_Line;
          Put ("Type '");
-         Put (Args.Get_Command_Name);
+         Put (Driver_Name);
          Put_Line (" help {command}' for help on a specific command.");
          New_Line;
-         Put_Line ("Available subcommands:");
+         Put_Line (-("Available subcommands:"));
 
          Command.Driver.List.Iterate (Process => Compute_Size'Access);
          Command.Driver.List.Iterate (Process => Print'Access);
@@ -120,7 +122,7 @@ package body Util.Commands.Drivers is
             Target_Cmd : constant Command_Access := Command.Driver.Find_Command (Cmd_Name);
          begin
             if Target_Cmd = null then
-               Logs.Error ("Unknown command '{0}'", Cmd_Name);
+               Logs.Error (-("Unknown command '{0}'"), Cmd_Name);
                raise Not_Found;
             else
                Target_Cmd.Help (Cmd_Name, Context);
@@ -156,11 +158,11 @@ package body Util.Commands.Drivers is
             if Command /= null then
                Command.Usage (Name, Context);
             else
-               Put ("Invalid command");
+               Put (-("Invalid command"));
             end if;
          end;
       else
-         Put ("Usage: ");
+         Put (-("Usage: "));
          Put (Args.Get_Command_Name);
          Put (" ");
          Put_Line (To_String (Driver.Usage));
@@ -266,7 +268,7 @@ package body Util.Commands.Drivers is
             Config_Parser.Execute (Config, Args, Execute'Access);
          end;
       else
-         Logs.Error ("Unkown command '{0}'", Name);
+         Logs.Error (-("Unkown command '{0}'"), Name);
          raise Not_Found;
       end if;
    end Execute;
