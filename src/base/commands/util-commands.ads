@@ -166,6 +166,8 @@ package Util.Commands is
    --  Get the command name.
    function Get_Command_Name (List : in Dynamic_Argument_List) return String;
 
+   function No_Translate (Message : in String) return String is (Message) with Inline;
+
 private
 
    type Argument_Pos is array (Natural range <>) of Natural;
