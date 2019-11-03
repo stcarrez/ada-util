@@ -25,6 +25,22 @@ package body Util.Commands.Drivers is
    Logs : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create (Driver_Name);
 
    --  ------------------------------
+   --  Get the description associated with the command.
+   --  ------------------------------
+   function Get_Description (Command : in Command_Type) return String is
+   begin
+      return To_String (Command.Description);
+   end Get_Description;
+
+   --  ------------------------------
+   --  Get the name used to register the command.
+   --  ------------------------------
+   function Get_Name (Command : in Command_Type) return String is
+   begin
+      return To_String (Command.Name);
+   end Get_Name;
+
+   --  ------------------------------
    --  Write the command usage.
    --  ------------------------------
    procedure Usage (Command : in out Command_Type;
@@ -176,6 +192,7 @@ package body Util.Commands.Drivers is
                           Name    : in String;
                           Command : in Command_Access) is
    begin
+      Command.Name := To_Unbounded_String (Name);
       Command.Driver := Driver'Unchecked_Access;
       Driver.List.Include (Name, Command);
    end Add_Command;
@@ -185,6 +202,7 @@ package body Util.Commands.Drivers is
                           Description : in String;
                           Command     : in Command_Access) is
    begin
+      Command.Name := To_Unbounded_String (Name);
       Command.Description := Ada.Strings.Unbounded.To_Unbounded_String (Description);
       Add_Command (Driver, Name, Command);
    end Add_Command;
@@ -199,6 +217,7 @@ package body Util.Commands.Drivers is
       Command : constant Command_Access
         := new Handler_Command_Type '(Driver      => Driver'Unchecked_Access,
                                       Description => To_Unbounded_String (Description),
+                                      Name        => To_Unbounded_String (Name),
                                       Handler     => Handler);
    begin
       Driver.List.Include (Name, Command);
