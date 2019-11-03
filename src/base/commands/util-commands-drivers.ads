@@ -18,7 +18,7 @@
 with Util.Log;
 with Util.Commands.Parsers;
 private with Ada.Strings.Unbounded;
-private with Ada.Containers.Indefinite_Ordered_Maps;
+private with Ada.Containers.Ordered_Sets;
 
 --  == Command line driver ==
 --  The `Util.Commands.Drivers` generic package provides a support to build command line
@@ -155,16 +155,19 @@ package Util.Commands.Drivers is
 
 private
 
-   package Command_Maps is
-     new Ada.Containers.Indefinite_Ordered_Maps (Key_Type     => String,
-                                                 Element_Type => Command_Access,
-                                                 "<"          => "<");
-
    type Command_Type is abstract tagged limited record
       Driver      : access Driver_Type'Class;
       Name        : Ada.Strings.Unbounded.Unbounded_String;
       Description : Ada.Strings.Unbounded.Unbounded_String;
    end record;
+
+   function "<" (Left, Right : in Command_Access) return Boolean is
+      (Ada.Strings.Unbounded."<" (Left.Name, Right.Name));
+
+   package Command_Sets is
+     new Ada.Containers.Ordered_Sets (Element_Type => Command_Access,
+                                      "<"          => "<",
+                                      "="          => "=");
 
    type Help_Command_Type is new Command_Type with null record;
 
@@ -186,7 +189,7 @@ private
                    Context   : in out Context_Type);
 
    type Driver_Type is tagged limited record
-      List  : Command_Maps.Map;
+      List  : Command_Sets.Set;
       Desc  : Ada.Strings.Unbounded.Unbounded_String;
       Usage : Ada.Strings.Unbounded.Unbounded_String;
    end record;
