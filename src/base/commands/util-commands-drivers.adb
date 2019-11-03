@@ -74,25 +74,25 @@ package body Util.Commands.Drivers is
                       Name      : in String;
                       Args      : in Argument_List'Class;
                       Context   : in out Context_Type) is
-      procedure Compute_Size (Position : in Command_Maps.Cursor);
-      procedure Print (Position : in Command_Maps.Cursor);
+      procedure Compute_Size (Position : in Command_Sets.Cursor);
+      procedure Print (Position : in Command_Sets.Cursor);
 
       Column : Ada.Text_IO.Positive_Count := 1;
 
-      procedure Compute_Size (Position : in Command_Maps.Cursor) is
-         Name : constant String := Command_Maps.Key (Position);
+      procedure Compute_Size (Position : in Command_Sets.Cursor) is
+         Cmd  : constant Command_Access := Command_Sets.Element (Position);
+         Len  : constant Natural := Length (Cmd.Name);
       begin
-         if Column < Name'Length then
-            Column := Name'Length;
+         if Natural (Column) < Len then
+            Column := Ada.Text_IO.Positive_Count (Len);
          end if;
       end Compute_Size;
 
-      procedure Print (Position : in Command_Maps.Cursor) is
-         Cmd  : constant Command_Access := Command_Maps.Element (Position);
-         Name : constant String := Command_Maps.Key (Position);
+      procedure Print (Position : in Command_Sets.Cursor) is
+         Cmd  : constant Command_Access := Command_Sets.Element (Position);
       begin
          Put ("   ");
-         Put (Name);
+         Put (To_String (Cmd.Name));
          if Length (Cmd.Description) > 0 then
             Set_Col (Column + 7);
             Put (To_String (Cmd.Description));
@@ -194,7 +194,7 @@ package body Util.Commands.Drivers is
    begin
       Command.Name := To_Unbounded_String (Name);
       Command.Driver := Driver'Unchecked_Access;
-      Driver.List.Include (Name, Command);
+      Driver.List.Include (Command);
    end Add_Command;
 
    procedure Add_Command (Driver      : in out Driver_Type;
@@ -203,7 +203,7 @@ package body Util.Commands.Drivers is
                           Command     : in Command_Access) is
    begin
       Command.Name := To_Unbounded_String (Name);
-      Command.Description := Ada.Strings.Unbounded.To_Unbounded_String (Description);
+      Command.Description := To_Unbounded_String (Description);
       Add_Command (Driver, Name, Command);
    end Add_Command;
 
@@ -220,7 +220,7 @@ package body Util.Commands.Drivers is
                                       Name        => To_Unbounded_String (Name),
                                       Handler     => Handler);
    begin
-      Driver.List.Include (Name, Command);
+      Driver.List.Include (Command);
    end Add_Command;
 
    --  ------------------------------
@@ -229,10 +229,13 @@ package body Util.Commands.Drivers is
    --  ------------------------------
    function Find_Command (Driver : in Driver_Type;
                           Name   : in String) return Command_Access is
-      Pos : constant Command_Maps.Cursor := Driver.List.Find (Name);
+      Cmd : aliased Help_Command_Type;
+      Pos : Command_Sets.Cursor;
    begin
-      if Command_Maps.Has_Element (Pos) then
-         return Command_Maps.Element (Pos);
+      Cmd.Name := To_Unbounded_String (Name);
+      Pos := Driver.List.Find (Cmd'Unchecked_Access);
+      if Command_Sets.Has_Element (Pos) then
+         return Command_Sets.Element (Pos);
       else
          return null;
       end if;
