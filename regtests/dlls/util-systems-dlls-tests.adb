@@ -41,6 +41,7 @@ package body Util.Systems.DLLs.Tests is
       Lib2 : Handle;
       Lib3 : Handle;
       Lib4 : Handle;
+      Lib5 : Handle;
    begin
       begin
          Lib1 := Util.Systems.DLLs.Load ("libcrypto.so");
@@ -78,9 +79,18 @@ package body Util.Systems.DLLs.Tests is
             Lib4 := Null_Handle;
       end;
 
+      begin
+         Lib5 := Util.Systems.DLLs.Load ("libgmp.so");
+         T.Assert (Lib5 /= Null_Handle, "Load operation returned null");
+         Lib := Lib5;
+      exception
+         when Load_Error =>
+            Lib5 := Null_Handle;
+      end;
+
       T.Assert (Lib1 /= Null_Handle or Lib2 /= Null_Handle or Lib3 /= Null_Handle
-                or Lib4 /= Null_Handle,
-                "At least on Load operation should have failedreturned null");
+                or Lib4 /= Null_Handle or Lib5 /= Null_Handle,
+                "At least one Load operation should have succeeded");
    end Load_Library;
 
    --  ------------------------------
@@ -122,6 +132,15 @@ package body Util.Systems.DLLs.Tests is
 
       begin
          Sym := Util.Systems.DLLs.Get_Symbol (Lib, "compress");
+         T.Assert (Sym /= System.Null_Address, "Get_Symbol returned null");
+
+      exception
+         when Not_Found =>
+            null;
+      end;
+
+      begin
+         Sym := Util.Systems.DLLs.Get_Symbol (Lib, "__gmpf_cmp");
          T.Assert (Sym /= System.Null_Address, "Get_Symbol returned null");
 
       exception
