@@ -34,8 +34,8 @@ package body Util.Processes.Tools is
          begin
             Text.Read_Line (Line, Strip => True);
             if Ada.Strings.Unbounded.Length (Line) > 0 then
-	       Output.Append (Ada.Strings.Unbounded.To_String (Line));
-	    end if;
+               Output.Append (Ada.Strings.Unbounded.To_String (Line));
+            end if;
          end;
       end loop;
       Process.Close;
