@@ -202,6 +202,12 @@ package Util.Systems.Os is
                        Stat : access Util.Systems.Types.Stat_Type) return Integer;
    pragma Import (C, Sys_Fstat, "_fstat64");
 
+   function Sys_Lseek (Fs : in File_Type;
+                       Offset : in Util.Systems.Types.off_t;
+                       Mode   : in Util.Systems.Types.Seek_Mode)
+                       return Util.Systems.Types.off_t
+     with Import => True, Convention => C, Link_Name => "_lseek";
+
    FILE_SHARE_WRITE         : constant DWORD := 16#02#;
    FILE_SHARE_READ          : constant DWORD := 16#01#;
 
