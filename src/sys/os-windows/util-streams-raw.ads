@@ -59,6 +59,11 @@ package Util.Streams.Raw is
                    Into   : out Ada.Streams.Stream_Element_Array;
                    Last   : out Ada.Streams.Stream_Element_Offset);
 
+   --  Reposition the read/write file offset.
+   procedure Seek (Stream : in out Raw_Stream;
+                   Pos    : in Util.Systems.Types.off_t;
+                   Mode   : in Util.Systems.Types.Seek_Mode);
+
 private
 
    use Ada.Streams;
