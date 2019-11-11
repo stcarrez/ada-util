@@ -111,6 +111,20 @@ package body Util.Streams.Raw is
    end Read;
 
    --  -----------------------
+   --  Reposition the read/write file offset.
+   --  -----------------------
+   procedure Seek (Stream : in out Raw_Stream;
+                   Pos    : in Util.Systems.Types.off_t;
+                   Mode   : in Util.Systems.Types.Seek_Mode) is
+      Res : Util.Systems.Types.off_t;
+   begin
+      Res := Sys_Lseek (Stream.File, Pos, Mode);
+      if Res < 0 then
+         raise Ada.IO_Exceptions.Device_Error;
+      end if;
+   end Seek;
+
+   --  -----------------------
    --  Flush the stream and release the buffer.
    --  -----------------------
    procedure Finalize (Object : in out Raw_Stream) is
