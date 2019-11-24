@@ -20,16 +20,18 @@ with Interfaces.C.Strings;
 with Util.Systems.Os;
 package body Util.Systems.DLLs is
 
-   function Sys_Load_Library (Path  : in Interfaces.C.Strings.chars_ptr) return Handle;
-   pragma Import (Stdcall, Sys_Load_Library, "LoadLibraryA");
+   function Sys_Load_Library (Path  : in Interfaces.C.Strings.chars_ptr) return Handle
+     with Import => True, Convention => Stdcall, Link_Name => "LoadLibraryA";
 
-   function Sys_Free_Library (Lib : in Handle) return Interfaces.C.int;
-   pragma Import (Stdcall, Sys_Free_Library, "FreeLibrary");
+   function Sys_Free_Library (Lib : in Handle) return Interfaces.C.int
+     with Import => True, Convention => Stdcall, Link_Name => "FreeLibrary";
 
    function Sys_Get_Proc_Address (Lib    : in Handle;
                                   Symbol : in Interfaces.C.Strings.chars_ptr)
-                                  return System.Address;
-   pragma Import (Stdcall, Sys_Get_Proc_Address, "GetProcAddress");
+                                  return System.Address
+     with Import => True, Convention => Stdcall, Link_Name => "GetProcAddress";
+
+   function Error_Message return String;
 
    function Error_Message return String is
       Err : constant Integer := Util.Systems.Os.Get_Last_Error;
@@ -60,7 +62,7 @@ package body Util.Systems.DLLs is
    --  Unload the shared library.
    --  -----------------------
    procedure Unload (Lib : in Handle) is
-      Result : Interfaces.C.Int with Unreferenced;
+      Result : Interfaces.C.int with Unreferenced;
    begin
       if Lib /= Null_Handle then
          Result := Sys_Free_Library (Lib);
