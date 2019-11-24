@@ -27,6 +27,7 @@ package body Util.Processes.Os is
    use type Interfaces.C.size_t;
    use type Util.Systems.Os.HANDLE;
    use type Ada.Directories.File_Kind;
+   use type System.Address;
 
    --  The logger
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Processes.Os");
@@ -34,8 +35,6 @@ package body Util.Processes.Os is
    procedure Free is
       new Ada.Unchecked_Deallocation (Object => Interfaces.C.wchar_array,
                                       Name   => Wchar_Ptr);
-
-   function To_WSTR (Value : in String) return Wchar_Ptr;
 
    procedure Prepare_Working_Directory (Sys  : in out System_Process;
                                         Proc : in out Process'Class);
@@ -167,10 +166,7 @@ package body Util.Processes.Os is
    procedure Spawn (Sys  : in out System_Process;
                     Proc : in out Process'Class;
                     Mode : in Pipe_Mode := NONE) is
-      use Util.Streams.Raw;
-      use Ada.Characters.Conversions;
       use Interfaces.C;
-      use type System.Address;
 
       Result  : Integer;
       Startup : aliased Startup_Info;
@@ -393,19 +389,6 @@ package body Util.Processes.Os is
       Sys.Command (Sys.Pos) := Interfaces.C.wide_nul;
    end Append_Argument;
 
-   function To_WSTR (Value : in String) return Wchar_Ptr is
-      Result : constant Wchar_Ptr := new Interfaces.C.wchar_array (0 .. Value'Length + 1);
-      Pos    : Interfaces.C.size_t := 0;
-   begin
-      for C of Value loop
-         Result (Pos)
-           := Interfaces.C.To_C (Ada.Characters.Conversions.To_Wide_Character (C));
-         Pos := Pos + 1;
-      end loop;
-      Result (Pos) := Interfaces.C.wide_nul;
-      return Result;
-   end To_WSTR;
-
    --  ------------------------------
    --  Set the process input, output and error streams to redirect and use specified files.
    --  ------------------------------
@@ -437,8 +420,6 @@ package body Util.Processes.Os is
    --  ------------------------------
    overriding
    procedure Finalize (Sys : in out System_Process) is
-      use type System.Address;
-
       Result : BOOL;
       pragma Unreferenced (Result);
    begin
