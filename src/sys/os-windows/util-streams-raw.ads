@@ -18,6 +18,7 @@
 with Ada.Finalization;
 
 with Util.Systems.Os;
+with Util.Systems.Types;
 
 --  The <b>Util.Streams.Raw</b> package provides a stream directly on top of
 --  file system operations <b>ReadFile</b> and <b>WriteFile</b>.
