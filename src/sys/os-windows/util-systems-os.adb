@@ -62,7 +62,7 @@ package body Util.Systems.Os is
                              Create     : access FileTime;
                              AccessTime : access FileTime;
                              ModifyTime : access FileTime) return BOOL
-     with Import => True, Convention => Stdcall, Link_Name => "GetFileSizeEx";
+     with Import => True, Convention => Stdcall, Link_Name => "GetFileTime";
 
    TICKS_PER_SECOND : constant := 10000000;
    EPOCH_DIFFERENCE : constant := 11644473600;
