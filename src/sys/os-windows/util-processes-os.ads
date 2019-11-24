@@ -25,7 +25,7 @@ private package Util.Processes.Os is
 
    SHELL : constant String := "";
 
-   type Wchar_Ptr is access all Interfaces.C.wchar_array;
+   subtype Wchar_Ptr is Util.Systems.Os.Wchar_Ptr;
 
    type System_Process is new Util.Processes.System_Process with record
       Process_Info : aliased Util.Systems.Os.PROCESS_INFORMATION;
