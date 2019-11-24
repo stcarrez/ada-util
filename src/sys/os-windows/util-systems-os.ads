@@ -16,10 +16,12 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Ada.Unchecked_Deallocation;
 with System;
 with Interfaces.C;
 with Interfaces.C.Strings;
 with Util.Systems.Types;
+with Util.Systems.Constants;
 
 --  The <b>Util.Systems.Os</b> package defines various types and operations which are specific
 --  to the OS (Windows).
@@ -44,8 +46,11 @@ package Util.Systems.Os is
    type PDWORD is access all DWORD;
    for PDWORD'Size use Standard'Address_Size;
 
-   function Get_Last_Error return Integer;
-   pragma Import (Stdcall, Get_Last_Error, "GetLastError");
+   function Get_Last_Error return Integer
+     with Import => True, Convention => Stdcall, Link_Name => "GetLastError";
+
+   function Errno return Integer
+     with Import => True, Convention => Stdcall, Link_Name => "GetLastError";
 
    --  Some useful error codes (See Windows document "System Error Codes (0-499)").
    ERROR_BROKEN_PIPE : constant Integer := 109;
@@ -65,8 +70,8 @@ package Util.Systems.Os is
    for PHANDLE'Size use Standard'Address_Size;
 
    function Wait_For_Single_Object (H : in HANDLE;
-                                    Time : in DWORD) return DWORD;
-   pragma Import (Stdcall, Wait_For_Single_Object, "WaitForSingleObject");
+                                    Time : in DWORD) return DWORD
+     with Import => True, Convention => Stdcall, Link_Name => "WaitForSingleObject";
 
    type Security_Attributes is record
       Length              : DWORD;
@@ -87,14 +92,29 @@ package Util.Systems.Os is
    STD_OUTPUT_HANDLE : constant DWORD := -11;
    STD_ERROR_HANDLE  : constant DWORD := -12;
 
-   function Get_Std_Handle (Kind : in DWORD) return File_Type;
-   pragma Import (Stdcall, Get_Std_Handle, "GetStdHandle");
+   --  These values are specific to Linux.
+   O_RDONLY   : constant Interfaces.C.int := Util.Systems.Constants.O_RDONLY;
+   O_WRONLY   : constant Interfaces.C.int := Util.Systems.Constants.O_WRONLY;
+   O_RDWR     : constant Interfaces.C.int := Util.Systems.Constants.O_RDWR;
+   O_CREAT    : constant Interfaces.C.int := Util.Systems.Constants.O_CREAT;
+   O_EXCL     : constant Interfaces.C.int := Util.Systems.Constants.O_EXCL;
+   O_TRUNC    : constant Interfaces.C.int := Util.Systems.Constants.O_TRUNC;
+   O_APPEND   : constant Interfaces.C.int := Util.Systems.Constants.O_APPEND;
+
+   function Get_Std_Handle (Kind : in DWORD) return File_Type
+     with Import => True, Convention => Stdcall, Link_Name => "GetStdHandle";
 
    function STDIN_FILENO return File_Type
      is (Get_Std_Handle (STD_INPUT_HANDLE));
 
-   function Close_Handle (Fd : in File_Type) return BOOL;
-   pragma Import (Stdcall, Close_Handle, "CloseHandle");
+   function STDOUT_FILENO return File_Type
+     is (Get_Std_Handle (STD_OUTPUT_HANDLE));
+
+   function STDERR_FILENO return File_Type
+     is (Get_Std_Handle (STD_ERROR_HANDLE));
+
+   function Close_Handle (Fd : in File_Type) return BOOL
+     with Import => True, Convention => Stdcall, Link_Name => "CloseHandle";
 
    function Duplicate_Handle (SourceProcessHandle : in HANDLE;
                               SourceHandle        : in HANDLE;
@@ -102,32 +122,28 @@ package Util.Systems.Os is
                               TargetHandle        : in PHANDLE;
                               DesiredAccess       : in DWORD;
                               InheritHandle       : in BOOL;
-                              Options             : in DWORD) return BOOL;
-   pragma Import  (Stdcall, Duplicate_Handle, "DuplicateHandle");
+                              Options             : in DWORD) return BOOL
+     with Import => True, Convention => Stdcall, Link_Name => "DuplicateHandle";
 
    function Read_File (Fd      : in File_Type;
                        Buf     : in System.Address;
                        Size    : in DWORD;
                        Result  : in PDWORD;
-                       Overlap : in System.Address) return BOOL;
-   pragma Import (Stdcall, Read_File, "ReadFile");
+                       Overlap : in System.Address) return BOOL
+   with Import => True, Convention => Stdcall, Link_Name => "ReadFile";
 
    function Write_File (Fd      : in File_Type;
                         Buf     : in System.Address;
                         Size    : in DWORD;
                         Result  : in PDWORD;
-                        Overlap : in System.Address) return BOOL;
-   pragma Import (Stdcall, Write_File, "WriteFile");
+                        Overlap : in System.Address) return BOOL
+     with Import => True, Convention => Stdcall, Link_Name => "WriteFile";
 
    function Create_Pipe (Read_Handle :  in PHANDLE;
                          Write_Handle : in PHANDLE;
                          Attributes   : in LPSECURITY_ATTRIBUTES;
-                         Buf_Size     : in DWORD) return BOOL;
-   pragma Import (Stdcall, Create_Pipe, "CreatePipe");
-
-
---     type Size_T is mod 2 ** Standard'Address_Size;
-
+                         Buf_Size     : in DWORD) return BOOL
+     with Import => True, Convention => Stdcall, Link_Name => "CreatePipe";
 
    subtype LPWSTR is Interfaces.C.Strings.chars_ptr;
    subtype LPCSTR is Interfaces.C.Strings.chars_ptr;
@@ -138,6 +154,14 @@ package Util.Systems.Os is
    type CommandPtr is access all Interfaces.C.wchar_array;
 
    NULL_STR : constant LPWSTR := Interfaces.C.Strings.Null_Ptr;
+
+   type FileTime is record
+      dwLowDateTime  : DWORD;
+      dwHighDateTime : DWORD;
+   end record;
+   type LPFILETIME is access all FileTime;
+
+   function To_Time (Time : in FileTime) return Util.Systems.Types.Time_Type;
 
    type Startup_Info is record
       cb              : DWORD := 0;
@@ -159,7 +183,6 @@ package Util.Systems.Os is
       hStdOutput      : HANDLE := 0;
       hStdError       : HANDLE := 0;
    end record;
---   pragma Pack (Startup_Info);
    type Startup_Info_Access is access all Startup_Info;
 
    type PROCESS_INFORMATION is record
@@ -170,12 +193,12 @@ package Util.Systems.Os is
    end record;
    type Process_Information_Access is access all PROCESS_INFORMATION;
 
-   function Get_Current_Process return HANDLE;
-   pragma Import (Stdcall, Get_Current_Process, "GetCurrentProcess");
+   function Get_Current_Process return HANDLE
+     with Import => True, Convention => Stdcall, Link_Name => "GetCurrentProcess";
 
    function Get_Exit_Code_Process (Proc : in HANDLE;
-                                   Code : in PDWORD) return BOOL;
-   pragma Import (Stdcall, Get_Exit_Code_Process, "GetExitCodeProcess");
+                                   Code : in PDWORD) return BOOL
+     with Import => True, Convention => Stdcall, Link_Name => "GetExitCodeProcess";
 
    function Create_Process (Name               : in LPCTSTR;
                             Command            : in System.Address;
@@ -186,27 +209,26 @@ package Util.Systems.Os is
                             Environment        : in LPTSTR;
                             Directory          : in LPCTSTR;
                             Startup_Info       : in Startup_Info_Access;
-                            Process_Info       : in Process_Information_Access) return Integer;
-   pragma Import (Stdcall, Create_Process, "CreateProcessW");
+                            Process_Info       : in Process_Information_Access)
+                            return Integer
+     with Import => True, Convention => Stdcall, Link_Name => "CreateProcessW";
 
    --  Terminate the windows process and all its threads.
    function Terminate_Process (Proc : in HANDLE;
-                               Code : in DWORD) return Integer;
-   pragma Import (Stdcall, Terminate_Process, "TerminateProcess");
+                               Code : in DWORD) return Integer
+     with Import => True, Convention => Stdcall, Link_Name => "TerminateProcess";
 
    function Sys_Stat (Path : in LPWSTR;
-                      Stat : access Util.Systems.Types.Stat_Type) return Integer;
-   pragma Import (C, Sys_Stat, "_stat64");
+                      Stat : access Util.Systems.Types.Stat_Type) return Integer
+     with Import => True, Convention => Stdcall, Link_Name => "_stat64";
 
    function Sys_Fstat (Fs : in File_Type;
                        Stat : access Util.Systems.Types.Stat_Type) return Integer;
-   pragma Import (C, Sys_Fstat, "_fstat64");
 
    function Sys_Lseek (Fs : in File_Type;
                        Offset : in Util.Systems.Types.off_t;
                        Mode   : in Util.Systems.Types.Seek_Mode)
-                       return Util.Systems.Types.off_t
-     with Import => True, Convention => C, Link_Name => "_lseek";
+                       return Util.Systems.Types.off_t;
 
    FILE_SHARE_WRITE         : constant DWORD := 16#02#;
    FILE_SHARE_READ          : constant DWORD := 16#01#;
@@ -234,8 +256,38 @@ package Util.Systems.Os is
                          Attributes     : in LPSECURITY_ATTRIBUTES;
                          Creation       : in DWORD;
                          Flags          : in DWORD;
-                         Template_File  : HANDLE) return HANDLE;
-   pragma Import (Stdcall, Create_File, "CreateFileW");
+                         Template_File  : HANDLE) return HANDLE
+     with Import => True, Convention => Stdcall, Link_Name => "CreateFileW";
+
+   --  Close a file
+   function Sys_Close (Fd : in File_Type) return Integer;
+
+   --  Open a file
+   function Sys_Open (Path  : in Ptr;
+                      Flags : in Interfaces.C.int;
+                      Mode  : in Util.Systems.Types.mode_t) return File_Type;
+
+   function Sys_Ftruncate (Fs : in File_Type;
+                           Length : in Util.Systems.Types.off_t) return Integer;
+
+   function Sys_Fchmod (Fd   : in File_Type;
+                        Mode : in Util.Systems.Types.mode_t) return Integer;
+
+   --  Change permission of a file.
+   function Sys_Chmod (Path  : in Ptr;
+                       Mode  : in Util.Systems.Types.mode_t) return Integer
+     with Import => True, Convention => Stdcall, Link_Name => "_chmod";
+
+   function Strerror (Errno : in Integer) return Interfaces.C.Strings.chars_ptr
+     with Import => True, Convention => Stdcall, Link_Name => "strerror";
+
+   type Wchar_Ptr is access all Interfaces.C.wchar_array;
+
+   function To_WSTR (Value : in String) return Wchar_Ptr;
+
+   procedure Free is
+      new Ada.Unchecked_Deallocation (Object => Interfaces.C.wchar_array,
+                                      Name   => Wchar_Ptr);
 
 private
 
