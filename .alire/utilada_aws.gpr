@@ -1,0 +1,48 @@
+with "config";
+with "utilada_sys";
+with "aws";
+
+library project UtilAda_Aws is
+   Version := "2.0.0";
+   Library_Dir := "lib";
+
+   type AWS_Impl_Type is ("1", "2");
+
+   AWS_Impl    : AWS_Impl_Type := "2";
+   Has_Aws     : Config.Yes_No := "yes";
+   
+   case Has_Aws is
+      when "yes" =>
+         for Source_Dirs use ("src/sys/http/aws");
+
+      when "no" =>
+         for Source_Dirs use ();
+        
+   end case;
+   
+   package Naming is
+      case AWS_Impl is
+         when "1" =>
+            for Implementation ("Util.Http.Clients.AWS")
+               use "util-http-clients-aws__1.adb";
+
+         when "2" =>
+            for Implementation ("Util.Http.Clients.AWS")
+               use "util-http-clients-aws__2.adb";
+
+      end case;
+   end Naming;
+
+   for Library_Name use "utilada_aws";
+   for Library_Kind use UtilAda_Sys.Library_Type;
+   for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
+
+   for Library_Dir use "lib/utilada_aws/" & Project'Library_Kind;
+   for Object_Dir use "obj/utilada_aws/" & Project'Library_Kind;
+
+   package Builder  renames Config.Builder;
+   package Compiler renames Config.Compiler;
+   package Binder   renames Config.Binder;
+   package Ide      renames Config.Ide;
+
+end UtilAda_Aws;

@@ -1,0 +1,57 @@
+with "config";
+with "utilada_sys";
+
+library project UtilAda_Curl is
+   Version := "2.0.0";
+   Library_Dir := "lib";
+
+   Has_Curl : Config.Yes_No := "yes";
+   
+   Library_Type : Config.Library_Type_Type := UtilAda_Sys.Library_Type;
+
+   case Has_Curl is
+      when "yes" =>
+         for Source_Dirs use ("src/sys/http/curl");
+         for Library_Name use "utilada_curl";
+         for Library_Kind use Library_Type;
+         for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
+
+         for Library_Dir use "lib/utilada_curl/" & Project'Library_Kind;
+         for Object_Dir use "obj/utilada_curl/" & Project'Library_Kind;
+
+         case Library_Type is
+            when "relocatable" =>
+                --  for Library_Interface use ("Util.Http.Clients.Curl");
+                for Library_Options use ();
+
+            when others =>
+                null;
+
+         end case;
+        
+      when "no" =>
+         for Source_Dirs use ();
+
+   end case;
+   
+   case Library_Type is
+     when "relocatable" =>
+       case Has_Curl is
+         when "yes" =>
+            for Library_Options use ("-lcurl");
+
+         when "no" =>
+            null;
+
+       end case;
+
+     when others =>
+       null;
+   end case;
+
+   package Builder  renames Config.Builder;
+   package Compiler renames Config.Compiler;
+   package Binder   renames Config.Binder;
+   package Ide      renames Config.Ide;
+
+end UtilAda_Curl;
