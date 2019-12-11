@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  util-encoders-base64 -- Encode/Decode a stream in base64adecimal
---  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2016, 2017 Stephane Carrez
+--  util-encoders-base64 -- Encode/Decode a stream in base64
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,9 +19,6 @@ with Util.Streams;
 package body Util.Encoders.Base64 is
 
    use Interfaces;
-   use Ada;
-
-   use type Ada.Streams.Stream_Element_Offset;
 
    --  ------------------------------
    --  Encode the 64-bit value to LEB128 and then base64url.
@@ -264,8 +261,6 @@ package body Util.Encoders.Base64 is
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset) is
-
-      use Ada.Streams;
 
       Pos      : Ada.Streams.Stream_Element_Offset := Into'First;
       I        : Ada.Streams.Stream_Element_Offset := Data'First;
