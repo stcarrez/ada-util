@@ -145,8 +145,8 @@ package body Util.Events.Timers.Tests is
       end loop;
 
       --  Depending on the load we can have different values for Count.
-      Util.Tests.Assert (T, Count <= 8, "Count of Process");
-      Util.Tests.Assert (T, Count <= 4, "Count of Process");
+      T.Assert (Count <= 8, "Count of Process");
+      T.Assert (Count >= 2, "Count of Process");
       for I in D'Range loop
          Util.Tests.Assert_Equals (T, 4, D (I).Count, "Invalid count for timer at "
                                      & Natural'Image (I) & " " & Natural'Image (Count));
