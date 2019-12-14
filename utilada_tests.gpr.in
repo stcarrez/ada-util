@@ -4,6 +4,7 @@ with "utilada_base";
 with "utilada_sys";
 with "utilada_http";
 with "utilada_unit";
+with "utilada_xml";
 with "tests_proc";
 @WITH_UTILADA_LZMA@
 
@@ -47,16 +48,9 @@ project UtilAda_Tests is
    for Exec_Dir use "./" & Config'Exec_Dir & "/bin";
 
    package Binder renames Config.Binder;
-
    package Builder renames Config.Builder;
-
    package Compiler renames Config.Compiler;
-
    package Linker renames Config.Linker;
-
-   package Ide is
-      for Compiler_Command ("ada") use "gnatmake";
-      for Compiler_Command ("c") use "gcc";
-   end Ide;
+   package Ide renames Config.Ide;
 
 end UtilAda_Tests;
