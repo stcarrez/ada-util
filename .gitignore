@@ -32,12 +32,10 @@ src/sys/os-generated
 string-append.csv
 string.csv
 util-tests.xml
+utilada.gpr
+utilada_xml.gpr
+utilada_conf.gpr
 utilada_http.gpr
-utilada_core.gpr
-utilada_sys.gpr
-utilada_base.gpr
-utilada_aws.gpr
-utilada_curl.gpr
 utilada_unit.gpr
 utilada_lzma.gpr
 utilada_tests.gpr
