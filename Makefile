@@ -34,6 +34,10 @@ $(eval $(call ada_library,utilada_core))
 $(eval $(call ada_library,utilada_base))
 $(eval $(call ada_library,utilada_sys))
 
+ifeq ($(HAVE_XML_ADA),yes)
+$(eval $(call ada_library,utilada_xml))
+endif
+
 ifeq ($(HAVE_CURL),yes)
 $(eval $(call ada_library,utilada_curl))
 endif
