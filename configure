@@ -5285,7 +5285,7 @@ $as_echo "<prefix>/${ADA_PRJ_BASE}" >&6; }
 
 
 
-ac_config_files="$ac_config_files Makefile.conf utilada.gpr utilada_http.gpr utilada_unit.gpr utilada_curl.gpr utilada_aws.gpr utilada_core.gpr utilada_base.gpr utilada_sys.gpr utilada_lzma.gpr utilada_tests.gpr"
+ac_config_files="$ac_config_files Makefile.conf utilada.gpr utilada_http.gpr utilada_unit.gpr utilada_xml.gpr utilada_lzma.gpr utilada_tests.gpr utilada_conf.gpr"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -5997,13 +5997,10 @@ do
     "utilada.gpr") CONFIG_FILES="$CONFIG_FILES utilada.gpr" ;;
     "utilada_http.gpr") CONFIG_FILES="$CONFIG_FILES utilada_http.gpr" ;;
     "utilada_unit.gpr") CONFIG_FILES="$CONFIG_FILES utilada_unit.gpr" ;;
-    "utilada_curl.gpr") CONFIG_FILES="$CONFIG_FILES utilada_curl.gpr" ;;
-    "utilada_aws.gpr") CONFIG_FILES="$CONFIG_FILES utilada_aws.gpr" ;;
-    "utilada_core.gpr") CONFIG_FILES="$CONFIG_FILES utilada_core.gpr" ;;
-    "utilada_base.gpr") CONFIG_FILES="$CONFIG_FILES utilada_base.gpr" ;;
-    "utilada_sys.gpr") CONFIG_FILES="$CONFIG_FILES utilada_sys.gpr" ;;
+    "utilada_xml.gpr") CONFIG_FILES="$CONFIG_FILES utilada_xml.gpr" ;;
     "utilada_lzma.gpr") CONFIG_FILES="$CONFIG_FILES utilada_lzma.gpr" ;;
     "utilada_tests.gpr") CONFIG_FILES="$CONFIG_FILES utilada_tests.gpr" ;;
+    "utilada_conf.gpr") CONFIG_FILES="$CONFIG_FILES utilada_conf.gpr" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
