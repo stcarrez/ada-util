@@ -1,18 +1,15 @@
 with "config";
+with "utilada_conf";
 with "utilada_sys";
 @WITH_AUNIT@
 
 library project UtilAda_Unit is
-   Version      := "@UTIL_VERSION@";
+   Version      := UtilAda_Conf.Version;
 
-   Library_Type : Config.Library_Type_Type := external ("UTIL_LIBRARY_TYPE", "@DEFAULT_LIBRARY_TYPE@");
-
-   type Unit_Type is ("none", "ahven-unix", "ahven-windows", "aunit");
-
-   Unit : Unit_Type := "@UTIL_XUNIT_TYPE@";
+   Unit : UtilAda_Conf.Unit_Type := UtilAda_Conf.Unit;
 
    for Library_Name use "utilada_unit";
-   for Library_Kind use Library_Type;
+   for Library_Kind use UtilAda_Conf.Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
    for Library_Dir use "lib/" & "/utilada_unit/" & Project'Library_Kind;
