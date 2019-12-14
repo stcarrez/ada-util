@@ -1,4 +1,4 @@
-with "config";
+with "utilada_conf";
 with "utilada_core";
 with "utilada_base";
 with "utilada_sys";
@@ -6,14 +6,12 @@ with "utilada_http";
 @WITH_UTILADA_LZMA@
 
 abstract project UtilAda is
-   Version := "@UTIL_VERSION@";
-   Library_Dir := "lib";
+   Version := UtilAda_Conf.Version;
 
-   Has_Lzma    : Config.Yes_No := "@UTIL_HAVE_LZMA@";
-   Has_Curl    : Config.Yes_No := "@UTIL_HAVE_CURL@";
-   Has_AWS     : Config.Yes_No := "@UTIL_HAVE_AWS@";
-
-   --  Enable the compilation of Util.Serialize.Mappers.Vector_Mappers.
-   Has_Vector_Mappers : Config.Yes_No := "@UTIL_HAVE_VECTOR_MAPPERS@";
+   Has_Xml     : UtilAda_Conf.Yes_No := UtilAda_Conf.Has_Xml;
+   Has_Lzma    : UtilAda_Conf.Yes_No := UtilAda_Conf.Has_Lzma;
+   Has_Curl    : UtilAda_Conf.Yes_No := UtilAda_Conf.Has_Curl;
+   Has_AWS     : UtilAda_Conf.Yes_No := UtilAda_Conf.Has_Aws;
+   Has_Vector_Mappers : UtilAda_Conf.Yes_No := UtilAda_Conf.Has_Vector_Mappers;
 
 end UtilAda;
