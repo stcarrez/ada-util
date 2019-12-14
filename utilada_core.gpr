@@ -1,24 +1,17 @@
 with "config";
-
+with "utilada_conf";
 library project UtilAda_Core is
-   Version := "@UTIL_VERSION@";
-   Library_Dir := "lib";
-
-   type Asm_Version_Type is ("none", "intrinsic", "x86");
-
-   Asm_Version := "@UTIL_ASM_TYPE@";
-
-   Library_Type : Config.Library_Type_Type := external ("UTIL_LIBRARY_TYPE", "@DEFAULT_LIBRARY_TYPE@");
+   Version := UtilAda_Conf.Version;
 
    for Source_Dirs use ("src/core",
                         "src/core/concurrent",
-                        "src/core/concurrent/asm-" & Asm_Version,
+                        "src/core/concurrent/asm-" & UtilAda_Conf.Asm_Version,
                         "src/core/listeners",
                         "src/core/strings",
                         "src/core/texts");
 
    for Library_Name use "utilada_core";
-   for Library_Kind use Library_Type;
+   for Library_Kind use UtilAda_Conf.Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
    for Library_Dir use "lib/" & Project'Library_Name & "/" & Project'Library_Kind;
