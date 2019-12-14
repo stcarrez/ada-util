@@ -1,14 +1,8 @@
 with "config";
+with "utilada_conf";
 with "utilada_core";
 
 library project UtilAda_Base is
-   Version := "@UTIL_VERSION@";
-   Library_Dir := "lib";
-
-   Library_Type : Config.Library_Type_Type := external ("UTIL_LIBRARY_TYPE", "@DEFAULT_LIBRARY_TYPE@");
-
-   --  Enable the use of GNAT symbolic traceback.
-   Has_Gnat_Traceback : Config.Yes_No := "@UTIL_GNAT_TRACEBACK@";
 
    for Source_Dirs use ("src/base",
                         "src/base/beans",
@@ -20,11 +14,11 @@ library project UtilAda_Base is
                         "src/base/properties");
 
    for Library_Name use "utilada_base";
-   for Library_Kind use Library_Type;
-   for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
+   for Library_Kind use UtilAda_Conf.Library_Type;
+   for Library_Version use "lib" & Project'Library_Name & ".so." & UtilAda_Conf.Version;
 
    package Naming is
-      case Has_Gnat_Traceback is
+      case UtilAda_Conf.Has_Gnat_Traceback is
          when "yes" =>
             for Implementation ("Util.Log.Loggers.Traceback")
                use "util-log-loggers-traceback-gnat.adb";
@@ -36,7 +30,7 @@ library project UtilAda_Base is
       end case;
 
       --  The GNAT traceback is not available for shared libraries.
-      case Library_Type is
+      case UtilAda_Conf.Library_Type is
          when "relocatable" =>
             for Implementation ("Util.Log.Loggers.Traceback")
                use "util-log-loggers-traceback-none.adb";
@@ -53,9 +47,6 @@ library project UtilAda_Base is
    package Builder  renames Config.Builder;
    package Compiler renames Config.Compiler;
    package Ide      renames Config.Ide;
-
-   package Binder is
-       for Default_Switches ("Ada") use Config.Binder'Default_Switches ("Ada") & ("-a");
-   end Binder;
+   package Binder   renames UtilAda_Core.Binder;
 
 end UtilAda_Base;
