@@ -18,7 +18,7 @@ abstract project UtilAda_Conf is
 
    Library_Type : Config.Library_Type_Type := external ("UTIL_LIBRARY_TYPE", "@DEFAULT_LIBRARY_TYPE@");
 
-   Os_Version  : Os_Version_Type := "@UTIL_OS_VERSION@";
+   Os_Version  : Os_Version_Type := external ("UTIL_OS", "@UTIL_OS_VERSION@");
    Xml_Version : Xml_Version_Type := "@VERSION_XML_ADA@";
    Has_Curl    : Config.Yes_No := "@UTIL_HAVE_CURL@";
    Has_AWS     : Config.Yes_No := "@UTIL_HAVE_AWS@";
