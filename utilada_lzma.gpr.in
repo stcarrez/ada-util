@@ -1,24 +1,19 @@
 with "config";
+with "utilada_conf";
 with "utilada_sys";
 @WITH_LZMA_ADA@
 
 library project UtilAda_Lzma is
-   Version := "@UTIL_VERSION@";
-   Library_Dir := "lib";
-
-   Has_Lzma    : Config.Yes_No := "@UTIL_HAVE_LZMA@";
-
-   Library_Type : Config.Library_Type_Type := external ("UTIL_LIBRARY_TYPE", "@DEFAULT_LIBRARY_TYPE@");
 
    for Source_Dirs use ("src/sys/lzma");
 
    for Library_Name use "utilada_lzma";
-   for Library_Kind use Library_Type;
-   for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
+   for Library_Kind use UtilAda_Conf.Library_Type;
+   for Library_Version use "lib" & Project'Library_Name & ".so." & UtilAda_Conf.Version;
 
-   case Library_Type is
+   case UtilAda_Conf.Library_Type is
      when "relocatable" =>
-        for Library_Options use (@UTIL_LIBRARY_OPTIONS@);
+        for Library_Options use (UtilAda_Conf.Library_Options);
 
      when others =>
         null;
@@ -30,9 +25,6 @@ library project UtilAda_Lzma is
    package Builder  renames Config.Builder;
    package Compiler renames Config.Compiler;
    package Ide      renames Config.Ide;
-
-   package Binder is
-      for Default_Switches ("Ada") use Config.Binder'Default_Switches ("Ada") & ("-a");
-   end Binder;
+   package Binder   renames UtilAda_Sys.Binder;
 
 end UtilAda_Lzma;
