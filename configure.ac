@@ -414,11 +414,8 @@ Makefile.conf
 utilada.gpr
 utilada_http.gpr
 utilada_unit.gpr
-utilada_curl.gpr
-utilada_aws.gpr
-utilada_core.gpr
-utilada_base.gpr
-utilada_sys.gpr
+utilada_xml.gpr
 utilada_lzma.gpr
 utilada_tests.gpr
+utilada_conf.gpr
 )
