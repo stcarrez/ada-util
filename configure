@@ -5045,7 +5045,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for additional linker options for libutilada" >&5
 $as_echo_n "checking for additional linker options for libutilada... " >&6; }
 if test "T${UTIL_LIBRARY_OPTIONS}" != T; then
-    UTIL_LIBRARY_OPTIONS="\"-Wl,${UTIL_LIBRARY_OPTIONS}\""
+    UTIL_LIBRARY_OPTIONS="-Wl,${UTIL_LIBRARY_OPTIONS}"
     opts=${UTIL_LIBRARY_OPTIONS}
 else
     opts=none
@@ -5064,7 +5064,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for additional linker options for libutilada_curl" >&5
 $as_echo_n "checking for additional linker options for libutilada_curl... " >&6; }
 if test "T${UTIL_CURL_LIBRARY_OPTIONS}" != T; then
-    UTIL_CURL_LIBRARY_OPTIONS="\"-Wl,${UTIL_CURL_LIBRARY_OPTIONS}\""
+    UTIL_CURL_LIBRARY_OPTIONS="-Wl,${UTIL_CURL_LIBRARY_OPTIONS}"
     opts=${UTIL_CURL_LIBRARY_OPTIONS}
 else
     opts=none
