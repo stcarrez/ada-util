@@ -263,6 +263,7 @@ WITH_AUNIT=
 
 if test x$ac_enable_aunit = 'xyes'; then
   WITH_AUNIT="with \"aunit\";"
+  UTIL_XUNIT_TYPE="aunit"
 fi
 if test x$ac_enable_ahven = 'xyes'; then
   UTIL_AHVEN_DIR=testutil/ahven
