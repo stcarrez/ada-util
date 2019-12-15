@@ -29,6 +29,8 @@ with GNAT.Source_Info;
 --  See http://ahven.stronglytyped.org/
 package Util.XUnit is
 
+   Assertion_Error : exception renames Ahven.Assertion_Error;
+
    type Status is (Success, Failure);
 
    subtype Message_String is String;
