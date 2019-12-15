@@ -1,7 +1,7 @@
 with "config";
 with "utilada_conf";
 with "utilada_sys";
-
+with "lzmada";
 
 library project UtilAda_Lzma is
 
