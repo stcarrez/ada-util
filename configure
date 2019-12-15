@@ -4749,7 +4749,7 @@ $as_echo "$as_me: WARNING: AUnit is not installed and Ahven is not enabled." >&2
 fi
 
 if test x$ac_enable_ahven = 'xyes' -a x$ac_enable_aunit = 'xyes'; then
-   as_fn_error choose one of them. "Both Ahven and AUnit testing framework are selected.  Please" "$LINENO" 5
+   as_fn_error $? "Both Ahven and AUnit testing framework are selected.  Please, choose one of them." "$LINENO" 5
 fi
 
 UTIL_XUNIT_TYPE=
