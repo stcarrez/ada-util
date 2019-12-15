@@ -16,11 +16,25 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Ada.Directories;
 with Util.Testsuite;
 with Util.Tests;
+with Util.Properties;
 procedure Util_Harness is
 
-   procedure Harness is new Util.Tests.Harness (Util.Testsuite.Suite);
+   procedure Initialize (Props : in Util.Properties.Manager);
+
+   procedure Harness is new Util.Tests.Harness (Util.Testsuite.Suite, Initialize);
+
+   procedure Initialize (Props : in Util.Properties.Manager) is
+      pragma Unreferenced (Props);
+
+      Path : constant String := Util.Tests.Get_Test_Path ("regtests/result");
+   begin
+      if not Ada.Directories.Exists (Path) then
+         Ada.Directories.Create_Directory (Path);
+      end if;
+   end Initialize;
 
 begin
    Harness ("util-tests.xml");
