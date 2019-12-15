@@ -255,7 +255,7 @@ if test T$ac_enable_aunit = Tyes; then
 fi
 
 if test x$ac_enable_ahven = 'xyes' -a x$ac_enable_aunit = 'xyes'; then
-   AC_MSG_ERROR(Both Ahven and AUnit testing framework are selected.  Please, choose one of them.)
+   AC_MSG_ERROR([Both Ahven and AUnit testing framework are selected.  Please, choose one of them.])
 fi
 
 UTIL_XUNIT_TYPE=
