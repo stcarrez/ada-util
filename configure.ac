@@ -373,7 +373,7 @@ AC_ARG_ENABLE(link-options-util,
 ])
 AC_MSG_CHECKING([for additional linker options for libutilada])
 if test "T${UTIL_LIBRARY_OPTIONS}" != T; then
-    UTIL_LIBRARY_OPTIONS="\"-Wl,${UTIL_LIBRARY_OPTIONS}\""
+    UTIL_LIBRARY_OPTIONS="-Wl,${UTIL_LIBRARY_OPTIONS}"
     opts=${UTIL_LIBRARY_OPTIONS}
 else
     opts=none
@@ -389,7 +389,7 @@ AC_ARG_ENABLE(link-options-curl,
 ])
 AC_MSG_CHECKING([for additional linker options for libutilada_curl])
 if test "T${UTIL_CURL_LIBRARY_OPTIONS}" != T; then
-    UTIL_CURL_LIBRARY_OPTIONS="\"-Wl,${UTIL_CURL_LIBRARY_OPTIONS}\""
+    UTIL_CURL_LIBRARY_OPTIONS="-Wl,${UTIL_CURL_LIBRARY_OPTIONS}"
     opts=${UTIL_CURL_LIBRARY_OPTIONS}
 else
     opts=none
