@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 
 with AUnit;
+with AUnit.Assertions;
 with AUnit.Simple_Test_Cases;
 with AUnit.Test_Suites;
 with AUnit.Test_Fixtures;
@@ -40,6 +41,8 @@ package Util.XUnit is
    subtype Message_String is AUnit.Message_String;
    subtype Test_Suite is AUnit.Test_Suites.Test_Suite;
    subtype Access_Test_Suite is AUnit.Test_Suites.Access_Test_Suite;
+
+   Assertion_Error : exception renames AUnit.Assertions.Assertion_Error;
 
    function Format (S : in String) return Message_String renames AUnit.Format;
 
