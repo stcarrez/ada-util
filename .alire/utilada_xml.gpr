@@ -17,7 +17,7 @@ library project UtilAda_Xml is
 
    case Has_XML is
       when "yes" =>
-          for Source_Dirs use Project'Source_Dirs & ("src/sys/serialize/xml");
+          for Source_Dirs use Project'Source_Dirs & ("../src/sys/serialize/xml");
 
       when "no" =>
          null;

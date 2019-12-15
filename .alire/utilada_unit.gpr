@@ -1,18 +1,15 @@
 with "config";
+with "utilada_conf";
 with "utilada_sys";
 
 
 library project UtilAda_Unit is
-   Version      := "2.0.0";
+   Version      := UtilAda_Conf.Version;
 
-   Library_Type : Config.Library_Type_Type := external ("UTIL_LIBRARY_TYPE", "static");
-
-   type Unit_Type is ("none", "ahven-unix", "ahven-windows", "aunit");
-
-   Unit : Unit_Type := "ahven-unix";
+   Unit : UtilAda_Conf.Unit_Type := UtilAda_Conf.Unit;
 
    for Library_Name use "utilada_unit";
-   for Library_Kind use Library_Type;
+   for Library_Kind use UtilAda_Conf.Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
    for Library_Dir use "lib/" & "/utilada_unit/" & Project'Library_Kind;
@@ -20,16 +17,16 @@ library project UtilAda_Unit is
 
    case Unit is
       when "ahven-unix" =>
-          for Source_Dirs use ("src/tests", "src/tests/ahven", "src/tests/ahven/unix");
+          for Source_Dirs use ("../src/tests", "../src/tests/ahven", "../src/tests/ahven/unix");
 
       when "ahven-windows" =>
-          for Source_Dirs use ("src/tests", "src/tests/ahven", "src/tests/ahven/windows");
+          for Source_Dirs use ("../src/tests", "../src/tests/ahven", "../src/tests/ahven/windows");
 
       when "aunit" =>
-          for Source_Dirs use ("src/tests", "src/tests/aunit");
+          for Source_Dirs use ("../src/tests", "../src/tests/aunit");
 
       when "none" =>
-          for Source_Dirs use ("src/tests");
+          for Source_Dirs use ("../src/tests");
 
    end case;
 
