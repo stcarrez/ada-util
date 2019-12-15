@@ -5,7 +5,7 @@ with "utilada_sys";
 
 library project UtilAda_Lzma is
 
-   for Source_Dirs use ("../src/sys/lzma");
+   for Source_Dirs use ("../../src/sys/lzma");
 
    for Library_Name use "utilada_lzma";
    for Library_Kind use UtilAda_Conf.Library_Type;
