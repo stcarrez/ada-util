@@ -3,9 +3,9 @@
 [![Build Status](https://img.shields.io/jenkins/s/http/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)
 [![Test Status](https://img.shields.io/jenkins/t/http/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)
 [![Documentation Status](https://readthedocs.org/projects/ada-util/badge/?version=latest)](https://ada-util.readthedocs.io/en/latest/?badge=latest)
-[![Download](https://img.shields.io/badge/download-1.9.0-brightgreen.svg)](http://download.vacs.fr/ada-util/ada-util-1.9.0.tar.gz)
+[![Download](https://img.shields.io/badge/download-2.0.0-brightgreen.svg)](http://download.vacs.fr/ada-util/ada-util-2.0.0.tar.gz)
 [![License](https://img.shields.io/badge/license-APACHE2-blue.svg)](LICENSE)
-![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/1.9.0.svg)
+![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/2.0.0.svg)
 
 
 This Ada05 library contains various utility packages for building
@@ -15,7 +15,7 @@ Ada05 applications.  This includes:
 * Support for properties
 * A serialization/deserialization framework for XML, JSON, CSV
 * Ada beans framework
-* Encoding/decoding framework (Base16, Base64, SHA, HMAC-SHA)
+* Encoding/decoding framework (Base16, Base64, SHA, HMAC-SHA, AES-256)
 * A composing stream framework (raw, files, buffers, pipes, sockets)
 * Several concurrency tools (reference counters, counters, pools, fifos, arrays)
 * Process creation and pipes
