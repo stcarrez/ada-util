@@ -70,8 +70,8 @@ package body Util.Processes.Os is
          T := DWORD'Last;
       else
          T := DWORD (Timeout * 1000.0);
+         Log.Debug ("Waiting {0} ms", DWORD'Image (T));
       end if;
-      Log.Debug ("Waiting {0}", DWORD'Image (T));
 
       Result := Wait_For_Single_Object (H    => Sys.Process_Info.hProcess,
                                         Time => T);
@@ -161,7 +161,9 @@ package body Util.Processes.Os is
       end if;
    end Redirect_Input;
 
+   --  ------------------------------
    --  Spawn a new process.
+   --  ------------------------------
    overriding
    procedure Spawn (Sys  : in out System_Process;
                     Proc : in out Process'Class;
@@ -183,9 +185,8 @@ package body Util.Processes.Os is
       Startup.hStdInput  := Get_Std_Handle (STD_INPUT_HANDLE);
       Startup.hStdOutput := Get_Std_Handle (STD_OUTPUT_HANDLE);
       Startup.hStdError  := Get_Std_Handle (STD_ERROR_HANDLE);
-      if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL then
-         Build_Output_Pipe (Proc, Startup);
-      elsif Sys.Out_File /= null then
+
+      if Sys.Out_File /= null then
          Redirect_Output (Sys.Out_File, Sys.Out_Append, Startup.hStdOutput);
          Startup.dwFlags := 16#100#;
       end if;
@@ -193,11 +194,15 @@ package body Util.Processes.Os is
          Redirect_Output (Sys.Err_File, Sys.Err_Append, Startup.hStdError);
          Startup.dwFlags := 16#100#;
       end if;
-      if Mode = WRITE or Mode = READ_WRITE or Mode = READ_WRITE_ALL then
-         Build_Input_Pipe (Proc, Startup);
-      elsif Sys.In_File /= null then
+      if Sys.In_File /= null then
          Redirect_Input (Sys.In_File, Startup.hStdInput);
          Startup.dwFlags := 16#100#;
+      end if;
+      if Mode = WRITE or Mode = READ_WRITE or Mode = READ_WRITE_ALL then
+         Build_Input_Pipe (Sys, Proc, Startup);
+      end if;
+      if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL then
+         Build_Output_Pipe (Sys, Proc, Startup, Mode);
       end if;
 
       --  Start the child process.
@@ -238,7 +243,7 @@ package body Util.Processes.Os is
       if Result /= 1 then
          Result := Get_Last_Error;
          Log.Error ("Process creation failed: {0}", Integer'Image (Result));
-         raise Process_Error with "Cannot create process";
+         raise Process_Error with "Cannot create process " & Integer'Image (Result);
       end if;
 
       Proc.Pid := Process_Identifier (Sys.Process_Info.dwProcessId);
@@ -259,8 +264,10 @@ package body Util.Processes.Os is
    --  ------------------------------
    --  Build the output pipe redirection to read the process output.
    --  ------------------------------
-   procedure Build_Output_Pipe (Proc : in out Process'Class;
-                                Into : in out Startup_Info) is
+   procedure Build_Output_Pipe (Sys  : in out System_Process;
+                                Proc : in out Process'Class;
+                                Into : in out Startup_Info;
+                                Mode : in Pipe_Mode) is
       Sec              : aliased Security_Attributes;
       Read_Handle      : aliased HANDLE;
       Write_Handle     : aliased HANDLE;
@@ -269,6 +276,7 @@ package body Util.Processes.Os is
       Result           : BOOL;
       R                : BOOL with Unreferenced;
       Current_Proc     : constant HANDLE := Get_Current_Process;
+      Redirect_Error   : constant Boolean := Mode = READ_ALL or Mode = READ_WRITE_ALL;
    begin
       Sec.Length  := Sec'Size / 8;
       Sec.Inherit := True;
@@ -296,28 +304,39 @@ package body Util.Processes.Os is
       end if;
       R := Close_Handle (Read_Handle);
 
-      Result := Duplicate_Handle (SourceProcessHandle => Current_Proc,
-                                  SourceHandle        => Write_Handle,
-                                  TargetProcessHandle => Current_Proc,
-                                  TargetHandle        => Error_Handle'Unchecked_Access,
-                                  DesiredAccess       => 0,
-                                  InheritHandle       => 1,
-                                  Options             => 2);
-      if Result = 0 then
-         Log.Error ("Cannot create pipe: {0}", Integer'Image (Get_Last_Error));
-         raise Program_Error with "Cannot create pipe";
+      if Redirect_Error and Sys.Out_File = null and Sys.Err_File = null then
+         Result := Duplicate_Handle (SourceProcessHandle => Current_Proc,
+                                     SourceHandle        => Write_Handle,
+                                     TargetProcessHandle => Current_Proc,
+                                     TargetHandle        => Error_Handle'Unchecked_Access,
+                                     DesiredAccess       => 0,
+                                     InheritHandle       => 1,
+                                     Options             => 2);
+         if Result = 0 then
+            Log.Error ("Cannot create pipe: {0}", Integer'Image (Get_Last_Error));
+            raise Program_Error with "Cannot create pipe";
+         end if;
+      elsif Sys.Out_File /= null then
+         Error_Handle := Write_Handle;
       end if;
       Into.dwFlags    := 16#100#;
-      Into.hStdOutput := Write_Handle;
-      Into.hStdError  := Error_Handle;
+      if Sys.Out_File = null then
+         Into.hStdOutput := Write_Handle;
+      end if;
+      if Redirect_Error and Sys.Err_File = null then
+         Into.hStdError  := Error_Handle;
+      end if;
       Proc.Output     := Create_Stream (Read_Pipe_Handle).all'Access;
    end Build_Output_Pipe;
 
    --  ------------------------------
    --  Build the input pipe redirection to write the process standard input.
    --  ------------------------------
-   procedure Build_Input_Pipe (Proc : in out Process'Class;
+   procedure Build_Input_Pipe (Sys  : in out System_Process;
+                               Proc : in out Process'Class;
                                Into : in out Startup_Info) is
+      pragma Unreferenced (Sys);
+
       Sec               : aliased Security_Attributes;
       Read_Handle       : aliased HANDLE;
       Write_Handle      : aliased HANDLE;
@@ -402,9 +421,11 @@ package body Util.Processes.Os is
                           To_Close      : in File_Type_Array_Access) is
    begin
       if Input'Length > 0 then
+         Log.Info ("Redirect input {0}", Input);
          Sys.In_File := To_WSTR (Input);
       end if;
       if Output'Length > 0 then
+         Log.Info ("Redirect output {0}", Output);
          Sys.Out_File   := To_WSTR (Output);
          Sys.Out_Append := Append_Output;
       end if;

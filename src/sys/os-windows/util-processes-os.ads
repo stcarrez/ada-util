@@ -80,11 +80,14 @@ private package Util.Processes.Os is
    procedure Finalize (Sys : in out System_Process);
 
    --  Build the output pipe redirection to read the process output.
-   procedure Build_Output_Pipe (Proc : in out Process'Class;
-                                Into : in out Startup_Info);
+   procedure Build_Output_Pipe (Sys  : in out System_Process;
+                                Proc : in out Process'Class;
+                                Into : in out Startup_Info;
+                                Mode : in Pipe_Mode);
 
    --  Build the input pipe redirection to write the process standard input.
-   procedure Build_Input_Pipe (Proc : in out Process'Class;
+   procedure Build_Input_Pipe (Sys  : in out System_Process;
+                               Proc : in out Process'Class;
                                Into : in out Startup_Info);
 
 private
