@@ -3,6 +3,7 @@ with "utilada_core";
 with "utilada_base";
 with "utilada_sys";
 with "utilada_http";
+with "utilada_xml";
 @WITH_UTILADA_LZMA@
 
 abstract project UtilAda is
