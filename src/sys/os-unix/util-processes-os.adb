@@ -156,15 +156,16 @@ package body Util.Processes.Os is
       end if;
 
       --  Setup the pipes.
-      if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL then
-         if Sys_Pipe (Stdout_Pipes'Address) /= 0 then
-            raise Process_Error with "Cannot create stdout pipe";
-         end if;
-      end if;
       if Mode = WRITE or Mode = READ_WRITE or Mode = READ_WRITE_ALL then
          if Sys_Pipe (Stdin_Pipes'Address) /= 0 then
             Cleanup;
             raise Process_Error with "Cannot create stdin pipe";
+         end if;
+      end if;
+      if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL then
+         if Sys_Pipe (Stdout_Pipes'Address) /= 0 then
+            Cleanup;
+            raise Process_Error with "Cannot create stdout pipe";
          end if;
       end if;
       if Mode = READ_ERROR then
@@ -188,43 +189,63 @@ package body Util.Processes.Os is
             end loop;
          end if;
 
-         if Mode = READ_ALL or Mode = READ_WRITE_ALL then
+         --  Handle stdin/stdout/stderr pipe redirections unless they are file-redirected.
+
+         if Sys.Err_File = Null_Ptr and Stdout_Pipes (1) /= NO_FILE then
             Result := Sys_Dup2 (Stdout_Pipes (1), STDERR_FILENO);
          end if;
 
-         if Stderr_Pipes (1) /= NO_FILE then
+         --  Redirect stdin to the pipe unless we use file redirection.
+         if Sys.In_File = Null_Ptr and Stdin_Pipes (0) /= NO_FILE then
+            if Stdin_Pipes (0) /= STDIN_FILENO then
+               Result := Sys_Dup2 (Stdin_Pipes (0), STDIN_FILENO);
+            end if;
+         end if;
+         if Stdin_Pipes (0) /= NO_FILE and Stdin_Pipes (0) /= STDIN_FILENO then
+            Result := Sys_Close (Stdin_Pipes (0));
+         end if;
+         if Stdin_Pipes (1) /= NO_FILE then
+            Result := Sys_Close (Stdin_Pipes (1));
+         end if;
+
+         --  Redirect stdout to the pipe unless we use file redirection.
+         if Sys.Out_File = Null_Ptr and Stdout_Pipes (1) /= NO_FILE then
+            if Stdout_Pipes (1) /= STDOUT_FILENO then
+               Result := Sys_Dup2 (Stdout_Pipes (1), STDOUT_FILENO);
+            end if;
+         end if;
+         if Stdout_Pipes (1) /= NO_FILE and Stdout_Pipes (1) /= STDOUT_FILENO then
+            Result := Sys_Close (Stdout_Pipes (1));
+         end if;
+         if Stdout_Pipes (0) /= NO_FILE then
+            Result := Sys_Close (Stdout_Pipes (0));
+         end if;
+
+         if Sys.Err_File = Null_Ptr and Stderr_Pipes (1) /= NO_FILE then
             if Stderr_Pipes (1) /= STDERR_FILENO then
                Result := Sys_Dup2 (Stderr_Pipes (1), STDERR_FILENO);
                Result := Sys_Close (Stderr_Pipes (1));
             end if;
             Result := Sys_Close (Stderr_Pipes (0));
+         end if;
 
-         elsif Sys.Err_File /= Null_Ptr then
-            --  Redirect the process error to a file.
+         if Sys.In_File /= Null_Ptr then
+            --  Redirect the process input from a file.
             declare
                Fd : File_Type;
             begin
-               if Sys.Err_Append then
-                  Fd := Sys_Open (Sys.Err_File, O_CREAT + O_WRONLY + O_APPEND, 8#644#);
-               else
-                  Fd := Sys_Open (Sys.Err_File, O_CREAT + O_WRONLY + O_TRUNC, 8#644#);
-               end if;
+               Fd := Sys_Open (Sys.In_File, O_RDONLY, 8#644#);
                if Fd < 0 then
                   Sys_Exit (254);
                end if;
-               Result := Sys_Dup2 (Fd, STDOUT_FILENO);
-               Result := Sys_Close (Fd);
+               if Fd /= STDIN_FILENO then
+                  Result := Sys_Dup2 (Fd, STDIN_FILENO);
+                  Result := Sys_Close (Fd);
+               end if;
             end;
          end if;
 
-         if Stdout_Pipes (1) /= NO_FILE then
-            if Stdout_Pipes (1) /= STDOUT_FILENO then
-               Result := Sys_Dup2 (Stdout_Pipes (1), STDOUT_FILENO);
-               Result := Sys_Close (Stdout_Pipes (1));
-            end if;
-            Result := Sys_Close (Stdout_Pipes (0));
-
-         elsif Sys.Out_File /= Null_Ptr then
+         if Sys.Out_File /= Null_Ptr then
             --  Redirect the process output to a file.
             declare
                Fd : File_Type;
@@ -237,29 +258,30 @@ package body Util.Processes.Os is
                if Fd < 0 then
                   Sys_Exit (254);
                end if;
-               Result := Sys_Dup2 (Fd, STDOUT_FILENO);
-               Result := Sys_Close (Fd);
+               if Fd /= STDOUT_FILENO then
+                  Result := Sys_Dup2 (Fd, STDOUT_FILENO);
+                  Result := Sys_Close (Fd);
+               end if;
             end;
          end if;
 
-         if Stdin_Pipes (0) /= NO_FILE then
-            if Stdin_Pipes (0) /= STDIN_FILENO then
-               Result := Sys_Dup2 (Stdin_Pipes (0), STDIN_FILENO);
-               Result := Sys_Close (Stdin_Pipes (0));
-            end if;
-            Result := Sys_Close (Stdin_Pipes (1));
-
-         elsif Sys.In_File /= Null_Ptr then
-            --  Redirect the process input from a file.
+         if Sys.Err_File /= Null_Ptr then
+            --  Redirect the process error to a file.
             declare
                Fd : File_Type;
             begin
-               Fd := Sys_Open (Sys.In_File, O_RDONLY, 8#644#);
+               if Sys.Err_Append then
+                  Fd := Sys_Open (Sys.Err_File, O_CREAT + O_WRONLY + O_APPEND, 8#644#);
+               else
+                  Fd := Sys_Open (Sys.Err_File, O_CREAT + O_WRONLY + O_TRUNC, 8#644#);
+               end if;
                if Fd < 0 then
                   Sys_Exit (254);
                end if;
-               Result := Sys_Dup2 (Fd, STDIN_FILENO);
-               Result := Sys_Close (Fd);
+               if Fd /= STDERR_FILENO then
+                  Result := Sys_Dup2 (Fd, STDERR_FILENO);
+                  Result := Sys_Close (Fd);
+               end if;
             end;
          end if;
 
