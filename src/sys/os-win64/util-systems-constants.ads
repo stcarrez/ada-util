@@ -12,7 +12,7 @@ package Util.Systems.Constants is
    O_EXCL                        : constant Interfaces.C.int := 8#002000#;
    O_TRUNC                       : constant Interfaces.C.int := 8#001000#;
    O_APPEND                      : constant Interfaces.C.int := 8#000010#;
-   O_CLOEXEC                     : constant Interfaces.C.int := 0;
+   O_CLOEXEC                     : constant Interfaces.C.int := 8#100000#;
    O_SYNC                        : constant Interfaces.C.int := 0;
    O_DIRECT                      : constant Interfaces.C.int := 0;
 
