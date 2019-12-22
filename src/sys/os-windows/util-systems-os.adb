@@ -160,7 +160,7 @@ package body Util.Systems.Os is
                              NO_FILE);
 
       Free (WPath);
-      return Result;
+      return (if Result = INVALID_HANDLE_VALUE then NO_FILE else Result);
    end Sys_Open;
 
    function Sys_SetEndOfFile (Fs : in File_Type) return BOOL
