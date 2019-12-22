@@ -127,7 +127,7 @@ package body Util.Systems.Os is
       WPath := To_WSTR (Interfaces.C.Strings.Value (Path));
       Sec.Length := Security_Attributes'Size / 8;
       Sec.Security_Descriptor := System.Null_Address;
-      Sec.Inherit := True;
+      Sec.Inherit := not Has_Flag (Flags, Util.Systems.Constants.O_CLOEXEC);
 
       if Has_Flag (Flags, O_WRONLY) then
          Desired_Access := GENERIC_WRITE;
