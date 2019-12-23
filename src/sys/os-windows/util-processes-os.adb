@@ -125,7 +125,7 @@ package body Util.Processes.Os is
    begin
       Sec.Length := Security_Attributes'Size / 8;
       Sec.Security_Descriptor := System.Null_Address;
-      Sec.Inherit := True;
+      Sec.Inherit := 1;
 
       Output := Create_File (Path.all'Address,
                              (if Append then FILE_APPEND_DATA else GENERIC_WRITE),
@@ -146,7 +146,7 @@ package body Util.Processes.Os is
    begin
       Sec.Length := Security_Attributes'Size / 8;
       Sec.Security_Descriptor := System.Null_Address;
-      Sec.Inherit := True;
+      Sec.Inherit := 1;
 
       Input := Create_File (Path.all'Address,
                             GENERIC_READ,
@@ -201,7 +201,7 @@ package body Util.Processes.Os is
       if Mode = WRITE or Mode = READ_WRITE or Mode = READ_WRITE_ALL then
          Build_Input_Pipe (Sys, Proc, Startup);
       end if;
-      if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL then
+      if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL or Mode = READ_WRITE_ALL then
          Build_Output_Pipe (Sys, Proc, Startup, Mode);
       end if;
 
@@ -211,7 +211,7 @@ package body Util.Processes.Os is
                                    Sys.Command.all'Address,
                                    null,
                                    null,
-                                   True,
+                                   1,
                                    16#0#,
                                    System.Null_Address,
                                    Sys.Dir.all'Address,
@@ -222,7 +222,7 @@ package body Util.Processes.Os is
                                    Sys.Command.all'Address,
                                    null,
                                    null,
-                                   True,
+                                   1,
                                    16#0#,
                                    System.Null_Address,
                                    System.Null_Address,
@@ -279,7 +279,7 @@ package body Util.Processes.Os is
       Redirect_Error   : constant Boolean := Mode = READ_ALL or Mode = READ_WRITE_ALL;
    begin
       Sec.Length  := Sec'Size / 8;
-      Sec.Inherit := True;
+      Sec.Inherit := 1;
       Sec.Security_Descriptor := System.Null_Address;
 
       Result := Create_Pipe (Read_Handle  => Read_Handle'Unchecked_Access,
@@ -346,7 +346,7 @@ package body Util.Processes.Os is
       Current_Proc      : constant HANDLE := Get_Current_Process;
    begin
       Sec.Length  := Sec'Size / 8;
-      Sec.Inherit := True;
+      Sec.Inherit := 1;
       Sec.Security_Descriptor := System.Null_Address;
 
       Result := Create_Pipe (Read_Handle  => Read_Handle'Unchecked_Access,

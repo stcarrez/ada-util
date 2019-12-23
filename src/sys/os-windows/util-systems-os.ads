@@ -76,7 +76,7 @@ package Util.Systems.Os is
    type Security_Attributes is record
       Length              : DWORD;
       Security_Descriptor : System.Address;
-      Inherit             : Boolean;
+      Inherit             : Interfaces.C.int := 0;
    end record;
    type LPSECURITY_ATTRIBUTES is access all Security_Attributes;
    for LPSECURITY_ATTRIBUTES'Size use Standard'Address_Size;
@@ -204,7 +204,7 @@ package Util.Systems.Os is
                             Command            : in System.Address;
                             Process_Attributes : in LPSECURITY_ATTRIBUTES;
                             Thread_Attributes  : in LPSECURITY_ATTRIBUTES;
-                            Inherit_Handlers   : in Boolean;
+                            Inherit_Handles    : in BOOL;
                             Creation_Flags     : in DWORD;
                             Environment        : in LPTSTR;
                             Directory          : in LPCTSTR;
@@ -280,6 +280,9 @@ package Util.Systems.Os is
 
    function Strerror (Errno : in Integer) return Interfaces.C.Strings.chars_ptr
      with Import => True, Convention => Stdcall, Link_Name => "strerror";
+
+   function Sys_GetHandleInformation (Fd : in HANDLE; Flags : access DWORD) return BOOL
+     with Import => True, Convention => Stdcall, Link_Name => "GetHandleInformation";
 
    type Wchar_Ptr is access all Interfaces.C.wchar_array;
 

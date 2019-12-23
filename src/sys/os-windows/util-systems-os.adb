@@ -127,7 +127,7 @@ package body Util.Systems.Os is
       WPath := To_WSTR (Interfaces.C.Strings.Value (Path));
       Sec.Length := Security_Attributes'Size / 8;
       Sec.Security_Descriptor := System.Null_Address;
-      Sec.Inherit := not Has_Flag (Flags, Util.Systems.Constants.O_CLOEXEC);
+      Sec.Inherit := (if Has_Flag (Flags, Util.Systems.Constants.O_CLOEXEC) then 0 else 1);
 
       if Has_Flag (Flags, O_WRONLY) then
          Desired_Access := GENERIC_WRITE;
@@ -160,6 +160,7 @@ package body Util.Systems.Os is
                              NO_FILE);
 
       Free (WPath);
+
       return (if Result = INVALID_HANDLE_VALUE then NO_FILE else Result);
    end Sys_Open;
 
