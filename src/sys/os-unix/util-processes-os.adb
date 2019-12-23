@@ -162,7 +162,7 @@ package body Util.Processes.Os is
             raise Process_Error with "Cannot create stdin pipe";
          end if;
       end if;
-      if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL then
+      if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL or Mode = READ_WRITE_ALL then
          if Sys_Pipe (Stdout_Pipes'Address) /= 0 then
             Cleanup;
             raise Process_Error with "Cannot create stdout pipe";
