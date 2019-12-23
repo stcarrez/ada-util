@@ -4550,10 +4550,14 @@ if test T${UTIL_WITH_LZMA} = Tyes; then
 # Check whether --with-ada-lzma was given.
 if test "${with_ada_lzma+set}" = set; then :
   withval=$with_ada_lzma;
-      ac_cv_gnat_project_name_lzmada=${withval}/
-      if test -d "${withval}"; then
-	    ac_cv_gnat_project_name_lzmada=${withval}/lzmada
-	  fi
+      if test "${withval}/" = "yes/"; then
+        ac_cv_gnat_project_name_lzmada=${awa_build_root}lzmada
+      else
+        ac_cv_gnat_project_name_lzmada=${withval}/
+        if test -d "${withval}"; then
+	      ac_cv_gnat_project_name_lzmada=${withval}/lzmada
+	    fi
+      fi
 
 else
 
