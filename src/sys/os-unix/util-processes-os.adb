@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012, 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2018, 2019, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -191,7 +191,9 @@ package body Util.Processes.Os is
 
          --  Handle stdin/stdout/stderr pipe redirections unless they are file-redirected.
 
-         if Sys.Err_File = Null_Ptr and Stdout_Pipes (1) /= NO_FILE then
+         if Sys.Err_File = Null_Ptr and Stdout_Pipes (1) /= NO_FILE
+           and (Mode = READ_ALL or Mode = READ_WRITE_ALL)
+         then
             Result := Sys_Dup2 (Stdout_Pipes (1), STDERR_FILENO);
          end if;
 
