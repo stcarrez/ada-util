@@ -1,3 +1,6 @@
+Version 2.0.1  -
+  - Fixed Util.Processes mixed pipe and file redirections
+
 Version 2.0.0  - Dec 2019
   - Rename GNAT projects and split the library in several parts
   - New samples to show compression, decompression, encryption, decryption streams
