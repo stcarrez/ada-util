@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties-bundles -- Generic name/value property management
---  Copyright (C) 2001 - 2018 Stephane Carrez
+--  Copyright (C) 2001 - 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,9 +23,12 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Fixed;
 with Util.Log.Loggers;
 with Util.Files;
+with Util.Concurrent.Counters;
 package body Util.Properties.Bundles is
 
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Properties.Bundles");
+
+   use Implementation;
 
    procedure Free is
      new Ada.Unchecked_Deallocation (Manager'Class,
@@ -35,7 +38,17 @@ package body Util.Properties.Bundles is
    --  (this allows to decouples the implementation from the API)
    package Interface_P is
 
-      type Manager is new Util.Properties.Interface_P.Manager with private;
+      package PropertyList is new Ada.Containers.Vectors
+        (Element_Type => Util.Properties.Manager_Access,
+         Index_Type => Natural,
+           "=" => "=");
+
+      type Manager is limited new Util.Properties.Implementation.Manager with record
+         List   : PropertyList.Vector;
+         Props  : aliased Util.Properties.Manager;
+         Count  : Util.Concurrent.Counters.Counter := Util.Concurrent.Counters.ONE;
+         Shared : Boolean := False;
+      end record;
 
       --  Get the value identified by the name.
       --  If the name cannot be found, the method should return the Null object.
@@ -73,25 +86,26 @@ package body Util.Properties.Bundles is
                                  File : in String);
 
       --  Deep copy of properties stored in 'From' to 'To'.
+      overriding
       function Create_Copy (Self : in Manager)
-                           return Util.Properties.Interface_P.Manager_Access;
+                           return Util.Properties.Implementation.Manager_Access;
 
       procedure Add_Bundle (Self : in out Manager;
                             Props : in Util.Properties.Manager_Access);
-   private
 
-      package PropertyList is new Ada.Containers.Vectors
-        (Element_Type => Util.Properties.Manager_Access,
-         Index_Type => Natural,
-           "=" => "=");
+      package Shared_Implementation is
+        new Implementation.Shared_Implementation (Manager);
 
-      type Manager is new Util.Properties.Interface_P.Manager with record
-         List  : PropertyList.Vector;
-         Props : aliased Util.Properties.Manager;
-      end record;
+      subtype Shared_Manager is Shared_Implementation.Manager;
+
+      function Allocate_Property return Implementation.Shared_Manager_Access is
+        (new Shared_Manager);
+
+      --  Create a property implementation if there is none yet.
+      procedure Check_And_Create_Impl is
+        new Implementation.Create (Allocator => Allocate_Property);
 
    end Interface_P;
-
 
    procedure Add_Bundle (Self  : in out Manager;
                          Props : in Manager_Access) is
@@ -100,19 +114,14 @@ package body Util.Properties.Bundles is
    end Add_Bundle;
 
    procedure Initialize (Object : in out Manager) is
-      use Util.Properties.Interface_P;
    begin
-      Object.Impl := new Util.Properties.Bundles.Interface_P.Manager;
-      Util.Concurrent.Counters.Increment (Object.Impl.Count);
+      Interface_P.Check_And_Create_Impl (Object);
    end Initialize;
 
    procedure Adjust (Object : in out Manager) is
-      use Util.Properties.Interface_P;
    begin
-      if Object.Impl = null then
-         Object.Impl := new Util.Properties.Bundles.Interface_P.Manager;
-      end if;
-      Util.Concurrent.Counters.Increment (Object.Impl.Count);
+      Interface_P.Check_And_Create_Impl (Object);
+      Object.Impl.Adjust;
    end Adjust;
 
    --  ------------------------------
@@ -182,7 +191,7 @@ package body Util.Properties.Bundles is
                if Bundle_Map.Has_Element (Pos) then
                   Bundle.Finalize;
                   Bundle.Impl := Bundle_Map.Element (Pos).Impl;
-                  Util.Concurrent.Counters.Increment (Bundle.Impl.Count);
+                  Bundle.Impl.Adjust;
                   Found := True;
                   exit;
                end if;
@@ -387,8 +396,9 @@ package body Util.Properties.Bundles is
       --  ------------------------------
       --  Deep copy of properties stored in 'From' to 'To'.
       --  ------------------------------
+      overriding
       function Create_Copy (Self : in Manager)
-                            return Util.Properties.Interface_P.Manager_Access is
+                            return Util.Properties.Implementation.Manager_Access is
          pragma Unreferenced (Self);
       begin
          return null;
