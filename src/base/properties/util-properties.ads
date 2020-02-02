@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties -- Generic name/value property management
---  Copyright (C) 2001 - 2019 Stephane Carrez
+--  Copyright (C) 2001 - 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -249,16 +249,11 @@ package Util.Properties is
    --  Returns True if the item value represents a property manager.
    function Is_Manager (Item : in Value) return Boolean;
 
-private
-
    --  Abstract interface for the implementation of Properties
    --  (this allows to decouples the implementation from the API)
-   package Interface_P is
+   package Implementation is
 
-      type Manager is abstract limited new Util.Beans.Basic.Bean with record
-         Count  : Util.Concurrent.Counters.Counter;
-         Shared : Boolean := False;
-      end record;
+      type Manager is limited interface and Util.Beans.Basic.Bean;
       type Manager_Access is access all Manager'Class;
 
       --  Returns TRUE if the property exists.
@@ -272,22 +267,71 @@ private
 
       --  Iterate over the properties and execute the given procedure passing the
       --  property name and its value.
-      procedure Iterate (Self    : in Manager;
-                         Process : access procedure (Name : in String;
-                                                     Item : in Value))
-      is abstract;
+      procedure Iterate
+        (Self    : in Manager;
+         Process : access procedure (Name : in String;
+                                     Item : in Value)) is abstract;
 
       --  Deep copy of properties stored in 'From' to 'To'.
       function Create_Copy (Self : in Manager)
                             return Manager_Access is abstract;
 
-   end Interface_P;
+      type Shared_Manager is limited interface and Manager;
+      type Shared_Manager_Access is access all Shared_Manager'Class;
 
-   --  Create a property implementation if there is none yet.
-   procedure Check_And_Create_Impl (Self : in out Manager);
+      function Is_Shared (Self : in Shared_Manager) return Boolean is abstract;
+
+      procedure Set_Shared (Self   : in out Shared_Manager;
+                            Shared : in Boolean) is abstract;
+
+      procedure Adjust (Self : in out Shared_Manager) is abstract;
+
+      procedure Finalize (Self    : in out Shared_Manager;
+                          Release : out Boolean) is abstract;
+
+      generic
+         with function Allocator return Shared_Manager_Access;
+      procedure Create (Self : in out Util.Properties.Manager'Class);
+
+      generic
+         with function Allocator return Shared_Manager_Access;
+      procedure Initialize (Self : in out Util.Properties.Manager'Class);
+
+      generic
+         type Manager_Type is limited new Manager with private;
+      package Shared_Implementation is
+
+         type Manager is limited new Manager_Type and Shared_Manager with private;
+
+         overriding
+         function Is_Shared (Self : in Manager) return Boolean;
+
+         overriding
+         procedure Set_Shared (Self   : in out Manager;
+                               Shared : in Boolean);
+
+         overriding
+         procedure Adjust (Self : in out Manager);
+
+         overriding
+         procedure Finalize (Self    : in out Manager;
+                             Release : out Boolean);
+
+      private
+
+         type Manager is limited new Manager_Type and Shared_Manager with record
+            Count  : Util.Concurrent.Counters.Counter := Util.Concurrent.Counters.ONE;
+            Shared : Boolean := False;
+         end record;
+
+      end Shared_Implementation;
+
+   end Implementation;
+
+private
 
    type Manager is new Ada.Finalization.Controlled and Util.Beans.Basic.Bean with record
-      Impl : Interface_P.Manager_Access := null;
+      Impl : Implementation.Shared_Manager_Access := null;
    end record;
 
    overriding
