@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties -- Generic name/value property management
---  Copyright (C) 2001 - 2018 Stephane Carrez
+--  Copyright (C) 2001 - 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,20 +26,84 @@ package body Util.Properties is
 
    use Ada.Text_IO;
    use Ada.Strings.Unbounded.Text_IO;
-   use Interface_P;
+   use Implementation;
    use Util.Beans.Objects;
 
    procedure Free is
-     new Ada.Unchecked_Deallocation (Object => Interface_P.Manager'Class,
-                                     Name   => Interface_P.Manager_Access);
+     new Ada.Unchecked_Deallocation (Object => Implementation.Shared_Manager'Class,
+                                     Name   => Implementation.Shared_Manager_Access);
 
    Trim_Chars : constant Ada.Strings.Maps.Character_Set
      := Ada.Strings.Maps.To_Set (" " & ASCII.HT);
 
-   type Property_Map is new Interface_P.Manager with record
-      Props : Util.Beans.Objects.Maps.Map_Bean;
+   package body Implementation is
+
+      procedure Create (Self : in out Util.Properties.Manager'Class) is
+      begin
+         if Self.Impl = null then
+            Self.Impl := Allocator;
+         elsif Self.Impl.Is_Shared then
+            declare
+               Old     : Implementation.Shared_Manager_Access := Self.Impl;
+               Is_Zero : Boolean;
+               Impl    : constant Implementation.Manager_Access := Create_Copy (Self.Impl.all);
+            begin
+               Self.Impl := Implementation.Shared_Manager'Class (Impl.all)'Access;
+               Old.Finalize (Is_Zero);
+               if Is_Zero then
+                  Free (Old);
+               end if;
+            end;
+         end if;
+      end Create;
+
+      procedure Initialize (Self : in out Util.Properties.Manager'Class) is
+         Release : Boolean;
+      begin
+         if Self.Impl /= null then
+            Self.Impl.Finalize (Release);
+            if Release then
+               Free (Self.Impl);
+            end if;
+         end if;
+         Self.Impl := Allocator;
+      end Initialize;
+
+      package body Shared_Implementation is
+
+         overriding
+         function Is_Shared (Self : in Manager) return Boolean is
+         begin
+            return not Self.Shared and Util.Concurrent.Counters.Value (Self.Count) > 1;
+         end Is_Shared;
+
+         overriding
+         procedure Set_Shared (Self   : in out Manager;
+                               Shared : in Boolean) is
+         begin
+            Self.Shared := Shared;
+         end Set_Shared;
+
+         overriding
+         procedure Adjust (Self : in out Manager) is
+         begin
+            Util.Concurrent.Counters.Increment (Self.Count);
+         end Adjust;
+
+         overriding
+         procedure Finalize (Self    : in out Manager;
+                             Release : out Boolean) is
+         begin
+            Util.Concurrent.Counters.Decrement (Self.Count, Release);
+         end Finalize;
+
+      end Shared_Implementation;
+
+   end Implementation;
+
+   type Property_Map is limited new Implementation.Manager with record
+      Props  : Util.Beans.Objects.Maps.Map_Bean;
    end record;
-   type Property_Map_Access is access all Property_Map;
 
    --  Get the value identified by the name.
    --  If the name cannot be found, the method should return the Null object.
@@ -76,7 +140,13 @@ package body Util.Properties is
    --  Deep copy of properties stored in 'From' to 'To'.
    overriding
    function Create_Copy (Self : in Property_Map)
-                         return Interface_P.Manager_Access;
+                         return Implementation.Manager_Access;
+
+   package Shared_Property_Implementation is
+      new Implementation.Shared_Implementation (Property_Map);
+
+   subtype Property_Manager is Shared_Property_Implementation.Manager;
+   type Property_Manager_Access is access all Property_Manager'Class;
 
    --  ------------------------------
    --  Get the value identified by the name.
@@ -144,8 +214,8 @@ package body Util.Properties is
    --  ------------------------------
    overriding
    function Create_Copy (Self : in Property_Map)
-                         return Interface_P.Manager_Access is
-      Result : constant Property_Map_Access := new Property_Map;
+                         return Implementation.Manager_Access is
+      Result : constant Property_Manager_Access := new Property_Manager;
    begin
       --  SCz 2017-07-20: the map assignment is buggy on GNAT 2016 because the copy of the
       --  object also copies the internal Lock and Busy flags which makes the target copy
@@ -155,6 +225,13 @@ package body Util.Properties is
       Result.Props.Assign (Self.Props);
       return Result.all'Access;
    end Create_Copy;
+
+   function Allocate_Property return Implementation.Shared_Manager_Access is
+     (new Property_Manager);
+
+   --  Create a property implementation if there is none yet.
+   procedure Check_And_Create_Impl is
+      new Implementation.Create (Allocator => Allocate_Property);
 
    --  ------------------------------
    --  Get the value identified by the name.
@@ -285,30 +362,10 @@ package body Util.Properties is
       --  the caller.
       Result := new Manager;
       Check_And_Create_Impl (Result.all);
-      Result.Impl.Shared := True;
+      Result.Impl.Set_Shared (True);
       Self.Impl.Set_Value (Name, Util.Beans.Objects.To_Object (Result.all'Access));
       return Manager (Result.all);
    end Create;
-
-   procedure Check_And_Create_Impl (Self : in out Manager) is
-   begin
-      if Self.Impl = null then
-         Self.Impl := new Property_Map;
-         Util.Concurrent.Counters.Increment (Self.Impl.Count);
-      elsif not Self.Impl.Shared and Util.Concurrent.Counters.Value (Self.Impl.Count) > 1 then
-         declare
-            Old     : Interface_P.Manager_Access := Self.Impl;
-            Is_Zero : Boolean;
-         begin
-            Self.Impl := Create_Copy (Self.Impl.all);
-            Util.Concurrent.Counters.Increment (Self.Impl.Count);
-            Util.Concurrent.Counters.Decrement (Old.Count, Is_Zero);
-            if Is_Zero then
-               Free (Old);
-            end if;
-         end;
-      end if;
-   end Check_And_Create_Impl;
 
    --  ------------------------------
    --  Set the value of the property.  The property is created if it
@@ -431,7 +488,7 @@ package body Util.Properties is
    procedure Adjust (Object : in out Manager) is
    begin
       if Object.Impl /= null then
-         Util.Concurrent.Counters.Increment (Object.Impl.Count);
+         Object.Impl.Adjust;
       end if;
    end Adjust;
 
@@ -440,7 +497,7 @@ package body Util.Properties is
       Is_Zero : Boolean;
    begin
       if Object.Impl /= null then
-         Util.Concurrent.Counters.Decrement (Object.Impl.Count, Is_Zero);
+         Object.Impl.Finalize (Is_Zero);
          if Is_Zero then
             Free (Object.Impl);
          end if;
@@ -462,8 +519,8 @@ package body Util.Properties is
    begin
       Check_And_Create_Impl (Self);
       Current := Manager (Self);
-      Old_Shared := Current.Impl.Shared;
-      Current.Impl.Shared := True;
+      --  Old_Shared := Current.Impl.Shared;
+      Current.Impl.Set_Shared (True);
       while not End_Of_File (File) loop
          Line := Get_Line (File);
          Len  := Length (Line);
@@ -499,7 +556,7 @@ package body Util.Properties is
             end case;
          end if;
       end loop;
-      Self.Impl.Shared := Old_Shared;
+      Self.Impl.Set_Shared (False);
 
    exception
       when End_Error =>
