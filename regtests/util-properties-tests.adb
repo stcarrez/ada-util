@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util -- Unit tests for properties
---  Copyright (C) 2009, 2010, 2011, 2014, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2014, 2017, 2018, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -268,6 +268,41 @@ package body Util.Properties.Tests is
 
    end Test_Load_Ini_Property;
 
+   procedure Test_Save_Properties (T : in out Test) is
+   begin
+      declare
+         Props  : Properties.Manager;
+         F      : File_Type;
+      begin
+         Open (F, In_File, "regtests/files/my.cnf");
+         Load_Properties (Props, F);
+         Close (F);
+
+         Props.Set ("New-Property", "Some-Value");
+         Props.Remove ("mysqld");
+         T.Assert (not Props.Exists ("mysqld"), "mysqld property was not removed");
+         Props.Save_Properties ("regtests/result/save-props.properties");
+      end;
+
+      declare
+         Props : Properties.Manager;
+         V : Util.Properties.Value;
+         P : Properties.Manager;
+      begin
+         Props.Load_Properties (Path => "regtests/result/save-props.properties");
+
+         T.Assert (not Props.Exists ("mysqld"), "mysqld property was not removed (2)");
+         T.Assert (Props.Exists ("New-Property"), "Invalid Save_Properties");
+
+         V := Props.Get_Value ("mysqld_safe");
+         T.Assert (Util.Properties.Is_Manager (V),
+                   "Value 'mysqld_safe' must be a property manager");
+         P := Util.Properties.To_Manager (V);
+         T.Assert (P.Exists ("socket"),
+                   "The [mysqld] property manager should contain a 'socket' property");
+      end;
+   end Test_Save_Properties;
+
    package Caller is new Util.Test_Caller (Test, "Properties");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -299,6 +334,8 @@ package body Util.Properties.Tests is
                        Test_Set_Preserve_Original'Access);
       Caller.Add_Test (Suite, "Test Util.Properties.Set+Assign+Remove",
                        Test_Remove_Preserve_Original'Access);
+      Caller.Add_Test (Suite, "Test Util.Properties.Save_Properties",
+                       Test_Save_Properties'Access);
    end Add_Tests;
 
 end Util.Properties.Tests;
