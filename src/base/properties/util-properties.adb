@@ -583,29 +583,53 @@ package body Util.Properties is
       procedure Save_Property (Name : in String;
                                Item : in Util.Beans.Objects.Object);
 
-      Tmp : constant String := Path & ".tmp";
-      F : File_Type;
+      Tmp      : constant String := Path & ".tmp";
+      F        : File_Type;
+      Recurse  : Boolean := False;
+      Level    : Natural := 0;
+      Ini_Mode : Boolean := False;
 
       procedure Save_Property (Name : in String;
                                Item : in Util.Beans.Objects.Object) is
+         Bean  : constant access Util.Beans.Basic.Readonly_Bean'Class
+           := Util.Beans.Objects.To_Bean (Item);
       begin
-         if Prefix'Length > 0 then
-            if Name'Length < Prefix'Length then
-               return;
+         if Bean /= null then
+            if Recurse then
+               New_Line (F);
+               Put (F, "[");
+               Put (F, Name);
+               Put (F, "]");
+               New_Line (F);
+               Level := Level + 1;
+               To_Manager (Item).Iterate (Save_Property'Access);
+               Level := Level - 1;
+            else
+               Ini_Mode := True;
             end if;
-            if Name (Name'First .. Prefix'Length - 1) /= Prefix then
-               return;
+         elsif not Recurse or else Level > 0 then
+            if Prefix'Length > 0 then
+               if Name'Length < Prefix'Length then
+                  return;
+               end if;
+               if Name (Name'First .. Prefix'Length - 1) /= Prefix then
+                  return;
+               end if;
             end if;
+            Put (F, Name);
+            Put (F, "=");
+            Put (F, Util.Beans.Objects.To_String (Item));
+            New_Line (F);
          end if;
-         Put (F, Name);
-         Put (F, "=");
-         Put (F, Util.Beans.Objects.To_String (Item));
-         New_Line (F);
       end Save_Property;
 
    begin
       Create (File => F, Name => Tmp);
       Self.Iterate (Save_Property'Access);
+      if Ini_Mode then
+         Recurse := True;
+         Self.Iterate (Save_Property'Access);
+      end if;
       Close (File => F);
 
       --  Do a system atomic rename of old file in the new file.
