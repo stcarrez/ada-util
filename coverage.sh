@@ -5,7 +5,8 @@ lcov --base-directory . --directory . -c -o util.cov
 lcov --remove util.cov "/usr*" -o util.cov
 lcov --remove util.cov "/build*" -o util.cov
 lcov --remove util.cov "/opt*" -o util.cov
-lcov --remove util.cov "regtests*" -o util.cov
+lcov --remove util.cov "*/regtests*" -o util.cov
+lcov --remove util.cov "*/src/tests/*" -o util.cov
 lcov --remove util.cov "*/b__util_harness.adb" -o util.cov
 lcov --remove util.cov "*/b__util_test_process.adb" -o util.cov
 rm -rf cover
