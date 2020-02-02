@@ -12,7 +12,7 @@ install:
 
 script:
   - ./configure --enable-coverage
-  - make run
+  - make
   - ./coverage.sh
 
 after_success:
