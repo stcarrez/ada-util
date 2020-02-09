@@ -10,9 +10,9 @@
 [![Test Status](https://img.shields.io/jenkins/t/https/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)
 [![codecov](https://codecov.io/gh/stcarrez/ada-util/branch/master/graph/badge.svg)](https://codecov.io/gh/stcarrez/ada-util)
 [![Documentation Status](https://readthedocs.org/projects/ada-util/badge/?version=latest)](https://ada-util.readthedocs.io/en/latest/?badge=latest)
-[![Download](https://img.shields.io/badge/download-2.0.0-brightgreen.svg)](http://download.vacs.fr/ada-util/ada-util-2.0.0.tar.gz)
+[![Download](https://img.shields.io/badge/download-2.1.0-brightgreen.svg)](http://download.vacs.fr/ada-util/ada-util-2.1.0.tar.gz)
 [![License](https://img.shields.io/badge/license-APACHE2-blue.svg)](LICENSE)
-[![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/2.0.0.svg)](Commits)
+[![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/2.1.0.svg)](Commits)
 
 
 This Ada05 library contains various utility packages for building
