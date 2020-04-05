@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-consoles-text -- Text console interface
---  Copyright (C) 2014, 2015, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2014, 2015, 2017, 2018, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,8 +59,8 @@ package body Util.Commands.Consoles.Text is
    begin
       case Justify is
          when J_LEFT =>
-            if Value'Length > Size and Size > 0 then
-               Start := Last - Size + 1;
+            if Value'Length >= Size and Size > 0 then
+               Start := Last - Size + 1 + 1;
             end if;
 
          when J_RIGHT =>
