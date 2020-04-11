@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-executors -- Execute work that is queued
---  Copyright (C) 2019 Stephane Carrez
+--  Copyright (C) 2019, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,8 +37,10 @@ package body Util.Executors is
    --  ------------------------------
    --  Start the executor tasks.
    --  ------------------------------
-   procedure Start (Manager : in out Executor_Manager) is
+   procedure Start (Manager  : in out Executor_Manager;
+                    Autostop : in Boolean := False) is
    begin
+      Manager.Autostop := Autostop;
       for Worker of Manager.Workers loop
          Worker.Start (Manager.Self);
       end loop;
@@ -68,6 +70,22 @@ package body Util.Executors is
    end Set_Queue_Size;
 
    --  ------------------------------
+   --  Wait for the pending work to be executed by the executor tasks.
+   --  ------------------------------
+   procedure Wait (Manager : in out Executor_Manager) is
+   begin
+      Manager.Queue.Wait_Empty;
+   end Wait;
+
+   --  ------------------------------
+   --  Get the number of elements in the queue.
+   --  ------------------------------
+   function Get_Count (Manager : in Executor_Manager) return Natural is
+   begin
+      return Manager.Queue.Get_Count;
+   end Get_Count;
+
+   --  ------------------------------
    --  Stop and release the executor.
    --  ------------------------------
    overriding
@@ -77,7 +95,8 @@ package body Util.Executors is
    end Finalize;
 
    task body Worker_Task is
-      M : access Executor_Manager;
+      M        : access Executor_Manager;
+      Autostop : Boolean := False;
    begin
       select
          accept Start (Manager : in Executor_Manager_Access) do
@@ -90,7 +109,11 @@ package body Util.Executors is
          declare
             Work : Work_Info;
          begin
-            M.Queue.Dequeue (Work);
+            if Autostop then
+               M.Queue.Dequeue (Work, 0.0);
+            else
+               M.Queue.Dequeue (Work);
+            end if;
             exit when Work.Done;
 
             begin
@@ -99,6 +122,11 @@ package body Util.Executors is
                when E : others =>
                   Error (Work.Work, E);
             end;
+            Autostop := M.Autostop;
+
+         exception
+            when Work_Queue.Timeout =>
+               exit;
          end;
       end loop;
    end Worker_Task;
