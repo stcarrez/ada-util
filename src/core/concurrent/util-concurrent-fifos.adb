@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-concurrent-fifos -- Concurrent Fifo Queues
---  Copyright (C) 2012, 2014, 2015, 2017 Stephane Carrez
+--  Copyright (C) 2012, 2014, 2015, 2017, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,6 +59,14 @@ package body Util.Concurrent.Fifos is
    end Dequeue;
 
    --  ------------------------------
+   --  Wait for the fifo to become empty.
+   --  ------------------------------
+   procedure Wait_Empty (From : in out Fifo) is
+   begin
+      From.Buffer.Wait_Empty;
+   end Wait_Empty;
+
+   --  ------------------------------
    --  Get the number of elements in the queue.
    --  ------------------------------
    function Get_Count (From : in Fifo) return Natural is
@@ -109,7 +117,7 @@ package body Util.Concurrent.Fifos is
       --  Put the element in the queue.
       --  If the queue is full, wait until some room is available.
       --  ------------------------------
-      entry Enqueue (Item : in Element_Type) when Count < Elements'Length is
+      entry Enqueue (Item : in Element_Type) when Count < Elements'Length - (if Clear_On_Dequeue then 1 else 0) is
       begin
          Elements (Last) := Item;
          Last := Last + 1;
@@ -149,6 +157,14 @@ package body Util.Concurrent.Fifos is
             end if;
          end if;
       end Dequeue;
+
+      --  ------------------------------
+      --  Wait for the queue to become empty.
+      --  ------------------------------
+      entry Wait_Empty when Count = 0 is
+      begin
+         null;
+      end Wait_Empty;
 
       --  ------------------------------
       --  Get the number of elements in the queue.
