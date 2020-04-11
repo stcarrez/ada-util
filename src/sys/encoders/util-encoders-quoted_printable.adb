@@ -79,8 +79,7 @@ package body Util.Encoders.Quoted_Printable is
    --  spaces that can be replaced by '_'.
    --  See RFC 2047.
    --  ------------------------------
-   function Q_Decode (Content : in String;
-                      Strict  : in Boolean := True) return String is
+   function Q_Decode (Content : in String) return String is
       Result    : String (1 .. Content'Length);
       Read_Pos  : Natural := Content'First;
       Write_Pos : Natural := Result'First - 1;
@@ -90,28 +89,18 @@ package body Util.Encoders.Quoted_Printable is
       while Read_Pos <= Content'Last loop
          C := Content (Read_Pos);
          if C = '=' then
-            exit when Read_Pos = Content'Last;
-            if Read_Pos + 2 > Content'Last then
-               exit when not Strict;
-               raise Encoding_Error;
-            end if;
+            exit when Read_Pos = Content'Last or else Read_Pos + 2 > Content'Last;
             Read_Pos := Read_Pos + 1;
             C := Content (Read_Pos);
-            if not Is_Hexadecimal_Digit (C) then
-               exit when not Strict;
-               raise Encoding_Error;
-            end if;
+            exit when not Is_Hexadecimal_Digit (C);
             C2 := Content (Read_Pos + 1);
-            if not Is_Hexadecimal_Digit (C) then
-               exit when not Strict;
-               raise Encoding_Error;
-            end if;
+            exit when  not Is_Hexadecimal_Digit (C);
             Write_Pos := Write_Pos + 1;
             Result (Write_Pos) := From_Hex (C, C2);
             Read_Pos := Read_Pos + 1;
          elsif C = '_' then
             Write_Pos := Write_Pos + 1;
-            Result (Write_Pos) := C;
+            Result (Write_Pos) := ' ';
          else
             Write_Pos := Write_Pos + 1;
             Result (Write_Pos) := C;
