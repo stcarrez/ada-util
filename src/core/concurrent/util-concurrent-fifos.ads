@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-concurrent-fifos -- Concurrent Fifo Queues
---  Copyright (C) 2012, 2017 Stephane Carrez
+--  Copyright (C) 2012, 2017, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +18,11 @@
 
 with Ada.Finalization;
 
---  The <b>Util.Concurrent.Fifos</b> generic defines a queue of objects which
+--  The `Util.Concurrent.Fifos` generic defines a queue of objects which
 --  can be shared by multiple threads.  First, the queue size is configured
---  by using the <b>Set_Size</b> procedure.  Then, a thread can insert elements
---  in the queue by using the <b>Enqueue</b> procedure.  The thread will block
---  if the queue is full.  Another thread can use the <b>Dequeue</b> procedure
+--  by using the `Set_Size` procedure.  Then, a thread can insert elements
+--  in the queue by using the `Enqueue` procedure.  The thread will block
+--  if the queue is full.  Another thread can use the `Dequeue` procedure
 --  to fetch the oldest element from the queue.  The thread will block
 --  until an element is inserted if the queue is empty.
 generic
@@ -54,6 +54,9 @@ package Util.Concurrent.Fifos is
                       Item    : out Element_Type;
                       Wait    : in Duration := FOREVER);
 
+   --  Wait for the fifo to become empty.
+   procedure Wait_Empty (From : in out Fifo);
+
    --  Get the number of elements in the queue.
    function Get_Count (From : in Fifo) return Natural;
 
@@ -72,7 +75,7 @@ package Util.Concurrent.Fifos is
 private
 
    --  To store the queue elements, we use an array which is allocated dynamically
-   --  by the <b>Set_Size</b> protected operation.  The generated code is smaller
+   --  by the `Set_Size` protected operation.  The generated code is smaller
    --  compared to the use of Ada vectors container.
    type Element_Array is array (Natural range <>) of Element_Type;
    type Element_Array_Access is access all Element_Array;
@@ -89,6 +92,9 @@ private
       --  Get an element from the queue.
       --  Wait until one element gets available.
       entry Dequeue (Item : out Element_Type);
+
+      --  Wait for the queue to become empty.
+      entry Wait_Empty;
 
       --  Get the number of elements in the queue.
       function Get_Count return Natural;
