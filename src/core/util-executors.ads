@@ -52,7 +52,8 @@ package Util.Executors is
                       Work    : in Work_Type);
 
    --  Start the executor tasks.
-   procedure Start (Manager : in out Executor_Manager);
+   procedure Start (Manager  : in out Executor_Manager;
+                    Autostop : in Boolean := False);
 
    --  Stop the tasks and wait for their completion.
    procedure Stop (Manager : in out Executor_Manager);
@@ -60,6 +61,12 @@ package Util.Executors is
    --  Set the work queue size.
    procedure Set_Queue_Size (Manager  : in out Executor_Manager;
                              Capacity : in Positive);
+
+   --  Wait for the pending work to be executed by the executor tasks.
+   procedure Wait (Manager : in out Executor_Manager);
+
+   --  Get the number of elements in the queue.
+   function Get_Count (Manager : in Executor_Manager) return Natural;
 
    --  Stop and release the executor.
    overriding
@@ -84,9 +91,10 @@ private
    type Worker_Task_Array is array (Positive range <>) of Worker_Task;
 
    type Executor_Manager (Count : Positive) is limited new Limited_Controlled with record
-      Self    : Executor_Manager_Access;
-      Queue   : Work_Queue.Fifo;
-      Workers : Worker_Task_Array (1 .. Count);
+      Self     : Executor_Manager_Access;
+      Autostop : Boolean := False;
+      Queue    : Work_Queue.Fifo;
+      Workers  : Worker_Task_Array (1 .. Count);
    end record;
 
 end Util.Executors;
