@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encodes-tests - Test for encoding
---  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017, 2018, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,7 @@ with Util.Encoders.HMAC.SHA256;
 with Util.Encoders.Base16;
 with Util.Encoders.Base64;
 with Util.Encoders.AES;
+with Util.Encoders.Quoted_Printable;
 package body Util.Encoders.Tests is
 
    use Util.Tests;
@@ -100,6 +101,8 @@ package body Util.Encoders.Tests is
                        Test_AES'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.AES.Encrypt_Secret",
                        Test_Encrypt_Decrypt_Secret'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Quoted_Printable.Decode",
+                       Test_Decode_Quoted_Printable'Access);
    end Add_Tests;
 
    procedure Test_Base64_Encode (T : in out Test) is
@@ -595,5 +598,16 @@ package body Util.Encoders.Tests is
       Decipher.Decrypt_Secret (Data, Result);
       T.Assert (Result.Secret = Pk.Secret, "Encrypt_Secret and Decrypt_Secret failed");
    end Test_Encrypt_Decrypt_Secret;
+
+   --  ------------------------------
+   --  Test Decode Quoted-Printable encoding.
+   --  ------------------------------
+   procedure Test_Decode_Quoted_Printable (T : in out Test) is
+   begin
+      Assert_Equals (T, "teams aren.t =way to protect yo",
+                     Quoted_Printable.Decode ("teams aren=2Et =3Dway to protect yo="));
+      Assert_Equals (T, "====",
+                     Quoted_Printable.Decode ("=3D=3D=3D=3D="));
+   end Test_Decode_Quoted_Printable;
 
 end Util.Encoders.Tests;
