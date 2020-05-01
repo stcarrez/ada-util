@@ -33,7 +33,14 @@ Ada Util also provides a small test utility library on top of
 Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
 framework as it provides better reports.
 
-# Build
+## Version 2.2.0 - May 2020
+
+- New Wait_Empty operation on fifo.
+- Add Get_Count and Wait operation on executors
+
+[List all versions](https://github.com/stcarrez/ada-util/blob/master/NEWS.md)
+
+## Build
 
 For a detailed description on how you can configure, build and install the library
 refer to the [Installation](https://ada-util.readthedocs.io/en/latest/Installation/) guide.
@@ -65,6 +72,51 @@ For the installation, use the following command:
 ```
    make install
 ```
+
+## Build without configure
+
+Since the integration with Alire, you can build without running configure.
+However, there are a number of checks and dependencies which are not verified
+and you must run several commands manually, choosing the correct values for
+`UTIL_ASM_TYPE` and `UTIL_OS` build variables.  The trick is to give `gprbuild`
+the Alire configuration project in `.alire/utilada_conf.gpr`.
+
+For a simple Linux 64-bit build, use:
+
+```
+gprbuild -aP.alire -Putilada_core -p
+gprbuild -aP.alire -Putilada_base -p
+gprbuild -aP.alire -Putilada_sys -p
+gprbuild -aP.alire -Putilada_aws -p
+gprbuild -aP.alire -Putilada_curl -p
+gprbuild -aP.alire -Putilada_xml -p
+```
+
+For a Linux 32-bit build, use
+```
+gprbuild -aP.alire -Putilada_sys -p -XUTIL_OS=linux32
+```
+
+For Windows-64 try:
+```
+gprbuild -aP.alire -Putilada_sys -p -XUTIL_OS=win64
+```
+
+Checkout the file `.alire/utilada_conf.gpr` for other alternatives.
+
+You can then use `gprinstall` for the installation:
+
+```
+gprinstall -aP.alire -Putilada_core -p
+gprinstall -aP.alire -Putilada_base -p
+gprinstall -aP.alire -Putilada_sys -p
+gprinstall -aP.alire -Putilada_aws -p
+gprinstall -aP.alire -Putilada_curl -p
+gprinstall -aP.alire -Putilada_xml -p
+```
+
+I've never tried to build on Windows without msys2.
+I don't know if it works. I suspect there will be problems.
 
 # Samples
 
