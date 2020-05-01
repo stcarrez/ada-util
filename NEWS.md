@@ -1,3 +1,7 @@
+Version 2.2.0  - May 2020
+  - New Wait_Empty operation on fifo.
+  - Add Get_Count and Wait operation on executors
+
 Version 2.1.0  - Feb 2020
   - Improvement to allow custom Util.Properties implementation
 
