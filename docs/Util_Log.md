@@ -15,9 +15,14 @@ with "utilada_base";
 ## Using the log framework
 A bit of terminology:
 
-* A *logger* is the abstraction that provides operations to emit a message.  The message is composed of a text, optional formatting parameters, a log level and a timestamp.
-* A *formatter* is the abstraction that takes the information about the log to format the final message.
-* An *appender* is the abstraction that writes the message either to a console, a file or some other final mechanism.
+* A *logger* is the abstraction that provides operations to emit a message.  The message
+ is composed of a text, optional formatting parameters, a log level and a timestamp.
+
+* A *formatter* is the abstraction that takes the information about the log to format
+ the final message.
+
+* An *appender* is the abstraction that writes the message either to a console, a file
+ or some other final mechanism.
 
 ## Logger Declaration
 Similar to other logging framework such as [Java Log4j](https://logging.apache.org/log4j/2.x/) and [Log4cxx](https://logging.apache.org/log4cxx/latest_stable/index.html), it is necessary to have
@@ -77,9 +82,15 @@ The log configuration uses property files close to the Apache Log4j and to the
 Apache [Log4cxx](https://logging.apache.org/log4cxx/latest_stable/index.html) configuration files.
 The configuration file contains several parts to configure the logging framework:
 
-* First, the *appender* configuration indicates the appender that exists and can receive a log message.
-* Second, a root configuration allows to control the default behavior of the logging framework.  The root configuration controls the default log level as well as the appenders that can be used.
-* Last, a logger configuration is defined to control the logging level more precisely for each logger.
+* First, the *appender* configuration indicates the appender that exists and can receive
+ a log message.
+
+* Second, a root configuration allows to control the default behavior of the logging
+ framework.  The root configuration controls the default log level as well as the
+ appenders that can be used.
+
+* Last, a logger configuration is defined to control the logging level more precisely
+ for each logger.
 
 Here is a simple log configuration that creates a file appender where log messages are
 written.  The file appender is given the name `result` and is configured to write the

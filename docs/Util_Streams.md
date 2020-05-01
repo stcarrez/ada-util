@@ -98,6 +98,7 @@ The process is launched by using the `Open` command and by specifying the comman
 to execute as well as the pipe redirection mode:
 
 * `READ` to read the process standard output,
+
 * `WRITE` to write the process standard input.
 
 For example to run the `ls -l` command and read its output, we could run it by using:
@@ -146,9 +147,13 @@ Before opening the pipe, it is possible to have some control on the process that
 will be created to configure:
 
   * The shell that will be used to launch the process,
+
   * The process working directory,
+
   * Redirect the process output to a file,
+
   * Redirect the process error to a file,
+
   * Redirect the process input from a file.
 
 All these operations must be made before calling the `Open` procedure.
@@ -175,10 +180,15 @@ the `Set_Key` procedure to setup the encryption or decryption key and define the
 encryption mode to be used.  The following encryption modes are supported:
 
 * AES-ECB
+
 * AES-CBC
+
 * AES-PCBC
+
 * AES-CFB
+
 * AES-OFB
+
 * AES-CTR
 
 The encryption and decryption keys are represented by the `Util.Encoders.Secret_Key` limited
@@ -187,7 +197,9 @@ the instance is deleted.  The size of the encryption key defines the AES encrypt
 to be used:
 
 * Use 16 bytes, or `Util.Encoders.AES.AES_128_Length` for AES-128,
+
 * Use 24 bytes, or `Util.Encoders.AES.AES_192_Length` for AES-192,
+
 * Use 32 bytes, or `Util.Encoders.AES.AES_256_Length` for AES-256.
 
 Other key sizes will raise a pre-condition or constraint error exception.

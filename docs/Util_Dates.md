@@ -1,4 +1,3 @@
-
 # Date Utilities
 The `Util.Dates` package provides various date utilities to help in formatting and parsing
 dates in various standard formats.  It completes the standard `Ada.Calendar.Formatting` and
@@ -13,10 +12,15 @@ with "utilada_base";
 Several operations allow to compute from a given date:
 
   * `Get_Day_Start`: The start of the day (0:00),
+
   * `Get_Day_End`: The end of the day (23:59:59),
+
   * `Get_Week_Start`: The start of the week,
+
   * `Get_Week_End`: The end of the week,
+
   * `Get_Month_Start`: The start of the month,
+
   * `Get_Month_End`: The end of the month
 
 The `Date_Record` type represents a date in a split format allowing
