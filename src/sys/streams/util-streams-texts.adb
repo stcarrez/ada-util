@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-texts -- Text stream utilities
---  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2019 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2019, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,70 +29,6 @@ package body Util.Streams.Texts is
    end Initialize;
 
    --  ------------------------------
-   --  Write a raw character on the stream.
-   --  ------------------------------
-   procedure Write (Stream : in out Print_Stream;
-                    Char   : in Character) is
-      Buf : constant Ada.Streams.Stream_Element_Array (1 .. 1)
-        := (1 => Ada.Streams.Stream_Element (Character'Pos (Char)));
-   begin
-      Stream.Write (Buf);
-   end Write;
-
-   --  ------------------------------
-   --  Write a wide character on the stream doing some conversion if necessary.
-   --  The default implementation translates the wide character to a UTF-8 sequence.
-   --  ------------------------------
-   procedure Write_Wide (Stream : in out Print_Stream;
-                         Item   : in Wide_Wide_Character) is
-      use Interfaces;
-
-      Val : Unsigned_32;
-      Buf : Ada.Streams.Stream_Element_Array (1 .. 4);
-   begin
-      --  UTF-8 conversion
-      --  7  U+0000   U+007F   1  0xxxxxxx
-      --  11 U+0080   U+07FF   2  110xxxxx 10xxxxxx
-      --  16 U+0800   U+FFFF   3  1110xxxx 10xxxxxx 10xxxxxx
-      --  21 U+10000  U+1FFFFF 4  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-      Val := Wide_Wide_Character'Pos (Item);
-      if Val <= 16#7f# then
-         Buf (1) := Ada.Streams.Stream_Element (Val);
-         Stream.Write (Buf (1 .. 1));
-      elsif Val <= 16#07FF# then
-         Buf (1) := Stream_Element (16#C0# or Shift_Right (Val, 6));
-         Buf (2) := Stream_Element (16#80# or (Val and 16#03F#));
-         Stream.Write (Buf (1 .. 2));
-      elsif Val <= 16#0FFFF# then
-         Buf (1) := Stream_Element (16#E0# or Shift_Right (Val, 12));
-         Val := Val and 16#0FFF#;
-         Buf (2) := Stream_Element (16#80# or Shift_Right (Val, 6));
-         Buf (3) := Stream_Element (16#80# or (Val and 16#03F#));
-         Stream.Write (Buf (1 .. 3));
-      else
-         Val := Val and 16#1FFFFF#;
-         Buf (1) := Stream_Element (16#F0# or Shift_Right (Val, 18));
-         Val := Val and 16#3FFFF#;
-         Buf (2) := Stream_Element (16#80# or Shift_Right (Val, 12));
-         Val := Val and 16#0FFF#;
-         Buf (3) := Stream_Element (16#80# or Shift_Right (Val, 6));
-         Buf (4) := Stream_Element (16#80# or (Val and 16#03F#));
-         Stream.Write (Buf (1 .. 4));
-      end if;
-   end Write_Wide;
-
-   --  ------------------------------
-   --  Write a raw string on the stream.
-   --  ------------------------------
-   procedure Write (Stream : in out Print_Stream;
-                    Item   : in String) is
-      Buf : Ada.Streams.Stream_Element_Array (Offset (Item'First) .. Offset (Item'Last));
-      for Buf'Address use Item'Address;
-   begin
-      Stream.Write (Buf);
-   end Write;
-
-   --  ------------------------------
    --  Write a raw string on the stream.
    --  ------------------------------
    procedure Write (Stream : in out Print_Stream;
@@ -101,7 +37,7 @@ package body Util.Streams.Texts is
    begin
       if Count > 0 then
          for I in 1 .. Count loop
-            Stream.Write (Char => Ada.Strings.Unbounded.Element (Item, I));
+            Stream.Write (Item => Ada.Strings.Unbounded.Element (Item, I));
          end loop;
       end if;
    end Write;
@@ -117,7 +53,7 @@ package body Util.Streams.Texts is
       if Count > 0 then
          for I in 1 .. Count loop
             C := Ada.Strings.Wide_Wide_Unbounded.Element (Item, I);
-            Stream.Write (Char => Character'Val (Wide_Wide_Character'Pos (C)));
+            Stream.Write_Wide (C);
          end loop;
       end if;
    end Write;
