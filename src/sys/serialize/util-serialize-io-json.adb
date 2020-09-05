@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010, 2011, 2012, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -71,15 +71,6 @@ package body Util.Serialize.IO.JSON is
    end Write;
 
    --  -----------------------
-   --  Write a raw character on the stream.
-   --  -----------------------
-   procedure Write (Stream : in out Output_Stream;
-                    Char   : in Character) is
-   begin
-      Stream.Stream.Write (Char);
-   end Write;
-
-   --  -----------------------
    --  Write a wide character on the stream doing some conversion if necessary.
    --  The default implementation translates the wide character to a UTF-8 sequence.
    --  -----------------------
@@ -88,15 +79,6 @@ package body Util.Serialize.IO.JSON is
    begin
       Stream.Stream.Write_Wide (Item);
    end Write_Wide;
-
-   --  -----------------------
-   --  Write a raw string on the stream.
-   --  -----------------------
-   procedure Write (Stream : in out Output_Stream;
-                    Item   : in String) is
-   begin
-      Stream.Stream.Write (Item);
-   end Write;
 
    --  -----------------------
    --  Start a JSON document.  This operation writes the initial JSON marker ('{').
