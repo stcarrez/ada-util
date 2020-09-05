@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-xml -- XML Serialization Driver
---  Copyright (C) 2011, 2012, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2017, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -76,19 +76,6 @@ package Util.Serialize.IO.XML is
    overriding
    procedure Write (Stream : in out Output_Stream;
                     Buffer : in Ada.Streams.Stream_Element_Array);
-
-   --  Write a raw character on the stream.
-   procedure Write (Stream : in out Output_Stream;
-                    Char   : in Character);
-
-   --  Write a wide character on the stream doing some conversion if necessary.
-   --  The default implementation translates the wide character to a UTF-8 sequence.
-   procedure Write_Wide (Stream : in out Output_Stream;
-                         Item   : in Wide_Wide_Character);
-
-   --  Write a raw string on the stream.
-   procedure Write (Stream : in out Output_Stream;
-                    Item   : in String);
 
    --  Write a character on the response stream and escape that character as necessary.
    procedure Write_Escape (Stream : in out Output_Stream'Class;
