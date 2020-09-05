@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-texts -- Text stream utilities
---  Copyright (C) 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,19 +40,6 @@ package Util.Streams.Texts is
 
    procedure Initialize (Stream : in out Print_Stream;
                          To     : access Output_Stream'Class);
-
-   --  Write a raw character on the stream.
-   procedure Write (Stream : in out Print_Stream;
-                    Char   : in Character);
-
-   --  Write a wide character on the stream doing some conversion if necessary.
-   --  The default implementation translates the wide character to a UTF-8 sequence.
-   procedure Write_Wide (Stream : in out Print_Stream;
-                         Item   : in Wide_Wide_Character);
-
-   --  Write a raw string on the stream.
-   procedure Write (Stream : in out Print_Stream;
-                    Item   : in String);
 
    --  Write a raw string on the stream.
    procedure Write (Stream : in out Print_Stream;
