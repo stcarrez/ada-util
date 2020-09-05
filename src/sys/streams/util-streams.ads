@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams -- Stream utilities
---  Copyright (C) 2010, 2016, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2010, 2016, 2018, 2019, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -95,6 +95,20 @@ package Util.Streams is
    --  or a Constraint_Error exception is raised.
    procedure Copy (From : in String;
                    Into : in out Ada.Streams.Stream_Element_Array);
+
+   --  Write a raw string on the stream.
+   procedure Write (Stream : in out Output_Stream'Class;
+                    Item   : in Character);
+
+   procedure Write (Stream : in out Output_Stream'Class;
+                    Item   : in String);
+
+   --  Write a wide character on the stream using a UTF-8 sequence.
+   procedure Write_Wide (Stream : in out Output_Stream'Class;
+                         Item   : in Wide_Wide_Character);
+
+   procedure Write_Wide (Stream : in out Output_Stream'Class;
+                         Item   : in Wide_Wide_String);
 
    --  Notes:
    --  ------
