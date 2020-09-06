@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered -- Buffered streams utilities
---  Copyright (C) 2010, 2011, 2013, 2014, 2016, 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2013, 2014, 2016, 2017, 2018, 2019, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,7 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Interfaces;
 with Ada.IO_Exceptions;
 with Ada.Unchecked_Deallocation;
 package body Util.Streams.Buffered is
@@ -260,6 +261,65 @@ package body Util.Streams.Buffered is
       Stream.Read_Pos := Stream.Read_Pos + 1;
    end Read;
 
+   procedure Read (Stream : in out Input_Buffer_Stream;
+                   Value  : out Ada.Streams.Stream_Element) is
+   begin
+      if Stream.Read_Pos >= Stream.Write_Pos then
+         Stream.Fill;
+         if Stream.Eof then
+            raise Ada.IO_Exceptions.Data_Error with "End of buffer";
+         end if;
+      end if;
+      Value := Stream.Buffer (Stream.Read_Pos);
+      Stream.Read_Pos := Stream.Read_Pos + 1;
+   end Read;
+
+   --  ------------------------------
+   --  Read one character from the input stream.
+   --  ------------------------------
+   procedure Read (Stream : in out Input_Buffer_Stream;
+                   Char   : out Wide_Wide_Character) is
+      use Interfaces;
+
+      Val    : Ada.Streams.Stream_Element;
+      Result : Unsigned_32;
+   begin
+      Stream.Read (Val);
+
+      --  UTF-8 conversion
+      --  7  U+0000   U+007F   1  0xxxxxxx
+      if Val <= 16#7F# then
+         Char := Wide_Wide_Character'Val (Val);
+
+      --  11 U+0080   U+07FF   2  110xxxxx 10xxxxxx
+      elsif Val <= 16#DF# then
+         Result := Shift_Left (Unsigned_32 (Val and 16#1F#), 6);
+         Stream.Read (Val);
+         Result := Result or Unsigned_32 (Val and 16#3F#);
+         Char := Wide_Wide_Character'Val (Result);
+
+      --  16 U+0800   U+FFFF   3  1110xxxx 10xxxxxx 10xxxxxx
+      elsif Val <= 16#EF# then
+         Result := Shift_Left (Unsigned_32 (Val and 16#0F#), 12);
+         Stream.Read (Val);
+         Result := Result or Shift_Left (Unsigned_32 (Val and 16#3F#), 6);
+         Stream.Read (Val);
+         Result := Result or Unsigned_32 (Val and 16#3F#);
+         Char := Wide_Wide_Character'Val (Result);
+
+      --  21 U+10000  U+1FFFFF 4  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+      else
+         Result := Shift_Left (Unsigned_32 (Val and 16#07#), 18);
+         Stream.Read (Val);
+         Result := Result or Shift_Left (Unsigned_32 (Val and 16#3F#), 12);
+         Stream.Read (Val);
+         Result := Result or Shift_Left (Unsigned_32 (Val and 16#3F#), 6);
+         Stream.Read (Val);
+         Result := Result or Unsigned_32 (Val and 16#3F#);
+         Char := Wide_Wide_Character'Val (Result);
+      end if;
+   end Read;
+
    --  ------------------------------
    --  Read into the buffer as many bytes as possible and return in
    --  <b>last</b> the position of the last byte read.
@@ -319,6 +379,28 @@ package body Util.Streams.Buffered is
             Pos := Pos + 1;
          end loop;
          Stream.Read_Pos := Pos;
+      end loop;
+   end Read;
+
+   procedure Read (Stream : in out Input_Buffer_Stream;
+                   Into   : in out Ada.Strings.Wide_Wide_Unbounded.Unbounded_Wide_Wide_String) is
+      Pos   : Stream_Element_Offset;
+      Avail : Stream_Element_Offset;
+      C     : Wide_Wide_Character;
+   begin
+      loop
+         Pos := Stream.Read_Pos;
+         Avail := Stream.Write_Pos - Pos;
+         if Avail = 0 then
+            Stream.Fill;
+            if Stream.Eof then
+               return;
+            end if;
+            Pos   := Stream.Read_Pos;
+            Avail := Stream.Write_Pos - Pos;
+         end if;
+         Stream.Read (C);
+         Ada.Strings.Wide_Wide_Unbounded.Append (Into, C);
       end loop;
    end Read;
 
