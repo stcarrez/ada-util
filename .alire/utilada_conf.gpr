@@ -3,7 +3,7 @@ with "config";
 abstract project UtilAda_Conf is
    type Yes_No is ("yes", "no");
 
-   Version := "2.2.0";
+   Version := "2.3.0";
    Library_Dir := "lib";
 
    type Xml_Version_Type is ("none", "3", "4");
