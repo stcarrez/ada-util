@@ -169,14 +169,15 @@ begin
          List.Iterate (Process => Print'Access);
 
          declare
-
+            Buffer : aliased Util.Streams.Texts.Print_Stream;
             Output : Util.Serialize.IO.XML.Output_Stream;
          begin
-            Output.Initialize (Size => 10000);
+            Buffer.Initialize (Size => 10000);
+            Output.Initialize (Output => Buffer'Unchecked_access);
             Output.Start_Entity ("XRDS");
             Service_Vector_Mapping.Write (Output, List);
             Output.End_Entity ("XRDS");
-            Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Buffered_Stream (Output)));
+            Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Buffer));
          end;
       end;
    end loop;
