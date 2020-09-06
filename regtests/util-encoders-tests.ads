@@ -67,6 +67,9 @@ package Util.Encoders.Tests is
 
    --  Test encrypt and decrypt operations.
    procedure Test_Encrypt_Decrypt_Secret (T : in out Test);
+   procedure Test_Encrypt_Decrypt_Secret_OFB (T : in out Test);
+   procedure Test_Encrypt_Decrypt_Secret_CFB (T : in out Test);
+   procedure Test_Encrypt_Decrypt_Secret_CTR (T : in out Test);
 
    --  Test Decode Quoted-Printable encoding.
    procedure Test_Decode_Quoted_Printable (T : in out Test);
