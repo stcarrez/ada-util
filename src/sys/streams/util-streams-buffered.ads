@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered -- Buffered streams utilities
---  Copyright (C) 2010, 2013, 2015, 2016, 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Strings.Unbounded;
+with Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Finalization;
 
 --  == Buffered Streams ==
@@ -145,6 +146,12 @@ package Util.Streams.Buffered is
    procedure Read (Stream : in out Input_Buffer_Stream;
                    Char   : out Character);
 
+   procedure Read (Stream : in out Input_Buffer_Stream;
+                   Value  : out Ada.Streams.Stream_Element);
+
+   procedure Read (Stream : in out Input_Buffer_Stream;
+                   Char   : out Wide_Wide_Character);
+
    --  Read into the buffer as many bytes as possible and return in
    --  <b>last</b> the position of the last byte read.
    overriding
@@ -156,6 +163,9 @@ package Util.Streams.Buffered is
    --  <b>last</b> the position of the last byte read.
    procedure Read (Stream : in out Input_Buffer_Stream;
                    Into   : in out Ada.Strings.Unbounded.Unbounded_String);
+
+   procedure Read (Stream : in out Input_Buffer_Stream;
+                   Into   : in out Ada.Strings.Wide_Wide_Unbounded.Unbounded_Wide_Wide_String);
 
    --  Returns True if the end of the stream is reached.
    function Is_Eof (Stream : in Input_Buffer_Stream) return Boolean;
