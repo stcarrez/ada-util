@@ -15,12 +15,10 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Interfaces;
 with Ada.IO_Exceptions;
 package body Util.Streams.Texts is
 
    use Ada.Streams;
-   subtype Offset is Ada.Streams.Stream_Element_Offset;
 
    procedure Initialize (Stream : in out Print_Stream;
                          To     : access Output_Stream'Class) is
