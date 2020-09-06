@@ -33,10 +33,9 @@ Ada Util also provides a small test utility library on top of
 Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
 framework as it provides better reports.
 
-## Version 2.2.0 - May 2020
-
-- New Wait_Empty operation on fifo.
-- Add Get_Count and Wait operation on executors
+## Version 2.3.0  -
+  - New stream operations to read/write UTF-8 sequences in Wide_Wide character
+  - Fix AES encryption in CFB, OFB and CTR modes.
 
 [List all versions](https://github.com/stcarrez/ada-util/blob/master/NEWS.md)
 
