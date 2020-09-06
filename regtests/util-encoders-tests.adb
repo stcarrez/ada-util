@@ -99,8 +99,14 @@ package body Util.Encoders.Tests is
                        Test_HMAC_SHA256_RFC4231_T7'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.AES.Encrypt",
                        Test_AES'Access);
-      Caller.Add_Test (Suite, "Test Util.Encoders.AES.Encrypt_Secret",
+      Caller.Add_Test (Suite, "Test Util.Encoders.AES.Encrypt_Secret (CBC)",
                        Test_Encrypt_Decrypt_Secret'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.AES.Encrypt_Secret (CFB)",
+                       Test_Encrypt_Decrypt_Secret_CFB'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.AES.Encrypt_Secret (OFB)",
+                       Test_Encrypt_Decrypt_Secret_OFB'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.AES.Encrypt_Secret (CTR)",
+                       Test_Encrypt_Decrypt_Secret_CTR'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Quoted_Printable.Decode",
                        Test_Decode_Quoted_Printable'Access);
    end Add_Tests;
@@ -582,7 +588,9 @@ package body Util.Encoders.Tests is
 
    end Test_AES;
 
+   --  ------------------------------
    --  Test encrypt and decrypt operations.
+   --  ------------------------------
    procedure Test_Encrypt_Decrypt_Secret (T : in out Test) is
       Pk       : constant Secret_Key := Create ("0123456789abcdef");
       Cipher   : Util.Encoders.AES.Encoder;
@@ -600,6 +608,63 @@ package body Util.Encoders.Tests is
    end Test_Encrypt_Decrypt_Secret;
 
    --  ------------------------------
+   --  Test encrypt and decrypt operations.
+   --  ------------------------------
+   procedure Test_Encrypt_Decrypt_Secret_CFB (T : in out Test) is
+      Pk       : constant Secret_Key := Create ("0123456789abcdef0123456789abcdef");
+      Cipher   : Util.Encoders.AES.Encoder;
+      Decipher : Util.Encoders.AES.Decoder;
+      Data     : Ada.Streams.Stream_Element_Array (1 .. 32);
+      Result   : Secret_Key (32);
+   begin
+      Cipher.Set_Key (Pk, Util.Encoders.AES.CFB);
+      Cipher.Set_Padding (Util.Encoders.AES.NO_PADDING);
+      Decipher.Set_Key (Pk, Util.Encoders.AES.CFB);
+      Decipher.Set_Padding (Util.Encoders.AES.NO_PADDING);
+      Cipher.Encrypt_Secret (Pk, Data);
+      Decipher.Decrypt_Secret (Data, Result);
+      T.Assert (Result.Secret = Pk.Secret, "CFB Encrypt_Secret and Decrypt_Secret failed");
+   end Test_Encrypt_Decrypt_Secret_CFB;
+
+   --  ------------------------------
+   --  Test encrypt and decrypt operations.
+   --  ------------------------------
+   procedure Test_Encrypt_Decrypt_Secret_OFB (T : in out Test) is
+      Pk       : constant Secret_Key := Create ("0123456789abcdef0123456789abcdef");
+      Cipher   : Util.Encoders.AES.Encoder;
+      Decipher : Util.Encoders.AES.Decoder;
+      Data     : Ada.Streams.Stream_Element_Array (1 .. 32);
+      Result   : Secret_Key (32);
+   begin
+      Cipher.Set_Key (Pk, Util.Encoders.AES.OFB);
+      Cipher.Set_Padding (Util.Encoders.AES.NO_PADDING);
+      Decipher.Set_Key (Pk, Util.Encoders.AES.OFB);
+      Decipher.Set_Padding (Util.Encoders.AES.NO_PADDING);
+      Cipher.Encrypt_Secret (Pk, Data);
+      Decipher.Decrypt_Secret (Data, Result);
+      T.Assert (Result.Secret = Pk.Secret, "OFB Encrypt_Secret and Decrypt_Secret failed");
+   end Test_Encrypt_Decrypt_Secret_OFB;
+
+   --  ------------------------------
+   --  Test encrypt and decrypt operations.
+   --  ------------------------------
+   procedure Test_Encrypt_Decrypt_Secret_CTR (T : in out Test) is
+      Pk       : constant Secret_Key := Create ("0123456789abcdef0123456789abcdef");
+      Cipher   : Util.Encoders.AES.Encoder;
+      Decipher : Util.Encoders.AES.Decoder;
+      Data     : Ada.Streams.Stream_Element_Array (1 .. 32);
+      Result   : Secret_Key (32);
+   begin
+      Cipher.Set_Key (Pk, Util.Encoders.AES.CTR);
+      Cipher.Set_Padding (Util.Encoders.AES.NO_PADDING);
+      Decipher.Set_Key (Pk, Util.Encoders.AES.CTR);
+      Decipher.Set_Padding (Util.Encoders.AES.NO_PADDING);
+      Cipher.Encrypt_Secret (Pk, Data);
+      Decipher.Decrypt_Secret (Data, Result);
+      T.Assert (Result.Secret = Pk.Secret, "CTR Encrypt_Secret and Decrypt_Secret failed");
+   end Test_Encrypt_Decrypt_Secret_CTR;
+
+   --  ------------------------------
    --  Test Decode Quoted-Printable encoding.
    --  ------------------------------
    procedure Test_Decode_Quoted_Printable (T : in out Test) is
@@ -608,6 +673,8 @@ package body Util.Encoders.Tests is
                      Quoted_Printable.Decode ("teams aren=2Et =3Dway to protect yo="));
       Assert_Equals (T, "====",
                      Quoted_Printable.Decode ("=3D=3D=3D=3D="));
+      Assert_Equals (T, "teams aren.t =way to protect yo",
+                     Quoted_Printable.Q_Decode ("teams_aren=2Et_=3Dway_to_protect_yo="));
    end Test_Decode_Quoted_Printable;
 
 end Util.Encoders.Tests;
