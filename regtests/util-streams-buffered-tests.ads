@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.buffered.tests -- Unit tests for buffered streams
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,5 +32,8 @@ package Util.Streams.Buffered.Tests is
 --     procedure Test_Find_File_Path (T : in out Test);
 --  Write on a buffer and force regular flush on a larger buffer
    procedure Test_Write_Stream (T : in out Test);
+
+   --  Test reading UTF-8 file.
+   procedure Test_Read_UTF_8 (T : in out Test);
 
 end Util.Streams.Buffered.Tests;
