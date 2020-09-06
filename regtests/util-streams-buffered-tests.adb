@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.buffered.tests -- Unit tests for buffered streams
---  Copyright (C) 2010, 2011, 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2017, 2018, 2019, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,14 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Streams.Stream_IO;
 with Util.Test_Caller;
 with Util.Streams.Texts;
+with Util.Streams.Files;
 package body Util.Streams.Buffered.Tests is
+
+   pragma Wide_Character_Encoding (UTF8);
 
    use Util.Tests;
    use Util.Streams.Texts;
@@ -33,6 +38,8 @@ package body Util.Streams.Buffered.Tests is
                        Test_Write'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Write, Flush (Stream_Array)",
                        Test_Write_Stream'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Read (UTF-8)",
+                       Test_Read_UTF_8'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -133,5 +140,33 @@ package body Util.Streams.Buffered.Tests is
       end loop;
       Assert_Equals (T, Integer (Max_Size), Integer (Big_Stream.Get_Size), "Invalid final size");
    end Test_Write_Stream;
+
+   --  ------------------------------
+   --  Test reading UTF-8 file.
+   --  ------------------------------
+   procedure Test_Read_UTF_8 (T : in out Test) is
+      File    : aliased Util.Streams.Files.File_Stream;
+      Stream  : Util.Streams.Buffered.Input_Buffer_Stream;
+      Path    : constant String := Util.Tests.Get_Path ("regtests/files/utf-8.txt");
+   begin
+      Stream.Initialize (Input => File'Access, Size => 1024);
+
+      File.Open (Ada.Streams.Stream_IO.In_File, Path);
+      declare
+         S : Ada.Strings.Wide_Wide_Unbounded.Unbounded_Wide_Wide_String;
+         Expect : constant Wide_Wide_String := "àéúíòࠀ€ಜ࠴𝄞" & Wide_Wide_Character'Val (16#0A#);
+      begin
+         Stream.Read (S);
+
+         declare
+            Result : constant Wide_Wide_String
+              := Ada.Strings.Wide_Wide_Unbounded.To_Wide_Wide_String (S);
+         begin
+            if Expect /= Result then
+               T.Fail ("Invalid UTF-8 string");
+            end if;
+         end;
+      end;
+   end Test_Read_UTF_8;
 
 end Util.Streams.Buffered.Tests;
