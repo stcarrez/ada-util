@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  strings.tests -- Unit tests for strings
---  Copyright (C) 2009, 2010, 2011, 2012, 2015, 2018 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2015, 2018, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -87,6 +87,8 @@ package body Util.Strings.Tests is
       Escape_Javascript (Content => ASCII.ESC & "[m " & Character'Val (255),
                          Into    => Result);
       Assert_Equals (T, "\u001B[m " & Character'Val (255), Result);
+      Assert_Equals (T, "\u001B[m " & Character'Val (255),
+                     Escape_Javascript (ASCII.ESC & "[m " & Character'Val (255)));
    end Test_Escape_Javascript;
 
    procedure Test_Escape_Xml (T : in out Test) is
@@ -101,6 +103,9 @@ package body Util.Strings.Tests is
       Escape_Xml (Content => ASCII.ESC & "[m " & Character'Val (255),
                   Into    => Result);
       Assert_Equals (T, ASCII.ESC & "[m &#255;", Result);
+
+      Assert_Equals (T, ASCII.ESC & "[m &#255;",
+                     Escape_Xml (ASCII.ESC & "[m " & Character'Val (255)));
    end Test_Escape_Xml;
 
    procedure Test_Unescape_Xml (T : in out Test) is
