@@ -29,4 +29,7 @@ package Util.Dates.Tests is
    --  Test converting a string in ISO8601 into a date.
    procedure Test_ISO8601_Value (T : in out Test);
 
+   --  Test value convertion errors.
+   procedure Test_ISO8601_Error (T : in out Test);
+
 end Util.Dates.Tests;
