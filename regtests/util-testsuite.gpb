@@ -27,6 +27,7 @@ with Util.Events.Timers.Tests;
 with Util.Listeners.Tests;
 with Util.Locales.Tests;
 with Util.Strings.Tests;
+with Util.Dates.Tests;
 with Util.Dates.Formats.Tests;
 with Util.Encoders.Tests;
 with Util.Encoders.KDF.Tests;
@@ -80,6 +81,7 @@ package body Util.Testsuite is
       Util.Locales.Tests.Add_Tests (Result);
       Util.Strings.Tests.Add_Tests (Result);
       Util.Mail.Tests.Add_Tests (Result);
+      Util.Dates.Tests.Add_Tests (Result);
       Util.Dates.Formats.Tests.Add_Tests (Result);
       Util.Log.Tests.Add_Tests (Result);
       Util.Files.Tests.Add_Tests (Result);
