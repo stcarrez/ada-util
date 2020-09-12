@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-tests - Test for commands
---  Copyright (C) 2018, 2019 Stephane Carrez
+--  Copyright (C) 2018, 2019, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -195,6 +195,28 @@ package body Util.Commands.Tests is
          D.Execute ("help", Args, Ctx);
          T.Assert (Ctx.Success, "Some arguments not parsed correctly");
       end;
+
+      declare
+         Ctx   : Test_Context_Type;
+      begin
+         C1.Expect_Help := False;
+         C2.Expect_Help := False;
+         Initialize (Args, "help");
+         D.Execute ("help", Args, Ctx);
+         T.Assert (not Ctx.Success, "Some arguments not parsed correctly");
+      end;
+
+      declare
+         Ctx   : Test_Context_Type;
+      begin
+         Initialize (Args, "help missing");
+         D.Execute ("help", Args, Ctx);
+         T.Fail ("No exception raised for missing command");
+
+      exception
+         when Not_Found =>
+            null;
+      end;
    end Test_Help;
 
    --  ------------------------------
@@ -220,6 +242,8 @@ package body Util.Commands.Tests is
          Initialize (Args, "help list");
          D.Execute ("help", Args, Ctx);
          T.Assert (Ctx.Success, "Some arguments not parsed correctly");
+
+         D.Usage (Args, Ctx, "list");
       end;
    end Test_Usage;
 
