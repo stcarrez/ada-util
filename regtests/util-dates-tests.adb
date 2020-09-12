@@ -27,6 +27,8 @@ package body Util.Dates.Tests is
                        Test_ISO8601_Image'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.ISO8601.Value",
                        Test_ISO8601_Value'Access);
+      Caller.Add_Test (Suite, "Test Util.Dates.ISO8601.Value (Errors)",
+                       Test_ISO8601_Error'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -63,10 +65,15 @@ package body Util.Dates.Tests is
    --  ------------------------------
    procedure Test_ISO8601_Value (T : in out Test) is
       Date   : Ada.Calendar.Time;
-      Info   : Date_Record;
    begin
       Date := ISO8601.Value ("1980");
       Util.Tests.Assert_Equals (T, "1980-01-01", ISO8601.Image (Date));
+
+      Date := ISO8601.Value ("1980-02");
+      Util.Tests.Assert_Equals (T, "1980-02", ISO8601.Image (Date, ISO8601.MONTH));
+
+      Date := ISO8601.Value ("1980-03-04");
+      Util.Tests.Assert_Equals (T, "1980-03-04", ISO8601.Image (Date));
 
       Date := ISO8601.Value ("1980-03-04");
       Util.Tests.Assert_Equals (T, "1980-03-04", ISO8601.Image (Date));
@@ -74,8 +81,67 @@ package body Util.Dates.Tests is
       Date := ISO8601.Value ("1980-12-31");
       Util.Tests.Assert_Equals (T, "1980-12-31", ISO8601.Image (Date));
 
+      Date := ISO8601.Value ("19801231");
+      Util.Tests.Assert_Equals (T, "1980-12-31", ISO8601.Image (Date));
+
       Date := ISO8601.Value ("1980-12-31T11:23");
       Util.Tests.Assert_Equals (T, "1980-12-31T11:23", ISO8601.Image (Date, ISO8601.MINUTE));
+
+      Date := ISO8601.Value ("1980-12-31T11:23:34");
+      Util.Tests.Assert_Equals (T, "1980-12-31T11:23:34", ISO8601.Image (Date, ISO8601.SECOND));
+
+      Date := ISO8601.Value ("1980-12-31T11:23:34.123");
+      Util.Tests.Assert_Equals (T, "1980-12-31T11:23:34.123+00:00",
+                                ISO8601.Image (Date, ISO8601.SUBSECOND));
+
+      Date := ISO8601.Value ("1980-12-31T11:23:34.123+04:30");
+      --  The date was normalized in GMT
+      Util.Tests.Assert_Equals (T, "1980-12-31T06:53:34.123+00:00",
+                                ISO8601.Image (Date, ISO8601.SUBSECOND));
    end Test_ISO8601_Value;
+
+   --  ------------------------------
+   --  Test value convertion errors.
+   --  ------------------------------
+   procedure Test_ISO8601_Error (T : in out Test) is
+      procedure Check (Date : in String);
+
+      procedure Check (Date : in String) is
+      begin
+         declare
+            Unused : constant Ada.Calendar.Time := ISO8601.Value (Date);
+         begin
+            T.Fail ("No exception raised for " & Date);
+
+         end;
+
+      exception
+         when Constraint_Error =>
+            null;
+      end Check;
+
+   begin
+      Check ("");
+      Check ("1980-");
+      Check ("1980:02:03");
+      Check ("1980-02-03u33:33");
+      Check ("1980-02-03u33");
+      Check ("1980-13-44");
+      Check ("1980-12-00");
+      Check ("1980-12-03T25:34");
+      Check ("1980-12-03T10x34");
+      Check ("1980-12-03T10:34p");
+      Check ("1980-12-31T11:23:34123");
+      Check ("1980-12-31T11:23:34,1");
+      Check ("1980-12-31T11:23:34,12");
+      Check ("1980-12-31T11:23:34x123");
+      Check ("1980-12-31T11:23:34.1234");
+      Check ("1980-12-31T11:23:34Zp");
+      Check ("1980-12-31T11:23:34+2");
+      Check ("1980-12-31T11:23:34+23x");
+      Check ("1980-12-31T11:23:34+99");
+      Check ("1980-12-31T11:23:34+10:0");
+      Check ("1980-12-31T11:23:34+10:03x");
+   end Test_ISO8601_Error;
 
 end Util.Dates.Tests;
