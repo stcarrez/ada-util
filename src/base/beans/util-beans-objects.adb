@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects -- Generic Typed Data Representation
---  Copyright (C) 2009, 2010, 2011, 2013, 2016, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013, 2016, 2017, 2018, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -386,11 +386,12 @@ package body Util.Beans.Objects is
    function To_Duration (Type_Def : in String_Type;
                          Value    : in Object_Value) return Duration is
       pragma Unreferenced (Type_Def);
+      Proxy : constant String_Proxy_Access := Value.String_Proxy;
    begin
-      if Value.Proxy = null then
+      if Proxy = null then
          return 0.0;
       else
-         return Duration'Value (String_Proxy (Value.Proxy.all).Value);
+         return Duration'Value (String_Proxy (Proxy.all).Value);
       end if;
    end To_Duration;
 
