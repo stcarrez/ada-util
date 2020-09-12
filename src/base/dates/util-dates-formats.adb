@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-formats -- Date Format ala strftime
---  Copyright (C) 2011, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2018, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -127,45 +127,11 @@ package body Util.Dates.Formats is
    begin
       if Value'Length > 0 then
          Append (Into, Value);
+      elsif Short then
+         Append (Into, Month_Short_Names (Month).all);
       else
          --  If the resource bundle is empty, fallback to hard-coded English values.
-         case Month is
-         when 1 =>
-            Append (Into, "January");
-
-         when 2 =>
-            Append (Into, "February");
-
-         when 3 =>
-            Append (Into, "March");
-
-         when 4 =>
-            Append (Into, "April");
-
-         when 5 =>
-            Append (Into, "May");
-
-         when 6 =>
-            Append (Into, "June");
-
-         when 7 =>
-            Append (Into, "July");
-
-         when 8 =>
-            Append (Into, "August");
-
-         when 9 =>
-            Append (Into, "September");
-
-         when 10 =>
-            Append (Into, "October");
-
-         when 11 =>
-            Append (Into, "November");
-
-         when 12 =>
-            Append (Into, "December");
-         end case;
+         Append (Into, Month_Names (Month).all);
       end if;
    end Append_Month;
 
@@ -185,24 +151,11 @@ package body Util.Dates.Formats is
    begin
       if Value'Length > 0 then
          Append (Into, Value);
-      else
+      elsif Short then
          --  If the resource bundle is empty, fallback to hard-coded English values.
-         case Day is
-         when Monday =>
-            Append (Into, "Monday");
-         when Tuesday =>
-            Append (Into, "Tuesday");
-         when Wednesday =>
-            Append (Into, "Wednesday");
-         when Thursday =>
-            Append (Into, "Thursday");
-         when Friday =>
-            Append (Into, "Friday");
-         when Saturday =>
-            Append (Into, "Saturday");
-         when Sunday =>
-            Append (Into, "Sunday");
-         end case;
+         Append (Into, Day_Short_Names (Day_Name'Pos (Day)).all);
+      else
+         Append (Into, Day_Names (Day_Name'Pos (Day)).all);
       end if;
    end Append_Day;
 
