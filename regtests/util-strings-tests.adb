@@ -41,6 +41,8 @@ package body Util.Strings.Tests is
    begin
       Caller.Add_Test (Suite, "Test Util.Strings.Transforms.Escape_Javascript",
                        Test_Escape_Javascript'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Transforms.Escape_Java",
+                       Test_Escape_Java'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.Transforms.Escape_Xml",
                        Test_Escape_Xml'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.Transforms.Unescape_Xml",
@@ -90,6 +92,23 @@ package body Util.Strings.Tests is
       Assert_Equals (T, "\u001B[m " & Character'Val (255),
                      Escape_Javascript (ASCII.ESC & "[m " & Character'Val (255)));
    end Test_Escape_Javascript;
+
+   procedure Test_Escape_Java (T : in out Test) is
+      Result : Unbounded_String;
+   begin
+      Escape_Java (Content => ASCII.LF & " ""a string"" a 'single quote'",
+                   Into    => Result);
+      Assert_Equals (T, "\n \""a string\"" a 'single quote'", Result);
+
+      Result := To_Unbounded_String ("");
+      Escape_Javascript (Content => ASCII.CR & ASCII.LF & ASCII.HT & ASCII.BS
+                           & ASCII.FF & "m " & Character'Val (255),
+                         Into    => Result);
+      Assert_Equals (T, "\r\n\t\b\fm " & Character'Val (255), Result);
+      Assert_Equals (T, "\r\n\t\b\fm " & Character'Val (255),
+                     Escape_Javascript (ASCII.CR & ASCII.LF & ASCII.HT & ASCII.BS
+                                          & ASCII.FF & "m " & Character'Val (255)));
+   end Test_Escape_Java;
 
    procedure Test_Escape_Xml (T : in out Test) is
       Result : Unbounded_String;
