@@ -30,6 +30,7 @@ package Util.Http.Clients.Tests is
       Result       : Ada.Strings.Unbounded.Unbounded_String;
       Content_Type : Ada.Strings.Unbounded.Unbounded_String;
       Length       : Natural := 0;
+      Test_Timeout : Boolean := False;
    end record;
    type Test_Server_Access is access all Test_Server'Class;
 
@@ -55,6 +56,9 @@ package Util.Http.Clients.Tests is
 
    --  Test the http DELETE operation.
    procedure Test_Http_Delete (T : in out Test);
+
+   --  Test the http timeout.
+   procedure Test_Http_Timeout (T : in out Test);
 
    overriding
    procedure Set_Up (T : in out Test);
