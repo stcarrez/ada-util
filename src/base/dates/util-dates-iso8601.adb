@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-iso8601 -- ISO8601 dates
---  Copyright (C) 2011, 2013, 2015, 2016, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2015, 2016, 2017, 2018, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,10 +25,10 @@ package body Util.Dates.ISO8601 is
    function Value (Date : in String) return Ada.Calendar.Time is
       use Ada.Calendar;
       use Ada.Calendar.Formatting;
+      use Ada.Calendar.Time_Zones;
 
       Result : Date_Record;
       Pos    : Natural;
-      pragma Unreferenced (Pos);
    begin
       if Date'Length < 4 then
          raise Constraint_Error with "Invalid date";
@@ -46,7 +46,7 @@ package body Util.Dates.ISO8601 is
 
       elsif Date'Length = 7 and Date (Date'First + 4) = '-' then
          --  ISO8601 date: YYYY-MM
-         Result.Month := Month_Number'Value (Date (Date'First + 4 .. Date'Last));
+         Result.Month := Month_Number'Value (Date (Date'First + 5 .. Date'Last));
          Result.Month_Day := 1;
 
       elsif Date'Length = 8 then
@@ -76,20 +76,53 @@ package body Util.Dates.ISO8601 is
             Result.Minute := Minute_Number'Value (Date (Date'First + 14 .. Date'First + 15));
             Pos := Date'First + 16;
          end if;
-         if Date'Length > 18 then
-            if Date (Date'First + 16) /= ':' then
+         if Date'Length >= 17 then
+            if Date (Date'First + 16) /= ':' or else Date'Length <= 18 then
                raise Constraint_Error with "invalid date";
             end if;
             Result.Second := Second_Number'Value (Date (Date'First + 17 .. Date'First + 18));
             Pos := Date'First + 19;
-         end if;
+            if Pos <= Date'Last then
+               if Date (Pos) = '.' or Date (Pos) = ',' then
+                  if Date'Length < 22 then
+                     raise Constraint_Error with "invalid date";
+                  end if;
+                  declare
+                     Value : constant Natural := Natural'Value (Date (Pos + 1 .. Pos + 3));
+                  begin
+                     Result.Sub_Second := Second_Duration (Duration (Value) / 1000.0);
+                  end;
+                  Pos := Pos + 4;
+               end if;
+               if Pos <= Date'Last then
+                  --  ISO8601 timezone: Z
+                  --  ISO8601 timezone: +hh or -hh
+                  --  ISO8601 timezone: +hhmm or -hhmm
+                  --  ISO8601 timezone: +hh:mm or -hh:mm
+                  if Date (Pos) = 'Z' then
+                     if Pos /= Date'Last then
+                        raise Constraint_Error with "invalid date";
+                     end if;
+                  elsif Date (Pos) /= '-' and Date (Pos) /= '+' then
+                     raise Constraint_Error with "invalid date";
 
-         --  ISO8601 timezone: +hh:mm or -hh:mm
---           if Date'Length > Pos + 4 then
---              if Date (Pos) /= '+' and Date (Pos) /= '-' and Date (Pos + 2) /= ':' then
---                 raise Constraint_Error with "invalid date";
---              end if;
---           end if;
+                  elsif Pos + 2 = Date'Last then
+                     Result.Time_Zone := 60 * Time_Offset'Value (Date (Pos + 1 .. Date'Last));
+
+                  elsif Pos + 4 = Date'Last then
+                     Result.Time_Zone := 60 * Time_Offset'Value (Date (Pos + 1 .. Pos + 2))
+                       + Time_Offset'Value (Date (Pos + 3 .. Date'Last));
+
+                  elsif Pos + 5 = Date'Last and then Date (Pos + 3) = ':' then
+                     Result.Time_Zone := 60 * Time_Offset'Value (Date (Pos + 1 .. Pos + 2))
+                       + Time_Offset'Value (Date (Pos + 4 .. Date'Last));
+
+                  else
+                     raise Constraint_Error with "invalid date";
+                  end if;
+               end if;
+            end if;
+         end if;
       else
          raise Constraint_Error with "invalid date";
       end if;
