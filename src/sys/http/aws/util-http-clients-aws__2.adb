@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-web -- HTTP Clients with AWS implementation
---  Copyright (C) 2011, 2012, 2017, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2019, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,8 @@ with Util.Http.Clients.AWS_I.Messages;
 with Util.Log.Loggers;
 package body Util.Http.Clients.AWS is
 
+   use type AWS_I.Messages.Status_Code;
+
    Log   : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Http.Clients.Web");
 
    Manager : aliased AWS_Http_Manager;
@@ -34,6 +36,9 @@ package body Util.Http.Clients.AWS is
    end Register;
 
    function To_Status (Code : in AWS_I.Messages.Status_Code) return Natural;
+
+   procedure Set_Result (Into : in AWS_Http_Response_Access;
+                         Data : in AWS_I.Response.Data);
 
    function To_Status (Code : in AWS_I.Messages.Status_Code) return Natural is
       use AWS_I.Messages;
@@ -141,6 +146,15 @@ package body Util.Http.Clients.AWS is
       Http.Delegate := new AWS_Http_Request;
    end Create;
 
+   procedure Set_Result (Into : in AWS_Http_Response_Access;
+                         Data : in AWS_I.Response.Data) is
+   begin
+      Into.Data := Data;
+      if AWS_I.Response.Status_Code (Data) = AWS_I.Messages.S408 then
+         raise Connection_Error with AWS_I.Response.Message_Body (Data);
+      end if;
+   end Set_Result;
+
    overriding
    procedure Do_Get (Manager  : in AWS_Http_Manager;
                      Http     : in Client'Class;
@@ -155,8 +169,8 @@ package body Util.Http.Clients.AWS is
       Log.Info ("Get {0}", URI);
 
       Reply.Delegate := Rep.all'Access;
-      Rep.Data       := AWS_I.Client.Get (URL => URI, Headers => Req.Headers,
-                                        Timeouts => Req.Timeouts);
+      Set_Result (Rep, AWS_I.Client.Get (URL => URI, Headers => Req.Headers,
+                                         Timeouts => Req.Timeouts));
    end Do_Get;
 
    overriding
@@ -174,9 +188,9 @@ package body Util.Http.Clients.AWS is
       Log.Info ("Post {0}", URI);
 
       Reply.Delegate := Rep.all'Access;
-      Rep.Data       := AWS_I.Client.Post (URL => URI, Data => Data,
-                                         Headers => Req.Headers,
-                                         Timeouts => Req.Timeouts);
+      Set_Result (Rep, AWS_I.Client.Post (URL => URI, Data => Data,
+                                          Headers => Req.Headers,
+                                          Timeouts => Req.Timeouts));
    end Do_Post;
 
    overriding
@@ -194,8 +208,8 @@ package body Util.Http.Clients.AWS is
       Log.Info ("Put {0}", URI);
 
       Reply.Delegate := Rep.all'Access;
-      Rep.Data       := AWS_I.Client.Put (URL => URI, Data => Data, Headers => Req.Headers,
-                                        Timeouts => Req.Timeouts);
+      Set_Result (Rep, AWS_I.Client.Put (URL => URI, Data => Data, Headers => Req.Headers,
+                                         Timeouts => Req.Timeouts));
    end Do_Put;
 
    overriding
@@ -212,8 +226,8 @@ package body Util.Http.Clients.AWS is
       Log.Info ("Delete {0}", URI);
 
       Reply.Delegate := Rep.all'Access;
-      Rep.Data       := AWS_I.Client.Delete (URL => URI, Data => "", Headers => Req.Headers,
-                                             Timeouts => Req.Timeouts);
+      Set_Result (Rep, AWS_I.Client.Delete (URL => URI, Data => "", Headers => Req.Headers,
+                                            Timeouts => Req.Timeouts));
 --      raise Program_Error with "Delete is not supported by AWS and there is no easy conditional"
 --        & " compilation in Ada to enable Delete support for the latest AWS version. "
 --        & "For now, you have to use curl, or install the latest AWS version and then "
