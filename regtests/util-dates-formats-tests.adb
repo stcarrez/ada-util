@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-formats-tests - Test for date formats
---  Copyright (C) 2011, 2013, 2014, 2016, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2016, 2017, 2018, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,7 @@ package body Util.Dates.Formats.Tests is
    --  The logger
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Dates.Formats.Tests");
 
-   package Caller is new Util.Test_Caller (Test, "Dates");
+   package Caller is new Util.Test_Caller (Test, "Dates.Formats");
    procedure Check (T    : in out Test;
                     Date : in String);
    procedure Check (T          : in out Test'Class;
@@ -112,6 +112,32 @@ package body Util.Dates.Formats.Tests is
       Check ("%G", T1, "1980W01");
       Check ("%g", T1, "80W01");
 
+      Check ("%b", T1, "Jan");
+      Check ("%b", T2, "Nov");
+      Check ("%B", T1, "January");
+      Check ("%B", T2, "November");
+
+      Check ("%a", T1, "Tue");
+      Check ("%a", T2, "Fri");
+      Check ("%a", T3, "Fri");
+      Check ("%A", T1, "Tuesday");
+      Check ("%A", T2, "Friday");
+
+      Check ("%A%n%a%t%b %B%n", T2,
+             "Friday" & ASCII.LF & "Fri" & ASCII.HT & "Nov November" & ASCII.LF);
+
+      Check ("%j", T1, "02");
+      Check ("%j", T2, "323");
+      Check ("%j", T3, "324");
+
+      Check ("%j%%%p", T1, "02%AM");
+      Check ("%j%%%p", T2, "323%AM");
+      Check ("%j%%%M", T3, "324%00");
+      Check ("%j%%%p", T3, "324%PM");
+
+      Check ("Day: %u %w %W", T1, "Day: 02 03 01");
+      Check ("Day: %u %w %W", T2, "Day: 05 06 46");
+      Check ("Day: %u %w %W", T3, "Day: 05 06 46");
    end Test_Format;
 
    --  ------------------------------
