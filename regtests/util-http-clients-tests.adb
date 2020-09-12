@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-tests -- Unit tests for HTTP client
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,6 +38,10 @@ package body Util.Http.Clients.Tests is
                           Test_Http_Get'Access);
          Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Post",
                           Test_Http_Post'Access);
+         Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Put",
+                          Test_Http_Put'Access);
+         Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Delete",
+                          Test_Http_Delete'Access);
       end Add_Tests;
 
       overriding
@@ -87,6 +91,10 @@ package body Util.Http.Clients.Tests is
             Into.Method := GET;
          elsif L (L'First .. Pos - 1) = "POST" then
             Into.Method := POST;
+         elsif L (L'First .. Pos - 1) = "PUT" then
+            Into.Method := PUT;
+         elsif L (L'First .. Pos - 1) = "DELETE" then
+            Into.Method := DELETE;
          else
             Into.Method := UNKNOWN;
          end if;
@@ -119,6 +127,15 @@ package body Util.Http.Clients.Tests is
             Output.Write ("Content-Length: 4" & ASCII.CR & ASCII.LF);
             Output.Write (ASCII.CR & ASCII.LF);
             Output.Write ("OK" & ASCII.CR & ASCII.LF);
+            Output.Flush;
+         end;
+      elsif L'Length = 2 then
+         declare
+            Output : Util.Streams.Texts.Print_Stream;
+         begin
+            Output.Initialize (Client'Unchecked_Access);
+            Output.Write ("HTTP/1.1 204 No Content" & ASCII.CR & ASCII.LF);
+            Output.Write (ASCII.CR & ASCII.LF);
             Output.Flush;
          end;
       end if;
@@ -184,5 +201,51 @@ package body Util.Http.Clients.Tests is
       Util.Http.Tools.Save_Response (Util.Tests.Get_Test_Path ("http_post.txt"), Reply, True);
 
    end Test_Http_Post;
+
+   --  ------------------------------
+   --  Test the http PUT operation.
+   --  ------------------------------
+   procedure Test_Http_Put (T : in out Test) is
+      Request : Client;
+      Reply   : Response;
+      Uri     : constant String := T.Get_Uri;
+   begin
+      Log.Info ("Put on " & Uri);
+
+      T.Server.Method := UNKNOWN;
+      Request.Add_Header ("Content-Type", "application/x-www-form-urlencoded");
+      Request.Put (Uri & "/put",
+                   "p1=1", Reply);
+
+      T.Assert (T.Server.Method = PUT, "Invalid method received by server");
+      Util.Tests.Assert_Equals (T, "application/x-www-form-urlencoded", T.Server.Content_Type,
+                                "Invalid content type received by server");
+      Util.Tests.Assert_Equals (T, "OK" & ASCII.CR & ASCII.LF, Reply.Get_Body, "Invalid response");
+      Util.Http.Tools.Save_Response (Util.Tests.Get_Test_Path ("http_put.txt"), Reply, True);
+
+   end Test_Http_Put;
+
+   --  ------------------------------
+   --  Test the http DELETE operation.
+   --  ------------------------------
+   procedure Test_Http_Delete (T : in out Test) is
+      Request : Client;
+      Reply   : Response;
+      Uri     : constant String := T.Get_Uri;
+   begin
+      Log.Info ("Delete on " & Uri);
+
+      T.Server.Method := UNKNOWN;
+      Request.Add_Header ("Content-Type", "application/x-www-form-urlencoded");
+      --  Request.Set_Timeout (2.0);
+      Request.Delete (Uri & "/delete", Reply);
+
+      T.Assert (T.Server.Method = DELETE, "Invalid method received by server");
+      Util.Tests.Assert_Equals (T, "application/x-www-form-urlencoded", T.Server.Content_Type,
+                                "Invalid content type received by server");
+      Util.Tests.Assert_Equals (T, "", Reply.Get_Body, "Invalid response");
+      Util.Tests.Assert_Equals (T, 204, Reply.Get_Status, "Invalid status response");
+
+   end Test_Http_Delete;
 
 end Util.Http.Clients.Tests;
