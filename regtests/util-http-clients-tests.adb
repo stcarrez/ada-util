@@ -42,6 +42,8 @@ package body Util.Http.Clients.Tests is
                           Test_Http_Put'Access);
          Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Delete",
                           Test_Http_Delete'Access);
+         Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Get (timeout)",
+                          Test_Http_Timeout'Access);
       end Add_Tests;
 
       overriding
@@ -110,6 +112,11 @@ package body Util.Http.Clients.Tests is
 
          end if;
       end if;
+
+      --  Don't answer if we check the timeout.
+      if Into.Test_Timeout then
+         return;
+      end if;
       if L'Length = 2 and then Into.Length > 0 then
          for I in 1 .. Into.Length loop
             declare
@@ -171,6 +178,10 @@ package body Util.Http.Clients.Tests is
          Util.Tests.Assert_Matches (T, ".*html.*", Content, "Invalid GET content");
       end;
 
+      T.Assert (Reply.Contains_Header ("Content-Type"), "Header Content-Type not found");
+      T.Assert (not Reply.Contains_Header ("Content-Type-Invalid-Missing"),
+                "Some invalid header found");
+
       --  Check one header.
       declare
          Content : constant String := Reply.Get_Header ("Content-Type");
@@ -214,6 +225,7 @@ package body Util.Http.Clients.Tests is
 
       T.Server.Method := UNKNOWN;
       Request.Add_Header ("Content-Type", "application/x-www-form-urlencoded");
+      T.Assert (Request.Contains_Header ("Content-Type"), "Missing Content-Type");
       Request.Put (Uri & "/put",
                    "p1=1", Reply);
 
@@ -237,7 +249,7 @@ package body Util.Http.Clients.Tests is
 
       T.Server.Method := UNKNOWN;
       Request.Add_Header ("Content-Type", "application/x-www-form-urlencoded");
-      --  Request.Set_Timeout (2.0);
+      T.Assert (Request.Contains_Header ("Content-Type"), "Missing Content-Type");
       Request.Delete (Uri & "/delete", Reply);
 
       T.Assert (T.Server.Method = DELETE, "Invalid method received by server");
@@ -247,5 +259,29 @@ package body Util.Http.Clients.Tests is
       Util.Tests.Assert_Equals (T, 204, Reply.Get_Status, "Invalid status response");
 
    end Test_Http_Delete;
+
+   --  ------------------------------
+   --  Test the http timeout.
+   --  ------------------------------
+   procedure Test_Http_Timeout (T : in out Test) is
+      Request : Client;
+      Reply   : Response;
+      Uri     : constant String := T.Get_Uri;
+   begin
+      Log.Info ("Timeout on " & Uri);
+
+      T.Server.Test_Timeout := True;
+      T.Server.Method := UNKNOWN;
+      Request.Set_Timeout (0.5);
+      begin
+         Request.Get (Uri & "/timeout", Reply);
+         T.Fail ("No Connection_Error exception raised");
+
+      exception
+         when Connection_Error =>
+            null;
+      end;
+
+   end Test_Http_Timeout;
 
 end Util.Http.Clients.Tests;
