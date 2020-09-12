@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-tests -- Unit tests for HTTP client
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,6 +49,12 @@ package Util.Http.Clients.Tests is
 
    --  Test the http POST operation.
    procedure Test_Http_Post (T : in out Test);
+
+   --  Test the http PUT operation.
+   procedure Test_Http_Put (T : in out Test);
+
+   --  Test the http DELETE operation.
+   procedure Test_Http_Delete (T : in out Test);
 
    overriding
    procedure Set_Up (T : in out Test);
