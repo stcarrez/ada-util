@@ -391,7 +391,7 @@ package body Util.Beans.Objects is
       if Proxy = null then
          return 0.0;
       else
-         return Duration'Value (String_Proxy (Proxy.all).Value);
+         return Duration'Value (Proxy.Value);
       end if;
    end To_Duration;
 
