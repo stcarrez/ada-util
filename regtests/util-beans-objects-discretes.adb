@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Discretes -- Unit tests for concurrency package
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,6 +40,14 @@ package body Util.Beans.Objects.Discretes is
                                         To_Object_Test => Util.Beans.Objects.To_Object,
                                         Value          => Integer'Value,
                                         Test_Name      => "Integer",
+                                        Test_Values    => "-100,1,0,1,1000");
+
+   package Test_Duration is new
+     Util.Beans.Objects.Discrete_Tests (Test_Type      => Duration,
+                                        To_Type        => Util.Beans.Objects.To_Duration,
+                                        To_Object_Test => Util.Beans.Objects.To_Object,
+                                        Value          => Duration'Value,
+                                        Test_Name      => "Duration",
                                         Test_Values    => "-100,1,0,1,1000");
 
    package Test_Long_Integer is new
@@ -170,6 +178,7 @@ package body Util.Beans.Objects.Discretes is
       Test_Boolean.Add_Tests (Suite);
       Test_Integer.Add_Tests (Suite);
       Test_Long_Integer.Add_Tests (Suite);
+      Test_Duration.Add_Tests (Suite);
       Test_Long_Long_Integer.Add_Tests (Suite);
       Test_Time.Add_Tests (Suite);
       Test_Float.Add_Tests (Suite);
