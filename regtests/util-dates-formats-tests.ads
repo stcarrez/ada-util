@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-formats-tests - Test for date formats
---  Copyright (C) 2011, 2013, 2014, 2015, 2016, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2015, 2016, 2018, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,9 @@ package Util.Dates.Formats.Tests is
 
    --  Test parsing a date using several formats and different locales.
    procedure Test_Parse (T : in out Test);
+
+   --  Test parsing a date using several formats and having several errors.
+   procedure Test_Parse_Error (T : in out Test);
 
    --  Test the Get_Day_Start operation.
    procedure Test_Get_Day_Start (T : in out Test);
