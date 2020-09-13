@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates -- Date utilities
---  Copyright (C) 2011, 2013, 2014, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2018, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -110,9 +110,9 @@ package body Util.Dates is
                            return Ada.Calendar.Arithmetic.Day_Count is
    begin
       if Is_Leap_Year (Year) then
-         return 365;
-      else
          return 366;
+      else
+         return 365;
       end if;
    end Get_Day_Count;
 
