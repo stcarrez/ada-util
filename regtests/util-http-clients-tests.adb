@@ -166,6 +166,7 @@ package body Util.Http.Clients.Tests is
       Reply   : Response;
    begin
       Request.Get ("http://www.google.com", Reply);
+      Request.Set_Timeout (5.0);
       T.Assert (Reply.Get_Status = 200 or Reply.Get_Status = 302,
                 "Get status is invalid: " & Natural'Image (Reply.Get_Status));
 
@@ -225,6 +226,7 @@ package body Util.Http.Clients.Tests is
 
       T.Server.Method := UNKNOWN;
       Request.Add_Header ("Content-Type", "application/x-www-form-urlencoded");
+      Request.Set_Timeout (1.0);
       T.Assert (Request.Contains_Header ("Content-Type"), "Missing Content-Type");
       Request.Put (Uri & "/put",
                    "p1=1", Reply);
@@ -249,6 +251,7 @@ package body Util.Http.Clients.Tests is
 
       T.Server.Method := UNKNOWN;
       Request.Add_Header ("Content-Type", "application/x-www-form-urlencoded");
+      Request.Set_Timeout (1.0);
       T.Assert (Request.Contains_Header ("Content-Type"), "Missing Content-Type");
       Request.Delete (Uri & "/delete", Reply);
 
