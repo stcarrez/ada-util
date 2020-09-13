@@ -52,6 +52,8 @@ package body Util.Dates.Formats.Tests is
                        Test_Format'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.Formats.Parse",
                        Test_Parse'Access);
+      Caller.Add_Test (Suite, "Test Util.Dates.Formats.Parse (Error)",
+                       Test_Parse_Error'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.Get_Day_Start",
                        Test_Get_Day_Start'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.Get_Week_Start",
@@ -138,6 +140,14 @@ package body Util.Dates.Formats.Tests is
       Check ("Day: %u %w %W", T1, "Day: 02 03 01");
       Check ("Day: %u %w %W", T2, "Day: 05 06 46");
       Check ("Day: %u %w %W", T3, "Day: 05 06 46");
+
+      Check ("%c", T1, "Tue Jan  2 10:30:23 1980");
+      Check ("T1: %P", T1, "T1: am");
+      Check ("T2: %P", T2, "T2: am");
+      Check ("T3: %P", T3, "T3: pm");
+
+      Check ("%u %U %V %w %W %x %z %Z %X %Q", T2,
+             "05 46 46 06 46 11/19/11 00:00 UTC 00:00:00 2011 %Q");
    end Test_Format;
 
    --  ------------------------------
@@ -152,8 +162,10 @@ package body Util.Dates.Formats.Tests is
                        Hour        : Natural;
                        Minute      : Natural;
                        Second      : Natural);
+      use Ada.Calendar.Time_Zones;
 
       Bundle  : Util.Properties.Bundles.Manager;
+      TZ      : Time_Offset := 0;
 
       procedure Check (Pattern : in String;
                        Date    : in String;
@@ -180,6 +192,8 @@ package body Util.Dates.Formats.Tests is
                                    "Invalid minute with pattern " & Pattern);
          Util.Tests.Assert_Equals (T, Second, Natural (Result.Second),
                                    "Invalid second with pattern " & Pattern);
+         Util.Tests.Assert_Equals (T, Integer (TZ), Integer (Result.Time_Zone),
+                                   "Invalid timezone with pattern " & Pattern);
 
       exception
          when E : Constraint_Error =>
@@ -196,7 +210,94 @@ package body Util.Dates.Formats.Tests is
       Check ("%a %b, %d %C%y %R:%S", "Mon Jan, 2  1980  10:30:23", 1980, 1, 2, 10, 30, 23);
       Check ("%D %H:%M:%S", "1/2/80  10:30:23", 1980, 1, 2, 10, 30, 23);
       Check ("%F %H:%M:%S", "2018-03-23 10:30:23", 2018, 3, 23, 10, 30, 23);
+
+      Check ("%Q %F %H:%M:%S %%", "%Q 2018-03-23 10:30:23 %",
+             2018, 3, 23, 10, 30, 23);
+
+      Check ("%A|%B| %d %C%y %R:%S %g", "Monday|January| 2  1980  10:30:23 80W01",
+             1980, 1, 2, 10, 30, 23);
+      Check ("%A|%B| %d %C%y %R:%S %w", "Monday|January| 2  1980  10:30:23 01",
+             1980, 1, 2, 10, 30, 23);
+      Check ("%F %H:%M:%S %%", "2018-03-23 10:30:23 %",
+             2018, 3, 23, 10, 30, 23);
+
+      Check ("%Z %F %H:%M:%S %%", "UTC 2018-03-23 10:30:23 %",
+             2018, 3, 23, 10, 30, 23);
+
+      Check ("%F%n%H:%M:%S%t", "2018-03-23" & ASCII.LF & "10:30:23" & ASCII.HT,
+             2018, 3, 23, 10, 30, 23);
+
+      Check ("%c", "Tue Jan  2 10:30:23 1980",
+             1980, 1, 2, 10, 30, 23);
+
+      Check ("%x %T", "04/10/80 10:30:23",
+             1980, 4, 10, 10, 30, 23);
+
+      Check ("%x %I:%M", "04/10/80 10:30",
+             1980, 4, 10, 10, 30, 0);
+
+      Check ("%x %r", "04/10/80 10:30:23 AM",
+             1980, 4, 10, 10, 30, 23);
+
+      Check ("%x %r", "04/10/80 10:30:23 PM",
+             1980, 4, 10, 22, 30, 23);
+
+      Check ("%x %r %u", "04/10/80 10:30:23 PM 6",
+             1980, 4, 10, 22, 30, 23);
+
+      TZ := 60 + 30;
+      Check ("%Z %F %H:%M:%S ", "UTC+01:30 2018-03-23 10:30:23 ",
+             2018, 3, 23, 10, 30, 23);
+      Check ("%z %F %H:%M:%S ", "+01:30 2018-03-23 10:30:23 ",
+             2018, 3, 23, 10, 30, 23);
+      TZ := -121;
+      Check ("%Z %F %H:%M:%S ", "UTC-02:01 2018-03-23 10:30:23 ",
+             2018, 3, 23, 10, 30, 23);
+      Check ("%F %H:%M:%S%z", "2018-03-23 10:30:23-02:01",
+             2018, 3, 23, 10, 30, 23);
+
    end Test_Parse;
+
+   --  Test parsing a date using several formats and having several errors.
+   procedure Test_Parse_Error (T : in out Test) is
+      procedure Check (Pattern : in String;
+                       Date    : in String);
+
+      Bundle  : Util.Properties.Bundles.Manager;
+
+      procedure Check (Pattern : in String;
+                       Date    : in String) is
+         Result : Date_Record;
+         pragma Unreferenced (Result);
+      begin
+         Result := Util.Dates.Formats.Parse (Date    => Date,
+                                             Pattern => Pattern,
+                                             Bundle  => Bundle);
+         T.Fail ("No exception raised for '" & Pattern & "' and date '" & Date & "'");
+
+      exception
+         when Constraint_Error =>
+            null;
+      end Check;
+
+   begin
+      Check ("%T", "10:12:456");
+      Check ("%T", "10:12");
+      Check ("%T", "10:12:");
+      Check ("%T", "10:12:w");
+      Check ("%T", "10:12:65");
+      Check ("%T", "10:12:60");
+      Check ("%T", "25:12:30");
+      Check ("%T", "24:20:30");
+      Check ("%T", "23:60:30");
+      Check ("%T", "23:40_30");
+      Check ("%A", "January");
+      Check ("%B", "Monday");
+      Check ("%T %p", "10:12:23 Pm");
+      Check ("%T %p", "10:12:23 Am");
+      Check ("%T %P", "10:12:23 Am");
+      Check ("%T %P", "10:12:23 Pm");
+   end Test_Parse_Error;
 
    procedure Check (T          : in out Test'Class;
                     Year       : in Ada.Calendar.Year_Number;
