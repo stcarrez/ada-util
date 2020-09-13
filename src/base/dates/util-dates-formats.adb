@@ -499,6 +499,7 @@ package body Util.Dates.Formats is
       use Ada.Calendar;
       use Ada.Calendar.Formatting;
       use Ada.Calendar.Time_Zones;
+      use Util.Strings.Transforms;
       use type Ada.Containers.Count_Type;
 
       procedure Expect (C : in Character);
@@ -515,6 +516,9 @@ package body Util.Dates.Formats is
       function Parse_Long_Day return Formatting.Day_Name;
       function Parse_Short_Month return Month_Number;
       function Parse_Long_Month return Month_Number;
+      function Check_Match (Value : in String;
+                            Upper : in Boolean) return Boolean;
+      procedure Parse_AM_PM (Upper : in Boolean);
 
       Pattern_Pos    : Positive := Pattern'First;
       Pos            : Natural := Date'First;
@@ -611,6 +615,37 @@ package body Util.Dates.Formats is
          return Value;
       end Parse_Number;
 
+      function Check_Match (Value : in String;
+                            Upper : in Boolean) return Boolean is
+      begin
+         if Pos + Value'Length - 1 > Date'Last then
+            return False;
+         elsif Upper then
+            return Date (Pos .. Pos + Value'Length - 1) = Value;
+         else
+            return Date (Pos .. Pos + Value'Length - 1) = To_Lower_Case (Value);
+         end if;
+      end Check_Match;
+
+      procedure Parse_AM_PM (Upper : in Boolean) is
+         AM : constant String := Bundle.Get (AM_NAME, AM_DEFAULT);
+      begin
+         if Check_Match (AM, Upper) then
+            Pos := Pos + AM'Length;
+         else
+            declare
+               PM : constant String := Bundle.Get (PM_NAME, PM_DEFAULT);
+            begin
+               if Check_Match (PM, Upper) then
+                  Pos := Pos + PM'Length;
+                  Result.Hour := Result.Hour + 12;
+               else
+                  raise Constraint_Error with "Invalid date format: expecting am or pm";
+               end if;
+            end;
+         end if;
+      end Parse_AM_PM;
+
       Century     : Integer := -1;
       Value       : Integer;
       Week_Number : Integer := -1;
@@ -620,7 +655,7 @@ package body Util.Dates.Formats is
          C := Pattern (Pattern_Pos);
          if C = ' ' then
             Pattern_Pos := Pattern_Pos + 1;
-            while Pos <= Date'Last and Ada.Characters.Handling.Is_Space (Date (Pos)) loop
+            while Pos <= Date'Last and then Ada.Characters.Handling.Is_Space (Date (Pos)) loop
                Pos := Pos + 1;
             end loop;
          elsif C /= '%' then
@@ -726,22 +761,11 @@ package body Util.Dates.Formats is
 
                   --  %p     Either "AM" or "PM"
                when 'p' =>
---                    if Date.Hour >= 12 then
---                       Append (Into, Bundle.Get (PM_NAME, PM_DEFAULT));
---                    else
---                       Append (Into, Bundle.Get (AM_NAME, AM_DEFAULT));
---                    end if;
-                  null;
+                  Parse_AM_PM (Upper => True);
 
                   --  %P     Like %p but in lowercase: "am" or "pm"
                when 'P' =>
-                  --  SCz 2011-10-01: the To_Lower_Case will not work for UTF-8 strings.
---                    if Date.Hour >= 12 then
---                       Append (Into, To_Lower_Case (Bundle.Get (PM_NAME, PM_DEFAULT)));
---                    else
---                       Append (Into, To_Lower_Case (Bundle.Get (AM_NAME, AM_DEFAULT)));
---                    end if;
-                  null;
+                  Parse_AM_PM (Upper => False);
 
                   --  %r     The time in a.m. or p.m. notation.
                   --  In the POSIX locale this is equivalent to %I:%M:%S %p.  (SU)
@@ -828,10 +852,16 @@ package body Util.Dates.Formats is
                      Pos := Pos + 1;
                      Value := Parse_Number (Min => 0, Max => 12);
                      Result.Time_Zone := Time_Offset (Value * 60);
+                     Expect (':');
+                     Value := Parse_Number (Min => 0, Max => 59);
+                     Result.Time_Zone := Result.Time_Zone + Time_Offset (Value);
                   elsif Date (Pos) = '-' then
                      Pos := Pos + 1;
                      Value := Parse_Number (Min => 0, Max => 12);
                      Result.Time_Zone := -Time_Offset (Value * 60);
+                     Expect (':');
+                     Value := Parse_Number (Min => 0, Max => 59);
+                     Result.Time_Zone := Result.Time_Zone - Time_Offset (Value);
                   else
                      raise Constraint_Error with "Invalid date format";
                   end if;
@@ -845,12 +875,18 @@ package body Util.Dates.Formats is
                      Pos := Pos + 1;
                      Value := Parse_Number (Min => 0, Max => 12);
                      Result.Time_Zone := Time_Offset (Value * 60);
+                     Expect (':');
+                     Value := Parse_Number (Min => 0, Max => 59);
+                     Result.Time_Zone := Result.Time_Zone + Time_Offset (Value);
                   elsif Date (Pos) = '-' then
                      Pos := Pos + 1;
                      Value := Parse_Number (Min => 0, Max => 12);
                      Result.Time_Zone := -Time_Offset (Value * 60);
+                     Expect (':');
+                     Value := Parse_Number (Min => 0, Max => 59);
+                     Result.Time_Zone := Result.Time_Zone - Time_Offset (Value);
                   else
-                     raise Constraint_Error with "Invalid date format";
+                     Result.Time_Zone := 0;
                   end if;
 
                when others =>
@@ -862,6 +898,9 @@ package body Util.Dates.Formats is
          end if;
       end loop;
       Last := Pos;
+      if Pattern_Pos <= Pattern'Last then
+         raise Constraint_Error with "Invalid date format: incomplete date";
+      end if;
    end Parse;
 
 end Util.Dates.Formats;
