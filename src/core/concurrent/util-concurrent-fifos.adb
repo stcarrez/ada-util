@@ -117,7 +117,8 @@ package body Util.Concurrent.Fifos is
       --  Put the element in the queue.
       --  If the queue is full, wait until some room is available.
       --  ------------------------------
-      entry Enqueue (Item : in Element_Type) when Count < Elements'Length - (if Clear_On_Dequeue then 1 else 0) is
+      entry Enqueue (Item : in Element_Type) when
+        Count < Elements'Length - (if Clear_On_Dequeue then 1 else 0) is
       begin
          Elements (Last) := Item;
          Last := Last + 1;
