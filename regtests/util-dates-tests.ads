@@ -32,7 +32,10 @@ package Util.Dates.Tests is
    --  Test value convertion errors.
    procedure Test_ISO8601_Error (T : in out Test);
 
-      --  Test Is_Same_Day operation.
+   --  Test Is_Same_Day operation.
    procedure Test_Is_Same_Day (T : in out Test);
+
+   --  Test Get_Day_Count operation.
+   procedure Test_Get_Day_Count (T : in out Test);
 
 end Util.Dates.Tests;
