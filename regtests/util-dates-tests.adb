@@ -29,6 +29,8 @@ package body Util.Dates.Tests is
                        Test_ISO8601_Value'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.ISO8601.Value (Errors)",
                        Test_ISO8601_Error'Access);
+      Caller.Add_Test (Suite, "Test Util.Dates.Is_Same_Day",
+                       Test_Is_Same_Day'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -143,5 +145,27 @@ package body Util.Dates.Tests is
       Check ("1980-12-31T11:23:34+10:0");
       Check ("1980-12-31T11:23:34+10:03x");
    end Test_ISO8601_Error;
+
+   --  ------------------------------
+   --  Test Is_Same_Day operation.
+   --  ------------------------------
+   procedure Test_Is_Same_Day (T : in out Test) is
+      procedure Check (D1, D2   : in String;
+                       Same_Day : in Boolean);
+
+      procedure Check (D1, D2   : in String;
+                       Same_Day : in Boolean) is
+         T1 : constant Ada.Calendar.Time := ISO8601.Value (D1);
+         T2 : constant Ada.Calendar.Time := ISO8601.Value (D2);
+      begin
+         T.Assert (Same_Day = Is_Same_Day (T1, T2), "Invalid Is_Same_Day for " & D1 & " " & D2);
+         T.Assert (Same_Day = Is_Same_Day (T2, T1), "Invalid Is_Same_Day for " & D2 & " " & D1);
+      end Check;
+
+   begin
+      Check ("1980-12-31T11:23:34.123", "1980-12-31T10:23:34.123", True);
+      Check ("1980-12-31T11:23:34.123", "1980-12-30T10:23:34.123", False);
+      Check ("1980-12-31T00:00:00", "1980-12-31T23:59:59", True);
+   end Test_Is_Same_Day;
 
 end Util.Dates.Tests;
