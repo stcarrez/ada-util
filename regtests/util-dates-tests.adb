@@ -31,6 +31,8 @@ package body Util.Dates.Tests is
                        Test_ISO8601_Error'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.Is_Same_Day",
                        Test_Is_Same_Day'Access);
+      Caller.Add_Test (Suite, "Test Util.Dates.Get_Day_Count",
+                       Test_Get_Day_Count'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -167,5 +169,16 @@ package body Util.Dates.Tests is
       Check ("1980-12-31T11:23:34.123", "1980-12-30T10:23:34.123", False);
       Check ("1980-12-31T00:00:00", "1980-12-31T23:59:59", True);
    end Test_Is_Same_Day;
+
+   --  ------------------------------
+   --  Test Get_Day_Count operation.
+   --  ------------------------------
+   procedure Test_Get_Day_Count (T : in out Test) is
+   begin
+      Util.Tests.Assert_Equals (T, 366, Natural (Get_Day_Count (2020)));
+      Util.Tests.Assert_Equals (T, 365, Natural (Get_Day_Count (1983)));
+      Util.Tests.Assert_Equals (T, 366, Natural (Get_Day_Count (2000)));
+      Util.Tests.Assert_Equals (T, 365, Natural (Get_Day_Count (2001)));
+   end Test_Get_Day_Count;
 
 end Util.Dates.Tests;
