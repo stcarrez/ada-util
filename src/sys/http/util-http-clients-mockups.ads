@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-mockups -- HTTP Clients mockups
---  Copyright (C) 2011, 2012, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,6 +44,12 @@ private
                      Reply    : out Response'Class);
 
    overriding
+   procedure Do_Head (Manager  : in File_Http_Manager;
+                      Http     : in Client'Class;
+                      URI      : in String;
+                      Reply    : out Response'Class);
+
+   overriding
    procedure Do_Post (Manager  : in File_Http_Manager;
                       Http     : in Client'Class;
                       URI      : in String;
@@ -58,10 +64,23 @@ private
                      Reply    : out Response'Class);
 
    overriding
+   procedure Do_Patch (Manager  : in File_Http_Manager;
+                       Http     : in Client'Class;
+                       URI      : in String;
+                       Data     : in String;
+                       Reply    : out Response'Class);
+
+   overriding
    procedure Do_Delete (Manager  : in File_Http_Manager;
                         Http     : in Client'Class;
                         URI      : in String;
                         Reply    : out Response'Class);
+
+   overriding
+   procedure Do_Options (Manager  : in File_Http_Manager;
+                         Http     : in Client'Class;
+                         URI      : in String;
+                         Reply    : out Response'Class);
 
    --  Set the timeout for the connection.
    overriding

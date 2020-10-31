@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-mockups -- HTTP Clients
---  Copyright (C) 2011, 2012, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,6 +68,21 @@ package body Util.Http.Clients.Mockups is
    end Do_Get;
 
    overriding
+   procedure Do_Head (Manager  : in File_Http_Manager;
+                      Http     : in Client'Class;
+                      URI      : in String;
+                      Reply    : out Response'Class) is
+      pragma Unreferenced (Http, URI);
+
+      Rep : constant Util.Http.Mockups.Mockup_Response_Access
+        := new Util.Http.Mockups.Mockup_Response;
+   begin
+      Reply.Delegate := Rep.all'Access;
+      Rep.Set_Body ("");
+      Rep.Set_Status (SC_OK);
+   end Do_Head;
+
+   overriding
    procedure Do_Post (Manager  : in File_Http_Manager;
                       Http     : in Client'Class;
                       URI      : in String;
@@ -90,6 +105,17 @@ package body Util.Http.Clients.Mockups is
    end Do_Put;
 
    overriding
+   procedure Do_Patch (Manager  : in File_Http_Manager;
+                       Http     : in Client'Class;
+                       URI      : in String;
+                       Data     : in String;
+                       Reply    : out Response'Class) is
+      pragma Unreferenced (Data);
+   begin
+      Manager.Do_Get (Http, URI, Reply);
+   end Do_Patch;
+
+   overriding
    procedure Do_Delete (Manager  : in File_Http_Manager;
                         Http     : in Client'Class;
                         URI      : in String;
@@ -97,6 +123,15 @@ package body Util.Http.Clients.Mockups is
    begin
       Manager.Do_Get (Http, URI, Reply);
    end Do_Delete;
+
+   overriding
+   procedure Do_Options (Manager  : in File_Http_Manager;
+                         Http     : in Client'Class;
+                         URI      : in String;
+                         Reply    : out Response'Class) is
+   begin
+      Manager.Do_Get (Http, URI, Reply);
+   end Do_Options;
 
    --  ------------------------------
    --  Set the timeout for the connection.
