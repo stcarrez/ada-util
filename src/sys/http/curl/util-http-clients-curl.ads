@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-curl -- HTTP Clients with CURL
---  Copyright (C) 2012, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2012, 2017, 2018, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -76,6 +76,12 @@ private
                      Reply    : out Response'Class);
 
    overriding
+   procedure Do_Head (Manager  : in Curl_Http_Manager;
+                      Http     : in Client'Class;
+                      URI      : in String;
+                      Reply    : out Response'Class);
+
+   overriding
    procedure Do_Post (Manager  : in Curl_Http_Manager;
                       Http     : in Client'Class;
                       URI      : in String;
@@ -90,10 +96,23 @@ private
                      Reply    : out Response'Class);
 
    overriding
+   procedure Do_Patch (Manager  : in Curl_Http_Manager;
+                       Http     : in Client'Class;
+                       URI      : in String;
+                       Data     : in String;
+                       Reply    : out Response'Class);
+
+   overriding
    procedure Do_Delete (Manager  : in Curl_Http_Manager;
                         Http     : in Client'Class;
                         URI      : in String;
                         Reply    : out Response'Class);
+
+   overriding
+   procedure Do_Options (Manager  : in Curl_Http_Manager;
+                         Http     : in Client'Class;
+                         URI      : in String;
+                         Reply    : out Response'Class);
 
    --  Set the timeout for the connection.
    overriding

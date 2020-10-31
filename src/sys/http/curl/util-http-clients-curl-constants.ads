@@ -18,6 +18,7 @@ private package Util.Http.Clients.Curl.Constants is
    CURLOPT_POSTFIELDSIZE  : constant Curl_Option := 60;
    CURLOPT_CONNECTTIMEOUT : constant Curl_Option := 78;
    CURLOPT_TIMEOUT        : constant Curl_Option := 13;
+   CURLOPT_NOBODY         : constant Curl_Option := 44;
 
    CURLINFO_RESPONSE_CODE : constant CURL_Info := 2097154;
 

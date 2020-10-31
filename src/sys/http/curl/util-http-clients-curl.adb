@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-curl -- HTTP Clients with CURL
---  Copyright (C) 2012, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2012, 2017, 2018, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,9 +29,11 @@ package body Util.Http.Clients.Curl is
 
    function Get_Request (Http : in Client'Class) return Curl_Http_Request_Access;
 
-   PUT_TOKEN    : constant Chars_Ptr := Strings.New_String ("PUT");
-   DELETE_TOKEN : constant Chars_Ptr := Strings.New_String ("DELETE");
-   Manager      : aliased Curl_Http_Manager;
+   PUT_TOKEN     : constant Chars_Ptr := Strings.New_String ("PUT");
+   PATCH_TOKEN   : constant Chars_Ptr := Strings.New_String ("PATCH");
+   OPTIONS_TOKEN : constant Chars_Ptr := Strings.New_String ("OPTIONS");
+   DELETE_TOKEN  : constant Chars_Ptr := Strings.New_String ("DELETE");
+   Manager       : aliased Curl_Http_Manager;
 
    --  ------------------------------
    --  Register the CURL Http manager.
@@ -193,6 +195,53 @@ package body Util.Http.Clients.Curl is
       Response.Status := Natural (Status);
    end Do_Get;
 
+   procedure Do_Head (Manager  : in Curl_Http_Manager;
+                      Http     : in Client'Class;
+                      URI      : in String;
+                      Reply    : out Response'Class) is
+      pragma Unreferenced (Manager);
+      use Interfaces.C;
+
+      Req      : constant Curl_Http_Request_Access := Get_Request (Http);
+      Result   : CURL_Code;
+      Response : Curl_Http_Response_Access;
+      Status   : aliased C.long;
+   begin
+      Log.Info ("HEAD {0}", URI);
+      Result := Curl_Easy_Setopt_Write_Callback (Req.Data, Constants.CURLOPT_WRITEUNCTION,
+                                                 Read_Response'Access);
+      Check_Code (Result, "set callback");
+
+      Req.Set_Headers;
+
+      Interfaces.C.Strings.Free (Req.URL);
+      Req.URL := Strings.New_String (URI);
+
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_NOBODY, 1);
+      Check_Code (Result, "set http HEAD");
+
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_HEADER, 1);
+      Check_Code (Result, "set header");
+
+      Result := Curl_Easy_Setopt_Slist (Req.Data, Constants.CURLOPT_HTTPHEADER, Req.Curl_Headers);
+      Check_Code (Result, "set http GET headers");
+
+      Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_URL, Req.URL);
+      Check_Code (Result, "set url");
+
+      Response := new Curl_Http_Response;
+      Result := Curl_Easy_Setopt_Data (Req.Data, Constants.CURLOPT_WRITEDATA, Response);
+      Check_Code (Result, "set write data");
+      Reply.Delegate := Response.all'Access;
+
+      Result := Curl_Easy_Perform (Req.Data);
+      Check_Code (Result, "get request");
+
+      Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
+      Check_Code (Result, "get response code");
+      Response.Status := Natural (Status);
+   end Do_Head;
+
    procedure Do_Post (Manager  : in Curl_Http_Manager;
                       Http     : in Client'Class;
                       URI      : in String;
@@ -226,7 +275,7 @@ package body Util.Http.Clients.Curl is
       Check_Code (Result, "set header");
 
       Result := Curl_Easy_Setopt_Slist (Req.Data, Constants.CURLOPT_HTTPHEADER, Req.Curl_Headers);
-      Check_Code (Result, "set http GET headers");
+      Check_Code (Result, "set http POST headers");
 
       Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_URL, Req.URL);
       Check_Code (Result, "set url");
@@ -291,16 +340,16 @@ package body Util.Http.Clients.Curl is
       Check_Code (Result, "set http PUT");
 
       Result := Curl_Easy_Setopt_Slist (Req.Data, Constants.CURLOPT_HTTPHEADER, Req.Curl_Headers);
-      Check_Code (Result, "set http GET headers");
+      Check_Code (Result, "set http PUT headers");
 
       Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_URL, Req.URL);
       Check_Code (Result, "set url");
 
       Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_POSTFIELDS, Req.Content);
-      Check_Code (Result, "set post data");
+      Check_Code (Result, "set put data");
 
       Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_POSTFIELDSIZE, Data'Length);
-      Check_Code (Result, "set post data");
+      Check_Code (Result, "set put data");
 
       Response := new Curl_Http_Response;
       Result := Curl_Easy_Setopt_Data (Req.Data, Constants.CURLOPT_WRITEDATA, Response);
@@ -322,6 +371,75 @@ package body Util.Http.Clients.Curl is
          Req.Curl_Headers := null;
       end if;
    end Do_Put;
+
+   overriding
+   procedure Do_Patch (Manager  : in Curl_Http_Manager;
+                       Http     : in Client'Class;
+                       URI      : in String;
+                       Data     : in String;
+                       Reply    : out Response'Class) is
+      pragma Unreferenced (Manager);
+      use Interfaces.C;
+
+      Req      : constant Curl_Http_Request_Access := Get_Request (Http);
+      Result   : CURL_Code;
+      Response : Curl_Http_Response_Access;
+      Status   : aliased C.long;
+   begin
+      Log.Info ("PATCH {0}", URI);
+
+      Result := Curl_Easy_Setopt_Write_Callback (Req.Data, Constants.CURLOPT_WRITEUNCTION,
+                                                 Read_Response'Access);
+      Check_Code (Result, "set callback");
+      Req.Set_Headers;
+
+      Interfaces.C.Strings.Free (Req.URL);
+      Req.URL := Strings.New_String (URI);
+
+      Interfaces.C.Strings.Free (Req.Content);
+      Req.Content := Strings.New_String (Data);
+
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_POST, 1);
+      Check_Code (Result, "set http PATCH");
+
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_HEADER, 1);
+      Check_Code (Result, "set header");
+
+      Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_CUSTOMREQUEST, PATCH_TOKEN);
+      Check_Code (Result, "set http PATCH");
+
+      Result := Curl_Easy_Setopt_Slist (Req.Data, Constants.CURLOPT_HTTPHEADER, Req.Curl_Headers);
+      Check_Code (Result, "set http PATCH headers");
+
+      Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_URL, Req.URL);
+      Check_Code (Result, "set url");
+
+      Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_POSTFIELDS, Req.Content);
+      Check_Code (Result, "set patch data");
+
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_POSTFIELDSIZE, Data'Length);
+      Check_Code (Result, "set patch data");
+
+      Response := new Curl_Http_Response;
+      Result := Curl_Easy_Setopt_Data (Req.Data, Constants.CURLOPT_WRITEDATA, Response);
+      Check_Code (Result, "set write data");
+      Reply.Delegate := Response.all'Access;
+
+      Result := Curl_Easy_Perform (Req.Data);
+      Check_Code (Result, "get request");
+
+      Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
+      Check_Code (Result, "get response code");
+      Response.Status := Natural (Status);
+
+      Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_CUSTOMREQUEST,
+                                         Interfaces.C.Strings.Null_Ptr);
+      Check_Code (Result, "restore set http default");
+      if Req.Curl_Headers /= null then
+         Curl_Slist_Free_All (Req.Curl_Headers);
+         Req.Curl_Headers := null;
+      end if;
+   end Do_Patch;
 
    overriding
    procedure Do_Delete (Manager  : in Curl_Http_Manager;
@@ -383,6 +501,64 @@ package body Util.Http.Clients.Curl is
                                          Interfaces.C.Strings.Null_Ptr);
       Check_Code (Result, "restore set http default");
    end Do_Delete;
+
+   overriding
+   procedure Do_Options (Manager  : in Curl_Http_Manager;
+                         Http     : in Client'Class;
+                         URI      : in String;
+                         Reply    : out Response'Class) is
+      pragma Unreferenced (Manager);
+      use Interfaces.C;
+
+      Req      : constant Curl_Http_Request_Access := Get_Request (Http);
+      Result   : CURL_Code;
+      Response : Curl_Http_Response_Access;
+      Status   : aliased C.long;
+   begin
+      Log.Info ("OPTIONS {0}", URI);
+
+      Result := Curl_Easy_Setopt_Write_Callback (Req.Data, Constants.CURLOPT_WRITEUNCTION,
+                                                 Read_Response'Access);
+      Check_Code (Result, "set callback");
+      Req.Set_Headers;
+
+      Interfaces.C.Strings.Free (Req.URL);
+      Req.URL := Strings.New_String (URI);
+
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_POST, 1);
+      Check_Code (Result, "set http OPTIONS");
+
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_HEADER, 1);
+      Check_Code (Result, "set header");
+
+      Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_CUSTOMREQUEST, OPTIONS_TOKEN);
+      Check_Code (Result, "set http OPTIONS");
+
+      Result := Curl_Easy_Setopt_Slist (Req.Data, Constants.CURLOPT_HTTPHEADER, Req.Curl_Headers);
+      Check_Code (Result, "set http OPTIONS headers");
+
+      Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_URL, Req.URL);
+      Check_Code (Result, "set url");
+
+      Result := Curl_Easy_Setopt_Long (Req.Data, Constants.CURLOPT_POSTFIELDSIZE, 0);
+      Check_Code (Result, "set options data");
+
+      Response := new Curl_Http_Response;
+      Result := Curl_Easy_Setopt_Data (Req.Data, Constants.CURLOPT_WRITEDATA, Response);
+      Check_Code (Result, "set write data");
+      Reply.Delegate := Response.all'Access;
+
+      Result := Curl_Easy_Perform (Req.Data);
+      Check_Code (Result, "get request");
+
+      Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
+      Check_Code (Result, "get response code");
+      Response.Status := Natural (Status);
+
+      Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_CUSTOMREQUEST,
+                                         Interfaces.C.Strings.Null_Ptr);
+      Check_Code (Result, "restore set http default");
+   end Do_Options;
 
    --  ------------------------------
    --  Set the timeout for the connection.
