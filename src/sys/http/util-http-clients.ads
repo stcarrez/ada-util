@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients -- HTTP Clients
---  Copyright (C) 2011, 2012, 2015, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2015, 2017, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -188,10 +188,29 @@ package Util.Http.Clients is
                   Data    : in String;
                   Reply   : out Response'Class);
 
+   --  Execute an http PATCH request on the given URL.  The post data is passed in <b>Data</b>.
+   --  Additional request cookies and headers should have been set on the client object.
+   procedure Patch (Request : in out Client;
+                    URL     : in String;
+                    Data    : in String;
+                    Reply   : out Response'Class);
+
    --  Execute a http DELETE request on the given URL.
    procedure Delete (Request : in out Client;
                      URL     : in String;
                      Reply   : out Response'Class);
+
+   --  Execute an http HEAD request on the given URL.  Additional request parameters,
+   --  cookies and headers should have been set on the client object.
+   procedure Head (Request  : in out Client;
+                   URL      : in String;
+                   Reply    : out Response'Class);
+
+   --  Execute an http OPTIONS request on the given URL.  Additional request parameters,
+   --  cookies and headers should have been set on the client object.
+   procedure Options (Request  : in out Client;
+                      URL      : in String;
+                      Reply    : out Response'Class);
 
 private
 
@@ -212,6 +231,11 @@ private
                      URI      : in String;
                      Reply    : out Response'Class) is abstract;
 
+   procedure Do_Head (Manager  : in Http_Manager;
+                      Http     : in Client'Class;
+                      URI      : in String;
+                      Reply    : out Response'Class) is abstract;
+
    procedure Do_Post (Manager  : in Http_Manager;
                       Http     : in Client'Class;
                       URI      : in String;
@@ -224,10 +248,21 @@ private
                      Data     : in String;
                      Reply    : out Response'Class) is abstract;
 
+   procedure Do_Patch (Manager  : in Http_Manager;
+                       Http     : in Client'Class;
+                       URI      : in String;
+                       Data     : in String;
+                       Reply    : out Response'Class) is abstract;
+
    procedure Do_Delete (Manager  : in Http_Manager;
                         Http     : in Client'Class;
                         URI      : in String;
                         Reply    : out Response'Class) is abstract;
+
+   procedure Do_Options (Manager  : in Http_Manager;
+                         Http     : in Client'Class;
+                         URI      : in String;
+                         Reply    : out Response'Class) is abstract;
 
    --  Set the timeout for the connection.
    procedure Set_Timeout (Manager : in Http_Manager;
