@@ -1,5 +1,5 @@
 /* Generate a package from system header definitions
---  Copyright (C) 2011 - 2019 Stephane Carrez
+--  Copyright (C) 2011 - 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -401,6 +401,7 @@ int main(int argc, char** argv)
     printf("   CURLOPT_POSTFIELDSIZE  : constant Curl_Option := %d;\n", CURLOPT_POSTFIELDSIZE);
     printf("   CURLOPT_CONNECTTIMEOUT : constant Curl_Option := %d;\n", CURLOPT_CONNECTTIMEOUT);
     printf("   CURLOPT_TIMEOUT        : constant Curl_Option := %d;\n", CURLOPT_TIMEOUT);
+    printf("   CURLOPT_NOBODY         : constant Curl_Option := %d;\n", CURLOPT_NOBODY);
     printf("\n");
     printf("   CURLINFO_RESPONSE_CODE : constant CURL_Info := %d;\n", CURLINFO_RESPONSE_CODE);
     printf("\n");
