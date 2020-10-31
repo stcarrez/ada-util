@@ -23,7 +23,7 @@ with Util.Streams.Texts;
 with Util.Streams.Sockets;
 package Util.Http.Clients.Tests is
 
-   type Method_Type is (OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT, UNKNOWN);
+   type Method_Type is (OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, PATCH, CONNECT, UNKNOWN);
 
    type Test_Server is new Util.Tests.Servers.Server with record
       Method       : Method_Type := UNKNOWN;
@@ -59,6 +59,9 @@ package Util.Http.Clients.Tests is
 
    --  Test the http OPTIONS operation.
    procedure Test_Http_Options (T : in out Test);
+
+   --  Test the http PATCH operation.
+   procedure Test_Http_Patch (T : in out Test);
 
    --  Test the http timeout.
    procedure Test_Http_Timeout (T : in out Test);
