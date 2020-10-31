@@ -57,6 +57,9 @@ package Util.Http.Clients.Tests is
    --  Test the http DELETE operation.
    procedure Test_Http_Delete (T : in out Test);
 
+   --  Test the http OPTIONS operation.
+   procedure Test_Http_Options (T : in out Test);
+
    --  Test the http timeout.
    procedure Test_Http_Timeout (T : in out Test);
 
