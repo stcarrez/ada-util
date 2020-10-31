@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients -- HTTP Clients
---  Copyright (C) 2011, 2012, 2013, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2013, 2017, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -269,6 +269,18 @@ package body Util.Http.Clients is
    end Put;
 
    --  ------------------------------
+   --  Execute an http PATCH request on the given URL.  The post data is passed in <b>Data</b>.
+   --  Additional request cookies and headers should have been set on the client object.
+   --  ------------------------------
+   procedure Patch (Request : in out Client;
+                    URL     : in String;
+                    Data    : in String;
+                    Reply   : out Response'Class) is
+   begin
+      Request.Manager.Do_Patch (Request, URL, Data, Reply);
+   end Patch;
+
+   --  ------------------------------
    --  Execute a http DELETE request on the given URL.
    --  ------------------------------
    procedure Delete (Request : in out Client;
@@ -277,6 +289,28 @@ package body Util.Http.Clients is
    begin
       Request.Manager.Do_Delete (Request, URL, Reply);
    end Delete;
+
+   --  ------------------------------
+   --  Execute an http HEAD request on the given URL.  Additional request parameters,
+   --  cookies and headers should have been set on the client object.
+   --  ------------------------------
+   procedure Head (Request  : in out Client;
+                   URL      : in String;
+                   Reply    : out Response'Class) is
+   begin
+      Request.Manager.Do_Head (Request, URL, Reply);
+   end Head;
+
+   --  ------------------------------
+   --  Execute an http OPTIONS request on the given URL.  Additional request parameters,
+   --  cookies and headers should have been set on the client object.
+   --  ------------------------------
+   procedure Options (Request  : in out Client;
+                      URL      : in String;
+                      Reply    : out Response'Class) is
+   begin
+      Request.Manager.Do_Options (Request, URL, Reply);
+   end Options;
 
    --  ------------------------------
    --  Set the timeout for the connection.
