@@ -44,6 +44,8 @@ package body Util.Http.Clients.Tests is
                           Test_Http_Delete'Access);
          Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Options",
                           Test_Http_Options'Access);
+         Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Patch",
+                          Test_Http_Patch'Access);
          Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Get (timeout)",
                           Test_Http_Timeout'Access);
       end Add_Tests;
@@ -101,6 +103,8 @@ package body Util.Http.Clients.Tests is
             Into.Method := DELETE;
          elsif L (L'First .. Pos - 1) = "OPTIONS" then
             Into.Method := OPTIONS;
+         elsif L (L'First .. Pos - 1) = "PATCH" then
+            Into.Method := PATCH;
          else
             Into.Method := UNKNOWN;
          end if;
@@ -290,6 +294,30 @@ package body Util.Http.Clients.Tests is
       Util.Tests.Assert_Equals (T, 204, Reply.Get_Status, "Invalid status response");
 
    end Test_Http_Options;
+
+   --  ------------------------------
+   --  Test the http PATCH operation.
+   --  ------------------------------
+   procedure Test_Http_Patch (T : in out Test) is
+      Request : Client;
+      Reply   : Response;
+      Uri     : constant String := T.Get_Uri;
+   begin
+      Log.Info ("Patch on " & Uri);
+
+      T.Server.Method := UNKNOWN;
+      Request.Add_Header ("Content-Type", "application/x-www-form-urlencoded");
+      Request.Set_Timeout (1.0);
+      T.Assert (Request.Contains_Header ("Content-Type"), "Missing Content-Type");
+      Request.Patch (Uri & "/patch", "patch-content", Reply);
+
+      T.Assert (T.Server.Method = PATCH, "Invalid method received by server");
+      Util.Tests.Assert_Equals (T, "application/x-www-form-urlencoded", T.Server.Content_Type,
+                                "Invalid content type received by server");
+      Util.Tests.Assert_Equals (T, 200, Reply.Get_Status, "Invalid status response");
+      Util.Tests.Assert_Equals (T, "OK" & ASCII.CR & ASCII.LF, Reply.Get_Body, "Invalid response");
+
+   end Test_Http_Patch;
 
    --  ------------------------------
    --  Test the http timeout.
