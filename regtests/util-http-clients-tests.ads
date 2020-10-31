@@ -48,6 +48,9 @@ package Util.Http.Clients.Tests is
    --  Test the http Get operation.
    procedure Test_Http_Get (T : in out Test);
 
+   --  Test the http HEAD operation.
+   procedure Test_Http_Head (T : in out Test);
+
    --  Test the http POST operation.
    procedure Test_Http_Post (T : in out Test);
 
