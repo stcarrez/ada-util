@@ -36,6 +36,8 @@ package body Util.Http.Clients.Tests is
       begin
          Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Get",
                           Test_Http_Get'Access);
+         Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Head",
+                          Test_Http_Head'Access);
          Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Post",
                           Test_Http_Post'Access);
          Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Put",
@@ -95,6 +97,8 @@ package body Util.Http.Clients.Tests is
       if Pos > 0 and Into.Method = UNKNOWN then
          if L (L'First .. Pos - 1) = "GET" then
             Into.Method := GET;
+         elsif L (L'First .. Pos - 1) = "HEAD" then
+            Into.Method := HEAD;
          elsif L (L'First .. Pos - 1) = "POST" then
             Into.Method := POST;
          elsif L (L'First .. Pos - 1) = "PUT" then
@@ -199,6 +203,33 @@ package body Util.Http.Clients.Tests is
          Util.Tests.Assert_Matches (T, ".*text/html.*", Content, "Invalid content type");
       end;
    end Test_Http_Get;
+
+   --  ------------------------------
+   --  Test the http HEAD operation.
+   --  ------------------------------
+   procedure Test_Http_Head (T : in out Test) is
+      Request : Client;
+      Reply   : Response;
+   begin
+      Request.Head ("http://www.google.com", Reply);
+      Request.Set_Timeout (5.0);
+      T.Assert (Reply.Get_Status = 200 or Reply.Get_Status = 302,
+                "Get status is invalid: " & Natural'Image (Reply.Get_Status));
+
+      Util.Http.Tools.Save_Response (Util.Tests.Get_Test_Path ("http_head.txt"), Reply, True);
+
+      T.Assert (Reply.Contains_Header ("Content-Type"), "Header Content-Type not found");
+      T.Assert (not Reply.Contains_Header ("Content-Type-Invalid-Missing"),
+                "Some invalid header found");
+
+      --  Check one header.
+      declare
+         Content : constant String := Reply.Get_Header ("Content-Type");
+      begin
+         T.Assert (Content'Length > 0, "Empty Content-Type header");
+         Util.Tests.Assert_Matches (T, ".*text/html.*", Content, "Invalid content type");
+      end;
+   end Test_Http_Head;
 
    --  ------------------------------
    --  Test the http POST operation.
