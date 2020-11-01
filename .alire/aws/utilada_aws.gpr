@@ -1,9 +1,9 @@
-with "config";
+with "utilada_conf";
 with "utilada_sys";
 with "aws";
 
 library project UtilAda_Aws is
-   Version := "2.1.0";
+   Version := "2.1q.0";
    Library_Dir := "lib";
 
    type AWS_Impl_Type is ("1", "2");
@@ -34,15 +34,15 @@ library project UtilAda_Aws is
    end Naming;
 
    for Library_Name use "utilada_aws";
-   for Library_Kind use UtilAda_Sys.Library_Type;
+   for Library_Kind use UtilAda_Conf.Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
-   for Library_Dir use "lib/utilada_aws/" & Project'Library_Kind;
-   for Object_Dir use "obj/utilada_aws/" & Project'Library_Kind;
+   for Library_Dir use "../../lib/utilada_aws/" & Project'Library_Kind;
+   for Object_Dir use "../../obj/utilada_aws/" & Project'Library_Kind;
 
-   package Builder  renames Config.Builder;
-   package Compiler renames Config.Compiler;
-   package Binder   renames Config.Binder;
-   package Ide      renames Config.Ide;
+   package Builder  renames Utilada_Sys.Builder;
+   package Compiler renames Utilada_Sys.Compiler;
+   package Binder   renames Utilada_Sys.Binder;
+   package Ide      renames Utilada_Sys.Ide;
 
 end UtilAda_Aws;

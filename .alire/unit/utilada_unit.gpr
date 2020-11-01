@@ -1,4 +1,3 @@
-with "config";
 with "utilada_conf";
 with "utilada_sys";
 
@@ -12,8 +11,8 @@ library project UtilAda_Unit is
    for Library_Kind use UtilAda_Conf.Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;
 
-   for Library_Dir use "lib/" & "/utilada_unit/" & Project'Library_Kind;
-   for Object_Dir use "obj/utilada_unit/" & Project'Library_Kind;
+   for Library_Dir use "../../lib/" & "/utilada_unit/" & Project'Library_Kind;
+   for Object_Dir use "../../obj/utilada_unit/" & Project'Library_Kind;
 
    case Unit is
       when "ahven-unix" =>
@@ -30,12 +29,12 @@ library project UtilAda_Unit is
 
    end case;
 
-   package compiler is
+   package Compiler is
       --  Disable some comment style checks to avoid several warnings in Ahven files.
-      for Default_Switches ("Ada") use Config.Compiler'Default_Switches ("Ada") & ("-gnaty-cs");
-   end compiler;
+      for Default_Switches ("Ada") use UtilAda_Conf.Compiler'Default_Switches ("Ada") & ("-gnaty-cs");
+   end Compiler;
 
-   package Binder renames Config.Binder;
-   package Builder renames Config.Builder;
+   package Ide      renames UtilAda_Conf.Ide;
+   package Binder   renames UtilAda_Sys.Binder;
 
 end UtilAda_Unit;

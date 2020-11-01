@@ -1,4 +1,4 @@
-with "config";
+with "utilada_config";
 
 abstract project UtilAda_Conf is
    type Yes_No is ("yes", "no");
@@ -16,20 +16,20 @@ abstract project UtilAda_Conf is
 
    Asm_Version : Asm_Version_Type := external ("UTIL_ASM_TYPE", "intrinsic");
 
-   Library_Type : Config.Library_Type_Type := external ("UTIL_LIBRARY_TYPE", "static");
+   Library_Type : UtilAda_Config.Library_Type_Type := external ("UTIL_LIBRARY_TYPE", "static");
 
    Os_Version  : Os_Version_Type := external ("UTIL_OS", "linux64");
    Xml_Version : Xml_Version_Type := "4";
-   Has_Curl    : Config.Yes_No := "yes";
-   Has_AWS     : Config.Yes_No := "yes";
-   Has_Xml     : Config.Yes_No := "yes";
-   Has_Lzma    : Config.Yes_No := "no";
+   Has_Curl    : UtilAda_Config.Yes_No := "yes";
+   Has_AWS     : UtilAda_Config.Yes_No := "yes";
+   Has_Xml     : UtilAda_Config.Yes_No := "yes";
+   Has_Lzma    : UtilAda_Config.Yes_No := "no";
 
    --  Enable the use of GNAT symbolic traceback.
-   Has_Gnat_Traceback : Config.Yes_No := "yes";
+   Has_Gnat_Traceback : UtilAda_Config.Yes_No := "yes";
 
    --  Enable the compilation of Util.Serialize.Mappers.Vector_Mappers.
-   Has_Vector_Mappers : Config.Yes_No := "yes";
+   Has_Vector_Mappers : UtilAda_Config.Yes_No := "yes";
 
    type AWS_Impl_Type is ("1", "2");
 
@@ -42,5 +42,10 @@ abstract project UtilAda_Conf is
    Library_Options := "";
 
    Curl_Library_Options := "";
+
+   package Builder  renames UtilAda_Config.Builder;
+   package Compiler renames UtilAda_Config.Compiler;
+   package Ide      renames UtilAda_Config.Ide;
+   package Binder   renames UtilAda_Config.Binder;
 
 end UtilAda_Conf;

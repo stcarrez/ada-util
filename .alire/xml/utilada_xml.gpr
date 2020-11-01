@@ -1,4 +1,3 @@
-with "config";
 with "utilada_conf";
 with "utilada_core";
 with "utilada_sys";
@@ -46,12 +45,12 @@ library project UtilAda_Xml is
         null;
    end case;
 
-   for Library_Dir use "lib/" & Project'Library_Name & "/" & Project'Library_Kind;
-   for Object_Dir use "obj/" & Project'Library_Name & "/" & Project'Library_Kind;
+   for Library_Dir use "../../lib/" & Project'Library_Name & "/" & Project'Library_Kind;
+   for Object_Dir use "../../obj/" & Project'Library_Name & "/" & Project'Library_Kind;
 
-   package Builder  renames Config.Builder;
-   package Compiler renames Config.Compiler;
-   package Ide      renames Config.Ide;
+   package Builder  renames UtilAda_Core.Builder;
+   package Compiler renames UtilAda_Core.Compiler;
+   package Ide      renames UtilAda_Core.Ide;
    package Binder   renames UtilAda_Core.Binder;
 
 end UtilAda_Xml;
