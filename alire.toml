@@ -1,0 +1,32 @@
+description = "Utility Library with streams, processes, logs, serialization, encoders"
+long-description = "\n[![Build Status](https://img.shields.io/jenkins/s/https/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)\n[![Test Status](https://img.shields.io/jenkins/t/https/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)\n[![codecov](https://codecov.io/gh/stcarrez/ada-util/branch/master/graph/badge.svg)](https://codecov.io/gh/stcarrez/ada-util)\n\nThis Ada05 library contains various utility packages for building\nAda05 applications.  This includes:\n\n* A logging framework close to Java log4j framework,\n* Support for properties\n* A serialization/deserialization framework for XML, JSON, CSV\n* Ada beans framework\n* Encoding/decoding framework (Base16, Base64, SHA, HMAC-SHA, AES-256)\n* A composing stream framework (raw, files, buffers, pipes, sockets)\n* Several concurrency tools (reference counters, counters, pools, fifos, arrays)\n* Process creation and pipes\n* Support for loading shared libraries (on Windows or Unix)\n* HTTP client library on top of CURL or AWS\n\nAda Util also provides a small test utility library on top of\nAhven or AUnit to help in writing unit tests.  Ahven is the default testing\nframework as it provides better reports.\n\n## Documentation\n\n* [Ada Utility Library Programmer's Guide](https://ada-util.readthedocs.io/en/latest/intro/)\n\n"
+name = "utilada"
+version = "2.3.0"
+authors = ["Stephane.Carrez@gmail.com"]
+licenses = ["Apache 2.0"]
+maintainers = ["Stephane.Carrez@gmail.com"]
+maintainers-logins = ["stcarrez"]
+project-files = [".alire/utilada_conf.gpr", "utilada_core.gpr", "utilada_base.gpr", "utilada_sys.gpr"]
+tags = ["logging", "processes", "streams", "json", "beans", "encoders", "decoders"]
+
+[gpr-externals]
+BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
+UTIL_LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
+UTIL_OS = ["win32", "win64", "linux32", "linux64", "macos64", "netbsd32", "netbsd64", "freebsd32", "freebsd64"]
+
+[gpr-set-externals]
+BUILD = "distrib"
+UTIL_LIBRARY_TYPE = "static"
+[gpr-set-externals."case(os)".linux."case(word_size)".bits-32]
+UTIL_OS = "linux32"
+
+[gpr-set-externals."case(os)".linux."case(word_size)".bits-64]
+UTIL_OS = "linux64"
+
+[gpr-set-externals."case(os)".macos]
+UTIL_OS = "macos64"
+[gpr-set-externals."case(os)".windows."case(word_size)".bits-32]
+UTIL_OS = "windows32"
+
+[gpr-set-externals."case(os)".windows."case(word_size)".bits-64]
+UTIL_OS = "windows64"
