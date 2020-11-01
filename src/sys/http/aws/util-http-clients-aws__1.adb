@@ -20,11 +20,12 @@ with Ada.Strings.Unbounded;
 with Util.Http.Clients.AWS_I.Messages;
 with Util.Http.Clients.AWS_I.Headers.Set;
 with Util.Log.Loggers;
+with AWS.Client.Ext;
 package body Util.Http.Clients.AWS is
 
    use type AWS_I.Messages.Status_Code;
 
-   Log   : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Http.Clients.Web");
+   Log   : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Http.Clients.AWS");
 
    Manager : aliased AWS_Http_Manager;
 
@@ -175,6 +176,24 @@ package body Util.Http.Clients.AWS is
    end Do_Get;
 
    overriding
+   procedure Do_Head (Manager  : in AWS_Http_Manager;
+                      Http     : in Client'Class;
+                      URI      : in String;
+                      Reply    : out Response'Class) is
+      pragma Unreferenced (Manager);
+
+      Req     : constant AWS_Http_Request_Access
+        := AWS_Http_Request'Class (Http.Delegate.all)'Access;
+      Rep     : constant AWS_Http_Response_Access := new AWS_Http_Response;
+   begin
+      Log.Info ("Head {0}", URI);
+
+      Reply.Delegate := Rep.all'Access;
+      Set_Result (Rep, AWS_I.Client.Head (URL => URI, Headers => Req.Headers,
+                                          Timeouts => Req.Timeouts));
+   end Do_Head;
+
+   overriding
    procedure Do_Post (Manager  : in AWS_Http_Manager;
                       Http     : in Client'Class;
                       URI      : in String;
@@ -214,18 +233,57 @@ package body Util.Http.Clients.AWS is
    end Do_Put;
 
    overriding
+   procedure Do_Patch (Manager  : in AWS_Http_Manager;
+                       Http     : in Client'Class;
+                       URI      : in String;
+                       Data     : in String;
+                       Reply    : out Response'Class) is
+      pragma Unreferenced (Manager);
+
+      Req     : constant AWS_Http_Request_Access
+        := AWS_Http_Request'Class (Http.Delegate.all)'Access;
+      Rep     : constant AWS_Http_Response_Access := new AWS_Http_Response;
+   begin
+      Log.Info ("Patch {0}", URI);
+
+      Reply.Delegate := Rep.all'Access;
+      Set_Result (Rep, AWS_I.Client.Ext.Do_Patch (URL => URI, Data => Data, Headers => Req.Headers,
+                                                  Timeouts => Req.Timeouts));
+   end Do_Patch;
+
+   overriding
+   procedure Do_Options (Manager  : in AWS_Http_Manager;
+                         Http     : in Client'Class;
+                         URI      : in String;
+                         Reply    : out Response'Class) is
+      pragma Unreferenced (Manager);
+
+      Req     : constant AWS_Http_Request_Access
+        := AWS_Http_Request'Class (Http.Delegate.all)'Access;
+      Rep     : constant AWS_Http_Response_Access := new AWS_Http_Response;
+   begin
+      Log.Info ("Options {0}", URI);
+
+      Reply.Delegate := Rep.all'Access;
+      Set_Result (Rep, AWS_I.Client.Ext.Do_Options (URL => URI, Headers => Req.Headers,
+                                                    Timeouts => Req.Timeouts));
+   end Do_Options;
+
+   overriding
    procedure Do_Delete (Manager  : in AWS_Http_Manager;
                         Http     : in Client'Class;
                         URI      : in String;
                         Reply    : out Response'Class) is
-      pragma Unreferenced (Manager, Http, Reply);
+      pragma Unreferenced (Manager);
+      Req     : constant AWS_Http_Request_Access
+        := AWS_Http_Request'Class (Http.Delegate.all)'Access;
+      Rep     : constant AWS_Http_Response_Access := new AWS_Http_Response;
    begin
       Log.Info ("Delete {0}", URI);
 
-      raise Program_Error with "Delete is not supported by AWS and there is no easy conditional"
-        & " compilation in Ada to enable Delete support for the latest AWS version. "
-        & "For now, you have to use curl, or install the latest AWS version and then "
-        & "uncomment the AWS.Client.Delete call and remove this exception.";
+      Reply.Delegate := Rep.all'Access;
+      Set_Result (Rep, AWS_I.Client.Ext.Do_Delete (URL => URI, Data => "", Headers => Req.Headers,
+                                                   Timeouts => Req.Timeouts));
    end Do_Delete;
 
    --  ------------------------------
