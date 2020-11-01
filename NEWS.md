@@ -1,6 +1,7 @@
 Version 2.3.0  -
   - New stream operations to read/write UTF-8 sequences in Wide_Wide character
-  - Fix AES encryption in CFB, OFB and CTR modes.
+  - Fix AES encryption in CFB, OFB and CTR modes
+  - Add HTTP support for HEAD, OPTIONS, PATCH requests
 
 Version 2.2.0  - May 2020
   - New Wait_Empty operation on fifo.
