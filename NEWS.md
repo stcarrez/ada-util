@@ -1,4 +1,4 @@
-Version 2.3.0  -
+Version 2.3.0  - Nov 2020
   - New stream operations to read/write UTF-8 sequences in Wide_Wide character
   - Fix AES encryption in CFB, OFB and CTR modes
   - Add HTTP support for HEAD, OPTIONS, PATCH requests
