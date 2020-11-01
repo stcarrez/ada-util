@@ -1,4 +1,3 @@
-with "config";
 with "utilada_conf";
 with "utilada_core";
 
@@ -44,9 +43,9 @@ library project UtilAda_Base is
    for Library_Dir use "lib/utilada_core/" & Project'Library_Kind;
    for Object_Dir use "obj/utilada_core/" & Project'Library_Kind;
 
-   package Builder  renames Config.Builder;
-   package Compiler renames Config.Compiler;
-   package Ide      renames Config.Ide;
+   package Builder  renames UtilAda_Conf.Builder;
+   package Compiler renames UtilAda_Conf.Compiler;
+   package Ide      renames UtilAda_Conf.Ide;
    package Binder   renames UtilAda_Core.Binder;
 
 end UtilAda_Base;

@@ -43,4 +43,9 @@ abstract project UtilAda_Conf is
 
    Curl_Library_Options := "@UTIL_CURL_LIBRARY_OPTIONS@";
 
+   package Builder  renames Config.Builder;
+   package Compiler renames Config.Compiler;
+   package Ide      renames Config.Ide;
+   package Binder   renames Config.Binder;
+
 end UtilAda_Conf;
