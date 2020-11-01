@@ -36,6 +36,7 @@ framework as it provides better reports.
 ## Version 2.3.0  -
   - New stream operations to read/write UTF-8 sequences in Wide_Wide character
   - Fix AES encryption in CFB, OFB and CTR modes.
+  - Add HTTP support for HEAD, OPTIONS, PATCH requests
 
 [List all versions](https://github.com/stcarrez/ada-util/blob/master/NEWS.md)
 
