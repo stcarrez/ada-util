@@ -1,0 +1,19 @@
+description = "Utility Library serialization with XML/Ada"
+long-description = "\n[![Build Status](https://img.shields.io/jenkins/s/https/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)\n[![Test Status](https://img.shields.io/jenkins/t/https/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)\n[![codecov](https://codecov.io/gh/stcarrez/ada-util/branch/master/graph/badge.svg)](https://codecov.io/gh/stcarrez/ada-util)\n\nThis library provides a serialization framework on top of XML/Ada for\nAda Utility Library.\n\n"
+name = "utilada_xml"
+version = "2.3.0"
+authors = ["Stephane.Carrez@gmail.com"]
+licenses = ["Apache 2.0"]
+maintainers = ["Stephane.Carrez@gmail.com"]
+maintainers-logins = ["stcarrez"]
+project-files = [".alire/xml/utilada_xml.gpr"]
+tags = ["xml", "serialization"]
+website = "https://gitlab.com/stcarrez/ada-util"
+
+[[depends-on]]
+utilada = "^2.3.0"
+xmlada = "any"
+
+[gpr-externals]
+BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
+UTIL_LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
