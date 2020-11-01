@@ -8,6 +8,7 @@ maintainers = ["Stephane.Carrez@gmail.com"]
 maintainers-logins = ["stcarrez"]
 project-files = [".alire/utilada_conf.gpr", "utilada_core.gpr", "utilada_base.gpr", "utilada_sys.gpr"]
 tags = ["logging", "processes", "streams", "json", "beans", "encoders", "decoders"]
+website = "https://gitlab.com/stcarrez/ada-util"
 
 [gpr-externals]
 BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
