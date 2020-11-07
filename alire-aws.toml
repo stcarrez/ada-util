@@ -12,6 +12,7 @@ website = "https://gitlab.com/stcarrez/ada-util"
 
 [[depends-on]]
 utilada = "^2.3.0"
+aws = "any"
 
 [gpr-externals]
 BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
