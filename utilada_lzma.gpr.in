@@ -24,6 +24,6 @@ library project UtilAda_Lzma is
    package Builder  renames UtilAda_Conf.Builder;
    package Compiler renames UtilAda_Conf.Compiler;
    package Ide      renames UtilAda_Conf.Ide;
-   package Binder   renames UtilAda_Core.Binder;
+   package Binder   renames UtilAda_Sys.Binder;
 
 end UtilAda_Lzma;
