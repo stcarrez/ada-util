@@ -11,7 +11,7 @@ Copyright: (C) 2007-2013 Tero Koskinen <tero.koskinen@iki.fi>
 License: other-BSD
 
 Files: debian/*
-Copyright: 2013-2018 Stephane Carrez <Stephane.Carrez@gmail.com>
+Copyright: 2013-2020 Stephane Carrez <Stephane.Carrez@gmail.com>
 License: GPL-3.0+
 
 License: Apache-2.0

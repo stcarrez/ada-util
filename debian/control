@@ -3,17 +3,18 @@ Priority: optional
 Section: libdevel
 Maintainer: Stephane Carrez <Stephane.Carrez@gmail.com>
 Build-Depends: debhelper (>= 10), autotools-dev,
+ dh-ada-library,
  gnat, gnat-7,
 # This line is parsed by debian/rules.
  gprbuild (>= 2015-2),
 # 2015-2 is compatible with gnat-7
-# dh-ada-library (>= 6.7),
  libxmlada-sax7-dev,
+ liblzmada1-dev,
  libaws3.3.2.2-dev
 Standards-Version: 4.1.4
 Homepage: https://github.com/stcarrez/ada-util/
-Vcs-Git: https://github.com/stcarrez/ada-debian-pkg.git
-Vcs-Browser: https://github.com/stcarrez/ada-debian-pkg
+Vcs-Git: https://github.com/stcarrez/ada-util.git -b debian-gnat-7
+Vcs-Browser: https://github.com/stcarrez/ada-util/tree/debian-gnat-7
 
 Package: libutilada-core2.3.0
 Section: libs
@@ -26,7 +27,7 @@ Description: Ada Utility Library (runtime)
 Package: libutilada-base2.3.0
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libutilada-core2.3.0 (= ${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Ada Utility Library (runtime)
  This Ada05 library contains various utility packages for building
  Ada05 applications.
@@ -78,7 +79,7 @@ Description: Ada Utility Library Curl HTTP Client (runtime)
 Package: libutilada-core1-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libutilada-core2.3.0 (= ${binary:Version}), gnat
+Depends: ${misc:Depends}, ${ada:Depends}
 Description: Ada Utility Library (Development files)
  This Ada05 library contains various utility packages for building
  Ada05 applications.  This includes:
@@ -88,8 +89,7 @@ Description: Ada Utility Library (Development files)
 Package: libutilada-base1-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libutilada-base2.3.0 (= ${binary:Version}), gnat,
- libutilada-core1-dev
+Depends: ${misc:Depends}, ${ada:Depends}
 Description: Ada Utility Library (Development files)
  This Ada05 library contains various utility packages for building
  Ada05 applications.  This includes:
@@ -100,8 +100,7 @@ Description: Ada Utility Library (Development files)
 Package: libutilada-sys1-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libutilada-sys2.3.0 (= ${binary:Version}), gnat,
- libutilada-base1-dev
+Depends: ${misc:Depends}, ${ada:Depends}
 Description: Ada Utility Library (Development files)
  This Ada05 library contains various utility packages for building
  Ada05 applications.  This includes:
@@ -113,43 +112,35 @@ Description: Ada Utility Library (Development files)
 Package: libutilada-aws1-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libutilada-aws2.3.0 (= ${binary:Version}),
- libutilada-sys1-dev,
- gnat, libaws3.3.2-dev
+Depends: ${misc:Depends}, ${ada:Depends}
 Description: Ada Utility Library AWS HTTP Client
  This is the AWS extension for the Util.Http.Clients package.
 
 Package: libutilada-xml1-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libutilada-xml2.3.0 (= ${binary:Version}),
- libutilada-sys1-dev,
- gnat, libxmlada-sax7-dev
+Depends: ${misc:Depends}, ${ada:Depends}
 Description: Ada Utility Library XML serialization
  This is the XML serialization support for the Util.Serialize package.
 
 Package: libutilada-curl1-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libutilada-curl2.3.0 (= ${binary:Version}),
- libutilada-sys1-dev, gnat, libcurl3
+Depends: ${misc:Depends}, ${ada:Depends}
 Description: Ada Utility Library CURL HTTP Client
  This is the CURL extension for the Util.Http.Clients package.
 
 Package: libutilada-lzma1-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libutilada-lzma2.3.0 (= ${binary:Version}),
- libutilada-sys1-dev, gnat, liblzma
+Depends: ${misc:Depends}, ${ada:Depends}
 Description: Ada Utility Library LZMA streams
  This is the LZMA stream support for the Util.Streams package.
 
 Package: libutilada-unit1-dev
 Section: libdevel
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends},
- libutilada-unit2.3.0 (= ${binary:Version}),
- libutilada-sys1-dev, gnat
+Depends: ${misc:Depends}, ${ada:Depends}
 Description: Ada Test Utility Library
  This library provides support and helpers for writing Ada unit tests.
  The unit test framework is based on Ahven.
