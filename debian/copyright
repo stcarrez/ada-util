@@ -1,17 +1,17 @@
 Format: http://dep.debian.net/deps/dep5
-Upstream-Name: libada-util
-Source: http://code.google.com/p/ada-util/downloads
+Upstream-Name: libutilada
+Source: https://github.com/stcarrez/ada-util/
 
 Files: *
-Copyright: 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Stephane Carrez <Stephane.Carrez@gmail.com>
+Copyright: 2001-2020 Stephane Carrez <Stephane.Carrez@gmail.com>
 License: Apache-2.0
 
 Files: testutil/ahven/*
-Copyright: (C) 2007-2010 Tero Koskinen <tero.koskinen@iki.fi>
+Copyright: (C) 2007-2013 Tero Koskinen <tero.koskinen@iki.fi>
 License: other-BSD
 
 Files: debian/*
-Copyright: 2013 Stephane Carrez <Stephane.Carrez@gmail.com>
+Copyright: 2013-2018 Stephane Carrez <Stephane.Carrez@gmail.com>
 License: GPL-3.0+
 
 License: Apache-2.0
