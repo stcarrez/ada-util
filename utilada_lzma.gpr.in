@@ -12,7 +12,7 @@ library project UtilAda_Lzma is
 
    case UtilAda_Conf.Library_Type is
      when "relocatable" =>
-        for Library_Options use (UtilAda_Conf.Library_Options);
+        for Library_Options use ("-llzma");
 
      when others =>
         null;
