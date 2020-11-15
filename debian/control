@@ -10,7 +10,9 @@ Build-Depends: debhelper (>= 10), autotools-dev,
 # 2015-2 is compatible with gnat-7
  libxmlada-sax7-dev,
  liblzmada1-dev,
- libaws3.3.2.2-dev
+ libaws3.3.2.2-dev,
+# pandoc requires texlive-fonts-extra for PDF
+ pandoc, texlive-fonts-extra
 Standards-Version: 4.1.4
 Homepage: https://github.com/stcarrez/ada-util/
 Vcs-Git: https://github.com/stcarrez/ada-util.git -b debian-gnat-7
@@ -80,6 +82,7 @@ Package: libutilada-core1-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
+Suggests: libutilada-doc (= ${source:Version})
 Description: Ada Utility Library (Development files)
  This Ada05 library contains various utility packages for building
  Ada05 applications.  This includes:
@@ -90,6 +93,7 @@ Package: libutilada-base1-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
+Suggests: libutilada-doc (= ${source:Version})
 Description: Ada Utility Library (Development files)
  This Ada05 library contains various utility packages for building
  Ada05 applications.  This includes:
@@ -101,6 +105,7 @@ Package: libutilada-sys1-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
+Suggests: libutilada-doc (= ${source:Version})
 Description: Ada Utility Library (Development files)
  This Ada05 library contains various utility packages for building
  Ada05 applications.  This includes:
@@ -113,6 +118,7 @@ Package: libutilada-aws1-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
+Suggests: libutilada-doc (= ${source:Version})
 Description: Ada Utility Library AWS HTTP Client
  This is the AWS extension for the Util.Http.Clients package.
 
@@ -120,6 +126,7 @@ Package: libutilada-xml1-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
+Suggests: libutilada-doc (= ${source:Version})
 Description: Ada Utility Library XML serialization
  This is the XML serialization support for the Util.Serialize package.
 
@@ -127,6 +134,7 @@ Package: libutilada-curl1-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
+Suggests: libutilada-doc (= ${source:Version})
 Description: Ada Utility Library CURL HTTP Client
  This is the CURL extension for the Util.Http.Clients package.
 
@@ -134,6 +142,7 @@ Package: libutilada-lzma1-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
+Suggests: libutilada-doc (= ${source:Version})
 Description: Ada Utility Library LZMA streams
  This is the LZMA stream support for the Util.Streams package.
 
@@ -141,7 +150,24 @@ Package: libutilada-unit1-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
+Suggests: libutilada-doc (= ${source:Version})
 Description: Ada Test Utility Library
  This library provides support and helpers for writing Ada unit tests.
  The unit test framework is based on Ahven.
 
+Package: libutilada-doc
+Section: libdevel
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends}
+Suggests: gnat
+Description: Ada Utility Library (documentation)
+ Ada Utility Library is an Ada05 library with various utility packages
+ for building Ada05 applications.  This includes:
+ o A serialization/deserialization framework for XML, JSON, CSV
+ o Encoding/decoding framework (Base16, Base64, SHA, HMAC-SHA)
+ o A composing stream framework (raw, files, buffers, pipes, sockets)
+ o Process creation and pipes
+ .
+ This package contains the documentation for Ada Utility Library
+ in HTML and PDF as well as several examples.
