@@ -37,3 +37,13 @@ override_dh_auto_build:
 override_dh_auto_test::
 
 override_dh_auto_install::
+
+.PHONY: override_dh_installexamples-indep
+override_dh_installexamples-indep:
+	dh_installexamples --indep
+
+.PHONY: override_dh_installdocs-indep
+
+override_dh_installdocs-indep:
+	make doc
+	dh_installdocs -i

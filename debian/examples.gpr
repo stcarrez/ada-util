@@ -1,0 +1,64 @@
+with "config";
+with "utilada";
+
+project Examples is
+
+   Mains := ("measures.adb", "properties.adb", "log.adb",
+   "bundles.adb", "escape.adb", "encodes.adb", "popen.adb",
+   "multipro.adb", "multipro_refs.adb", "date.adb",
+   "csv_reader.adb", "launch.adb", "gperfhash.adb", "proplist.adb",
+   "cut.adb", "xmi.adb", "serialize.adb", "json.adb",
+   "encrypt.adb", "decrypt.adb");
+
+   for Main use Mains;
+
+   case UtilAda.Has_Lzma is
+      when "yes" =>
+         Mains := Mains & ("compress.adb", "decompress.adb");
+      when "no" =>
+         null;
+
+   end case;
+
+   --  GCC 4.7 fails to instantiate the Vector_Mapper generic package.
+   case UtilAda.Has_Vector_Mappers is
+      when "yes" =>
+         Mains := Mains & ("csv_city.adb");
+
+      when "no" =>
+         null;
+
+   end case;
+
+   case UtilAda.Has_Curl is
+      when "yes" =>
+         Mains := Mains & ("wget.adb");
+
+      when others =>
+         null;
+
+   end case;
+
+   case UtilAda.Has_Aws is
+      when "yes" =>
+         for Main use Mains & ("facebook.adb");
+
+      when others =>
+         null;
+
+   end case;
+
+   for Source_Dirs use (".");
+
+   for Object_Dir use "./" & Config'Object_Dir & "/obj";
+   for Exec_Dir use "./" & Config'Exec_Dir & "/bin";
+
+   package Binder renames Config.Binder;
+
+   package Builder renames Config.Builder;
+
+   package Compiler renames Config.Compiler;
+
+   package Linker renames Config.Linker;
+
+end Examples;

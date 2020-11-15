@@ -82,9 +82,10 @@ clean::
 	-rm -f test?.log test.log test-stream.txt test-write.txt util-tests.xml
 
 ifeq (${HAVE_PANDOC},yes)
+doc::  docs/utilada-book.pdf docs/utilada-book.html
 ifeq (${HAVE_DYNAMO},yes)
-doc::  docs/util-book.pdf docs/util-book.html
 	$(DYNAMO) build-doc -markdown wiki
+endif
 
 UTIL_DOC= \
   docs/title.md \
@@ -115,18 +116,20 @@ UTIL_DOC= \
   docs/pagebreak.tex \
   docs/Util_Measures.md
 
-DOC_OPTIONS=-f markdown -o docs/util-book.pdf
+DOC_OPTIONS=-f markdown -o docs/utilada-book.pdf
 DOC_OPTIONS+= --listings --number-sections --toc
-HTML_OPTIONS=-f markdown -o docs/util-book.html
+HTML_OPTIONS=-f markdown -o docs/utilada-book.html
 HTML_OPTIONS+= --listings --number-sections --toc --css docs/pandoc.css
 
-docs/util-book.pdf:  force
+docs/utilada-book.pdf:  force
+ifeq (${HAVE_DYNAMO},yes)
 	$(DYNAMO) build-doc -pandoc docs
+endif
 	pandoc $(DOC_OPTIONS) --template=./docs/eisvogel.tex $(UTIL_DOC)
 
-docs/util-book.html: docs/util-book.pdf force
+docs/utilada-book.html: docs/utilada-book.pdf force
 	pandoc $(HTML_OPTIONS) $(UTIL_DOC)
-endif
+
 endif
 
 install-support:
