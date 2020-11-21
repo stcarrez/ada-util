@@ -15,9 +15,6 @@ BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
 UTIL_LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
 UTIL_OS = ["win32", "win64", "linux32", "linux64", "macos64", "netbsd32", "netbsd64", "freebsd32", "freebsd64"]
 
-[gpr-set-externals]
-BUILD = "distrib"
-UTIL_LIBRARY_TYPE = "static"
 [gpr-set-externals."case(os)".linux."case(word_size)".bits-32]
 UTIL_OS = "linux32"
 
@@ -26,8 +23,9 @@ UTIL_OS = "linux64"
 
 [gpr-set-externals."case(os)".macos]
 UTIL_OS = "macos64"
+
 [gpr-set-externals."case(os)".windows."case(word_size)".bits-32]
-UTIL_OS = "windows32"
+UTIL_OS = "win32"
 
 [gpr-set-externals."case(os)".windows."case(word_size)".bits-64]
-UTIL_OS = "windows64"
+UTIL_OS = "win64"
