@@ -1,0 +1,23 @@
+MODE=distrib UTIL_LIBRARY_TYPE=relocatable
+utilada_core.gpr
+
+MODE=distrib UTIL_LIBRARY_TYPE=relocatable
+utilada_base.gpr
+
+MODE=distrib UTIL_LIBRARY_TYPE=relocatable
+utilada_sys.gpr
+
+MODE=distrib UTIL_LIBRARY_TYPE=relocatable
+utilada_xml.gpr
+
+MODE=distrib UTIL_LIBRARY_TYPE=relocatable
+utilada_aws.gpr
+
+MODE=distrib UTIL_LIBRARY_TYPE=relocatable
+utilada_curl.gpr
+
+MODE=distrib UTIL_LIBRARY_TYPE=relocatable
+utilada_lzma.gpr
+
+MODE=distrib UTIL_LIBRARY_TYPE=relocatable
+utilada_unit.gpr

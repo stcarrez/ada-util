@@ -1,0 +1,14 @@
+Document: ada-util-guide
+Title: Ada Utility Library - Programmer's Guide
+Author: Stephane Carrez
+Section: Programming/Ada
+Abstract: This manual documents the Ada Utility Library,
+ a set of various utility Ada packages for building Ada
+ applications.
+
+Format: HTML
+Index: /usr/share/doc/libutilada-doc/utilada-book.html
+Files: /usr/share/doc/libutilada-doc/utilada-book.html
+
+Format: pdf
+Files: /usr/share/doc/libutilada-doc/utilada-book.pdf.gz

@@ -1,16 +1,34 @@
-libada-util (1.8.0) testing; urgency=low
+libutilada (2.3.0) unstable; urgency=medium
+
+  * Update for Ada util 2.3.0
+
+ -- Stephane Carrez <Stephane.Carrez@gmail.com>  Sun, 8 Nov 2020 12:10:22 +0100
+
+libutilada (2.0.0) unstable; urgency=medium
+
+  * Update for Ada util 2.0
+
+ -- Stephane Carrez <Stephane.Carrez@gmail.com>  Sat, 31 Aug 2019 22:15:11 +0200
+
+libutilada (1.9.0) unstable; urgency=medium
+
+  * Update for Ada util 1.9
+
+ -- Stephane Carrez <Stephane.Carrez@gmail.com>  Sat, 16 Jun 2018 11:36:11 +0200
+
+libutilada (1.8.0) testing; urgency=low
 
   * Update for Ada util 1.8
 
  -- Stephane Carrez <Stephane.Carrez@gmail.com>  Wed, 23 Dec 2015 15:03:21 +0200
 
-libada-util (1.7.1) testing; urgency=low
+libutilada (1.7.1) testing; urgency=low
 
   * Fix build for XmlAda 2014
 
  -- Stephane Carrez <Stephane.Carrez@gmail.com>  Fri, 16 May 2014 21:05:41 +0200
 
-libada-util (1.7.0) testing; urgency=low
+libutilada (1.7.0) testing; urgency=low
 
   * Initial Release.
 
