@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-json-tests -- Unit tests for JSON parser
---  Copyright (C) 2011, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2017, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -92,10 +92,13 @@ package body Util.Serialize.IO.JSON.Tests is
       procedure Check_Parse (Content : in String);
 
       procedure Check_Parse (Content : in String) is
-         P : Parser;
-         R : Util.Beans.Objects.Readers.Reader;
+         P    : Parser;
+         R    : Util.Beans.Objects.Readers.Reader;
+         Root : Util.Beans.Objects.Object;
       begin
          P.Parse_String (Content, R);
+         Root := R.Get_Root;
+         T.Assert (not Util.Beans.Objects.Is_Null (Root), "Null result for " & Content);
 
       exception
          when Parse_Error =>
@@ -115,6 +118,9 @@ package body Util.Serialize.IO.JSON.Tests is
       Check_Parse ("{ ""person"":""\u1CDE""}");
       Check_Parse ("{ ""person"":""\u2ABF""}");
       Check_Parse ("[{ ""person"":""\u2ABF""}]");
+      Check_Parse ("""testt""");
+      Check_Parse ("""""");
+      Check_Parse ("123");
    end Test_Parser;
 
    --  ------------------------------
