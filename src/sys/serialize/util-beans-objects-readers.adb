@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-readers -- Datasets
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -111,7 +111,9 @@ package body Util.Beans.Objects.Readers is
       pragma Unreferenced (Logger, Attribute);
       Current : constant Object_Context_Access := Object_Stack.Current (Handler.Context);
    begin
-      if Current.Map /= null then
+      if Current = null then
+         Handler.Root := Value;
+      elsif Current.Map /= null then
          Current.Map.Set_Value (Name, Value);
       else
          Current.List.Append (Value);
