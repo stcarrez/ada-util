@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-aes -- AES encryption and decryption
---  Copyright (C) 2017, 2019 Stephane Carrez
+--  Copyright (C) 2017, 2019, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,6 +55,8 @@ package Util.Encoders.AES is
                               Data : in Secret_Key)
      with Pre => Data.Length = 16 or Data.Length = 24 or Data.Length = 32;
 
+   procedure Encrypt (Data   : in out Word_Block_Type;
+                      Key    : in Key_Type);
    procedure Encrypt (Input  : in Block_Type;
                       Output : out Block_Type;
                       Key    : in Key_Type);
@@ -80,6 +82,9 @@ package Util.Encoders.AES is
    --  Set the encryption initialization vector before starting the encryption.
    procedure Set_IV (E  : in out Cipher;
                      IV : in Word_Block_Type);
+   procedure Set_IV (E   : in out Cipher;
+                     Key : in Secret_Key)
+     with Pre => Key.Length = 16;
    procedure Set_IV (E   : in out Cipher;
                      Key : in Secret_Key;
                      IV  : in Word_Block_Type);
