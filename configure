@@ -664,6 +664,7 @@ INSTALL_DATA
 INSTALL_SCRIPT
 INSTALL_PROGRAM
 SET_MAKE
+GNAT
 GPRINSTALL
 GNATCLEAN
 GPRCLEAN
@@ -3547,6 +3548,54 @@ done
 test -n "$GPRINSTALL" || GPRINSTALL=""""
 
 
+  for ac_prog in gnat
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_GNAT+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$GNAT"; then
+  ac_cv_prog_GNAT="$GNAT" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_GNAT="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+GNAT=$ac_cv_prog_GNAT
+if test -n "$GNAT"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $GNAT" >&5
+$as_echo "$GNAT" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$GNAT" && break
+done
+test -n "$GNAT" || GNAT=""""
+
+  if test -n "$GNAT"; then
+    GNATCHECK="$GNAT ls"
+  else
+    GNATCHECK="$GNATMAKE"
+  fi
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${MAKE-make} sets \$(MAKE)" >&5
 $as_echo_n "checking whether ${MAKE-make} sets \$(MAKE)... " >&6; }
@@ -4343,7 +4392,7 @@ if ${ac_cv_gnat_project_directories+:} false; then :
 else
 
     echo "with \"directories\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
-    if { ac_try='$GNATMAKE -Pconftest.gpr > /dev/null 2>conftest.out'
+    if { ac_try='$GNATCHECK -Pconftest.gpr > /dev/null 2>conftest.out'
   { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -4395,7 +4444,7 @@ if ${ac_cv_gnat_project_xmlada_sax+:} false; then :
 else
 
     echo "with \"xmlada_sax\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
-    if { ac_try='$GNATMAKE -Pconftest.gpr > /dev/null 2>conftest.out'
+    if { ac_try='$GNATCHECK -Pconftest.gpr > /dev/null 2>conftest.out'
   { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -4421,7 +4470,7 @@ if ${ac_cv_gnat_project_xmlada+:} false; then :
 else
 
     echo "with \"xmlada\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
-    if { ac_try='$GNATMAKE -Pconftest.gpr > /dev/null 2>conftest.out'
+    if { ac_try='$GNATCHECK -Pconftest.gpr > /dev/null 2>conftest.out'
   { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -4579,7 +4628,7 @@ else
     rm -f conftest.gpr
     # Search in the GNAT project path.
     echo "with \"${ac_cv_gnat_project_name_lzmada}\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
-    if { ac_try='$GNATMAKE -Pconftest.gpr > /dev/null 2>conftest.out'
+    if { ac_try='$GNATCHECK -Pconftest.gpr > /dev/null 2>conftest.out'
   { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -4597,7 +4646,7 @@ else
         dir=`dirname $name`
         # AC_MSG_CHECKING([for Ada LZMA Library project in ${dir}])
         echo "with \"${name}\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
-        if { ac_try='$GNATMAKE -Pconftest.gpr > /dev/null 2>conftest.out'
+        if { ac_try='$GNATCHECK -Pconftest.gpr > /dev/null 2>conftest.out'
   { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -4615,7 +4664,7 @@ else
       done
       if test x${ac_cv_gnat_project_lzmada} != xyes; then
         echo "with \"lzmada\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
-        if { ac_try='$GNATMAKE -Pconftest.gpr > /dev/null 2>conftest.out'
+        if { ac_try='$GNATCHECK -Pconftest.gpr > /dev/null 2>conftest.out'
   { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -4745,7 +4794,7 @@ if ${ac_cv_gnat_project_aunit+:} false; then :
 else
 
     echo "with \"aunit\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
-    if { ac_try='$GNATMAKE -Pconftest.gpr > /dev/null 2>conftest.out'
+    if { ac_try='$GNATCHECK -Pconftest.gpr > /dev/null 2>conftest.out'
   { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
   (eval $ac_try) 2>&5
   ac_status=$?
@@ -4906,7 +4955,7 @@ if ${ac_cv_gnat_project_aws+:} false; then :
 else
 
     echo "with \"${gnat_project_name}\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
-    if { ac_try='$GNATMAKE -Pconftest.gpr > /dev/null 2>conftest.out'
+    if { ac_try='$GNATCHECK -Pconftest.gpr > /dev/null 2>conftest.out'
   { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
   (eval $ac_try) 2>&5
   ac_status=$?
