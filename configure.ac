@@ -152,11 +152,6 @@ fi
 UTIL_OS_VERSION=$os_version
 AC_SUBST(UTIL_OS_VERSION)
 
-# directories GNAT project gives the installation paths
-AM_GNAT_CHECK_PROJECT([directories],[directories])
-UTIL_HAVE_PRJ_DIRECTORIES=${ac_cv_gnat_project_directories}
-AC_SUBST(UTIL_HAVE_PRJ_DIRECTORIES)
-
 AM_GNAT_FIND_XML_ADA([
     AM_GNAT_LIBRARY_SETUP(utilada_xml)
 ], [
