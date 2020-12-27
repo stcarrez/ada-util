@@ -19,6 +19,7 @@
 with Util.Properties.Tests;
 with Util.Properties.Bundles.Tests;
 with Util.Properties.JSON.Tests;
+with Util.Properties.Form.Tests;
 with Util.Log.Tests;
 with Util.Files.Tests;
 with Util.Concurrent.Tests;
@@ -110,6 +111,7 @@ package body Util.Testsuite is
       Util.Serialize.IO.JSON.Tests.Add_Tests (Result);
       Util.Serialize.IO.Form.Tests.Add_Tests (Result);
       Util.Properties.JSON.Tests.Add_Tests (Result);
+      Util.Properties.Form.Tests.Add_Tests (Result);
 #if HAVE_XML = "yes"
       Util.Serialize.IO.XML.Tests.Add_Tests (Result);
 #end if;
