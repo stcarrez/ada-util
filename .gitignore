@@ -39,7 +39,6 @@ utilada_http.gpr
 utilada_unit.gpr
 utilada_lzma.gpr
 utilada_tests.gpr
-doc/util-book.pdf
-doc/util-book.html
+docs/utilada-book.html
 
                                                                
