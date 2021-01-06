@@ -88,7 +88,6 @@ package body Util.Serialize.IO.JSON.Tests is
    --  Check various (basic) JSON valid strings (no mapper).
    --  ------------------------------
    procedure Test_Parser (T : in out Test) is
-      pragma Unreferenced (T);
       procedure Check_Parse (Content : in String);
 
       procedure Check_Parse (Content : in String) is

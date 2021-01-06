@@ -22,7 +22,6 @@ with Util.Encoders.SHA256;
 with Util.Encoders.HMAC.SHA1;
 with Util.Encoders.HMAC.SHA256;
 with Util.Encoders.Base16;
-with Util.Encoders.AES;
 with Util.Encoders.KDF.PBKDF2;
 package body Util.Encoders.KDF.Tests is
 
