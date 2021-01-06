@@ -53,7 +53,7 @@ package body Util.Commands.Parsers.GNAT_Parser is
 
    procedure Execute (Config : in out Config_Type;
                       Args   : in Util.Commands.Argument_List'Class;
-                      Process : access procedure (Cmd_Args : in Commands.Argument_List'Class)) is
+                      Process : not null access procedure (Cmd_Args : in Commands.Argument_List'Class)) is
       use type GC.Command_Line_Configuration;
 
       Empty    : Config_Type;
