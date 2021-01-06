@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with Ada.Containers;
 with Util.Test_Caller;
 
 with Ada.Text_IO;

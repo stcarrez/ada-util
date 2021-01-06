@@ -18,7 +18,6 @@
 
 with Ada.Strings.Unbounded;
 with Util.Http.Clients.AWS_I.Messages;
-with Util.Http.Clients.AWS_I.Headers.Set;
 with Util.Log.Loggers;
 with AWS.Client.Ext;
 package body Util.Http.Clients.AWS is
@@ -344,7 +343,7 @@ package body Util.Http.Clients.AWS is
                          Name  : in String;
                          Value : in String) is
    begin
-      AWS_I.Headers.Set.Add (Http.Headers, Name, Value);
+      AWS_I.Headers.Add (Http.Headers, Name, Value);
    end Set_Header;
 
    --  ------------------------------
@@ -356,7 +355,7 @@ package body Util.Http.Clients.AWS is
                          Name  : in String;
                          Value : in String) is
    begin
-      AWS_I.Headers.Set.Add (Http.Headers, Name, Value);
+      AWS_I.Headers.Add (Http.Headers, Name, Value);
    end Add_Header;
 
    --  Iterate over the request headers and executes the <b>Process</b> procedure.

@@ -1,3 +1,4 @@
+with Ada.Containers;
 -----------------------------------------------------------------------
 --  util-serialize-io-csv -- CSV Serialization Driver
 --  Copyright (C) 2011, 2015, 2016, 2017 Stephane Carrez

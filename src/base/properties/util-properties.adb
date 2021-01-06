@@ -515,7 +515,6 @@ package body Util.Properties is
       Current : Manager;
       Pos     : Natural;
       Len     : Natural;
-      Old_Shared : Boolean;
    begin
       Check_And_Create_Impl (Self);
       Current := Manager (Self);
