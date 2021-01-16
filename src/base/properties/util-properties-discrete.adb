@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties-discrete -- Generic package for get/set of discrete properties
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2018 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2018, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,8 +34,13 @@ package body Util.Properties.Discrete is
    function Get (Self    : in Manager'Class;
                  Name    : in String;
                  Default : in Property_Type) return Property_Type is
+      Value : constant Util.Beans.Objects.Object := Self.Get_Value (Name);
    begin
-      return Get (Self, Name);
+      if Util.Beans.Objects.Is_Null (Value) then
+         return Default;
+      end if;
+
+      return Property_Type'Value (Util.Beans.Objects.To_String (Value));
    exception
       when others =>
          return Default;
