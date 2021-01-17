@@ -26,6 +26,7 @@ package Util.Log.Tests is
 
    procedure Test_Log_Perf (T : in out Test);
    procedure Test_Log (T : in out Test);
+   procedure Test_Debug (T : in out Test);
    procedure Test_File_Appender (T : in out Test);
    procedure Test_List_Appender (T : in out Test);
    procedure Test_Console_Appender (T : in out Test);
