@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-json-tests -- Unit tests for JSON parser
---  Copyright (C) 2011, 2016, 2017, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2017, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -88,7 +88,7 @@ package body Util.Serialize.IO.JSON.Tests is
    --  Check various (basic) JSON valid strings (no mapper).
    --  ------------------------------
    procedure Test_Parser (T : in out Test) is
-      pragma Unreferenced (T);
+
       procedure Check_Parse (Content : in String);
 
       procedure Check_Parse (Content : in String) is
