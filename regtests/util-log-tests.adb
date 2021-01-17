@@ -33,8 +33,6 @@ package body Util.Log.Tests is
    Log : constant Loggers.Logger := Loggers.Create ("util.log.test");
 
    procedure Test_Log (T : in out Test) is
-      pragma Unreferenced (T);
-
       L : Loggers.Logger := Loggers.Create ("util.log.test.debug");
    begin
       L.Set_Level (DEBUG_LEVEL);
@@ -44,6 +42,8 @@ package body Util.Log.Tests is
 
       L.Info ("An info message");
       L.Debug ("A debug message on logger 'L'");
+      Util.Tests.Assert_Equals (T, "DEBUG", L.Get_Level_Name,
+                               "Get_Level_Name function is invalid");
    end Test_Log;
 
    --  Test configuration and creation of file
