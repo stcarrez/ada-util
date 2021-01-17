@@ -265,6 +265,37 @@ package body Util.Log.Tests is
       L.Debug ("A debug message on logger 'L'");
    end Test_Missing_Config;
 
+   procedure Test_Log_Traceback (T : in out Test) is
+      Props   : Util.Properties.Manager;
+      Content : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      Props.Set ("log4j.appender.test", "File");
+      Props.Set ("log4j.appender.test.File", "test-traceback.log");
+      Props.Set ("log4j.appender.test.append", "false");
+      Props.Set ("log4j.appender.test.immediateFlush", "true");
+      Props.Set ("log4j.rootCategory", "DEBUG,test");
+      Util.Log.Loggers.Initialize (Props);
+
+      declare
+         L : constant Loggers.Logger := Loggers.Create ("util.log.test.file");
+      begin
+         L.Error ("This is the error test message");
+         raise Constraint_Error with "Test";
+
+      exception
+         when E : others =>
+            L.Error ("Something wrong", E, True);
+      end;
+
+      Props.Set ("log4j.rootCategory", "DEBUG,console");
+      Props.Set ("log4j.appender.console", "Console");
+      Util.Log.Loggers.Initialize (Props);
+
+      Util.Files.Read_File ("test-traceback.log", Content);
+      Util.Tests.Assert_Matches (T, ".*Something wrong: Exception CONSTRAINT_ERROR:", Content,
+                                 "Invalid console log (ERROR)");
+   end Test_Log_Traceback;
+
    package Caller is new Util.Test_Caller (Test, "Log");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -275,6 +306,8 @@ package body Util.Log.Tests is
                        Test_Log'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Loggers.Set_Level",
                        Test_Log'Access);
+      Caller.Add_Test (Suite, "Test Util.Log.Loggers.Error",
+                       Test_Log_Traceback'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Loggers.Initialize",
                        Test_Missing_Config'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Appenders.File_Appender",
