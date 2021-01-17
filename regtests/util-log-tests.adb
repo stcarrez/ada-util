@@ -41,10 +41,27 @@ package body Util.Log.Tests is
       Log.Debug ("A debug message Not printed");
 
       L.Info ("An info message");
+      L.Info ("A {0} {1} {2} {3}", "info", "message", "not", "printed");
       L.Debug ("A debug message on logger 'L'");
       Util.Tests.Assert_Equals (T, "DEBUG", L.Get_Level_Name,
                                "Get_Level_Name function is invalid");
    end Test_Log;
+
+   procedure Test_Debug (T : in out Test) is
+      L : Loggers.Logger := Loggers.Create ("util.log.test.debug");
+      C : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      L.Set_Level (DEBUG_LEVEL);
+      L.Info ("My log message");
+      L.Error ("My error message");
+      L.Debug ("A {0} {1} {2} {3}", "debug", "message", "not", "printed");
+      L.Debug ("A {0} {1} {2} {3}", C, "message", "printed");
+
+      L.Info ("An info message");
+      L.Debug ("A debug message on logger 'L'");
+      Util.Tests.Assert_Equals (T, "DEBUG", L.Get_Level_Name,
+                               "Get_Level_Name function is invalid");
+   end Test_Debug;
 
    --  Test configuration and creation of file
    procedure Test_File_Appender (T : in out Test) is
@@ -257,7 +274,7 @@ package body Util.Log.Tests is
    end Test_Console_Appender;
 
    procedure Test_Missing_Config (T : in out Test) is
-      L : Loggers.Logger := Loggers.Create ("util.log.test.debug");
+      L : constant Loggers.Logger := Loggers.Create ("util.log.test.debug");
    begin
       Util.Log.Loggers.Initialize ("plop");
 
@@ -303,7 +320,7 @@ package body Util.Log.Tests is
       Caller.Add_Test (Suite, "Test Util.Log.Loggers.Info",
                        Test_Log'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Loggers.Debug",
-                       Test_Log'Access);
+                       Test_Debug'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Loggers.Set_Level",
                        Test_Log'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Loggers.Error",
