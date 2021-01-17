@@ -30,6 +30,7 @@ package Util.Log.Tests is
    procedure Test_List_Appender (T : in out Test);
    procedure Test_Console_Appender (T : in out Test);
    procedure Test_Missing_Config (T : in out Test);
+   procedure Test_Log_Traceback (T : in out Test);
 
    --  Test file appender with different modes.
    procedure Test_File_Appender_Modes (T : in out Test);
