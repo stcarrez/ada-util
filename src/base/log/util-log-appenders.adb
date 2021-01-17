@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-appenders -- Log appenders
---  Copyright (C) 2001 - 2019 Stephane Carrez
+--  Copyright (C) 2001 - 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,13 +18,26 @@
 with Ada.Calendar.Formatting;
 with Ada.Strings;
 with Ada.Strings.Fixed;
+with Ada.Unchecked_Deallocation;
 
 with Util.Strings.Transforms;
-with Util.Log.Loggers;
-with Util.Properties.Basic;
+with Util.Log.Appenders.Factories;
+with Util.Log.Appenders.Files;
+with Util.Log.Appenders.Consoles;
 package body Util.Log.Appenders is
 
    use Ada;
+   use Ada.Finalization;
+
+   package Console_Factory is
+      new Util.Log.Appenders.Factories (Name   => "Console",
+                                        Create => Consoles.Create'Access);
+
+   package File_Factory is
+      new Util.Log.Appenders.Factories (Name   => "File",
+                                        Create => Files.Create'Access);
+
+   Appender_Factories : Appender_Factory_Access;
 
    --  ------------------------------
    --  Get the log level that triggers display of the log events
@@ -41,13 +54,19 @@ package body Util.Log.Appenders is
                         Name       : in String;
                         Properties : in Util.Properties.Manager;
                         Level      : in Level_Type) is
-      Prop_Name : constant String := Name & ".level";
+      Prop_Name : constant String := "appender." & Name & ".level";
    begin
       if Properties.Exists (Prop_Name) then
          Self.Level := Get_Level (Properties.Get (Prop_Name), Level);
       else
          Self.Level := Level;
       end if;
+   end Set_Level;
+
+   procedure Set_Level (Self       : in out Appender;
+                        Level      : in Level_Type) is
+   begin
+      Self.Level := Level;
    end Set_Level;
 
    --  ------------------------------
@@ -59,7 +78,7 @@ package body Util.Log.Appenders is
                          Layout     : in Layout_Type) is
       use Ada.Strings;
       use Util.Strings.Transforms;
-      Prop_Name : constant String := Name & ".layout";
+      Prop_Name : constant String := "appender." & Name & ".layout";
    begin
       if Properties.Exists (Prop_Name) then
          declare
@@ -81,157 +100,49 @@ package body Util.Log.Appenders is
       end if;
    end Set_Layout;
 
+   procedure Set_Layout (Self       : in out Appender;
+                         Layout     : in Layout_Type) is
+   begin
+      Self.Layout := Layout;
+   end Set_Layout;
+
    --  ------------------------------
    --  Format the event into a string
    --  ------------------------------
-   function Format (Self  : in Appender;
-                    Event : in Log_Event) return String is
+   function Format (Self : in Appender'Class;
+                    Date : in Ada.Calendar.Time;
+                    Level : in Level_Type;
+                    Logger : in String) return String is
    begin
       case Self.Layout is
          when MESSAGE =>
-            return To_String (Event.Message);
+            return "";
 
          when LEVEL_MESSAGE =>
-            return Get_Level_Name (Event.Level) & ": " & To_String (Event.Message);
+            return Get_Level_Name (Level) & ": ";
 
          when DATE_LEVEL_MESSAGE =>
-            return "[" & Calendar.Formatting.Image (Event.Time) & "] "
-              & Get_Level_Name (Event.Level) & ": "
-              & To_String (Event.Message);
+            return "[" & Calendar.Formatting.Image (Date) & "] "
+              & Get_Level_Name (Level) & ": ";
 
          when FULL =>
-            return "[" & Calendar.Formatting.Image (Event.Time) & "] "
-              & Get_Level_Name (Event.Level) & " - "
-              & Loggers.Get_Logger_Name (Event.Logger.all) & " - "
-              & To_String (Event.Message);
+            return "[" & Calendar.Formatting.Image (Date)
+              & "] " & Get_Level_Name (Level) & " - " & Logger & " - : ";
 
       end case;
    end Format;
 
-   procedure Append (Self  : in out File_Appender;
-                     Event : in Log_Event) is
-   begin
-      if Self.Level >= Event.Level then
-         Text_IO.Put_Line (Self.Output, Format (Self, Event));
-         if Self.Immediate_Flush then
-            Self.Flush;
-         end if;
-      end if;
-   end Append;
-
-   --  ------------------------------
-   --  Flush the log events.
-   --  ------------------------------
    overriding
-   procedure Flush (Self   : in out File_Appender) is
-   begin
-      Text_IO.Flush (Self.Output);
-   end Flush;
-
-   --  ------------------------------
-   --  Flush and close the file.
-   --  ------------------------------
-   overriding
-   procedure Finalize (Self : in out File_Appender) is
-   begin
-      Self.Flush;
-      Text_IO.Close (File => Self.Output);
-   end Finalize;
-
-   --  ------------------------------
-   --  Create a file appender and configure it according to the properties
-   --  ------------------------------
-   function Create_File_Appender (Name       : in String;
-                                  Properties : in Util.Properties.Manager;
-                                  Default    : in Level_Type)
-                                  return Appender_Access is
-      use Util.Properties.Basic;
-
-      Path   : constant String := Properties.Get (Name & ".File");
-      Append : constant Boolean := Boolean_Property.Get (Properties, Name & ".append", True);
-      Result : constant File_Appender_Access := new File_Appender;
-   begin
-      Result.Set_Level (Name, Properties, Default);
-      Result.Set_Layout (Name, Properties, FULL);
-      Result.Set_File (Path, Append);
-      Result.Immediate_Flush := Boolean_Property.Get (Properties, Name & ".immediateFlush", True);
-      return Result.all'Access;
-   end Create_File_Appender;
-
-   --  ------------------------------
-   --  Set the file where the appender will write the logs.
-   --  When <tt>Append</tt> is true, the log message are appended to the existing file.
-   --  When set to false, the file is cleared before writing new messages.
-   --  ------------------------------
-   procedure Set_File (Self : in out File_Appender;
-                       Path : in String;
-                       Append : in Boolean := True) is
-      Mode   : Text_IO.File_Mode;
-   begin
-      if Append then
-         Mode := Text_IO.Append_File;
-      else
-         Mode := Text_IO.Out_File;
-      end if;
-      Text_IO.Open (File => Self.Output,
-                    Name => Path,
-                    Mode => Mode);
-   exception
-      when Text_IO.Name_Error =>
-         Text_IO.Create (File => Self.Output, Name => Path);
-   end Set_File;
-
-   procedure Append (Self  : in out Console_Appender;
-                     Event : in Log_Event) is
-   begin
-      if Self.Level >= Event.Level then
-         if Self.Stderr then
-            Text_IO.Put_Line (Text_IO.Standard_Error, Format (Self, Event));
-         else
-            --  Don't use Text_IO.Standard_Output so that we honor the Set_Output definition.
-            Text_IO.Put_Line (Format (Self, Event));
-         end if;
-      end if;
-   end Append;
-
-   --  ------------------------------
-   --  Flush the log events.
-   --  ------------------------------
-   overriding
-   procedure Flush (Self : in out Console_Appender) is
-   begin
-      if Self.Stderr then
-         Text_IO.Flush (Text_IO.Standard_Error);
-      else
-         Text_IO.Flush;
-      end if;
-   end Flush;
-
-   overriding
-   procedure Append (Self  : in out List_Appender;
-                     Event : in Log_Event) is
+   procedure Append (Self    : in out List_Appender;
+                     Message : in Util.Strings.Builders.Builder;
+                     Date    : in Ada.Calendar.Time;
+                     Level   : in Level_Type;
+                     Logger  : in String) is
    begin
       for I in 1 .. Self.Count loop
-         Self.Appenders (I).Append (Event);
+         Self.Appenders (I).Append (Message, Date, Level, Logger);
       end loop;
    end Append;
-
-   --  ------------------------------
-   --  Create a console appender and configure it according to the properties
-   --  ------------------------------
-   function Create_Console_Appender (Name       : in String;
-                                     Properties : in Util.Properties.Manager;
-                                     Default    : in Level_Type)
-                                     return Appender_Access is
-      use Util.Properties.Basic;
-
-      Result : constant Console_Appender_Access := new Console_Appender;
-   begin
-      Result.Set_Level (Name, Properties, Default);
-      Result.Set_Layout (Name, Properties, FULL);
-      Result.Stderr := Boolean_Property.Get (Properties, Name & ".stderr", False);
-      return Result.all'Access;
-   end Create_Console_Appender;
 
    --  ------------------------------
    --  Flush the log events.
@@ -259,10 +170,97 @@ package body Util.Log.Appenders is
    --  ------------------------------
    --  Create a list appender and configure it according to the properties
    --  ------------------------------
-   function Create_List_Appender return List_Appender_Access is
-      Result : constant List_Appender_Access := new List_Appender;
+   function Create_List_Appender (Name : in String) return List_Appender_Access is
+      Result : constant List_Appender_Access
+        := new List_Appender '(Limited_Controlled with Length => Name'Length,
+                               Name => Name,
+                               others => <>);
    begin
       return Result;
    end Create_List_Appender;
 
+   --  ------------------------------
+   --  Find an appender with a given name from the list of appenders.
+   --  Returns null if there is no such appender.
+   --  ------------------------------
+   function Find_Appender (List : in Appender_List;
+                           Name : in String) return Appender_Access is
+      Appender : Appender_Access := List.First;
+   begin
+      while Appender /= null loop
+         if Appender.Name = Name then
+            return Appender;
+         end if;
+         Appender := Appender.Next;
+      end loop;
+      return null;
+   end Find_Appender;
+
+   --  ------------------------------
+   --  Add the appender to the list of appenders.
+   --  ------------------------------
+   procedure Add_Appender (List     : in out Appender_List;
+                           Appender : in Appender_Access) is
+   begin
+      Appender.Next := List.First;
+      List.First := Appender;
+   end Add_Appender;
+
+   --  ------------------------------
+   --  Clear the list of appenders.
+   --  ------------------------------
+   procedure Clear (List : in out Appender_List) is
+      procedure Free is new Ada.Unchecked_Deallocation (Object => Appender'Class,
+                                                        Name   => Appender_Access);
+
+      Appender : Appender_Access;
+   begin
+      loop
+         Appender := List.First;
+         exit when Appender = null;
+         List.First := Appender.Next;
+         Free (Appender);
+      end loop;
+   end Clear;
+
+   --  ------------------------------
+   --  Register the factory handler to create an appender instance.
+   --  ------------------------------
+   procedure Register (Into   : in Appender_Factory_Access;
+                       Name   : in String;
+                       Create : in Factory_Access) is
+   begin
+      Into.Name := Name;
+      Into.Factory := Create;
+      Into.Next_Factory := Appender_Factories;
+      Appender_Factories := Into;
+   end Register;
+
+   --  ------------------------------
+   --  Create an appender instance with a factory with the given name.
+   --  ------------------------------
+   function Create (Name     : in String;
+                    Config   : in Util.Properties.Manager;
+                    Default  : in Level_Type) return Appender_Access is
+      Prop_Name     : constant String := "appender." & Name;
+      Appender_Type : constant String := Config.Get (Prop_Name, "console");
+      Factory       : Appender_Factory_Access := Appender_Factories;
+   begin
+      while Factory /= null loop
+         if Factory.Name = Appender_Type then
+            return Factory.Factory (Name, Config, Default);
+         end if;
+         Factory := Factory.Next_Factory;
+      end loop;
+
+      Factory := Appender_Factories;
+      if Factory /= null then
+         return Factory.Factory (Name, Config, Default);
+      end if;
+      return null;
+   end Create;
+
+begin
+   Console_Factory.Register;
+   File_Factory.Register;
 end Util.Log.Appenders;

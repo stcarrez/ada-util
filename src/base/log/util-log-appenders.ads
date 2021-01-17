@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-appenders -- Log appenders
---  Copyright (C) 2001 - 2019 Stephane Carrez
+--  Copyright (C) 2001 - 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,37 +15,14 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Ada.Text_IO;
-with Ada.Strings.Unbounded;
 with Ada.Calendar;
 with Ada.Finalization;
 with Util.Properties;
-limited with Util.Log.Loggers;
+with Util.Strings.Builders;
 
 --  The log <b>Appender</b> will handle the low level operations to write
 --  the log content to a file, the console, a database.
 package Util.Log.Appenders is
-
-   use Ada.Strings.Unbounded;
-
-   --  ------------------------------
-   --  Log event
-   --  ------------------------------
-   --  The <b>Log_Event</b> represent a log message reported by one of the
-   --  <b>log</b> operation (Debug, Info, Warn, Error).
-   type Log_Event is record
-      --  The log message (formatted)
-      Message : Unbounded_String;
-
-      --  The timestamp when the message was produced.
-      Time    : Ada.Calendar.Time;
-
-      --  The log level
-      Level   : Level_Type;
-
-      --  The logger
-      Logger  : access Util.Log.Loggers.Logger_Info;
-   end record;
 
    --  The layout type to indicate how to format the message.
    --  Unlike Logj4, there is no customizable layout.
@@ -67,12 +44,19 @@ package Util.Log.Appenders is
          --  Ex: "2011-03-04 12:13:34 ERROR - my.application - Cannot open file"
          FULL);
 
+   type Appender;
+   type Appender_Access is access all Appender'Class;
+
    --  ------------------------------
    --  Log appender
    --  ------------------------------
-   type Appender is abstract new Ada.Finalization.Limited_Controlled with private;
-
-   type Appender_Access is access all Appender'Class;
+   type Appender (Length : Positive) is abstract
+     new Ada.Finalization.Limited_Controlled with record
+      Next     : Appender_Access;
+      Level    : Level_Type := INFO_LEVEL;
+      Layout   : Layout_Type := FULL;
+      Name     : String (1 .. Length);
+   end record;
 
    --  Get the log level that triggers display of the log events
    function Get_Level (Self : in Appender) return Level_Type;
@@ -82,84 +66,40 @@ package Util.Log.Appenders is
                         Name       : in String;
                         Properties : in Util.Properties.Manager;
                         Level      : in Level_Type);
+   procedure Set_Level (Self       : in out Appender;
+                        Level      : in Level_Type);
 
    --  Set the log layout format.
    procedure Set_Layout (Self       : in out Appender;
                          Name       : in String;
                          Properties : in Util.Properties.Manager;
                          Layout     : in Layout_Type);
+   procedure Set_Layout (Self       : in out Appender;
+                         Layout     : in Layout_Type);
 
    --  Format the event into a string
-   function Format (Self  : in Appender;
-                    Event : in Log_Event) return String;
+   function Format (Self    : in Appender'Class;
+                    Date    : in Ada.Calendar.Time;
+                    Level   : in Level_Type;
+                    Logger  : in String) return String;
 
    --  Append a log event to the appender.  Depending on the log level
    --  defined on the appender, the event can be taken into account or
    --  ignored.
-   procedure Append (Self  : in out Appender;
-                     Event : in Log_Event) is abstract;
+   procedure Append (Self    : in out Appender;
+                     Message : in Util.Strings.Builders.Builder;
+                     Date    : in Ada.Calendar.Time;
+                     Level   : in Level_Type;
+                     Logger  : in String) is abstract;
 
    --  Flush the log events.
    procedure Flush (Self   : in out Appender) is abstract;
 
    --  ------------------------------
-   --  File appender
-   --  ------------------------------
-   --  Write log events to a file
-   type File_Appender is new Appender with private;
-   type File_Appender_Access is access all File_Appender'Class;
-
-   overriding
-   procedure Append (Self  : in out File_Appender;
-                     Event : in Log_Event);
-
-   --  Set the file where the appender will write the logs.
-   --  When <tt>Append</tt> is true, the log message are appended to the existing file.
-   --  When set to false, the file is cleared before writing new messages.
-   procedure Set_File (Self   : in out File_Appender;
-                       Path   : in String;
-                       Append : in Boolean := True);
-
-   --  Flush the log events.
-   overriding
-   procedure Flush (Self   : in out File_Appender);
-
-   --  Flush and close the file.
-   overriding
-   procedure Finalize (Self : in out File_Appender);
-
-   --  Create a file appender and configure it according to the properties
-   function Create_File_Appender (Name       : in String;
-                                  Properties : in Util.Properties.Manager;
-                                  Default    : in Level_Type)
-     return Appender_Access;
-
-   --  ------------------------------
-   --  Console appender
-   --  ------------------------------
-   --  Write log events to the console
-   type Console_Appender is new Appender with private;
-   type Console_Appender_Access is access all Console_Appender'Class;
-
-   overriding
-   procedure Append (Self  : in out Console_Appender;
-                     Event : in Log_Event);
-
-   --  Flush the log events.
-   overriding
-   procedure Flush (Self   : in out Console_Appender);
-
-   --  Create a console appender and configure it according to the properties
-   function Create_Console_Appender (Name       : in String;
-                                     Properties : in Util.Properties.Manager;
-                                     Default    : in Level_Type)
-                                     return Appender_Access;
-
-   --  ------------------------------
    --  List appender
    --  ------------------------------
    --  Write log events to a list of appenders
-   type List_Appender is new Appender with private;
+   type List_Appender (Length : Positive) is new Appender with private;
    type List_Appender_Access is access all List_Appender'Class;
 
    --  Max number of appenders that can be added to the list.
@@ -167,8 +107,11 @@ package Util.Log.Appenders is
    MAX_APPENDERS : constant Natural := 10;
 
    overriding
-   procedure Append (Self  : in out List_Appender;
-                     Event : in Log_Event);
+   procedure Append (Self    : in out List_Appender;
+                     Message : in Util.Strings.Builders.Builder;
+                     Date    : in Ada.Calendar.Time;
+                     Level   : in Level_Type;
+                     Logger  : in String);
 
    --  Flush the log events.
    overriding
@@ -179,29 +122,57 @@ package Util.Log.Appenders is
                            Object : in Appender_Access);
 
    --  Create a list appender and configure it according to the properties
-   function Create_List_Appender return List_Appender_Access;
+   function Create_List_Appender (Name : in String) return List_Appender_Access;
+
+   type Appender_List is limited private;
+
+   --  Find an appender with a given name from the list of appenders.
+   --  Returns null if there is no such appender.
+   function Find_Appender (List : in Appender_List;
+                           Name : in String) return Appender_Access;
+
+   --  Add the appender to the list of appenders.
+   procedure Add_Appender (List     : in out Appender_List;
+                           Appender : in Appender_Access);
+
+   --  Clear the list of appenders.
+   procedure Clear (List : in out Appender_List);
+
+   type Factory_Access is
+     access function (Name       : in String;
+                      Properties : in Util.Properties.Manager;
+                      Default    : in Level_Type) return Appender_Access;
+
+   type Appender_Factory;
+   type Appender_Factory_Access is access all Appender_Factory;
+
+   type Appender_Factory (Length : Positive) is limited record
+      Next_Factory : Appender_Factory_Access;
+      Factory      : Factory_Access;
+      Name         : String (1 .. Length);
+   end record;
+
+   --  Register the factory handler to create an appender instance.
+   procedure Register (Into   : in Appender_Factory_Access;
+                       Name   : in String;
+                       Create : in Factory_Access);
+
+   --  Create an appender instance with a factory with the given name.
+   function Create (Name    : in String;
+                    Config  : in Util.Properties.Manager;
+                    Default : in Level_Type) return Appender_Access;
 
 private
 
-   type Appender is abstract new Ada.Finalization.Limited_Controlled with record
-      Level    : Level_Type := INFO_LEVEL;
-      Layout   : Layout_Type := FULL;
-   end record;
-
-   type File_Appender is new Appender with record
-      Output          : Ada.Text_IO.File_Type;
-      Immediate_Flush : Boolean := False;
+   type Appender_List is limited record
+      First : Appender_Access;
    end record;
 
    type Appender_Array_Access is array (1 .. MAX_APPENDERS) of Appender_Access;
 
-   type List_Appender is new Appender with record
+   type List_Appender (Length : Positive) is new Appender (Length) with record
       Appenders : Appender_Array_Access;
       Count     : Natural := 0;
-   end record;
-
-   type Console_Appender is new Appender with record
-      Stderr : Boolean := False;
    end record;
 
 end Util.Log.Appenders;
