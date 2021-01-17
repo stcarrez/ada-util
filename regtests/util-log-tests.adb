@@ -217,8 +217,6 @@ package body Util.Log.Tests is
    --  Test file appender with different modes.
    --  ------------------------------
    procedure Test_Console_Appender (T : in out Test) is
-      use Ada.Directories;
-
       Props   : Util.Properties.Manager;
       File    : Ada.Text_IO.File_Type;
       Content : Ada.Strings.Unbounded.Unbounded_String;
@@ -258,6 +256,15 @@ package body Util.Log.Tests is
 
    end Test_Console_Appender;
 
+   procedure Test_Missing_Config (T : in out Test) is
+      L : Loggers.Logger := Loggers.Create ("util.log.test.debug");
+   begin
+      Util.Log.Loggers.Initialize ("plop");
+
+      L.Info ("An info message");
+      L.Debug ("A debug message on logger 'L'");
+   end Test_Missing_Config;
+
    package Caller is new Util.Test_Caller (Test, "Log");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -268,6 +275,8 @@ package body Util.Log.Tests is
                        Test_Log'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Loggers.Set_Level",
                        Test_Log'Access);
+      Caller.Add_Test (Suite, "Test Util.Log.Loggers.Initialize",
+                       Test_Missing_Config'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Appenders.File_Appender",
                        Test_File_Appender'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Appenders.File_Appender (append)",
