@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  log.tests -- Unit tests for loggers
---  Copyright (C) 2009, 2010, 2011, 2013, 2015, 2018 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013, 2015, 2018, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +18,14 @@
 
 with Ada.Strings.Fixed;
 with Ada.Directories;
+with Ada.Text_IO;
+with Ada.Strings.Unbounded;
 
 with Util.Test_Caller;
 
 with Util.Log;
 with Util.Log.Loggers;
+with Util.Files;
 with Util.Properties;
 with Util.Measures;
 package body Util.Log.Tests is
@@ -210,6 +213,51 @@ package body Util.Log.Tests is
                 "Log file test-append.log is empty");
    end Test_File_Appender_Modes;
 
+   --  ------------------------------
+   --  Test file appender with different modes.
+   --  ------------------------------
+   procedure Test_Console_Appender (T : in out Test) is
+      use Ada.Directories;
+
+      Props   : Util.Properties.Manager;
+      File    : Ada.Text_IO.File_Type;
+      Content : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, "test_err.log");
+      Ada.Text_IO.Set_Error (File);
+
+      Props.Set ("log4j.appender.test_console", "Console");
+      Props.Set ("log4j.appender.test_console.stderr", "true");
+      Props.Set ("log4j.appender.test_console.level", "WARN");
+      Props.Set ("log4j.rootCategory", "INFO,test_console");
+      Util.Log.Loggers.Initialize (Props);
+
+      declare
+         L : constant Loggers.Logger := Loggers.Create ("util.log.test.file");
+      begin
+         L.Debug ("Writing a debug message");
+         L.Debug ("{0}: {1}", "Parameter", "Value");
+         L.Debug ("Done");
+         L.Info ("INFO MESSAGE!");
+         L.Warn ("WARN MESSAGE!");
+         L.Error ("This {0} {1} {2} test message", "is", "the", "error");
+      end;
+      Ada.Text_IO.Flush (Ada.Text_IO.Current_Error);
+      Ada.Text_IO.Set_Error (Ada.Text_IO.Standard_Error);
+      Ada.Text_IO.Close (File);
+
+      Util.Files.Read_File ("test_err.log", Content);
+      Util.Tests.Assert_Matches (T, ".*WARN MESSAGE!", Content,
+                                 "Invalid console log (WARN)");
+      Util.Tests.Assert_Matches (T, ".*This is the error test message", Content,
+                                 "Invalid console log (ERROR)");
+   exception
+      when others =>
+         Ada.Text_IO.Set_Error (Ada.Text_IO.Standard_Error);
+         raise;
+
+   end Test_Console_Appender;
+
    package Caller is new Util.Test_Caller (Test, "Log");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -226,6 +274,8 @@ package body Util.Log.Tests is
                        Test_File_Appender_Modes'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Appenders.List_Appender",
                        Test_List_Appender'Access);
+      Caller.Add_Test (Suite, "Test Util.Log.Appenders.Console",
+                       Test_Console_Appender'Access);
 
       Caller.Add_Test (Suite, "Test Util.Log.Loggers.Log (Perf)",
                        Test_Log_Perf'Access);
