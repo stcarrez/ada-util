@@ -33,10 +33,10 @@ Ada Util also provides a small test utility library on top of
 Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
 framework as it provides better reports.
 
-## Version 2.3.0  - Nov 2020
-  - New stream operations to read/write UTF-8 sequences in Wide_Wide character
-  - Fix AES encryption in CFB, OFB and CTR modes.
-  - Add HTTP support for HEAD, OPTIONS, PATCH requests
+## Version 2.4.0  - 
+  - Add support to customize and provide application specific log appenders
+  - Fix compilation with GNAT 10
+  - New package Util.Properties.Form to help in parsing application/x-www-form-urlencoded
 
 [List all versions](https://github.com/stcarrez/ada-util/blob/master/NEWS.md)
 
