@@ -235,64 +235,68 @@ package body Util.Properties.Tests is
       Props  : Properties.Manager;
       V      : Unbounded_String;
    begin
-      T.Assert (Util.Beans.Objects.Is_Null (Props.Get_Value ("missing")),
-                "The Get_Value operation must return a null object");
-      begin
-         V := Props.Get ("missing");
-         T.Fail ("Exception NO_PROPERTY was not raised");
-
-      exception
-         when NO_PROPERTY =>
-            null;
-      end;
-
-      begin
-         V := Props.Get (+("missing"));
-         T.Fail ("Exception NO_PROPERTY was not raised");
-
-      exception
-         when NO_PROPERTY =>
-            null;
-      end;
-      T.Assert (Ada.Strings.Unbounded.Length (V) = 0, "Variable get's corrupted");
-
-      --  Check exception on Get returning a String.
-      begin
-         declare
-            S : constant String := Props.Get ("missing");
-            pragma Unreferenced (S);
+      for Pass in 1 .. 2 loop
+         T.Assert (Util.Beans.Objects.Is_Null (Props.Get_Value ("missing")),
+                   "The Get_Value operation must return a null object");
          begin
+            V := Props.Get ("missing");
             T.Fail ("Exception NO_PROPERTY was not raised");
-         end;
-      exception
-         when NO_PROPERTY =>
-            null;
-      end;
 
-      --  Check exception on Get returning a String.
-      begin
-         declare
-            S : constant String := Props.Get (+("missing"));
-            pragma Unreferenced (S);
+         exception
+            when NO_PROPERTY =>
+               null;
+         end;
+
          begin
+            V := Props.Get (+("missing"));
             T.Fail ("Exception NO_PROPERTY was not raised");
+
+         exception
+            when NO_PROPERTY =>
+               null;
          end;
-      exception
-         when NO_PROPERTY =>
-            null;
-      end;
+         T.Assert (Ada.Strings.Unbounded.Length (V) = 0, "Variable get's corrupted");
 
-      Props.Set ("a", "b");
-      T.Assert (Util.Beans.Objects.Is_Null (Props.Get_Value ("missing")),
-                "The Get_Value operation must return a null object");
-      begin
-         V := Props.Get ("missing");
-         T.Fail ("Exception NO_PROPERTY was not raised");
+         --  Check exception on Get returning a String.
+         begin
+            declare
+               S : constant String := Props.Get ("missing");
+               pragma Unreferenced (S);
+            begin
+               T.Fail ("Exception NO_PROPERTY was not raised");
+            end;
+         exception
+            when NO_PROPERTY =>
+               null;
+         end;
 
-      exception
-         when NO_PROPERTY =>
-            null;
-      end;
+         --  Check exception on Get returning a String.
+         begin
+            declare
+               S : constant String := Props.Get (+("missing"));
+               pragma Unreferenced (S);
+            begin
+               T.Fail ("Exception NO_PROPERTY was not raised");
+            end;
+         exception
+            when NO_PROPERTY =>
+               null;
+         end;
+
+         Props.Set ("a", "b");
+         T.Assert (Util.Beans.Objects.Is_Null (Props.Get_Value ("missing")),
+                   "The Get_Value operation must return a null object");
+         begin
+            V := Props.Get ("missing");
+            T.Fail ("Exception NO_PROPERTY was not raised");
+
+         exception
+            when NO_PROPERTY =>
+               null;
+         end;
+
+         Props.Set ("c", "d");
+      end loop;
    end Test_Missing_Property;
 
    procedure Test_Load_Ini_Property (T : in out Test) is
