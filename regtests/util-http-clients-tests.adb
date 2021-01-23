@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-tests -- Unit tests for HTTP client
---  Copyright (C) 2012, 2020 Stephane Carrez
+--  Copyright (C) 2012, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -179,6 +179,8 @@ package body Util.Http.Clients.Tests is
    begin
       Request.Get ("http://www.google.com", Reply);
       Request.Set_Timeout (5.0);
+      Request.Set_Header ("Accept", "text/html");
+      Util.Http.Add_Int_Header (Request, "DNT", 0);
       T.Assert (Reply.Get_Status = 200 or Reply.Get_Status = 302,
                 "Get status is invalid: " & Natural'Image (Reply.Get_Status));
 
@@ -213,6 +215,7 @@ package body Util.Http.Clients.Tests is
    begin
       Request.Head ("http://www.google.com", Reply);
       Request.Set_Timeout (5.0);
+      Request.Add_Header ("Accept", "text/html");
       T.Assert (Reply.Get_Status = 200 or Reply.Get_Status = 302,
                 "Get status is invalid: " & Natural'Image (Reply.Get_Status));
 
