@@ -377,6 +377,18 @@ package body Util.Properties.Tests is
          T.Assert (P.Exists ("socket"),
                    "The [mysqld] property manager should contain a 'socket' property");
       end;
+
+      declare
+         V : Util.Properties.Value;
+         P : Properties.Manager;
+      begin
+         P := Util.Properties.To_Manager (V);
+         T.Fail ("No exception raised by To_Manager");
+
+      exception
+         when Util.Beans.Objects.Conversion_Error =>
+            null;
+      end;
    end Test_Save_Properties;
 
    procedure Test_Remove_Property (T : in out Test) is
