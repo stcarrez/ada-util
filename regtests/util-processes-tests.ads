@@ -47,8 +47,11 @@ package Util.Processes.Tests is
    --  Test input file redirection.
    procedure Test_Input_Redirect (T : in out Test);
 
-   --  Test chaning working directory.
+   --  Test changing working directory.
    procedure Test_Set_Working_Directory (T : in out Test);
+
+   --  Test various errors.
+   procedure Test_Errors (T : in out Test);
 
    --  Test the Tools.Execute operation.
    procedure Test_Tools_Execute (T : in out Test);
