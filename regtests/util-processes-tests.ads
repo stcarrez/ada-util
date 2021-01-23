@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-tests - Test for processes
---  Copyright (C) 2011, 2016, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2018, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,6 +46,9 @@ package Util.Processes.Tests is
 
    --  Test input file redirection.
    procedure Test_Input_Redirect (T : in out Test);
+
+   --  Test chaning working directory.
+   procedure Test_Set_Working_Directory (T : in out Test);
 
    --  Test the Tools.Execute operation.
    procedure Test_Tools_Execute (T : in out Test);
