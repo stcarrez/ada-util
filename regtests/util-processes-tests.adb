@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-tests - Test for processes
---  Copyright (C) 2011, 2012, 2016, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -251,7 +251,7 @@ package body Util.Processes.Tests is
    --  ------------------------------
    procedure Test_Output_Redirect (T : in out Test) is
       P       : Process;
-      Path    : constant String := Util.Tests.Get_Test_Path ("regtests/result/proc-output.txt");
+      Path    : constant String := Util.Tests.Get_Test_Path ("proc-output.txt");
       Content : Ada.Strings.Unbounded.Unbounded_String;
    begin
       Util.Processes.Set_Output_Stream (P, Path);
@@ -283,9 +283,9 @@ package body Util.Processes.Tests is
    --  ------------------------------
    procedure Test_Input_Redirect (T : in out Test) is
       P        : Process;
-      In_Path  : constant String := Util.Tests.Get_Test_Path ("regtests/files/proc-input.txt");
-      Out_Path : constant String := Util.Tests.Get_Test_Path ("regtests/result/proc-inres.txt");
-      Exp_Path : constant String := Util.Tests.Get_Test_Path ("regtests/expect/proc-inres.txt");
+      In_Path  : constant String := Util.Tests.Get_Path ("regtests/files/proc-input.txt");
+      Out_Path : constant String := Util.Tests.Get_Test_Path ("proc-inres.txt");
+      Exp_Path : constant String := Util.Tests.Get_Path ("regtests/expect/proc-inres.txt");
    begin
       Util.Processes.Set_Input_Stream (P, In_Path);
       Util.Processes.Set_Output_Stream (P, Out_Path);

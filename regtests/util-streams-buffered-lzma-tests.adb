@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered-lzma-tests -- Unit tests for encoding buffered streams
---  Copyright (C) 2018, 2019 Stephane Carrez
+--  Copyright (C) 2018, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,7 @@ package body Util.Streams.Buffered.Lzma.Tests is
       Stream  : aliased File_Stream;
       Buffer  : aliased Util.Streams.Buffered.Lzma.Compress_Stream;
       Print   : Util.Streams.Texts.Print_Stream;
-      Path    : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.lzma");
+      Path    : constant String := Util.Tests.Get_Test_Path ("test-stream.lzma");
       Expect  : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.lzma");
    begin
       Stream.Create (Mode => Out_File, Name => Path);
@@ -64,7 +64,7 @@ package body Util.Streams.Buffered.Lzma.Tests is
       In_Stream : aliased File_Stream;
       Buffer    : aliased Util.Streams.Buffered.Lzma.Compress_Stream;
       Path      : constant String
-        := Util.Tests.Get_Test_Path ("regtests/result/test-big-stream.lzma");
+        := Util.Tests.Get_Test_Path ("test-big-stream.lzma");
       Expect    : constant String
         := Util.Tests.Get_Path ("regtests/expect/test-big-stream.lzma");
    begin

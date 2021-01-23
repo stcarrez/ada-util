@@ -43,7 +43,7 @@ package body Util.Properties.Form.Tests is
                                    "Invalid property: " & Name);
       end Check;
 
-      Path : constant String := Util.Tests.Get_Test_Path ("regtests/files/test-1.form");
+      Path : constant String := Util.Tests.Get_Path ("regtests/files/test-1.form");
       S    : Ada.Strings.Unbounded.Unbounded_String;
    begin
       Util.Files.Read_File (Path, S);

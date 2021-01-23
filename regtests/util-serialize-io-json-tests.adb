@@ -187,7 +187,7 @@ package body Util.Serialize.IO.JSON.Tests is
       Buffer : aliased Util.Streams.Texts.Print_Stream;
       Stream : Util.Serialize.IO.JSON.Output_Stream;
       Expect : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.json");
-      Path   : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.json");
+      Path   : constant String := Util.Tests.Get_Test_Path ("test-stream.json");
    begin
       File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Path);
       Buffer.Initialize (Output => File'Unchecked_Access, Size => 10000);
@@ -349,7 +349,7 @@ package body Util.Serialize.IO.JSON.Tests is
    --  ------------------------------
    procedure Test_Read (T : in out Test) is
       use Util.Beans.Objects;
-      Path  : constant String := Util.Tests.Get_Test_Path ("regtests/files/pass01.json");
+      Path  : constant String := Util.Tests.Get_Path ("regtests/files/pass01.json");
       Root  : Util.Beans.Objects.Object;
       Value : Util.Beans.Objects.Object;
       Item  : Util.Beans.Objects.Object;

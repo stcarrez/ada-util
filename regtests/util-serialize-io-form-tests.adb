@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-form-tests -- Unit tests for form parser
---  Copyright (C) 2018 Stephane Carrez
+--  Copyright (C) 2018, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -154,7 +154,7 @@ package body Util.Serialize.IO.Form.Tests is
       Buffer : aliased Util.Streams.Texts.Print_Stream;
       Stream : Util.Serialize.IO.Form.Output_Stream;
       Expect : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.form");
-      Path   : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.form");
+      Path   : constant String := Util.Tests.Get_Test_Path ("test-stream.form");
    begin
       File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Path);
       Buffer.Initialize (Output => File'Unchecked_Access, Size => 10000);
@@ -171,7 +171,7 @@ package body Util.Serialize.IO.Form.Tests is
    --  Test reading a form content into an Object tree.
    --  ------------------------------
    procedure Test_Read (T : in out Test) is
-      Path  : constant String := Util.Tests.Get_Test_Path ("regtests/files/pass-01.form");
+      Path  : constant String := Util.Tests.Get_Path ("regtests/files/pass-01.form");
       Root  : Util.Beans.Objects.Object;
       Value : Util.Beans.Objects.Object;
    begin

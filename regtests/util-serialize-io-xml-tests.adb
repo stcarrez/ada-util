@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-xml-tests -- Unit tests for XML serialization
---  Copyright (C) 2011, 2012, 2016, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2017, 2018, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -410,7 +410,7 @@ package body Util.Serialize.IO.XML.Tests is
       Buffer : aliased Util.Streams.Texts.Print_Stream;
       Stream : Util.Serialize.IO.XML.Output_Stream;
       Expect : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.xml");
-      Path   : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.xml");
+      Path   : constant String := Util.Tests.Get_Test_Path ("test-stream.xml");
    begin
       File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Path);
       Buffer.Initialize (Output => File'Unchecked_Access, Size => 10000);

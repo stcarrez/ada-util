@@ -65,12 +65,11 @@ package body Util.Log.Tests is
 
    --  Test configuration and creation of file
    procedure Test_File_Appender (T : in out Test) is
-      pragma Unreferenced (T);
-
+      Path  : constant String := Util.Tests.Get_Test_Path ("test.log");
       Props : Util.Properties.Manager;
    begin
       Props.Set ("log4j.appender.test", "File");
-      Props.Set ("log4j.appender.test.File", "test.log");
+      Props.Set ("log4j.appender.test.File", Path);
       Props.Set ("log4j.logger.util.log.test.file", "DEBUG,test");
       Util.Log.Loggers.Initialize (Props);
 
@@ -80,15 +79,15 @@ package body Util.Log.Tests is
          L.Debug ("Writing a debug message");
          L.Debug ("{0}: {1}", "Parameter", "Value");
       end;
+      T.Assert (Ada.Directories.Exists (Path), "Log file " & Path & " not found");
    end Test_File_Appender;
 
    procedure Test_Log_Perf (T : in out Test) is
-      pragma Unreferenced (T);
-
+      Path  : constant String := Util.Tests.Get_Test_Path ("test_perf.log");
       Props : Util.Properties.Manager;
    begin
       Props.Set ("log4j.appender.test", "File");
-      Props.Set ("log4j.appender.test.File", "test.log");
+      Props.Set ("log4j.appender.test.File", Path);
       Props.Set ("log4j.logger.util.log.test.perf", "DEBUG,test");
       Util.Log.Loggers.Initialize (Props);
 
@@ -118,6 +117,7 @@ package body Util.Log.Tests is
          end loop;
          Util.Measures.Report (S, "Log.Debug message (no output)", 10_000);
       end;
+      T.Assert (Ada.Directories.Exists (Path), "Log file " & Path & " not found");
    end Test_Log_Perf;
 
    --  ------------------------------
@@ -131,10 +131,11 @@ package body Util.Log.Tests is
       for I in 1 .. 10 loop
          declare
             Id   : constant String := Fixed.Trim (Integer'Image (I), Both);
+            Path : constant String := Util.Tests.Get_Test_Path ("test" & Id & ".log");
             Name : constant String := "log4j.appender.test" & Id;
          begin
             Props.Set (Name, "File");
-            Props.Set (Name & ".File", "test" & Id & ".log");
+            Props.Set (Name & ".File", Path);
             Props.Set (Name & ".layout", "date-level-message");
             if I > 5 then
                Props.Set (Name & ".level", "INFO");
@@ -158,7 +159,7 @@ package body Util.Log.Tests is
       for I in 1 .. 8 loop
          declare
             Id   : constant String := Fixed.Trim (Integer'Image (I), Both);
-            Path : constant String := "test" & Id & ".log";
+            Path : constant String := Util.Tests.Get_Test_Path ("test" & Id & ".log");
          begin
             T.Assert (Ada.Directories.Exists (Path), "Log file " & Path & " not found");
             if I > 5 then
@@ -177,14 +178,17 @@ package body Util.Log.Tests is
    procedure Test_File_Appender_Modes (T : in out Test) is
       use Ada.Directories;
 
-      Props : Util.Properties.Manager;
+      Append_Path  : constant String := Util.Tests.Get_Test_Path ("test-append.log");
+      Append2_Path : constant String := Util.Tests.Get_Test_Path ("test-append2.log");
+      Global_Path  : constant String := Util.Tests.Get_Test_Path ("test-append-global.log");
+      Props        : Util.Properties.Manager;
    begin
       Props.Set ("log4j.appender.test", "File");
-      Props.Set ("log4j.appender.test.File", "test-append.log");
+      Props.Set ("log4j.appender.test.File", Append_Path);
       Props.Set ("log4j.appender.test.append", "true");
       Props.Set ("log4j.appender.test.immediateFlush", "true");
       Props.Set ("log4j.appender.test_global", "File");
-      Props.Set ("log4j.appender.test_global.File", "test-append-global.log");
+      Props.Set ("log4j.appender.test_global.File", Global_Path);
       Props.Set ("log4j.appender.test_global.append", "false");
       Props.Set ("log4j.appender.test_global.immediateFlush", "false");
       Props.Set ("log4j.logger.util.log.test.file", "DEBUG");
@@ -201,7 +205,7 @@ package body Util.Log.Tests is
       end;
 
       Props.Set ("log4j.appender.test_append", "File");
-      Props.Set ("log4j.appender.test_append.File", "test-append2.log");
+      Props.Set ("log4j.appender.test_append.File", Append2_Path);
       Props.Set ("log4j.appender.test_append.append", "true");
       Props.Set ("log4j.appender.test_append.immediateFlush", "true");
       Props.Set ("log4j.logger.util.log.test2.file", "DEBUG,test_append,test_global");
@@ -222,11 +226,11 @@ package body Util.Log.Tests is
       Props.Set ("log4j.rootCategory", "DEBUG, test.log");
       Util.Log.Loggers.Initialize (Props);
 
-      T.Assert (Ada.Directories.Size ("test-append.log") > 100,
+      T.Assert (Ada.Directories.Size (Append_Path) > 100,
                 "Log file test-append.log is empty");
-      T.Assert (Ada.Directories.Size ("test-append2.log") > 100,
+      T.Assert (Ada.Directories.Size (Append2_Path) > 100,
                 "Log file test-append2.log is empty");
-      T.Assert (Ada.Directories.Size ("test-append-global.log") > 100,
+      T.Assert (Ada.Directories.Size (Global_Path) > 100,
                 "Log file test-append.log is empty");
    end Test_File_Appender_Modes;
 
@@ -234,11 +238,12 @@ package body Util.Log.Tests is
    --  Test file appender with different modes.
    --  ------------------------------
    procedure Test_Console_Appender (T : in out Test) is
+      Path    : constant String := Util.Tests.Get_Test_Path ("test_err.log");
       Props   : Util.Properties.Manager;
       File    : Ada.Text_IO.File_Type;
       Content : Ada.Strings.Unbounded.Unbounded_String;
    begin
-      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, "test_err.log");
+      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Path);
       Ada.Text_IO.Set_Error (File);
 
       Props.Set ("log4j.appender.test_console", "Console");
@@ -261,7 +266,7 @@ package body Util.Log.Tests is
       Ada.Text_IO.Set_Error (Ada.Text_IO.Standard_Error);
       Ada.Text_IO.Close (File);
 
-      Util.Files.Read_File ("test_err.log", Content);
+      Util.Files.Read_File (Path, Content);
       Util.Tests.Assert_Matches (T, ".*WARN MESSAGE!", Content,
                                  "Invalid console log (WARN)");
       Util.Tests.Assert_Matches (T, ".*This is the error test message", Content,
@@ -283,11 +288,12 @@ package body Util.Log.Tests is
    end Test_Missing_Config;
 
    procedure Test_Log_Traceback (T : in out Test) is
+      Path    : constant String := Util.Tests.Get_Test_Path ("test-traceback.log");
       Props   : Util.Properties.Manager;
       Content : Ada.Strings.Unbounded.Unbounded_String;
    begin
       Props.Set ("log4j.appender.test", "File");
-      Props.Set ("log4j.appender.test.File", "test-traceback.log");
+      Props.Set ("log4j.appender.test.File", Path);
       Props.Set ("log4j.appender.test.append", "false");
       Props.Set ("log4j.appender.test.immediateFlush", "true");
       Props.Set ("log4j.rootCategory", "DEBUG,test");
@@ -308,7 +314,7 @@ package body Util.Log.Tests is
       Props.Set ("log4j.appender.console", "Console");
       Util.Log.Loggers.Initialize (Props);
 
-      Util.Files.Read_File ("test-traceback.log", Content);
+      Util.Files.Read_File (Path, Content);
       Util.Tests.Assert_Matches (T, ".*Something wrong: Exception CONSTRAINT_ERROR:", Content,
                                  "Invalid console log (ERROR)");
    end Test_Log_Traceback;

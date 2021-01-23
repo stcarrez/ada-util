@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-csv-tests -- Unit tests for CSV parser
---  Copyright (C) 2011, 2016 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -84,7 +84,7 @@ package body Util.Serialize.IO.CSV.Tests is
       File   : aliased Util.Streams.Files.File_Stream;
       Stream : Util.Serialize.IO.CSV.Output_Stream;
       Expect : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.csv");
-      Path   : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.csv");
+      Path   : constant String := Util.Tests.Get_Test_Path ("test-stream.csv");
    begin
       File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Path);
       Stream.Initialize (Output => File'Unchecked_Access, Size => 10000);

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util -- Unit tests for properties
---  Copyright (C) 2009, 2010, 2011, 2014, 2017, 2018, 2020 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2014, 2017, 2018, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -261,6 +261,29 @@ package body Util.Properties.Tests is
 
       end;
 
+      declare
+         P : Properties.Manager;
+      begin
+         P := Props.Get ("mysqld");
+         T.Assert (P.Exists ("user"),
+                   "The [mysqld] property manager should contain a 'user' property");
+
+         P := Props.Get ("mysqld_safe");
+         T.Assert (P.Exists ("socket"),
+                   "The [mysqld] property manager should contain a 'socket' property");
+      end;
+
+      declare
+         P : Properties.Manager with Unreferenced;
+      begin
+         P := Props.Get ("bad");
+         T.Fail ("No exception raised for Get()");
+
+      exception
+         when NO_PROPERTY =>
+            null;
+      end;
+
    exception
       when Ada.Text_IO.Name_Error =>
          Ada.Text_IO.Put_Line ("Cannot find test file: regtests/files/my.cnf");
@@ -269,6 +292,7 @@ package body Util.Properties.Tests is
    end Test_Load_Ini_Property;
 
    procedure Test_Save_Properties (T : in out Test) is
+      Path : constant String := Util.Tests.Get_Test_Path ("save-props.properties");
    begin
       declare
          Props  : Properties.Manager;
@@ -281,7 +305,7 @@ package body Util.Properties.Tests is
          Props.Set ("New-Property", "Some-Value");
          Props.Remove ("mysqld");
          T.Assert (not Props.Exists ("mysqld"), "mysqld property was not removed");
-         Props.Save_Properties ("regtests/result/save-props.properties");
+         Props.Save_Properties (Path);
       end;
 
       declare
@@ -289,7 +313,7 @@ package body Util.Properties.Tests is
          V : Util.Properties.Value;
          P : Properties.Manager;
       begin
-         Props.Load_Properties (Path => "regtests/result/save-props.properties");
+         Props.Load_Properties (Path => Path);
 
          T.Assert (not Props.Exists ("mysqld"), "mysqld property was not removed (2)");
          T.Assert (Props.Exists ("New-Property"), "Invalid Save_Properties");

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-tests -- Unit tests for encoding buffered streams
---  Copyright (C) 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -114,7 +114,7 @@ package body Util.Streams.Tests is
       Stream  : aliased File_Stream;
       Buffer  : aliased Util.Streams.Base64.Encoding_Stream;
       Print   : Util.Streams.Texts.Print_Stream;
-      Path    : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.b64");
+      Path    : constant String := Util.Tests.Get_Test_Path ("test-stream.b64");
       Expect  : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.b64");
    begin
       Print.Initialize (Output => Buffer'Access, Size => 5);
