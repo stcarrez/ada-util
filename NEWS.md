@@ -1,3 +1,8 @@
+Version 2.4.0  -
+  - Add support to customize and provide application specific log appenders
+  - Fix compilation with GNAT 10
+  - New package Util.Properties.Form to help in parsing application/x-www-form-urlencoded
+
 Version 2.3.0  - Nov 2020
   - New stream operations to read/write UTF-8 sequences in Wide_Wide character
   - Fix AES encryption in CFB, OFB and CTR modes
