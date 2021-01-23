@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  Util -- Unit tests for properties
+--  util-properties-tests -- Tests for properties
 --  Copyright (C) 2009, 2010, 2011, 2014, 2017, 2018, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -379,6 +379,40 @@ package body Util.Properties.Tests is
       end;
    end Test_Save_Properties;
 
+   procedure Test_Remove_Property (T : in out Test) is
+      Props : Properties.Manager;
+   begin
+      begin
+         Props.Remove ("missing");
+         T.Fail ("Remove should raise exception");
+
+      exception
+         when NO_PROPERTY =>
+            null;
+      end;
+
+      begin
+         Props.Remove (+("missing"));
+         T.Fail ("Remove should raise exception");
+
+      exception
+         when NO_PROPERTY =>
+            null;
+      end;
+
+      Props.Set ("a", "b");
+      T.Assert (Props.Exists ("a"), "Property not inserted");
+
+      Props.Remove ("a");
+      T.Assert (not Props.Exists ("a"), "Property not removed");
+
+      Props.Set ("a", +("b"));
+      T.Assert (Props.Exists ("a"), "Property not inserted");
+
+      Props.Remove (+("a"));
+      T.Assert (not Props.Exists ("a"), "Property not removed");
+   end Test_Remove_Property;
+
    package Caller is new Util.Test_Caller (Test, "Properties");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -389,6 +423,8 @@ package body Util.Properties.Tests is
                        Test_Property'Access);
       Caller.Add_Test (Suite, "Test Util.Properties.Exists",
                        Test_Property'Access);
+      Caller.Add_Test (Suite, "Test Util.Properties.Remove",
+                       Test_Remove_Property'Access);
       Caller.Add_Test (Suite, "Test Util.Properties.Get (NO_PROPERTY)",
                        Test_Missing_Property'Access);
 
