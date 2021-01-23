@@ -49,6 +49,8 @@ package body Util.Processes.Tests is
                        Test_Input_Redirect'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn(CHDIR)",
                        Test_Set_Working_Directory'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Spawn(errors)",
+                       Test_Errors'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Open/Read/Close (Multi spawn)",
                        Test_Multi_Spawn'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Tools.Execute",
@@ -306,7 +308,7 @@ package body Util.Processes.Tests is
    end Test_Input_Redirect;
 
    --  ------------------------------
-   --  Test chaning working directory.
+   --  Test changing working directory.
    --  ------------------------------
    procedure Test_Set_Working_Directory (T : in out Test) is
       P        : Process;
@@ -331,6 +333,52 @@ package body Util.Processes.Tests is
                                      Test    => Out_Path,
                                      Message => "Process input/output redirection");
    end Test_Set_Working_Directory;
+
+   --  ------------------------------
+   --  Test various errors.
+   --  ------------------------------
+   procedure Test_Errors (T : in out Test) is
+      P        : Process;
+   begin
+      Util.Processes.Spawn (P, "sleep 1");
+      begin
+         Util.Processes.Set_Working_Directory (P, "/");
+         T.Fail ("Set_Working_Directory: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         Util.Processes.Set_Input_Stream (P, "/");
+         T.Fail ("Set_Input_Stream: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         Util.Processes.Set_Output_Stream (P, "/");
+         T.Fail ("Set_Output_Stream: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         Util.Processes.Set_Error_Stream (P, ".");
+         T.Fail ("Set_Error_Stream: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+
+      Util.Processes.Wait (P);
+
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Process failed");
+   end Test_Errors;
 
    --  ------------------------------
    --  Test the Tools.Execute operation.
