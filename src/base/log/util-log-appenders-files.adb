@@ -76,7 +76,7 @@ package body Util.Log.Appenders.Files is
       use Util.Properties.Basic;
 
       Base   : constant String := "appender." & Name;
-      Path   : constant String := Properties.Get (Base & ".File");
+      Path   : constant String := Properties.Get (Base & ".File", Name & ".log");
       Append : constant Boolean := Boolean_Property.Get (Properties, Base & ".append", True);
       Result : constant File_Appender_Access
         := new File_Appender '(Limited_Controlled with Length => Name'Length,
