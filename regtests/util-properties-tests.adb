@@ -156,6 +156,16 @@ package body Util.Properties.Tests is
       declare
          Copy : Properties.Manager;
       begin
+         Copy.Copy (From   => Props);
+         T.Assert (Copy.Exists ("prefix.one"), "Property one not found");
+         T.Assert (Copy.Exists ("prefix.two"), "Property two not found");
+         T.Assert (Copy.Exists ("prefix"), "Property '' does not exist.");
+         T.Assert (Copy.Exists ("prefix."), "Property '' does not exist.");
+      end;
+
+      declare
+         Copy : Properties.Manager;
+      begin
          Copy.Copy (From   => Props,
                     Prefix => "prefix.",
                     Strip  => True);
@@ -380,7 +390,7 @@ package body Util.Properties.Tests is
 
       declare
          V : Util.Properties.Value;
-         P : Properties.Manager;
+         P : Properties.Manager with Unreferenced;
       begin
          P := Util.Properties.To_Manager (V);
          T.Fail ("No exception raised by To_Manager");
