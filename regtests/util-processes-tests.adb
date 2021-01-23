@@ -395,6 +395,19 @@ package body Util.Processes.Tests is
                                 "Invalid output collected by Execute");
       Util.Tests.Assert_Equals (T, "b c d e f", List.Element (1), "");
       Util.Tests.Assert_Equals (T, "test_marker", List.Element (2), "");
+
+      List.Clear;
+      Tools.Execute (Command => "grep 'L[2-9]'",
+                     Input_Path => Util.Tests.Get_Path ("regtests/files/proc-input.txt"),
+                     Output => List,
+                     Status => Status);
+      Util.Tests.Assert_Equals (T, 0, Status, "Invalid exit status");
+      Util.Tests.Assert_Equals (T, 4, Integer (List.Length),
+                                "Invalid output collected by Execute");
+      Util.Tests.Assert_Equals (T, "L2 ", List.Element (1), "");
+      Util.Tests.Assert_Equals (T, "L3", List.Element (2), "");
+      Util.Tests.Assert_Equals (T, "L4", List.Element (3), "");
+      Util.Tests.Assert_Equals (T, "L5", List.Element (4), "");
    end Test_Tools_Execute;
 
 end Util.Processes.Tests;
