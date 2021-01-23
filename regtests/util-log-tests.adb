@@ -143,6 +143,8 @@ package body Util.Log.Tests is
          end;
       end loop;
       Props.Set ("log4j.rootCategory", "DEBUG, test.log");
+      Props.Set ("log4j.appender.test.log.File",
+                 Util.Tests.Get_Test_Path ("test-default.log"));
       Props.Set ("log4j.logger.util.log.test.file",
                  "DEBUG,test4,test1 , test2,test3, test4, test5 ,  test6 , test7,test8,");
       Util.Log.Loggers.Initialize (Props);
