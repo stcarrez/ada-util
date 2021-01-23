@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-xunit - Unit tests on top of AHven
---  Copyright (C) 2011, 2016, 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2017, 2018, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -224,7 +224,7 @@ package body Util.XUnit is
       T        : Test_Object_Access := First_Test;
       Listener : Ahven.Listeners.Basic.Basic_Listener;
       Timeout  : constant Test_Duration := Test_Duration (Util.Tests.Get_Test_Timeout ("all"));
-      Out_Dir  : constant String := Util.Tests.Get_Test_Path ("regtests/result");
+      Out_Dir  : constant String := Util.Tests.Get_Test_Path ("");
       Start    : Ada.Calendar.Time;
       Dt       : Duration;
    begin
