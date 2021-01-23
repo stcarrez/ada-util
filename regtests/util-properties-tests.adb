@@ -38,6 +38,9 @@ package body Util.Properties.Tests is
    begin
       T.Assert (Exists (Props, "test") = False,
                 "Invalid properties");
+      T.Assert (Exists (Props, +("test")) = False,
+                "Invalid properties");
+      T.Assert (Props.Is_Empty, "Property manager should be empty");
       Props.Set ("test", "toto");
       T.Assert (Exists (Props, "test"),
                 "Property was not inserted");
