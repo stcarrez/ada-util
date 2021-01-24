@@ -41,6 +41,8 @@ package body Util.Processes.Tests is
                        Test_Output_Pipe'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn(WRITE pipe)",
                        Test_Input_Pipe'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Spawn(ERROR pipe)",
+                       Test_Error_Pipe'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn/Shell(WRITE pipe)",
                        Test_Shell_Splitting_Pipe'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn(OUTPUT redirect)",
@@ -55,6 +57,8 @@ package body Util.Processes.Tests is
                        Test_Multi_Spawn'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Tools.Execute",
                        Test_Tools_Execute'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Stop",
+                       Test_Stop'Access);
 
    end Add_Tests;
 
@@ -111,6 +115,27 @@ package body Util.Processes.Tests is
       T.Assert (not P.Is_Running, "Process has stopped");
       Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Invalid exit status");
    end Test_Output_Pipe;
+
+   --  ------------------------------
+   --  Test error pipe redirection: read the process standard output
+   --  ------------------------------
+   procedure Test_Error_Pipe (T : in out Test) is
+      P : aliased Util.Streams.Pipes.Pipe_Stream;
+   begin
+      P.Open ("gprbuild -z", READ_ERROR);
+      declare
+         Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
+         Content : Ada.Strings.Unbounded.Unbounded_String;
+      begin
+         Buffer.Initialize (P'Unchecked_Access, 19);
+         Buffer.Read (Content);
+         P.Close;
+         Util.Tests.Assert_Matches (T, ".*gprbuild: .*", Content,
+                                    "Invalid content");
+      end;
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 4, P.Get_Exit_Status, "Invalid exit status");
+   end Test_Error_Pipe;
 
    --  ------------------------------
    --  Test shell splitting.
@@ -379,6 +404,19 @@ package body Util.Processes.Tests is
       T.Assert (not P.Is_Running, "Process has stopped");
       Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Process failed");
    end Test_Errors;
+
+   --  ------------------------------
+   --  Test launching and stopping a process.
+   --  ------------------------------
+   procedure Test_Stop (T : in out Test) is
+      P        : Process;
+   begin
+      Util.Processes.Spawn (P, "sleep 3600");
+      T.Assert (P.Is_Running, "Process is running");
+      Util.Processes.Stop (P);
+      Util.Processes.Wait (P);
+      T.Assert (not P.Is_Running, "Process has stopped");
+   end Test_Stop;
 
    --  ------------------------------
    --  Test the Tools.Execute operation.
