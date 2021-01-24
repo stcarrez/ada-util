@@ -38,6 +38,8 @@ package body Util.Streams.Texts.Tests is
                        Test_Write_Integer'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Texts.Write (Long_Long_Integer)",
                        Test_Write_Long_Integer'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Texts.Write (Unbounded_String)",
+                       Test_Write'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -156,5 +158,39 @@ package body Util.Streams.Texts.Tests is
 
       Assert_Equals (T, 0, Integer (Stream.Get_Size), "Invalid size for stream after Flush");
    end Test_Write_Long_Integer;
+
+   --  ------------------------------
+   --  Write on a text stream converting an integer and writing it.
+   --  ------------------------------
+   procedure Test_Write (T : in out Test) is
+      use Ada.Strings.Unbounded;
+      Stream  : Print_Stream;
+      Buf     : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      Stream.Initialize (Size => 10);
+
+      Stream.Write (Ada.Strings.Unbounded.To_Unbounded_String ("hello"));
+
+      Assert_Equals (T, 5, Integer (Stream.Get_Size), "Invalid size for stream");
+
+      Stream.Flush (Buf);
+      Assert_Equals (T, 5, Ada.Strings.Unbounded.Length (Buf), "Invalid size for string");
+
+      Assert_Equals (T, "hello", Ada.Strings.Unbounded.To_String (Buf), "Invalid stream content");
+
+      Assert_Equals (T, 0, Integer (Stream.Get_Size), "Invalid size for stream after Flush");
+
+      --  Wide string
+      Stream.Write (Ada.Strings.Wide_Wide_Unbounded.To_Unbounded_Wide_Wide_String ("hello"));
+
+      Assert_Equals (T, 5, Integer (Stream.Get_Size), "Invalid size for stream");
+
+      Stream.Flush (Buf);
+      Assert_Equals (T, 5, Ada.Strings.Unbounded.Length (Buf), "Invalid size for string");
+
+      Assert_Equals (T, "hello", Ada.Strings.Unbounded.To_String (Buf), "Invalid stream content");
+
+      Assert_Equals (T, 0, Integer (Stream.Get_Size), "Invalid size for stream after Flush");
+   end Test_Write;
 
 end Util.Streams.Texts.Tests;
