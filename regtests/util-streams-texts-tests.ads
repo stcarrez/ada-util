@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.texts.tests -- Unit tests for text streams
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,5 +26,8 @@ package Util.Streams.Texts.Tests is
 
    --  Test reading a text stream.
    procedure Test_Read_Line (T : in out Test);
+
+   --  Write on a text stream converting an integer and writing it.
+   procedure Test_Write_Integer (T : in out Test);
 
 end Util.Streams.Texts.Tests;
