@@ -35,6 +35,9 @@ package Util.Processes.Tests is
    --  Test input pipe redirection: write the process standard input
    procedure Test_Input_Pipe (T : in out Test);
 
+   --  Test error pipe redirection: read the process standard error
+   procedure Test_Error_Pipe (T : in out Test);
+
    --  Test shell splitting.
    procedure Test_Shell_Splitting_Pipe (T : in out Test);
 
@@ -52,6 +55,9 @@ package Util.Processes.Tests is
 
    --  Test various errors.
    procedure Test_Errors (T : in out Test);
+
+   --  Test launching and stopping a process.
+   procedure Test_Stop (T : in out Test);
 
    --  Test the Tools.Execute operation.
    procedure Test_Tools_Execute (T : in out Test);
