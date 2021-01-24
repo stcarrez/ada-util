@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-texts -- Text stream utilities
---  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2019, 2020 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2019, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,7 +63,7 @@ package body Util.Streams.Texts is
                     Item   : in Integer) is
       S : constant String := Integer'Image (Item);
    begin
-      if Item > 0 then
+      if Item >= 0 then
          Stream.Write (S (S'First + 1 .. S'Last));
       else
          Stream.Write (S);
@@ -77,7 +77,7 @@ package body Util.Streams.Texts is
                     Item   : in Long_Long_Integer) is
       S : constant String := Long_Long_Integer'Image (Item);
    begin
-      if Item > 0 then
+      if Item >= 0 then
          Stream.Write (S (S'First + 1 .. S'Last));
       else
          Stream.Write (S);
