@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams -- Stream utilities
---  Copyright (C) 2010, 2011, 2016, 2018, 2020 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2016, 2018, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,12 +47,11 @@ package body Util.Streams is
    --  ------------------------------
    procedure Copy (From : in Ada.Streams.Stream_Element_Array;
                    Into : in out String) is
-      Pos : Positive := Into'First;
+      Target : Stream_Element_Array
+        (Stream_Element_Offset (Into'First) .. Stream_Element_Offset (Into'Last));
+      for Target'Address use Into'Address;
    begin
-      for I in From'Range loop
-         Into (Pos) := Character'Val (From (I));
-         Pos := Pos + 1;
-      end loop;
+      Target (Target'First .. Target'First + From'Length - 1) := From;
    end Copy;
 
    --  ------------------------------
@@ -62,12 +61,10 @@ package body Util.Streams is
    --  ------------------------------
    procedure Copy (From : in String;
                    Into : in out Ada.Streams.Stream_Element_Array) is
-      Pos : Ada.Streams.Stream_Element_Offset := Into'First;
+      Target : String (Natural (Into'First) .. Natural (Into'Last));
+      for Target'Address use Into'Address;
    begin
-      for I in From'Range loop
-         Into (Pos) := Character'Pos (From (I));
-         Pos := Pos + 1;
-      end loop;
+      Target (Target'First .. Target'First + From'Length - 1) := From;
    end Copy;
 
    --  ------------------------------
