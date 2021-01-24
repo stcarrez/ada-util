@@ -59,6 +59,12 @@ package Util.Processes.Tests is
    --  Test launching and stopping a process.
    procedure Test_Stop (T : in out Test);
 
+   --  Test various errors (pipe streams).
+   procedure Test_Pipe_Errors (T : in out Test);
+
+   --  Test launching and stopping a process (pipe streams).
+   procedure Test_Pipe_Stop (T : in out Test);
+
    --  Test the Tools.Execute operation.
    procedure Test_Tools_Execute (T : in out Test);
 
