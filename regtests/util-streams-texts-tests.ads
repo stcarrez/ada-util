@@ -30,4 +30,7 @@ package Util.Streams.Texts.Tests is
    --  Write on a text stream converting an integer and writing it.
    procedure Test_Write_Integer (T : in out Test);
 
+   --  Write on a text stream converting an integer and writing it.
+   procedure Test_Write_Long_Integer (T : in out Test);
+
 end Util.Streams.Texts.Tests;
