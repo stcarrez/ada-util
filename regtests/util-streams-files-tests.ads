@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.files.tests -- Unit tests for buffered streams
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,5 +27,6 @@ package Util.Streams.Files.Tests is
    --  Test reading and writing on a buffered stream with various buffer sizes
    procedure Test_Read_Write (T : in out Test);
    procedure Test_Write (T : in out Test);
+   procedure Test_Copy_Stream (T : in out Test);
 
 end Util.Streams.Files.Tests;
