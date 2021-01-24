@@ -20,6 +20,7 @@ with Util.Streams.Files;
 with Util.Streams.Texts;
 with Util.Streams.Base64;
 with Util.Streams.AES;
+with Util.Measures;
 with Ada.IO_Exceptions;
 with Ada.Streams.Stream_IO;
 package body Util.Streams.Tests is
@@ -27,7 +28,9 @@ package body Util.Streams.Tests is
    use Util.Streams.Files;
    use Ada.Streams.Stream_IO;
 
-   package Caller is new Util.Test_Caller (Test, "Streams.AES");
+   package AES_Caller is new Util.Test_Caller (Test, "Streams.AES");
+
+   package Caller is new Util.Test_Caller (Test, "Streams.Main");
 
    generic
       Mode  : in Util.Encoders.AES.AES_Mode;
@@ -135,22 +138,50 @@ package body Util.Streams.Tests is
                                      Message => "Base64 stream");
    end Test_Base64_Stream;
 
+   procedure Test_Copy_Stream (T : in out Test) is
+      use type Ada.Streams.Stream_Element_Offset;
+
+      Pat : constant String := "123456789abcdef0123456789";
+      Buf : Ada.Streams.Stream_Element_Array (1 .. Pat'Length);
+      Res : String (10 .. 10 + Pat'Length - 1);
+   begin
+      declare
+         S   : Util.Measures.Stamp;
+      begin
+         for I in 1 .. 1000 loop
+            Util.Streams.Copy (Pat, Buf);
+         end loop;
+         Util.Measures.Report (S, "Util.Streams.Copy (String)", 1000);
+      end;
+      declare
+         S   : Util.Measures.Stamp;
+      begin
+         for I in 1 .. 1000 loop
+            Util.Streams.Copy (Buf, Res);
+         end loop;
+         Util.Measures.Report (S, "Util.Streams.Copy (Stream_Element_Array)", 1000);
+      end;
+      Util.Tests.Assert_Equals (T, Pat, Res, "Invalid copy");
+   end Test_Copy_Stream;
+
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
+      Caller.Add_Test (Suite, "Test Util.Streams.Copy",
+                       Test_Copy_Stream'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Base64.Write, Read",
                        Test_Base64_Stream'Access);
-      Caller.Add_Test (Suite, "Test Util.Streams.AES (AES-ECB)",
-                       Test_AES_ECB'Access);
-      Caller.Add_Test (Suite, "Test Util.Streams.AES (AES-CBC)",
-                       Test_AES_CBC'Access);
-      Caller.Add_Test (Suite, "Test Util.Streams.AES (AES-PCBC)",
-                       Test_AES_PCBC'Access);
-      Caller.Add_Test (Suite, "Test Util.Streams.AES (AES-CFB)",
-                       Test_AES_CFB'Access);
-      Caller.Add_Test (Suite, "Test Util.Streams.AES (AES-OFB)",
-                       Test_AES_OFB'Access);
-      Caller.Add_Test (Suite, "Test Util.Streams.AES (AES-CTR)",
-                       Test_AES_CTR'Access);
+      AES_Caller.Add_Test (Suite, "Test Util.Streams.AES (AES-ECB)",
+                           Test_AES_ECB'Access);
+      AES_Caller.Add_Test (Suite, "Test Util.Streams.AES (AES-CBC)",
+                           Test_AES_CBC'Access);
+      AES_Caller.Add_Test (Suite, "Test Util.Streams.AES (AES-PCBC)",
+                           Test_AES_PCBC'Access);
+      AES_Caller.Add_Test (Suite, "Test Util.Streams.AES (AES-CFB)",
+                           Test_AES_CFB'Access);
+      AES_Caller.Add_Test (Suite, "Test Util.Streams.AES (AES-OFB)",
+                           Test_AES_OFB'Access);
+      AES_Caller.Add_Test (Suite, "Test Util.Streams.AES (AES-CTR)",
+                           Test_AES_CTR'Access);
    end Add_Tests;
 
 end Util.Streams.Tests;
