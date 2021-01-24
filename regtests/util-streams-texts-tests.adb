@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.files.tests -- Unit tests for buffered streams
---  Copyright (C) 2012, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2012, 2018, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +26,7 @@ with Util.Streams.Texts;
 package body Util.Streams.Texts.Tests is
 
    use Ada.Streams.Stream_IO;
+   use Util.Tests;
 
    package Caller is new Util.Test_Caller (Test, "Streams.Texts");
 
@@ -33,6 +34,8 @@ package body Util.Streams.Texts.Tests is
    begin
       Caller.Add_Test (Suite, "Test Util.Streams.Texts.Open, Read_Line, Close",
                        Test_Read_Line'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Texts.Write (Integer)",
+                       Test_Write_Integer'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -57,5 +60,51 @@ package body Util.Streams.Texts.Tests is
       Stream.Close;
       T.Assert (Count > 100, "Too few lines read");
    end Test_Read_Line;
+
+   --  ------------------------------
+   --  Write on a text stream converting an integer and writing it.
+   --  ------------------------------
+   procedure Test_Write_Integer (T : in out Test) is
+      Stream  : Print_Stream;
+      Buf     : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      Stream.Initialize (Size => 4);
+
+      --  Write '0' (we don't want the Ada spurious space).
+      Stream.Write (Integer (0));
+
+      Assert_Equals (T, 1, Integer (Stream.Get_Size), "Invalid size for stream");
+
+      Stream.Flush (Buf);
+      Assert_Equals (T, 1, Ada.Strings.Unbounded.Length (Buf), "Invalid size for string");
+
+      Assert_Equals (T, "0", Ada.Strings.Unbounded.To_String (Buf), "Invalid stream content");
+
+      Assert_Equals (T, 0, Integer (Stream.Get_Size), "Invalid size for stream after Flush");
+
+      --  Write '1234'
+      Stream.Write (Integer (1234));
+
+      Assert_Equals (T, 4, Integer (Stream.Get_Size), "Invalid size for stream");
+
+      Stream.Flush (Buf);
+      Assert_Equals (T, 4, Ada.Strings.Unbounded.Length (Buf), "Invalid size for string");
+
+      Assert_Equals (T, "1234", Ada.Strings.Unbounded.To_String (Buf), "Invalid stream content");
+
+      Assert_Equals (T, 0, Integer (Stream.Get_Size), "Invalid size for stream after Flush");
+
+      --  Write '-234'
+      Stream.Write (Integer (-234));
+
+      Assert_Equals (T, 4, Integer (Stream.Get_Size), "Invalid size for stream");
+
+      Stream.Flush (Buf);
+      Assert_Equals (T, 4, Ada.Strings.Unbounded.Length (Buf), "Invalid size for string");
+
+      Assert_Equals (T, "-234", Ada.Strings.Unbounded.To_String (Buf), "Invalid stream content");
+
+      Assert_Equals (T, 0, Integer (Stream.Get_Size), "Invalid size for stream after Flush");
+   end Test_Write_Integer;
 
 end Util.Streams.Texts.Tests;
