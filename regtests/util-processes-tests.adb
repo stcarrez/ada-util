@@ -55,6 +55,10 @@ package body Util.Processes.Tests is
                        Test_Errors'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Open/Read/Close (Multi spawn)",
                        Test_Multi_Spawn'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Set_XXX (errors)",
+                       Test_Pipe_Errors'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Stop",
+                       Test_Pipe_Stop'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Tools.Execute",
                        Test_Tools_Execute'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Stop",
@@ -101,7 +105,8 @@ package body Util.Processes.Tests is
    procedure Test_Output_Pipe (T : in out Test) is
       P : aliased Util.Streams.Pipes.Pipe_Stream;
    begin
-      P.Open ("bin/util_test_process 0 write b c d e f test_marker");
+      P.Set_Working_Directory ("bin");
+      P.Open ("./util_test_process 0 write b c d e f test_marker");
       declare
          Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
          Content : Ada.Strings.Unbounded.Unbounded_String;
@@ -417,6 +422,65 @@ package body Util.Processes.Tests is
       Util.Processes.Wait (P);
       T.Assert (not P.Is_Running, "Process has stopped");
    end Test_Stop;
+
+   --  ------------------------------
+   --  Test various errors (pipe streams)).
+   --  ------------------------------
+   procedure Test_Pipe_Errors (T : in out Test) is
+      P : aliased Util.Streams.Pipes.Pipe_Stream;
+   begin
+      P.Open ("sleep 1");
+      begin
+         P.Set_Working_Directory ("/");
+         T.Fail ("Set_Working_Directory: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         P.Set_Input_Stream ("/");
+         T.Fail ("Set_Input_Stream: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         P.Set_Output_Stream ("/");
+         T.Fail ("Set_Output_Stream: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         P.Set_Error_Stream (".");
+         T.Fail ("Set_Error_Stream: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+
+      P.Close;
+
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Process failed");
+   end Test_Pipe_Errors;
+
+   --  ------------------------------
+   --  Test launching and stopping a process (pipe streams).
+   --  ------------------------------
+   procedure Test_Pipe_Stop (T : in out Test) is
+      P : aliased Util.Streams.Pipes.Pipe_Stream;
+   begin
+      P.Open ("sleep 3600");
+      T.Assert (P.Is_Running, "Process is running");
+      P.Stop;
+      P.Close;
+      T.Assert (not P.Is_Running, "Process has stopped");
+   end Test_Pipe_Stop;
 
    --  ------------------------------
    --  Test the Tools.Execute operation.
