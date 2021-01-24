@@ -18,12 +18,15 @@
 
 with Ada.Strings.Unbounded;
 with Ada.Streams.Stream_IO;
+with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 
 with Util.Test_Caller;
 
 with Util.Streams.Files;
 with Util.Streams.Texts;
 package body Util.Streams.Texts.Tests is
+
+   pragma Wide_Character_Encoding (UTF8);
 
    use Ada.Streams.Stream_IO;
    use Util.Tests;
@@ -163,11 +166,14 @@ package body Util.Streams.Texts.Tests is
    --  Write on a text stream converting an integer and writing it.
    --  ------------------------------
    procedure Test_Write (T : in out Test) is
-      use Ada.Strings.Unbounded;
+      use Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
+
       Stream  : Print_Stream;
       Buf     : Ada.Strings.Unbounded.Unbounded_String;
+
+      Expect  : constant Wide_Wide_String := "àéúíòࠀ€ಜ࠴𝄞" & Wide_Wide_Character'Val (16#0A#);
    begin
-      Stream.Initialize (Size => 10);
+      Stream.Initialize (Size => 60);
 
       Stream.Write (Ada.Strings.Unbounded.To_Unbounded_String ("hello"));
 
@@ -191,6 +197,21 @@ package body Util.Streams.Texts.Tests is
       Assert_Equals (T, "hello", Ada.Strings.Unbounded.To_String (Buf), "Invalid stream content");
 
       Assert_Equals (T, 0, Integer (Stream.Get_Size), "Invalid size for stream after Flush");
+
+      --  Wide string
+      Stream.Write_Wide (Expect);
+
+      Assert_Equals (T, 27, Integer (Stream.Get_Size), "Invalid size for stream");
+
+      Stream.Flush (Buf);
+      Assert_Equals (T, 27, Ada.Strings.Unbounded.Length (Buf), "Invalid size for string");
+
+      Assert_Equals (T, Encode (Expect),
+                     Ada.Strings.Unbounded.To_String (Buf),
+                     "Invalid stream content");
+
+      Assert_Equals (T, 0, Integer (Stream.Get_Size), "Invalid size for stream after Flush");
+
    end Test_Write;
 
 end Util.Streams.Texts.Tests;
