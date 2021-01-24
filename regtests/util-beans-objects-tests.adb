@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-tests -- Unit tests for objects
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ with Util.Test_Caller;
 with Util.Beans.Objects.Maps;
 package body Util.Beans.Objects.Tests is
 
-   package Caller is new Util.Test_Caller (Test, "Objects");
+   package Caller is new Util.Test_Caller (Test, "Beans.Objects");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

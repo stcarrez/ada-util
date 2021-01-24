@@ -20,7 +20,7 @@ with Util.Test_Caller;
 with Util.Files;
 package body Util.Properties.Form.Tests is
 
-   package Caller is new Util.Test_Caller (Test, "Properties.Properties.Form");
+   package Caller is new Util.Test_Caller (Test, "Properties.Form");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

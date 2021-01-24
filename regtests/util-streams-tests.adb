@@ -27,7 +27,7 @@ package body Util.Streams.Tests is
    use Util.Streams.Files;
    use Ada.Streams.Stream_IO;
 
-   package Caller is new Util.Test_Caller (Test, "Streams");
+   package Caller is new Util.Test_Caller (Test, "Streams.AES");
 
    generic
       Mode  : in Util.Encoders.AES.AES_Mode;

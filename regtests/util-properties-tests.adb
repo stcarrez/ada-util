@@ -439,7 +439,7 @@ package body Util.Properties.Tests is
       T.Assert (not Props.Exists ("a"), "Property not removed");
    end Test_Remove_Property;
 
-   package Caller is new Util.Test_Caller (Test, "Properties");
+   package Caller is new Util.Test_Caller (Test, "Properties.Main");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

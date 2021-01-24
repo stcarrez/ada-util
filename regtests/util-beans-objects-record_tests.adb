@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-record_tests -- Unit tests for objects.records package
---  Copyright (C) 2011, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2017, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@ package body Util.Beans.Objects.Record_Tests is
 
    use Util.Tests;
 
-   package Caller is new Util.Test_Caller (Test, "Objects.Records");
+   package Caller is new Util.Test_Caller (Test, "Beans.Records");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
