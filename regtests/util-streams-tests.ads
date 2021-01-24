@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-tests -- Unit tests for encoding buffered streams
---  Copyright (C) 2017, 2019 Stephane Carrez
+--  Copyright (C) 2017, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,5 +32,7 @@ package Util.Streams.Tests is
                        Label : in String);
 
    procedure Test_Base64_Stream (T : in out Test);
+
+   procedure Test_Copy_Stream (T : in out Test);
 
 end Util.Streams.Tests;
