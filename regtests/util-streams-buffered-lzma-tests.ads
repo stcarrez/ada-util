@@ -30,4 +30,6 @@ package Util.Streams.Buffered.Lzma.Tests is
 
    procedure Test_Compress_Decompress_Stream (T : in out Test);
 
+   procedure Test_Compress_Encrypt_Decompress_Decrypt_Stream (T : in out Test);
+
 end Util.Streams.Buffered.Lzma.Tests;
