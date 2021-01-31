@@ -20,8 +20,10 @@ with Util.Streams.Files;
 with Util.Streams.Texts;
 with Util.Streams.Base64;
 with Util.Streams.AES;
+with Util.Streams.Buffered.Lzma;
 with Util.Measures;
 with Ada.IO_Exceptions;
+with Ada.Strings.Unbounded;
 with Ada.Streams.Stream_IO;
 package body Util.Streams.Tests is
 
@@ -52,7 +54,7 @@ package body Util.Streams.Tests is
       --  Print -> Cipher -> Decipher
       Decipher.Initialize (64 * 1024);
       Decipher.Set_Key (Key, Mode);
-      Cipher.Initialize (Decipher'Access, 1024);
+      Cipher.Produces (Decipher'Access, 1024);
       Cipher.Set_Key (Key, Mode);
       Print.Initialize (Cipher'Access);
       for I in 1 .. Count loop
@@ -82,6 +84,63 @@ package body Util.Streams.Tests is
       end loop;
    end Test_AES;
 
+   procedure Test_AES_File (T     : in out Test;
+                            Item  : in String;
+                            Count : in Positive;
+                            Mode  : in Util.Encoders.AES.AES_Mode;
+                            Label : in String) is
+      use Ada.Strings.Unbounded;
+
+      Path       : constant String := Util.Tests.Get_Test_Path ("stream-aes-" & Label & ".aes");
+      File       : aliased File_Stream;
+      Decipher   : aliased Util.Streams.AES.Decoding_Stream;
+      Cipher     : aliased Util.Streams.AES.Encoding_Stream;
+      Compress   : aliased Util.Streams.Buffered.Lzma.Compress_Stream;
+      Decompress : aliased Util.Streams.Buffered.Lzma.Decompress_Stream;
+      Print      : Util.Streams.Texts.Print_Stream;
+      Reader     : Util.Streams.Texts.Reader_Stream;
+      Key        : Util.Encoders.Secret_Key
+        := Util.Encoders.Create ("0123456789abcdef0123456789abcdef");
+   begin
+      --  Print -> Cipher -> File
+      File.Create (Mode => Out_File, Name => Path);
+      Cipher.Produces (File'Access, 32);
+      Cipher.Set_Key (Key, Mode);
+      Print.Initialize (Cipher'Access);
+      --Compress.Initialize (Cipher'Access, 1024);
+      --Print.Initialize (Compress'Access);
+      for I in 1 .. Count loop
+         Print.Write (Item & ASCII.LF);
+      end loop;
+      Print.Close;
+
+      --  File -> Decipher -> Reader
+      File.Open (Mode => In_File, Name => Path);
+      Decipher.Consumes (File'Access, 10240);
+      Decipher.Set_Key (Key, Mode);
+      Decompress.Initialize (Decipher'Access, 10240);
+      Reader.Initialize (From => Decipher'Access);
+      --Reader.Initialize (From => Decompress'Access);
+      declare
+         Line_Count : Natural := 0;
+      begin
+         while not Reader.Is_Eof loop
+            declare
+               Line : Unbounded_String;
+            begin
+               Reader.Read_Line (Line);
+               exit when Length (Line) = 0;
+               if Item & ASCII.LF /= Line then
+                  Util.Tests.Assert_Equals (T, Item & ASCII.LF, To_String (Line));
+               end if;
+               Line_Count := Line_Count + 1;
+            end;
+         end loop;
+         File.Close;
+         Util.Tests.Assert_Equals (T, Count, Line_Count);
+      end;
+   end Test_AES_File;
+
    procedure Test_AES_Mode (T : in out Test) is
    begin
       for I in 1 .. 128 loop
@@ -93,6 +152,8 @@ package body Util.Streams.Tests is
       for I in 1 .. 128 loop
          Test_AES (T, "abc", I, Mode, Label);
       end loop;
+
+      Test_AES_File (T, "abcdefgh", 1000, Mode, Label);
    end Test_AES_Mode;
 
    procedure Test_AES_ECB is
@@ -121,8 +182,8 @@ package body Util.Streams.Tests is
       Expect  : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.b64");
    begin
       Print.Initialize (Output => Buffer'Access, Size => 5);
-      Buffer.Initialize (Output => Stream'Access,
-                         Size   => 1024);
+      Buffer.Produces (Output => Stream'Access,
+                       Size   => 1024);
       Stream.Create (Mode => Out_File, Name => Path);
       for I in 1 .. 32 loop
          Print.Write ("abcd");
@@ -139,8 +200,6 @@ package body Util.Streams.Tests is
    end Test_Base64_Stream;
 
    procedure Test_Copy_Stream (T : in out Test) is
-      use type Ada.Streams.Stream_Element_Offset;
-
       Pat : constant String := "123456789abcdef0123456789";
       Buf : Ada.Streams.Stream_Element_Array (1 .. Pat'Length);
       Res : String (10 .. 10 + Pat'Length - 1);
