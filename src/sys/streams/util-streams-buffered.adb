@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered -- Buffered streams utilities
---  Copyright (C) 2010, 2011, 2013, 2014, 2016, 2017, 2018, 2019, 2020 Stephane Carrez
+--  Copyright (C) 2010 - 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,29 +28,25 @@ package body Util.Streams.Buffered is
    --  Initialize the stream to read or write on the given streams.
    --  An internal buffer is allocated for writing the stream.
    --  ------------------------------
-   procedure Initialize (Stream  : in out Output_Buffer_Stream;
-                         Output  : access Output_Stream'Class;
+   procedure Initialize (Stream  : in out Buffer_Stream;
                          Size    : in Positive) is
    begin
       Free_Buffer (Stream.Buffer);
       Stream.Last      := Stream_Element_Offset (Size);
       Stream.Buffer    := new Stream_Element_Array (1 .. Stream.Last);
-      Stream.Output    := Output;
       Stream.Write_Pos := 1;
       Stream.Read_Pos  := 1;
-      Stream.No_Flush  := False;
    end Initialize;
 
    --  ------------------------------
    --  Initialize the stream to read from the string.
    --  ------------------------------
-   procedure Initialize (Stream  : in out Input_Buffer_Stream;
+   procedure Initialize (Stream  : in out Buffer_Stream;
                          Content : in String) is
    begin
       Free_Buffer (Stream.Buffer);
       Stream.Last      := Stream_Element_Offset (Content'Length);
       Stream.Buffer    := new Stream_Element_Array (1 .. Content'Length);
-      Stream.Input     := null;
       Stream.Write_Pos := Stream.Last + 1;
       Stream.Read_Pos  := 1;
       for I in Content'Range loop
@@ -60,12 +56,36 @@ package body Util.Streams.Buffered is
    end Initialize;
 
    --  ------------------------------
+   --  Initialize the stream to read or write on the given streams.
+   --  An internal buffer is allocated for writing the stream.
+   --  ------------------------------
+   procedure Initialize (Stream  : in out Output_Buffer_Stream;
+                         Output  : access Output_Stream'Class;
+                         Size    : in Positive) is
+   begin
+      Stream.Initialize (Size);
+      Stream.Output    := Output;
+      Stream.No_Flush  := False;
+   end Initialize;
+
+   --  ------------------------------
+   --  Initialize the stream to read from the string.
+   --  ------------------------------
+   procedure Initialize (Stream  : in out Input_Buffer_Stream;
+                         Content : in String) is
+   begin
+      Buffer_Stream (Stream).Initialize (Content);
+      Stream.Input     := null;
+   end Initialize;
+
+   --  ------------------------------
    --  Initialize the stream with a buffer of <b>Size</b> bytes.
    --  ------------------------------
    procedure Initialize (Stream  : in out Output_Buffer_Stream;
                          Size    : in Positive) is
    begin
-      Stream.Initialize (Output => null, Size => Size);
+      Buffer_Stream (Stream).Initialize (Size => Size);
+      Stream.Output := null;
       Stream.No_Flush := True;
       Stream.Read_Pos := 1;
    end Initialize;
@@ -90,7 +110,7 @@ package body Util.Streams.Buffered is
    --  Initialize the stream from the buffer created for an output stream.
    --  ------------------------------
    procedure Initialize (Stream  : in out Input_Buffer_Stream;
-                         From    : in out Output_Buffer_Stream'Class) is
+                         From    : in out Buffer_Stream'Class) is
    begin
       Free_Buffer (Stream.Buffer);
       Stream.Buffer := From.Buffer;
@@ -117,7 +137,7 @@ package body Util.Streams.Buffered is
    --  ------------------------------
    --  Get the direct access to the buffer.
    --  ------------------------------
-   function Get_Buffer (Stream : in Output_Buffer_Stream) return Buffer_Access is
+   function Get_Buffer (Stream : in Buffer_Stream) return Buffer_Access is
    begin
       return Stream.Buffer;
    end Get_Buffer;
@@ -125,7 +145,7 @@ package body Util.Streams.Buffered is
    --  ------------------------------
    --  Get the number of element in the stream.
    --  ------------------------------
-   function Get_Size (Stream : in Output_Buffer_Stream) return Natural is
+   function Get_Size (Stream : in Buffer_Stream) return Natural is
    begin
       return Natural (Stream.Write_Pos - Stream.Read_Pos);
    end Get_Size;
@@ -195,8 +215,8 @@ package body Util.Streams.Buffered is
    end Flush;
 
    --  ------------------------------
-   --  Flush the buffer in the <tt>Into</tt> array and return the index of the
-   --  last element (inclusive) in <tt>Last</tt>.
+   --  Flush the buffer in the `Into` array and return the index of the
+   --  last element (inclusive) in `Last`.
    --  ------------------------------
    procedure Flush (Stream : in out Output_Buffer_Stream;
                     Into   : out Ada.Streams.Stream_Element_Array;
@@ -322,7 +342,7 @@ package body Util.Streams.Buffered is
 
    --  ------------------------------
    --  Read into the buffer as many bytes as possible and return in
-   --  <b>last</b> the position of the last byte read.
+   --  `last` the position of the last byte read.
    --  ------------------------------
    overriding
    procedure Read (Stream : in out Input_Buffer_Stream;
@@ -357,7 +377,7 @@ package body Util.Streams.Buffered is
 
    --  ------------------------------
    --  Read into the buffer as many bytes as possible and return in
-   --  <b>last</b> the position of the last byte read.
+   --  `last` the position of the last byte read.
    --  ------------------------------
    procedure Read (Stream : in out Input_Buffer_Stream;
                    Into   : in out Ada.Strings.Unbounded.Unbounded_String) is
@@ -430,7 +450,7 @@ package body Util.Streams.Buffered is
    --  Flush the stream and release the buffer.
    --  ------------------------------
    overriding
-   procedure Finalize (Object : in out Input_Buffer_Stream) is
+   procedure Finalize (Object : in out Buffer_Stream) is
    begin
       if Object.Buffer /= null then
          Free_Buffer (Object.Buffer);
