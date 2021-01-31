@@ -43,6 +43,8 @@ package body Util.Streams.Buffered.Lzma.Tests is
                        Test_Compress_File_Stream'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Lzma.Read+Write",
                        Test_Compress_Decompress_Stream'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Lzma.Read+Write+AES-CBC",
+                       Test_Compress_Encrypt_Decompress_Decrypt_Stream'Access);
    end Add_Tests;
 
    procedure Test_Compress_Stream (T : in out Test) is
@@ -160,7 +162,12 @@ package body Util.Streams.Buffered.Lzma.Tests is
 
    procedure Test_Compress_Decompress_Stream (T : in out Test) is
    begin
-      Test_Stream_File (T, "abcdefgh", 1000, False, Util.Encoders.AES.CBC, "AES-CBC");
+      Test_Stream_File (T, "abcdefgh", 1000, False, Util.Encoders.AES.CBC, "NONE");
    end Test_Compress_Decompress_Stream;
+
+   procedure Test_Compress_Encrypt_Decompress_Decrypt_Stream (T : in out Test) is
+   begin
+      Test_Stream_File (T, "abcdefgh", 1000, True, Util.Encoders.AES.CBC, "AES-CBC");
+   end Test_Compress_Encrypt_Decompress_Decrypt_Stream;
 
 end Util.Streams.Buffered.Lzma.Tests;
