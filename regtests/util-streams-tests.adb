@@ -20,7 +20,6 @@ with Util.Streams.Files;
 with Util.Streams.Texts;
 with Util.Streams.Base64;
 with Util.Streams.AES;
-with Util.Streams.Buffered.Lzma;
 with Util.Measures;
 with Ada.IO_Exceptions;
 with Ada.Strings.Unbounded;
@@ -31,6 +30,12 @@ package body Util.Streams.Tests is
    use Ada.Streams.Stream_IO;
 
    package AES_Caller is new Util.Test_Caller (Test, "Streams.AES");
+
+   procedure Test_AES_File (T     : in out Test;
+                            Item  : in String;
+                            Count : in Positive;
+                            Mode  : in Util.Encoders.AES.AES_Mode;
+                            Label : in String);
 
    package Caller is new Util.Test_Caller (Test, "Streams.Main");
 
@@ -95,8 +100,6 @@ package body Util.Streams.Tests is
       File       : aliased File_Stream;
       Decipher   : aliased Util.Streams.AES.Decoding_Stream;
       Cipher     : aliased Util.Streams.AES.Encoding_Stream;
-      Compress   : aliased Util.Streams.Buffered.Lzma.Compress_Stream;
-      Decompress : aliased Util.Streams.Buffered.Lzma.Decompress_Stream;
       Print      : Util.Streams.Texts.Print_Stream;
       Reader     : Util.Streams.Texts.Reader_Stream;
       Key        : Util.Encoders.Secret_Key
@@ -107,8 +110,6 @@ package body Util.Streams.Tests is
       Cipher.Produces (File'Access, 32);
       Cipher.Set_Key (Key, Mode);
       Print.Initialize (Cipher'Access);
-      --Compress.Initialize (Cipher'Access, 1024);
-      --Print.Initialize (Compress'Access);
       for I in 1 .. Count loop
          Print.Write (Item & ASCII.LF);
       end loop;
@@ -118,9 +119,7 @@ package body Util.Streams.Tests is
       File.Open (Mode => In_File, Name => Path);
       Decipher.Consumes (File'Access, 10240);
       Decipher.Set_Key (Key, Mode);
-      Decompress.Initialize (Decipher'Access, 10240);
       Reader.Initialize (From => Decipher'Access);
-      --Reader.Initialize (From => Decompress'Access);
       declare
          Line_Count : Natural := 0;
       begin
