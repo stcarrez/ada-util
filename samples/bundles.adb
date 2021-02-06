@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  bundles -- Bundle and translation example
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,7 @@ procedure Bundles is
    use Util.Properties.Bundles;
    use Util.Log.Loggers;
 
-   Log     : constant Logger := Create ("log", "samples/log4j.properties");
+   Log     : constant Logger := Create ("log");
 
    Factory : Util.Properties.Bundles.Loader;
 
@@ -36,6 +36,8 @@ procedure Bundles is
 
    Locale : Unbounded_String := To_Unbounded_String ("en");
 begin
+   Util.Log.Loggers.Initialize ("samples/log4j.properties");
+
    --  Load the bundles from the current directory
    Initialize (Factory, "samples/");
    loop

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  date -- Print the date
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,7 @@ procedure Date is
    use Util.Properties.Bundles;
    use GNAT.Command_Line;
 
-   Log         : constant Logger := Create ("log", "samples/log4j.properties");
+   Log         : constant Logger := Create ("log");
 
    Factory     : Util.Properties.Bundles.Loader;
    Bundle      : Util.Properties.Bundles.Manager;
@@ -39,6 +39,8 @@ procedure Date is
    Date        : constant Ada.Calendar.Time := Ada.Calendar.Clock;
    Use_Default : Boolean := True;
 begin
+   Util.Log.Loggers.Initialize ("samples/log4j.properties");
+
    --  Load the bundles from the current directory
    Initialize (Factory, "samples/;bundles");
 
