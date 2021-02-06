@@ -516,11 +516,9 @@ package body Util.Properties is
       Current : Manager;
       Pos     : Natural;
       Len     : Natural;
-      Old_Shared : Boolean;
    begin
       Check_And_Create_Impl (Self);
       Current := Manager (Self);
-      --  Old_Shared := Current.Impl.Shared;
       Current.Impl.Set_Shared (True);
       while not End_Of_File (File) loop
          Line := Get_Line (File);
