@@ -14,7 +14,7 @@ project Samples is
 
    case UtilAda.Has_Lzma is
       when "yes" =>
-         Mains := Mains & ("compress.adb", "decompress.adb");
+         Mains := Mains & ("compress.adb", "decompress.adb", "lzma_encrypt.adb", "lzma_decrypt.adb");
       when "no" =>
          null;
 
