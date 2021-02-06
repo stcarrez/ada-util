@@ -5029,8 +5029,12 @@ case $AWS_VERSION in
      UTIL_AWS_VERSION=2
      ;;
 
-  *)
+  3.*|2.*)
      UTIL_AWS_VERSION=1
+     ;;
+
+  *)
+     UTIL_AWS_VERSION=2
      ;;
 esac
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${UTIL_AWS_VERSION}" >&5
