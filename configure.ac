@@ -320,8 +320,12 @@ case $AWS_VERSION in
      UTIL_AWS_VERSION=2
      ;;
 
-  *)
+  3.*|2.*)
      UTIL_AWS_VERSION=1
+     ;;
+
+  *)
+     UTIL_AWS_VERSION=2
      ;;
 esac
 AC_MSG_RESULT(${UTIL_AWS_VERSION})
