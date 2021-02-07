@@ -120,7 +120,7 @@ package body Util.Commands.Drivers is
             Target_Cmd : constant Command_Access := Command.Driver.Find_Command (Cmd_Name);
          begin
             if Target_Cmd = null then
-               Logs.Error (-("Unknown command '{0}'"), Cmd_Name);
+               Logs.Error (-("unknown command '{0}'"), Cmd_Name);
                raise Not_Found;
             else
                Target_Cmd.Help (Cmd_Name, Context);
@@ -266,7 +266,7 @@ package body Util.Commands.Drivers is
             Config_Parser.Execute (Config, Args, Execute'Access);
          end;
       else
-         Logs.Error (-("Unknown command '{0}'"), Name);
+         Logs.Error (-("unknown command '{0}'"), Name);
          raise Not_Found;
       end if;
    end Execute;
