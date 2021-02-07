@@ -112,7 +112,6 @@ package body Util.Commands.Drivers is
          Put_Line (Strings.Formats.Format (-("Type '{0} help {command}' for help "
                                                & "on a specific command."), Driver_Name));
          Put_Line (-("Available subcommands:"));
-         Put (Driver_Name);
          Command.Driver.List.Iterate (Process => Compute_Size'Access);
          Command.Driver.List.Iterate (Process => Print'Access);
       else
