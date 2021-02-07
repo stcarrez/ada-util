@@ -270,7 +270,9 @@ package body Util.Texts.Builders is
                N := 0;
                Old_Pos := Pos - 1;
                loop
-                  if Element_Type'Pos (C) >= Character'Pos ('0') and Element_Type'Pos (C) <= Character'Pos ('9') then
+                  if Element_Type'Pos (C) >= Character'Pos ('0')
+                    and Element_Type'Pos (C) <= Character'Pos ('9')
+                  then
                      N := N * 10 + Natural (Element_Type'Pos (C) - Character'Pos ('0'));
                      Pos := Pos + 1;
                      if Pos > Message'Last then
