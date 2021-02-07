@@ -28,6 +28,7 @@ and you may use:
   * `--enable-aunit` to enable building the AUnit support used by the Ada utility testing framework,
   * `--disable-curl` to disable the support for CURL,
   * `--disable-aws` to disable the support for AWS,
+  * `--disable-lzma` to disable the support for LZMA,
   * `--with-xmlada=PATH` to control the installation path of [XML/Ada](http://libre.adacore.com/libre/tools/xmlada/),
   * `--with-aws=PATH` to control the installation path of [AWS](http://libre.adacore.com/libre/tools/aws/),
   * `--with-ada-lzma=PATH` to control the installation path of [Ada LZMA](https://github.com/stcarrez/ada-lzma),
