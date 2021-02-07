@@ -20,10 +20,6 @@ util-junit.xml
 test-write.txt
 test-stream.txt
 autom4te.cache
-distrib/util_http.gpr
-distrib/util_http_aws.gpr
-distrib/util_http_curl.gpr
-distrib/util_unit.gpr
 lib/
 obj/
 regtests/util-testsuite.adb
