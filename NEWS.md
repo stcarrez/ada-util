@@ -1,7 +1,11 @@
 Version 2.4.0  -
-  - Add support to customize and provide application specific log appenders
+  - Add support to customize and provide application specific log appenders (example in ada-keystore)
+  - Improvement of read/write streams to chain LZMA, AES, Base64
+  - Add examples to show LZMA compress+AES encryption, AES decryption+LZMA decompress
   - Fix compilation with GNAT 10
   - New package Util.Properties.Form to help in parsing application/x-www-form-urlencoded
+  - Fixed the Util.Tests.Get_Test_Path semantic and use the results directory
+  - Drop detection of buggy gcc 4.7.2
 
 Version 2.3.0  - Nov 2020
   - New stream operations to read/write UTF-8 sequences in Wide_Wide character
