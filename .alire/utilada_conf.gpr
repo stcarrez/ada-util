@@ -28,9 +28,6 @@ abstract project UtilAda_Conf is
    --  Enable the use of GNAT symbolic traceback.
    Has_Gnat_Traceback : UtilAda_Config.Yes_No := "yes";
 
-   --  Enable the compilation of Util.Serialize.Mappers.Vector_Mappers.
-   Has_Vector_Mappers : UtilAda_Config.Yes_No := "yes";
-
    type AWS_Impl_Type is ("1", "2");
 
    AWS_Impl    : AWS_Impl_Type := "2";   
