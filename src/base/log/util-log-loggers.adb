@@ -23,7 +23,9 @@ with Ada.IO_Exceptions;
 with Util.Strings;
 with Util.Strings.Builders;
 with Util.Strings.Formats;
+with Util.Log.Appenders.Factories;
 with Util.Log.Appenders.Consoles;
+with Util.Log.Appenders.Files;
 package body Util.Log.Loggers is
 
    use Ada.Strings;
@@ -31,6 +33,14 @@ package body Util.Log.Loggers is
    use Log.Appenders;
 
    function Traceback (E : in Exception_Occurrence) return String is separate;
+
+   package File_Factory is
+      new Util.Log.Appenders.Factories (Name   => "File",
+                                        Create => Files.Create'Access);
+
+   package Console_Factory is
+      new Util.Log.Appenders.Factories (Name   => "Console",
+                                        Create => Consoles.Create'Access);
 
    --  The log manager controls the configuration of loggers.
    --  The log appenders are shared by loggers and they are created by
@@ -520,4 +530,7 @@ package body Util.Log.Loggers is
       Manager.Remove (Log.Instance);
    end Finalize;
 
+begin
+   Console_Factory.Register;
+   File_Factory.Register;
 end Util.Log.Loggers;

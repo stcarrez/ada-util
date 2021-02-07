@@ -21,21 +21,10 @@ with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
 with Util.Strings.Transforms;
-with Util.Log.Appenders.Factories;
-with Util.Log.Appenders.Files;
-with Util.Log.Appenders.Consoles;
 package body Util.Log.Appenders is
 
    use Ada;
    use Ada.Finalization;
-
-   package Console_Factory is
-      new Util.Log.Appenders.Factories (Name   => "Console",
-                                        Create => Consoles.Create'Access);
-
-   package File_Factory is
-      new Util.Log.Appenders.Factories (Name   => "File",
-                                        Create => Files.Create'Access);
 
    Appender_Factories : Appender_Factory_Access;
 
@@ -260,7 +249,4 @@ package body Util.Log.Appenders is
       return null;
    end Create;
 
-begin
-   Console_Factory.Register;
-   File_Factory.Register;
 end Util.Log.Appenders;
