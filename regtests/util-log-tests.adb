@@ -281,6 +281,7 @@ package body Util.Log.Tests is
    end Test_Console_Appender;
 
    procedure Test_Missing_Config (T : in out Test) is
+      pragma Unreferenced (T);
       L : constant Loggers.Logger := Loggers.Create ("util.log.test.debug");
    begin
       Util.Log.Loggers.Initialize ("plop");
