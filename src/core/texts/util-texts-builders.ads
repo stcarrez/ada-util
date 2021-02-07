@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-texts-builders -- Text builder
---  Copyright (C) 2013, 2017 Stephane Carrez
+--  Copyright (C) 2013, 2017, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -104,6 +104,17 @@ package Util.Texts.Builders is
    generic
       with procedure Process (Content : in Input);
    procedure Get (Source : in Builder);
+
+   --  Format the message and replace occurrences of argument patterns by
+   --  their associated value.
+   --  Returns the formatted message in the stream
+   generic
+      type Value is limited private;
+      type Value_List is array (Positive range <>) of Value;
+      with procedure Append (Input : in out Builder; Item : in Value);
+   procedure Format (Into      : in out Builder;
+                     Message   : in Input;
+                     Arguments : in Value_List);
 
 private
 
