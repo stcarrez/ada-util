@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-mockups -- HTTP Clients
---  Copyright (C) 2011, 2012, 2017, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -72,7 +72,7 @@ package body Util.Http.Clients.Mockups is
                       Http     : in Client'Class;
                       URI      : in String;
                       Reply    : out Response'Class) is
-      pragma Unreferenced (Http, URI);
+      pragma Unreferenced (Manager, Http, URI);
 
       Rep : constant Util.Http.Mockups.Mockup_Response_Access
         := new Util.Http.Mockups.Mockup_Response;
