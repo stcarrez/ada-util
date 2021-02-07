@@ -157,7 +157,21 @@ AM_GNAT_FIND_XML_ADA([
 ], [
 ])
 
-AC_MSG_CHECKING([Ada LZMA Library])
+##########################################
+# Ada LZMA library
+##########################################
+
+ac_enable_lzma=yes
+AC_MSG_CHECKING([Ada LZMA support is enabled])
+AC_ARG_ENABLE(lzma,
+[  --enable-lzma           Enable the Ada LZMA support in Ada Util (enabled)],
+[case "${enableval}" in
+  no|none)  ac_enable_lzma=no ;;
+  *)        ac_enable_lzma=yes ;;
+esac])dnl
+
+AC_MSG_RESULT(${ac_enable_lzma})
+
 AC_ARG_WITH(ada-lzma,
 AS_HELP_STRING([--with-ada-lzma=x], [Path for Ada LZMA Library]),
 [
@@ -170,12 +184,8 @@ AS_HELP_STRING([--with-ada-lzma=x], [Path for Ada LZMA Library]),
 [
   UTIL_USE_LZMA=yes;
 ])
-AC_MSG_RESULT(${UTIL_WITH_LZMA})
 
-##########################################
-# Ada LZMA library
-##########################################
-if test T${UTIL_WITH_LZMA} = Tyes; then
+if test T$ac_enable_lzma = Tyes; then
 AM_GNAT_FIND_PROJECT([ada-lzma],[Ada LZMA Library],[lzmada],
   [git@github.com:stcarrez/ada-lzma.git],
   [Building Ada Utility Library with LZMA support.],
@@ -331,39 +341,6 @@ esac
 AC_MSG_RESULT(${UTIL_AWS_VERSION})
 AC_SUBST(UTIL_AWS_VERSION)
 
-##########################################
-# Check for Util.Serialize.Mappers.Vector_Mappers support
-##########################################
-
-ac_enable_vector_mappers=yes
-AC_MSG_CHECKING([for gcc bug compiling Util.Serialize.Mappers.Vector_Mappers (Bug 53737)])
-version=`$GNATMAKE --version | grep GNATMAKE | sed -e 's,GNATMAKE ,,'`
-case "$version" in
-   4.7.0*|4.7.1*|4.7.2*|4.7.3*)
-      AC_MSG_RESULT(yes)
-      AC_MSG_WARN(Your compiler is known to fail when compiling a generic package.)
-      AC_MSG_WARN(See Bug 53737: Assert_Failure on a generic package with a package as parameter)
-      AC_MSG_WARN(The Util.Serialize.Mappers.Vector_Mappers and Util.Http.Rest packages are excluded.)
-      ac_enable_vector_mappers=no
-      ;;
-
-   *)
-      AC_MSG_RESULT(no)
-      ac_enable_vector_mappers=yes
-      ;;
-esac
-
-AC_MSG_CHECKING([whether the Util.Serialize.Mappers.Vector_Mappers package must be compiled])
-AC_ARG_ENABLE(vector-mappers,
-[  --enable-vector-mappers Enable the Util.Serialize.Mappers.Vector_Mappers package (enabled)],
-[case "${enableval}" in
-  no|none)  ac_enable_vector_mappers=no ;;
-  *)        ac_enable_vector_mappers=yes ;;
-esac])dnl
-
-AC_MSG_RESULT(${ac_enable_vector_mappers})
-UTIL_HAVE_VECTOR_MAPPERS=$ac_enable_vector_mappers
-
 AC_ARG_ENABLE(link-options-util,
 [  --enable-link-options-util=opts
                           Add some linker options when building the Ada Util shared library (disabled)],
@@ -398,7 +375,6 @@ AC_SUBST(UTIL_CURL_LIBRARY_OPTIONS)
 
 AM_GNAT_CHECK_INSTALL
 
-AC_SUBST(UTIL_HAVE_VECTOR_MAPPERS)
 AC_SUBST(UTIL_HAVE_AWS)
 AC_SUBST(WITH_UTIL_AWS)
 AC_SUBST(WITH_SERVER)
