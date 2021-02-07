@@ -22,6 +22,7 @@ with Ada.Unchecked_Deallocation;
 with Ada.IO_Exceptions;
 with Util.Strings;
 with Util.Strings.Builders;
+with Util.Strings.Formats;
 with Util.Log.Appenders.Consoles;
 package body Util.Log.Loggers is
 
@@ -78,13 +79,6 @@ package body Util.Log.Loggers is
    Manager : Log_Manager;
 
    function Get_Appender (Value : in String) return String with Inline_Always;
-
-   procedure Format (Result  : in out Util.Strings.Builders.Builder;
-                     Message : in String;
-                     Arg1    : in String;
-                     Arg2    : in String;
-                     Arg3    : in String;
-                     Arg4    : in String);
 
    --  Get the logger property associated with a given logger
    function Get_Logger_Property (Properties : in Util.Properties.Manager;
@@ -156,7 +150,7 @@ package body Util.Log.Loggers is
                Message : Util.Strings.Builders.Builder (256);
                Date    : constant Ada.Calendar.Time := Ada.Calendar.Clock;
             begin
-               Format (Message, "Log configuration file {0} not found", Name, "", "", "");
+               Strings.Formats.Format (Message, "Log configuration file {0} not found", Name);
                if Default_Appender = null then
                   Build_Appender ("root", Default_Appender);
                end if;
@@ -382,55 +376,6 @@ package body Util.Log.Loggers is
       return Get_Level_Name (Log.Instance.Level);
    end Get_Level_Name;
 
-   --  ------------------------------
-   --  Format the message with the arguments
-   --  ------------------------------
-   procedure Format (Result  : in out Util.Strings.Builders.Builder;
-                     Message : in String;
-                     Arg1    : in String;
-                     Arg2    : in String;
-                     Arg3    : in String;
-                     Arg4    : in String) is
-      use Util.Strings.Builders;
-
-      Pos    : Natural := Message'First;
-      First  : Natural := Pos;
-      C      : Character;
-   begin
-      --  Replace {N} with arg1, arg2, arg3 or ?
-      while Pos <= Message'Last loop
-         C := Message (Pos);
-         if C = '{' and then Pos + 2 <= Message'Last and then Message (Pos + 2) = '}' then
-            if First /= Pos then
-               Append (Result, Message (First .. Pos - 1));
-            end if;
-            C := Message (Pos + 1);
-            Pos := Pos + 2;
-            case C is
-               when '0' =>
-                  Append (Result, Arg1);
-
-               when '1' =>
-                  Append (Result, Arg2);
-
-               when '2' =>
-                  Append (Result, Arg3);
-
-               when '3' =>
-                  Append (Result, Arg4);
-
-               when others =>
-                  Append (Result, "?");
-            end case;
-            First := Pos + 1;
-         end if;
-         Pos := Pos + 1;
-      end loop;
-      if First /= Pos then
-         Append (Result, Message (First .. Pos - 1));
-      end if;
-   end Format;
-
    procedure Print (Log     : in Logger;
                     Level   : in Level_Type;
                     Message : in String;
@@ -445,7 +390,7 @@ package body Util.Log.Loggers is
             Result : Util.Strings.Builders.Builder (256);
             Date   : constant Ada.Calendar.Time := Ada.Calendar.Clock;
          begin
-            Format (Result, Message, Arg1, Arg2, Arg3, Arg4);
+            Strings.Formats.Format (Result, Message, Arg1, Arg2, Arg3, Arg4);
             Instance.Appender.Append (Result, Date, Level, Instance.Name);
          end;
       end if;
