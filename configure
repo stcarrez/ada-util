@@ -628,7 +628,6 @@ UTIL_HAVE_CURL
 WITH_SERVER
 WITH_UTIL_AWS
 UTIL_HAVE_AWS
-UTIL_HAVE_VECTOR_MAPPERS
 ADA_PRJ_BASE
 ADA_ALI_BASE
 ADA_LIB_BASE
@@ -744,6 +743,7 @@ enable_distrib
 enable_coverage
 enable_utilgen
 with_xmlada
+enable_lzma
 with_ada_lzma
 enable_traceback
 enable_ahven
@@ -751,7 +751,6 @@ enable_aunit
 enable_curl
 enable_aws
 with_aws
-enable_vector_mappers
 enable_link_options_util
 enable_link_options_curl
 '
@@ -1392,12 +1391,12 @@ Optional Features:
   --enable-distrib        build for distribution, optimized and strip symbols (enabled)
   --enable-coverage       build with coverage support -fprofile-arcs -ftest-coverage (disabled)
   --enable-utilgen        Enable the support to port Ada Util on other platforms (disable)
+  --enable-lzma           Enable the Ada LZMA support in Ada Util (enabled)
   --enable-traceback      Enable the symbolic traceback dump in logged exceptions (enabled)
   --enable-ahven          Enable internal Ahven support for testutil library and Ada util unit tests (enabled)
   --enable-aunit          Enable AUnit support for testutil library and Ada util unit tests (disabled)
   --enable-curl           Enable the CURL HTTP client support in Ada Util (enabled)
   --enable-aws            Enable the AWS support (enabled)
-  --enable-vector-mappers Enable the Util.Serialize.Mappers.Vector_Mappers package (enabled)
   --enable-link-options-util=opts
                           Add some linker options when building the Ada Util shared library (disabled)
   --enable-link-options-curl=opts
@@ -4545,8 +4544,24 @@ $as_echo "done" >&6; }
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Ada LZMA Library" >&5
-$as_echo_n "checking Ada LZMA Library... " >&6; }
+##########################################
+# Ada LZMA library
+##########################################
+
+ac_enable_lzma=yes
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Ada LZMA support is enabled" >&5
+$as_echo_n "checking Ada LZMA support is enabled... " >&6; }
+# Check whether --enable-lzma was given.
+if test "${enable_lzma+set}" = set; then :
+  enableval=$enable_lzma; case "${enableval}" in
+  no|none)  ac_enable_lzma=no ;;
+  *)        ac_enable_lzma=yes ;;
+esac
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_enable_lzma}" >&5
+$as_echo "${ac_enable_lzma}" >&6; }
+
 
 # Check whether --with-ada-lzma was given.
 if test "${with_ada_lzma+set}" = set; then :
@@ -4563,13 +4578,8 @@ else
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${UTIL_WITH_LZMA}" >&5
-$as_echo "${UTIL_WITH_LZMA}" >&6; }
 
-##########################################
-# Ada LZMA library
-##########################################
-if test T${UTIL_WITH_LZMA} = Tyes; then
+if test T$ac_enable_lzma = Tyes; then
 
 
 # Check whether --with-ada-lzma was given.
@@ -5041,48 +5051,6 @@ esac
 $as_echo "${UTIL_AWS_VERSION}" >&6; }
 
 
-##########################################
-# Check for Util.Serialize.Mappers.Vector_Mappers support
-##########################################
-
-ac_enable_vector_mappers=yes
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for gcc bug compiling Util.Serialize.Mappers.Vector_Mappers (Bug 53737)" >&5
-$as_echo_n "checking for gcc bug compiling Util.Serialize.Mappers.Vector_Mappers (Bug 53737)... " >&6; }
-version=`$GNATMAKE --version | grep GNATMAKE | sed -e 's,GNATMAKE ,,'`
-case "$version" in
-   4.7.0*|4.7.1*|4.7.2*|4.7.3*)
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Your compiler is known to fail when compiling a generic package." >&5
-$as_echo "$as_me: WARNING: Your compiler is known to fail when compiling a generic package." >&2;}
-      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: See Bug 53737: Assert_Failure on a generic package with a package as parameter" >&5
-$as_echo "$as_me: WARNING: See Bug 53737: Assert_Failure on a generic package with a package as parameter" >&2;}
-      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: The Util.Serialize.Mappers.Vector_Mappers and Util.Http.Rest packages are excluded." >&5
-$as_echo "$as_me: WARNING: The Util.Serialize.Mappers.Vector_Mappers and Util.Http.Rest packages are excluded." >&2;}
-      ac_enable_vector_mappers=no
-      ;;
-
-   *)
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-      ac_enable_vector_mappers=yes
-      ;;
-esac
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the Util.Serialize.Mappers.Vector_Mappers package must be compiled" >&5
-$as_echo_n "checking whether the Util.Serialize.Mappers.Vector_Mappers package must be compiled... " >&6; }
-# Check whether --enable-vector-mappers was given.
-if test "${enable_vector_mappers+set}" = set; then :
-  enableval=$enable_vector_mappers; case "${enableval}" in
-  no|none)  ac_enable_vector_mappers=no ;;
-  *)        ac_enable_vector_mappers=yes ;;
-esac
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_enable_vector_mappers}" >&5
-$as_echo "${ac_enable_vector_mappers}" >&6; }
-UTIL_HAVE_VECTOR_MAPPERS=$ac_enable_vector_mappers
-
 # Check whether --enable-link-options-util was given.
 if test "${enable_link_options_util+set}" = set; then :
   enableval=$enable_link_options_util;
@@ -5335,7 +5303,6 @@ $as_echo "<prefix>/${ADA_LIB_BASE}" >&6; }
 $as_echo_n "checking installation of GNAT project files... " >&6; }
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: <prefix>/${ADA_PRJ_BASE}" >&5
 $as_echo "<prefix>/${ADA_PRJ_BASE}" >&6; }
-
 
 
 
