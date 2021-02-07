@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-texts-builders -- Text builder
---  Copyright (C) 2013, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2013, 2016, 2017, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -230,6 +230,77 @@ package body Util.Texts.Builders is
          end;
       end if;
    end Get;
+
+   --  ------------------------------
+   --  Format the message and replace occurrences of argument patterns by
+   --  their associated value.
+   --  Returns the formatted message in the stream
+   --  ------------------------------
+   procedure Format (Into      : in out Builder;
+                     Message   : in Input;
+                     Arguments : in Value_List) is
+      C       : Element_Type;
+      Old_Pos : Natural;
+      N       : Natural := 0;
+      Pos     : Natural := Message'First;
+      First   : Natural := Pos;
+   begin
+      --  Replace {N} with arg1, arg2, arg3 or ?
+      while Pos <= Message'Last loop
+         C := Message (Pos);
+         if Element_Type'Pos (C) = Character'Pos ('{') and then Pos + 1 <= Message'Last then
+            if First /= Pos then
+               Append (Into, Message (First .. Pos - 1));
+            end if;
+            N := 0;
+            Pos := Pos + 1;
+            C := Message (Pos);
+
+            --  Handle {} replacement to emit the current argument and advance argument position.
+            if Element_Type'Pos (C) = Character'Pos ('}') then
+               Pos := Pos + 1;
+               if N >= Arguments'Length then
+                  First := Pos - 2;
+               else
+                  Append (Into, Arguments (N + Arguments'First));
+                  First := Pos;
+               end if;
+               N := N + 1;
+            else
+               N := 0;
+               Old_Pos := Pos - 1;
+               loop
+                  if Element_Type'Pos (C) >= Character'Pos ('0') and Element_Type'Pos (C) <= Character'Pos ('9') then
+                     N := N * 10 + Natural (Element_Type'Pos (C) - Character'Pos ('0'));
+                     Pos := Pos + 1;
+                     if Pos > Message'Last then
+                        First := Old_Pos;
+                        exit;
+                     end if;
+                  elsif Element_Type'Pos (C) = Character'Pos ('}') then
+                     Pos := Pos + 1;
+                     if N >= Arguments'Length then
+                        First := Old_Pos;
+                     else
+                        Append (Into, Arguments (N + Arguments'First));
+                        First := Pos;
+                     end if;
+                     exit;
+                  else
+                     First := Old_Pos;
+                     exit;
+                  end if;
+                  C := Message (Pos);
+               end loop;
+            end if;
+         else
+            Pos := Pos + 1;
+         end if;
+      end loop;
+      if First /= Pos then
+         Append (Into, Message (First .. Pos - 1));
+      end if;
+   end Format;
 
    --  ------------------------------
    --  Setup the builder.
