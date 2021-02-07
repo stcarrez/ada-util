@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-drivers -- Support to make command line tools
---  Copyright (C) 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Util.Log.Loggers;
+with Util.Strings.Formats;
 with Ada.Text_IO; use Ada.Text_IO;
 package body Util.Commands.Drivers is
 
@@ -108,12 +109,10 @@ package body Util.Commands.Drivers is
       if Args.Get_Count = 0 then
          Usage (Command.Driver.all, Args, Context);
          New_Line;
-         Put ("Type '");
-         Put (Driver_Name);
-         Put_Line (" help {command}' for help on a specific command.");
-         New_Line;
+         Put_Line (Strings.Formats.Format (-("Type '{0} help {command}' for help "
+                                               & "on a specific command."), Driver_Name));
          Put_Line (-("Available subcommands:"));
-
+         Put (Driver_Name);
          Command.Driver.List.Iterate (Process => Compute_Size'Access);
          Command.Driver.List.Iterate (Process => Print'Access);
       else
@@ -268,7 +267,7 @@ package body Util.Commands.Drivers is
             Config_Parser.Execute (Config, Args, Execute'Access);
          end;
       else
-         Logs.Error (-("Unkown command '{0}'"), Name);
+         Logs.Error (-("Unknown command '{0}'"), Name);
          raise Not_Found;
       end if;
    end Execute;
