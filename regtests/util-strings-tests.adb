@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  strings.tests -- Unit tests for strings
---  Copyright (C) 2009, 2010, 2011, 2012, 2015, 2018, 2020 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2015, 2018, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +25,7 @@ with Util.Test_Caller;
 with Util.Strings.Transforms;
 with Util.Strings.Maps;
 with Util.Strings.Vectors;
+with Util.Strings.Formats;
 with Util.Perfect_Hash;
 with Util.Strings.Tokenizers;
 with Ada.Streams;
@@ -75,6 +76,8 @@ package body Util.Strings.Tests is
                        Test_Iterate_Token'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.Vectors perf",
                        Test_Perf_Vector'Access);
+      Caller.Add_Test (Suite, "Test Util.Strings.Formats",
+                       Test_Format'Access);
 
    end Add_Tests;
 
@@ -554,5 +557,20 @@ package body Util.Strings.Tests is
                                               Process => Process_Token'Access);
       Util.Tests.Assert_Equals (T, 8, Called, "Iterate_Tokens calls Process incorrectly");
    end Test_Iterate_Token;
+
+   --  ------------------------------
+   --  Test formatting strings.
+   --  ------------------------------
+   procedure Test_Format (T : in out Test) is
+      use Util.Strings.Formats;
+   begin
+      Util.Tests.Assert_Equals (T, "a", Format ("{0}", "a"));
+      Util.Tests.Assert_Equals (T, "{23}", Format ("{23}", "a"));
+      Util.Tests.Assert_Equals (T, "a {23}", Format ("{0} {23}", "a"));
+      Util.Tests.Assert_Equals (T, "a {23", Format ("{0} {23", "a"));
+      Util.Tests.Assert_Equals (T, "a {", Format ("{0} {", "a"));
+      Util.Tests.Assert_Equals (T, "dcba", Format ("{3}{2}{1}{0}", "a", "b", "c", "d"));
+      Util.Tests.Assert_Equals (T, "{4}dcba", Format ("{4}{3}{2}{1}{0}", "a", "b", "c", "d"));
+   end Test_Format;
 
 end Util.Strings.Tests;
