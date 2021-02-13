@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-tests - Test for processes
---  Copyright (C) 2011, 2016, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2018, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,6 +35,9 @@ package Util.Processes.Tests is
    --  Test input pipe redirection: write the process standard input
    procedure Test_Input_Pipe (T : in out Test);
 
+   --  Test error pipe redirection: read the process standard error
+   procedure Test_Error_Pipe (T : in out Test);
+
    --  Test shell splitting.
    procedure Test_Shell_Splitting_Pipe (T : in out Test);
 
@@ -46,6 +49,21 @@ package Util.Processes.Tests is
 
    --  Test input file redirection.
    procedure Test_Input_Redirect (T : in out Test);
+
+   --  Test changing working directory.
+   procedure Test_Set_Working_Directory (T : in out Test);
+
+   --  Test various errors.
+   procedure Test_Errors (T : in out Test);
+
+   --  Test launching and stopping a process.
+   procedure Test_Stop (T : in out Test);
+
+   --  Test various errors (pipe streams).
+   procedure Test_Pipe_Errors (T : in out Test);
+
+   --  Test launching and stopping a process (pipe streams).
+   procedure Test_Pipe_Stop (T : in out Test);
 
    --  Test the Tools.Execute operation.
    procedure Test_Tools_Execute (T : in out Test);

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  log.tests -- Unit tests for loggers
---  Copyright (C) 2009, 2010, 2011, 2013, 2015, 2018 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013, 2015, 2018, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +18,14 @@
 
 with Ada.Strings.Fixed;
 with Ada.Directories;
+with Ada.Text_IO;
+with Ada.Strings.Unbounded;
 
 with Util.Test_Caller;
 
 with Util.Log;
 with Util.Log.Loggers;
+with Util.Files;
 with Util.Properties;
 with Util.Measures;
 package body Util.Log.Tests is
@@ -30,8 +33,6 @@ package body Util.Log.Tests is
    Log : constant Loggers.Logger := Loggers.Create ("util.log.test");
 
    procedure Test_Log (T : in out Test) is
-      pragma Unreferenced (T);
-
       L : Loggers.Logger := Loggers.Create ("util.log.test.debug");
    begin
       L.Set_Level (DEBUG_LEVEL);
@@ -40,17 +41,35 @@ package body Util.Log.Tests is
       Log.Debug ("A debug message Not printed");
 
       L.Info ("An info message");
+      L.Info ("A {0} {1} {2} {3}", "info", "message", "not", "printed");
       L.Debug ("A debug message on logger 'L'");
+      Util.Tests.Assert_Equals (T, "DEBUG", L.Get_Level_Name,
+                               "Get_Level_Name function is invalid");
    end Test_Log;
+
+   procedure Test_Debug (T : in out Test) is
+      L : Loggers.Logger := Loggers.Create ("util.log.test.debug");
+      C : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      L.Set_Level (DEBUG_LEVEL);
+      L.Info ("My log message");
+      L.Error ("My error message");
+      L.Debug ("A {0} {1} {2} {3}", "debug", "message", "not", "printed");
+      L.Debug ("A {0} {1} {2} {3}", C, "message", "printed");
+
+      L.Info ("An info message");
+      L.Debug ("A debug message on logger 'L'");
+      Util.Tests.Assert_Equals (T, "DEBUG", L.Get_Level_Name,
+                               "Get_Level_Name function is invalid");
+   end Test_Debug;
 
    --  Test configuration and creation of file
    procedure Test_File_Appender (T : in out Test) is
-      pragma Unreferenced (T);
-
+      Path  : constant String := Util.Tests.Get_Test_Path ("test.log");
       Props : Util.Properties.Manager;
    begin
       Props.Set ("log4j.appender.test", "File");
-      Props.Set ("log4j.appender.test.File", "test.log");
+      Props.Set ("log4j.appender.test.File", Path);
       Props.Set ("log4j.logger.util.log.test.file", "DEBUG,test");
       Util.Log.Loggers.Initialize (Props);
 
@@ -60,15 +79,15 @@ package body Util.Log.Tests is
          L.Debug ("Writing a debug message");
          L.Debug ("{0}: {1}", "Parameter", "Value");
       end;
+      T.Assert (Ada.Directories.Exists (Path), "Log file " & Path & " not found");
    end Test_File_Appender;
 
    procedure Test_Log_Perf (T : in out Test) is
-      pragma Unreferenced (T);
-
+      Path  : constant String := Util.Tests.Get_Test_Path ("test_perf.log");
       Props : Util.Properties.Manager;
    begin
       Props.Set ("log4j.appender.test", "File");
-      Props.Set ("log4j.appender.test.File", "test.log");
+      Props.Set ("log4j.appender.test.File", Path);
       Props.Set ("log4j.logger.util.log.test.perf", "DEBUG,test");
       Util.Log.Loggers.Initialize (Props);
 
@@ -98,6 +117,7 @@ package body Util.Log.Tests is
          end loop;
          Util.Measures.Report (S, "Log.Debug message (no output)", 10_000);
       end;
+      T.Assert (Ada.Directories.Exists (Path), "Log file " & Path & " not found");
    end Test_Log_Perf;
 
    --  ------------------------------
@@ -111,10 +131,11 @@ package body Util.Log.Tests is
       for I in 1 .. 10 loop
          declare
             Id   : constant String := Fixed.Trim (Integer'Image (I), Both);
+            Path : constant String := Util.Tests.Get_Test_Path ("test" & Id & ".log");
             Name : constant String := "log4j.appender.test" & Id;
          begin
             Props.Set (Name, "File");
-            Props.Set (Name & ".File", "test" & Id & ".log");
+            Props.Set (Name & ".File", Path);
             Props.Set (Name & ".layout", "date-level-message");
             if I > 5 then
                Props.Set (Name & ".level", "INFO");
@@ -122,6 +143,8 @@ package body Util.Log.Tests is
          end;
       end loop;
       Props.Set ("log4j.rootCategory", "DEBUG, test.log");
+      Props.Set ("log4j.appender.test.log.File",
+                 Util.Tests.Get_Test_Path ("test-default.log"));
       Props.Set ("log4j.logger.util.log.test.file",
                  "DEBUG,test4,test1 , test2,test3, test4, test5 ,  test6 , test7,test8,");
       Util.Log.Loggers.Initialize (Props);
@@ -138,7 +161,7 @@ package body Util.Log.Tests is
       for I in 1 .. 8 loop
          declare
             Id   : constant String := Fixed.Trim (Integer'Image (I), Both);
-            Path : constant String := "test" & Id & ".log";
+            Path : constant String := Util.Tests.Get_Test_Path ("test" & Id & ".log");
          begin
             T.Assert (Ada.Directories.Exists (Path), "Log file " & Path & " not found");
             if I > 5 then
@@ -157,14 +180,17 @@ package body Util.Log.Tests is
    procedure Test_File_Appender_Modes (T : in out Test) is
       use Ada.Directories;
 
-      Props : Util.Properties.Manager;
+      Append_Path  : constant String := Util.Tests.Get_Test_Path ("test-append.log");
+      Append2_Path : constant String := Util.Tests.Get_Test_Path ("test-append2.log");
+      Global_Path  : constant String := Util.Tests.Get_Test_Path ("test-append-global.log");
+      Props        : Util.Properties.Manager;
    begin
       Props.Set ("log4j.appender.test", "File");
-      Props.Set ("log4j.appender.test.File", "test-append.log");
+      Props.Set ("log4j.appender.test.File", Append_Path);
       Props.Set ("log4j.appender.test.append", "true");
       Props.Set ("log4j.appender.test.immediateFlush", "true");
       Props.Set ("log4j.appender.test_global", "File");
-      Props.Set ("log4j.appender.test_global.File", "test-append-global.log");
+      Props.Set ("log4j.appender.test_global.File", Global_Path);
       Props.Set ("log4j.appender.test_global.append", "false");
       Props.Set ("log4j.appender.test_global.immediateFlush", "false");
       Props.Set ("log4j.logger.util.log.test.file", "DEBUG");
@@ -181,7 +207,7 @@ package body Util.Log.Tests is
       end;
 
       Props.Set ("log4j.appender.test_append", "File");
-      Props.Set ("log4j.appender.test_append.File", "test-append2.log");
+      Props.Set ("log4j.appender.test_append.File", Append2_Path);
       Props.Set ("log4j.appender.test_append.append", "true");
       Props.Set ("log4j.appender.test_append.immediateFlush", "true");
       Props.Set ("log4j.logger.util.log.test2.file", "DEBUG,test_append,test_global");
@@ -202,13 +228,99 @@ package body Util.Log.Tests is
       Props.Set ("log4j.rootCategory", "DEBUG, test.log");
       Util.Log.Loggers.Initialize (Props);
 
-      T.Assert (Ada.Directories.Size ("test-append.log") > 100,
+      T.Assert (Ada.Directories.Size (Append_Path) > 100,
                 "Log file test-append.log is empty");
-      T.Assert (Ada.Directories.Size ("test-append2.log") > 100,
+      T.Assert (Ada.Directories.Size (Append2_Path) > 100,
                 "Log file test-append2.log is empty");
-      T.Assert (Ada.Directories.Size ("test-append-global.log") > 100,
+      T.Assert (Ada.Directories.Size (Global_Path) > 100,
                 "Log file test-append.log is empty");
    end Test_File_Appender_Modes;
+
+   --  ------------------------------
+   --  Test file appender with different modes.
+   --  ------------------------------
+   procedure Test_Console_Appender (T : in out Test) is
+      Path    : constant String := Util.Tests.Get_Test_Path ("test_err.log");
+      Props   : Util.Properties.Manager;
+      File    : Ada.Text_IO.File_Type;
+      Content : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Path);
+      Ada.Text_IO.Set_Error (File);
+
+      Props.Set ("log4j.appender.test_console", "Console");
+      Props.Set ("log4j.appender.test_console.stderr", "true");
+      Props.Set ("log4j.appender.test_console.level", "WARN");
+      Props.Set ("log4j.rootCategory", "INFO,test_console");
+      Util.Log.Loggers.Initialize (Props);
+
+      declare
+         L : constant Loggers.Logger := Loggers.Create ("util.log.test.file");
+      begin
+         L.Debug ("Writing a debug message");
+         L.Debug ("{0}: {1}", "Parameter", "Value");
+         L.Debug ("Done");
+         L.Info ("INFO MESSAGE!");
+         L.Warn ("WARN MESSAGE!");
+         L.Error ("This {0} {1} {2} test message", "is", "the", "error");
+      end;
+      Ada.Text_IO.Flush (Ada.Text_IO.Current_Error);
+      Ada.Text_IO.Set_Error (Ada.Text_IO.Standard_Error);
+      Ada.Text_IO.Close (File);
+
+      Util.Files.Read_File (Path, Content);
+      Util.Tests.Assert_Matches (T, ".*WARN MESSAGE!", Content,
+                                 "Invalid console log (WARN)");
+      Util.Tests.Assert_Matches (T, ".*This is the error test message", Content,
+                                 "Invalid console log (ERROR)");
+   exception
+      when others =>
+         Ada.Text_IO.Set_Error (Ada.Text_IO.Standard_Error);
+         raise;
+
+   end Test_Console_Appender;
+
+   procedure Test_Missing_Config (T : in out Test) is
+      pragma Unreferenced (T);
+      L : constant Loggers.Logger := Loggers.Create ("util.log.test.debug");
+   begin
+      Util.Log.Loggers.Initialize ("plop");
+
+      L.Info ("An info message");
+      L.Debug ("A debug message on logger 'L'");
+   end Test_Missing_Config;
+
+   procedure Test_Log_Traceback (T : in out Test) is
+      Path    : constant String := Util.Tests.Get_Test_Path ("test-traceback.log");
+      Props   : Util.Properties.Manager;
+      Content : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      Props.Set ("log4j.appender.test", "File");
+      Props.Set ("log4j.appender.test.File", Path);
+      Props.Set ("log4j.appender.test.append", "false");
+      Props.Set ("log4j.appender.test.immediateFlush", "true");
+      Props.Set ("log4j.rootCategory", "DEBUG,test");
+      Util.Log.Loggers.Initialize (Props);
+
+      declare
+         L : constant Loggers.Logger := Loggers.Create ("util.log.test.file");
+      begin
+         L.Error ("This is the error test message");
+         raise Constraint_Error with "Test";
+
+      exception
+         when E : others =>
+            L.Error ("Something wrong", E, True);
+      end;
+
+      Props.Set ("log4j.rootCategory", "DEBUG,console");
+      Props.Set ("log4j.appender.console", "Console");
+      Util.Log.Loggers.Initialize (Props);
+
+      Util.Files.Read_File (Path, Content);
+      Util.Tests.Assert_Matches (T, ".*Something wrong: Exception CONSTRAINT_ERROR:", Content,
+                                 "Invalid console log (ERROR)");
+   end Test_Log_Traceback;
 
    package Caller is new Util.Test_Caller (Test, "Log");
 
@@ -217,15 +329,21 @@ package body Util.Log.Tests is
       Caller.Add_Test (Suite, "Test Util.Log.Loggers.Info",
                        Test_Log'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Loggers.Debug",
-                       Test_Log'Access);
+                       Test_Debug'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Loggers.Set_Level",
                        Test_Log'Access);
+      Caller.Add_Test (Suite, "Test Util.Log.Loggers.Error",
+                       Test_Log_Traceback'Access);
+      Caller.Add_Test (Suite, "Test Util.Log.Loggers.Initialize",
+                       Test_Missing_Config'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Appenders.File_Appender",
                        Test_File_Appender'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Appenders.File_Appender (append)",
                        Test_File_Appender_Modes'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Appenders.List_Appender",
                        Test_List_Appender'Access);
+      Caller.Add_Test (Suite, "Test Util.Log.Appenders.Console",
+                       Test_Console_Appender'Access);
 
       Caller.Add_Test (Suite, "Test Util.Log.Loggers.Log (Perf)",
                        Test_Log_Perf'Access);

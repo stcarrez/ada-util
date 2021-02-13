@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-loggers -- Utility Log Package
---  Copyright (C) 2001 - 2019 Stephane Carrez
+--  Copyright (C) 2001 - 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,27 +15,32 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Ada.Text_IO;
-with Ada.Containers;
 with Ada.Strings;
 with Ada.Strings.Fixed;
-with Ada.Strings.Hash;
 with Ada.Calendar;
-with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Unchecked_Deallocation;
 with Ada.IO_Exceptions;
 with Util.Strings;
+with Util.Strings.Builders;
+with Util.Strings.Formats;
+with Util.Log.Appenders.Factories;
+with Util.Log.Appenders.Consoles;
+with Util.Log.Appenders.Files;
 package body Util.Log.Loggers is
 
-   use Ada.Text_IO;
    use Ada.Strings;
    use Ada.Strings.Fixed;
    use Log.Appenders;
 
-   package Appender_Maps is new Ada.Containers.Indefinite_Hashed_Maps
-     (String, Log.Appenders.Appender_Access, Ada.Strings.Hash, "=");
-
    function Traceback (E : in Exception_Occurrence) return String is separate;
+
+   package File_Factory is
+      new Util.Log.Appenders.Factories (Name   => "File",
+                                        Create => Files.Create'Access);
+
+   package Console_Factory is
+      new Util.Log.Appenders.Factories (Name   => "Console",
+                                        Create => Consoles.Create'Access);
 
    --  The log manager controls the configuration of loggers.
    --  The log appenders are shared by loggers and they are created by
@@ -74,10 +79,8 @@ package body Util.Log.Loggers is
       procedure Build_Appender (Name     : in String;
                                 Appender : out Appender_Access);
 
-      procedure Delete_Appenders;
-
       Config           : Properties.Manager;
-      Appenders        : Appender_Maps.Map;
+      Appenders        : Log.Appenders.Appender_List;
       Default_Level    : Level_Type := WARN_LEVEL;
       Default_Appender : Log.Appenders.Appender_Access := null;
       First_Logger     : Logger_Info_Access := null;
@@ -85,25 +88,31 @@ package body Util.Log.Loggers is
 
    Manager : Log_Manager;
 
-   function Get_Appender (Value : in String) return String;
-
-   procedure Format (Result  : in out Unbounded_String;
-                     Message : in String;
-                     Arg1    : in String;
-                     Arg2    : in String;
-                     Arg3    : in String;
-                     Arg4    : in String);
+   function Get_Appender (Value : in String) return String with Inline_Always;
 
    --  Get the logger property associated with a given logger
    function Get_Logger_Property (Properties : in Util.Properties.Manager;
                                  Name       : in String) return String;
 
    --  ------------------------------
+   --  Get the log appender name from the property value
+   --  ------------------------------
+   function Get_Appender (Value : in String) return String is
+      Pos : constant Natural := Index (Value, ",");
+   begin
+      if Pos <= Value'First or Pos >= Value'Last then
+         return "";
+      else
+         return Trim (Value (Pos + 1 .. Value'Last), Both);
+      end if;
+   end Get_Appender;
+
+   --  ------------------------------
    --  Get the logger property associated with a given logger
    --  ------------------------------
    function Get_Logger_Property (Properties : in Util.Properties.Manager;
                                  Name       : in String) return String is
-      Prop_Name : constant String := "log4j.logger." & Name;
+      Prop_Name : constant String := "logger." & Name;
       Pos       : Natural := Prop_Name'Last;
    begin
       while Pos > Prop_Name'First loop
@@ -134,44 +143,28 @@ package body Util.Log.Loggers is
       Manager.Initialize (Properties);
    end Initialize;
 
-   --  ------------------------------
-   --  Get the logger name.
-   --  ------------------------------
-   function Get_Logger_Name (Log : in Logger_Info) return String is
-   begin
-      return Log.Name;
-   end Get_Logger_Name;
-
    protected body Log_Manager is
 
       --  ------------------------------
       --  Initialize the log environment with the property file.
       --  ------------------------------
       procedure Initialize (Name : in String) is
-         F : File_Type;
       begin
-         Open (F, In_File, Name);
-         Properties.Load_Properties (Config, F);
-         Close (F);
+         Util.Properties.Load_Properties (Config, Path => Name, Prefix => "log4j.", Strip => True);
 
          Initialize_Again;
 
       exception
          when Ada.IO_Exceptions.Name_Error =>
             declare
-               Event : Util.Log.Appenders.Log_Event;
-               Log   : aliased Logger_Info := Logger_Info '(Len    => 8,
-                                                            Name   => "Util.Log",
-                                                            others => <>);
+               Message : Util.Strings.Builders.Builder (256);
+               Date    : constant Ada.Calendar.Time := Ada.Calendar.Clock;
             begin
-               Event.Time    := Ada.Calendar.Clock;
-               Event.Level   := WARN_LEVEL;
-               Event.Logger  := Log'Unchecked_Access;
-               Format (Event.Message, "Log configuration file {0} not found", Name, "", "", "");
+               Strings.Formats.Format (Message, "Log configuration file {0} not found", Name);
                if Default_Appender = null then
-                  Default_Appender := Create_Console_Appender ("root", Config, Default_Level);
+                  Build_Appender ("root", Default_Appender);
                end if;
-               Default_Appender.Append (Event);
+               Default_Appender.Append (Message, Date, WARN_LEVEL, "Util.Log");
             end;
       end Initialize;
 
@@ -181,21 +174,23 @@ package body Util.Log.Loggers is
       procedure Initialize_Again is
          L : Logger_Info_Access := First_Logger;
       begin
-         Delete_Appenders;
+         Util.Log.Appenders.Clear (Appenders);
+         Default_Appender := null;
 
          --  Initialize the default category.
-         if Config.Exists ("log4j.rootCategory") then
+         if Config.Exists ("rootCategory") then
             declare
-               Value : constant String := Config.Get ("log4j.rootCategory");
+               Value : constant String := Config.Get ("rootCategory");
             begin
                Default_Level := Get_Level (Value, Default_Level);
                Find_Appender (Property => Value, Appender => Default_Appender);
             end;
          end if;
          if Default_Appender = null then
-            Default_Appender := Create_Console_Appender ("root", Config, Default_Level);
+            Default_Appender := Consoles.Create ("root", Config, ERROR_LEVEL);
+            Set_Layout (Default_Appender.all, MESSAGE);
+            Util.Log.Appenders.Add_Appender (Appenders, Default_Appender);
          end if;
-         Appenders.Insert (Key => "root", New_Item => Default_Appender);
 
          --  Re-initialize the existing loggers.  Note that there is no concurrency
          --  protection if a thread calls 'Initialize' while another thread is using
@@ -210,8 +205,10 @@ package body Util.Log.Loggers is
       --  Initialize the log environment with the properties.
       --  ------------------------------
       procedure Initialize (Properties : in Util.Properties.Manager) is
+         New_Config : Util.Properties.Manager;
       begin
-         Config.Copy (From => Properties, Prefix => "log4j.");
+         New_Config.Copy (From => Properties, Prefix => "log4j.", Strip => True);
+         Config := New_Config;
          Initialize_Again;
       end Initialize;
 
@@ -220,10 +217,14 @@ package body Util.Log.Loggers is
       --  and creating the appender
       --  ------------------------------
       procedure Initialize (Log : in out Logger_Info) is
-         Prop : constant String := Get_Logger_Property (Config, Log.Name);
+         Prop     : constant String := Get_Logger_Property (Config, Log.Name);
+         Appender : Appender_Access;
       begin
          Log.Level := Get_Level (Prop, Default_Level);
-         Find_Appender (Prop, Log.Appender);
+         Find_Appender (Prop, Appender);
+         if Appender /= null then
+            Log.Appender := Appender.all'Access;
+         end if;
       end Initialize;
 
       --  ------------------------------
@@ -269,59 +270,23 @@ package body Util.Log.Loggers is
          Free (Log);
       end Remove;
 
-      procedure Delete_Appenders is
-         procedure Free is new Ada.Unchecked_Deallocation (Object => Appender'Class,
-                                                           Name   => Appender_Access);
-
-      begin
-         while not Appenders.Is_Empty loop
-            declare
-               Iter : Appender_Maps.Cursor := Appenders.First;
-               E    : Appender_Access := Appender_Maps.Element (Iter);
-            begin
-               Appenders.Delete (Iter);
-
-               --  Remove each mapping that points to the same appender.
-               Iter := Appenders.First;
-               while Appender_Maps.Has_Element (Iter) loop
-                  if Appender_Maps.Element (Iter) = E then
-                     Appenders.Delete (Iter);
-                     Iter := Appenders.First;
-                  else
-                     Appender_Maps.Next (Iter);
-                  end if;
-               end loop;
-
-               Free (E);
-            end;
-         end loop;
-         Default_Appender := null;
-      end Delete_Appenders;
-
       --  ------------------------------
       --  Obtain an appender given its name.  If the appender does not exist, it is created.
       --  ------------------------------
       procedure Build_Appender (Name     : in String;
                                 Appender : out Appender_Access) is
-         use Appender_Maps;
-
-         Pos : constant Appender_Maps.Cursor := Appenders.Find (Name);
       begin
-         if Pos /= Appender_Maps.No_Element then
-            Appender := Appender_Maps.Element (Pos);
+         Appender := Util.Log.Appenders.Find_Appender (Appenders, Name);
+         if Appender /= null then
             return;
          end if;
-         declare
-            Prop_Name     : constant String := "log4j.appender." & Name;
-            Appender_Type : constant String := Config.Get (Prop_Name, "console");
-         begin
-            if Index (Appender_Type, "File") > 0 then
-               Appender := Create_File_Appender (Prop_Name, Config, Default_Level);
-            else
-               Appender := Create_Console_Appender (Prop_Name, Config, Default_Level);
+
+         if Name'Length > 0 then
+            Appender := Util.Log.Appenders.Create (Name, Config, Default_Level);
+            if Appender /= null then
+               Util.Log.Appenders.Add_Appender (Appenders, Appender);
             end if;
-            Appenders.Insert (Name, Appender);
-         end;
+         end if;
       end Build_Appender;
 
       --  ------------------------------
@@ -329,13 +294,15 @@ package body Util.Log.Loggers is
       --  ------------------------------
       procedure Find_Appender (Property : in String;
                                Appender : out Appender_Access) is
-         use Appender_Maps;
-
          Appender_Name  : constant String := Get_Appender (Property);
-         Pos            : constant Appender_Maps.Cursor := Appenders.Find (Appender_Name);
       begin
-         if Pos /= Appender_Maps.No_Element then
-            Appender := Appender_Maps.Element (Pos);
+         if Appender_Name'Length = 0 then
+            Appender := Default_Appender;
+            return;
+         end if;
+
+         Appender := Util.Log.Appenders.Find_Appender (Appenders, Appender_Name);
+         if Appender /= null then
             return;
          end if;
 
@@ -348,9 +315,10 @@ package body Util.Log.Loggers is
             --  The appender configuration refers to a list of appenders.
             --  Example:  DEBUG, out1, console
             if N > 0 then
-               List := Create_List_Appender;
+               List := Create_List_Appender (Appender_Name);
                loop
                   Build_Appender (Trim (Appender_Name (Last_Pos .. N - 1), Both), A);
+                  exit when A = null;
                   List.Add_Appender (A);
                   exit when N > Appender_Name'Last;
                   Last_Pos := N + 1;
@@ -360,7 +328,7 @@ package body Util.Log.Loggers is
                   end if;
                end loop;
                Appender := List.all'Access;
-               Appenders.Insert (Appender_Name, Appender);
+               Util.Log.Appenders.Add_Appender (Appenders, Appender);
             else
                Build_Appender (Appender_Name, Appender);
             end if;
@@ -368,19 +336,6 @@ package body Util.Log.Loggers is
       end Find_Appender;
 
    end Log_Manager;
-
-   --  ------------------------------
-   --  Get the log appender name from the property value
-   --  ------------------------------
-   function Get_Appender (Value : in String) return String is
-      Pos : constant Natural := Index (Value, ",");
-   begin
-      if Pos <= Value'First or Pos >= Value'Last then
-         return "root";
-      else
-         return Trim (Value (Pos + 1 .. Value'Last), Both);
-      end if;
-   end Get_Appender;
 
    --  ------------------------------
    --  Create a logger with the given name.
@@ -404,16 +359,6 @@ package body Util.Log.Loggers is
       Log.Level := Level;
       return Logger '(Ada.Finalization.Limited_Controlled with
                       Instance => Log);
-   end Create;
-
-   --  ------------------------------
-   --  Initialize the logger and create a logger with the given name.
-   --  ------------------------------
-   function Create (Name   : in String;
-                    Config : in String) return Logger is
-   begin
-      Initialize (Config);
-      return Create (Name);
    end Create;
 
    --  ------------------------------
@@ -441,53 +386,6 @@ package body Util.Log.Loggers is
       return Get_Level_Name (Log.Instance.Level);
    end Get_Level_Name;
 
-   --  ------------------------------
-   --  Format the message with the arguments
-   --  ------------------------------
-   procedure Format (Result  : in out Unbounded_String;
-                     Message : in String;
-                     Arg1    : in String;
-                     Arg2    : in String;
-                     Arg3    : in String;
-                     Arg4    : in String) is
-      Pos    : Natural := Message'First;
-      First  : Natural := Pos;
-      C      : Character;
-   begin
-      --  Replace {N} with arg1, arg2, arg3 or ?
-      while Pos <= Message'Last loop
-         C := Message (Pos);
-         if C = '{' and then Pos + 2 <= Message'Last and then Message (Pos + 2) = '}' then
-            if First /= Pos then
-               Append (Result, Message (First .. Pos - 1));
-            end if;
-            C := Message (Pos + 1);
-            Pos := Pos + 2;
-            case C is
-               when '0' =>
-                  Append (Result, Arg1);
-
-               when '1' =>
-                  Append (Result, Arg2);
-
-               when '2' =>
-                  Append (Result, Arg3);
-
-               when '3' =>
-                  Append (Result, Arg4);
-
-               when others =>
-                  Append (Result, "?");
-            end case;
-            First := Pos + 1;
-         end if;
-         Pos := Pos + 1;
-      end loop;
-      if First /= Pos then
-         Append (Result, Message (First .. Pos - 1));
-      end if;
-   end Format;
-
    procedure Print (Log     : in Logger;
                     Level   : in Level_Type;
                     Message : in String;
@@ -495,16 +393,15 @@ package body Util.Log.Loggers is
                     Arg2    : in String := "";
                     Arg3    : in String := "";
                     Arg4    : in String := "") is
+      Instance : constant Logger_Info_Access := Log.Instance;
    begin
-      if Log.Instance /= null and then Log.Instance.Level >= Level then
+      if Instance /= null and then Instance.Level >= Level then
          declare
-            Event : Util.Log.Appenders.Log_Event;
+            Result : Util.Strings.Builders.Builder (256);
+            Date   : constant Ada.Calendar.Time := Ada.Calendar.Clock;
          begin
-            Event.Time    := Ada.Calendar.Clock;
-            Event.Level   := Level;
-            Event.Logger  := Log.Instance;
-            Format (Event.Message, Message, Arg1, Arg2, Arg3, Arg4);
-            Log.Instance.Appender.Append (Event);
+            Strings.Formats.Format (Result, Message, Arg1, Arg2, Arg3, Arg4);
+            Instance.Appender.Append (Result, Date, Level, Instance.Name);
          end;
       end if;
    end Print;
@@ -623,15 +520,6 @@ package body Util.Log.Loggers is
    end Error;
 
    --  ------------------------------
-   --  Set the appender that will handle the log events
-   --  ------------------------------
-   procedure Set_Appender (Log      : in out Logger'Class;
-                           Appender : in Util.Log.Appenders.Appender_Access) is
-   begin
-      Log.Instance.Appender := Appender;
-   end Set_Appender;
-
-   --  ------------------------------
    --  Finalize the logger and flush the associated appender
    --  ------------------------------
    procedure Finalize (Log : in out Logger) is
@@ -642,4 +530,7 @@ package body Util.Log.Loggers is
       Manager.Remove (Log.Instance);
    end Finalize;
 
+begin
+   Console_Factory.Register;
+   File_Factory.Register;
 end Util.Log.Loggers;

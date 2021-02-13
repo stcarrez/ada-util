@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Discrete_Tests - Generic simple test for discrete object types
---  Copyright (C) 2009, 2010, 2011, 2018 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2018, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -242,7 +242,7 @@ package body Util.Beans.Objects.Discrete_Tests is
    end Test_Perf;
    procedure Test_Perf is new Test_Basic_Object (Test_Perf);
 
-   package Caller is new Util.Test_Caller (Test, "Objects." & Test_Name);
+   package Caller is new Util.Test_Caller (Test, "Beans.Objects." & Test_Name);
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

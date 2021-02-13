@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  gperfhash -- Perfect hash Ada generator
---  Copyright (C) 2011, 2012, 2013, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2013, 2018, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,7 +59,7 @@ procedure Gperfhash is
    --  Generate the package body.
    procedure Generate_Body (Name : in String);
 
-   Log         : constant Logger := Create ("log", "samples/log4j.properties");
+   Log         : constant Logger := Create ("log");
 
    Pkg_Name    : Unbounded_String := To_Unbounded_String ("gphash");
    Names       : Util.Strings.Vectors.Vector;

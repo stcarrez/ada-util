@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-systems-os-tests -- Unit tests for OS specific operations
---  Copyright (C) 2014, 2015, 2016 Stephane Carrez
+--  Copyright (C) 2014, 2015, 2016, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,7 +39,7 @@ package body Util.Systems.Os.Tests is
       use Util.Systems.Types;
 
       Info : array (1 .. 2) of aliased Util.Systems.Types.Stat_Type;
-      Path : constant String := Util.Tests.Get_Test_Path ("regtests/files/test-1.json");
+      Path : constant String := Util.Tests.Get_Path ("regtests/files/test-1.json");
       Name : Util.Systems.Os.Ptr := Interfaces.C.Strings.New_String (Path);
       Res  : Integer;
    begin
@@ -62,7 +62,7 @@ package body Util.Systems.Os.Tests is
       use Util.Systems.Types;
 
       Stat : aliased Util.Systems.Types.Stat_Type;
-      Path : constant String := Util.Tests.Get_Test_Path ("regtests/files");
+      Path : constant String := Util.Tests.Get_Path ("regtests/files");
       Name : Util.Systems.Os.Ptr := Interfaces.C.Strings.New_String (Path);
       Res  : Integer;
    begin

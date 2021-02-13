@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.files.tests -- Unit tests for buffered streams
---  Copyright (C) 2010, 2011, 2017, 2019 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2017, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,6 +34,8 @@ package body Util.Streams.Files.Tests is
                        Test_Read_Write'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Files.Write, Flush",
                        Test_Write'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Copy",
+                       Test_Copy_Stream'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -67,5 +69,20 @@ package body Util.Streams.Files.Tests is
    begin
       null;
    end Test_Write;
+
+   procedure Test_Copy_Stream (T : in out Test) is
+      Path    : constant String := Util.Tests.Get_Path ("regtests/files/utf-8.txt");
+      Target  : constant String := Util.Tests.Get_Test_Path ("copy-stream.txt");
+      Output  : Util.Streams.Files.File_Stream;
+      Input   : Util.Streams.Files.File_Stream;
+   begin
+      Output.Create (Name => Target, Mode => Ada.Streams.Stream_IO.Out_File);
+      Input.Open (Name => Path, Mode => Ada.Streams.Stream_IO.In_File);
+      Util.Streams.Copy (From => Input, Into => Output);
+      Input.Close;
+      Output.Close;
+
+      Util.Tests.Assert_Equal_Files (T, Path, Target, "Copy stream failed");
+   end Test_Copy_Stream;
 
 end Util.Streams.Files.Tests;

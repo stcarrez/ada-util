@@ -721,36 +721,42 @@ package body Util.Serialize.IO.JSON is
          when '-' | '0' .. '9' =>
             Delete (P.Token, 1, Length (P.Token));
             Append (P.Token, C);
-            loop
-               Stream.Read (Char => C);
-               exit when C not in '0' .. '9';
-               Append (P.Token, C);
-            end loop;
-            if C = '.' then
-               Append (P.Token, C);
+            begin
                loop
                   Stream.Read (Char => C);
                   exit when C not in '0' .. '9';
                   Append (P.Token, C);
                end loop;
-            end if;
-            if C = 'e' or C = 'E' then
-               Append (P.Token, C);
-               Stream.Read (Char => C);
-               if C = '+' or C = '-' then
+               if C = '.' then
                   Append (P.Token, C);
-                  Stream.Read (Char => C);
+                  loop
+                     Stream.Read (Char => C);
+                     exit when C not in '0' .. '9';
+                     Append (P.Token, C);
+                  end loop;
                end if;
-               loop
-                  Stream.Read (Char => C);
-                  exit when C not in '0' .. '9';
+               if C = 'e' or C = 'E' then
                   Append (P.Token, C);
-               end loop;
-            end if;
-            if not (C in ' ' | Latin_1.HT | Latin_1.LF | Latin_1.CR) then
-               P.Has_Pending_Char := True;
-               P.Pending_Char := C;
-            end if;
+                  Stream.Read (Char => C);
+                  if C = '+' or C = '-' then
+                     Append (P.Token, C);
+                     Stream.Read (Char => C);
+                  end if;
+                  loop
+                     Stream.Read (Char => C);
+                     exit when C not in '0' .. '9';
+                     Append (P.Token, C);
+                  end loop;
+               end if;
+               if not (C in ' ' | Latin_1.HT | Latin_1.LF | Latin_1.CR) then
+                  P.Has_Pending_Char := True;
+                  P.Pending_Char := C;
+               end if;
+
+            exception
+               when Ada.IO_Exceptions.Data_Error =>
+                  null;
+            end;
             Token := T_NUMBER;
             return;
 

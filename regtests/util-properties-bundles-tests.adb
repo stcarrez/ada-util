@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util -- Utilities
---  Copyright (C) 2009, 2010, 2011, 2012, 2013 Stephane Carrez
+--  util-properties-bundles -- Test for property bundles
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,7 @@ package body Util.Properties.Bundles.Tests is
 
    --  Test the bundle
    procedure Test_Bundle (T : in out Test) is
-      Props  : aliased Properties.Manager; --  _Access := new Properties.Manager;
+      Props  : aliased Properties.Manager;
       Bundle : Properties.Bundles.Manager;
       V : Integer := 23;
    begin
@@ -60,7 +60,7 @@ package body Util.Properties.Bundles.Tests is
       Factory : Loader;
       Bundle  : Util.Properties.Bundles.Manager;
    begin
-      Initialize (Factory, Util.Tests.Get_Test_Path ("regtests/bundles"));
+      Initialize (Factory, Util.Tests.Get_Path ("regtests/bundles"));
       Load_Bundle (Factory, "bundle", "fr", Bundle);
 
       Assert_Equals (T, "Message France", String '(Bundle.Get ("message")),
@@ -83,8 +83,8 @@ package body Util.Properties.Bundles.Tests is
    procedure Test_Bundle_Overload (T : in out Test) is
       Factory : Loader;
       Bundle  : Util.Properties.Bundles.Manager;
-      P1      : constant String := Util.Tests.Get_Test_Path ("regtests/bundles");
-      P2      : constant String := Util.Tests.Get_Test_Path ("bundles");
+      P1      : constant String := Util.Tests.Get_Path ("regtests/bundles");
+      P2      : constant String := Util.Tests.Get_Path ("bundles");
    begin
       Initialize (Factory, P1 & ";" & P2);
       Load_Bundle (Factory, "dates", "fr", Bundle);
@@ -116,8 +116,8 @@ package body Util.Properties.Bundles.Tests is
    procedure Test_Bundle_Perf (T : in out Test) is
       Factory : Loader;
       Bundle  : Util.Properties.Bundles.Manager;
-      P1      : constant String := Util.Tests.Get_Test_Path ("regtests/bundles");
-      P2      : constant String := Util.Tests.Get_Test_Path ("bundles");
+      P1      : constant String := Util.Tests.Get_Path ("regtests/bundles");
+      P2      : constant String := Util.Tests.Get_Path ("bundles");
    begin
       Initialize (Factory, P1 & ";" & P2);
       declare

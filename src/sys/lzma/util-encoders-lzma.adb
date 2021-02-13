@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-lzma -- LZMA compression and decompression
---  Copyright (C) 2018 Stephane Carrez
+--  Copyright (C) 2018, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@ with Interfaces.C;
 package body Util.Encoders.Lzma is
 
    use type Interfaces.C.size_t;
-   use type Ada.Streams.Stream_Element_Offset;
+   --  use type Ada.Streams.Stream_Element_Offset;
    use type Base.lzma_ret;
 
    subtype Offset is Ada.Streams.Stream_Element_Offset;

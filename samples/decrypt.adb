@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  decrypt -- Decrypt file using Util.Streams.AES
---  Copyright (C) 2019 Stephane Carrez
+--  Copyright (C) 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,7 +49,7 @@ procedure Decrypt is
       --  Setup file -> input and cipher -> output file streams.
       In_Stream.Open (Ada.Streams.Stream_IO.In_File, Source);
       Out_Stream.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Destination);
-      Decipher.Initialize (Output => Out_Stream'Access, Size   => 32768);
+      Decipher.Produces (Output => Out_Stream'Access, Size   => 32768);
       Decipher.Set_Key (Secret => Key, Mode => Util.Encoders.AES.ECB);
 
       --  Copy input to output through the cipher.

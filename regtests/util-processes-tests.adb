@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-tests - Test for processes
---  Copyright (C) 2011, 2012, 2016, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,16 +41,28 @@ package body Util.Processes.Tests is
                        Test_Output_Pipe'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn(WRITE pipe)",
                        Test_Input_Pipe'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Spawn(ERROR pipe)",
+                       Test_Error_Pipe'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn/Shell(WRITE pipe)",
                        Test_Shell_Splitting_Pipe'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn(OUTPUT redirect)",
                        Test_Output_Redirect'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn(INPUT redirect)",
                        Test_Input_Redirect'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Spawn(CHDIR)",
+                       Test_Set_Working_Directory'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Spawn(errors)",
+                       Test_Errors'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Open/Read/Close (Multi spawn)",
                        Test_Multi_Spawn'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Set_XXX (errors)",
+                       Test_Pipe_Errors'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Stop",
+                       Test_Pipe_Stop'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Tools.Execute",
                        Test_Tools_Execute'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Stop",
+                       Test_Stop'Access);
 
    end Add_Tests;
 
@@ -93,7 +105,8 @@ package body Util.Processes.Tests is
    procedure Test_Output_Pipe (T : in out Test) is
       P : aliased Util.Streams.Pipes.Pipe_Stream;
    begin
-      P.Open ("bin/util_test_process 0 write b c d e f test_marker");
+      P.Set_Working_Directory ("bin");
+      P.Open ("./util_test_process 0 write b c d e f test_marker");
       declare
          Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
          Content : Ada.Strings.Unbounded.Unbounded_String;
@@ -107,6 +120,27 @@ package body Util.Processes.Tests is
       T.Assert (not P.Is_Running, "Process has stopped");
       Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Invalid exit status");
    end Test_Output_Pipe;
+
+   --  ------------------------------
+   --  Test error pipe redirection: read the process standard output
+   --  ------------------------------
+   procedure Test_Error_Pipe (T : in out Test) is
+      P : aliased Util.Streams.Pipes.Pipe_Stream;
+   begin
+      P.Open ("gprbuild -z", READ_ERROR);
+      declare
+         Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
+         Content : Ada.Strings.Unbounded.Unbounded_String;
+      begin
+         Buffer.Initialize (P'Unchecked_Access, 19);
+         Buffer.Read (Content);
+         P.Close;
+         Util.Tests.Assert_Matches (T, ".*gprbuild: .*", Content,
+                                    "Invalid content");
+      end;
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 4, P.Get_Exit_Status, "Invalid exit status");
+   end Test_Error_Pipe;
 
    --  ------------------------------
    --  Test shell splitting.
@@ -251,7 +285,7 @@ package body Util.Processes.Tests is
    --  ------------------------------
    procedure Test_Output_Redirect (T : in out Test) is
       P       : Process;
-      Path    : constant String := Util.Tests.Get_Test_Path ("regtests/result/proc-output.txt");
+      Path    : constant String := Util.Tests.Get_Test_Path ("proc-output.txt");
       Content : Ada.Strings.Unbounded.Unbounded_String;
    begin
       Util.Processes.Set_Output_Stream (P, Path);
@@ -283,12 +317,14 @@ package body Util.Processes.Tests is
    --  ------------------------------
    procedure Test_Input_Redirect (T : in out Test) is
       P        : Process;
-      In_Path  : constant String := Util.Tests.Get_Test_Path ("regtests/files/proc-input.txt");
-      Out_Path : constant String := Util.Tests.Get_Test_Path ("regtests/result/proc-inres.txt");
-      Exp_Path : constant String := Util.Tests.Get_Test_Path ("regtests/expect/proc-inres.txt");
+      In_Path  : constant String := Util.Tests.Get_Path ("regtests/files/proc-input.txt");
+      Exp_Path : constant String := Util.Tests.Get_Path ("regtests/expect/proc-inres.txt");
+      Out_Path : constant String := Util.Tests.Get_Test_Path ("proc-inres.txt");
+      Err_Path : constant String := Util.Tests.Get_Test_Path ("proc-errres.txt");
    begin
       Util.Processes.Set_Input_Stream (P, In_Path);
       Util.Processes.Set_Output_Stream (P, Out_Path);
+      Util.Processes.Set_Error_Stream (P, Err_Path);
       Util.Processes.Spawn (P, "bin/util_test_process 0 read -");
       Util.Processes.Wait (P);
 
@@ -300,6 +336,151 @@ package body Util.Processes.Tests is
                                      Test    => Out_Path,
                                      Message => "Process input/output redirection");
    end Test_Input_Redirect;
+
+   --  ------------------------------
+   --  Test changing working directory.
+   --  ------------------------------
+   procedure Test_Set_Working_Directory (T : in out Test) is
+      P        : Process;
+      Dir_Path : constant String := Util.Tests.Get_Path ("regtests/files");
+      In_Path  : constant String := Util.Tests.Get_Path ("regtests/files/proc-empty.txt");
+      Exp_Path : constant String := Util.Tests.Get_Path ("regtests/files/proc-input.txt");
+      Out_Path : constant String := Util.Tests.Get_Test_Path ("proc-cat.txt");
+      Err_Path : constant String := Util.Tests.Get_Test_Path ("proc-errres.txt");
+   begin
+      Util.Processes.Set_Working_Directory (P, Dir_Path);
+      Util.Processes.Set_Input_Stream (P, In_Path);
+      Util.Processes.Set_Output_Stream (P, Out_Path);
+      Util.Processes.Set_Error_Stream (P, Err_Path);
+      Util.Processes.Spawn (P, "cat proc-input.txt");
+      Util.Processes.Wait (P);
+
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Process failed");
+
+      Util.Tests.Assert_Equal_Files (T       => T,
+                                     Expect  => Exp_Path,
+                                     Test    => Out_Path,
+                                     Message => "Process input/output redirection");
+   end Test_Set_Working_Directory;
+
+   --  ------------------------------
+   --  Test various errors.
+   --  ------------------------------
+   procedure Test_Errors (T : in out Test) is
+      P        : Process;
+   begin
+      Util.Processes.Spawn (P, "sleep 1");
+      begin
+         Util.Processes.Set_Working_Directory (P, "/");
+         T.Fail ("Set_Working_Directory: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         Util.Processes.Set_Input_Stream (P, "/");
+         T.Fail ("Set_Input_Stream: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         Util.Processes.Set_Output_Stream (P, "/");
+         T.Fail ("Set_Output_Stream: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         Util.Processes.Set_Error_Stream (P, ".");
+         T.Fail ("Set_Error_Stream: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+
+      Util.Processes.Wait (P);
+
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Process failed");
+   end Test_Errors;
+
+   --  ------------------------------
+   --  Test launching and stopping a process.
+   --  ------------------------------
+   procedure Test_Stop (T : in out Test) is
+      P        : Process;
+   begin
+      Util.Processes.Spawn (P, "sleep 3600");
+      T.Assert (P.Is_Running, "Process is running");
+      Util.Processes.Stop (P);
+      Util.Processes.Wait (P);
+      T.Assert (not P.Is_Running, "Process has stopped");
+   end Test_Stop;
+
+   --  ------------------------------
+   --  Test various errors (pipe streams)).
+   --  ------------------------------
+   procedure Test_Pipe_Errors (T : in out Test) is
+      P : aliased Util.Streams.Pipes.Pipe_Stream;
+   begin
+      P.Open ("sleep 1");
+      begin
+         P.Set_Working_Directory ("/");
+         T.Fail ("Set_Working_Directory: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         P.Set_Input_Stream ("/");
+         T.Fail ("Set_Input_Stream: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         P.Set_Output_Stream ("/");
+         T.Fail ("Set_Output_Stream: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         P.Set_Error_Stream (".");
+         T.Fail ("Set_Error_Stream: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+
+      P.Close;
+
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Process failed");
+   end Test_Pipe_Errors;
+
+   --  ------------------------------
+   --  Test launching and stopping a process (pipe streams).
+   --  ------------------------------
+   procedure Test_Pipe_Stop (T : in out Test) is
+      P : aliased Util.Streams.Pipes.Pipe_Stream;
+   begin
+      P.Open ("sleep 3600");
+      T.Assert (P.Is_Running, "Process is running");
+      P.Stop;
+      P.Close;
+      T.Assert (not P.Is_Running, "Process has stopped");
+   end Test_Pipe_Stop;
 
    --  ------------------------------
    --  Test the Tools.Execute operation.
@@ -316,6 +497,19 @@ package body Util.Processes.Tests is
                                 "Invalid output collected by Execute");
       Util.Tests.Assert_Equals (T, "b c d e f", List.Element (1), "");
       Util.Tests.Assert_Equals (T, "test_marker", List.Element (2), "");
+
+      List.Clear;
+      Tools.Execute (Command => "grep 'L[2-9]'",
+                     Input_Path => Util.Tests.Get_Path ("regtests/files/proc-input.txt"),
+                     Output => List,
+                     Status => Status);
+      Util.Tests.Assert_Equals (T, 0, Status, "Invalid exit status");
+      Util.Tests.Assert_Equals (T, 4, Integer (List.Length),
+                                "Invalid output collected by Execute");
+      Util.Tests.Assert_Equals (T, "L2 ", List.Element (1), "");
+      Util.Tests.Assert_Equals (T, "L3", List.Element (2), "");
+      Util.Tests.Assert_Equals (T, "L4", List.Element (3), "");
+      Util.Tests.Assert_Equals (T, "L5", List.Element (4), "");
    end Test_Tools_Execute;
 
 end Util.Processes.Tests;

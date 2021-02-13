@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties-json-tests -- Test reading JSON file into properties
---  Copyright (C) 2013 Stephane Carrez
+--  Copyright (C) 2013, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ with Util.Test_Caller;
 with Util.Files;
 package body Util.Properties.JSON.Tests is
 
-   package Caller is new Util.Test_Caller (Test, "Properties.Properties.JSON");
+   package Caller is new Util.Test_Caller (Test, "Properties.JSON");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
@@ -45,7 +45,7 @@ package body Util.Properties.JSON.Tests is
                                    "Invalid property: " & Name);
       end Check;
 
-      Path : constant String := Util.Tests.Get_Test_Path ("regtests/files/test-1.json");
+      Path : constant String := Util.Tests.Get_Path ("regtests/files/test-1.json");
       S    : Ada.Strings.Unbounded.Unbounded_String;
    begin
       Util.Files.Read_File (Path, S);
@@ -72,7 +72,7 @@ package body Util.Properties.JSON.Tests is
                                    "Invalid property: " & Name);
       end Check;
 
-      Path : constant String := Util.Tests.Get_Test_Path ("regtests/files/test-2.json");
+      Path : constant String := Util.Tests.Get_Path ("regtests/files/test-2.json");
    begin
       Util.Properties.JSON.Read_JSON (P, Path);
 

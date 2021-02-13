@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-curl -- HTTP Clients with CURL
---  Copyright (C) 2012, 2017, 2018, 2020 Stephane Carrez
+--  Copyright (C) 2012, 2017, 2018, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -223,6 +223,7 @@ private
    function Curl_Easy_Setopt_Data (Handle : in CURL;
                                    Option : in Curl_Option;
                                    Value  : in Curl_Http_Response_Access) return CURL_Code;
+   pragma Warnings (Off, Curl_Easy_Setopt_Data);
    pragma Import (C, Curl_Easy_Setopt_Data, "curl_easy_setopt");
 
    function Read_Response (Data     : in Chars_Ptr;

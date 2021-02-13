@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-loggers -- Utility Log Package
---  Copyright (C) 2006, 2008, 2009, 2011, 2018, 2019 Free Software Foundation, Inc.
+--  Copyright (C) 2006, 2008, 2009, 2011, 2018, 2019, 2021 Free Software Foundation, Inc.
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +18,9 @@
 with Ada.Exceptions;
 with Ada.Strings.Unbounded;
 
-with Util.Log.Appenders;
 with Util.Properties;
-with Ada.Finalization;
+private with Ada.Finalization;
+private with Util.Log.Appenders;
 package Util.Log.Loggers is
 
    use Ada.Exceptions;
@@ -40,10 +40,6 @@ package Util.Log.Loggers is
    --  Create a logger with the given name and use the specified level.
    function Create (Name  : in String;
                     Level : in Level_Type) return Logger;
-
-   --  Initialize the logger and create a logger with the given name.
-   function Create (Name   : in String;
-                    Config : in String) return Logger;
 
    --  Change the log level
    procedure Set_Level (Log   : in out Logger;
@@ -124,33 +120,25 @@ package Util.Log.Loggers is
                     E       : in Exception_Occurrence;
                     Trace   : in Boolean := False);
 
-   --  Set the appender that will handle the log events
-   procedure Set_Appender (Log      : in out Logger'Class;
-                           Appender : in Util.Log.Appenders.Appender_Access);
-
    --  Initialize the log environment with the property file.
    procedure Initialize (Name : in String);
 
    --  Initialize the log environment with the properties.
    procedure Initialize (Properties : in Util.Properties.Manager);
 
-   type Logger_Info (<>) is limited private;
-
-   --  Get the logger name.
-   function Get_Logger_Name (Log : in Logger_Info) return String;
-
    --  Return a printable traceback that correspond to the exception.
    function Traceback (E : in Exception_Occurrence) return String;
 
 private
 
+   type Logger_Info;
    type Logger_Info_Access is access all Logger_Info;
 
-   type Logger_Info (Len : Positive) is record
+   type Logger_Info (Len : Positive) is limited record
       Next_Logger : Logger_Info_Access;
       Prev_Logger : Logger_Info_Access;
       Level       : Level_Type := INFO_LEVEL;
-      Appender    : Util.Log.Appenders.Appender_Access;
+      Appender    : Appenders.Appender_Access;
       Name        : String (1 .. Len);
    end record;
 

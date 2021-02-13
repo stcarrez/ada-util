@@ -4,19 +4,18 @@ Section: libdevel
 Maintainer: Stephane Carrez <Stephane.Carrez@gmail.com>
 Build-Depends: debhelper (>= 10), autotools-dev,
  dh-ada-library,
- gnat, gnat-7,
+ gnat, gnat-9,
 # This line is parsed by debian/rules.
  gprbuild (>= 2015-2),
-# 2015-2 is compatible with gnat-7
- libxmlada-sax7-dev,
- liblzmada1-dev,
- libaws3.3.2.2-dev,
+ libxmlada-sax9-dev,
+ liblzmada2-dev,
+ libaws19-dev,
 # pandoc requires texlive-fonts-extra for PDF
  pandoc, texlive-fonts-extra
 Standards-Version: 4.1.4
 Homepage: https://github.com/stcarrez/ada-util/
-Vcs-Git: https://github.com/stcarrez/ada-util.git -b debian-gnat-7
-Vcs-Browser: https://github.com/stcarrez/ada-util/tree/debian-gnat-7
+Vcs-Git: https://github.com/stcarrez/ada-util.git -b debian-gnat-9
+Vcs-Browser: https://github.com/stcarrez/ada-util/tree/debian-gnat-9
 
 Package: libutilada-core2.3.0
 Section: libs
@@ -78,7 +77,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, libutilada-sys2.3.0 (= ${binary:Ver
 Description: Ada Utility Library Curl HTTP Client (runtime)
  This is the CURL extension for the Util.Http.Clients package.
 
-Package: libutilada-core1-dev
+Package: libutilada-core2-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
@@ -89,7 +88,7 @@ Description: Ada Utility Library (Development files)
  o Several concurrency tools (reference counters, counters, pools, fifos,
    arrays)
 
-Package: libutilada-base1-dev
+Package: libutilada-base2-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
@@ -101,7 +100,7 @@ Description: Ada Utility Library (Development files)
  o Support for properties
  o Ada beans framework
 
-Package: libutilada-sys1-dev
+Package: libutilada-sys2-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
@@ -114,7 +113,7 @@ Description: Ada Utility Library (Development files)
  o A composing stream framework (raw, files, buffers, pipes, sockets)
  o Process creation and pipes
 
-Package: libutilada-aws1-dev
+Package: libutilada-aws2-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
@@ -122,7 +121,7 @@ Suggests: libutilada-doc (= ${source:Version})
 Description: Ada Utility Library AWS HTTP Client
  This is the AWS extension for the Util.Http.Clients package.
 
-Package: libutilada-xml1-dev
+Package: libutilada-xml2-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
@@ -130,7 +129,7 @@ Suggests: libutilada-doc (= ${source:Version})
 Description: Ada Utility Library XML serialization
  This is the XML serialization support for the Util.Serialize package.
 
-Package: libutilada-curl1-dev
+Package: libutilada-curl2-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
@@ -138,7 +137,7 @@ Suggests: libutilada-doc (= ${source:Version})
 Description: Ada Utility Library CURL HTTP Client
  This is the CURL extension for the Util.Http.Clients package.
 
-Package: libutilada-lzma1-dev
+Package: libutilada-lzma2-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}
@@ -146,7 +145,7 @@ Suggests: libutilada-doc (= ${source:Version})
 Description: Ada Utility Library LZMA streams
  This is the LZMA stream support for the Util.Streams package.
 
-Package: libutilada-unit1-dev
+Package: libutilada-unit2-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, ${ada:Depends}

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-json-tests -- Unit tests for JSON parser
---  Copyright (C) 2011, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2017, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -88,14 +88,17 @@ package body Util.Serialize.IO.JSON.Tests is
    --  Check various (basic) JSON valid strings (no mapper).
    --  ------------------------------
    procedure Test_Parser (T : in out Test) is
-      pragma Unreferenced (T);
+
       procedure Check_Parse (Content : in String);
 
       procedure Check_Parse (Content : in String) is
-         P : Parser;
-         R : Util.Beans.Objects.Readers.Reader;
+         P    : Parser;
+         R    : Util.Beans.Objects.Readers.Reader;
+         Root : Util.Beans.Objects.Object;
       begin
          P.Parse_String (Content, R);
+         Root := R.Get_Root;
+         T.Assert (not Util.Beans.Objects.Is_Null (Root), "Null result for " & Content);
 
       exception
          when Parse_Error =>
@@ -115,6 +118,9 @@ package body Util.Serialize.IO.JSON.Tests is
       Check_Parse ("{ ""person"":""\u1CDE""}");
       Check_Parse ("{ ""person"":""\u2ABF""}");
       Check_Parse ("[{ ""person"":""\u2ABF""}]");
+      Check_Parse ("""testt""");
+      Check_Parse ("""""");
+      Check_Parse ("123");
    end Test_Parser;
 
    --  ------------------------------
@@ -181,7 +187,7 @@ package body Util.Serialize.IO.JSON.Tests is
       Buffer : aliased Util.Streams.Texts.Print_Stream;
       Stream : Util.Serialize.IO.JSON.Output_Stream;
       Expect : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.json");
-      Path   : constant String := Util.Tests.Get_Test_Path ("regtests/result/test-stream.json");
+      Path   : constant String := Util.Tests.Get_Test_Path ("test-stream.json");
    begin
       File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Path);
       Buffer.Initialize (Output => File'Unchecked_Access, Size => 10000);
@@ -343,7 +349,7 @@ package body Util.Serialize.IO.JSON.Tests is
    --  ------------------------------
    procedure Test_Read (T : in out Test) is
       use Util.Beans.Objects;
-      Path  : constant String := Util.Tests.Get_Test_Path ("regtests/files/pass01.json");
+      Path  : constant String := Util.Tests.Get_Path ("regtests/files/pass01.json");
       Root  : Util.Beans.Objects.Object;
       Value : Util.Beans.Objects.Object;
       Item  : Util.Beans.Objects.Object;

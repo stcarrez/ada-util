@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  AUnit utils - Helper for writing unit tests
---  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2017, 2019 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2017, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,7 +73,7 @@ package body Util.Tests is
    --  Get a path to create a test file.
    --  ------------------------------
    function Get_Test_Path (File : String) return String is
-      Dir : constant String := Get_Parameter ("test.result.dir", ".");
+      Dir : constant String := Get_Parameter ("test.result.dir", "regtests/results");
    begin
       return Dir & "/" & File;
    end Get_Test_Path;

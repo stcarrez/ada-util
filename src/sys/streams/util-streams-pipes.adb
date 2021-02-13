@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  util-streams-raw -- Raw streams for Unix based systems
---  Copyright (C) 2011, 2013, 2016, 2017, 2018 Stephane Carrez
+--  util-streams-pipes -- Pipe stream to or from a process
+--  Copyright (C) 2011, 2013, 2016, 2017, 2018, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -141,21 +141,26 @@ package body Util.Streams.Pipes is
    procedure Read (Stream : in out Pipe_Stream;
                    Into   : out Ada.Streams.Stream_Element_Array;
                    Last   : out Ada.Streams.Stream_Element_Offset) is
-      Input : constant Streams.Input_Stream_Access := Processes.Get_Output_Stream (Stream.Proc);
+      Input : Streams.Input_Stream_Access := Processes.Get_Output_Stream (Stream.Proc);
    begin
       if Input = null then
-         raise Ada.IO_Exceptions.Status_Error with "Process is not launched";
+         Input := Processes.Get_Error_Stream (Stream.Proc);
+         if Input = null then
+            raise Ada.IO_Exceptions.Status_Error with "Process is not launched";
+         end if;
       end if;
       Input.Read (Into, Last);
    end Read;
 
    --  -----------------------
-   --  Flush the stream and release the buffer.
+   --  Terminate the process by sending a signal on Unix and exiting the process on Windows.
+   --  This operation is not portable and has a different behavior between Unix and Windows.
+   --  Its intent is to stop the process.
    --  -----------------------
-   overriding
-   procedure Finalize (Object : in out Pipe_Stream) is
+   procedure Stop (Stream : in out Pipe_Stream;
+                   Signal : in Positive := 15) is
    begin
-      null;
-   end Finalize;
+      Util.Processes.Stop (Stream.Proc, Signal);
+   end Stop;
 
 end Util.Streams.Pipes;

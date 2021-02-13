@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  strings.tests -- Unit tests for Strings
---  Copyright (C) 2009, 2010, 2011, 2012, 2015, 2018, 2020 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2015, 2018, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,5 +57,8 @@ package Util.Strings.Tests is
 
    --  Test the token iteration.
    procedure Test_Iterate_Token (T : in out Test);
+
+   --  Test formatting strings.
+   procedure Test_Format (T : in out Test);
 
 end Util.Strings.Tests;

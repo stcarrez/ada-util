@@ -20,13 +20,10 @@ util-junit.xml
 test-write.txt
 test-stream.txt
 autom4te.cache
-distrib/util_http.gpr
-distrib/util_http_aws.gpr
-distrib/util_http_curl.gpr
-distrib/util_unit.gpr
 lib/
 obj/
 regtests/util-testsuite.adb
+regtests/results
 src/sys/http/curl/util-http-clients-curl-constants.ads
 src/sys/os-generated
 string-append.csv
@@ -39,8 +36,6 @@ utilada_http.gpr
 utilada_unit.gpr
 utilada_lzma.gpr
 utilada_tests.gpr
-doc/util-book.pdf
-doc/util-book.html
 *.substvars
 debian/lib*
 debian/.debhelper/
@@ -48,3 +43,8 @@ debian/autoreconf.after
 debian/autoreconf.before
 debian/debhelper-build-stamp
 debian/files
+docs/utilada-book.html
+wiki
+cover
+alire
+util.cov

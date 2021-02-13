@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util -- Utilities
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@ procedure Util_Harness is
    procedure Initialize (Props : in Util.Properties.Manager) is
       pragma Unreferenced (Props);
 
-      Path : constant String := Util.Tests.Get_Test_Path ("regtests/result");
+      Path : constant String := Util.Tests.Get_Test_Path ("");
    begin
       if not Ada.Directories.Exists (Path) then
          Ada.Directories.Create_Directory (Path);

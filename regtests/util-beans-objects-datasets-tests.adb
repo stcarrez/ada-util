@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-datasets-tests -- Unit tests for dataset beans
---  Copyright (C) 2013, 2015, 2017 Stephane Carrez
+--  Copyright (C) 2013, 2015, 2017, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ with Util.Test_Caller;
 
 package body Util.Beans.Objects.Datasets.Tests is
 
-   package Caller is new Util.Test_Caller (Test, "Objects.Datasets");
+   package Caller is new Util.Test_Caller (Test, "Beans.Datasets");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

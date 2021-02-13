@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-pipes -- Pipe stream to or from a process
---  Copyright (C) 2011, 2013, 2015, 2016, 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,6 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Ada.Finalization;
 
 with Util.Processes;
 
@@ -97,7 +96,7 @@ package Util.Streams.Pipes is
    --  -----------------------
    --  The <b>Pipe_Stream</b> is an output/input stream that reads or writes
    --  to or from a process.
-   type Pipe_Stream is limited new Output_Stream and Input_Stream  with private;
+   type Pipe_Stream is limited new Output_Stream and Input_Stream with private;
 
    --  Set the shell executable path to use to launch a command.  The default on Unix is
    --  the /bin/sh command.  Argument splitting is done by the /bin/sh -c command.
@@ -161,15 +160,16 @@ package Util.Streams.Pipes is
                    Into   : out Ada.Streams.Stream_Element_Array;
                    Last   : out Ada.Streams.Stream_Element_Offset);
 
+   --  Terminate the process by sending a signal on Unix and exiting the process on Windows.
+   --  This operation is not portable and has a different behavior between Unix and Windows.
+   --  Its intent is to stop the process.
+   procedure Stop (Stream : in out Pipe_Stream;
+                   Signal : in Positive := 15);
+
 private
 
-   type Pipe_Stream is limited new Ada.Finalization.Limited_Controlled
-     and Output_Stream and Input_Stream with record
+   type Pipe_Stream is limited new Output_Stream and Input_Stream with record
       Proc   : Util.Processes.Process;
    end record;
-
-   --  Flush the stream and release the buffer.
-   overriding
-   procedure Finalize (Object : in out Pipe_Stream);
 
 end Util.Streams.Pipes;

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util -- Unit tests for properties
---  Copyright (C) 2009, 2010, 2011, 2014, 2017, 2018, 2020 Stephane Carrez
+--  util-properties-tests -- Tests for properties
+--  Copyright (C) 2009, 2010, 2011, 2014, 2017, 2018, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,6 +38,9 @@ package body Util.Properties.Tests is
    begin
       T.Assert (Exists (Props, "test") = False,
                 "Invalid properties");
+      T.Assert (Exists (Props, +("test")) = False,
+                "Invalid properties");
+      T.Assert (Props.Is_Empty, "Property manager should be empty");
       Props.Set ("test", "toto");
       T.Assert (Exists (Props, "test"),
                 "Property was not inserted");
@@ -45,6 +48,20 @@ package body Util.Properties.Tests is
          V : constant String := Props.Get ("test");
       begin
 
+         T.Assert (V = "toto",
+                   "Property was not set correctly");
+      end;
+
+      declare
+         V : constant String := Props.Get (+("test"));
+      begin
+         T.Assert (V = "toto",
+                   "Property was not set correctly");
+      end;
+
+      declare
+         V : constant Unbounded_String := Props.Get (+("test"));
+      begin
          T.Assert (V = "toto",
                    "Property was not set correctly");
       end;
@@ -139,6 +156,16 @@ package body Util.Properties.Tests is
       declare
          Copy : Properties.Manager;
       begin
+         Copy.Copy (From   => Props);
+         T.Assert (Copy.Exists ("prefix.one"), "Property one not found");
+         T.Assert (Copy.Exists ("prefix.two"), "Property two not found");
+         T.Assert (Copy.Exists ("prefix"), "Property '' does not exist.");
+         T.Assert (Copy.Exists ("prefix."), "Property '' does not exist.");
+      end;
+
+      declare
+         Copy : Properties.Manager;
+      begin
          Copy.Copy (From   => Props,
                     Prefix => "prefix.",
                     Strip  => True);
@@ -208,29 +235,68 @@ package body Util.Properties.Tests is
       Props  : Properties.Manager;
       V      : Unbounded_String;
    begin
-      T.Assert (Util.Beans.Objects.Is_Null (Props.Get_Value ("missing")),
-                "The Get_Value operation must return a null object");
-      begin
-         V := Props.Get ("missing");
-         T.Fail ("Exception NO_PROPERTY was not raised");
+      for Pass in 1 .. 2 loop
+         T.Assert (Util.Beans.Objects.Is_Null (Props.Get_Value ("missing")),
+                   "The Get_Value operation must return a null object");
+         begin
+            V := Props.Get ("missing");
+            T.Fail ("Exception NO_PROPERTY was not raised");
 
-      exception
-         when NO_PROPERTY =>
-            null;
-      end;
-      T.Assert (Ada.Strings.Unbounded.Length (V) = 0, "Variable get's corrupted");
+         exception
+            when NO_PROPERTY =>
+               null;
+         end;
 
-      Props.Set ("a", "b");
-      T.Assert (Util.Beans.Objects.Is_Null (Props.Get_Value ("missing")),
-                "The Get_Value operation must return a null object");
-      begin
-         V := Props.Get ("missing");
-         T.Fail ("Exception NO_PROPERTY was not raised");
+         begin
+            V := Props.Get (+("missing"));
+            T.Fail ("Exception NO_PROPERTY was not raised");
 
-      exception
-         when NO_PROPERTY =>
-            null;
-      end;
+         exception
+            when NO_PROPERTY =>
+               null;
+         end;
+         T.Assert (Ada.Strings.Unbounded.Length (V) = 0, "Variable get's corrupted");
+
+         --  Check exception on Get returning a String.
+         begin
+            declare
+               S : constant String := Props.Get ("missing");
+               pragma Unreferenced (S);
+            begin
+               T.Fail ("Exception NO_PROPERTY was not raised");
+            end;
+         exception
+            when NO_PROPERTY =>
+               null;
+         end;
+
+         --  Check exception on Get returning a String.
+         begin
+            declare
+               S : constant String := Props.Get (+("missing"));
+               pragma Unreferenced (S);
+            begin
+               T.Fail ("Exception NO_PROPERTY was not raised");
+            end;
+         exception
+            when NO_PROPERTY =>
+               null;
+         end;
+
+         Props.Set ("a", "b");
+         T.Assert (Util.Beans.Objects.Is_Null (Props.Get_Value ("missing")),
+                   "The Get_Value operation must return a null object");
+         begin
+            V := Props.Get ("missing");
+            T.Fail ("Exception NO_PROPERTY was not raised");
+
+         exception
+            when NO_PROPERTY =>
+               null;
+         end;
+
+         Props.Set ("c", "d");
+      end loop;
    end Test_Missing_Property;
 
    procedure Test_Load_Ini_Property (T : in out Test) is
@@ -261,6 +327,29 @@ package body Util.Properties.Tests is
 
       end;
 
+      declare
+         P : Properties.Manager;
+      begin
+         P := Props.Get ("mysqld");
+         T.Assert (P.Exists ("user"),
+                   "The [mysqld] property manager should contain a 'user' property");
+
+         P := Props.Get ("mysqld_safe");
+         T.Assert (P.Exists ("socket"),
+                   "The [mysqld] property manager should contain a 'socket' property");
+      end;
+
+      declare
+         P : Properties.Manager with Unreferenced;
+      begin
+         P := Props.Get ("bad");
+         T.Fail ("No exception raised for Get()");
+
+      exception
+         when NO_PROPERTY =>
+            null;
+      end;
+
    exception
       when Ada.Text_IO.Name_Error =>
          Ada.Text_IO.Put_Line ("Cannot find test file: regtests/files/my.cnf");
@@ -269,6 +358,7 @@ package body Util.Properties.Tests is
    end Test_Load_Ini_Property;
 
    procedure Test_Save_Properties (T : in out Test) is
+      Path : constant String := Util.Tests.Get_Test_Path ("save-props.properties");
    begin
       declare
          Props  : Properties.Manager;
@@ -281,7 +371,7 @@ package body Util.Properties.Tests is
          Props.Set ("New-Property", "Some-Value");
          Props.Remove ("mysqld");
          T.Assert (not Props.Exists ("mysqld"), "mysqld property was not removed");
-         Props.Save_Properties ("regtests/result/save-props.properties");
+         Props.Save_Properties (Path);
       end;
 
       declare
@@ -289,7 +379,7 @@ package body Util.Properties.Tests is
          V : Util.Properties.Value;
          P : Properties.Manager;
       begin
-         Props.Load_Properties (Path => "regtests/result/save-props.properties");
+         Props.Load_Properties (Path => Path);
 
          T.Assert (not Props.Exists ("mysqld"), "mysqld property was not removed (2)");
          T.Assert (Props.Exists ("New-Property"), "Invalid Save_Properties");
@@ -301,9 +391,55 @@ package body Util.Properties.Tests is
          T.Assert (P.Exists ("socket"),
                    "The [mysqld] property manager should contain a 'socket' property");
       end;
+
+      declare
+         V : Util.Properties.Value;
+         P : Properties.Manager with Unreferenced;
+      begin
+         P := Util.Properties.To_Manager (V);
+         T.Fail ("No exception raised by To_Manager");
+
+      exception
+         when Util.Beans.Objects.Conversion_Error =>
+            null;
+      end;
    end Test_Save_Properties;
 
-   package Caller is new Util.Test_Caller (Test, "Properties");
+   procedure Test_Remove_Property (T : in out Test) is
+      Props : Properties.Manager;
+   begin
+      begin
+         Props.Remove ("missing");
+         T.Fail ("Remove should raise exception");
+
+      exception
+         when NO_PROPERTY =>
+            null;
+      end;
+
+      begin
+         Props.Remove (+("missing"));
+         T.Fail ("Remove should raise exception");
+
+      exception
+         when NO_PROPERTY =>
+            null;
+      end;
+
+      Props.Set ("a", "b");
+      T.Assert (Props.Exists ("a"), "Property not inserted");
+
+      Props.Remove ("a");
+      T.Assert (not Props.Exists ("a"), "Property not removed");
+
+      Props.Set ("a", +("b"));
+      T.Assert (Props.Exists ("a"), "Property not inserted");
+
+      Props.Remove (+("a"));
+      T.Assert (not Props.Exists ("a"), "Property not removed");
+   end Test_Remove_Property;
+
+   package Caller is new Util.Test_Caller (Test, "Properties.Main");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
@@ -313,6 +449,8 @@ package body Util.Properties.Tests is
                        Test_Property'Access);
       Caller.Add_Test (Suite, "Test Util.Properties.Exists",
                        Test_Property'Access);
+      Caller.Add_Test (Suite, "Test Util.Properties.Remove",
+                       Test_Remove_Property'Access);
       Caller.Add_Test (Suite, "Test Util.Properties.Get (NO_PROPERTY)",
                        Test_Missing_Property'Access);
 

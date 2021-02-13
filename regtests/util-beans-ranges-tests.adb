@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-ranges-tests -- Unit tests for bean range definitions
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@ package body Util.Beans.Ranges.Tests is
 
    use Util.Tests;
 
-   package Caller is new Util.Test_Caller (Test, "Objects.Records");
+   package Caller is new Util.Test_Caller (Test, "Beans.Ranges");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

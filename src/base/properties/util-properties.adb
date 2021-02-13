@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties -- Generic name/value property management
---  Copyright (C) 2001 - 2020 Stephane Carrez
+--  Copyright (C) 2001 - 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -307,12 +307,13 @@ package body Util.Properties is
 
    function Get (Self : in Manager'Class;
                  Name : in String) return String is
+      Value : constant Util.Beans.Objects.Object := Self.Get_Value (Name);
    begin
-      if Self.Impl = null then
+      if Util.Beans.Objects.Is_Null (Value) then
          raise NO_PROPERTY with "No property: '" & Name & "'";
       end if;
 
-      return To_String (Self.Impl.Get_Value (Name));
+      return To_String (Value);
    end Get;
 
    function Get (Self : in Manager'Class;
@@ -515,11 +516,9 @@ package body Util.Properties is
       Current : Manager;
       Pos     : Natural;
       Len     : Natural;
-      Old_Shared : Boolean;
    begin
       Check_And_Create_Impl (Self);
       Current := Manager (Self);
-      --  Old_Shared := Current.Impl.Shared;
       Current.Impl.Set_Shared (True);
       while not End_Of_File (File) loop
          Line := Get_Line (File);

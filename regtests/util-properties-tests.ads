@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util -- Utilities
---  Copyright (C) 2009, 2010, 2011, 2014, 2017, 2020 Stephane Carrez
+--  util-properties-tests -- Tests for properties
+--  Copyright (C) 2009, 2010, 2011, 2014, 2017, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,5 +34,6 @@ package Util.Properties.Tests is
    procedure Test_Missing_Property (T : in out Test);
    procedure Test_Load_Ini_Property (T : in out Test);
    procedure Test_Save_Properties (T : in out Test);
+   procedure Test_Remove_Property (T : in out Test);
 
 end Util.Properties.Tests;

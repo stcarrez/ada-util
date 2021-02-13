@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-refs -- Reference Counting
---  Copyright (C) 2010, 2011, 2019 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2019, 2020 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -139,7 +139,9 @@ package body Util.Refs is
       --  ------------------------------
       function Value (Object : in Ref'Class) return Element_Accessor is
       begin
-         return Element_Accessor '(Element => Object.Target.Data'Access);
+         --  GCC 10 requires the Unrestricted_Access while GCC < 10 allowed Access...
+         --  It is safe because the Ref handles the copy and Element_Accessor is limited.
+         return Element_Accessor '(Element => Object.Target.Data'Unrestricted_Access);
       end Value;
 
       --  ------------------------------
