@@ -154,14 +154,24 @@ AC_SUBST(UTIL_OS_VERSION)
 
 AM_GNAT_FIND_XML_ADA([
     AM_GNAT_LIBRARY_SETUP(utilada_xml)
+    WITH_UTILADA_XML="with \"utilada_xml\";"
 ], [
+    WITH_UTILADA_XML=""
 ])
+AC_SUBST(WITH_UTILADA_XML)
 
 ##########################################
 # Ada LZMA library
 ##########################################
 
-ac_enable_lzma=yes
+AM_GNAT_CHECK_PROJECT([lzmada],[lzmada])
+
+if test T$ac_cv_gnat_project_lzmada = Tno; then
+  ac_enable_lzma=no
+else
+  ac_enable_lzma=yes
+fi
+
 AC_MSG_CHECKING([Ada LZMA support is enabled])
 AC_ARG_ENABLE(lzma,
 [  --enable-lzma           Enable the Ada LZMA support in Ada Util (enabled)],
@@ -186,6 +196,7 @@ AS_HELP_STRING([--with-ada-lzma=x], [Path for Ada LZMA Library]),
 ])
 
 if test T$ac_enable_lzma = Tyes; then
+
 AM_GNAT_FIND_PROJECT([ada-lzma],[Ada LZMA Library],[lzmada],
   [git@github.com:stcarrez/ada-lzma.git],
   [Building Ada Utility Library with LZMA support.],
@@ -311,16 +322,17 @@ AM_GNAT_CHECK_AWS(
     UTIL_HAVE_AWS=no
     WITH_SERVER="";
     WITH_UTIL_AWS="";
+    UTIL_AWS_VERSION="none"
   ], [
     UTIL_HAVE_AWS=yes
     WITH_UTIL_AWS="with \"utilada_aws\";";
     WITH_SERVER=$ac_cv_gnat_project_with_aws
     AM_GNAT_LIBRARY_SETUP(utilada_aws)
-  ])
-AM_GNAT_AWS_VERSION
 
-AC_MSG_CHECKING([using AWS http client])
-UTIL_AWS_VERSION=1
+    AM_GNAT_AWS_VERSION
+
+    AC_MSG_CHECKING([using AWS http client])
+    UTIL_AWS_VERSION=1
 case $AWS_VERSION in
   *2017*|*2018*|*2019*|*202*|20.0)
      UTIL_AWS_VERSION=2
@@ -338,7 +350,10 @@ case $AWS_VERSION in
      UTIL_AWS_VERSION=2
      ;;
 esac
-AC_MSG_RESULT(${UTIL_AWS_VERSION})
+    AC_MSG_RESULT(${UTIL_AWS_VERSION})
+
+  ])
+
 AC_SUBST(UTIL_AWS_VERSION)
 
 AC_ARG_ENABLE(link-options-util,
