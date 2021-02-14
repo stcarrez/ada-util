@@ -7,7 +7,7 @@ project Samples is
    "bundles.adb", "escape.adb", "encodes.adb", "popen.adb",
    "multipro.adb", "multipro_refs.adb", "date.adb",
    "csv_reader.adb", "launch.adb", "gperfhash.adb", "proplist.adb",
-   "cut.adb", "xmi.adb", "serialize.adb", "json.adb",
+   "cut.adb", "serialize.adb", "json.adb",
    "encrypt.adb", "decrypt.adb", "csv_city.adb");
 
    for Main use Mains;
@@ -15,6 +15,14 @@ project Samples is
    case UtilAda.Has_Lzma is
       when "yes" =>
          Mains := Mains & ("compress.adb", "decompress.adb", "lzma_encrypt.adb", "lzma_decrypt.adb");
+      when "no" =>
+         null;
+
+   end case;
+
+   case UtilAda.Has_Xml is
+      when "yes" =>
+         Mains := Mains & ("xmi.adb");
       when "no" =>
          null;
 

@@ -640,6 +640,7 @@ UTIL_GNAT_TRACEBACK
 UTIL_HAVE_LZMA
 WITH_UTILADA_LZMA
 WITH_LZMA_ADA
+WITH_UTILADA_XML
 HAVE_XML_ADA
 VERSION_XML_ADA
 WITH_XML_ADA
@@ -4526,6 +4527,7 @@ $as_echo_n "checking preparing for GNAT project utilada_xml... " >&6; }
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: done" >&5
 $as_echo "done" >&6; }
 
+    WITH_UTILADA_XML="with \"utilada_xml\";"
 
       ;;
 
@@ -4534,6 +4536,7 @@ $as_echo "done" >&6; }
       VERSION_XML_ADA='none';
       HAVE_XML_ADA='no'
 
+    WITH_UTILADA_XML=""
 
       ;;
 
@@ -4544,11 +4547,43 @@ $as_echo "done" >&6; }
 
 
 
+
 ##########################################
 # Ada LZMA library
 ##########################################
 
-ac_enable_lzma=yes
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether lzmada project exists" >&5
+$as_echo_n "checking whether lzmada project exists... " >&6; }
+if ${ac_cv_gnat_project_lzmada+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+    echo "with \"lzmada\"; project conftest is for Source_Dirs use (); end conftest;" > conftest.gpr
+    if { ac_try='$GNATCHECK -Pconftest.gpr $GNATCHECK_ARG > /dev/null 2>conftest.out'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }
+    then
+      ac_cv_gnat_project_lzmada=yes
+      ac_cv_gnat_project_with_lzmada="with \"lzmada\";";
+    else
+      ac_cv_gnat_project_lzmada=no
+    fi
+    rm -f conftest.gpr
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_gnat_project_lzmada" >&5
+$as_echo "$ac_cv_gnat_project_lzmada" >&6; }
+
+
+if test T$ac_cv_gnat_project_lzmada = Tno; then
+  ac_enable_lzma=no
+else
+  ac_enable_lzma=yes
+fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking Ada LZMA support is enabled" >&5
 $as_echo_n "checking Ada LZMA support is enabled... " >&6; }
 # Check whether --enable-lzma was given.
@@ -4580,6 +4615,7 @@ fi
 
 
 if test T$ac_enable_lzma = Tyes; then
+
 
 
 # Check whether --with-ada-lzma was given.
@@ -4965,6 +5001,7 @@ $as_echo "$ac_cv_gnat_project_aws" >&6; }
     UTIL_HAVE_AWS=no
     WITH_SERVER="";
     WITH_UTIL_AWS="";
+    UTIL_AWS_VERSION="none"
 
   else
 
@@ -4978,8 +5015,6 @@ $as_echo_n "checking preparing for GNAT project utilada_aws... " >&6; }
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: done" >&5
 $as_echo "done" >&6; }
 
-
-  fi
 
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking checking AWS version" >&5
@@ -5027,9 +5062,9 @@ $as_echo "$ac_cv_gnat_aws_version" >&6; }
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking using AWS http client" >&5
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking using AWS http client" >&5
 $as_echo_n "checking using AWS http client... " >&6; }
-UTIL_AWS_VERSION=1
+    UTIL_AWS_VERSION=1
 case $AWS_VERSION in
   *2017*|*2018*|*2019*|*202*|20.0)
      UTIL_AWS_VERSION=2
@@ -5047,8 +5082,13 @@ case $AWS_VERSION in
      UTIL_AWS_VERSION=2
      ;;
 esac
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${UTIL_AWS_VERSION}" >&5
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${UTIL_AWS_VERSION}" >&5
 $as_echo "${UTIL_AWS_VERSION}" >&6; }
+
+
+  fi
+
+
 
 
 # Check whether --enable-link-options-util was given.
