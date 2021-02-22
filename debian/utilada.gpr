@@ -1,0 +1,18 @@
+with "utilada_core";
+with "utilada_base";
+with "utilada_sys";
+with "utilada_http";
+with "utilada_xml";
+with "utilada_lzma";
+
+abstract project UtilAda is
+
+   type Yes_No is ("yes", "no");
+
+   Version := "2.4.0";
+
+   Has_Lzma    : Yes_No := "yes";
+   Has_Curl    : Yes_No := "yes";
+   Has_AWS     : Yes_No := "yes";
+
+end UtilAda;
