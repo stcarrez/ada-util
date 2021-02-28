@@ -80,7 +80,7 @@ Description: Ada Utility Library Curl HTTP Client (runtime)
 Package: libutilada2-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, ${ada:Depends}
+Depends: ${misc:Depends}
 Suggests: libutilada-doc (= ${source:Version})
 Description: Ada Utility Library (Development files)
  This package provides the GNAT projects to help build Ada05 applications
