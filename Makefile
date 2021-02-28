@@ -81,56 +81,41 @@ CLEAN_FILES+= bin/util_test_process bin/utilgen
 clean::
 	-rm -f test?.log test.log test-stream.txt test-write.txt util-tests.xml
 
-ifeq (${HAVE_PANDOC},yes)
-doc::  docs/utilada-book.pdf docs/utilada-book.html
-ifeq (${HAVE_DYNAMO},yes)
-	$(DYNAMO) build-doc -markdown wiki
-endif
-
 UTIL_DOC= \
-  docs/title.md \
-  docs/pagebreak.tex \
-  docs/index.md \
-  docs/pagebreak.tex \
-  docs/Installation.md \
-  docs/pagebreak.tex \
-  docs/Util_Log.md \
-  docs/pagebreak.tex \
-  docs/Util_Properties.md \
-  docs/pagebreak.tex \
-  docs/Util_Dates.md \
-  docs/pagebreak.tex \
-  docs/Util_Beans.md \
-  docs/pagebreak.tex \
-  docs/Util_Commands.md \
-  docs/pagebreak.tex \
-  docs/Serialization.md \
-  docs/pagebreak.tex \
-  docs/Util_Http.md \
-  docs/pagebreak.tex \
-  docs/Util_Streams.md \
-  docs/pagebreak.tex \
-  docs/Util_Encoders.md \
-  docs/pagebreak.tex \
-  docs/Util_Events_Timers.md \
-  docs/pagebreak.tex \
-  docs/Util_Measures.md
+  title.md \
+  pagebreak.tex \
+  index.md \
+  pagebreak.tex \
+  Installation.md \
+  pagebreak.tex \
+  Util_Log.md \
+  pagebreak.tex \
+  Util_Properties.md \
+  pagebreak.tex \
+  Util_Dates.md \
+  pagebreak.tex \
+  Util_Beans.md \
+  pagebreak.tex \
+  Util_Commands.md \
+  pagebreak.tex \
+  Serialization.md \
+  pagebreak.tex \
+  Util_Http.md \
+  pagebreak.tex \
+  Util_Streams.md \
+  pagebreak.tex \
+  Util_Encoders.md \
+  pagebreak.tex \
+  Util_Events_Timers.md \
+  pagebreak.tex \
+  Util_Measures.md
 
-DOC_OPTIONS=-f markdown -o docs/utilada-book.pdf
+DOC_OPTIONS=-f markdown
 DOC_OPTIONS+= --listings --number-sections --toc
-HTML_OPTIONS=-f markdown -o docs/utilada-book.html
+HTML_OPTIONS=-f markdown
 HTML_OPTIONS+= --listings --number-sections --toc --css docs/pandoc.css
 
-docs/utilada-book.pdf:  force
-ifeq (${HAVE_DYNAMO},yes)
-	$(DYNAMO) build-doc -pandoc docs
-endif
-	pandoc $(DOC_OPTIONS) --template=./docs/eisvogel.tex $(UTIL_DOC)
-
-docs/utilada-book.html: docs/utilada-book.pdf force
-	pandoc $(HTML_OPTIONS) $(UTIL_DOC)
-
-endif
+$(eval $(call pandoc_build,utilada-book,$(UTIL_DOC)))
 
 install-support:
 	$(MKDIR) -p ${bindir}
@@ -152,4 +137,3 @@ src/sys/http/curl/util-http-clients-curl-constants.ads:	bin/utilgen
 bin/utilgen:    support/utilgen.c Makefile.conf
 	mkdir -p bin
 	$(CC) -o $@ $(CFLAGS) -g support/utilgen.c
-
