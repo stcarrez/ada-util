@@ -8,7 +8,7 @@ Build-Depends: debhelper (>= 10), autotools-dev,
 # This line is parsed by debian/rules.
  gprbuild (>= 2015-2),
  libxmlada-sax9-dev,
- liblzmada2-dev,
+ liblzmada3-dev,
  libaws19-dev,
 # pandoc requires texlive-fonts-extra for PDF
  pandoc, texlive-fonts-extra
