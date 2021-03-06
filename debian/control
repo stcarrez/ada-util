@@ -4,18 +4,18 @@ Section: libdevel
 Maintainer: Stephane Carrez <Stephane.Carrez@gmail.com>
 Build-Depends: debhelper (>= 10), autotools-dev,
  dh-ada-library,
- gnat, gnat-9,
+ gnat, gnat-8,
 # This line is parsed by debian/rules.
  gprbuild (>= 2015-2),
- libxmlada-sax9-dev,
+ libxmlada-sax8-dev,
  liblzmada2-dev,
- libaws19-dev,
+ libaws18-dev,
 # pandoc requires texlive-fonts-extra for PDF
  pandoc, texlive-fonts-extra
 Standards-Version: 4.1.4
 Homepage: https://github.com/stcarrez/ada-util/
-Vcs-Git: https://github.com/stcarrez/ada-util.git -b debian-gnat-9
-Vcs-Browser: https://github.com/stcarrez/ada-util/tree/debian-gnat-9
+Vcs-Git: https://github.com/stcarrez/ada-util.git -b debian-gnat-8
+Vcs-Browser: https://github.com/stcarrez/ada-util/tree/debian-gnat-8
 
 Package: libutilada-core2.4.0
 Section: libs
