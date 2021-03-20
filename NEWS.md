@@ -1,4 +1,4 @@
-Version 2.4.0  -
+Version 2.4.0  - Feb 2021
   - Add support to customize and provide application specific log appenders (example in ada-keystore)
   - Improvement of read/write streams to chain LZMA, AES, Base64
   - Add examples to show LZMA compress+AES encryption, AES decryption+LZMA decompress
