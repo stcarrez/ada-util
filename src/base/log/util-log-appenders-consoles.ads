@@ -42,6 +42,7 @@ private
 
    type Console_Appender (Length : Positive) is new Appender (Length) with record
       Stderr : Boolean := False;
+      Prefix : Util.Properties.Value;
    end record;
 
 end Util.Log.Appenders.Consoles;
