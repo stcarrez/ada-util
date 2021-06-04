@@ -59,9 +59,9 @@ package body Util.Streams.Tests is
       --  Print -> Cipher -> Decipher
       Decipher.Initialize (64 * 1024);
       Decipher.Set_Key (Key, Mode);
-      Cipher.Produces (Decipher'Access, 1024);
+      Cipher.Produces (Decipher'Unchecked_Access, 1024);
       Cipher.Set_Key (Key, Mode);
-      Print.Initialize (Cipher'Access);
+      Print.Initialize (Cipher'Unchecked_Access);
       for I in 1 .. Count loop
          Print.Write (Item);
       end loop;
@@ -107,9 +107,9 @@ package body Util.Streams.Tests is
    begin
       --  Print -> Cipher -> File
       File.Create (Mode => Out_File, Name => Path);
-      Cipher.Produces (File'Access, 32);
+      Cipher.Produces (File'Unchecked_Access, 32);
       Cipher.Set_Key (Key, Mode);
-      Print.Initialize (Cipher'Access);
+      Print.Initialize (Cipher'Unchecked_Access);
       for I in 1 .. Count loop
          Print.Write (Item & ASCII.LF);
       end loop;
@@ -117,9 +117,9 @@ package body Util.Streams.Tests is
 
       --  File -> Decipher -> Reader
       File.Open (Mode => In_File, Name => Path);
-      Decipher.Consumes (File'Access, 10240);
+      Decipher.Consumes (File'Unchecked_Access, 10240);
       Decipher.Set_Key (Key, Mode);
-      Reader.Initialize (From => Decipher'Access);
+      Reader.Initialize (From => Decipher'Unchecked_Access);
       declare
          Line_Count : Natural := 0;
       begin
@@ -180,8 +180,8 @@ package body Util.Streams.Tests is
       Path    : constant String := Util.Tests.Get_Test_Path ("test-stream.b64");
       Expect  : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.b64");
    begin
-      Print.Initialize (Output => Buffer'Access, Size => 5);
-      Buffer.Produces (Output => Stream'Access,
+      Print.Initialize (Output => Buffer'Unchecked_Access, Size => 5);
+      Buffer.Produces (Output => Stream'Unchecked_Access,
                        Size   => 1024);
       Stream.Create (Mode => Out_File, Name => Path);
       for I in 1 .. 32 loop

@@ -46,7 +46,7 @@ package body Util.Streams.Files.Tests is
       Buffer     : Util.Streams.Texts.Print_Stream;
    begin
       for I in 1 .. 32 loop
-         Buffer.Initialize (Output => Stream'Access,
+         Buffer.Initialize (Output => Stream'Unchecked_Access,
                             Size   => I);
          Stream.Create (Mode => Out_File, Name => "test-stream.txt");
          Buffer.Write ("abcd");
