@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  measure -- Benchmark tools
---  Copyright (C) 2008 - 2019 Stephane Carrez
+--  Copyright (C) 2008 - 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -159,7 +159,7 @@ package body Util.Measures is
 
    begin
       Buffer.Initialize (Size => 128 * 1024);
-      Output.Initialize (To => Buffer'Access);
+      Output.Initialize (To => Buffer'Unchecked_Access);
       Write (Measures, Title, Output);
       Output.Flush;
       Ada.Text_IO.Put_Line (Stream, Util.Streams.Texts.To_String (Buffer));
