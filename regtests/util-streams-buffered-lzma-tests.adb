@@ -55,9 +55,9 @@ package body Util.Streams.Buffered.Lzma.Tests is
       Expect  : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream.lzma");
    begin
       Stream.Create (Mode => Out_File, Name => Path);
-      Buffer.Initialize (Output => Stream'Access,
+      Buffer.Initialize (Output => Stream'Unchecked_Access,
                          Size   => 1024);
-      Print.Initialize (Output => Buffer'Access, Size => 5);
+      Print.Initialize (Output => Buffer'Unchecked_Access, Size => 5);
       for I in 1 .. 32 loop
          Print.Write ("abcd");
          Print.Write (" fghij");
@@ -84,7 +84,7 @@ package body Util.Streams.Buffered.Lzma.Tests is
       In_Stream.Open (Ada.Streams.Stream_IO.In_File,
                       Util.Tests.Get_Path ("regtests/files/test-big-stream.bin"));
       Stream.Create (Mode => Out_File, Name => Path);
-      Buffer.Initialize (Output => Stream'Access,
+      Buffer.Initialize (Output => Stream'Unchecked_Access,
                          Size   => 32768);
       Util.Streams.Copy (From => In_Stream, Into => Buffer);
       Buffer.Flush;
@@ -118,13 +118,13 @@ package body Util.Streams.Buffered.Lzma.Tests is
       --  Print -> Compress -> Cipher -> File
       File.Create (Mode => Out_File, Name => Path);
       if Encrypt then
-         Cipher.Produces (File'Access, 64);
+         Cipher.Produces (File'Unchecked_Access, 64);
          Cipher.Set_Key (Key, Mode);
-         Compress.Initialize (Cipher'Access, 1024);
+         Compress.Initialize (Cipher'Unchecked_Access, 1024);
       else
-         Compress.Initialize (File'Access, 1024);
+         Compress.Initialize (File'Unchecked_Access, 1024);
       end if;
-      Print.Initialize (Compress'Access);
+      Print.Initialize (Compress'Unchecked_Access);
       for I in 1 .. Count loop
          Print.Write (Item & ASCII.LF);
       end loop;
@@ -133,13 +133,13 @@ package body Util.Streams.Buffered.Lzma.Tests is
       --  File -> Decipher -> Decompress -> Reader
       File.Open (Mode => In_File, Name => Path);
       if Encrypt then
-         Decipher.Consumes (File'Access, 128);
+         Decipher.Consumes (File'Unchecked_Access, 128);
          Decipher.Set_Key (Key, Mode);
-         Decompress.Initialize (Decipher'Access, 1024);
+         Decompress.Initialize (Decipher'Unchecked_Access, 1024);
       else
-         Decompress.Initialize (File'Access, 1024);
+         Decompress.Initialize (File'Unchecked_Access, 1024);
       end if;
-      Reader.Initialize (From => Decompress'Access);
+      Reader.Initialize (From => Decompress'Unchecked_Access);
       declare
          Line_Count : Natural := 0;
       begin
