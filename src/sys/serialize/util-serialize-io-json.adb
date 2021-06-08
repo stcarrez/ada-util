@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,7 @@ with Util.Streams.Buffered;
 with Util.Streams.Texts.TR;
 with Util.Streams.Texts.WTR;
 with Util.Dates.ISO8601;
+with Util.Beans.Objects.Maps;
 with Util.Beans.Objects.Readers;
 package body Util.Serialize.IO.JSON is
 
@@ -340,8 +341,68 @@ package body Util.Serialize.IO.JSON is
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object) is
+      use Util.Beans.Objects;
    begin
-      Stream.Write_Attribute (Name, Value);
+      Stream.Write_Field_Name (Name);
+      case Util.Beans.Objects.Get_Type (Value) is
+         when TYPE_NULL =>
+            Stream.Write ("null");
+
+         when TYPE_BOOLEAN =>
+            if Util.Beans.Objects.To_Boolean (Value) then
+               Stream.Write ("true");
+            else
+               Stream.Write ("false");
+            end if;
+
+         when TYPE_INTEGER =>
+            Stream.Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
+
+         when Type_Bean | TYPE_ARRAY =>
+            if Is_Array (Value) then
+               Stream.Write ("[");
+               declare
+                  Count : constant Natural := Util.Beans.Objects.Get_Count (Value);
+               begin
+                  for I in 1 .. Count loop
+                     if I > 1 then
+                        Stream.Stream.Write (",");
+                     end if;
+                     Stream.Write_Entity ("", Util.Beans.Objects.Get_Value (Value, I));
+                  end loop;
+               end;
+               Stream.Write ("]");
+            else
+               declare
+                  Has_Items : Boolean := False;
+
+                  procedure Process (Name : in String; Item : in Object) is
+                  begin
+                     if not Has_Items then
+                        Stream.Write ("{");
+                        Has_Items := True;
+                     else
+                        Stream.Write ("," & ASCII.LF);
+                     end if;
+                     if Name'Length = 0 then
+                        Stream.Write (""""":");
+                     end if;
+                     Stream.Write_Entity (Name, Item);
+                  end Process;
+
+               begin
+                  Util.Beans.Objects.Maps.Iterate (Value, Process'Access);
+                  if not Has_Items then
+                     Stream.Write ("{");
+                  end if;
+                  Stream.Write ("}");
+               end;
+            end if;
+
+         when others =>
+            Stream.Write_String (Util.Beans.Objects.To_String (Value));
+
+      end case;
    end Write_Entity;
 
    --  -----------------------
