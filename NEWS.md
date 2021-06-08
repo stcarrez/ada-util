@@ -1,3 +1,7 @@
+Version 2.4.1  - Jun 2021
+  - Fix compilation issues with GNAT 2021
+  - Fix serialization of Util.Beans.Objects holding arrays or maps
+
 Version 2.4.0  - Feb 2021
   - Add support to customize and provide application specific log appenders (example in ada-keystore)
   - Improvement of read/write streams to chain LZMA, AES, Base64
