@@ -25,7 +25,8 @@ package Util.Commands.Parsers.GNAT_Parser is
 
    procedure Execute (Config  : in out Config_Type;
                       Args    : in Util.Commands.Argument_List'Class;
-                      Process : not null access procedure (Cmd_Args : in Commands.Argument_List'Class));
+                      Process : not null access
+                        procedure (Cmd_Args : in Commands.Argument_List'Class));
 
    procedure Usage (Name   : in String;
                     Config : in out Config_Type);

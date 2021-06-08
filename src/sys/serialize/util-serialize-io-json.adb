@@ -358,7 +358,7 @@ package body Util.Serialize.IO.JSON is
          when TYPE_INTEGER =>
             Stream.Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
 
-         when Type_Bean | TYPE_ARRAY =>
+         when TYPE_BEAN | TYPE_ARRAY =>
             if Is_Array (Value) then
                Stream.Write ("[");
                declare
@@ -374,6 +374,8 @@ package body Util.Serialize.IO.JSON is
                Stream.Write ("]");
             else
                declare
+                  procedure Process (Name : in String; Item : in Object);
+
                   Has_Items : Boolean := False;
 
                   procedure Process (Name : in String; Item : in Object) is
