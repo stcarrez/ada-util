@@ -27,7 +27,7 @@ abstract project Config is
 
          when "coverage" =>
             for Default_Switches ("Ada") use defaults & warnings
-               & ("-O2", "-gnata", "-gnatVaMI", "-gnaty3abcefhiklmnprstxM99",
+               & ("-g", "-O2", "-gnata", "-gnatVaMI", "-gnaty3abcefhiklmnprstxM99",
                   "-fprofile-arcs", "-ftest-coverage");
 
          when "optimize" =>
