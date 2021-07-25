@@ -46,4 +46,7 @@ package Util.Serialize.IO.JSON.Tests is
    --  Test writing a JSON content from an Object tree.
    procedure Test_Write (T : in out Test);
 
+   --  Test writing a JSON content from an Object tree.
+   procedure Test_Write_Complex (T : in out Test);
+
 end Util.Serialize.IO.JSON.Tests;

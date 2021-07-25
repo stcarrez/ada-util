@@ -22,6 +22,7 @@ with Ada.Calendar.Formatting;
 with Util.Test_Caller;
 with Util.Log.Loggers;
 with Util.Streams.Files;
+with Util.Beans.Objects.Maps;
 with Util.Beans.Objects.Readers;
 
 package body Util.Serialize.IO.JSON.Tests is
@@ -48,6 +49,8 @@ package body Util.Serialize.IO.JSON.Tests is
                        Test_Read'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.JSON.Write_Entity",
                        Test_Write'Access);
+      Caller.Add_Test (Suite, "Test Util.Serialize.IO.JSON.Start_Entity",
+                       Test_Write_Complex'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -474,5 +477,91 @@ package body Util.Serialize.IO.JSON.Tests is
                                    "Invalid array value at " & Integer'Image (I));
       end loop;
    end Test_Write;
+
+   --  ------------------------------
+   --  Test writing a JSON content from an Object tree.
+   --  ------------------------------
+   procedure Test_Write_Complex (T : in out Test) is
+      use Util.Beans.Objects;
+      Path     : constant String := Util.Tests.Get_Path ("regtests/files/pass01.json");
+      Out_Path : constant String := Util.Tests.Get_Test_Path ("test-write-complex.json");
+      Root     : Util.Beans.Objects.Object;
+      Value    : Util.Beans.Objects.Object;
+      Item     : Util.Beans.Objects.Object;
+      File     : aliased Util.Streams.Files.File_Stream;
+      Print    : aliased Util.Streams.Texts.Print_Stream;
+      Output   : Util.Serialize.IO.JSON.Output_Stream;
+      Empty    : constant Util.Beans.Objects.Object := Util.Beans.Objects.Maps.Create;
+   begin
+      Root := Read (Path);
+      T.Assert (not Util.Beans.Objects.Is_Null (Root), "Read should not return null object");
+      T.Assert (Util.Beans.Objects.Is_Array (Root), "Root object is an array");
+
+      File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Out_Path);
+      Print.Initialize (File'Unchecked_Access);
+      Output.Initialize (Print'Unchecked_Access);
+      Output.Start_Entity ("");
+      Output.Write_Entity ("count", 23);
+      Output.Write_Entity ("event", Root);
+      Output.Write_Entity ("empty", Empty);
+      Output.End_Entity ("");
+      Output.Close;
+
+      Root := Read (Out_Path);
+      T.Assert (not Util.Beans.Objects.Is_Null (Root), "Root should not be null");
+
+      Value := Util.Beans.Objects.Get_Value (Root, "count");
+      Util.Tests.Assert_Equals (T, "23",
+                                Util.Beans.Objects.To_String (Value), "Invalid count");
+      T.Assert (Util.Beans.Objects.Get_Type (Value) = Util.Beans.Objects.TYPE_INTEGER,
+                "Invalid type for count");
+
+      Root := Util.Beans.Objects.Get_Value (Root, "event");
+      Value := Util.Beans.Objects.Get_Value (Root, 1);
+
+      Util.Tests.Assert_Equals (T, "JSON Test Pattern pass1",
+                                Util.Beans.Objects.To_String (Value), "Invalid first element");
+
+      Value := Util.Beans.Objects.Get_Value (Root, 4);
+      T.Assert (Util.Beans.Objects.Is_Array (Value), "Element 4 should be an empty array");
+      Util.Tests.Assert_Equals (T, 0, Util.Beans.Objects.Get_Count (Value), "Invalid array");
+
+      Value := Util.Beans.Objects.Get_Value (Root, 8);
+      T.Assert (Util.Beans.Objects.Is_Null (Value), "Element 8 should be null");
+
+      Value := Util.Beans.Objects.Get_Value (Root, 9);
+      T.Assert (not Util.Beans.Objects.Is_Null (Value), "Element 9 should not be null");
+
+      Item := Util.Beans.Objects.Get_Value (Value, "integer");
+      Util.Tests.Assert_Equals (T, 1234567890, Util.Beans.Objects.To_Integer (Item),
+                                "Invalid integer value");
+
+      Item := Util.Beans.Objects.Get_Value (Value, "zero");
+      Util.Tests.Assert_Equals (T, 0, Util.Beans.Objects.To_Integer (Item),
+                                "Invalid integer value (0)");
+
+      Item := Util.Beans.Objects.Get_Value (Value, "one");
+      Util.Tests.Assert_Equals (T, 1, Util.Beans.Objects.To_Integer (Item),
+                                "Invalid integer value (1)");
+
+      Item := Util.Beans.Objects.Get_Value (Value, "true");
+      T.Assert (Util.Beans.Objects.Get_Type (Item) = TYPE_BOOLEAN,
+                "The value true should be a boolean");
+      T.Assert (Util.Beans.Objects.To_Boolean (Item),
+                "The value true should be... true!");
+
+      Item := Util.Beans.Objects.Get_Value (Value, "false");
+      T.Assert (Util.Beans.Objects.Get_Type (Item) = TYPE_BOOLEAN,
+                "The value false should be a boolean");
+      T.Assert (not Util.Beans.Objects.To_Boolean (Item),
+                "The value false should be... false!");
+
+      Item := Util.Beans.Objects.Get_Value (Value, " s p a c e d ");
+      T.Assert (Is_Array (Item), "The value should be an array");
+      for I in 1 .. 7 loop
+         Util.Tests.Assert_Equals (T, I, To_Integer (Get_Value (Item, I)),
+                                   "Invalid array value at " & Integer'Image (I));
+      end loop;
+   end Test_Write_Complex;
 
 end Util.Serialize.IO.JSON.Tests;
