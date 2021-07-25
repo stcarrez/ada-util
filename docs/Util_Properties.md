@@ -101,7 +101,6 @@ Then, the property will be fetch by using:
 ```Ada
  Value : constant String := Props.Get ("info|data|value");
 ```
-
 ## Property bundles
 Property bundles represent several property files that share some overriding rules and
 capabilities.  Their introduction comes from Java resource bundles which allow to
@@ -146,7 +145,6 @@ The restriction when using bundles is that they don't allow changing any value a
 
 When a bundle cannot be loaded, the `NO_BUNDLE` exception is raised by the `Load_Bundle`
 operation.
-
 
 ## Advance usage of properties
 The property manager holds the name and value pairs by using an Ada Bean object.

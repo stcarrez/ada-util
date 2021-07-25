@@ -55,7 +55,6 @@ Several operations are provided to convert a value into an `Object`.
 Value : Util.Beans.Objects.Object := Util.Beans.Objects.To_Object ("something");
 Value := Value + To_Object ("12");
 ```
-
 ## Datasets
 The `Datasets` package implements the `Dataset` list bean which
 defines a set of objects organized in rows and columns.  The `Dataset`
@@ -63,11 +62,9 @@ implements the `List_Bean` interface and allows to iterate over its rows.
 Each row defines a `Bean` instance and allows to access each column value.
 Each column is associated with a unique name.  The row `Bean` allows to
 get or set the column by using the column name.
-
 ## Bean Interface
 An Ada Bean is an object which implements the `Util.Beans.Basic.Readonly_Bean` or the
 `Util.Beans.Basic.Bean` interface.  By implementing these interface, the object provides
 a behavior that is close to the Java Beans: a getter and a setter operation are available.
-
 
 

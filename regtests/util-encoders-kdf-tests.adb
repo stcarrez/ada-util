@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encodes-kdf-tests - Key derivative function tests
---  Copyright (C) 2019 Stephane Carrez
+--  Copyright (C) 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,6 @@ with Util.Encoders.SHA256;
 with Util.Encoders.HMAC.SHA1;
 with Util.Encoders.HMAC.SHA256;
 with Util.Encoders.Base16;
-with Util.Encoders.AES;
 with Util.Encoders.KDF.PBKDF2;
 package body Util.Encoders.KDF.Tests is
 
