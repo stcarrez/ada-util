@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-json-tests -- Unit tests for JSON parser
---  Copyright (C) 2011, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2017, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,5 +42,11 @@ package Util.Serialize.IO.JSON.Tests is
 
    --  Test reading a JSON content into an Object tree.
    procedure Test_Read (T : in out Test);
+
+   --  Test writing a JSON content from an Object tree.
+   procedure Test_Write (T : in out Test);
+
+   --  Test writing a JSON content from an Object tree.
+   procedure Test_Write_Complex (T : in out Test);
 
 end Util.Serialize.IO.JSON.Tests;

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,7 @@ with Util.Streams.Buffered;
 with Util.Streams.Texts.TR;
 with Util.Streams.Texts.WTR;
 with Util.Dates.ISO8601;
+with Util.Beans.Objects.Maps;
 with Util.Beans.Objects.Readers;
 package body Util.Serialize.IO.JSON is
 
@@ -340,8 +341,66 @@ package body Util.Serialize.IO.JSON is
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object) is
+      use Util.Beans.Objects;
    begin
-      Stream.Write_Attribute (Name, Value);
+      case Util.Beans.Objects.Get_Type (Value) is
+         when TYPE_NULL =>
+            Stream.Write_Field_Name (Name);
+            Stream.Write ("null");
+
+         when TYPE_BOOLEAN =>
+            Stream.Write_Field_Name (Name);
+            if Util.Beans.Objects.To_Boolean (Value) then
+               Stream.Write ("true");
+            else
+               Stream.Write ("false");
+            end if;
+
+         when TYPE_INTEGER =>
+            Stream.Write_Field_Name (Name);
+            Stream.Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
+
+         when TYPE_FLOAT =>
+            Stream.Write_Field_Name (Name);
+            Stream.Stream.Write
+              (Long_Long_Float'Image (Util.Beans.Objects.To_Long_Long_Float (Value)));
+
+         when TYPE_BEAN | TYPE_ARRAY =>
+            if Is_Array (Value) then
+               Stream.Start_Array (Name);
+               declare
+                  Count : constant Natural := Util.Beans.Objects.Get_Count (Value);
+               begin
+                  for I in 1 .. Count loop
+                     Stream.Write_Entity ("", Util.Beans.Objects.Get_Value (Value, I));
+                  end loop;
+               end;
+               Stream.End_Array (Name);
+            else
+               declare
+                  procedure Process (Name : in String; Item : in Object);
+
+                  procedure Process (Name : in String; Item : in Object) is
+                  begin
+                     Stream.Write (ASCII.LF);
+                     if Name'Length = 0 then
+                        Stream.Write (""""":");
+                     end if;
+                     Stream.Write_Entity (Name, Item);
+                  end Process;
+
+               begin
+                  Stream.Start_Entity (Name);
+                  Util.Beans.Objects.Maps.Iterate (Value, Process'Access);
+                  Stream.End_Entity (Name);
+               end;
+            end if;
+
+         when others =>
+            Stream.Write_Field_Name (Name);
+            Stream.Write_String (Util.Beans.Objects.To_String (Value));
+
+      end case;
    end Write_Entity;
 
    --  -----------------------
@@ -436,6 +495,7 @@ package body Util.Serialize.IO.JSON is
             Current.Has_Fields := True;
          else
             Current.Is_Array := True;
+            Current.Has_Fields := True;
          end if;
       end if;
       Node_Info_Stack.Push (Stream.Stack);
@@ -584,7 +644,24 @@ package body Util.Serialize.IO.JSON is
                Sink.Set_Member (Name, Util.Beans.Objects.Null_Object, P);
 
             when T_NUMBER =>
-               Sink.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token), P);
+               declare
+                  Value : Long_Long_Integer;
+               begin
+                  Value := Long_Long_Integer'Value (To_String (P.Token));
+                  Sink.Set_Member (Name, Util.Beans.Objects.To_Object (Value), P);
+               end;
+
+            when T_FLOAT =>
+               declare
+                  Value : Long_Long_Float;
+               begin
+                  Value := Long_Long_Float'Value (To_String (P.Token));
+                  Sink.Set_Member (Name, Util.Beans.Objects.To_Object (Value), P);
+
+               exception
+                  when Constraint_Error =>
+                     P.Error ("Invalid number");
+               end;
 
             when T_STRING =>
                Sink.Set_Member (Name, Util.Beans.Objects.To_Object (P.Token), P);
@@ -721,6 +798,7 @@ package body Util.Serialize.IO.JSON is
          when '-' | '0' .. '9' =>
             Delete (P.Token, 1, Length (P.Token));
             Append (P.Token, C);
+            Token := T_NUMBER;
             begin
                loop
                   Stream.Read (Char => C);
@@ -728,6 +806,7 @@ package body Util.Serialize.IO.JSON is
                   Append (P.Token, C);
                end loop;
                if C = '.' then
+                  Token := T_FLOAT;
                   Append (P.Token, C);
                   loop
                      Stream.Read (Char => C);
@@ -736,16 +815,16 @@ package body Util.Serialize.IO.JSON is
                   end loop;
                end if;
                if C = 'e' or C = 'E' then
+                  Token := T_FLOAT;
                   Append (P.Token, C);
                   Stream.Read (Char => C);
                   if C = '+' or C = '-' then
                      Append (P.Token, C);
                      Stream.Read (Char => C);
                   end if;
-                  loop
-                     Stream.Read (Char => C);
-                     exit when C not in '0' .. '9';
+                  while C in '0' .. '9' loop
                      Append (P.Token, C);
+                     Stream.Read (Char => C);
                   end loop;
                end if;
                if not (C in ' ' | Latin_1.HT | Latin_1.LF | Latin_1.CR) then
@@ -757,7 +836,6 @@ package body Util.Serialize.IO.JSON is
                when Ada.IO_Exceptions.Data_Error =>
                   null;
             end;
-            Token := T_NUMBER;
             return;
 
             --  Parse a name composed of letters or digits.
@@ -847,7 +925,11 @@ package body Util.Serialize.IO.JSON is
       R : Util.Beans.Objects.Readers.Reader;
    begin
       P.Parse (Path, R);
-      return R.Get_Root;
+      if P.Has_Error then
+         return Util.Beans.Objects.Null_Object;
+      else
+         return R.Get_Root;
+      end if;
    end Read;
 
 end Util.Serialize.IO.JSON;

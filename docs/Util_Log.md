@@ -37,7 +37,7 @@ is free but using the full package name is helpful to control precisely the logs
 ```Ada
 with Util.Log.Loggers;
 package body X.Y is
-  Log : constant Util.Log.Loggers := Util.Log.Loggers.Create ("X.Y");
+  Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("X.Y");
 end X.Y;
 ```
 

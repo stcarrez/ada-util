@@ -82,7 +82,7 @@ package body Util.Streams.Sockets.Tests is
 
       --  Get a connection and write 10 lines.
       Stream.Connect (Server => Addr);
-      Writer.Initialize (Output => Stream'Access,
+      Writer.Initialize (Output => Stream'Unchecked_Access,
                          Size   => 1024);
       for I in 1 .. 10 loop
          Writer.Write ("Sending a line on the socket test-"

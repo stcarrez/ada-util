@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with Ada.Text_IO;
 
+with Util.Beans.Objects;
 with Util.Properties.Basic;
 with Util.Log.Appenders.Formatter;
 package body Util.Log.Appenders.Consoles is
@@ -48,6 +49,10 @@ package body Util.Log.Appenders.Consoles is
    begin
       if Self.Level >= Level then
          if Self.Stderr then
+            if not Util.Beans.Objects.Is_Null (Self.Prefix) then
+               Text_IO.Put (Text_IO.Current_Error,
+                            Util.Beans.Objects.To_String (Self.Prefix));
+            end if;
             Write_Error (Self, Message, Date, Level, Logger);
             Text_IO.New_Line (Text_IO.Current_Error);
          else
@@ -64,7 +69,7 @@ package body Util.Log.Appenders.Consoles is
    procedure Flush (Self : in out Console_Appender) is
    begin
       if Self.Stderr then
-         Text_IO.Flush (Text_IO.Standard_Error);
+         Text_IO.Flush (Text_IO.Current_Error);
       else
          Text_IO.Flush;
       end if;
@@ -86,6 +91,7 @@ package body Util.Log.Appenders.Consoles is
    begin
       Result.Set_Level (Name, Properties, Default);
       Result.Set_Layout (Name, Properties, FULL);
+      Result.Prefix := Properties.Get_Value ("appender." & Name & ".prefix");
       Result.Stderr := Boolean_Property.Get (Properties, "appender." & Name & ".stderr", False);
       return Result.all'Access;
    end Create;

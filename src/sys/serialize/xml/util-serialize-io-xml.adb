@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-xml -- XML Serialization Driver
---  Copyright (C) 2011, 2012, 2013, 2016, 2017, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2013, 2016, 2017, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,7 @@ with Util.Strings;
 with Util.Dates.ISO8601;
 with Util.Streams.Texts.TR;
 with Util.Streams.Texts.WTR;
+with Util.Beans.Objects.Maps;
 package body Util.Serialize.IO.XML is
 
    use Sax.Readers;
@@ -777,12 +778,52 @@ package body Util.Serialize.IO.XML is
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object) is
+      use Util.Beans.Objects;
    begin
       Close_Current (Stream);
       Stream.Write ('<');
       Stream.Write (Name);
       Stream.Close_Start := True;
-      Stream.Write_String (Value);
+      case Util.Beans.Objects.Get_Type (Value) is
+         when TYPE_NULL =>
+            Stream.Write ("null");
+
+         when TYPE_BOOLEAN =>
+            if Util.Beans.Objects.To_Boolean (Value) then
+               Stream.Write ("true");
+            else
+               Stream.Write ("false");
+            end if;
+
+         when TYPE_INTEGER =>
+            Stream.Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
+
+         when TYPE_BEAN | TYPE_ARRAY =>
+            if Is_Array (Value) then
+               declare
+                  Count : constant Natural := Util.Beans.Objects.Get_Count (Value);
+               begin
+                  for I in 1 .. Count loop
+                     Stream.Write_Entity (Name, Util.Beans.Objects.Get_Value (Value, I));
+                  end loop;
+               end;
+            else
+               declare
+                  procedure Process (Name : in String; Item : in Object);
+
+                  procedure Process (Name : in String; Item : in Object) is
+                  begin
+                     Stream.Write_Entity (Name, Item);
+                  end Process;
+               begin
+                  Util.Beans.Objects.Maps.Iterate (Value, Process'Access);
+               end;
+            end if;
+
+         when others =>
+            Stream.Write_String (Util.Beans.Objects.To_String (Value));
+
+      end case;
       Stream.Write ("</");
       Stream.Write (Name);
       Stream.Write ('>');

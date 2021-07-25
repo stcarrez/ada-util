@@ -44,7 +44,6 @@ that target format and a `Value` function to parse such format string and return
 ```
 
 A `Constraint_Error` exception is raised when the date string is not in the correct format.
-
 ## ISO8601 Dates
 The ISO8601 defines a standard date format that is commonly used and easily parsed by programs.
 The `Util.Dates.ISO8601` package provides an `Image` function to convert a date into that
@@ -57,7 +56,6 @@ target format and a `Value` function to parse such format string and return the 
 ```
 
 A `Constraint_Error` exception is raised when the date string is not in the correct format.
-
 ## Localized date formatting
 The `Util.Dates.Formats` provides a date formatting and parsing operation similar to the
 Unix `strftime`, `strptime` or the `GNAT.Calendar.Time_IO`.  The localization of month
@@ -159,5 +157,4 @@ and bundle can be used and the `Parse` function will return the date in split fo
                                                    Pattern => Pattern,
                                                    Bundle  => Bundle);
 ```
-
 

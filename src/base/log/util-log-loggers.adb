@@ -79,6 +79,8 @@ package body Util.Log.Loggers is
       procedure Build_Appender (Name     : in String;
                                 Appender : out Appender_Access);
 
+      procedure Create_Default_Appender;
+
       Config           : Properties.Manager;
       Appenders        : Log.Appenders.Appender_List;
       Default_Level    : Level_Type := WARN_LEVEL;
@@ -162,7 +164,7 @@ package body Util.Log.Loggers is
             begin
                Strings.Formats.Format (Message, "Log configuration file {0} not found", Name);
                if Default_Appender = null then
-                  Build_Appender ("root", Default_Appender);
+                  Create_Default_Appender;
                end if;
                Default_Appender.Append (Message, Date, WARN_LEVEL, "Util.Log");
             end;
@@ -187,9 +189,7 @@ package body Util.Log.Loggers is
             end;
          end if;
          if Default_Appender = null then
-            Default_Appender := Consoles.Create ("root", Config, ERROR_LEVEL);
-            Set_Layout (Default_Appender.all, MESSAGE);
-            Util.Log.Appenders.Add_Appender (Appenders, Default_Appender);
+            Create_Default_Appender;
          end if;
 
          --  Re-initialize the existing loggers.  Note that there is no concurrency
@@ -289,6 +289,15 @@ package body Util.Log.Loggers is
          end if;
       end Build_Appender;
 
+      procedure Create_Default_Appender is
+      begin
+         if Default_Appender = null then
+            Default_Appender := Consoles.Create ("root", Config, ERROR_LEVEL);
+            Set_Layout (Default_Appender.all, MESSAGE);
+            Util.Log.Appenders.Add_Appender (Appenders, Default_Appender);
+         end if;
+      end Create_Default_Appender;
+
       --  ------------------------------
       --  Find an appender given the property value
       --  ------------------------------
@@ -298,6 +307,10 @@ package body Util.Log.Loggers is
       begin
          if Appender_Name'Length = 0 then
             Appender := Default_Appender;
+            if Appender = null then
+               Create_Default_Appender;
+               Appender := Default_Appender;
+            end if;
             return;
          end if;
 

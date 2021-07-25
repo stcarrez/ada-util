@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log -- Utility Log Package
---  Copyright (C) 2001 - 2019 Stephane Carrez
+--  Copyright (C) 2001 - 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,7 +50,7 @@
 --
 --    with Util.Log.Loggers;
 --    package body X.Y is
---      Log : constant Util.Log.Loggers := Util.Log.Loggers.Create ("X.Y");
+--      Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("X.Y");
 --    end X.Y;
 --
 --  == Logger Messages ==

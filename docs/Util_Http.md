@@ -36,4 +36,3 @@ by using the <tt>Get_Header</tt> function and the body using <tt>Get_Body</tt>:
 Body : constant String := Response.Get_Body;
 ```
 
-
