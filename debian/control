@@ -10,6 +10,7 @@ Build-Depends: debhelper (>= 10), autotools-dev,
  libxmlada-sax8-dev,
  liblzmada2-dev,
  libaws18-dev,
+ libcurl4-openssl-dev,
 # pandoc requires texlive-fonts-extra for PDF
  pandoc, texlive-fonts-extra
 Standards-Version: 4.1.4
