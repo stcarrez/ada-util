@@ -362,7 +362,8 @@ package body Util.Serialize.IO.JSON is
 
          when TYPE_FLOAT =>
             Stream.Write_Field_Name (Name);
-            Stream.Stream.Write (Long_Long_Float'Image (Util.Beans.Objects.To_Long_Long_Float (Value)));
+            Stream.Stream.Write
+              (Long_Long_Float'Image (Util.Beans.Objects.To_Long_Long_Float (Value)));
 
          when TYPE_BEAN | TYPE_ARRAY =>
             if Is_Array (Value) then
