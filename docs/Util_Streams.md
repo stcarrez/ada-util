@@ -62,7 +62,6 @@ with Util.Streams.Pipes;
 
 In this case, the buffer of 1024 bytes is filled by reading the pipe stream, and thus
 getting the program's output.
-
 ## Texts
 The `Util.Streams.Texts` package implements text oriented input and output streams.
 The `Print_Stream` type extends the `Output_Buffer_Stream` to allow writing
@@ -70,11 +69,9 @@ text content.
 
 The `Reader_Stream` type extends the `Input_Buffer_Stream` and allows to
 read text content.
-
 ## File streams
 The `Util.Streams.Files` package provides input and output streams that access
 files on top of the Ada `Stream_IO` standard package.
-
 ## Pipes
 The `Util.Streams.Pipes` package defines a pipe stream to or from a process.
 It allows to launch an external program while getting the program standard output or
@@ -157,22 +154,17 @@ will be created to configure:
   * Redirect the process input from a file.
 
 All these operations must be made before calling the `Open` procedure.
-
 ## Sockets
 The <b>Util.Streams.Sockets</b> package defines a socket stream.
-
 ## Raw files
 The <b>Util.Streams.Raw</b> package provides a stream directly on top of
 file system operations <b>read</b> and <b>write</b>.
-
 ## Base16 Encoding Streams
 The `Util.Streams.Base16` package provides streams to encode and decode the stream
 using Base16.
-
 ## Base64 Encoding Streams
 The `Util.Streams.Base64` package provides streams to encode and decode the stream
 using Base64.
-
 ## AES Encoding Streams
 The `Util.Streams.AES` package define the `Encoding_Stream` and `Decoding_Stream` types to
 encrypt and decrypt using the AES cipher.  Before using these streams, you must use
@@ -267,5 +259,4 @@ It is now possible to write the text by using the `Printer` object:
 Printer.Write ("Hello world!");
 
 ```
-
 
