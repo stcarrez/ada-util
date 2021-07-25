@@ -1,4 +1,4 @@
-Version 2.4.1  - Jun 2021
+Version 2.4.1  - Jul 2021
   - Fix compilation issues with GNAT 2021
   - Fix serialization of Util.Beans.Objects holding arrays or maps
 
