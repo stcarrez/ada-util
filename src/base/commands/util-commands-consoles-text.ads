@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-consoles-text -- Text console interface
---  Copyright (C) 2014, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2014, 2017, 2018, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,7 +63,20 @@ package Util.Commands.Consoles.Text is
 private
 
    type Console_Type is new Util.Commands.Consoles.Console_Type with record
-      File : Ada.Text_IO.File_Type;
+      File    : Ada.Text_IO.File_Type;
+      Cur_Col : Positive := 1;
    end record;
+
+   --  The Ada Text_IO package does not handle UTF-8 when computing the column position.
+   --  We must do this ourselves.  The alternative is to use the Wide_Wide_Text_IO package
+   --  but this brings other problems and increase complexity in using this package.
+   --  The `Put` procedure will advance the `Col` member according to the UTF-8 sequences
+   --  that are found in the string (and not the actual string length).
+
+   procedure Set_Col (Console : in out Console_Type;
+                      Col     : in Positive);
+
+   procedure Put (Console : in out Console_Type;
+                  Content : in String);
 
 end Util.Commands.Consoles.Text;

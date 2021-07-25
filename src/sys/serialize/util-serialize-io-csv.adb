@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-csv -- CSV Serialization Driver
---  Copyright (C) 2011, 2015, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2015, 2016, 2017, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
 with Ada.Strings.Unbounded;
 with Ada.Characters.Latin_1;
 with Ada.IO_Exceptions;
+with Ada.Containers;
 
 with Util.Strings;
 with Util.Dates.ISO8601;

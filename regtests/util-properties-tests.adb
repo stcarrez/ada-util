@@ -19,6 +19,7 @@
 with Util.Test_Caller;
 
 with Ada.Text_IO;
+with Ada.Containers;
 
 with Util.Properties;
 with Util.Properties.Basic;

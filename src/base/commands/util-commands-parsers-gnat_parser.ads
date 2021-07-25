@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-parsers.gnat_parser -- GNAT command line parser for command drivers
---  Copyright (C) 2018, 2019 Stephane Carrez
+--  Copyright (C) 2018, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,9 +23,10 @@ package Util.Commands.Parsers.GNAT_Parser is
 
    subtype Config_Type is GC.Command_Line_Configuration;
 
-   procedure Execute (Config : in out Config_Type;
-                      Args   : in Util.Commands.Argument_List'Class;
-                      Process : access procedure (Cmd_Args : in Commands.Argument_List'Class));
+   procedure Execute (Config  : in out Config_Type;
+                      Args    : in Util.Commands.Argument_List'Class;
+                      Process : not null access
+                        procedure (Cmd_Args : in Commands.Argument_List'Class));
 
    procedure Usage (Name   : in String;
                     Config : in out Config_Type);

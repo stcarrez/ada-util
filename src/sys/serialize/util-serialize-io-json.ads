@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -206,7 +206,7 @@ private
 
    type Token_Type is (T_EOF, T_LEFT_BRACE, T_RIGHT_BRACE, T_LEFT_BRACKET,
                        T_RIGHT_BRACKET, T_COLON, T_COMMA, T_TRUE, T_FALSE,
-                       T_STRING, T_NUMBER, T_BOOLEAN, T_UNKNOWN, T_NULL);
+                       T_STRING, T_FLOAT, T_NUMBER, T_BOOLEAN, T_UNKNOWN, T_NULL);
 
    type Parser is new Util.Serialize.IO.Parser with record
       Token            : Ada.Strings.Unbounded.Unbounded_String;

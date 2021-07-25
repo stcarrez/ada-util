@@ -54,7 +54,7 @@ package body Util.Streams.Texts.Tests is
       Count  : Natural := 0;
    begin
       Stream.Open (Name => "Makefile", Mode => In_File);
-      Reader.Initialize (From => Stream'Access);
+      Reader.Initialize (From => Stream'Unchecked_Access);
 
       while not Reader.Is_Eof loop
          declare
