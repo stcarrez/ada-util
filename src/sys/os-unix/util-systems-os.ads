@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-systems-os -- Unix system operations
---  Copyright (C) 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -87,7 +87,7 @@ package Util.Systems.Os is
    --  System exit without any process cleaning.
    --  (destructors, finalizers, atexit are not called)
    procedure Sys_Exit (Code : in Integer)
-    with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "exit";
+     with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "exit";
 
    --  Fork a new process
    function Sys_Fork return Util.Processes.Process_Identifier
@@ -101,6 +101,12 @@ package Util.Systems.Os is
    function Sys_Execvp (File : in Ptr;
                         Args : in Ptr_Array) return Integer
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "execvp";
+
+   --  Execute a process with the given arguments.
+   function Sys_Execve (File : in Ptr;
+                        Args : in Ptr_Array;
+                        Envp : in Ptr_Array) return Integer
+     with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "execve";
 
    --  Wait for the process <b>Pid</b> to finish and return
    function Sys_Waitpid (Pid     : in Integer;
