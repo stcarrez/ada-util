@@ -51,6 +51,8 @@ package body Util.Processes.Tests is
                        Test_Input_Redirect'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn(CHDIR)",
                        Test_Set_Working_Directory'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Spawn(Environment)",
+                      Test_Set_Environment'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn(errors)",
                        Test_Errors'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Open/Read/Close (Multi spawn)",
@@ -363,6 +365,33 @@ package body Util.Processes.Tests is
                                      Test    => Out_Path,
                                      Message => "Process input/output redirection");
    end Test_Set_Working_Directory;
+
+   --  ------------------------------
+   --  Test changing working directory.
+   --  ------------------------------
+   procedure Test_Set_Environment (T : in out Test) is
+      P        : Process;
+      Dir_Path : constant String := Util.Tests.Get_Path ("regtests/files");
+      In_Path  : constant String := Util.Tests.Get_Path ("regtests/files/proc-empty.txt");
+      Exp_Path : constant String := Util.Tests.Get_Path ("regtests/expect/proc-env.txt");
+      Out_Path : constant String := Util.Tests.Get_Test_Path ("proc-env.txt");
+      Err_Path : constant String := Util.Tests.Get_Test_Path ("proc-errres.txt");
+   begin
+      Util.Processes.Set_Environment (P, "ENV_VAR", "test1");
+      Util.Processes.Set_Input_Stream (P, In_Path);
+      Util.Processes.Set_Output_Stream (P, Out_Path);
+      Util.Processes.Set_Error_Stream (P, Err_Path);
+      Util.Processes.Spawn (P, "env | grep ENV_VAR");
+      Util.Processes.Wait (P);
+
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Process failed");
+
+      Util.Tests.Assert_Equal_Files (T       => T,
+                                     Expect  => Exp_Path,
+                                     Test    => Out_Path,
+                                     Message => "Process input/output redirection");
+   end Test_Set_Environment;
 
    --  ------------------------------
    --  Test various errors.
