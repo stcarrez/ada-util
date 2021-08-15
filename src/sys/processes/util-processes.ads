@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes -- Process creation and control
---  Copyright (C) 2011, 2012, 2016, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -98,6 +98,18 @@ package Util.Processes is
    procedure Append_Argument (Proc : in out Process;
                               Arg  : in String);
 
+   --  Set the environment variable to be used by the process before its creation.
+   procedure Set_Environment (Proc  : in out Process;
+                              Name  : in String;
+                              Value : in String);
+
+   procedure Set_Environment (Proc    : in out Process;
+                              Iterate : not null access
+                                procedure
+                                  (Process : not null access procedure
+                                     (Name  : in String;
+                                      Value : in String)));
+
    --  Spawn a new process with the given command and its arguments.  The standard input, output
    --  and error streams are either redirected to a file or to a stream object.
    procedure Spawn (Proc      : in out Process;
@@ -189,9 +201,17 @@ private
                     Proc : in out Process'Class;
                     Mode : in Pipe_Mode := NONE) is abstract;
 
+   --  Clear the program arguments.
+   procedure Clear_Arguments (Sys : in out System_Process) is abstract;
+
    --  Append the argument to the process argument list.
    procedure Append_Argument (Sys : in out System_Process;
                               Arg : in String) is abstract;
+
+   --  Set the environment variable to be used by the process before its creation.
+   procedure Set_Environment (Sys   : in out System_Process;
+                              Name  : in String;
+                              Value : in String) is abstract;
 
    --  Set the process input, output and error streams to redirect and use specified files.
    procedure Set_Streams (Sys           : in out System_Process;
