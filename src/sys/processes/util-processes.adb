@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes -- Process creation and control
---  Copyright (C) 2011, 2016, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2018, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -144,6 +144,40 @@ package body Util.Processes is
    end Append_Argument;
 
    --  ------------------------------
+   --  Set the environment variable to be used by the process before its creation.
+   --  ------------------------------
+   procedure Set_Environment (Proc  : in out Process;
+                              Name  : in String;
+                              Value : in String) is
+   begin
+      if Proc.Is_Running then
+         Log.Error ("Cannot set environment '{0}' while process is running", Name);
+         raise Invalid_State with "Process is running";
+      end if;
+      Proc.Sys.Set_Environment (Name, Value);
+   end Set_Environment;
+
+   procedure Set_Environment (Proc    : in out Process;
+                              Iterate : not null access
+                                procedure
+                                  (Process : not null access procedure
+                                     (Name  : in String;
+                                      Value : in String))) is
+
+      procedure Process (Name, Value : in String) is
+      begin
+         Proc.Sys.Set_Environment (Name, Value);
+      end Process;
+
+   begin
+      if Proc.Is_Running then
+         Log.Error ("Cannot set environment while process is running");
+         raise Invalid_State with "Process is running";
+      end if;
+      Iterate (Process'Access);
+   end Set_Environment;
+
+   --  ------------------------------
    --  Spawn a new process with the given command and its arguments.  The standard input, output
    --  and error streams are either redirected to a file or to a stream object.
    --  ------------------------------
@@ -157,11 +191,12 @@ package body Util.Processes is
 
       Log.Info ("Starting process {0}", Command);
 
-      if Proc.Sys /= null then
-         Proc.Sys.Finalize;
-         Free (Proc.Sys);
-      end if;
-      Proc.Sys := new Util.Processes.Os.System_Process;
+      --  if Proc.Sys /= null then
+      --   Proc.Sys.Finalize;
+      --   Free (Proc.Sys);
+      --  end if;
+      --  Proc.Sys := new Util.Processes.Os.System_Process;
+      Proc.Sys.Clear_Arguments;
 
       --  Build the argc/argv table, terminate by NULL
       for I in Arguments'Range loop
@@ -197,11 +232,12 @@ package body Util.Processes is
 
       Log.Info ("Starting process {0}", Command);
 
-      if Proc.Sys /= null then
-         Proc.Sys.Finalize;
-         Free (Proc.Sys);
-      end if;
-      Proc.Sys := new Util.Processes.Os.System_Process;
+      --  if Proc.Sys /= null then
+      --   Proc.Sys.Finalize;
+      --   Free (Proc.Sys);
+      --  end if;
+      --  Proc.Sys := new Util.Processes.Os.System_Process;
+      Proc.Sys.Clear_Arguments;
 
       if Length (Proc.Shell) > 0 then
          Proc.Sys.Append_Argument (To_String (Proc.Shell));
