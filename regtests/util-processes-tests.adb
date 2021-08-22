@@ -371,7 +371,6 @@ package body Util.Processes.Tests is
    --  ------------------------------
    procedure Test_Set_Environment (T : in out Test) is
       P        : Process;
-      Dir_Path : constant String := Util.Tests.Get_Path ("regtests/files");
       In_Path  : constant String := Util.Tests.Get_Path ("regtests/files/proc-empty.txt");
       Exp_Path : constant String := Util.Tests.Get_Path ("regtests/expect/proc-env.txt");
       Out_Path : constant String := Util.Tests.Get_Test_Path ("proc-env.txt");
@@ -427,6 +426,22 @@ package body Util.Processes.Tests is
       begin
          Util.Processes.Set_Error_Stream (P, ".");
          T.Fail ("Set_Error_Stream: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         Util.Processes.Set_Environment (P, "ENV_VAR", "test1");
+         T.Fail ("Set_Environment: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         Util.Processes.Spawn (P, "sleep 1");
+         T.Fail ("Spawn: no exception raised");
 
       exception
          when Invalid_State =>
