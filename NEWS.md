@@ -1,3 +1,6 @@
+Version 2.5.0  -
+  - Add support to set environment variables when launching a process (without changing the current process environment!)
+
 Version 2.4.1  - Jul 2021
   - Fix compilation issues with GNAT 2021
   - Fix serialization of Util.Beans.Objects holding arrays or maps
