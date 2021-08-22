@@ -114,10 +114,12 @@ package Util.Processes is
    --  and error streams are either redirected to a file or to a stream object.
    procedure Spawn (Proc      : in out Process;
                     Command   : in String;
-                    Arguments : in Argument_List);
-
+                    Arguments : in Argument_List;
+                    Mode      : in Pipe_Mode := NONE);
    procedure Spawn (Proc      : in out Process;
                     Command   : in String;
+                    Mode      : in Pipe_Mode := NONE);
+   procedure Spawn (Proc      : in out Process;
                     Mode      : in Pipe_Mode := NONE);
 
    --  Wait for the process to terminate.
