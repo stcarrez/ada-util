@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-system-os -- Windows system operations
---  Copyright (C) 2011, 2012, 2015, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2015, 2018, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -88,9 +88,9 @@ package Util.Systems.Os is
 
    NO_FILE : constant File_Type := 0;
 
-   STD_INPUT_HANDLE  : constant DWORD := -10;
-   STD_OUTPUT_HANDLE : constant DWORD := -11;
-   STD_ERROR_HANDLE  : constant DWORD := -12;
+   STD_INPUT_HANDLE  : constant DWORD := 16#fffffff6#;
+   STD_OUTPUT_HANDLE : constant DWORD := 16#fffffff5#;
+   STD_ERROR_HANDLE  : constant DWORD := 16#fffffff4#;
 
    --  These values are specific to Linux.
    O_RDONLY   : constant Interfaces.C.int := Util.Systems.Constants.O_RDONLY;
