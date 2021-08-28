@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  compress -- Compress file using Util.Streams.Buffered.LZMA
---  Copyright (C) 2019 Stephane Carrez
+--  Copyright (C) 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +33,7 @@ procedure Compress is
    begin
       In_Stream.Open (Mode => Ada.Streams.Stream_IO.In_File, Name => Source);
       Out_Stream.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Destination);
-      Compressor.Initialize (Output => Out_Stream'Access, Size => 32768);
+      Compressor.Initialize (Output => Out_Stream'Unchecked_Access, Size => 32768);
       Util.Streams.Copy (From => In_Stream, Into => Compressor);
    end Compress_File;
 
