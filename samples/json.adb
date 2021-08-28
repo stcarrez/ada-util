@@ -28,7 +28,6 @@ procedure Json is
 
    use Util.Streams.Buffered;
    use Ada.Strings.Unbounded;
-   use type Mapping.Person_Access;
    use type Ada.Containers.Count_Type;
    use Mapping;
 
@@ -40,8 +39,6 @@ procedure Json is
    package Person_Vector_Mapper is
      new Util.Serialize.Mappers.Vector_Mapper (Vectors        => Person_Vector,
                                                Element_Mapper => Person_Mapper);
-
-   subtype Person_Vector_Context is Person_Vector_Mapper.Vector_Data;
 
    --  Mapping for a list of Person records (stored as a Vector).
    Person_Vector_Mapping : aliased Person_Vector_Mapper.Mapper;
