@@ -166,9 +166,6 @@ procedure Gperfhash is
       --  Read the generated body file.
       procedure Read_Body (Line : in String);
 
-      --  Re-generate the char position table to ignore the case.
-      procedure Generate_Char_Position;
-
       Path  : constant String := To_File_Name (Name) & ".adb";
       File  : Ada.Text_IO.File_Type;
       Count : Natural;
@@ -181,34 +178,6 @@ procedure Gperfhash is
       begin
          Lines.Append (Line);
       end Read_Body;
-
-      --  ------------------------------
-      --  Re-generate the char position table to ignore the case.
-      --  ------------------------------
-      procedure Generate_Char_Position is
-         use GNAT.Perfect_Hash_Generators;
-
-         V : Natural;
-      begin
-         Put (File, "     (");
-         for I in 0 .. 255 loop
-            if I >= Character'Pos ('a') and I <= Character'Pos ('z') then
-               V := Value (Used_Character_Set, I - Character'Pos ('a') + Character'Pos ('A'));
-            else
-               V := GNAT.Perfect_Hash_Generators.Value (Used_Character_Set, I);
-            end if;
-            if I > 0 then
-               if I mod 16 = 0 then
-                  Put_Line (File, ",");
-                  Put (File, "      ");
-               else
-                  Put (File, ", ");
-               end if;
-            end if;
-            Put (File, Util.Strings.Image (V));
-         end loop;
-         Put_Line (File, ");");
-      end Generate_Char_Position;
 
    begin
       Util.Files.Read_File (Path => Path, Process => Read_Body'Access);
