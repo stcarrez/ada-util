@@ -129,7 +129,7 @@ The samples can be built using:
 
 # Documentation
 
-* [Ada Utility Library Programmer's Guide](https://ada-util.readthedocs.io/en/latest/intro/) [PDF](https://github.com/stcarrez/ada-util/blob/master/docs/utilada-book.pdf)
+* [Ada Utility Library Programmer's Guide](https://ada-util.readthedocs.io/en/latest/) [PDF](https://github.com/stcarrez/ada-util/blob/master/docs/utilada-book.pdf)
 * [Wiki Documentation](https://github.com/stcarrez/ada-util/wiki)
 
 # Articles
