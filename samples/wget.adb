@@ -31,7 +31,7 @@ begin
    for I in 1 .. Count loop
       declare
          Http     : Util.Http.Clients.Client;
-         URI      : constant String := Ada.Command_Line.Argument (1);
+         URI      : constant String := Ada.Command_Line.Argument (I);
          Response : Util.Http.Clients.Response;
       begin
          Http.Add_Header ("X-Requested-By", "wget");
