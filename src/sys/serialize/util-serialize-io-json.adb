@@ -932,4 +932,16 @@ package body Util.Serialize.IO.JSON is
       end if;
    end Read;
 
+   function Read (Content : in String) return Util.Properties.Manager is
+      P : Parser;
+      R : Util.Beans.Objects.Readers.Reader;
+   begin
+      P.Parse_String (Content, R);
+      if P.Has_Error then
+         return Util.Properties.To_Manager (Util.Beans.Objects.Null_Object);
+      else
+         return Util.Properties.To_Manager (R.Get_Root);
+      end if;
+   end Read;
+
 end Util.Serialize.IO.JSON;
