@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-xml -- XML Serialization Driver
---  Copyright (C) 2011, 2012, 2016, 2017, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2017, 2020, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -192,6 +192,10 @@ package Util.Serialize.IO.XML is
    procedure End_Array (Stream : in out Output_Stream;
                         Name   : in String);
 
+   --  Set the indentation level when writing XML entities.
+   procedure Set_Indentation (Stream : in out Output_Stream;
+                              Count  : in Natural);
+
    --  Return the location where the exception was raised.
    function Get_Location (Except : Sax.Exceptions.Sax_Parse_Exception'Class)
                           return String;
@@ -310,6 +314,9 @@ private
 
    type Output_Stream is limited new Util.Serialize.IO.Output_Stream with record
       Close_Start : Boolean := False;
+      Is_Closed   : Boolean := False;
+      Level       : Natural := 0;
+      Indent      : Natural := 0;
       Stream      : Util.Streams.Texts.Print_Stream_Access;
    end record;
 
