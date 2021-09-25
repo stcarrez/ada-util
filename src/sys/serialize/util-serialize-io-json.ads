@@ -19,6 +19,7 @@ with Ada.Strings.Unbounded;
 with Ada.Streams;
 with Util.Streams.Texts;
 with Util.Stacks;
+with Util.Properties;
 with Util.Beans.Objects;
 package Util.Serialize.IO.JSON is
 
@@ -183,6 +184,8 @@ package Util.Serialize.IO.JSON is
 
    --  Read a JSON file and return an object.
    function Read (Path : in String) return Util.Beans.Objects.Object;
+
+   function Read (Content : in String) return Util.Properties.Manager;
 
 private
 
