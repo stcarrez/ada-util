@@ -426,16 +426,26 @@ package body Util.Serialize.IO.XML is
    end Parse;
 
    --  Close the current XML entity if an entity was started
-   procedure Close_Current (Stream : in out Output_Stream'Class);
+   procedure Close_Current (Stream : in out Output_Stream'Class;
+                            Indent : in Boolean);
 
    --  ------------------------------
    --  Close the current XML entity if an entity was started
    --  ------------------------------
-   procedure Close_Current (Stream : in out Output_Stream'Class) is
+   procedure Close_Current (Stream : in out Output_Stream'Class;
+                            Indent : in Boolean) is
    begin
       if Stream.Close_Start then
          Stream.Write ('>');
          Stream.Close_Start := False;
+      end if;
+      if Indent then
+         if Stream.Indent /= 0 then
+            Stream.Write (ASCII.LF);
+         end if;
+         for I in 1 .. Stream.Level loop
+            Stream.Write (' ');
+         end loop;
       end if;
    end Close_Current;
 
@@ -509,7 +519,7 @@ package body Util.Serialize.IO.XML is
    procedure Write_String (Stream : in out Output_Stream;
                            Value  : in String) is
    begin
-      Close_Current (Stream);
+      Close_Current (Stream, False);
       for I in Value'Range loop
          Stream.Write_Escape (Ada.Characters.Conversions.To_Wide_Wide_Character (Value (I)));
       end loop;
@@ -522,7 +532,7 @@ package body Util.Serialize.IO.XML is
    procedure Write_Wide_String (Stream : in out Output_Stream;
                                 Value  : in Wide_Wide_String) is
    begin
-      Close_Current (Stream);
+      Close_Current (Stream, False);
       for I in Value'Range loop
          Stream.Write_Escape (Value (I));
       end loop;
@@ -536,7 +546,7 @@ package body Util.Serialize.IO.XML is
                            Value  : in Util.Beans.Objects.Object) is
       use Util.Beans.Objects;
    begin
-      Close_Current (Stream);
+      Close_Current (Stream, False);
       case Util.Beans.Objects.Get_Type (Value) is
          when TYPE_NULL =>
             null;
@@ -563,10 +573,12 @@ package body Util.Serialize.IO.XML is
    procedure Start_Entity (Stream : in out Output_Stream;
                            Name   : in String) is
    begin
-      Close_Current (Stream);
+      Close_Current (Stream, True);
       Stream.Close_Start := True;
+      Stream.Is_Closed := False;
       Stream.Write ('<');
       Stream.Write (Name);
+      Stream.Level := Stream.Level + 1;
    end Start_Entity;
 
    --  ------------------------------
@@ -575,10 +587,12 @@ package body Util.Serialize.IO.XML is
    procedure End_Entity (Stream : in out Output_Stream;
                          Name   : in String) is
    begin
-      Close_Current (Stream);
+      Stream.Level := Stream.Level - 1;
+      Close_Current (Stream, Stream.Is_Closed);
       Stream.Write ("</");
       Stream.Write (Name);
       Stream.Write ('>');
+      Stream.Is_Closed := True;
    end End_Entity;
 
    --  ------------------------------
@@ -684,7 +698,7 @@ package body Util.Serialize.IO.XML is
                            Name   : in String;
                            Value  : in String) is
    begin
-      Close_Current (Stream);
+      Close_Current (Stream, True);
       Stream.Write ('<');
       Stream.Write (Name);
       Stream.Close_Start := True;
@@ -692,6 +706,7 @@ package body Util.Serialize.IO.XML is
       Stream.Write ("</");
       Stream.Write (Name);
       Stream.Write ('>');
+      Stream.Is_Closed := True;
    end Write_Entity;
 
    overriding
@@ -699,7 +714,7 @@ package body Util.Serialize.IO.XML is
                                 Name   : in String;
                                 Value  : in Wide_Wide_String) is
    begin
-      Close_Current (Stream);
+      Close_Current (Stream, True);
       Stream.Write ('<');
       Stream.Write (Name);
       Stream.Close_Start := True;
@@ -707,6 +722,7 @@ package body Util.Serialize.IO.XML is
       Stream.Write ("</");
       Stream.Write (Name);
       Stream.Write ('>');
+      Stream.Is_Closed := True;
    end Write_Wide_Entity;
 
    overriding
@@ -714,7 +730,7 @@ package body Util.Serialize.IO.XML is
                            Name   : in String;
                            Value  : in Boolean) is
    begin
-      Close_Current (Stream);
+      Close_Current (Stream, True);
       Stream.Write ('<');
       Stream.Write (Name);
       if Value then
@@ -724,6 +740,7 @@ package body Util.Serialize.IO.XML is
       end if;
       Stream.Write (Name);
       Stream.Write ('>');
+      Stream.Is_Closed := True;
    end Write_Entity;
 
    overriding
@@ -731,7 +748,7 @@ package body Util.Serialize.IO.XML is
                            Name   : in String;
                            Value  : in Integer) is
    begin
-      Close_Current (Stream);
+      Close_Current (Stream, True);
       Stream.Write ('<');
       Stream.Write (Name);
       Stream.Write ('>');
@@ -739,6 +756,7 @@ package body Util.Serialize.IO.XML is
       Stream.Write ("</");
       Stream.Write (Name);
       Stream.Write ('>');
+      Stream.Is_Closed := True;
    end Write_Entity;
 
    overriding
@@ -754,7 +772,7 @@ package body Util.Serialize.IO.XML is
                                 Name   : in String;
                                 Value  : in Long_Long_Integer) is
    begin
-      Close_Current (Stream);
+      Close_Current (Stream, True);
       Stream.Write ('<');
       Stream.Write (Name);
       Stream.Write ('>');
@@ -762,6 +780,7 @@ package body Util.Serialize.IO.XML is
       Stream.Write ("</");
       Stream.Write (Name);
       Stream.Write ('>');
+      Stream.Is_Closed := True;
    end Write_Long_Entity;
 
    overriding
@@ -780,29 +799,50 @@ package body Util.Serialize.IO.XML is
                            Value  : in Util.Beans.Objects.Object) is
       use Util.Beans.Objects;
    begin
-      Close_Current (Stream);
-      Stream.Write ('<');
-      Stream.Write (Name);
-      Stream.Close_Start := True;
       case Util.Beans.Objects.Get_Type (Value) is
          when TYPE_NULL =>
+            Close_Current (Stream, True);
+            Stream.Write ('<');
+            Stream.Write (Name);
+            Stream.Close_Start := True;
             Stream.Write ("null");
+            Stream.Write ("</");
+            Stream.Write (Name);
+            Stream.Write ('>');
+            Stream.Is_Closed := True;
 
          when TYPE_BOOLEAN =>
+            Close_Current (Stream, True);
+            Stream.Write ('<');
+            Stream.Write (Name);
+            Stream.Close_Start := True;
             if Util.Beans.Objects.To_Boolean (Value) then
                Stream.Write ("true");
             else
                Stream.Write ("false");
             end if;
+            Stream.Write ("</");
+            Stream.Write (Name);
+            Stream.Write ('>');
+            Stream.Is_Closed := True;
 
          when TYPE_INTEGER =>
+            Close_Current (Stream, True);
+            Stream.Write ('<');
+            Stream.Write (Name);
+            Stream.Close_Start := True;
             Stream.Stream.Write (Util.Beans.Objects.To_Long_Long_Integer (Value));
+            Stream.Write ("</");
+            Stream.Write (Name);
+            Stream.Write ('>');
+            Stream.Is_Closed := True;
 
          when TYPE_BEAN | TYPE_ARRAY =>
             if Is_Array (Value) then
                declare
                   Count : constant Natural := Util.Beans.Objects.Get_Count (Value);
                begin
+                  Close_Current (Stream, False);
                   for I in 1 .. Count loop
                      Stream.Write_Entity (Name, Util.Beans.Objects.Get_Value (Value, I));
                   end loop;
@@ -816,17 +856,30 @@ package body Util.Serialize.IO.XML is
                      Stream.Write_Entity (Name, Item);
                   end Process;
                begin
+                  Close_Current (Stream, True);
+                  Stream.Write ('<');
+                  Stream.Write (Name);
+                  Stream.Close_Start := True;
                   Util.Beans.Objects.Maps.Iterate (Value, Process'Access);
+                  Stream.Write ("</");
+                  Stream.Write (Name);
+                  Stream.Write ('>');
+                  Stream.Is_Closed := True;
                end;
             end if;
 
          when others =>
+            Close_Current (Stream, True);
+            Stream.Write ('<');
+            Stream.Write (Name);
+            Stream.Close_Start := True;
             Stream.Write_String (Util.Beans.Objects.To_String (Value));
+            Stream.Write ("</");
+            Stream.Write (Name);
+            Stream.Write ('>');
+            Stream.Is_Closed := True;
 
       end case;
-      Stream.Write ("</");
-      Stream.Write (Name);
-      Stream.Write ('>');
    end Write_Entity;
 
    --  ------------------------------
@@ -859,5 +912,14 @@ package body Util.Serialize.IO.XML is
    begin
       null;
    end End_Array;
+
+   --  ------------------------------
+   --  Set the indentation level when writing XML entities.
+   --  ------------------------------
+   procedure Set_Indentation (Stream : in out Output_Stream;
+                              Count  : in Natural) is
+   begin
+      Stream.Indent := Count;
+   end Set_Indentation;
 
 end Util.Serialize.IO.XML;
