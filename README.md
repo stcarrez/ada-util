@@ -35,6 +35,7 @@ framework as it provides better reports.
 
 ## Version 2.5.0  - Under development
   - Add support to set environment variables when launching a process (without changing the current process environment!)
+  - Add support to indent XML output streams
 
 ## Version 2.4.1  - Jul 2021
   - Fix compilation issues with GNAT 2021
