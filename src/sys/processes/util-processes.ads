@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with Util.Streams;
 with Util.Systems.Types;
+with Util.Strings.Vectors;
 
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
@@ -115,6 +116,9 @@ package Util.Processes is
    procedure Spawn (Proc      : in out Process;
                     Command   : in String;
                     Arguments : in Argument_List;
+                    Mode      : in Pipe_Mode := NONE);
+   procedure Spawn (Proc      : in out Process;
+                    Arguments : in Util.Strings.Vectors.Vector;
                     Mode      : in Pipe_Mode := NONE);
    procedure Spawn (Proc      : in out Process;
                     Command   : in String;
