@@ -204,6 +204,27 @@ package body Util.Processes is
       Spawn (Proc, Mode);
    end Spawn;
 
+   procedure Spawn (Proc      : in out Process;
+                    Arguments : in Util.Strings.Vectors.Vector;
+                    Mode      : in Pipe_Mode := NONE) is
+      Command : constant String := Arguments.First_Element;
+   begin
+      if Is_Running (Proc) then
+         raise Invalid_State with "A process is running";
+      end if;
+
+      Log.Info ("Starting process {0}", Command);
+
+      Proc.Sys.Clear_Arguments;
+
+      --  Build the argc/argv table, terminated by NULL
+      for Argument of Arguments loop
+         Proc.Sys.Append_Argument (Argument);
+      end loop;
+
+      Spawn (Proc, Mode);
+   end Spawn;
+
    --  ------------------------------
    --  Spawn a new process with the given command and its arguments.  The standard input, output
    --  and error streams are either redirected to a file or to a stream object.
