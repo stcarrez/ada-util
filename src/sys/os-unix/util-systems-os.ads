@@ -114,6 +114,10 @@ package Util.Systems.Os is
                          Options : in Integer) return Integer
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "waitpid";
 
+   --  Get the current process identification.
+   function Sys_Getpid return Integer
+     with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "getpid";
+
    --  Create a bi-directional pipe
    function Sys_Pipe (Fds : in System.Address) return Integer
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "pipe";
