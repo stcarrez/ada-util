@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-mappers -- Serialize objects in various formats
---  Copyright (C) 2010, 2011, 2017 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2017, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -183,7 +183,6 @@ private
 
    type Mapping is abstract tagged limited record
       Mapper       : Mapper_Access;
-      Name         : Ada.Strings.Unbounded.Unbounded_String;
       Is_Attribute : Boolean := False;
    end record;
 

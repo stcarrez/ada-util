@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-mappers -- Serialize objects in various formats
---  Copyright (C) 2010, 2011, 2012, 2014, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2014, 2017, 2018, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -288,6 +288,7 @@ package body Util.Serialize.Mappers is
          N   : Mapper_Access;
          Src : Mapper_Access := From;
       begin
+         Add_Mapper (From, null);
          while Src /= null loop
             N := Src.Clone;
             N.Is_Clone := True;
@@ -428,8 +429,10 @@ package body Util.Serialize.Mappers is
          Name : constant String := Ada.Strings.Unbounded.To_String (Map.Name);
       begin
          if Map.Mapping /= null and then Map.Mapping.Is_Attribute then
-            Log.Info (" {0}@{1}", Prefix,
-                      Ada.Strings.Unbounded.To_String (Map.Mapping.Name));
+            Log.Info (" {0}@{1}", Prefix, Name);
+         elsif Map.Is_Deep_Wildcard and Map.Next_Mapping = null then
+            Log.Info (" {0}/{1} [proxy]", Prefix, Name);
+            Dump (Map, Log, Prefix & "/" & Name);
          else
             Log.Info (" {0}/{1}", Prefix, Name);
             Dump (Map, Log, Prefix & "/" & Name);
