@@ -578,7 +578,7 @@ package body Util.Serialize.IO.XML is
       Stream.Is_Closed := False;
       Stream.Write ('<');
       Stream.Write (Name);
-      Stream.Level := Stream.Level + 1;
+      Stream.Level := Stream.Level + Stream.Indent;
    end Start_Entity;
 
    --  ------------------------------
@@ -587,7 +587,7 @@ package body Util.Serialize.IO.XML is
    procedure End_Entity (Stream : in out Output_Stream;
                          Name   : in String) is
    begin
-      Stream.Level := Stream.Level - 1;
+      Stream.Level := Stream.Level - Stream.Indent;
       Close_Current (Stream, Stream.Is_Closed);
       Stream.Write ("</");
       Stream.Write (Name);
