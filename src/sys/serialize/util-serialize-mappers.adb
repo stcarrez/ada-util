@@ -288,7 +288,7 @@ package body Util.Serialize.Mappers is
          N   : Mapper_Access;
          Src : Mapper_Access := From;
       begin
-         Add_Mapper (From, null);
+         --  Add_Mapper (From, null);
          while Src /= null loop
             N := Src.Clone;
             N.Is_Clone := True;
