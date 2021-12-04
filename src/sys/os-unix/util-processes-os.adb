@@ -383,7 +383,7 @@ package body Util.Processes.Os is
                               Value : in String) is
    begin
       if Sys.Envc > 0 then
-         for I in 0 .. Sys.Envc loop
+         for I in 0 .. Sys.Envc - 1 loop
             declare
                Env : Interfaces.C.Strings.chars_ptr := Sys.Envp (I);
                V   : constant String := Interfaces.C.Strings.Value (Env);
