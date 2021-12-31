@@ -141,7 +141,10 @@ package body Util.Processes.Tests is
                                     "Invalid content");
       end;
       T.Assert (not P.Is_Running, "Process has stopped");
-      Util.Tests.Assert_Equals (T, 4, P.Get_Exit_Status, "Invalid exit status");
+      --  gprbuild can exit with status 7 for newer version and status 4 for old versions.
+      if P.Get_Exit_Status /= 7 then
+         Util.Tests.Assert_Equals (T, 4, P.Get_Exit_Status, "Invalid exit status");
+      end if;
    end Test_Error_Pipe;
 
    --  ------------------------------
