@@ -20,6 +20,7 @@ util-junit.xml
 test-write.txt
 test-stream.txt
 autom4te.cache
+bin/
 lib/
 obj/
 regtests/util-testsuite.adb
