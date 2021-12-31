@@ -48,7 +48,7 @@ case "${target_os}" in
         os_version='linux'
         ;;
 
-     netbsdelf*|dragonfly*)
+     netbsd*|dragonfly*)
         os_version='netbsd'
         ;;
 
