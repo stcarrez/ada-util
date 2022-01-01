@@ -13,9 +13,22 @@ library project UtilAda_Aws is
             for Implementation ("Util.Http.Clients.AWS")
                use "util-http-clients-aws__1.adb";
 
+            for Implementation ("AWS.Client.Ext")
+               use "aws-client-ext__1.adb";
+
          when "2" =>
             for Implementation ("Util.Http.Clients.AWS")
                use "util-http-clients-aws__2.adb";
+
+            for Implementation ("AWS.Client.Ext")
+               use "aws-client-ext__1.adb";
+
+         when "3" =>
+            for Implementation ("Util.Http.Clients.AWS")
+               use "util-http-clients-aws__2.adb";
+
+            for Implementation ("AWS.Client.Ext")
+               use "aws-client-ext__2.adb";
 
       end case;
    end Naming;
