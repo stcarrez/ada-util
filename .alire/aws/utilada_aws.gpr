@@ -6,9 +6,7 @@ library project UtilAda_Aws is
    Version := "2.1q.0";
    Library_Dir := "lib";
 
-   type AWS_Impl_Type is ("1", "2");
-
-   AWS_Impl    : AWS_Impl_Type := Utilada_Conf.AWS_Impl;
+   AWS_Impl    : Utilada_Conf.AWS_Impl_Type := Utilada_Conf.AWS_Impl;
    Has_Aws     : Utilada_Conf.Yes_No := "yes";
    
    case Has_Aws is
