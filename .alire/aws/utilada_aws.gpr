@@ -8,7 +8,7 @@ library project UtilAda_Aws is
 
    type AWS_Impl_Type is ("1", "2");
 
-   AWS_Impl    : AWS_Impl_Type := "2";
+   AWS_Impl    : AWS_Impl_Type := Utilada_Conf.AWS_Impl;
    Has_Aws     : Utilada_Conf.Yes_No := "yes";
    
    case Has_Aws is
@@ -26,9 +26,22 @@ library project UtilAda_Aws is
             for Implementation ("Util.Http.Clients.AWS")
                use "util-http-clients-aws__1.adb";
 
+            for Implementation ("AWS.Client.Ext")
+               use "aws-client-ext__1.adb";
+
          when "2" =>
             for Implementation ("Util.Http.Clients.AWS")
                use "util-http-clients-aws__2.adb";
+
+            for Implementation ("AWS.Client.Ext")
+               use "aws-client-ext__1.adb";
+
+         when "3" =>
+            for Implementation ("Util.Http.Clients.AWS")
+               use "util-http-clients-aws__2.adb";
+
+            for Implementation ("AWS.Client.Ext")
+               use "aws-client-ext__2.adb";
 
       end case;
    end Naming;
