@@ -334,6 +334,10 @@ AM_GNAT_CHECK_AWS(
     AC_MSG_CHECKING([using AWS http client])
     UTIL_AWS_VERSION=1
 case $AWS_VERSION in
+  22.0)
+     UTIL_AWS_VERSION=3
+     ;;
+
   *2017*|*2018*|*2019*|*202*|20.0)
      UTIL_AWS_VERSION=2
      ;;
@@ -347,7 +351,7 @@ case $AWS_VERSION in
      ;;
 
   *)
-     UTIL_AWS_VERSION=2
+     UTIL_AWS_VERSION=3
      ;;
 esac
     AC_MSG_RESULT(${UTIL_AWS_VERSION})
