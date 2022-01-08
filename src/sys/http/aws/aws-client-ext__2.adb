@@ -187,7 +187,7 @@ package body AWS.Client.Ext is
         or else Pair.Name = Messages.Connect_Token
         or else Pair.Name = "OPTIONS"
         or else Pair.Name = "PATCH"
-        or else Pair.Name = HTTP_Version
+        or else Pair.Name = AWS.HTTP_Version
       then
          --  And header line
          return To_String (Pair.Name & " " & Pair.Value);
