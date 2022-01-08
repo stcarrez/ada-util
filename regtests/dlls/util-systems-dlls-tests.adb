@@ -53,7 +53,7 @@ package body Util.Systems.DLLs.Tests is
       end;
 
       begin
-         Lib2 := Util.Systems.DLLs.Load ("libcrypto.dylib");
+         Lib2 := Util.Systems.DLLs.Load ("libgmp.dylib");
          T.Assert (Lib2 /= Null_Handle, "Load operation returned null");
          Lib := Lib2;
       exception
