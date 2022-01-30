@@ -352,7 +352,7 @@ package body Util.Files is
    --  ------------------------------
    --  Returns a relative path whose origin is defined by <b>From</b> and which refers
    --  to the absolute path referenced by <b>To</b>.  Both <b>From</b> and <b>To</b> are
-   --  assumed to be absolute pathes.  Returns the absolute path <b>To</b> if the relative
+   --  assumed to be absolute paths.  Returns the absolute path <b>To</b> if the relative
    --  path could not be found.  Both paths must have at least one root component in common.
    --  ------------------------------
    function Get_Relative_Path (From : in String;
