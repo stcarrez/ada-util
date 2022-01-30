@@ -225,7 +225,7 @@ package Util.Beans.Objects is
    --  Create an object that refers to the bean object.  With the storage type
    --  <b>DYNAMIC</b>, the default, the bean object will be freed when there is
    --  no <b>Object</b> that refers to that bean.  With <b>STATIC</b>, the bean
-   --  is a static bean and it will not be freed automaticaly.
+   --  is a static bean and it will not be freed automatically.
    function To_Object (Value   : access Util.Beans.Basic.Readonly_Bean'Class;
                        Storage : in Storage_Type := DYNAMIC) return Object;
 

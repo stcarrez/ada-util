@@ -132,7 +132,7 @@ package body Util.Events.Timers is
    --  -----------------------
    --  Procedure called when a timer handler raises an exception.
    --  The default operation reports an error in the logs.  This procedure can be
-   --  overriden to implement specific error handling.
+   --  overridden to implement specific error handling.
    --  -----------------------
    procedure Error (List : in out Timer_List;
                     Handler : in Timer_Access;

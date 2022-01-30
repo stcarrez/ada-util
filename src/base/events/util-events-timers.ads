@@ -54,7 +54,7 @@ private with Util.Concurrent.Counters;
 --  === Timer Main Loop ===
 --  Because the implementation does not impose any execution model, the timer management must
 --  be called regularly by some application's main loop.  The <tt>Process</tt> procedure
---  executes the timer handler that have ellapsed and it returns the deadline to wait for the
+--  executes the timer handler that have elapsed and it returns the deadline to wait for the
 --  next timer to execute.
 --
 --    Deadline : Ada.Real_Time.Time;
@@ -113,7 +113,7 @@ package Util.Events.Timers is
 
    --  Procedure called when a timer handler raises an exception.
    --  The default operation reports an error in the logs.  This procedure can be
-   --  overriden to implement specific error handling.
+   --  overridden to implement specific error handling.
    procedure Error (List : in out Timer_List;
                     Handler : in Timer_Access;
                     E       : in Ada.Exceptions.Exception_Occurrence);

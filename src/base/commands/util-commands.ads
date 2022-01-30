@@ -22,7 +22,7 @@ private with Ada.Strings.Unbounded;
 --  The `Util.Commands` package provides a support to help in writing command line
 --  applications.  It allows to have several commands in the application, each of them
 --  being identified by a unique name.  Each command has its own options and arguments.
---  The command line support is built arround several children packages.
+--  The command line support is built around several children packages.
 --
 --  The `Util.Commands.Drivers` package is a generic package that must be instantiated
 --  to define the list of commands that the application supports.  It provides operations

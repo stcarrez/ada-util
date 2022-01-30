@@ -44,7 +44,7 @@ private with Ada.Finalization;
 --
 --    String_Builder.Append (Builder, "Hello");
 --
---  To get the content collected in the builder instance, write a procedure that recieves
+--  To get the content collected in the builder instance, write a procedure that receives
 --  the chunk data as parameter:
 --
 --    procedure Collect (Item : in String) is ...
