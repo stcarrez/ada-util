@@ -155,7 +155,7 @@ private
                                Value : in Chars_Ptr) return CURL_Slist_Access;
    pragma Import (C, Curl_Slist_Append, "curl_slist_append");
 
-   --  Free an entrire CURL slist.
+   --  Free an entire CURL slist.
    procedure Curl_Slist_Free_All (List : in CURL_Slist_Access);
    pragma Import (C, Curl_Slist_Free_All, "curl_slist_free_all");
 
