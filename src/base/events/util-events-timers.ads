@@ -54,7 +54,7 @@ private with Util.Concurrent.Counters;
 --  === Timer Main Loop ===
 --  Because the implementation does not impose any execution model, the timer management must
 --  be called regularly by some application's main loop.  The <tt>Process</tt> procedure
---  executes the timer handler that have ellapsed and it returns the deadline to wait for the
+--  executes the timer handler that have elapsed and it returns the deadline to wait for the
 --  next timer to execute.
 --
 --    Deadline : Ada.Real_Time.Time;
