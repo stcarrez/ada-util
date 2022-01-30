@@ -73,7 +73,7 @@
 --     Log.Debug ("Reading line {0}", Line);
 --
 --  The logger also provides a special `Error` procedure that accepts an Ada exception
---  occurence as parameter.  The exception name and message are printed together with
+--  occurrence as parameter.  The exception name and message are printed together with
 --  the error message.  It is also possible to activate a complete traceback of the
 --  exception and report it in the error message.  With this mechanism, an exception
 --  can be handled and reported easily:
