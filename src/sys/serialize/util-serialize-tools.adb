@@ -121,7 +121,7 @@ package body Util.Serialize.Tools is
    --  -----------------------
    --  Deserializes the JSON content passed in <b>Content</b> and restore the object map
    --  with their values.  The object map passed in <b>Map</b> can contain existing values.
-   --  They will be overriden by the JSON values.
+   --  They will be overridden by the JSON values.
    --  -----------------------
    procedure From_JSON (Content : in String;
                         Map     : in out Util.Beans.Objects.Maps.Map) is
