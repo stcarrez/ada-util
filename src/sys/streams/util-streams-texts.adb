@@ -160,7 +160,7 @@ package body Util.Streams.Texts is
    exception
       when Ada.IO_Exceptions.Data_Error
         | Ada.IO_Exceptions.Device_Error
-        | Ada.Io_Exceptions.End_Error =>
+        | Ada.IO_Exceptions.End_Error =>
          return;
    end Read_Line;
 
