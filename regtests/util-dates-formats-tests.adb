@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-formats-tests - Test for date formats
---  Copyright (C) 2011, 2013, 2014, 2016, 2017, 2018, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2016, 2017, 2018, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -70,6 +70,8 @@ package body Util.Dates.Formats.Tests is
                        Test_Append_Date'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.ISO8601.Image",
                        Test_ISO8601'Access);
+      Caller.Add_Test (Suite, "Test Util.Dates.Formats.Simple_Format",
+                       Test_Simple_Format'Access);
    end Add_Tests;
 
    procedure Test_Format (T : in out Test) is
@@ -475,5 +477,25 @@ package body Util.Dates.Formats.Tests is
       Util.Tests.Assert_Equals (T, "2014-11-12T23:30:04.123+00:00",
                                 ISO8601.Image (D, ISO8601.SUBSECOND));
    end Test_ISO8601;
+
+   --  ------------------------------
+   --  Test the Simple_Format option.
+   --  ------------------------------
+   procedure Test_Simple_Format (T : in out Test) is
+      procedure Check (Pattern, Expect : in String);
+
+      Date : constant Ada.Calendar.Time := Ada.Calendar.Formatting.Time_Of (2021, 02, 12,
+                                                                            13, 31, 4, 0.123456);
+      procedure Check (Pattern, Expect : in String) is
+      begin
+         Util.Tests.Assert_Equals (T, Expect, Simple_Format (Pattern, Date), "Simple_Format");
+      end Check;
+
+   begin
+      Check ("YYYY", "2021");
+      Check ("YYY", "YYY");
+      Check ("Year: YYYY Month: MM Day: dd", "Year: 2021 Month: 02 Day: 12");
+      Check ("HH:mm:ss", "13:31:04");
+   end Test_Simple_Format;
 
 end Util.Dates.Formats.Tests;
