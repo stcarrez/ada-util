@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-locales -- Locale support
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2015, 2018 Stephane Carrez
+--  Copyright (C) 2001 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,7 +43,10 @@ package body Util.Locales is
       if Loc'Length <= 6 then
          return Loc (4 .. 6);
       end if;
-      return Loc (7 .. 9);
+      if Loc'Length <= 13 then
+         return Loc (7 .. 9);
+      end if;
+      return Loc (10  .. 15);
    end Get_ISO3_Language;
 
    --  ------------------------------
@@ -63,10 +66,10 @@ package body Util.Locales is
    --  ------------------------------
    function Get_ISO3_Country (Loc : in Locale) return String is
    begin
-      if Loc = null or else Loc'Length <= 5 then
+      if Loc = null or else Loc'Length <= 9 then
          return "";
       else
-         return Loc (10 .. Loc'Last);
+         return Loc (Loc'Last - 2 .. Loc'Last);
       end if;
    end Get_ISO3_Country;
 
