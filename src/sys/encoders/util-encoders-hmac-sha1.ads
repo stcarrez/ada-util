@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-hmac-sha1 -- Compute HMAC-SHA1 authentication code
---  Copyright (C) 2011, 2012, 2017, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -83,32 +83,6 @@ package Util.Encoders.HMAC.SHA1 is
    procedure Finish_Base64 (E    : in out Context;
                             Hash : out Util.Encoders.SHA1.Base64_Digest;
                             URL  : in Boolean := False);
-
-   --  ------------------------------
-   --  HMAC-SHA1 encoder
-   --  ------------------------------
-   --  This <b>Encoder</b> translates the (binary) input stream into
-   --  an SHA1 hexadecimal stream.  The encoding alphabet is: 0123456789ABCDEF.
-   type Encoder is new Util.Encoders.Transformer with private;
-
-   --  Encodes the binary input stream represented by <b>Data</b> into
-   --  an SHA-1 hash output stream <b>Into</b>.
-   --
-   --  If the transformer does not have enough room to write the result,
-   --  it must return in <b>Encoded</b> the index of the last encoded
-   --  position in the <b>Data</b> stream.
-   --
-   --  The transformer returns in <b>Last</b> the last valid position
-   --  in the output stream <b>Into</b>.
-   --
-   --  The <b>Encoding_Error</b> exception is raised if the input
-   --  stream cannot be transformed.
-   overriding
-   procedure Transform (E       : in out Encoder;
-                        Data    : in Ada.Streams.Stream_Element_Array;
-                        Into    : out Ada.Streams.Stream_Element_Array;
-                        Last    : out Ada.Streams.Stream_Element_Offset;
-                        Encoded : out Ada.Streams.Stream_Element_Offset);
 
 private
 
