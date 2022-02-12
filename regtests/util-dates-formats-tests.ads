@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-formats-tests - Test for date formats
---  Copyright (C) 2011, 2013, 2014, 2015, 2016, 2018, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2015, 2016, 2018, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,5 +57,8 @@ package Util.Dates.Formats.Tests is
 
    --  Test the ISO8601 operations.
    procedure Test_ISO8601 (T : in out Test);
+
+   --  Test the Simple_Format option.
+   procedure Test_Simple_Format (T : in out Test);
 
 end Util.Dates.Formats.Tests;
