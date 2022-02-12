@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  locales.tests -- Unit tests for locales
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  util-locales-tests -- Unit tests for locales
+--  Copyright (C) 2009, 2010, 2011, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,6 +39,8 @@ package body Util.Locales.Tests is
                        Test_Compare_Locale'Access);
       Caller.Add_Test (Suite, "Test Util.Locales.Locales",
                        Test_Get_Locales'Access);
+      Caller.Add_Test (Suite, "Test Util.Locales.NULL_LOCALE",
+                       Test_Null_Locale'Access);
    end Add_Tests;
 
    procedure Test_Get_Locale (T : in out Test) is
@@ -48,11 +50,29 @@ package body Util.Locales.Tests is
       Assert_Equals (T, "en", Get_Language (Loc), "Invalid language");
       Assert_Equals (T, "", Get_Country (Loc), "Invalid country");
       Assert_Equals (T, "", Get_Variant (Loc), "Invalid variant");
+      Assert_Equals (T, "", Get_ISO3_Country (Loc), "Invalid country");
+      Assert_Equals (T, "eng", Get_ISO3_Language (Loc), "Invalid language");
+
+      Loc := Get_Locale ("ar_DZ");
+      Assert_Equals (T, "ar", Get_Language (Loc), "Invalid language");
+      Assert_Equals (T, "DZ", Get_Country (Loc), "Invalid country");
+      Assert_Equals (T, "", Get_Variant (Loc), "Invalid variant");
+      Assert_Equals (T, "DZA", Get_ISO3_Country (Loc), "Invalid country");
+      Assert_Equals (T, "ara", Get_ISO3_Language (Loc), "Invalid language");
+
+      Loc := Get_Locale ("fr");
+      Assert_Equals (T, "fr", Get_Language (Loc), "Invalid language");
+      Assert_Equals (T, "", Get_Country (Loc), "Invalid country");
+      Assert_Equals (T, "", Get_Variant (Loc), "Invalid variant");
+      Assert_Equals (T, "fra", Get_ISO3_Language (Loc), "Invalid language");
+      Assert_Equals (T, "", Get_ISO3_Country (Loc), "Invalid country");
 
       Loc := Get_Locale ("ja", "JP", "JP");
       Assert_Equals (T, "ja", Get_Language (Loc), "Invalid language");
       Assert_Equals (T, "JP", Get_Country (Loc), "Invalid country");
       Assert_Equals (T, "JP", Get_Variant (Loc), "Invalid variant");
+      Assert_Equals (T, "JPN", Get_ISO3_Country (Loc), "Invalid country");
+      Assert_Equals (T, "jpn_JP", Get_ISO3_Language (Loc), "Invalid language");
 
       Loc := Get_Locale ("no", "NO", "NY");
       Assert_Equals (T, "no", Get_Language (Loc), "Invalid language");
@@ -86,6 +106,8 @@ package body Util.Locales.Tests is
             Variant  : constant String := Get_Variant (Locales (I));
             Loc      : constant Locale := Get_Locale (Language, Country, Variant);
             Name     : constant String := To_String (Loc);
+            Iso      : constant String := Get_ISO3_Language (Locales (I));
+            Iso_Country : constant String := Get_ISO3_Country (Locales (I));
          begin
             T.Assert (Loc = Locales (I), "Invalid locale at " & Positive'Image (I)
                       & " " & Loc.all);
@@ -100,5 +122,29 @@ package body Util.Locales.Tests is
          end;
       end loop;
    end Test_Get_Locales;
+
+   procedure Test_Null_Locale (T : in out Test) is
+      Loc : Locale;
+   begin
+      Assert_Equals (T, "", Get_Language (NULL_LOCALE), "Invalid language");
+      Assert_Equals (T, "", Get_ISO3_Language (NULL_LOCALE), "Invalid language");
+      Assert_Equals (T, "", To_String (NULL_LOCALE), "Invalid To_String");
+
+      Loc := Get_Locale ("", "");
+      T.Assert (Loc = NULL_LOCALE, "Invalid Get_Locale");
+
+      Loc := Get_Locale ("xz", "");
+      T.Assert (Loc = NULL_LOCALE, "Invalid Get_Locale");
+
+      Loc := Get_Locale ("en", "blob");
+      T.Assert (Loc = NULL_LOCALE, "Invalid Get_Locale");
+
+      Loc := Get_Locale ("xx");
+      T.Assert (Loc = NULL_LOCALE, "Invalid Get_Locale");
+
+      Loc := Get_Locale ("en", "de", "plop");
+      T.Assert (Loc = NULL_LOCALE, "Invalid Get_Locale");
+
+   end Test_Null_Locale;
 
 end Util.Locales.Tests;
