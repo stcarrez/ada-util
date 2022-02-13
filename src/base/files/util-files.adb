@@ -18,7 +18,6 @@
 with Interfaces.C.Strings;
 with Ada.Directories;
 with Ada.IO_Exceptions;
-with Ada.Strings.Fixed;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
 with Ada.Text_IO;
@@ -170,15 +169,13 @@ package body Util.Files is
    --  ------------------------------
    function Find_File_Path (Name      : in String;
                             Paths     : in String;
-                            Separator : in String := ";") return String is
-      use Ada.Strings.Fixed;
-
+                            Separator : in Character := ';') return String is
       Sep_Pos : Natural;
       Pos     : Positive := Paths'First;
       Last    : constant Natural := Paths'Last;
    begin
       while Pos <= Last loop
-         Sep_Pos := Index (Paths, Separator, Pos);
+         Sep_Pos := Util.Strings.Index (Paths, Separator, Pos);
          if Sep_Pos = 0 then
             Sep_Pos := Last;
          else
@@ -289,9 +286,9 @@ package body Util.Files is
    --    result = 'web/info;regtests/info'
    --  Returns the composed path.
    --  ------------------------------
-  function Compose_Path (Paths     : in String;
-                         Name      : in String;
-                         Separator : in Character := ';') return String is
+   function Compose_Path (Paths     : in String;
+                          Name      : in String;
+                          Separator : in Character := ';') return String is
 
       procedure Compose (Dir  : in String;
                          Done : out Boolean);
