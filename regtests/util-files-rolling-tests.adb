@@ -25,8 +25,10 @@ package body Util.Files.Rolling.Tests is
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
-      Caller.Add_Test (Suite, "Test Util.Files.Rolling.Rollover",
+      Caller.Add_Test (Suite, "Test Util.Files.Rolling.Rollover (Ascending)",
                        Test_Rolling_Ascending'Access);
+      Caller.Add_Test (Suite, "Test Util.Files.Rolling.Rollover (Descending)",
+                       Test_Rolling_Descending'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -82,5 +84,42 @@ package body Util.Files.Rolling.Tests is
          end;
       end loop;
    end Test_Rolling_Ascending;
+
+   --  ------------------------------
+   --  Test a rolling manager configured with descending rolling mode.
+   --  ------------------------------
+   procedure Test_Rolling_Descending (T : in out Test) is
+      Dir     : constant String := Util.Tests.Get_Test_Path ("rolling");
+      Pat     : constant String := Compose (Dir, "roll-desc-%i.txt");
+      Manager : File_Manager;
+   begin
+      --  Erase target directory to make sure it is empty for this test.
+      if Ada.Directories.Exists (Dir) then
+         Ada.Directories.Delete_Tree (Dir);
+      end if;
+
+      Manager.Initialize ("rolling.txt", Pat,
+                          Policy   => (Kind => No_Policy),
+                          Strategy => (Descending_Strategy, 1, 10));
+      for I in 1 .. 20 loop
+         Write_File (Path    => Manager.Get_Current_Path,
+                     Content => "Content" & Natural'Image (I));
+         Manager.Rollover;
+      end loop;
+
+      for I in 1 .. 10 loop
+         declare
+            Name : constant String := "roll-desc-" & Util.Strings.Image (I) & ".txt";
+            Path : constant String := Compose (Dir, Name);
+            Result : Unbounded_String;
+         begin
+            T.Assert (Ada.Directories.Exists (Path), "File '" & Path & "' not found");
+            Read_File (Path, Result);
+            Util.Tests.Assert_Equals (T, "Content" & Natural'Image (20 - I + 1),
+                                      To_String (Result),
+                                      "Invalid rolling" & Natural'Image (I));
+         end;
+      end loop;
+   end Test_Rolling_Descending;
 
 end Util.Files.Rolling.Tests;
