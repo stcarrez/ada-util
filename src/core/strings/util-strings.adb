@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-strings -- Various String Utility
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2017 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -292,5 +292,36 @@ package body Util.Strings is
       end loop;
       return 0;
    end Rindex;
+
+   --  ------------------------------
+   --  Simple string replacement within the source of the specified content
+   --  by another string.  By default, replace only the first sequence.
+   --  ------------------------------
+   function Replace (Source  : in String;
+                     Content : in String;
+                     By      : in String;
+                     First   : in Boolean := True) return String is
+      use Ada.Strings.Unbounded;
+
+      Result : Unbounded_String;
+      Pos    : Natural := Source'First;
+   begin
+      while Pos <= Source'Last loop
+         if Source'Last - Pos >= Content'Length and
+         then Source (Pos .. Pos + Content'Length - 1) = Content
+         then
+            Append (Result, By);
+            Pos := Pos + Content'Length;
+            if First and Pos <= Source'Last then
+               Append (Result, Source (Pos .. Source'Last));
+               Pos := Source'Last + 1;
+            end if;
+         else
+            Append (Result, Source (Pos));
+            Pos := Pos + 1;
+         end if;
+      end loop;
+      return To_String (Result);
+   end Replace;
 
 end Util.Strings;
