@@ -86,8 +86,6 @@ package Util.Encoders.HMAC.SHA1 is
 
 private
 
-   type Encoder is new Util.Encoders.Transformer with null record;
-
    type Context is new Ada.Finalization.Limited_Controlled with record
       SHA     : Util.Encoders.SHA1.Context;
       Key     : Ada.Streams.Stream_Element_Array (0 .. 63);
