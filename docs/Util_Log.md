@@ -145,6 +145,7 @@ Opening file test.txt
 Reading line ......
 ```
 
+### Console appender
 The `Console` appender recognises the following configurations:
 
 | Name           | Description                                                          |
@@ -154,6 +155,7 @@ The `Console` appender recognises the following configurations:
 | stderr         | When 'true' or '1', use the console standard error,                  |
 |                | by default the appender uses the standard output                     |
 
+### File appender
 The `File` appender recognises the following configurations:
 
 | Name           | Description                                                          |
@@ -167,4 +169,36 @@ The `File` appender recognises the following configurations:
 |                | Immediate flush is useful in some situations to have the log file    |
 |                | updated immediately at the expense of slowing down the processing    |
 |                | of logs.                                                             |
+### Rolling file appender
+The `RollingFile` appender recognises the following configurations:
+
+| Name           | Description                                                          |
+| -------------- | --------------------------------------------------------------       |
+| layout         | Defines the format of the message printed by the appender.           |
+| level          | Defines the minimum level above which messages are printed.          |
+| fileName       | The name of the file to write to. If the file, or any of its parent  |
+|                | directories, do not exist, they will be created.                     |
+| filePattern    | The pattern of the file name of the archived log file.  The pattern  |
+|                | can contain '%i' which are replaced by a counter incremented at each |
+|                | rollover, a '%d' is replaced by a date pattern.                      |
+| append         | When 'true' or '1', the file is opened in append mode otherwise      |
+|                | it is truncated (the default is to truncate).                        |
+| immediateFlush | When 'true' or '1', the file is flushed after each message log.      |
+|                | Immediate flush is useful in some situations to have the log file    |
+|                | updated immediately at the expense of slowing down the processing    |
+|                | of logs.                                                             |
+| policy         | The triggering policy which drives when a rolling is performed.      |
+|                | Possible values are: `none`, `size`, `time`                          |
+| strategy       | The strategy to use to determine the name and location of the        |
+|                | archive file.  Possible values are: `ascending`, `descending`, and   |
+|                | `direct`.  Default is `ascending`.                                   |
+| policyInterval | How often a rollover should occur based on the most specific time    |
+|                | unit in the date pattern. For example, with a date pattern with      |
+|                | hours as the most specific item and and increment of 4 rollovers     |
+|                | would occur every 4 hours. The default value is 1.                   |
+| policyMin      | The minimum value of the counter. The default value is 1.            |
+| policyMax      | The maximum value of the counter. Once this values is reached older  |
+|                | archives will be deleted on subsequent rollovers. The default        |
+|                | value is 7.                                                          |
+| minSize        | The minimum size the file must have to roll over.                    |
 
