@@ -30,4 +30,7 @@ package Util.Files.Rolling.Tests is
    --  Test a rolling manager configured with ascending rolling mode.
    procedure Test_Rolling_Ascending (T : in out Test);
 
+   --  Test a rolling manager configured with descending rolling mode.
+   procedure Test_Rolling_Descending (T : in out Test);
+
 end Util.Files.Rolling.Tests;
