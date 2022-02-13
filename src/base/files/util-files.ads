@@ -62,7 +62,7 @@ with Util.Strings.Vectors;
 --
 --    Path : String := Util.Files.Find_File_Path ("ls",
 --                                                "/bin:/usr/bin",
---                                                ":");
+--                                                ':');
 --
 --  This will return `/usr/bin/ls` on most Unix systems.
 --
@@ -126,7 +126,7 @@ package Util.Files is
    --  Returns the path to be used for reading the file.
    function Find_File_Path (Name      : in String;
                             Paths     : in String;
-                            Separator : in String := ";") return String;
+                            Separator : in Character := ';') return String;
 
    --  Find the files which match the pattern in the directories specified in the
    --  search path <b>Path</b>.  Each search directory is separated by ';'.
