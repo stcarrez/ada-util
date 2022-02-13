@@ -8,7 +8,8 @@ project Samples is
    "multipro.adb", "multipro_refs.adb", "date.adb",
    "csv_reader.adb", "launch.adb", "gperfhash.adb", "proplist.adb",
    "cut.adb", "serialize.adb", "json.adb",
-   "encrypt.adb", "decrypt.adb", "csv_city.adb");
+             "encrypt.adb", "decrypt.adb", "csv_city.adb",
+            "rolling_file.adb");
 
    for Main use Mains;
 
