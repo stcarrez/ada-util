@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-tests - Test for commands
---  Copyright (C) 2018, 2019, 2020 Stephane Carrez
+--  Copyright (C) 2018, 2019, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with GNAT.Command_Line;
 with Util.Test_Caller;
+with Util.Log;
 with Util.Commands.Parsers.GNAT_Parser;
 with Util.Commands.Drivers;
 package body Util.Commands.Tests is
@@ -24,14 +25,23 @@ package body Util.Commands.Tests is
    package Caller is new Util.Test_Caller (Test, "Commands");
 
    type Test_Context_Type is record
-      Number  : Integer;
+      Number  : Integer := 0;
       Success : Boolean := False;
    end record;
+
+   procedure Simple (Name : in String;
+                     Args : in Argument_List'Class;
+                     Ctx  : in out Test_Context_Type);
 
    package Test_Command is new
      Util.Commands.Drivers (Context_Type => Test_Context_Type,
                             Config_Parser => Util.Commands.Parsers.GNAT_Parser.Config_Parser,
                             Driver_Name  => "test");
+
+   package Simple_Command is new
+     Util.Commands.Drivers (Context_Type => Test_Context_Type,
+                            Config_Parser => Util.Commands.Parsers.No_Parser,
+                            Driver_Name  => "simple");
 
    type Test_Command_Type is new Test_Command.Command_Type with record
       Opt_Count : aliased Integer := 0;
@@ -68,6 +78,8 @@ package body Util.Commands.Tests is
                        Test_Help'Access);
       Caller.Add_Test (Suite, "Test Util.Commands.Driver.Usage",
                        Test_Usage'Access);
+      Caller.Add_Test (Suite, "Test Util.Commands.Driver.Add_Command",
+                       Test_Simple_Command'Access);
    end Add_Tests;
 
    overriding
@@ -77,6 +89,8 @@ package body Util.Commands.Tests is
                       Context   : in out Test_Context_Type) is
       pragma Unreferenced (Name);
    begin
+      Command.Log (Util.Log.ERROR_LEVEL, "command", "execute command message");
+
       Context.Success := Command.Opt_Count = Command.Expect_C and
         Command.Opt_V = Command.Expect_V and
         Command.Opt_N = Command.Expect_N and
@@ -162,6 +176,21 @@ package body Util.Commands.Tests is
          T.Assert (Ctx.Success, "Some arguments not parsed correctly");
       end;
 
+      declare
+         Ctx   : Test_Context_Type;
+      begin
+         C1.Expect_V := False;
+         C1.Expect_N := True;
+         C1.Expect_C := 8;
+         C1.Expect_A := 3;
+         Initialize (Args, "bad -c 8 -n test titi last");
+         D.Execute ("bad", Args, Ctx);
+         T.Fail ("No exception raised for missing command");
+
+      exception
+         when Not_Found =>
+            null;
+      end;
    end Test_Execute;
 
    --  ------------------------------
@@ -246,5 +275,34 @@ package body Util.Commands.Tests is
          D.Usage (Args, Ctx, "list");
       end;
    end Test_Usage;
+
+   procedure Simple (Name : in String;
+                     Args : in Argument_List'Class;
+                     Ctx  : in out Test_Context_Type) is
+      pragma Unreferenced (Name, Args);
+   begin
+      Ctx.Number := 1;
+      Ctx.Success := True;
+   end Simple;
+
+   --  Test command based on the No_Parser.
+   procedure Test_Simple_Command (T : in out Test) is
+      D    : Simple_Command.Driver_Type;
+      Args : String_Argument_List (500, 30);
+   begin
+      D.Add_Command ("list", "list command", Simple'Access);
+
+      declare
+         Ctx   : Test_Context_Type;
+      begin
+         Initialize (Args, "list --count=4 -v -n test titi");
+         D.Execute ("list", Args, Ctx);
+         T.Assert (Ctx.Success, "Some arguments not parsed correctly");
+         Util.Tests.Assert_Equals (T, 1, Ctx.Number, "Invalid context number");
+
+         D.Usage (Args, Ctx, "list");
+      end;
+
+   end Test_Simple_Command;
 
 end Util.Commands.Tests;
