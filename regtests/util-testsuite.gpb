@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util testsuite - Util Testsuite
---  Copyright (C) 2009 - 2021 Stephane Carrez
+--  util-testsuite - Util Testsuite
+--  Copyright (C) 2009 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@ with Util.Properties.JSON.Tests;
 with Util.Properties.Form.Tests;
 with Util.Log.Tests;
 with Util.Files.Tests;
+with Util.Files.Rolling.Tests;
 with Util.Concurrent.Tests;
 with Util.Events.Channels.Tests;
 with Util.Events.Timers.Tests;
@@ -88,6 +89,7 @@ package body Util.Testsuite is
       Util.Dates.Formats.Tests.Add_Tests (Result);
       Util.Log.Tests.Add_Tests (Result);
       Util.Files.Tests.Add_Tests (Result);
+      Util.Files.Rolling.Tests.Add_Tests (Result);
       Util.Commands.Tests.Add_Tests (Result);
       Util.Concurrent.Tests.Add_Tests (Result);
       Util.Events.Channels.Tests.Add_Tests (Result);
