@@ -69,6 +69,7 @@ package body Util.Files.Rolling is
                          Policy   : in Policy_Type;
                          Strategy : in Strategy_Type) is
    begin
+      Manager.Deadline := Ada.Calendar.Clock;
       Manager.File_Path := To_Unbounded_String (Path);
       Manager.Pattern := To_Unbounded_String (Pattern);
       Manager.Cur_Index := 0;
@@ -348,63 +349,5 @@ package body Util.Files.Rolling is
          Last_Index := Manager.Min_Index;
       end if;
    end Elligible_Files;
-
-   procedure Purge (Manager : in out File_Manager;
-                    Path    : in String) is
-      Search_Filter : constant Ada.Directories.Filter_Type
-        := (Ada.Directories.Ordinary_File => True,
-            Ada.Directories.Directory     => False,
-            Ada.Directories.Special_File  => False);
-      Pattern  : constant String := Manager.Get_Purge_Pattern;
-      Regex    : constant GNAT.Regpat.Pattern_Matcher := GNAT.Regpat.Compile (Pattern);
-      Glob1    : constant String := Util.Strings.Replace (Pattern, "([0-9]+)", "*", False);
-      Glob2    : constant String := Util.Strings.Replace (Glob1, "[0-9]+", "*", False);
-      Search   : Ada.Directories.Search_Type;
-      Ent      : Ada.Directories.Directory_Entry_Type;
-      Names    : Util.Strings.Maps.Map;
-      Min      : Natural := Natural'Last;
-      Max      : Natural := Natural'First;
-   begin
-      Ada.Directories.Start_Search (Search,
-                                    Directory => Path,
-                                    Pattern   => Glob2,
-                                    Filter    => Search_Filter);
-      while Ada.Directories.More_Entries (Search) loop
-         Ada.Directories.Get_Next_Entry (Search, Ent);
-         declare
-            Name    : constant String := Ada.Directories.Simple_Name (Ent);
-            Matches : GNAT.Regpat.Match_Array (0 .. 1);
-         begin
-            if GNAT.Regpat.Match (Regex, Name) then
-               GNAT.Regpat.Match (Regex, Name, Matches);
-               Names.Include (Name (Matches (1).First .. Matches (1).Last), Name);
-            end if;
-         end;
-      end loop;
-
-      --  Get min and max.
-      for Iter in Names.Iterate loop
-         declare
-            Key : constant String := Util.Strings.Maps.Key (Iter);
-            Idx : constant Natural := Natural'Value (Key);
-         begin
-            if Idx < Min then
-               Min := Idx;
-            end if;
-            if Idx > Max then
-               Max := Idx;
-            end if;
-         end;
-      end loop;
-
-      if Manager.Cur_Index = 0 then
-         Manager.Cur_Index := Max + 1;
-      end if;
-
-      if Natural (Names.Length) < Manager.Max_Files then
-         return;
-      end if;
-
-   end Purge;
 
 end Util.Files.Rolling;
