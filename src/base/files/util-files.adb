@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-files -- Various File Utility Packages
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2015, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2001 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@ with Ada.Strings.Fixed;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
 with Ada.Text_IO;
+with Util.Strings.Builders;
 with Util.Strings.Tokenizers;
 package body Util.Files is
 
@@ -162,21 +163,22 @@ package body Util.Files is
    end Iterate_Path;
 
    --  ------------------------------
-   --  Find the file in one of the search directories.  Each search directory
-   --  is separated by ';' (yes, even on Unix).
+   --  Find the file `Name` in one of the search directories defined in `Paths`.
+   --  Each search directory is separated by ';' by default (yes, even on Unix).
+   --  This can be changed by specifying the `Separator` value.
    --  Returns the path to be used for reading the file.
    --  ------------------------------
-   function Find_File_Path (Name  : String;
-                            Paths : String) return String is
+   function Find_File_Path (Name      : in String;
+                            Paths     : in String;
+                            Separator : in String := ";") return String is
       use Ada.Strings.Fixed;
 
       Sep_Pos : Natural;
       Pos     : Positive := Paths'First;
       Last    : constant Natural := Paths'Last;
-
    begin
       while Pos <= Last loop
-         Sep_Pos := Index (Paths, ";", Pos);
+         Sep_Pos := Index (Paths, Separator, Pos);
          if Sep_Pos = 0 then
             Sep_Pos := Last;
          else
@@ -280,26 +282,27 @@ package body Util.Files is
    --  ------------------------------
    --  Compose an existing path by adding the specified name to each path component
    --  and return a new paths having only existing directories.  Each directory is
-   --  separated by ';'.
+   --  separated by ';' (this can be overriding with the `Separator` parameter).
    --  If the composed path exists, it is added to the result path.
    --  Example:
    --    paths = 'web;regtests'  name = 'info'
    --    result = 'web/info;regtests/info'
    --  Returns the composed path.
    --  ------------------------------
-   function Compose_Path (Paths : in String;
-                          Name  : in String) return String is
+  function Compose_Path (Paths     : in String;
+                         Name      : in String;
+                         Separator : in Character := ';') return String is
 
-      procedure Compose (Dir : in String;
+      procedure Compose (Dir  : in String;
                          Done : out Boolean);
 
-      Result  : Unbounded_String;
+      Result  : Util.Strings.Builders.Builder (256);
 
       --  ------------------------------
       --  Build the new path by checking if <b>Name</b> exists in <b>Dir</b>
       --  and appending the new path in the <b>Result</b>.
       --  ------------------------------
-      procedure Compose (Dir : in String;
+      procedure Compose (Dir  : in String;
                          Done : out Boolean) is
          use Ada.Directories;
 
@@ -307,10 +310,10 @@ package body Util.Files is
       begin
          Done := False;
          if Exists (Path) and then Kind (Path) = Directory then
-            if Length (Result) > 0 then
-               Append (Result, ';');
+            if Util.Strings.Builders.Length (Result) > 0 then
+               Util.Strings.Builders.Append (Result, Separator);
             end if;
-            Append (Result, Path);
+            Util.Strings.Builders.Append (Result, Path);
          end if;
       exception
          when Name_Error =>
@@ -319,7 +322,7 @@ package body Util.Files is
 
    begin
       Iterate_Path (Path => Paths, Process => Compose'Access);
-      return To_String (Result);
+      return Util.Strings.Builders.To_Array (Result);
    end Compose_Path;
 
    --  ------------------------------
