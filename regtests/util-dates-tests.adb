@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-tests - Test for dates
---  Copyright (C) 2018, 2019, 2020 Stephane Carrez
+--  Copyright (C) 2018, 2019, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with Util.Test_Caller;
 with Util.Dates.ISO8601;
+with Util.Dates.Simple_Format;
 package body Util.Dates.Tests is
 
    package Caller is new Util.Test_Caller (Test, "Dates");
@@ -33,6 +34,8 @@ package body Util.Dates.Tests is
                        Test_Is_Same_Day'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.Get_Day_Count",
                        Test_Get_Day_Count'Access);
+      Caller.Add_Test (Suite, "Test Util.Dates.Simple_Format",
+                       Test_Simple_Format'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -180,5 +183,25 @@ package body Util.Dates.Tests is
       Util.Tests.Assert_Equals (T, 366, Natural (Get_Day_Count (2000)));
       Util.Tests.Assert_Equals (T, 365, Natural (Get_Day_Count (2001)));
    end Test_Get_Day_Count;
+
+   --  ------------------------------
+   --  Test the Simple_Format option.
+   --  ------------------------------
+   procedure Test_Simple_Format (T : in out Test) is
+      procedure Check (Pattern, Expect : in String);
+
+      Date : constant Ada.Calendar.Time := Ada.Calendar.Formatting.Time_Of (2021, 02, 12,
+                                                                            13, 31, 4, 0.123456);
+      procedure Check (Pattern, Expect : in String) is
+      begin
+         Util.Tests.Assert_Equals (T, Expect, Simple_Format (Pattern, Date), "Simple_Format");
+      end Check;
+
+   begin
+      Check ("YYYY", "2021");
+      Check ("YYY", "YYY");
+      Check ("Year: YYYY Month: MM Day: dd", "Year: 2021 Month: 02 Day: 12");
+      Check ("HH:mm:ss", "13:31:04");
+   end Test_Simple_Format;
 
 end Util.Dates.Tests;
