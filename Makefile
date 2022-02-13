@@ -88,6 +88,8 @@ UTIL_DOC= \
   pagebreak.tex \
   Installation.md \
   pagebreak.tex \
+  Util_Files.md \
+  pagebreak.tex \
   Util_Log.md \
   pagebreak.tex \
   Util_Properties.md \
