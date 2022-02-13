@@ -58,7 +58,4 @@ package Util.Dates.Formats.Tests is
    --  Test the ISO8601 operations.
    procedure Test_ISO8601 (T : in out Test);
 
-   --  Test the Simple_Format option.
-   procedure Test_Simple_Format (T : in out Test);
-
 end Util.Dates.Formats.Tests;
