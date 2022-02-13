@@ -3,6 +3,7 @@ docs_dir: docs
 pages:
   - Introduction: index.md
   - Installation: Installation.md
+  - Files: Util_Files.md
   - Log: Util_Log.md
   - Properties: Util_Properties.md
   - Dates: Util_Dates.md
