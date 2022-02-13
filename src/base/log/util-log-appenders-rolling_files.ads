@@ -21,6 +21,7 @@ with Util.Properties;
 private with Util.Refs;
 private with Util.Files.Rolling;
 
+--  === Rolling file appender ===
 --  The `RollingFile` appender recognises the following configurations:
 --
 --  | Name           | Description                                                          |
