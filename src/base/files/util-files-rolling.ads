@@ -136,9 +136,6 @@ private
    procedure Rename (Manager : in File_Manager;
                      Old     : in String);
 
-   procedure Purge (Manager : in out File_Manager;
-                    Path    : in String);
-
    type File_Manager is tagged limited record
       Policy    : Policy_Kind := No_Policy;
       Strategy  : Strategy_Kind := Ascending_Strategy;
