@@ -64,13 +64,51 @@ package body Util.Log.Tests is
                                "Get_Level_Name function is invalid");
    end Test_Debug;
 
+   --  ------------------------------
+   --  Test custom levels.
+   --  ------------------------------
+   procedure Test_Level_Custom (T : in out Test) is
+      L       : Loggers.Logger := Loggers.Create ("util.log.test.custom");
+      Path    : constant String := Util.Tests.Get_Test_Path ("test-custom.log");
+      Props   : Util.Properties.Manager;
+      Content : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      Props.Set ("log4j.appender.test", "File");
+      Props.Set ("log4j.appender.test.File", Path);
+      Props.Set ("log4j.appender.test.append", "false");
+      Props.Set ("log4j.appender.test.immediateFlush", "true");
+      Props.Set ("log4j.appender.test.layout", "message");
+      Props.Set ("log4j.rootCategory", "DEBUG,test");
+      Util.Log.Loggers.Initialize (Props);
+
+      L.Set_Level (DEBUG_LEVEL);
+      L.Info ("My log message");
+      L.Print (Util.Log.FATAL_LEVEL, "Test fatal message (ignore)");
+      L.Print (9, "Test custom level 9 message");
+
+      Util.Tests.Assert_Equals (T, "FATAL", Get_Level_Name (FATAL_LEVEL),
+                                "Invalid fatal level");
+      Util.Tests.Assert_Equals (T, "ERROR", Get_Level_Name (ERROR_LEVEL),
+                                "Invalid fatal level");
+      Util.Tests.Assert_Equals (T, " 1", Get_Level_Name (1),
+                                "Invalid error level");
+      Util.Tests.Assert_Equals (T, FATAL_LEVEL, Get_Level ("FATAL"),
+                                "Invalid error level");
+      Util.Tests.Assert_Equals (T, ERROR_LEVEL, Get_Level ("ERROR"),
+                                "Invalid error level");
+
+   end Test_Level_Custom;
+
+   --  ------------------------------
    --  Test configuration and creation of file
+   --  ------------------------------
    procedure Test_File_Appender (T : in out Test) is
       Path  : constant String := Util.Tests.Get_Test_Path ("test.log");
       Props : Util.Properties.Manager;
    begin
       Props.Set ("log4j.appender.test", "File");
       Props.Set ("log4j.appender.test.File", Path);
+      Props.Set ("log4j.appender.test.layout", "level-message");
       Props.Set ("log4j.logger.util.log.test.file", "DEBUG,test");
       Util.Log.Loggers.Initialize (Props);
 
@@ -89,6 +127,7 @@ package body Util.Log.Tests is
    begin
       Props.Set ("log4j.appender.test", "File");
       Props.Set ("log4j.appender.test.File", Path);
+      Props.Set ("log4j.appender.test.layout", "full");
       Props.Set ("log4j.logger.util.log.test.perf", "DEBUG,test");
       Util.Log.Loggers.Initialize (Props);
 
@@ -323,7 +362,9 @@ package body Util.Log.Tests is
                                  "Invalid console log (ERROR)");
    end Test_Log_Traceback;
 
+   --  ------------------------------
    --  Test the rolling file appender.
+   --  ------------------------------
    procedure Test_Rolling_File_Appender (T : in out Test) is
       Path    : constant String := Util.Tests.Get_Test_Path ("test_rolling.log");
       Dir     : constant String := Util.Tests.Get_Test_Path ("logs");
@@ -392,7 +433,8 @@ package body Util.Log.Tests is
                        Test_List_Appender'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Appenders.Console",
                        Test_Console_Appender'Access);
-
+      Caller.Add_Test (Suite, "Test Util.Log.Get_Level",
+                       Test_Level_Custom'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Loggers.Log (Perf)",
                        Test_Log_Perf'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Appenders.Rolling_Appender",
