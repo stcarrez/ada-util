@@ -99,7 +99,7 @@ package body Util.Log.Appenders.Rolling_Files is
       procedure Openlog (File : out File_Refs.Ref) is
       begin
          if not Current.Is_Null then
-              if not Manager.Is_Rollover_Necessary then
+            if not Manager.Is_Rollover_Necessary then
                File := Current;
                return;
             end if;
