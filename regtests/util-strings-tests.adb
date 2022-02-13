@@ -104,6 +104,9 @@ package body Util.Strings.Tests is
                    Into    => Result);
       Assert_Equals (T, "\n \""a string\"" a 'single quote'", Result);
 
+      Assert_Equals (T, "\n \""a string\"" a 'single quote'",
+                     Escape_Java (ASCII.LF & " ""a string"" a 'single quote'"));
+
       Result := To_Unbounded_String ("");
       Escape_Javascript (Content => ASCII.CR & ASCII.LF & ASCII.HT & ASCII.BS
                            & ASCII.FF & "m " & Character'Val (255),
