@@ -4,7 +4,7 @@ from the [Java Log4j](https://logging.apache.org/log4j/2.x/) library.  It is int
 available in other languages, be flexible, extensible, small and efficient.  Having
 log messages in large applications is very helpful to understand, track and fix complex
 issues, some of them being related to configuration issues or interaction with other
-systems.  The overhead of calling a log operation is negligeable when the log is disabled
+systems.  The overhead of calling a log operation is negligible when the log is disabled
 as it is in the order of 30ns and reasonable for a file appender has it is in the order
 of 5us.  To use the packages described here, use the following GNAT project:
 
@@ -63,7 +63,7 @@ The example below shows several calls to emit a log message with different level
 ```
 
 The logger also provides a special `Error` procedure that accepts an Ada exception
-occurence as parameter.  The exception name and message are printed together with
+occurrence as parameter.  The exception name and message are printed together with
 the error message.  It is also possible to activate a complete traceback of the
 exception and report it in the error message.  With this mechanism, an exception
 can be handled and reported easily:

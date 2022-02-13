@@ -28,7 +28,7 @@ To declare the measure set, use:
 ## Measure the implementation
 
 A measure is made by creating a variable of type `Stamp`.  The declaration of
-this variable marks the begining of the measure.  The measure ends at the
+this variable marks the beginning of the measure.  The measure ends at the
 next call to the `Report` procedure.
 
 ```Ada
