@@ -8,13 +8,20 @@ with Ada.Strings.Unbounded;
 function Util.Dates.Simple_Format (Pattern : in String;
                                    Date    : in Ada.Calendar.Time) return String is
    use Ada.Strings.Unbounded;
+
+   procedure Append_Number (Into    : in out Unbounded_String;
+                            Value   : in Natural;
+                            Padding : in Character;
+                            Length  : in Natural := 2);
+
    Pos    : Natural := Pattern'First;
    TM     : Date_Record;
    Result : Unbounded_String;
-      --  ------------------------------
+
+   --  ------------------------------
    --  Append a number with padding if necessary
    --  ------------------------------
-   procedure Append_Number (Into    : in out Ada.Strings.Unbounded.Unbounded_String;
+   procedure Append_Number (Into    : in out Unbounded_String;
                             Value   : in Natural;
                             Padding : in Character;
                             Length  : in Natural := 2) is
