@@ -33,6 +33,9 @@ package Util.Log.Tests is
    procedure Test_Missing_Config (T : in out Test);
    procedure Test_Log_Traceback (T : in out Test);
 
+   --  Test custom levels.
+   procedure Test_Level_Custom (T : in out Test);
+
    --  Test file appender with different modes.
    procedure Test_File_Appender_Modes (T : in out Test);
 
