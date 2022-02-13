@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  log.tests -- Unit tests for loggers
---  Copyright (C) 2009, 2010, 2011, 2013, 2015, 2018, 2021 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013, 2015, 2018, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,14 +19,12 @@
 with Ada.Strings.Fixed;
 with Ada.Directories;
 with Ada.Text_IO;
-with Ada.Calendar.Formatting;
 with Ada.Strings.Unbounded;
 
 with Util.Test_Caller;
 
 with Util.Log;
 with Util.Log.Loggers;
-with Util.Log.Appenders.Rolling_Files;
 with Util.Files;
 with Util.Strings;
 with Util.Properties;
@@ -331,7 +329,6 @@ package body Util.Log.Tests is
       Dir     : constant String := Util.Tests.Get_Test_Path ("logs");
       Pattern : constant String := Util.Tests.Get_Test_Path ("logs/tst-roll-%i.log");
       Props   : Util.Properties.Manager;
-      Content : Ada.Strings.Unbounded.Unbounded_String;
    begin
       if Ada.Directories.Exists (Dir) then
          Ada.Directories.Delete_Tree (Dir);
