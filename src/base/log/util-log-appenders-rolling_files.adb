@@ -98,16 +98,17 @@ package body Util.Log.Appenders.Rolling_Files is
 
       procedure Openlog (File : out File_Refs.Ref) is
       begin
-         if not Manager.Is_Rollover_Necessary then
-            File := Current;
-            return;
+         if not Current.Is_Null then
+              if not Manager.Is_Rollover_Necessary then
+               File := Current;
+               return;
+            end if;
+
+            Closelog;
+            Manager.Rollover;
          end if;
 
-         Closelog;
          Current := File_Refs.Create;
-
-         Manager.Rollover;
-
          declare
             Path : constant String := Manager.Get_Current_Path;
             Dir  : constant String := Ada.Directories.Containing_Directory (Path);
