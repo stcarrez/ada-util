@@ -28,6 +28,7 @@ with Util.Log;
 with Util.Log.Loggers;
 with Util.Log.Appenders.Rolling_Files;
 with Util.Files;
+with Util.Strings;
 with Util.Properties;
 with Util.Measures;
 package body Util.Log.Tests is
@@ -327,15 +328,20 @@ package body Util.Log.Tests is
    --  Test the rolling file appender.
    procedure Test_Rolling_File_Appender (T : in out Test) is
       Path    : constant String := Util.Tests.Get_Test_Path ("test_rolling.log");
+      Dir     : constant String := Util.Tests.Get_Test_Path ("logs");
       Pattern : constant String := Util.Tests.Get_Test_Path ("logs/tst-roll-%i.log");
       Props   : Util.Properties.Manager;
       Content : Ada.Strings.Unbounded.Unbounded_String;
    begin
+      if Ada.Directories.Exists (Dir) then
+         Ada.Directories.Delete_Tree (Dir);
+      end if;
+
       Props.Set ("log4j.appender.test_rolling", "RollingFile");
       Props.Set ("log4j.appender.test_rolling.fileName", Path);
       Props.Set ("log4j.appender.test_rolling.filePattern", Pattern);
       Props.Set ("log4j.appender.test_rolling.policy", "size");
-      Props.Set ("log4j.appender.test_rolling.minSize", "200");
+      Props.Set ("log4j.appender.test_rolling.minSize", "1000");
       Props.Set ("log4j.appender.test_rolling.strategy", "ascending");
       Props.Set ("log4j.appender.test_rolling.policyMin", "1");
       Props.Set ("log4j.appender.test_rolling.policyMax", "7");
@@ -356,6 +362,15 @@ package body Util.Log.Tests is
          end;
       end loop;
 
+      for I in 1 .. 7 loop
+         declare
+            use Util.Files;
+            File : constant String
+              := Compose (Dir, "tst-roll-" & Util.Strings.Image (I) & ".log");
+         begin
+            T.Assert (Ada.Directories.Exists (File), "Missing rolling file " & File);
+         end;
+      end loop;
    end Test_Rolling_File_Appender;
 
    package Caller is new Util.Test_Caller (Test, "Log");
