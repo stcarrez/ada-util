@@ -2,6 +2,7 @@ Version 2.5.0  -
   - Add support to set environment variables when launching a process (without changing the current process environment!)
   - Add support to indent XML output streams
   - New package Util.Files.Rolling to provide a rolling file manager
+  - Add a new log appender to support rolling log files
   - Fix compilation on NetBSD 9.2
   - Fix compilation with AWS >= 22.0
 
