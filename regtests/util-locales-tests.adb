@@ -108,6 +108,8 @@ package body Util.Locales.Tests is
             Name     : constant String := To_String (Loc);
             Iso      : constant String := Get_ISO3_Language (Locales (I));
             Iso_Country : constant String := Get_ISO3_Country (Locales (I));
+
+            pragma Unreferenced (Iso, Iso_Country);
          begin
             T.Assert (Loc = Locales (I), "Invalid locale at " & Positive'Image (I)
                       & " " & Loc.all);
