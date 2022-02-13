@@ -36,6 +36,7 @@ framework as it provides better reports.
 ## Version 2.5.0  - Under development
   - Add support to set environment variables when launching a process (without changing the current process environment!)
   - Add support to indent XML output streams
+  - New package Util.Files.Rolling to provide a rolling file manager
   - Fix compilation on NetBSD 9.2
   - Fix compilation with AWS >= 22.0
 
