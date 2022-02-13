@@ -202,4 +202,13 @@ package body Util.Encoders.HMAC.SHA1 is
       B.Convert (H, Hash);
    end Finish_Base64;
 
+   --  ------------------------------
+   --  Initialize the SHA-1 context.
+   --  ------------------------------
+   overriding
+   procedure Initialize (E : in out Context) is
+   begin
+      null;
+   end Initialize;
+
 end Util.Encoders.HMAC.SHA1;
