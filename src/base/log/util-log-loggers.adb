@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-loggers -- Utility Log Package
---  Copyright (C) 2001 - 2019, 2021 Stephane Carrez
+--  Copyright (C) 2001 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +26,7 @@ with Util.Strings.Formats;
 with Util.Log.Appenders.Factories;
 with Util.Log.Appenders.Consoles;
 with Util.Log.Appenders.Files;
+with Util.Log.Appenders.Rolling_Files;
 package body Util.Log.Loggers is
 
    use Ada.Strings;
@@ -37,6 +38,10 @@ package body Util.Log.Loggers is
    package File_Factory is
       new Util.Log.Appenders.Factories (Name   => "File",
                                         Create => Files.Create'Access);
+
+   package Rolling_File_Factory is
+      new Util.Log.Appenders.Factories (Name   => "RollingFile",
+                                        Create => Rolling_Files.Create'Access);
 
    package Console_Factory is
       new Util.Log.Appenders.Factories (Name   => "Console",
@@ -546,4 +551,5 @@ package body Util.Log.Loggers is
 begin
    Console_Factory.Register;
    File_Factory.Register;
+   Rolling_File_Factory.Register;
 end Util.Log.Loggers;
