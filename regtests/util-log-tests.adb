@@ -19,12 +19,14 @@
 with Ada.Strings.Fixed;
 with Ada.Directories;
 with Ada.Text_IO;
+with Ada.Calendar.Formatting;
 with Ada.Strings.Unbounded;
 
 with Util.Test_Caller;
 
 with Util.Log;
 with Util.Log.Loggers;
+with Util.Log.Appenders.Rolling_Files;
 with Util.Files;
 with Util.Properties;
 with Util.Measures;
@@ -322,6 +324,40 @@ package body Util.Log.Tests is
                                  "Invalid console log (ERROR)");
    end Test_Log_Traceback;
 
+   --  Test the rolling file appender.
+   procedure Test_Rolling_File_Appender (T : in out Test) is
+      Path    : constant String := Util.Tests.Get_Test_Path ("test_rolling.log");
+      Pattern : constant String := Util.Tests.Get_Test_Path ("logs/tst-roll-%i.log");
+      Props   : Util.Properties.Manager;
+      Content : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      Props.Set ("log4j.appender.test_rolling", "RollingFile");
+      Props.Set ("log4j.appender.test_rolling.fileName", Path);
+      Props.Set ("log4j.appender.test_rolling.filePattern", Pattern);
+      Props.Set ("log4j.appender.test_rolling.policy", "size");
+      Props.Set ("log4j.appender.test_rolling.minSize", "200");
+      Props.Set ("log4j.appender.test_rolling.strategy", "ascending");
+      Props.Set ("log4j.appender.test_rolling.policyMin", "1");
+      Props.Set ("log4j.appender.test_rolling.policyMax", "7");
+      Props.Set ("log4j.appender.test_rolling.level", "DEBUG");
+      Props.Set ("log4j.rootCategory", "DEBUG,test_rolling");
+      Util.Log.Loggers.Initialize (Props);
+
+      for I in 1 .. 1_000 loop
+         declare
+            L : constant Loggers.Logger := Loggers.Create ("util.log.test.file");
+         begin
+            L.Debug ("Writing a debug message");
+            L.Debug ("{0}: {1}", "Parameter", "Value");
+            L.Debug ("Done");
+            L.Info ("INFO MESSAGE!");
+            L.Warn ("WARN MESSAGE!");
+            L.Error ("This {0} {1} {2} test message", "is", "the", "error");
+         end;
+      end loop;
+
+   end Test_Rolling_File_Appender;
+
    package Caller is new Util.Test_Caller (Test, "Log");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -347,6 +383,8 @@ package body Util.Log.Tests is
 
       Caller.Add_Test (Suite, "Test Util.Log.Loggers.Log (Perf)",
                        Test_Log_Perf'Access);
+      Caller.Add_Test (Suite, "Test Util.Log.Appenders.Rolling_Appender",
+                       Test_Rolling_File_Appender'Access);
    end Add_Tests;
 
 end Util.Log.Tests;
