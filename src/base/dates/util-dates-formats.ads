@@ -178,13 +178,6 @@ package Util.Dates.Formats is
                     Date      : in Ada.Calendar.Time;
                     Bundle    : in Util.Properties.Manager'Class) return String;
 
-   --  Format the date passed in `Date` with a simple format pattern.
-   --  The pattern is composed of minimalist sequences that are replaced by
-   --  values, unrecognized characters are passed as is:
-   --  YYYY : year     MM : month     dd: day    HH: hour   mm: minute   ss: second
-   function Simple_Format (Pattern : in String;
-                           Date    : in Ada.Calendar.Time) return String;
-
    --  Append the localized month string in the <b>Into</b> string.
    --  The month string is found in the resource bundle under the name:
    --    util.month<month number>.short
