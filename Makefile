@@ -74,6 +74,9 @@ regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile.conf
 		 -DOS_VERSION='"$(OS_VERSION)"' \
 		 regtests/util-testsuite.gpb $@
 
+samples:
+	$(GNATMAKE) $(GPRFLAGS) -p samples.gpr $(MAKE_ARGS)
+
 CLEAN_FILES=$(UTIL_GEN_FILES) bin/util_harness
 CLEAN_FILES+= bin/util_test_process bin/utilgen
 
@@ -139,3 +142,5 @@ src/sys/http/curl/util-http-clients-curl-constants.ads:	bin/utilgen
 bin/utilgen:    support/utilgen.c Makefile.conf
 	mkdir -p bin
 	$(CC) -o $@ $(CFLAGS) -g support/utilgen.c
+
+.PHONY: samples
