@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  lzma_encrypt -- Compress and encrypt file using Util.Streams.AES
---  Copyright (C) 2019, 2021 Stephane Carrez
+--  Copyright (C) 2019, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,9 +51,9 @@ procedure Lzma_Encrypt is
       --  Setup file -> input and compress -> cipher -> output file streams.
       In_Stream.Open (Ada.Streams.Stream_IO.In_File, Source);
       Out_Stream.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Destination);
-      Cipher.Produces (Output => Out_Stream'Access, Size => 32768);
+      Cipher.Produces (Output => Out_Stream'Unchecked_Access, Size => 32768);
       Cipher.Set_Key (Secret => Key, Mode => Util.Encoders.AES.ECB);
-      Compress.Initialize (Output => Cipher'Access, Size => 4096);
+      Compress.Initialize (Output => Cipher'Unchecked_Access, Size => 4096);
 
       --  Copy input to output through the cipher.
       Util.Streams.Copy (From => In_Stream, Into => Compress);
