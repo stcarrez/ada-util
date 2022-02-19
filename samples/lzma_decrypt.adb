@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  lzma_decrypt -- Decrypt and decompress file using Util.Streams.AES
---  Copyright (C) 2019, 2021 Stephane Carrez
+--  Copyright (C) 2019, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,9 +51,9 @@ procedure Lzma_Decrypt is
       --  Setup file -> input and cipher -> output file streams.
       In_Stream.Open (Ada.Streams.Stream_IO.In_File, Source);
       Out_Stream.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Destination);
-      Decipher.Consumes (Input => In_Stream'Access, Size   => 32768);
+      Decipher.Consumes (Input => In_Stream'Unchecked_Access, Size   => 32768);
       Decipher.Set_Key (Secret => Key, Mode => Util.Encoders.AES.ECB);
-      Decompress.Initialize (Input => Decipher'Access, Size => 32768);
+      Decompress.Initialize (Input => Decipher'Unchecked_Access, Size => 32768);
 
       --  Copy input to output through the cipher.
       Util.Streams.Copy (From => Decompress, Into => Out_Stream);
