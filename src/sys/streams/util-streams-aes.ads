@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-aes -- AES encoding and decoding streams
---  Copyright (C) 2019 Stephane Carrez
+--  Copyright (C) 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -79,9 +79,9 @@ with Util.Streams.Buffered.Encoders;
 --
 --      Out_Stream.Initialize (Mode => Ada.Streams.Stream_IO.In_File,
 --                             Name => "encrypted.aes");
---      Cipher.Initialize (Output => Out_Stream'Access,
+--      Cipher.Initialize (Output => Out_Stream'Unchecked_Access,
 --                         Size   => 32768);
---      Printer.Initialize (Output => Cipher'Access,
+--      Printer.Initialize (Output => Cipher'Unchecked_Access,
 --                          Size   => 4096);
 --
 --  The last step before using the cipher is to configure the encryption key and modes:
