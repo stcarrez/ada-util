@@ -132,6 +132,25 @@ The samples can be built using:
    gnatmake -Psamples
 ```   
 
+* `Util.Encoders`: [encodes.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encodes.adb)
+* `Util.Processes`: [launch.adb](https://github.com/stcarrez/ada-util/tree/master/samples/launch.adb)
+* `Util.Streams.Pipes`: [popen.adb](https://github.com/stcarrez/ada-util/tree/master/samples/popen.adb)
+* `Util.Properties`: [properties.adb](https://github.com/stcarrez/ada-util/tree/master/samples/properties.adb)
+* `Util.Properties`: [proplist.adb](https://github.com/stcarrez/ada-util/tree/master/samples/proplist.adb)
+* `Util.Http`: [wget.adb](https://github.com/stcarrez/ada-util/tree/master/samples/wget.adb)
+* `Util.Properties`: [bundles.adb](https://github.com/stcarrez/ada-util/tree/master/samples/bundles.adb)
+* `Util.Streams.Files`: [compress.adb](https://github.com/stcarrez/ada-util/tree/master/samples/compress.adb)
+* `Util.Serialize.IO.CSV`: [csv_city.adb](https://github.com/stcarrez/ada-util/tree/master/samples/csv_city.adb)
+* `Util.Serialize.Mappers`: [csv_reader.adb](https://github.com/stcarrez/ada-util/tree/master/samples/csv_reader.adb)
+* `Util.Dates.Formats`: [date.adb](https://github.com/stcarrez/ada-util/tree/master/samples/date.adb)
+* `Util.Streams.AES`: [decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/decrypt.adb)
+* `Util.Streams.AES`: [encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encrypt.adb)
+* `Util.Strings.Vectors`: [gperfhash.adb](https://github.com/stcarrez/ada-util/tree/master/samples/gperfhash.adb)
+* `Util.Measures`: [measures.adb](https://github.com/stcarrez/ada-util/tree/master/samples/measures.adb)
+* `Util.Refs`: [multipro_refs.adb](https://github.com/stcarrez/ada-util/tree/master/samples/multipro_refs.adb)
+* `Util.Log.Loggers`: [multipro_refs.adb](https://github.com/stcarrez/ada-util/tree/master/samples/log.adb)
+* `Util.Serialize.IO.JSON`: [serialize.adb](https://github.com/stcarrez/ada-util/tree/master/samples/serialize.adb)
+
 # Documentation
 
 * [Ada Utility Library Programmer's Guide](https://ada-util.readthedocs.io/en/latest/) [PDF](https://github.com/stcarrez/ada-util/blob/master/docs/utilada-book.pdf)
