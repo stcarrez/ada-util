@@ -27,15 +27,17 @@ with Util.Encoders;
 --
 --  The AES encoding stream is created as follows:
 --
---   package Encoding is
+--    package Encoding is
 --      new Util.Streams.Buffered.Encoders (Encoder => Util.Encoders.AES.Encoder);
 --
 --  and the AES decoding stream is created with:
 --
---   package Decoding is
+--    package Decoding is
 --      new Util.Streams.Buffered.Encoders (Encoder => Util.Encoders.AES.Decoder);
 --
---     Encode : Util.Streams.Buffered.Encoders.Encoding_Stream;
+--  The encoding stream instance is declared:
+--
+--      Encode : Util.Streams.Buffered.Encoders.Encoder_Stream;
 --
 --  The encoding stream manages a buffer that is used to hold the encoded data before it is
 --  written to the target stream.  The `Initialize` procedure must be called to indicate
@@ -43,6 +45,10 @@ with Util.Encoders;
 --
 --     Encode.Initialize (Output => File'Access, Size => 4096, Format => "base64");
 --
+--  The encoding stream provides a `Produces` procedure that reads the encoded
+--  stream and write the result in another stream.  It also provides a `Consumes`
+--  procedure that encodes a stream by reading its content and write the encoded
+--  result to another stream.
 generic
    type Encoder is limited new Util.Encoders.Transformer with private;
 package Util.Streams.Buffered.Encoders is
