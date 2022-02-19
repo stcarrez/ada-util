@@ -13,6 +13,6 @@ pages:
   - HTTP: Util_Http.md
   - Streams: Util_Streams.md
   - Encoders: Util_Encoders.md
+  - Misc: Util_Misc.md
   - Measures: Util_Measures.md
-  - Timers: Util_Events_Timers.md
 theme: readthedocs
