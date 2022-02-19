@@ -132,28 +132,28 @@ The samples can be built using:
    gnatmake -Psamples
 ```   
 
-* `Util.Dates.Formats`: [date.adb](https://github.com/stcarrez/ada-util/tree/master/samples/date.adb)
-* `Util.Encoders`: [encodes.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encodes.adb)
-* `Util.Encoders.AES`: [decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/decrypt.adb), [encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encrypt.adb)
-* `Util.Http.Clients`: [wget.adb](https://github.com/stcarrez/ada-util/tree/master/samples/wget.adb), [facebook.adb](https://github.com/stcarrez/ada-util/tree/master/samples/facebook.adb)
-* `Util.Log.Loggers`: [log.adb](https://github.com/stcarrez/ada-util/tree/master/samples/log.adb), [multipro_refs.adb](https://github.com/stcarrez/ada-util/tree/master/samples/multipro_refs.adb), [date.adb](https://github.com/stcarrez/ada-util/tree/master/samples/date.adb)
-* `Util.Measures`: [measures.adb](https://github.com/stcarrez/ada-util/tree/master/samples/measures.adb)
-* `Util.Processes`: [launch.adb](https://github.com/stcarrez/ada-util/tree/master/samples/launch.adb), [popen.adb](https://github.com/stcarrez/ada-util/tree/master/samples/popen.adb)
-* `Util.Properties`: [properties.adb](https://github.com/stcarrez/ada-util/tree/master/samples/properties.adb), [proplist.adb](https://github.com/stcarrez/ada-util/tree/master/samples/proplist.adb), [bundles.adb](https://github.com/stcarrez/ada-util/tree/master/samples/bundles.adb)
-* `Util.Refs`: [multipro_refs.adb](https://github.com/stcarrez/ada-util/tree/master/samples/multipro_refs.adb)
-* `Util.Streams.AES`: [decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/decrypt.adb), [encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encrypt.adb)
-* `Util.Streams.Files`: [compress.adb](https://github.com/stcarrez/ada-util/tree/master/samples/compress.adb)
-* `Util.Streams.Pipes`: [launch.adb](https://github.com/stcarrez/ada-util/tree/master/samples/launch.adb), [popen.adb](https://github.com/stcarrez/ada-util/tree/master/samples/popen.adb)
-* `Util.Serialize.IO.CSV`: [csv_city.adb](https://github.com/stcarrez/ada-util/tree/master/samples/csv_city.adb)
-* `Util.Serialize.IO.JSON`: [serialize.adb](https://github.com/stcarrez/ada-util/tree/master/samples/serialize.adb), [json.adb](https://github.com/stcarrez/ada-util/tree/master/samples/json.adb)
-* `Util.Serialize.IO.XML`: [xmi.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmi.adb), [xmlrd.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmlrd.adb)
-* `Util.Serialize.Mappers`: [csv_reader.adb](https://github.com/stcarrez/ada-util/tree/master/samples/csv_reader.adb), [csv_city.adb](https://github.com/stcarrez/ada-util/tree/master/samples/csv_city.adb), [xmi.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmi.adb), [xmlrd.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmlrd.adb)
-* `Util.Serialize.Mappers.Record_Mapper`: [xmi.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmi.adb), [xmlrd.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmlrd.adb)
-* `Util.Serialize.Mappers.Vector_Mapper`: [json.adb](https://github.com/stcarrez/ada-util/tree/master/samples/json.adb), [xmlrd.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmlrd.adb)
-* `Util.Strings`: [cut.adb](https://github.com/stcarrez/ada-util/tree/master/samples/cut.adb), [escape.adb](https://github.com/stcarrez/ada-util/tree/master/samples/escape.adb)
-* `Util.Strings.Tokenizers`: [cut.adb](https://github.com/stcarrez/ada-util/tree/master/samples/cut.adb), [escape.adb](https://github.com/stcarrez/ada-util/tree/master/samples/escape.adb)
-* `Util.Strings.Transforms`: [escape.adb](https://github.com/stcarrez/ada-util/tree/master/samples/escape.adb), [gperfhash.adb](https://github.com/stcarrez/ada-util/tree/master/samples/gperfhash.adb)
-* `Util.Strings.Vectors`: [gperfhash.adb](https://github.com/stcarrez/ada-util/tree/master/samples/gperfhash.adb)
+| `Util.Dates.Formats` | [date.adb](https://github.com/stcarrez/ada-util/tree/master/samples/date.adb)|
+| `Util.Encoders` | [encodes.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encodes.adb) |
+| `Util.Encoders.AES` | [decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/decrypt.adb), [encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encrypt.adb) |
+| `Util.Http.Clients` | [wget.adb](https://github.com/stcarrez/ada-util/tree/master/samples/wget.adb), [facebook.adb](https://github.com/stcarrez/ada-util/tree/master/samples/facebook.adb) |
+| `Util.Log.Loggers` | [log.adb](https://github.com/stcarrez/ada-util/tree/master/samples/log.adb), [multipro_refs.adb](https://github.com/stcarrez/ada-util/tree/master/samples/multipro_refs.adb), [date.adb](https://github.com/stcarrez/ada-util/tree/master/samples/date.adb), [xmlrd.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmlrd.adb), [gperfhash.adb](https://github.com/stcarrez/ada-util/tree/master/samples/gperfhash.adb), [multipro.adb](https://github.com/stcarrez/ada-util/tree/master/samples/multipro.adb), [mapping.adb](https://github.com/stcarrez/ada-util/tree/master/samples/mapping.adb), [csv_city.adb](https://github.com/stcarrez/ada-util/tree/master/samples/csv_city.adb), [bundles.adb](https://github.com/stcarrez/ada-util/tree/master/samples/bundles.adb) |
+| `Util.Measures` | [measures.adb](https://github.com/stcarrez/ada-util/tree/master/samples/measures.adb) |
+| `Util.Processes` | [launch.adb](https://github.com/stcarrez/ada-util/tree/master/samples/launch.adb), [popen.adb](https://github.com/stcarrez/ada-util/tree/master/samples/popen.adb) |
+| `Util.Properties` | [properties.adb](https://github.com/stcarrez/ada-util/tree/master/samples/properties.adb), [proplist.adb](https://github.com/stcarrez/ada-util/tree/master/samples/proplist.adb), [bundles.adb](https://github.com/stcarrez/ada-util/tree/master/samples/bundles.adb) |
+| `Util.Refs` | [multipro_refs.adb](https://github.com/stcarrez/ada-util/tree/master/samples/multipro_refs.adb) |
+| `Util.Streams.AES` | [decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/decrypt.adb), [encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encrypt.adb) |
+| `Util.Streams.Files` | [compress.adb](https://github.com/stcarrez/ada-util/tree/master/samples/compress.adb) |
+| `Util.Streams.Pipes` | [launch.adb](https://github.com/stcarrez/ada-util/tree/master/samples/launch.adb), [popen.adb](https://github.com/stcarrez/ada-util/tree/master/samples/popen.adb) |
+| `Util.Serialize.IO.CSV` | [csv_city.adb](https://github.com/stcarrez/ada-util/tree/master/samples/csv_city.adb) |
+| `Util.Serialize.IO.JSON` | [serialize.adb](https://github.com/stcarrez/ada-util/tree/master/samples/serialize.adb), [json.adb](https://github.com/stcarrez/ada-util/tree/master/samples/json.adb) |
+| `Util.Serialize.IO.XML` | [xmi.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmi.adb), [xmlrd.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmlrd.adb) |
+| `Util.Serialize.Mappers` | [csv_reader.adb](https://github.com/stcarrez/ada-util/tree/master/samples/csv_reader.adb), [csv_city.adb](https://github.com/stcarrez/ada-util/tree/master/samples/csv_city.adb), [xmi.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmi.adb), [xmlrd.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmlrd.adb) |
+| `Util.Serialize.Mappers.Record_Mapper` | [xmi.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmi.adb), [xmlrd.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmlrd.adb) |
+| `Util.Serialize.Mappers.Vector_Mapper` | [json.adb](https://github.com/stcarrez/ada-util/tree/master/samples/json.adb), [xmlrd.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmlrd.adb) |
+| `Util.Strings` | [cut.adb](https://github.com/stcarrez/ada-util/tree/master/samples/cut.adb), [escape.adb](https://github.com/stcarrez/ada-util/tree/master/samples/escape.adb) |
+| `Util.Strings.Tokenizers` | [cut.adb](https://github.com/stcarrez/ada-util/tree/master/samples/cut.adb), [escape.adb](https://github.com/stcarrez/ada-util/tree/master/samples/escape.adb) |
+| `Util.Strings.Transforms` | [escape.adb](https://github.com/stcarrez/ada-util/tree/master/samples/escape.adb), [gperfhash.adb](https://github.com/stcarrez/ada-util/tree/master/samples/gperfhash.adb) |
+| `Util.Strings.Vectors` | [gperfhash.adb](https://github.com/stcarrez/ada-util/tree/master/samples/gperfhash.adb) |
 
 # Documentation
 
