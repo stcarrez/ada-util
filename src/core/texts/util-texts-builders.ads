@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-texts-builders -- Text builder
---  Copyright (C) 2013, 2017, 2021 Stephane Carrez
+--  Copyright (C) 2013, 2017, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,21 +17,20 @@
 -----------------------------------------------------------------------
 private with Ada.Finalization;
 
---  == Description ==
---  The <tt>Util.Texts.Builders</tt> generic package was designed to provide string builders.
+--  == Text Builders ==
+--  The `Util.Texts.Builders` generic package was designed to provide string builders.
 --  The interface was designed to reduce memory copies as much as possible.
 --
---    * The <tt>Builder</tt> type holds a list of chunks into which texts are appended.
+--    * The `Builder` type holds a list of chunks into which texts are appended.
 --    * The builder type holds an initial chunk whose capacity is defined when the builder
 --      instance is declared.
---    * There is only an <tt>Append</tt> procedure which allows to append text to the builder.
+--    * There is only an `Append` procedure which allows to append text to the builder.
 --      This is the only time when a copy is made.
---    * The package defines the <tt>Iterate</tt> operation that allows to get the content
---      collected by the builder.  When using the <tt>Iterate</tt> operation, no copy is
+--    * The package defines the `Iterate` operation that allows to get the content
+--      collected by the builder.  When using the `Iterate` operation, no copy is
 --      performed since chunks data are passed passed by reference.
 --    * The type is limited to forbid copies of the builder instance.
 --
---  == Example ==
 --  First, instantiate the package for the element type (eg, String):
 --
 --    package String_Builder is new Util.Texts.Builders (Character, String);
@@ -49,7 +48,7 @@ private with Ada.Finalization;
 --
 --    procedure Collect (Item : in String) is ...
 --
---  And use the <tt>Iterate</tt> operation:
+--  And use the `Iterate` operation:
 --
 --    String_Builder.Iterate (Builder, Collect'Access);
 --
