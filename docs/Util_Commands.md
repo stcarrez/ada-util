@@ -41,6 +41,7 @@ application specific context to the command.
 The `Config_Parser` describes the parser package that will handle the analysis of
 command line options.  To use the GNAT options parser, it is possible to use the
 `Util.Commands.Parsers.GNAT_Parser` package.
+
 ## Command line parsers
 Parsing command line arguments before their execution is handled by the
 `Config_Parser` generic package.  This allows to customize how the arguments are

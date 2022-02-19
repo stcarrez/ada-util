@@ -70,18 +70,15 @@ The file manager defines a triggering policy represented by `Policy_Type`.
 It controls when the file rolling must be made.
 
 * `No_Policy`: no policy, the rolling must be triggered manually.
-
 * `Size_Policy`: size policy, the rolling is triggered when the file
- reaches a given size.
-
+  reaches a given size.
 * `Time_Policy`: time policy, the rolling is made when the date/time pattern
- no longer applies to the active file.
+  no longer applies to the active file.
 
 To control how the rolling is made, the `Strategy_Type` defines the behavior
 of the rolling.
 
 * `Rollover_Strategy`:
-
 * `Direct_Strategy`:
 
 To use the file manager, the first step is to create an instance and configure

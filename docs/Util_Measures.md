@@ -72,9 +72,7 @@ Defining a lot of measurements for a production system is in general not very us
 Measurements should be relatively high level measurements.  For example:
 
   * Loading or saving a file
-
   * Rendering a page in a web application
-
   * Executing a database query
 
 

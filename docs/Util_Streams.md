@@ -33,7 +33,7 @@ with Util.Streams.Pipes;
    Pipe   : aliased Util.Streams.Pipes.Pipe_Stream;
    Buffer : Util.Streams.Buffered.Output_Buffer_Stream;
    ...
-      Buffer.Initialize (Output => Pipe'Access,
+      Buffer.Initialize (Output => Pipe'Unchecked_Access,
                          Size => 1024);
 ```
 
@@ -57,11 +57,12 @@ with Util.Streams.Pipes;
    Pipe   : aliased Util.Streams.Pipes.Pipe_Stream;
    Buffer : Util.Streams.Buffered.Input_Buffer_Stream;
    ...
-      Buffer.Initialize (Input => Pipe'Access, Size => 1024);
+      Buffer.Initialize (Input => Pipe'Unchecked_Access, Size => 1024);
 ```
 
 In this case, the buffer of 1024 bytes is filled by reading the pipe stream, and thus
 getting the program's output.
+
 ## Texts
 The `Util.Streams.Texts` package implements text oriented input and output streams.
 The `Print_Stream` type extends the `Output_Buffer_Stream` to allow writing
@@ -69,9 +70,11 @@ text content.
 
 The `Reader_Stream` type extends the `Input_Buffer_Stream` and allows to
 read text content.
+
 ## File streams
 The `Util.Streams.Files` package provides input and output streams that access
 files on top of the Ada `Stream_IO` standard package.
+
 ## Pipes
 The `Util.Streams.Pipes` package defines a pipe stream to or from a process.
 It allows to launch an external program while getting the program standard output or
@@ -95,7 +98,6 @@ The process is launched by using the `Open` command and by specifying the comman
 to execute as well as the pipe redirection mode:
 
 * `READ` to read the process standard output,
-
 * `WRITE` to write the process standard input.
 
 For example to run the `ls -l` command and read its output, we could run it by using:
@@ -113,7 +115,7 @@ with Util.Streams.Buffered;
 ...
    Buffer : Util.Streams.Buffered.Input_Buffer_Stream;
    ...
-   Buffer.Initialize (Input => Pipe'Access, Size => 1024);
+   Buffer.Initialize (Input => Pipe'Unchecked_Access, Size => 1024);
 ```
 
 And to read the process output, one can use the following:
@@ -144,27 +146,68 @@ Before opening the pipe, it is possible to have some control on the process that
 will be created to configure:
 
   * The shell that will be used to launch the process,
-
   * The process working directory,
-
   * Redirect the process output to a file,
-
   * Redirect the process error to a file,
-
   * Redirect the process input from a file.
 
 All these operations must be made before calling the `Open` procedure.
+
 ## Sockets
 The <b>Util.Streams.Sockets</b> package defines a socket stream.
+
 ## Raw files
 The <b>Util.Streams.Raw</b> package provides a stream directly on top of
 file system operations <b>read</b> and <b>write</b>.
+
+## Encoder Streams
+The `Util.Streams.Buffered.Encoders` is a generic package which implements an
+encoding or decoding stream through the `Transformer` interface.  The generic
+package must be instantiated with a transformer type.  The stream passes the data
+to be written to the `Transform` method of that interface and it makes
+transformations on the data before being written.
+
+The AES encoding stream is created as follows:
+
+```Ada
+package Encoding is
+  new Util.Streams.Buffered.Encoders (Encoder => Util.Encoders.AES.Encoder);
+```
+
+and the AES decoding stream is created with:
+
+```Ada
+package Decoding is
+  new Util.Streams.Buffered.Encoders (Encoder => Util.Encoders.AES.Decoder);
+```
+
+The encoding stream instance is declared:
+
+```Ada
+  Encode : Util.Streams.Buffered.Encoders.Encoder_Stream;
+```
+
+The encoding stream manages a buffer that is used to hold the encoded data before it is
+written to the target stream.  The `Initialize` procedure must be called to indicate
+the target stream, the size of the buffer and the encoding format to be used.
+
+```Ada
+ Encode.Initialize (Output => File'Access, Size => 4096, Format => "base64");
+```
+
+The encoding stream provides a `Produces` procedure that reads the encoded
+stream and write the result in another stream.  It also provides a `Consumes`
+procedure that encodes a stream by reading its content and write the encoded
+result to another stream.
+
 ## Base16 Encoding Streams
 The `Util.Streams.Base16` package provides streams to encode and decode the stream
 using Base16.
+
 ## Base64 Encoding Streams
 The `Util.Streams.Base64` package provides streams to encode and decode the stream
 using Base64.
+
 ## AES Encoding Streams
 The `Util.Streams.AES` package define the `Encoding_Stream` and `Decoding_Stream` types to
 encrypt and decrypt using the AES cipher.  Before using these streams, you must use
@@ -172,15 +215,10 @@ the `Set_Key` procedure to setup the encryption or decryption key and define the
 encryption mode to be used.  The following encryption modes are supported:
 
 * AES-ECB
-
 * AES-CBC
-
 * AES-PCBC
-
 * AES-CFB
-
 * AES-OFB
-
 * AES-CTR
 
 The encryption and decryption keys are represented by the `Util.Encoders.Secret_Key` limited
@@ -189,9 +227,7 @@ the instance is deleted.  The size of the encryption key defines the AES encrypt
 to be used:
 
 * Use 16 bytes, or `Util.Encoders.AES.AES_128_Length` for AES-128,
-
 * Use 24 bytes, or `Util.Encoders.AES.AES_192_Length` for AES-192,
-
 * Use 32 bytes, or `Util.Encoders.AES.AES_256_Length` for AES-256.
 
 Other key sizes will raise a pre-condition or constraint error exception.
@@ -241,9 +277,9 @@ The `Printer` is configured to write in the `Cipher` with a 4Kb buffer.
 ```Ada
   Out_Stream.Initialize (Mode => Ada.Streams.Stream_IO.In_File,
                          Name => "encrypted.aes");
-  Cipher.Initialize (Output => Out_Stream'Access,
+  Cipher.Initialize (Output => Out_Stream'Unchecked_Access,
                      Size   => 32768);
-  Printer.Initialize (Output => Cipher'Access,
+  Printer.Initialize (Output => Cipher'Unchecked_Access,
                       Size   => 4096);
 ```
 

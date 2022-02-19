@@ -101,6 +101,7 @@ Then, the property will be fetch by using:
 ```Ada
  Value : constant String := Props.Get ("info|data|value");
 ```
+
 ## Property bundles
 Property bundles represent several property files that share some overriding rules and
 capabilities.  Their introduction comes from Java resource bundles which allow to

@@ -1,3 +1,4 @@
+
 # Date Utilities
 The `Util.Dates` package provides various date utilities to help in formatting and parsing
 dates in various standard formats.  It completes the standard `Ada.Calendar.Formatting` and
@@ -12,15 +13,10 @@ with "utilada_base";
 Several operations allow to compute from a given date:
 
   * `Get_Day_Start`: The start of the day (0:00),
-
   * `Get_Day_End`: The end of the day (23:59:59),
-
   * `Get_Week_Start`: The start of the week,
-
   * `Get_Week_End`: The end of the week,
-
   * `Get_Month_Start`: The start of the month,
-
   * `Get_Month_End`: The end of the month
 
 The `Date_Record` type represents a date in a split format allowing
@@ -44,6 +40,7 @@ that target format and a `Value` function to parse such format string and return
 ```
 
 A `Constraint_Error` exception is raised when the date string is not in the correct format.
+
 ## ISO8601 Dates
 The ISO8601 defines a standard date format that is commonly used and easily parsed by programs.
 The `Util.Dates.ISO8601` package provides an `Image` function to convert a date into that
@@ -56,6 +53,7 @@ target format and a `Value` function to parse such format string and return the 
 ```
 
 A `Constraint_Error` exception is raised when the date string is not in the correct format.
+
 ## Localized date formatting
 The `Util.Dates.Formats` provides a date formatting and parsing operation similar to the
 Unix `strftime`, `strptime` or the `GNAT.Calendar.Time_IO`.  The localization of month
