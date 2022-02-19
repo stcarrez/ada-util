@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-encoders -- Streams with encoding and decoding capabilities
---  Copyright (C) 2017, 2019, 2021 Stephane Carrez
+--  Copyright (C) 2017, 2019, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,15 +18,27 @@
 
 with Util.Encoders;
 
---  == Encoding Streams ==
---  The <tt>Encoding_Stream</tt> tagged record represents a stream with encoding capabilities.
---  The stream passes the data to be written to the <tt>Transformer</tt> interface that
---  allows to make transformations on the data before being written.
+--  == Encoder Streams ==
+--  The `Util.Streams.Buffered.Encoders` is a generic package which implements an
+--  encoding or decoding stream through the `Transformer` interface.  The generic
+--  package must be instantiated with a transformer type.  The stream passes the data
+--  to be written to the `Transform` method of that interface and it makes
+--  transformations on the data before being written.
+--
+--  The AES encoding stream is created as follows:
+--
+--   package Encoding is
+--      new Util.Streams.Buffered.Encoders (Encoder => Util.Encoders.AES.Encoder);
+--
+--  and the AES decoding stream is created with:
+--
+--   package Decoding is
+--      new Util.Streams.Buffered.Encoders (Encoder => Util.Encoders.AES.Decoder);
 --
 --     Encode : Util.Streams.Buffered.Encoders.Encoding_Stream;
 --
 --  The encoding stream manages a buffer that is used to hold the encoded data before it is
---  written to the target stream.  The <tt>Initialize</tt> procedure must be called to indicate
+--  written to the target stream.  The `Initialize` procedure must be called to indicate
 --  the target stream, the size of the buffer and the encoding format to be used.
 --
 --     Encode.Initialize (Output => File'Access, Size => 4096, Format => "base64");
