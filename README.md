@@ -132,6 +132,8 @@ The samples can be built using:
    gnatmake -Psamples
 ```   
 
+| Package              | Example                                                                      |
+|----------------------|------------------------------------------------------------------------------|
 | `Util.Dates.Formats` | [date.adb](https://github.com/stcarrez/ada-util/tree/master/samples/date.adb)|
 | `Util.Encoders` | [encodes.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encodes.adb) |
 | `Util.Encoders.AES` | [decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/decrypt.adb), [encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encrypt.adb) |
