@@ -32,7 +32,7 @@ with Util.Properties;
 --  |                | Immediate flush is useful in some situations to have the log file    |
 --  |                | updated immediately at the expense of slowing down the processing    |
 --  |                | of logs.                                                             |
-
+--
 package Util.Log.Appenders.Files is
 
    --  ------------------------------
