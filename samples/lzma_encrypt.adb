@@ -20,7 +20,7 @@ with Ada.Command_Line;
 with Ada.Streams.Stream_IO;
 with Util.Streams.Files;
 with Util.Streams.AES;
-with Util.Streams.Buffered.Lzma;
+with Util.Streams.Lzma;
 with Util.Encoders.AES;
 with Util.Encoders.KDF.PBKDF2_HMAC_SHA256;
 procedure Lzma_Encrypt is
@@ -37,7 +37,7 @@ procedure Lzma_Encrypt is
       In_Stream    : aliased Util.Streams.Files.File_Stream;
       Out_Stream   : aliased Util.Streams.Files.File_Stream;
       Cipher       : aliased Util.Streams.AES.Encoding_Stream;
-      Compress     : aliased Util.Streams.Buffered.Lzma.Compress_Stream;
+      Compressor   : aliased Util.Streams.Lzma.Compress_Stream;
       Password_Key : constant Util.Encoders.Secret_Key := Util.Encoders.Create (Password);
       Salt         : constant Util.Encoders.Secret_Key := Util.Encoders.Create ("fake-salt");
       Key          : Util.Encoders.Secret_Key (Length => Util.Encoders.AES.AES_256_Length);
@@ -53,10 +53,10 @@ procedure Lzma_Encrypt is
       Out_Stream.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Destination);
       Cipher.Produces (Output => Out_Stream'Unchecked_Access, Size => 32768);
       Cipher.Set_Key (Secret => Key, Mode => Util.Encoders.AES.ECB);
-      Compress.Initialize (Output => Cipher'Unchecked_Access, Size => 4096);
+      Compressor.Initialize (Output => Cipher'Unchecked_Access, Size => 4096);
 
       --  Copy input to output through the cipher.
-      Util.Streams.Copy (From => In_Stream, Into => Compress);
+      Util.Streams.Copy (From => In_Stream, Into => Compressor);
    end Crypt_File;
 
 begin

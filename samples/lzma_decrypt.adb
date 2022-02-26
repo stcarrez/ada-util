@@ -20,7 +20,7 @@ with Ada.Command_Line;
 with Ada.Streams.Stream_IO;
 with Util.Streams.Files;
 with Util.Streams.AES;
-with Util.Streams.Buffered.Lzma;
+with Util.Streams.Lzma;
 with Util.Encoders.AES;
 with Util.Encoders.KDF.PBKDF2_HMAC_SHA256;
 procedure Lzma_Decrypt is
@@ -36,7 +36,7 @@ procedure Lzma_Decrypt is
                            Password    : in String) is
       In_Stream    : aliased Util.Streams.Files.File_Stream;
       Out_Stream   : aliased Util.Streams.Files.File_Stream;
-      Decompress   : aliased Util.Streams.Buffered.Lzma.Decompress_Stream;
+      Decompress   : aliased Util.Streams.Lzma.Decompress_Stream;
       Decipher     : aliased Util.Streams.AES.Decoding_Stream;
       Password_Key : constant Util.Encoders.Secret_Key := Util.Encoders.Create (Password);
       Salt         : constant Util.Encoders.Secret_Key := Util.Encoders.Create ("fake-salt");
