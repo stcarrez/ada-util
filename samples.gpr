@@ -9,7 +9,7 @@ project Samples is
    "csv_reader.adb", "launch.adb", "gperfhash.adb", "proplist.adb",
    "cut.adb", "serialize.adb", "json.adb",
              "encrypt.adb", "decrypt.adb", "csv_city.adb",
-            "rolling_file.adb");
+            "rolling_file.adb", "copy.adb", "serialize_xml.adb");
 
    for Main use Mains;
 
