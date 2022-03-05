@@ -64,7 +64,7 @@ procedure Lzma_Encrypt_B64 is
 
 begin
    if Ada.Command_Line.Argument_Count /= 3 then
-      Ada.Text_IO.Put_Line ("Usage: lzma_encrypt source password destination");
+      Ada.Text_IO.Put_Line ("Usage: lzma_encrypt_b64 source password destination");
       return;
    end if;
 
