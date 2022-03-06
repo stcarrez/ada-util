@@ -20,7 +20,7 @@ with Ada.Containers;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 with Ada.Calendar;
-
+with Ada.Characters.Conversions;
 with Util.Test_Caller;
 with Util.Beans.Objects.Hash;
 package body Util.Beans.Objects.Discrete_Tests is
@@ -68,7 +68,7 @@ package body Util.Beans.Objects.Discrete_Tests is
    --  Test Util.Beans.Objects.To_Object
    --  ------------------------------
    procedure Test_Conversion (T : Test; V : String; N : Test_Type) is
-      Value : Util.Beans.Objects.Object;
+      Value  : Util.Beans.Objects.Object;
    begin
       Value := To_Object (V);
       T.Assert (Condition => To_Type (Value) = N,
@@ -78,6 +78,33 @@ package body Util.Beans.Objects.Discrete_Tests is
       T.Assert (Condition => V = To_String (Value),
                 Message   => Test_Name & ".To_String returned invalid value: "
                 & To_String (Value) & " when we expected: " & V);
+
+      declare
+         Val    : Ada.Strings.Unbounded.Unbounded_String;
+         Value2 : Util.Beans.Objects.Object;
+      begin
+         Val := Ada.Strings.Unbounded.To_Unbounded_String (V);
+         Value2 := To_Object (Val);
+         T.Assert (Value2 = Value, "Invalid value");
+
+         T.Assert (Condition => To_Type (Value2) = N,
+                   Message   => Test_Name & " returned invalid value: "
+                     & To_String (Value2) & " when we expected: " & V);
+      end;
+
+      declare
+         Val    : constant Wide_Wide_String
+           := Ada.Characters.Conversions.To_Wide_Wide_String (V);
+         Value2 : Util.Beans.Objects.Object;
+      begin
+         Value2 := To_Object (Val);
+         T.Assert (Value2 = Value, "Invalid value");
+
+         T.Assert (Condition => To_Type (Value2) = N,
+                   Message   => Test_Name & " returned invalid value: "
+                     & To_String (Value2) & " when we expected: " & V);
+
+      end;
    end Test_Conversion;
    procedure Test_To_Object is new Test_Basic_Object (Basic_Test => Test_Conversion);
 
