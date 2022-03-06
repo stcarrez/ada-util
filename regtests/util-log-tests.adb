@@ -71,7 +71,6 @@ package body Util.Log.Tests is
       L       : Loggers.Logger := Loggers.Create ("util.log.test.custom");
       Path    : constant String := Util.Tests.Get_Test_Path ("test-custom.log");
       Props   : Util.Properties.Manager;
-      Content : Ada.Strings.Unbounded.Unbounded_String;
    begin
       Props.Set ("log4j.appender.test", "File");
       Props.Set ("log4j.appender.test.File", Path);
