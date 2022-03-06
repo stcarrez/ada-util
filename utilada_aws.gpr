@@ -9,7 +9,7 @@ library project UtilAda_Aws is
    
    package Naming is
       case UtilAda_Conf.AWS_Impl is
-         when "1" =>
+         when "none" | "1" =>
             for Implementation ("Util.Http.Clients.AWS")
                use "util-http-clients-aws__1.adb";
 
