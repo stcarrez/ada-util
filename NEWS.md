@@ -1,4 +1,5 @@
 Version 2.5.0  -
+  - New examples to illustrate the IO stream composition
   - Add support to set environment variables when launching a process (without changing the current process environment!)
   - Add support to indent XML output streams
   - New package Util.Files.Rolling to provide a rolling file manager
