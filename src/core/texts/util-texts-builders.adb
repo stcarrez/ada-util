@@ -119,8 +119,8 @@ package body Util.Texts.Builders is
             Source.Current := B;
          end if;
          Process (B.Content (B.Last + 1 .. B.Len), Last);
-         exit when Last > B.Len or Last < B.Last + 1;
-         Source.Length := Last - B.Last + 1;
+         exit when Last > B.Len or Last <= B.Last;
+         Source.Length := Source.Length + Last - B.Last;
          B.Last := Last;
          exit when Last < B.Len;
       end loop;

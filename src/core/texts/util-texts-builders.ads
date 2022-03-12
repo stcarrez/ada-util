@@ -83,6 +83,10 @@ package Util.Texts.Builders is
    procedure Append (Source   : in out Builder;
                      New_Item : in Element_Type);
 
+   generic
+      with procedure Process (Content : in out Input; Last : out Natural);
+   procedure Inline_Append (Source  : in out Builder);
+
    --  Clear the source freeing any storage allocated for the buffer.
    procedure Clear (Source : in out Builder);
 
@@ -94,7 +98,6 @@ package Util.Texts.Builders is
    generic
       with procedure Process (Content : in Input);
    procedure Inline_Iterate (Source  : in Builder);
-
 
    --  Get the buffer content as an array.
    function To_Array (Source : in Builder) return Input;
