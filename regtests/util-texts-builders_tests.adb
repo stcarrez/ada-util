@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-texts-builders_tests -- Unit tests for text builders
---  Copyright (C) 2013, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2013, 2016, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -150,15 +150,23 @@ package body Util.Texts.Builders_Tests is
    --  ------------------------------
    procedure Test_Iterate (T : in out Test) is
       procedure Process (S : in String);
+      procedure Process2 (S : in String);
 
-      B : String_Builder.Builder (13);
-      R : Ada.Strings.Unbounded.Unbounded_String;
+      B  : String_Builder.Builder (13);
+      R  : Ada.Strings.Unbounded.Unbounded_String;
+      R2 : Ada.Strings.Unbounded.Unbounded_String;
 
       procedure Process (S : in String) is
       begin
          Ada.Strings.Unbounded.Append (R, S);
       end Process;
 
+      procedure Process2 (S : in String) is
+      begin
+         Ada.Strings.Unbounded.Append (R2, S);
+      end Process2;
+
+      procedure Get is new String_Builder.Inline_Iterate (Process2);
    begin
       for I in 1 .. 100 loop
          String_Builder.Append (B, "The Iterate procedure avoids the string copy "
@@ -169,6 +177,10 @@ package body Util.Texts.Builders_Tests is
                                 "Invalid length in iterate string");
       Util.Tests.Assert_Equals (T, String_Builder.To_Array (B),
                                 Ada.Strings.Unbounded.To_String (R), "Invalid Iterate");
+
+      Get (B);
+      Util.Tests.Assert_Equals (T, String_Builder.To_Array (B),
+                                Ada.Strings.Unbounded.To_String (R2), "Invalid Inline_Iterate");
    end Test_Iterate;
 
    --  ------------------------------

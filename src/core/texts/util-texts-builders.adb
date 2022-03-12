@@ -108,6 +108,24 @@ package body Util.Texts.Builders is
       B.Content (B.Last) := New_Item;
    end Append;
 
+   procedure Inline_Append (Source   : in out Builder) is
+      B     : Block_Access := Source.Current;
+      Last  : Natural;
+   begin
+      loop
+         if B.Len = B.Last then
+            B.Next_Block := new Block (Source.Block_Size);
+            B := B.Next_Block;
+            Source.Current := B;
+         end if;
+         Process (B.Content (B.Last + 1 .. B.Len), Last);
+         exit when Last > B.Len or Last < B.Last + 1;
+         Source.Length := Last - B.Last + 1;
+         B.Last := Last;
+         exit when Last < B.Len;
+      end loop;
+   end Inline_Append;
+
    --  ------------------------------
    --  Clear the source freeing any storage allocated for the buffer.
    --  ------------------------------
