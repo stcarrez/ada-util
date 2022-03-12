@@ -40,6 +40,8 @@ package body Util.Texts.Builders_Tests is
                        Test_Clear'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Iterate",
                        Test_Iterate'Access);
+      Caller.Add_Test (Suite, "Test Util.Texts.Builders.Inline_Iterate",
+                       Test_Inline_Iterate'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Tail",
                        Test_Tail'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Perf",
@@ -150,23 +152,14 @@ package body Util.Texts.Builders_Tests is
    --  ------------------------------
    procedure Test_Iterate (T : in out Test) is
       procedure Process (S : in String);
-      procedure Process2 (S : in String);
 
       B  : String_Builder.Builder (13);
       R  : Ada.Strings.Unbounded.Unbounded_String;
-      R2 : Ada.Strings.Unbounded.Unbounded_String;
 
       procedure Process (S : in String) is
       begin
          Ada.Strings.Unbounded.Append (R, S);
       end Process;
-
-      procedure Process2 (S : in String) is
-      begin
-         Ada.Strings.Unbounded.Append (R2, S);
-      end Process2;
-
-      procedure Get is new String_Builder.Inline_Iterate (Process2);
    begin
       for I in 1 .. 100 loop
          String_Builder.Append (B, "The Iterate procedure avoids the string copy "
@@ -177,11 +170,34 @@ package body Util.Texts.Builders_Tests is
                                 "Invalid length in iterate string");
       Util.Tests.Assert_Equals (T, String_Builder.To_Array (B),
                                 Ada.Strings.Unbounded.To_String (R), "Invalid Iterate");
-
-      Get (B);
-      Util.Tests.Assert_Equals (T, String_Builder.To_Array (B),
-                                Ada.Strings.Unbounded.To_String (R2), "Invalid Inline_Iterate");
    end Test_Iterate;
+
+   --  ------------------------------
+   --  Test the iterate operation.
+   --  ------------------------------
+   procedure Test_Inline_Iterate (T : in out Test) is
+      procedure Process (S : in String);
+
+      B  : String_Builder.Builder (13);
+      R  : Ada.Strings.Unbounded.Unbounded_String;
+
+      procedure Process (S : in String) is
+      begin
+         Ada.Strings.Unbounded.Append (R, S);
+      end Process;
+
+      procedure Get is new String_Builder.Inline_Iterate (Process);
+   begin
+      for I in 1 .. 100 loop
+         String_Builder.Append (B, "The Iterate procedure avoids the string copy "
+                                & "on the secondary stack");
+      end loop;
+      Get (B);
+      Util.Tests.Assert_Equals (T, String_Builder.Length (B), Ada.Strings.Unbounded.Length (R),
+                                "Invalid length in iterate string");
+      Util.Tests.Assert_Equals (T, String_Builder.To_Array (B),
+                                Ada.Strings.Unbounded.To_String (R), "Invalid Iterate");
+   end Test_Inline_Iterate;
 
    --  ------------------------------
    --  Test the append and iterate performance.
