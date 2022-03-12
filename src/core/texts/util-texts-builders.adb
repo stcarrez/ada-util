@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-texts-builders -- Text builder
---  Copyright (C) 2013, 2016, 2017, 2021 Stephane Carrez
+--  Copyright (C) 2013, 2016, 2017, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -147,6 +147,21 @@ package body Util.Texts.Builders is
          end;
       end if;
    end Iterate;
+
+   procedure Inline_Iterate (Source  : in Builder) is
+   begin
+      if Source.First.Last > 0 then
+         Process (Source.First.Content (1 .. Source.First.Last));
+         declare
+            B : Block_Access := Source.First.Next_Block;
+         begin
+            while B /= null loop
+               Process (B.Content (1 .. B.Last));
+               B := B.Next_Block;
+            end loop;
+         end;
+      end if;
+   end Inline_Iterate;
 
    --  ------------------------------
    --  Return the content starting from the tail and up to <tt>Length</tt> items.
