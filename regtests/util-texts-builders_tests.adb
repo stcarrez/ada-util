@@ -46,6 +46,8 @@ package body Util.Texts.Builders_Tests is
                        Test_Inline_Iterate'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Tail",
                        Test_Tail'Access);
+      Caller.Add_Test (Suite, "Test Util.Texts.Builders.Find",
+                       Test_Find'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Perf",
                        Test_Perf'Access);
    end Add_Tests;
@@ -132,6 +134,39 @@ package body Util.Texts.Builders_Tests is
       Fill (B);
       Util.Tests.Assert_Equals (T, "", String_Builder.To_Array (B), "Invalid content");
    end Test_Inline_Append;
+
+   --  ------------------------------
+   --  Test the Find generic operation.
+   --  ------------------------------
+   procedure Test_Find (T : in out Test) is
+
+      B : String_Builder.Builder (3);
+
+      function Index (Content : in String) return Natural is
+      begin
+         for I in Content'Range loop
+            if Content (I) = 'b' then
+               return I;
+            end if;
+         end loop;
+         return 0;
+      end Index;
+
+      function Find is new String_Builder.Find (Index);
+
+      Pos : Natural;
+   begin
+      String_Builder.Append (B, "ab");
+      Pos := Find (B, 1);
+      Util.Tests.Assert_Equals (T, 2, Pos, "Invalid find");
+
+      String_Builder.Append (B, "deab");
+      Pos := Find (B, Pos + 1);
+      Util.Tests.Assert_Equals (T, 6, Pos, "Invalid find");
+
+      Pos := Find (B, Pos + 1);
+      Util.Tests.Assert_Equals (T, 0, Pos, "Invalid find");
+   end Test_Find;
 
    --  ------------------------------
    --  Test the clear operation.
