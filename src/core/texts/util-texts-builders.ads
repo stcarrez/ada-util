@@ -106,6 +106,10 @@ package Util.Texts.Builders is
    function Tail (Source : in Builder;
                   Length : in Natural) return Input;
 
+   --  Get the element at the given position.
+   function Element (Source   : in Builder;
+                     Position : in Positive) return Element_Type;
+
    --  Call the <tt>Process</tt> procedure with the full buffer content, trying to avoid
    --  secondary stack copies as much as possible.
    generic
