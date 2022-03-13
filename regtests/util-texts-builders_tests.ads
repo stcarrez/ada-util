@@ -30,6 +30,9 @@ package Util.Texts.Builders_Tests is
    --  Test the append operation.
    procedure Test_Append (T : in out Test);
 
+   --  Test the append operation.
+   procedure Test_Inline_Append (T : in out Test);
+
    --  Test the iterate operation.
    procedure Test_Iterate (T : in out Test);
 
