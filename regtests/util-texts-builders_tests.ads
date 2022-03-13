@@ -39,6 +39,9 @@ package Util.Texts.Builders_Tests is
    --  Test the iterate operation.
    procedure Test_Inline_Iterate (T : in out Test);
 
+   --  Test the Find generic operation.
+   procedure Test_Find (T : in out Test);
+
    --  Test the clear operation.
    procedure Test_Clear (T : in out Test);
 
