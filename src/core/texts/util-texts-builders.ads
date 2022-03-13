@@ -110,6 +110,15 @@ package Util.Texts.Builders is
    function Element (Source   : in Builder;
                      Position : in Positive) return Element_Type;
 
+   --  Find the position of some content by running the `Index` function.
+   --  The `Index` function is called with chunks starting at the given position and
+   --  until it returns a positive value or we reach the last chunk.  It must return
+   --  the found position in the chunk.
+   generic
+      with function Index (Content : in Input) return Natural;
+   function Find (Source   : in Builder;
+                  Position : in Positive) return Natural;
+
    --  Call the <tt>Process</tt> procedure with the full buffer content, trying to avoid
    --  secondary stack copies as much as possible.
    generic
