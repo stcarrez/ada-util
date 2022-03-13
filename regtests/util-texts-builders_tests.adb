@@ -36,6 +36,8 @@ package body Util.Texts.Builders_Tests is
                        Test_Length'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Append",
                        Test_Append'Access);
+      Caller.Add_Test (Suite, "Test Util.Texts.Builders.Inline_Append",
+                       Test_Inline_Append'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Clear",
                        Test_Clear'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Iterate",
@@ -84,6 +86,52 @@ package body Util.Texts.Builders_Tests is
       Util.Tests.Assert_Equals (T, 10, String_Builder.Length (B), "Invalid length");
       Util.Tests.Assert_Equals (T, S, String_Builder.To_Array (B), "Invalid append");
    end Test_Append;
+
+   --  ------------------------------
+   --  Test the append operation.
+   --  ------------------------------
+   procedure Test_Inline_Append (T : in out Test) is
+      procedure Append (Into : in out String;
+                        Last : out Natural);
+
+      S : constant String := "0123456789";
+      I : Positive := S'First;
+      B : String_Builder.Builder (3);
+
+      procedure Append (Into : in out String;
+                        Last : out Natural) is
+         Pos : Natural := Into'First;
+      begin
+         while Pos <= Into'Last and I <= S'Last loop
+            Into (Pos) := S (I);
+            Pos := Pos + 1;
+            I := I + 1;
+         end loop;
+         Last := Pos - 1;
+      end Append;
+
+      procedure Fill is new String_Builder.Inline_Append (Append);
+
+   begin
+      Fill (B);
+      Util.Tests.Assert_Equals (T, S'Length, String_Builder.Length (B), "Invalid length");
+      Util.Tests.Assert_Equals (T, "0123456789", String_Builder.To_Array (B), "Invalid content");
+
+      I := S'First;
+      Fill (B);
+      Util.Tests.Assert_Equals (T, "01234567890123456789",
+                                String_Builder.To_Array (B), "Invalid content");
+
+      String_Builder.Clear (B);
+      I := S'Last;
+      Fill (B);
+      Util.Tests.Assert_Equals (T, "9", String_Builder.To_Array (B), "Invalid content");
+
+      String_Builder.Clear (B);
+      I := S'Last + 1;
+      Fill (B);
+      Util.Tests.Assert_Equals (T, "", String_Builder.To_Array (B), "Invalid content");
+   end Test_Inline_Append;
 
    --  ------------------------------
    --  Test the clear operation.
