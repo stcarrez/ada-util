@@ -248,6 +248,30 @@ package body Util.Texts.Builders is
    end To_Array;
 
    --  ------------------------------
+   --  Get the element at the given position.
+   --  ------------------------------
+   function Element (Source   : in Builder;
+                     Position : in Positive) return Element_Type is
+   begin
+      if Position <= Source.First.Last then
+         return Source.First.Content (Position);
+      else
+         declare
+            Pos : Positive := Position - Source.First.Last;
+            B   : Block_Access := Source.First.Next_Block;
+         begin
+            loop
+               if Pos <= B.Last then
+                  return B.Content (Pos);
+               end if;
+               Pos := Pos - B.Last;
+               B := B.Next_Block;
+            end loop;
+         end;
+      end if;
+   end Element;
+
+   --  ------------------------------
    --  Call the <tt>Process</tt> procedure with the full buffer content, trying to avoid
    --  secondary stack copies as much as possible.
    --  ------------------------------
