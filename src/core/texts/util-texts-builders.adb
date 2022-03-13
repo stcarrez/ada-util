@@ -272,6 +272,44 @@ package body Util.Texts.Builders is
    end Element;
 
    --  ------------------------------
+   --  Find the position of some content by running the `Index` function.
+   --  The `Index` function is called with chunks starting at the given position and
+   --  until it returns a positive value or we reach the last chunk.  It must return
+   --  the found position in the chunk.
+   --  ------------------------------
+   function Find (Source   : in Builder;
+                  Position : in Positive) return Natural is
+      Result : Natural;
+   begin
+      if Position <= Source.First.Last then
+         Result := Index (Source.First.Content (Position .. Source.First.Last));
+         if Result > 0 then
+            return Result;
+         end if;
+      end if;
+      declare
+         Pos    : Integer := Position - Source.First.Last;
+         Offset : Positive := Source.First.Last;
+         B      : Block_Access := Source.First.Next_Block;
+      begin
+         loop
+            if B = null then
+               return 0;
+            end if;
+            if Pos <= B.Last then
+               Result := Index (B.Content (1 .. B.Last));
+               if Result > 0 then
+                  return Offset + Result;
+               end if;
+            end if;
+            Pos := Pos - B.Last;
+            Offset := Offset + B.Last;
+            B := B.Next_Block;
+         end loop;
+      end;
+   end Find;
+
+   --  ------------------------------
    --  Call the <tt>Process</tt> procedure with the full buffer content, trying to avoid
    --  secondary stack copies as much as possible.
    --  ------------------------------
