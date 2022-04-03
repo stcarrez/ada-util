@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-stacks -- Simple stack
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,8 +60,12 @@ package body Util.Stacks is
    --  ------------------------------
    procedure Pop (Container : in out Stack) is
    begin
-      Container.Pos := Container.Pos - 1;
-      Container.Current   := Container.Stack (Container.Pos)'Access;
+      if Container.Pos > Container.Stack'First then
+         Container.Pos := Container.Pos - 1;
+         Container.Current   := Container.Stack (Container.Pos)'Access;
+      else
+         Container.Current := null;
+      end if;
    end Pop;
 
    --  ------------------------------
@@ -74,6 +78,14 @@ package body Util.Stacks is
       end if;
       Container.Current := null;
    end Clear;
+
+   --  ------------------------------
+   --  Returns true if the stack is empty.
+   --  ------------------------------
+   function Is_Empty (Container : in out Stack) return Boolean is
+   begin
+      return Container.Stack = null or else Container.Pos = Container.Stack'First;
+   end Is_Empty;
 
    --  ------------------------------
    --  Release the stack
