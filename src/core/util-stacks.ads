@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-stacks -- Simple stack
---  Copyright (C) 2010, 2011, 2013 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2013, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,6 +36,9 @@ package Util.Stacks is
 
    --  Clear the stack.
    procedure Clear (Container : in out Stack);
+
+   --  Returns true if the stack is empty.
+   function Is_Empty (Container : in out Stack) return Boolean;
 
 private
    type Element_Type_Array is array (Natural range <>) of aliased Element_Type;
