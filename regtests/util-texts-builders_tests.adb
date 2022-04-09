@@ -50,6 +50,8 @@ package body Util.Texts.Builders_Tests is
                        Test_Find'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Perf",
                        Test_Perf'Access);
+      Caller.Add_Test (Suite, "Test Util.Texts.Builders.Element",
+                       Test_Element'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -387,5 +389,46 @@ package body Util.Texts.Builders_Tests is
          Ada.Text_IO.New_Line (Perf);
       end loop;
    end Test_Perf;
+
+   --  ------------------------------
+   --  Test the Element function.
+   --  ------------------------------
+   procedure Test_Element (T : in out Test) is
+      B : String_Builder.Builder (10);
+   begin
+      for I in 1 .. 1_000 loop
+         String_Builder.Append (B, 'a');
+      end loop;
+
+      declare
+         S   : Util.Measures.Stamp;
+         C   : Character;
+         Cnt : Natural := 0;
+      begin
+         for I in 1 .. String_Builder.Length (B) loop
+            C := String_Builder.Element (B, I);
+            Cnt := Cnt + (if C = 'a' then 1 else 0);
+         end loop;
+         Util.Measures.Report (S, "Util.Texts.Builders.Element", 1000);
+         Util.Tests.Assert_Equals (T, 1_000, Cnt, "Invalid count");
+      end;
+
+      declare
+         S   : Util.Measures.Stamp;
+         Cnt : Natural := 0;
+         procedure Compute (Item : in String) is
+         begin
+            for C of Item loop
+               Cnt := Cnt + (if C = 'a' then 1 else 0);
+            end loop;
+         end Compute;
+         procedure Iterate is
+           new String_Builder.Inline_Iterate (Compute);
+      begin
+         Iterate (B);
+         Util.Measures.Report (S, "Util.Texts.Builders.Iterate", 1000);
+         Util.Tests.Assert_Equals (T, 1_000, Cnt, "Invalid count");
+      end;
+   end Test_Element;
 
 end Util.Texts.Builders_Tests;
