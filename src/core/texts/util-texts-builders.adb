@@ -220,6 +220,21 @@ package body Util.Texts.Builders is
       end if;
    end Inline_Iterate;
 
+   procedure Inline_Update (Source  : in out Builder) is
+   begin
+      if Source.First.Last > 0 then
+         Process (Source.First.Content (1 .. Source.First.Last));
+         declare
+            B : Block_Access := Source.First.Next_Block;
+         begin
+            while B /= null loop
+               Process (B.Content (1 .. B.Last));
+               B := B.Next_Block;
+            end loop;
+         end;
+      end if;
+   end Inline_Update;
+
    --  ------------------------------
    --  Return the content starting from the tail and up to <tt>Length</tt> items.
    --  ------------------------------
