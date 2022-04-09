@@ -83,6 +83,13 @@ package Util.Texts.Builders is
    procedure Append (Source   : in out Builder;
                      New_Item : in Element_Type);
 
+   --  Append in `Into` builder the `Content` builder starting at `From` position
+   --  and the up to and including the `To` position.
+   procedure Append (Into     : in out Builder;
+                     Content  : in Builder;
+                     From     : in Positive;
+                     To       : in Positive);
+
    generic
       with procedure Process (Content : in out Input; Last : out Natural);
    procedure Inline_Append (Source  : in out Builder);
