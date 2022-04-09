@@ -106,6 +106,10 @@ package Util.Texts.Builders is
       with procedure Process (Content : in Input);
    procedure Inline_Iterate (Source  : in Builder);
 
+   generic
+      with procedure Process (Content : in out Input);
+   procedure Inline_Update (Source : in out Builder);
+
    --  Get the buffer content as an array.
    function To_Array (Source : in Builder) return Input;
 
