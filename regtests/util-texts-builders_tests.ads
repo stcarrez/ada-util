@@ -51,4 +51,7 @@ package Util.Texts.Builders_Tests is
    --  Test the append and iterate performance.
    procedure Test_Perf (T : in out Test);
 
+   --  Test the Element function.
+   procedure Test_Element (T : in out Test);
+
 end Util.Texts.Builders_Tests;
