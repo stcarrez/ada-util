@@ -127,6 +127,45 @@ package body Util.Texts.Builders is
    end Inline_Append;
 
    --  ------------------------------
+   --  Append in `Into` builder the `Content` builder starting at `From` position
+   --  and the up to and including the `To` position.
+   --  ------------------------------
+   procedure Append (Into    : in out Builder;
+                     Content : in Builder;
+                     From    : in Positive;
+                     To      : in Positive) is
+   begin
+      if From <= Content.First.Last then
+         if To <= Content.First.Last then
+            Append (Into, Content.First.Content (From .. To));
+            return;
+         end if;
+         Append (Into, Content.First.Content (From .. Content.First.Last));
+      end if;
+      declare
+         Pos    : Integer := From - Into.First.Last;
+         Last   : Integer := To - Into.First.Last;
+         B      : Block_Access := Into.First.Next_Block;
+      begin
+         loop
+            if B = null then
+               return;
+            end if;
+            if Pos <= B.Last then
+               if Last <= B.Last then
+                  Append (Into, B.Content (1 .. Last));
+                  return;
+               end if;
+               Append (Into, B.Content (1 .. B.Last));
+            end if;
+            Pos := Pos - B.Last;
+            Last := Last - B.Last;
+            B := B.Next_Block;
+         end loop;
+      end;
+   end Append;
+
+   --  ------------------------------
    --  Clear the source freeing any storage allocated for the buffer.
    --  ------------------------------
    procedure Clear (Source : in out Builder) is
@@ -297,7 +336,11 @@ package body Util.Texts.Builders is
                return 0;
             end if;
             if Pos <= B.Last then
-               Result := Index (B.Content (1 .. B.Last));
+               if Pos > 0 then
+                  Result := Index (B.Content (Pos .. B.Last));
+               else
+                  Result := Index (B.Content (1 .. B.Last));
+               end if;
                if Result > 0 then
                   return Offset + Result;
                end if;
