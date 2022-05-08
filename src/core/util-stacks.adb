@@ -88,6 +88,29 @@ package body Util.Stacks is
    end Is_Empty;
 
    --  ------------------------------
+   --  Get the access to the stack element at the given position.
+   --  ------------------------------
+   function Get (Container : in Stack;
+                 Position  : in Positive) return Element_Type_Access is
+   begin
+      if Container.Stack = null or else Container.Pos > Position then
+         return null;
+      else
+         return Container.Stack (Position)'Access;
+      end if;
+   end Get;
+
+   procedure Read (Container : in Stack;
+                   Process   : not null
+                     access procedure (Content : in Element_Type_Array)) is
+      Stack : constant Element_Type_Array_Access := Container.Stack;
+   begin
+      if Stack /= null then
+         Process (Stack (Stack'First + 1 .. Container.Pos));
+      end if;
+   end Read;
+
+   --  ------------------------------
    --  Release the stack
    --  ------------------------------
    overriding

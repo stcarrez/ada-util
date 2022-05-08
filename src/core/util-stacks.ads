@@ -40,8 +40,17 @@ package Util.Stacks is
    --  Returns true if the stack is empty.
    function Is_Empty (Container : in out Stack) return Boolean;
 
-private
+   --  Get the access to the stack element at the given position.
+   function Get (Container : in Stack;
+                 Position  : in Positive) return Element_Type_Access;
+
    type Element_Type_Array is array (Natural range <>) of aliased Element_Type;
+
+   procedure Read (Container : in Stack;
+                   Process   : not null
+                     access procedure (Content : in Element_Type_Array));
+
+private
    type Element_Type_Array_Access is access all Element_Type_Array;
 
    type Stack is new Ada.Finalization.Limited_Controlled with record
