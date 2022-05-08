@@ -141,6 +141,7 @@ package body Util.Texts.Builders_Tests is
    --  Test the Find generic operation.
    --  ------------------------------
    procedure Test_Find (T : in out Test) is
+      function Index (Content : in String) return Natural;
 
       B : String_Builder.Builder (3);
 
@@ -414,6 +415,8 @@ package body Util.Texts.Builders_Tests is
       end;
 
       declare
+         procedure Compute (Item : in String);
+
          S   : Util.Measures.Stamp;
          Cnt : Natural := 0;
          procedure Compute (Item : in String) is
