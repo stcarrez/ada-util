@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -382,7 +382,6 @@ package body Util.Serialize.IO.JSON is
 
                   procedure Process (Name : in String; Item : in Object) is
                   begin
-                     Stream.Write (ASCII.LF);
                      if Name'Length = 0 then
                         Stream.Write (""""":");
                      end if;
