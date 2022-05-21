@@ -16,19 +16,10 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Characters.Handling;
-with Interfaces;
+with Util.Encoders.Base16;
 package body Util.Encoders.Quoted_Printable is
 
    use Ada.Characters.Handling;
-   use type Interfaces.Unsigned_8;
-
-   function From_Hex (C : in Character) return Interfaces.Unsigned_8 is
-     (if C >= '0' and C <= '9' then Character'Pos (C) - Character'Pos ('0')
-      elsif C >= 'A' and C <= 'F' then Character'Pos (C) - Character'Pos ('A') + 10
-      else 0);
-
-   function From_Hex (C1, C2 : in Character) return Character is
-     (Character'Val (From_Hex (C2) + Interfaces.Shift_Left (From_Hex (C1), 4)));
 
    --  ------------------------------
    --  Decode the Quoted-Printable string and return the result.
@@ -63,7 +54,7 @@ package body Util.Encoders.Quoted_Printable is
                raise Encoding_Error;
             end if;
             Write_Pos := Write_Pos + 1;
-            Result (Write_Pos) := From_Hex (C, C2);
+            Result (Write_Pos) := Base16.From_Hex (C, C2);
             Read_Pos := Read_Pos + 1;
          else
             Write_Pos := Write_Pos + 1;
@@ -96,7 +87,7 @@ package body Util.Encoders.Quoted_Printable is
             C2 := Content (Read_Pos + 1);
             exit when  not Is_Hexadecimal_Digit (C);
             Write_Pos := Write_Pos + 1;
-            Result (Write_Pos) := From_Hex (C, C2);
+            Result (Write_Pos) := Base16.From_Hex (C, C2);
             Read_Pos := Read_Pos + 1;
          elsif C = '_' then
             Write_Pos := Write_Pos + 1;

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base16 -- Encode/Decode a stream in hexadecimal
---  Copyright (C) 2009, 2010, 2011, 2017 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,24 @@ with Ada.Streams;
 package Util.Encoders.Base16 is
 
    pragma Preelaborate;
+
+   use type Interfaces.Unsigned_8;
+
+   Conversion : constant String (1 .. 16) := "0123456789ABCDEF";
+
+   function From_Hex (C : in Character) return Interfaces.Unsigned_8 is
+     (if C >= '0' and C <= '9' then Character'Pos (C) - Character'Pos ('0')
+      elsif C >= 'A' and C <= 'F' then Character'Pos (C) - Character'Pos ('A') + 10
+      else 0);
+
+   function From_Hex (C1, C2 : in Character) return Character is
+     (Character'Val (From_Hex (C2) + Interfaces.Shift_Left (From_Hex (C1), 4)));
+
+   function To_Hex_Low (C : in Character) return Character is
+     (Conversion (1 + (Character'Pos (C) mod 16)));
+
+   function To_Hex_High (C : in Character) return Character is
+     (Conversion (1 + (Character'Pos (C) / 16)));
 
    --  ------------------------------
    --  Base16 encoder
