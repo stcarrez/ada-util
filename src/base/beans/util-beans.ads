@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans -- Interface Definition with Getter and Setters
---  Copyright (C) 2009, 2010, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2018, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,6 +45,8 @@
 --    with "utilada_base";
 --
 --  @include util-beans-objects.ads
+--  @include util-beans-objects-maps.ads
+--  @include util-beans-objects-vectors.ads
 --  @include util-beans-objects-datasets.ads
 --  @include util-beans-basic.ads
 package Util.Beans is
