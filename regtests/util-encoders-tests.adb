@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encodes-tests - Test for encoding
---  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017, 2018, 2020 Stephane Carrez
+--  Copyright (C) 2009 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,7 @@ with Util.Encoders.Base16;
 with Util.Encoders.Base64;
 with Util.Encoders.AES;
 with Util.Encoders.Quoted_Printable;
+with Util.Encoders.URI;
 package body Util.Encoders.Tests is
 
    use Util.Tests;
@@ -109,6 +110,8 @@ package body Util.Encoders.Tests is
                        Test_Encrypt_Decrypt_Secret_CTR'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Quoted_Printable.Decode",
                        Test_Decode_Quoted_Printable'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.URI.Encode",
+                       Test_Encode_URI'Access);
    end Add_Tests;
 
    procedure Test_Base64_Encode (T : in out Test) is
@@ -676,5 +679,27 @@ package body Util.Encoders.Tests is
       Assert_Equals (T, "teams aren.t =way to protect yo",
                      Quoted_Printable.Q_Decode ("teams_aren=2Et_=3Dway_to_protect_yo="));
    end Test_Decode_Quoted_Printable;
+
+   --  ------------------------------
+   --  Test the percent URI encoding.
+   --  ------------------------------
+   procedure Test_Encode_URI (T : in out Test) is
+      procedure Check (Expect   : in String;
+                       Item     : in String;
+                       Encoding : in URI.Encoding_Array) is
+         Len : constant Natural := URI.Encoded_Length (Item, Encoding);
+         Res : constant String := URI.Encode (Item, Encoding);
+      begin
+         Assert_Equals (T, Len, Expect'Length, "Invalid length for " & Item);
+         Assert_Equals (T, Expect, Res);
+         Assert_Equals (T, Item, URI.Decode (Res));
+      end Check;
+
+   begin
+      Check ("http://example.com/%5C%5B%5C", "http://example.com/\[\", URI.HREF_LOOSE);
+      Check ("%20escape%20%3A%20%2F%20%23%40", " escape : / #@", URI.HREF_STRICT);
+      Check ("example.com/%D1%8F%D1%87%D0%BC%D0%B5%D0%BD%D0%BD%D1%8B%D0%B9",
+             "example.com/ячменный", URI.HREF_LOOSE);
+   end Test_Encode_URI;
 
 end Util.Encoders.Tests;
