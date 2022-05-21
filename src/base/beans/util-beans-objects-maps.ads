@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-maps -- Object maps
---  Copyright (C) 2010, 2011, 2012, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2017, 2018, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,28 @@
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Strings.Hash;
 with Util.Beans.Basic;
+
+--  == Object maps ==
+--  The `Util.Beans.Objects.Maps` package provides a map of objects with a `String`
+--  as index.  This allows to associated names to objects.
+--  To create an instance of the map, it is possible to use the `Create` function
+--  as follows:
+--
+--    Person : Util.Beans.Objects.Object := Util.Beans.Objects.Maps.Create;
+--
+--  Then, it becomes possible to populate the map with objects by using
+--  the `Set_Value` procedure as follows:
+--
+--    Util.Beans.Objects.Set_Value (Person, "name", To_Object (Name));
+--    Util.Beans.Objects.Set_Value (Person, "last_name", To_Object (Last_Name));
+--    Util.Beans.Objects.Set_Value (Person, "age", To_Object (Age));
+--
+--  Getting a value from the map is done by using the `Get_Value` function:
+--
+--    Name : Util.Beans.Objects.Object := Get_Value (Person, "name");
+--
+--  It is also possible to iterate over the values of the map by using
+--  the `Iterate` procedure.
 package Util.Beans.Objects.Maps is
 
    package Maps is
