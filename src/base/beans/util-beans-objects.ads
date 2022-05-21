@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects -- Generic Typed Data Representation
---  Copyright (C) 2009, 2010, 2011, 2013, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013, 2017, 2018, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,10 @@
 --    * a date,
 --    * a string,
 --    * a wide wide string,
---    * a generic data
+--    * an array of objects,
+--    * a generic data bean,
+--    * a map of objects,
+--    * a vector of object
 --
 --  Several operations are provided to convert a value into an `Object`.
 --
