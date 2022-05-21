@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-vectors -- Object vectors
---  Copyright (C) 2011, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,14 @@
 
 with Ada.Containers.Vectors;
 with Util.Beans.Basic;
+
+--  == Object vectors ==
+--  The `Util.Beans.Objects.Vectors` package provides a vector of objects.
+--  To create an instance of the vector, it is possible to use the `Create` function
+--  as follows:
+--
+--    List : Util.Beans.Objects.Object := Util.Beans.Objects.Vectors.Create;
+--
 package Util.Beans.Objects.Vectors is
 
    package Vectors is
@@ -55,10 +63,10 @@ package Util.Beans.Objects.Vectors is
    procedure Previous (Position : in out Cursor) renames Vectors.Previous;
 
    --  ------------------------------
-   --  Map Bean
+   --  Vector Bean
    --  ------------------------------
-   --  The <b>Map_Bean</b> is a map of objects that also exposes the <b>Bean</b> interface.
-   --  This allows the map to be available and accessed from an Object instance.
+   --  The `Vector_Bean` is a vector of objects that also exposes the <b>Bean</b> interface.
+   --  This allows the vector to be available and accessed from an Object instance.
    type Vector_Bean is new Vectors.Vector and Util.Beans.Basic.Array_Bean with private;
    type Vector_Bean_Access is access all Vector_Bean'Class;
 
@@ -77,8 +85,13 @@ package Util.Beans.Objects.Vectors is
    function Get_Row (From     : in Vector_Bean;
                      Position : in Natural) return Util.Beans.Objects.Object;
 
-   --  Create an object that contains a <tt>Vector_Bean</tt> instance.
+   --  Create an object that contains a `Vector_Bean` instance.
    function Create return Object;
+
+   --  Iterate over the vectors or array elements.
+   --  If the object is not a `Vector_Bean` or an array, the operation does nothing.
+   procedure Iterate (From    : in Object;
+                      Process : not null access procedure (Item : in Object));
 
 private
 
