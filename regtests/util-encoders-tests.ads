@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encodes-tests - Test for encoding
---  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017, 2020 Stephane Carrez
+--  Copyright (C) 2009 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,5 +73,8 @@ package Util.Encoders.Tests is
 
    --  Test Decode Quoted-Printable encoding.
    procedure Test_Decode_Quoted_Printable (T : in out Test);
+
+   --  Test the percent URI encoding.
+   procedure Test_Encode_URI (T : in out Test);
 
 end Util.Encoders.Tests;
