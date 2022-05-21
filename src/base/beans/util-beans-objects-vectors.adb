@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-vectors -- Object vectors
---  Copyright (C) 2011, 2017, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2017, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,5 +59,33 @@ package body Util.Beans.Objects.Vectors is
    begin
       return To_Object (Value => M, Storage => DYNAMIC);
    end Create;
+
+   --  -----------------------
+   --  Iterate over the vectors or array elements.
+   --  If the object is not a `Vector_Bean` or an array, the operation does nothing.
+   --  -----------------------
+   procedure Iterate (From    : in Object;
+                      Process : not null access procedure (Item : in Object)) is
+      procedure Process_One (Pos : in Vectors.Cursor);
+
+      procedure Process_One (Pos : in Vectors.Cursor) is
+      begin
+         Process (Vectors.Element (Pos));
+      end Process_One;
+
+      Bean : constant access Util.Beans.Basic.Readonly_Bean'Class := To_Bean (From);
+   begin
+      if Bean /= null and then Bean.all in Vector_Bean'Class then
+         Vector_Bean'Class (Bean.all).Iterate (Process_One'Access);
+      elsif Is_Array (From) then
+         declare
+            Count : constant Natural := Get_Count (From);
+         begin
+            for Pos in 1 .. Count loop
+               Process (Get_Value (From, Pos));
+            end loop;
+         end;
+      end if;
+   end Iterate;
 
 end Util.Beans.Objects.Vectors;
