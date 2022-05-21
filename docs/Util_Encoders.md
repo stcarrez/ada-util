@@ -23,6 +23,29 @@ To use the packages described here, use the following GNAT project:
 with "utilada_sys";
 ```
 
+## URI Encoder and Decoder
+The `Util.Encoders.URI` package provides operations to encode and decode
+using the URI percent encoding and decoding scheme.
+A string encoded using percent encoding as described in [RFC 3986](https://tools.ietf.org/html/rfc3986) is
+simply decoded as follows:
+
+```Ada
+Decoded : constant String := Util.Encoders.URI.Decode ("%20%2F%3A");
+```
+
+To encode a string, one must choose the character set that must be encoded
+and then call the `Encode` function.  The character set indicates those
+characters that must be percent encoded.  Two character sets are provided,
+
+* `HREF_STRICT` defines a strict character set to encode all reserved
+  characters as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986).  This is the default.
+* `HREF_LOOSE` defines a character set that does not encode the
+  reserved characters such as `-_.+!*'(),%#@?=;:/&$`.
+
+```Ada
+Encoded : constant String := Util.Encoders.URI.Encode (" /:");
+```
+
 ## Error Correction Code
 The `Util.Encoders.ECC` package provides operations to support error correction codes.
 The error correction works on blocks of 256 or 512 bytes and can detect 2-bit errors
