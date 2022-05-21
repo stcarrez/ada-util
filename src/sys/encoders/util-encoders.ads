@@ -38,6 +38,7 @@ with Interfaces;
 --
 --    with "utilada_sys";
 --
+--  @include util-encoders-uri.ads
 --  @include util-encoders-ecc.ads
 --
 package Util.Encoders is
