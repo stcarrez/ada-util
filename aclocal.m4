@@ -931,6 +931,7 @@ EOF
        ac_cv_gnat_aws_version='none'
     fi
 
+    rm -f conftest conftest.o conftest.ali
     if test "$ac_cv_gnat_aws_version" = "20.0"; then
       dnl The version 20.0 is sometimes wrong because used by several versions of AWS.
       dnl The version 22.0 has the AWS.HTTP_2 constant defined and uses version 20.0.
