@@ -872,7 +872,7 @@ AC_DEFUN(AM_GNAT_LIBRARY_PROJECT,
   fi
 
   # checking for local tools
-  AC_CANONICAL_SYSTEM
+  AC_CANONICAL_TARGET
   AM_GNAT_CHECK_GPRBUILD
   AC_CHECK_PROGS(GNAT, gnat, "")
   if test -n "$GNAT"; then
