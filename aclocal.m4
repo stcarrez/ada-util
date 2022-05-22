@@ -962,7 +962,7 @@ EOF
 dnl Check the OS and CPU to build Ada Util configuration (UTIL_OS)
 AC_DEFUN(AM_ADA_UTIL_HARDWARE,
 [
-  AC_CANONICAL_SYSTEM
+  AC_CANONICAL_TARGET
 
   os_base='unix'
   os_version='none'
