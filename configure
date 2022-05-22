@@ -5028,6 +5028,7 @@ EOF
        ac_cv_gnat_aws_version='none'
     fi
 
+    rm -f conftest conftest.o conftest.ali
     if test "$ac_cv_gnat_aws_version" = "20.0"; then
                         cat > conftest.adb <<EOF
 with AWS;
