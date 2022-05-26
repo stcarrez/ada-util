@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with Ada.Finalization;
 with Ada.Iterator_Interfaces;
+with Util.Beans.Basic;
 
 --  == Object iterator ==
 --  Iterators are provided by the `Util.Beans.Objects.Iterators` package.
