@@ -18,15 +18,20 @@
 
 with Ada.Containers.Vectors;
 with Util.Beans.Basic;
+with Util.Beans.Objects.Iterators;
 
 --  == Object vectors ==
 --  The `Util.Beans.Objects.Vectors` package provides a vector of objects.
 --  To create an instance of the vector, it is possible to use the `Create` function
 --  as follows:
 --
---    List : Util.Beans.Objects.Object := Util.Beans.Objects.Vectors.Create;
+--    with Util.Beans.Objects.Vectors;
+--    ...
+--       List : Util.Beans.Objects.Object := Util.Beans.Objects.Vectors.Create;
 --
 package Util.Beans.Objects.Vectors is
+
+   subtype Iterator_Bean is Util.Beans.Objects.Iterators.Iterator_Bean;
 
    package Vectors is
      new Ada.Containers.Vectors (Index_Type   => Positive,
@@ -67,7 +72,8 @@ package Util.Beans.Objects.Vectors is
    --  ------------------------------
    --  The `Vector_Bean` is a vector of objects that also exposes the <b>Bean</b> interface.
    --  This allows the vector to be available and accessed from an Object instance.
-   type Vector_Bean is new Vectors.Vector and Util.Beans.Basic.Array_Bean with private;
+   type Vector_Bean is new Vectors.Vector and Util.Beans.Basic.Array_Bean
+     and Iterator_Bean with private;
    type Vector_Bean_Access is access all Vector_Bean'Class;
 
    --  Get the value identified by the name.
@@ -85,16 +91,43 @@ package Util.Beans.Objects.Vectors is
    function Get_Row (From     : in Vector_Bean;
                      Position : in Natural) return Util.Beans.Objects.Object;
 
+   --  Get an iterator to iterate starting with the first element.
+   overriding
+   function First (From : in Vector_Bean) return Iterators.Proxy_Iterator_Access;
+
+   --  Get an iterator to iterate starting with the last element.
+   overriding
+   function Last (From : in Vector_Bean) return Iterators.Proxy_Iterator_Access;
+
    --  Create an object that contains a `Vector_Bean` instance.
    function Create return Object;
 
    --  Iterate over the vectors or array elements.
    --  If the object is not a `Vector_Bean` or an array, the operation does nothing.
    procedure Iterate (From    : in Object;
-                      Process : not null access procedure (Item : in Object));
+                      Process : not null access procedure (Position : in Positive;
+                                                           Item     : in Object));
 
 private
 
-   type Vector_Bean is new Vectors.Vector and Util.Beans.Basic.Array_Bean with null record;
+   type Vector_Bean is new Vectors.Vector and Util.Beans.Basic.Array_Bean
+     and Iterator_Bean with null record;
+
+   type Vector_Iterator is new Iterators.Proxy_Iterator with record
+      Pos : Cursor;
+   end record;
+   type Vector_Iterator_Access is access all Vector_Iterator;
+
+   overriding
+   function Has_Element (Iter : in Vector_Iterator) return Boolean;
+
+   overriding
+   procedure Next (Iter : in out Vector_Iterator);
+
+   overriding
+   procedure Previous (Iter : in out Vector_Iterator);
+
+   overriding
+   function Element (Iter : in Vector_Iterator) return Object;
 
 end Util.Beans.Objects.Vectors;
