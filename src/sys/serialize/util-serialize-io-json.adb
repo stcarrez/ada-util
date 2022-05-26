@@ -29,10 +29,13 @@ with Util.Streams.Texts.TR;
 with Util.Streams.Texts.WTR;
 with Util.Dates.ISO8601;
 with Util.Beans.Objects.Maps;
+with Util.Beans.Objects.Iterators;
 with Util.Beans.Objects.Readers;
 package body Util.Serialize.IO.JSON is
 
    use Ada.Strings.Unbounded;
+
+   package UBO renames Util.Beans.Objects;
 
    --  -----------------------
    --  Set the target output stream.
@@ -211,7 +214,10 @@ package body Util.Serialize.IO.JSON is
          end if;
       end if;
 
-      if Name'Length > 0 and then (Current = null or else not Current.Is_Array) then
+      if (Name'Length > 0 and then (Current = null or else not Current.Is_Array))
+        or else (Name'Length = 0 and then Current /= null and then not Current.Is_Array
+                 and then not Current.Is_Root)
+      then
          Stream.Write_String (Name);
          Stream.Write (':');
       end if;
@@ -378,20 +384,25 @@ package body Util.Serialize.IO.JSON is
                Stream.End_Array (Name);
             else
                declare
-                  procedure Process (Name : in String; Item : in Object);
-
-                  procedure Process (Name : in String; Item : in Object) is
-                  begin
-                     if Name'Length = 0 then
-                        Stream.Write (""""":");
-                     end if;
-                     Stream.Write_Entity (Name, Item);
-                  end Process;
-
+                  Iter : Util.Beans.Objects.Iterators.Iterator
+                    := Util.Beans.Objects.Iterators.First (Value);
                begin
-                  Stream.Start_Entity (Name);
-                  Util.Beans.Objects.Maps.Iterate (Value, Process'Access);
-                  Stream.End_Entity (Name);
+                  if not UBO.Iterators.Has_Key (Iter) then
+                     Stream.Start_Array (Name);
+                     while UBO.Iterators.Has_Element (Iter) loop
+                        Stream.Write_Entity ("", UBO.Iterators.Element (Iter));
+                        UBO.Iterators.Next (Iter);
+                     end loop;
+                     Stream.End_Array (Name);
+                  else
+                     Stream.Start_Entity (Name);
+                     while UBO.Iterators.Has_Element (Iter) loop
+                        Stream.Write_Entity (UBO.Iterators.Key (Iter),
+                                             UBO.Iterators.Element (Iter));
+                        UBO.Iterators.Next (Iter);
+                     end loop;
+                     Stream.End_Entity (Name);
+                  end if;
                end;
             end if;
 
