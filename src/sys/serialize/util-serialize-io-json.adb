@@ -28,7 +28,6 @@ with Util.Streams.Buffered;
 with Util.Streams.Texts.TR;
 with Util.Streams.Texts.WTR;
 with Util.Dates.ISO8601;
-with Util.Beans.Objects.Maps;
 with Util.Beans.Objects.Iterators;
 with Util.Beans.Objects.Readers;
 package body Util.Serialize.IO.JSON is
