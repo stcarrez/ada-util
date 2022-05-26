@@ -48,6 +48,7 @@
 --  @include util-beans-objects-maps.ads
 --  @include util-beans-objects-vectors.ads
 --  @include util-beans-objects-datasets.ads
+--  @include util-beans-objects-iterators.ads
 --  @include util-beans-basic.ads
 package Util.Beans is
 
