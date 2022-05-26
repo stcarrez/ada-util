@@ -1,8 +1,5 @@
-with Ada.Strings.Unbounded;
 with Ada.Text_IO;
-with Ada.Command_Line;
 with Util.Serialize.IO.JSON;
-with Ada.Containers;
 with Util.Beans.Objects;
 with Util.Beans.Objects.Vectors;
 with Util.Beans.Objects.Maps;
@@ -11,16 +8,16 @@ with Util.Streams.Buffered;
 procedure JsonObj is
 
    package UBO renames Util.Beans.Objects;
+   procedure Add_Person (Into : in UBO.Vectors.Vector_Bean_Access;
+                         Name : in String;
+                         Last_Name : in String;
+                         Age : in Natural);
 
-   use Ada.Strings.Unbounded;
-
-   Count  : constant Natural := Ada.Command_Line.Argument_Count;
-
-   procedure Add_Person (Into : in out UBO.Vectors.Vector_Bean_Access;
+   procedure Add_Person (Into : in UBO.Vectors.Vector_Bean_Access;
                          Name : in String;
                          Last_Name : in String;
                          Age : in Natural) is
-      Person : UBO.Object := UBO.Maps.Create;
+      Person : constant UBO.Object := UBO.Maps.Create;
    begin
       UBO.Set_Value (Person, "name", UBO.To_Object (Name));
       UBO.Set_Value (Person, "last_name", UBO.To_Object (Last_Name));
@@ -28,8 +25,8 @@ procedure JsonObj is
       Into.Append (Person);
    end Add_Person;
 
-   List   : UBO.Vectors.Vector_Bean_Access := new UBO.Vectors.Vector_Bean;
-   Root   : UBO.Object := UBO.To_Object (List);
+   List   : constant UBO.Vectors.Vector_Bean_Access := new UBO.Vectors.Vector_Bean;
+   Root   : constant UBO.Object := UBO.To_Object (List);
 begin
    Add_Person (List, "John", "Johnson", 23);
    Add_Person (List, "Harry", "Potter", 17);
@@ -44,6 +41,7 @@ begin
       Output.Initialize (Print'Unchecked_Access);
 
       Output.Write_Entity ("", Root);
-      Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Print));
+      Output.Flush;
+      Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Buffer));
    end;
 end JsonObj;

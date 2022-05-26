@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  json -- JSON Reader
---  Copyright (C) 2010, 2011, 2014, 2017 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2014, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -115,9 +115,10 @@ begin
             Output.Write ("{""list"":");
             Person_Vector_Mapping.Write (Output, List);
             Output.Write ("}");
+            Output.Flush;
 
             Ada.Text_IO.Put_Line ("IO:");
-            Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Print));
+            Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Buffer));
          end;
       end;
    end loop;
