@@ -66,6 +66,7 @@ with Util.Beans.Objects.Iterators;
 package Util.Beans.Objects.Datasets is
 
    subtype Iterator_Bean is Util.Beans.Objects.Iterators.Iterator_Bean;
+   subtype Object_Array is Util.Beans.Objects.Object_Array;
 
    Invalid_State : exception;
 
