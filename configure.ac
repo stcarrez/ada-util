@@ -16,7 +16,8 @@ dnl  limitations under the License.
 dnl 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(src/core/util.ads)
+AC_INIT
+AC_CONFIG_SRCDIR([src/core/util.ads])
 
 # Current release settings
 UTIL_MAJOR_VERSION=2
@@ -281,8 +282,7 @@ dnl AC_MSG_NOTICE(  XML support:   $WITH_XML_ADA)
 dnl AC_MSG_NOTICE(  CURL support:  $WITH_UTIL_CURL)
 dnl AC_MSG_NOTICE(  AWS support:   $WITH_UTIL_AWS)
 
-AC_OUTPUT(
-Makefile.conf
+AC_CONFIG_FILES([Makefile.conf
 utilada.gpr
 utilada_http.gpr
 utilada_unit.gpr
@@ -290,4 +290,5 @@ utilada_xml.gpr
 utilada_lzma.gpr
 utilada_tests.gpr
 utilada_conf.gpr
-)
+])
+AC_OUTPUT
