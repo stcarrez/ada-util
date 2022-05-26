@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-datasets-tests -- Unit tests for dataset beans
---  Copyright (C) 2013, 2015, 2017, 2021 Stephane Carrez
+--  Copyright (C) 2013, 2015, 2017, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 
 with Util.Test_Caller;
+with Util.Beans.Objects.Iterators;
 
 package body Util.Beans.Objects.Datasets.Tests is
 
@@ -32,7 +33,7 @@ package body Util.Beans.Objects.Datasets.Tests is
    procedure Test_Fill_Dataset (T : in out Test) is
       procedure Fill (Row : in out Object_Array);
 
-      Set : Dataset;
+      Set : aliased Dataset;
 
       procedure Fill (Row : in out Object_Array) is
       begin
@@ -63,6 +64,27 @@ package body Util.Beans.Objects.Datasets.Tests is
                                       "Invalid 'age' attribute");
          end;
       end loop;
+
+      declare
+         List  : constant Object := To_Object (Set'Unchecked_Access, STATIC);
+         Iter  : Iterators.Iterator := Iterators.First (List);
+         Count : Natural := 0;
+      begin
+         while Iterators.Has_Element (Iter) loop
+            Count := Count + 1;
+            declare
+               R : constant Object := Iterators.Element (Iter);
+            begin
+               T.Assert (not Is_Null (R), "Row is null");
+               Util.Tests.Assert_Equals (T, "john", To_String (Get_Value (R, "name")),
+                                         "Invalid 'name' attribute");
+               Util.Tests.Assert_Equals (T, Count, To_Integer (Get_Value (R, "age")),
+                                         "Invalid 'age' attribute");
+            end;
+            Iterators.Next (Iter);
+         end loop;
+         Util.Tests.Assert_Equals (T, 100, Count, "Invalid number of rows");
+      end;
    end Test_Fill_Dataset;
 
 end Util.Beans.Objects.Datasets.Tests;
