@@ -686,6 +686,9 @@ package body Util.Encoders.Tests is
    procedure Test_Encode_URI (T : in out Test) is
       procedure Check (Expect   : in String;
                        Item     : in String;
+                       Encoding : in URI.Encoding_Array);
+      procedure Check (Expect   : in String;
+                       Item     : in String;
                        Encoding : in URI.Encoding_Array) is
          Len : constant Natural := URI.Encoded_Length (Item, Encoding);
          Res : constant String := URI.Encode (Item, Encoding);
