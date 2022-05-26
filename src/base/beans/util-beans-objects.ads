@@ -35,12 +35,57 @@
 --
 --  Several operations are provided to convert a value into an `Object`.
 --
---    Value : Util.Beans.Objects.Object := Util.Beans.Objects.To_Object ("something");
---    Value := Value + To_Object ("12");
+--    with Util.Beans.Objects;
+--
+--      Value : Util.Beans.Objects.Object
+--         := Util.Beans.Objects.To_Object (String '("something"));
+--      Value := Value + To_Object (String '("12"));
+--      Value := Value - To_Object (Integer (3));
+--
+--  The package provides various operations to check, convert and use the `Object`
+--  type.
+--
+--  | Name      | Description                              |
+--  | --------- | ---------------------------------------- |
+--  | Is_Empty  | Returns true if the object is the empty string or empty list |
+--  | Is_Null   | Returns true if the object does not contain any value |
+--  | Is_Array  | Returns true if the object is an array |
+--  | Get_Type  | Get the type of the object |
+--  | To_String | Converts the object to a string |
+--  | To_Wide_Wide_String | Convert to a wide wide string |
+--  | To_Unbounded_String | Convert to an unbounded string |
+--  | To_Boolean | Convert to a boolean |
+--  | To_Integer | Convert to an integer |
+--  | To_Long_Integer | Convert to a long integer |
+--  | To_Long_Long_Integer | Convert to a long long integer |
+--  | To_Float   | Convert to a float |
+--  | To_Long_Float | Convert to a long float |
+--  | To_Long_Long_Float | Convert to a long long float |
+--  | To_Duration  | Convert to a duration |
+--  | To_Bean | Convert to an access to the Read_Only_Bean'Class |
+--
+--  Convertion to a time or enumeration is provided by specific packages.
+--
+--  The support for enumeration is made by the generic package
+--  `Util.Beans.Objects.Enums` which must be instantiated with the enumeration
+--  type.  Example of instantiation:
+--
+--     with Util.Beans.Objects.Enum;
+--     ...
+--        type Color_Type is (GREEN, BLUE, RED, BROWN);
+--        package Color_Enum is
+--           new Util.Beans.Objects.Enum (Color_Type);
+--
+--  Then, two functions are available to convert the enum value into an `Object`
+--  or convert back the `Object` in the enum value:
+--
+--     Color : Object := Color_Enum.To_Object (BLUE);
+--     C : Color_Type := Color_Enum.To_Value (Color);
 --
 with Ada.Strings.Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Finalization;
+private with Ada.Unchecked_Deallocation;
 private with Util.Concurrent.Counters;
 limited with Util.Beans.Basic;
 package Util.Beans.Objects is
@@ -68,6 +113,8 @@ package Util.Beans.Objects is
                       TYPE_WIDE_STRING,
                       --  The object holds an array of objects.
                       TYPE_ARRAY,
+                      --  The object holds some record object.
+                      TYPE_RECORD,
                       --  The object holds a generic bean.
                       TYPE_BEAN);
 
@@ -565,7 +612,7 @@ private
    --  Release the object pointed to by the proxy (if necessary).
    procedure Release (P : in out Proxy) is null;
 
-   type Bean_Proxy_Access is access all Proxy'Class;
+   type Proxy_Access is access all Proxy'Class;
 
    type String_Proxy (Len : Natural) is new Proxy with record
       Value : String (1 .. Len);
@@ -581,6 +628,7 @@ private
       Bean    : access Util.Beans.Basic.Readonly_Bean'Class;
       Storage : Storage_Type;
    end record;
+   type Bean_Proxy_Access is access all Bean_Proxy'Class;
 
    type Array_Proxy (Len : Natural) is new Proxy with record
       Count  : Natural := 0;
@@ -619,6 +667,9 @@ private
          when TYPE_ARRAY =>
             Array_Proxy : Array_Proxy_Access;
 
+         when TYPE_RECORD =>
+            Record_Proxy : Proxy_Access;
+
          when TYPE_BEAN =>
             Proxy : Bean_Proxy_Access;
 
@@ -639,6 +690,31 @@ private
 
    overriding
    procedure Finalize (Obj : in out Object);
+
+   type Proxy_Iterator is abstract new Limited_Controlled with record
+      Ref_Counter : Util.Concurrent.Counters.Counter;
+      Proxy       : Proxy_Access;
+   end record;
+   type Proxy_Iterator_Access is access all Proxy_Iterator'Class;
+
+   overriding
+   procedure Finalize (Proxy : in out Proxy_Iterator);
+
+   function Is_Empty (Iter : in Proxy_Iterator) return Boolean is abstract;
+
+   procedure Next (Iter : in out Proxy_Iterator) is abstract;
+
+   procedure Previous (Iter : in out Proxy_Iterator) is abstract;
+
+   function Element (Iter : in Proxy_Iterator) return Object'Class is abstract;
+
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Object => Bean_Proxy'Class,
+                                     Name   => Bean_Proxy_Access);
+
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Object => Proxy'Class,
+                                     Name   => Proxy_Access);
 
    Null_Object : constant Object := Object '(Controlled with
                                              V        => Object_Value '(Of_Type => TYPE_NULL),
