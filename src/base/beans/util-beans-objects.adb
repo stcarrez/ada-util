@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 
 with Ada.Characters.Conversions;
-with Ada.Unchecked_Deallocation;
 with Ada.Tags;
 with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 with Util.Beans.Basic;
@@ -692,10 +691,10 @@ package body Util.Beans.Objects is
                        Value    : in Object_Value) return String is
       pragma Unreferenced (Type_Def);
    begin
-      if Value.Proxy = null then
+      if Value.Proxy = null or else Value.Proxy.Bean = null then
          return "<null bean>";
       else
-         return "<" & Ada.Tags.Expanded_Name (Value.Proxy'Tag) & ">";
+         return "<" & Ada.Tags.Expanded_Name (Value.Proxy.Bean'Tag) & ">";
       end if;
    end To_String;
 
@@ -744,12 +743,12 @@ package body Util.Beans.Objects is
       if not (Proxy.all in Bean_Proxy'Class) then
          return False;
       end if;
-      if not (Bean_Proxy (Proxy.all).Bean.all in Util.Beans.Basic.List_Bean'Class) then
+      if not (Proxy.Bean.all in Util.Beans.Basic.List_Bean'Class) then
          return False;
       end if;
       declare
          L : constant Util.Beans.Basic.List_Bean_Access :=
-           Beans.Basic.List_Bean'Class (Bean_Proxy (Proxy.all).Bean.all)'Unchecked_Access;
+           Beans.Basic.List_Bean'Class (Proxy.Bean.all)'Unchecked_Access;
       begin
          return L.Get_Count = 0;
       end;
@@ -817,7 +816,7 @@ package body Util.Beans.Objects is
    function To_Boolean (Type_Def : in Array_Type;
                         Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
-      Proxy : constant Bean_Proxy_Access := Value.Proxy;
+      Proxy : constant Array_Proxy_Access := Value.Array_Proxy;
    begin
       return Proxy /= null;
    end To_Boolean;
@@ -873,7 +872,7 @@ package body Util.Beans.Objects is
       if Bean = null or else not (Bean.all in Util.Beans.Basic.Array_Bean'Class) then
          return null;
       else
-         return Util.Beans.Basic.Array_Bean'Class (Bean.all)'Access;
+         return Util.Beans.Basic.Array_Bean'Class (Bean.all)'Unchecked_Access;
       end if;
    end Get_Array_Bean;
 
@@ -1087,10 +1086,9 @@ package body Util.Beans.Objects is
    end To_Duration;
 
    function To_Bean (Value : in Object) return access Util.Beans.Basic.Readonly_Bean'Class is
---        Proxy : constant Bean_Proxy_Access;
    begin
       if Value.V.Of_Type = TYPE_BEAN and then Value.V.Proxy /= null then
-         return Bean_Proxy (Value.V.Proxy.all).Bean;
+         return Value.V.Proxy.Bean;
       else
          return null;
       end if;
@@ -1733,10 +1731,6 @@ package body Util.Beans.Objects is
                                      Name   => Array_Proxy_Access);
 
    procedure Free is
-     new Ada.Unchecked_Deallocation (Object => Proxy'Class,
-                                     Name   => Bean_Proxy_Access);
-
-   procedure Free is
      new Ada.Unchecked_Deallocation (Object => String_Proxy,
                                      Name   => String_Proxy_Access);
 
@@ -1811,5 +1805,19 @@ package body Util.Beans.Objects is
          end;
       end if;
    end Release;
+
+   overriding
+   procedure Finalize (Proxy : in out Proxy_Iterator) is
+      Release : Boolean;
+   begin
+      if Proxy.Proxy /= null then
+         Util.Concurrent.Counters.Decrement (Proxy.Proxy.Ref_Counter, Release);
+         if Release then
+            Free (Proxy.Proxy);
+         else
+            Proxy.Proxy := null;
+         end if;
+      end if;
+   end Finalize;
 
 end Util.Beans.Objects;
