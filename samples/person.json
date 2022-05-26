@@ -1,12 +1,12 @@
-{
-  "person" : {
+[
+  { "person" : {
   "name": "John",
   "last_name" : "Johnson",
   "age": "23"
-  },
-  "person" : {
+  }},
+  {"person" : {
   "name": "Harry",
   "last_name" : "Potter",
   "age": "17"
-  }
-}
+  }}
+]
