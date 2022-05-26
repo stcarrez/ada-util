@@ -1,8 +1,10 @@
 Version 2.5.0  -
   - New examples to illustrate the IO stream composition
+  - New examples for JSON parser and Util.Beans.Objects
   - Add support to set environment variables when launching a process (without changing the current process environment!)
   - Add support to indent XML output streams
   - New package Util.Files.Rolling to provide a rolling file manager
+  - New package Util.Beans.Objects.Iterators to easily iterate over objects
   - Add a new log appender to support rolling log files
   - Fix compilation on NetBSD 9.2
   - Fix compilation with AWS >= 22.0
