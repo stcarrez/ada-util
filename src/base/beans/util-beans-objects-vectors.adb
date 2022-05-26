@@ -65,27 +65,75 @@ package body Util.Beans.Objects.Vectors is
    --  If the object is not a `Vector_Bean` or an array, the operation does nothing.
    --  -----------------------
    procedure Iterate (From    : in Object;
-                      Process : not null access procedure (Item : in Object)) is
+                      Process : not null access procedure (Position : in Positive;
+                                                           Item     : in Object)) is
       procedure Process_One (Pos : in Vectors.Cursor);
 
       procedure Process_One (Pos : in Vectors.Cursor) is
       begin
-         Process (Vectors.Element (Pos));
+         Process (Vectors.To_Index (Pos), Vectors.Element (Pos));
       end Process_One;
 
       Bean : constant access Util.Beans.Basic.Readonly_Bean'Class := To_Bean (From);
    begin
       if Bean /= null and then Bean.all in Vector_Bean'Class then
          Vector_Bean'Class (Bean.all).Iterate (Process_One'Access);
+
       elsif Is_Array (From) then
          declare
             Count : constant Natural := Get_Count (From);
          begin
             for Pos in 1 .. Count loop
-               Process (Get_Value (From, Pos));
+               Process (Pos, Get_Value (From, Pos));
             end loop;
          end;
       end if;
    end Iterate;
+
+   --  -----------------------
+   --  Get an iterator to iterate starting with the first element.
+   --  -----------------------
+   overriding
+   function First (From : in Vector_Bean) return Iterators.Proxy_Iterator_Access is
+      Iter : constant Vector_Iterator_Access := new Vector_Iterator;
+   begin
+      Iter.Pos := From.First;
+      return Iter.all'Access;
+   end First;
+
+   --  -----------------------
+   --  Get an iterator to iterate starting with the last element.
+   --  -----------------------
+   overriding
+   function Last (From : in Vector_Bean) return Iterators.Proxy_Iterator_Access is
+      Iter : constant Vector_Iterator_Access := new Vector_Iterator;
+   begin
+      Iter.Pos := From.Last;
+      return Iter.all'Access;
+   end Last;
+
+   overriding
+   function Has_Element (Iter : in Vector_Iterator) return Boolean is
+   begin
+      return Vectors.Has_Element (Iter.Pos);
+   end Has_Element;
+
+   overriding
+   procedure Next (Iter : in out Vector_Iterator) is
+   begin
+      Vectors.Next (Iter.Pos);
+   end Next;
+
+   overriding
+   procedure Previous (Iter : in out Vector_Iterator) is
+   begin
+      Vectors.Previous (Iter.Pos);
+   end Previous;
+
+   overriding
+   function Element (Iter : in Vector_Iterator) return Object is
+   begin
+      return Vectors.Element (Iter.Pos);
+   end Element;
 
 end Util.Beans.Objects.Vectors;
