@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  multipro_refs -- Points out multiprocessor issues with reference counters
---  Copyright (C) 2011, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,6 @@ with Ada.Containers.Indefinite_Hashed_Maps;
 procedure Multipro_Refs is
 
    use Util.Log;
-   use Util.Concurrent.Counters;
 
    Log  : constant Loggers.Logger := Loggers.Create ("multipro");
 
