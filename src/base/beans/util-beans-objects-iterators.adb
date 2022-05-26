@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Unchecked_Deallocation;
-with Util.Beans.Basic;
 
 package body Util.Beans.Objects.Iterators is
 
@@ -44,7 +43,7 @@ package body Util.Beans.Objects.Iterators is
       if Iter.Iter = null then
          return Null_Object;
       else
-         return Object (Iter.Iter.Element);
+         return Iter.Iter.Element;
       end if;
    end Element;
 
