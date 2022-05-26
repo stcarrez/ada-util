@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Beans.Objects.Hash -- Hash on an object
---  Copyright (C) 2010, 2011, 2017 Stephane Carrez
+--  util-beans-objects-hash -- Hash on an object
+--  Copyright (C) 2010, 2011, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -129,6 +129,9 @@ begin
             end loop;
             return Hash_Type (Val);
          end;
+
+      when TYPE_RECORD =>
+         return 0;
 
       when TYPE_ARRAY =>
          declare
