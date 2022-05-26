@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Beans.Objects.Records -- Generic Typed Data Representation
---  Copyright (C) 2011, 2016 Stephane Carrez
+--  util-beans-objects-records -- Generic Typed Data Representation
+--  Copyright (C) 2011, 2016, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-
+with Ada.Tags;
 package body Util.Beans.Objects.Records is
 
    use Util.Concurrent.Counters;
@@ -26,15 +26,26 @@ package body Util.Beans.Objects.Records is
    type Record_Bean_Type is new Bean_Type with null record;
 
    --  Get the type name
+   overriding
    function Get_Name (Type_Def : in Record_Bean_Type) return String;
 
+   overriding
+   function To_String (Type_Def : in Record_Bean_Type;
+                       Value    : in Object_Value) return String;
+
    --  Convert the value into a boolean.
+   overriding
    function To_Boolean (Type_Def : in Record_Bean_Type;
                         Value    : in Object_Value) return Boolean;
+
+   overriding
+   function Is_Empty (Type_Def : in Record_Bean_Type;
+                      Value    : in Object_Value) return Boolean;
 
    --  ------------------------------
    --  Get the type name
    --  ------------------------------
+   overriding
    function Get_Name (Type_Def : in Record_Bean_Type) return String is
       pragma Unreferenced (Type_Def);
    begin
@@ -42,14 +53,41 @@ package body Util.Beans.Objects.Records is
    end Get_Name;
 
    --  ------------------------------
+   --  Convert the value into a string.
+   --  ------------------------------
+   overriding
+   function To_String (Type_Def : in Record_Bean_Type;
+                       Value    : in Object_Value) return String is
+      pragma Unreferenced (Type_Def);
+   begin
+      if Value.Record_Proxy = null then
+         return "<null record>";
+      else
+         return "<" & Ada.Tags.Expanded_Name (Value.Record_Proxy'Tag) & ">";
+      end if;
+   end To_String;
+
+   --  ------------------------------
    --  Convert the value into a boolean.
    --  ------------------------------
+   overriding
    function To_Boolean (Type_Def : in Record_Bean_Type;
                         Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
    begin
       return Value.Proxy /= null;
    end To_Boolean;
+
+   --  ------------------------------
+   --  Returns True if the value is empty.
+   --  ------------------------------
+   overriding
+   function Is_Empty (Type_Def : in Record_Bean_Type;
+                      Value    : in Object_Value) return Boolean is
+      pragma Unreferenced (Type_Def);
+   begin
+      return Value.Record_Proxy = null;
+   end Is_Empty;
 
    Bn_Type : aliased Record_Bean_Type := Record_Bean_Type '(null record);
 
@@ -59,9 +97,9 @@ package body Util.Beans.Objects.Records is
    function Create return Object is
    begin
       return Object '(Controlled with
-        V => Object_Value '(Of_Type => TYPE_BEAN,
-                            Proxy   => new Element_Proxy '(Ref_Counter => ONE,
-                                                           others => <>)),
+        V => Object_Value '(Of_Type => TYPE_RECORD,
+                            Record_Proxy => new Element_Proxy '(Ref_Counter => ONE,
+                                                                others => <>)),
         Type_Def   => Bn_Type'Access);
    end Create;
 
@@ -71,9 +109,9 @@ package body Util.Beans.Objects.Records is
    function To_Object (Value : in Element_Type) return Object is
    begin
       return Object '(Controlled with
-        V => Object_Value '(Of_Type => TYPE_BEAN,
-                            Proxy   => new Element_Proxy '(Ref_Counter => ONE,
-                                                           Value       => Value)),
+        V => Object_Value '(Of_Type => TYPE_RECORD,
+                            Record_Proxy => new Element_Proxy '(Ref_Counter => ONE,
+                                                                Value       => Value)),
         Type_Def   => Bn_Type'Access);
    end To_Object;
 
@@ -82,11 +120,11 @@ package body Util.Beans.Objects.Records is
    --  ------------------------------
    function To_Element (Value : in Object) return Element_Type is
    begin
-      if Value.V.Of_Type /= TYPE_BEAN then
+      if Value.V.Of_Type /= TYPE_RECORD then
          raise Conversion_Error with "Object is not a bean";
       end if;
       declare
-         Proxy : constant Bean_Proxy_Access := Value.V.Proxy;
+         Proxy : constant Proxy_Access := Value.V.Record_Proxy;
       begin
          if Proxy = null then
             raise Conversion_Error with "Object is null";
@@ -103,11 +141,11 @@ package body Util.Beans.Objects.Records is
    --  ------------------------------
    function To_Element_Access (Value : in Object) return Element_Type_Access is
    begin
-      if Value.V.Of_Type /= TYPE_BEAN then
+      if Value.V.Of_Type /= TYPE_RECORD then
          return null;
       end if;
       declare
-         Proxy : constant Bean_Proxy_Access := Value.V.Proxy;
+         Proxy : constant Proxy_Access := Value.V.Record_Proxy;
       begin
          if Proxy = null then
             return null;
