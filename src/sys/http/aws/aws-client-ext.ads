@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2017, 2020, 2021, AdaCore                     --
+--                     Copyright (C) 2005-2017, 2020, 2021, 2022, AdaCore   --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,7 +30,6 @@
 pragma Ada_2012;
 pragma License (GPL);
 
-with AWS.Client;
 with AWS.Response;
 
 --  This is the AWS.Client.HTTP_Utils package revisited

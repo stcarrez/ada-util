@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-basic-ranges -- Range of values with helper for list iteration
---  Copyright (C) 2011 Stephane Carrez
+--  Copyright (C) 2011, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 
 with Util.Beans.Objects;
-with Util.Beans.Basic;
 
 --  The <b>Util.Beans.Basic.Ranges</b> generic package defines an object that holds
 --  a range definition.  It implements the <b>List_Bean</b> interface which allows to

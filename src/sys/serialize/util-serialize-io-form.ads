@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-form -- x-www-form-urlencoded streams
---  Copyright (C) 2018 Stephane Carrez
+--  Copyright (C) 2018, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 with Ada.Streams;
 with Util.Streams.Texts;
-with Util.Serialize.IO;
 package Util.Serialize.IO.Form is
 
    type Output_Stream is limited new Util.Serialize.IO.Output_Stream with private;
