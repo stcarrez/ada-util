@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.files.tests -- Unit tests for buffered streams
---  Copyright (C) 2012, 2018, 2019, 2021 Stephane Carrez
+--  Copyright (C) 2012, 2018, 2019, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,6 @@ with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 with Util.Test_Caller;
 
 with Util.Streams.Files;
-with Util.Streams.Texts;
 package body Util.Streams.Texts.Tests is
 
    pragma Wide_Character_Encoding (UTF8);

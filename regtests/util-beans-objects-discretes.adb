@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Discretes -- Unit tests for concurrency package
---  Copyright (C) 2009, 2010, 2020 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,6 @@
 with Ada.Calendar;
 with Ada.Calendar.Formatting;
 
-with Util.Beans.Objects;
 with Util.Beans.Objects.Enums;
 with Util.Beans.Objects.Time;
 with Util.Beans.Objects.Discrete_Tests;

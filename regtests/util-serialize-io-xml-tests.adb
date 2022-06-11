@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-xml-tests -- Unit tests for XML serialization
---  Copyright (C) 2011, 2012, 2016, 2017, 2018, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2017, 2018, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,6 @@ with Util.Test_Caller;
 with Util.Log.Loggers;
 with Util.Streams.Files;
 with Util.Serialize.IO.JSON.Tests;
-with Util.Serialize.IO.XML;
 with Util.Serialize.Mappers.Record_Mapper;
 package body Util.Serialize.IO.XML.Tests is
 

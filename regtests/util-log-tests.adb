@@ -23,7 +23,6 @@ with Ada.Strings.Unbounded;
 
 with Util.Test_Caller;
 
-with Util.Log;
 with Util.Log.Loggers;
 with Util.Files;
 with Util.Strings;

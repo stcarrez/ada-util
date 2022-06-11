@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties-bundles -- Test for property bundles
---  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2021 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 
 with Util.Test_Caller;
-with Util.Properties.Bundles;
 with Util.Properties.Basic;
 with Util.Measures;
 
