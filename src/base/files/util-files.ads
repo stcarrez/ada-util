@@ -165,7 +165,15 @@ package Util.Files is
 
    --  Delete the file including missing symbolic link
    --  or socket files (which GNAT fails to delete,
-   --  see gcc/63222 and gcc/56055).
+   --  see gcc/63222 and gcc/56055).  The function returns 0
+   --  or the system error code.  The procedure raises the Use_Error
+   --  exception if the file cannot be deleted.
+   function Delete_File (Path : in String) return Integer;
    procedure Delete_File (Path : in String);
+
+   --  Delete the directory tree recursively.  If the directory tree contains
+   --  sockets, special files and dangling symbolic links, they are removed
+   --  correctly.  This is a workarround for GNAT bug gcc/63222 and gcc/56055.
+   procedure Delete_Tree (Path : in String);
 
 end Util.Files;
