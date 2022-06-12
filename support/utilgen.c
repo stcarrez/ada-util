@@ -21,6 +21,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -519,6 +520,30 @@ int main(int argc, char** argv)
 #ifdef O_NONBLOCK
     printf("   O_NONBLOCK                    : constant Interfaces.C.int := 8#%06o#;\n", O_NONBLOCK);
 #endif
+
+    printf("\n");
+    printf("   --  Some error codes\n");
+    printf("   EPERM                         : constant := %d;\n", EPERM);
+    printf("   ENOENT                        : constant := %d;\n", ENOENT);
+    printf("   EINTR                         : constant := %d;\n", EINTR);
+    printf("   EIO                           : constant := %d;\n", EIO);
+    printf("   ENOEXEC                       : constant := %d;\n", ENOEXEC);
+    printf("   EBADF                         : constant := %d;\n", EBADF);
+    printf("   EAGAIN                        : constant := %d;\n", EAGAIN);
+    printf("   ENOMEM                        : constant := %d;\n", ENOMEM);
+    printf("   EACCES                        : constant := %d;\n", EACCES);
+    printf("   EFAULT                        : constant := %d;\n", EFAULT);
+    printf("   EBUSY                         : constant := %d;\n", EBUSY);
+    printf("   EEXIST                        : constant := %d;\n", EEXIST);
+    printf("   ENOTDIR                       : constant := %d;\n", ENOTDIR);
+    printf("   EISDIR                        : constant := %d;\n", EISDIR);
+    printf("   EINVAL                        : constant := %d;\n", EINVAL);
+    printf("   ENFILE                        : constant := %d;\n", ENFILE);
+    printf("   EMFILE                        : constant := %d;\n", EMFILE);
+    printf("   EFBIG                         : constant := %d;\n", EFBIG);
+    printf("   ENOSPC                        : constant := %d;\n", ENOSPC);
+    printf("   EROFS                         : constant := %d;\n", EROFS);
+    printf("   EPIPE                         : constant := %d;\n", EPIPE);
 
     printf("\n");
 
