@@ -163,4 +163,9 @@ package Util.Files is
    --  Rename the old name into a new name.
    procedure Rename (Old_Name, New_Name : in String);
 
+   --  Delete the file including missing symbolic link
+   --  or socket files (which GNAT fails to delete,
+   --  see gcc/63222 and gcc/56055).
+   procedure Delete_File (Path : in String);
+
 end Util.Files;
