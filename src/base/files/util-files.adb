@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Interfaces.C.Strings;
+with System;
 with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Streams;
@@ -421,5 +422,26 @@ package body Util.Files is
          raise Ada.IO_Exceptions.Use_Error with "Cannot rename file";
       end if;
    end Rename;
+
+   --  ------------------------------
+   --  Delete the file including missing symbolic link
+   --  or socket files (which GNAT fails to delete,
+   --  see gcc/63222 and gcc/56055).
+   --  ------------------------------
+   procedure Delete_File (Path : in String) is
+      function Sys_Unlink (Path  : in System.Address) return Integer;
+      pragma Import (C, Sys_Unlink, "unlink");
+
+      C_Path : String (1 .. Path'Length + 1);
+      Result : Integer;
+   begin
+      C_Path (1 .. Path'Length) := Path;
+      C_Path (C_Path'Last) := ASCII.NUL;
+
+      Result := Sys_Unlink (C_Path'Address);
+      if Result /= 0 then
+         raise Ada.IO_Exceptions.Use_Error with "file """ & Path & """ could not be deleted";
+      end if;
+   end Delete_File;
 
 end Util.Files;
