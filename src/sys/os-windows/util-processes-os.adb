@@ -90,14 +90,14 @@ package body Util.Processes.Os is
 
       --  Release the resources
       if Sys.Process_Info.hProcess /= NO_FILE then
-         Result := Close_Handle (Sys.Process_Info.hProcess);
+         Status := Close_Handle (Sys.Process_Info.hProcess);
          Sys.Process_Info.hProcess := NO_FILE;
       end if;
       if Sys.Process_Info.hThread /= NO_FILE then
-         Result := Close_Handle (Sys.Process_Info.hThread);
+         Status := Close_Handle (Sys.Process_Info.hThread);
          Sys.Process_Info.hThread := NO_FILE;
       end if;
-      
+
       Free (Sys.Dir);
       Free (Sys.Env);
       Free (Sys.Command);
