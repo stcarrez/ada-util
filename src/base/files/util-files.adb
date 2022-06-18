@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with System;
+with Interfaces.C;
 with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Streams;
@@ -23,8 +24,8 @@ with Ada.Streams.Stream_IO;
 with Ada.Text_IO;
 with Util.Strings.Builders;
 with Util.Strings.Tokenizers;
-with Util.Systems.Constants;
 with Util.Systems.Os;
+with Util.Systems.Types;
 package body Util.Files is
 
    --  ------------------------------
@@ -447,7 +448,9 @@ package body Util.Files is
    --  ------------------------------
    procedure Delete_Tree (Path : in String) is
       use type System.Address;
-      use type Util.Systems.Os.DIR;
+      use Util.Systems.Types;
+      use Util.Systems.Os;
+      use Interfaces.C;
 
       C_Path         : constant String := Path & ASCII.NUL;
       Dirp           : Util.Systems.Os.DIR;
@@ -455,6 +458,7 @@ package body Util.Files is
       Length         : aliased Integer;
       File_Name_Addr : System.Address;
       Result         : Integer;
+      St             : aliased Util.Systems.Types.Stat_Type;
    begin
       Dirp := Util.Systems.Os.Opendir (C_Path);
       if Dirp = Util.Systems.Os.Null_Dir then
@@ -470,12 +474,20 @@ package body Util.Files is
 
                File_Name : constant File_Name_String
                  with Import, Address => File_Name_Addr;
+
             begin
                if File_Name /= "." and File_Name /= ".." then
-                  Result := Delete_File (Compose (Path, File_Name));
-                  if Result = Util.Systems.Constants.EISDIR then
-                     Delete_Tree (Compose (Path, File_Name));
-                  end if;
+                  declare
+                     File_Path : constant String
+                       := Path & Directory_Separator & File_Name & ASCII.NUL;
+                  begin
+                     Result := Util.Systems.Os.Sys_Lstat (File_Path, St'Unchecked_Access);
+                     if Result = 0 and then (St.st_mode and S_IFMT) = S_IFDIR then
+                        Delete_Tree (File_Path (File_Path'First .. File_Path'Last - 1));
+                     else
+                        Result := Util.Systems.Os.Sys_Unlink (File_Path);
+                     end if;
+                  end;
                end if;
             end;
          end loop;
