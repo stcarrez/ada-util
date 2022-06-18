@@ -133,9 +133,11 @@ void gen_stat(void)
 #ifdef _MIPS_ARCH
     printf("   STAT_NAME  : constant String := \"stat64\";\n");
     printf("   FSTAT_NAME : constant String := \"fstat64\";\n");
+    printf("   LSTAT_NAME : constant String := \"lstat64\";\n");
 #else
     printf("   STAT_NAME  : constant String := \"stat\";\n");
     printf("   FSTAT_NAME : constant String := \"fstat\";\n");
+    printf("   LSTAT_NAME : constant String := \"lstat\";\n");
 #endif
     printf("   type Stat_Type is record\n");
     printf("      st_dev     : dev_t;\n");
@@ -210,6 +212,7 @@ void gen_stat(void)
 
     printf("   STAT_NAME  : constant String := \"stat\";\n");
     printf("   FSTAT_NAME : constant String := \"fstat\";\n");
+    printf("   LTAT_NAME  : constant String := \"lstat\";\n");
     printf("   type Stat_Type is record\n");
     printf("      st_ino      : ino_t;\n");
     printf("      st_nlink    : nlink_t;\n");
@@ -240,6 +243,7 @@ void gen_stat(void)
 
     printf("   STAT_NAME  : constant String := \"stat\";\n");
     printf("   FSTAT_NAME : constant String := \"fstat\";\n");
+    printf("   LSTAT_NAME : constant String := \"lstat\";\n");
     printf("   type Stat_Type is record\n");
     printf("      st_dev      : dev_t;\n");
     printf("      st_ino      : ino_t;\n");
@@ -289,6 +293,7 @@ void gen_stat(void)
 
     printf("   STAT_NAME  : constant String := \"_stat64\";\n");
     printf("   FSTAT_NAME : constant String := \"_fstat64\";\n");
+    printf("   LSTAT_NAME : constant String := \"_lstat64\";\n");
     printf("   type Stat_Type is record\n");
     printf("      st_dev      : dev_t;\n");
     printf("      st_mode     : mode_t;\n");
@@ -319,6 +324,7 @@ void gen_stat(void)
 
     printf("   STAT_NAME  : constant String := \"__stat50\";\n");
     printf("   FSTAT_NAME : constant String := \"__fstat50\";\n");
+    printf("   LSTAT_NAME : constant String := \"__lstat50\";\n");
     printf("   type Stat_Type is record\n");
     printf("      st_dev       : dev_t;\n");
     printf("      st_mode      : mode_t;\n");
