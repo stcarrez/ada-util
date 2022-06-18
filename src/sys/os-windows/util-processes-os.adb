@@ -87,6 +87,20 @@ package body Util.Processes.Os is
       end if;
       Proc.Exit_Value := Integer (Code);
       Log.Debug ("Process exit is: {0}", Integer'Image (Proc.Exit_Value));
+
+      --  Release the resources
+      if Sys.Process_Info.hProcess /= NO_FILE then
+         Result := Close_Handle (Sys.Process_Info.hProcess);
+         Sys.Process_Info.hProcess := NO_FILE;
+      end if;
+      if Sys.Process_Info.hThread /= NO_FILE then
+         Result := Close_Handle (Sys.Process_Info.hThread);
+         Sys.Process_Info.hThread := NO_FILE;
+      end if;
+      
+      Free (Sys.Dir);
+      Free (Sys.Env);
+      Free (Sys.Command);
    end Wait;
 
    --  ------------------------------
