@@ -13,6 +13,7 @@ VPATH = @srcdir@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 PROCESSORS=@NR_CPUS@
+OS_VERSION=@UTIL_OS_VERSION@
 
 ADA_PRJ_BASE=@ADA_PRJ_BASE@
 HAVE_XML_ADA=@HAVE_XML_ADA@
