@@ -235,6 +235,7 @@ package body Util.Files.Tests is
             end loop;
             if Sys_Symlink'Address /= System.Null_Address then
                R := Sys_Symlink (S'Address, S'Address);
+               Util.Tests.Assert_Equals (T, 0, R, "symlink creation failed");
             end if;
          end;
       end loop;
