@@ -229,7 +229,7 @@ package Util.Systems.Os is
 
    function Sys_Lstat (Path : in String;
                        Stat : access Util.Systems.Types.Stat_Type) return Integer
-     with Import => True, Convention => Stdcall, Link_Name => "_lstat64";
+     with Import => True, Convention => Stdcall, Link_Name => "_stat64";
 
    function Sys_Lseek (Fs : in File_Type;
                        Offset : in Util.Systems.Types.off_t;
