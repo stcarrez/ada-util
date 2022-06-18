@@ -19,8 +19,8 @@ endif
 TEST_TIMEOUT=30
 
 ifeq ($(HAVE_UTILGEN),yes)
-UTIL_GEN_FILES=src/sys/os-generated/util-systems-constants.ads
-UTIL_GEN_FILES+=src/sys/os-generated/util-systems-types.ads
+UTIL_GEN_FILES=src/base/os-generated/util-systems-constants.ads
+UTIL_GEN_FILES+=src/base/os-generated/util-systems-types.ads
 ifeq ($(HAVE_CURL),yes)
 UTIL_GEN_FILES+=src/sys/http/curl/util-http-clients-curl-constants.ads
 endif
@@ -129,12 +129,12 @@ install-support:
 	${CP} support/*.sh ${bindir}
 	${CP} support/*.xsl ${bindir}
 
-src/sys/os-generated/util-systems-constants.ads:	bin/utilgen
-	mkdir -p src/sys/os-generated
+src/base/os-generated/util-systems-constants.ads:	bin/utilgen
+	mkdir -p src/base/os-generated
 	bin/utilgen > $@
 
-src/sys/os-generated/util-systems-types.ads:	bin/utilgen
-	mkdir -p src/sys/os-generated
+src/base/os-generated/util-systems-types.ads:	bin/utilgen
+	mkdir -p src/base/os-generated
 	bin/utilgen types > $@
 
 src/sys/http/curl/util-http-clients-curl-constants.ads:	bin/utilgen
