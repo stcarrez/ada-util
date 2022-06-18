@@ -63,9 +63,9 @@ if test T$ac_enable_utilgen = Tyes; then
     CFLAGS="$CFLAGS -DHAVE_DLOPEN=1"
   ])
   UTIL_OS_VERSION=$os_base
-
+else
+  UTIL_OS_VERSION=$os_version
 fi
-UTIL_OS_VERSION=$os_version
 AC_SUBST(UTIL_OS_VERSION)
 
 AM_GNAT_FIND_XML_ADA([
