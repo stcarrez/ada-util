@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-system-os -- Windows system operations
---  Copyright (C) 2011, 2012, 2015, 2018, 2019, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2015, 2018, 2019, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,6 +45,8 @@ package Util.Systems.Os is
 
    type PDWORD is access all DWORD;
    for PDWORD'Size use Standard'Address_Size;
+
+   type Process_Identifier is new Integer;
 
    function Get_Last_Error return Integer
      with Import => True, Convention => Stdcall, Link_Name => "GetLastError";
@@ -291,6 +293,33 @@ package Util.Systems.Os is
    procedure Free is
       new Ada.Unchecked_Deallocation (Object => Interfaces.C.wchar_array,
                                       Name   => Wchar_Ptr);
+
+   --  Rename a file (the Ada.Directories.Rename does not allow to use
+   --  the Unix atomic file rename!)
+   function Sys_Rename (Oldpath  : in String;
+                        Newpath  : in String) return Integer
+     with Import => True, Convention => C, Link_Name => "rename";
+
+   function Sys_Unlink (Path  : in String) return Integer
+     with Import => True, Convention => C, Link_Name => "unlink";
+
+   type DIR is new System.Address;
+
+   Null_Dir : constant DIR := DIR (System.Null_Address);
+
+   --  Equivalent to Posix opendir (3) but handles some portability issues.
+   --  We could use opendir, readdir_r and closedir but the __gnat_* alternative
+   --  solves
+   function Opendir (Directory : in String) return DIR
+      with Import, External_Name => "__gnat_opendir", Convention => C;
+
+   function Readdir (Directory : in DIR;
+                     Buffer    : in System.Address;
+                     Last      : not null access Integer) return System.Address
+      with Import, External_Name => "__gnat_readdir", Convention => C;
+
+   function Closedir (Directory : in DIR) return Integer
+      with Import, External_Name => "__gnat_closedir", Convention => C;
 
 private
 

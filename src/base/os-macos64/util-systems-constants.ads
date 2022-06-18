@@ -17,6 +17,29 @@ package Util.Systems.Constants is
    O_DIRECT                      : constant Interfaces.C.int := 0;
    O_NONBLOCK                    : constant Interfaces.C.int := 8#000004#;
 
+   --  Some error codes
+   EPERM                         : constant := 1;
+   ENOENT                        : constant := 2;
+   EINTR                         : constant := 4;
+   EIO                           : constant := 5;
+   ENOEXEC                       : constant := 8;
+   EBADF                         : constant := 9;
+   EAGAIN                        : constant := 11;
+   ENOMEM                        : constant := 12;
+   EACCES                        : constant := 13;
+   EFAULT                        : constant := 14;
+   EBUSY                         : constant := 16;
+   EEXIST                        : constant := 17;
+   ENOTDIR                       : constant := 20;
+   EISDIR                        : constant := 21;
+   EINVAL                        : constant := 22;
+   ENFILE                        : constant := 23;
+   EMFILE                        : constant := 24;
+   EFBIG                         : constant := 27;
+   ENOSPC                        : constant := 28;
+   EROFS                         : constant := 30;
+   EPIPE                         : constant := 32;
+
    --  Flags used by fcntl
    F_SETFL                       : constant Interfaces.C.int := 4;
    F_GETFL                       : constant Interfaces.C.int := 3;

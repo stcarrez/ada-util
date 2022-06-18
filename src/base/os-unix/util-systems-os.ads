@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-systems-os -- Unix system operations
---  Copyright (C) 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,6 @@
 with System;
 with Interfaces.C;
 with Interfaces.C.Strings;
-with Util.Processes;
 with Util.Systems.Constants;
 with Util.Systems.Types;
 
@@ -41,6 +40,8 @@ package Util.Systems.Os is
    subtype Ptr is Interfaces.C.Strings.chars_ptr;
    subtype Ptr_Array is Interfaces.C.Strings.chars_ptr_array;
    type Ptr_Ptr_Array is access all Ptr_Array;
+
+   type Process_Identifier is new Integer;
 
    subtype File_Type is Util.Systems.Types.File_Type;
 
@@ -90,11 +91,11 @@ package Util.Systems.Os is
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "exit";
 
    --  Fork a new process
-   function Sys_Fork return Util.Processes.Process_Identifier
+   function Sys_Fork return Process_Identifier
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "fork";
 
    --  Fork a new process (vfork implementation)
-   function Sys_VFork return Util.Processes.Process_Identifier
+   function Sys_VFork return Process_Identifier
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "fork";
 
    --  Execute a process with the given arguments.
@@ -183,9 +184,12 @@ package Util.Systems.Os is
 
    --  Rename a file (the Ada.Directories.Rename does not allow to use
    --  the Unix atomic file rename!)
-   function Sys_Rename (Oldpath  : in Ptr;
-                        Newpath  : in Ptr) return Integer
+   function Sys_Rename (Oldpath  : in String;
+                        Newpath  : in String) return Integer
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "rename";
+
+   function Sys_Unlink (Path  : in String) return Integer
+     with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "unlink";
 
    --  Libc errno.  The __get_errno function is provided by the GNAT runtime.
    function Errno return Integer
@@ -193,5 +197,23 @@ package Util.Systems.Os is
 
    function Strerror (Errno : in Integer) return Interfaces.C.Strings.chars_ptr
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "strerror";
+
+   type DIR is new System.Address;
+
+   Null_Dir : constant DIR := DIR (System.Null_Address);
+
+   --  Equivalent to Posix opendir (3) but handles some portability issues.
+   --  We could use opendir, readdir_r and closedir but the __gnat_* alternative
+   --  solves
+   function Opendir (Directory : in String) return DIR
+      with Import, External_Name => "__gnat_opendir", Convention => C;
+
+   function Readdir (Directory : in DIR;
+                     Buffer    : in System.Address;
+                     Last      : not null access Integer) return System.Address
+      with Import, External_Name => "__gnat_readdir", Convention => C;
+
+   function Closedir (Directory : in DIR) return Integer
+      with Import, External_Name => "__gnat_closedir", Convention => C;
 
 end Util.Systems.Os;
