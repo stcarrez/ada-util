@@ -40,6 +40,35 @@ library project UtilAda_Base is
       end case;
    end Naming;
 
+   case UtilAda_Conf.Os_Version is
+      when "none" =>
+         null;
+
+      when "win64" | "win32" =>
+         for Source_Dirs use Project'Source_Dirs
+            & ("src/base/os-windows",
+               "src/base/os-" & UtilAda_Conf.Os_Version);
+
+      when "unix" =>
+         --  Unix with utilgen generated files
+         for Source_Dirs use Project'Source_Dirs
+            & ("src/base/os-unix",
+               "src/base/os-generated");
+
+      when "windows" =>
+         --  Windows with utilgen generated files
+         -- (!!! requires correct gcc version to compile utilgen)
+         for Source_Dirs use Project'Source_Dirs
+            & ("src/base/os-windows",
+               "src/base/os-generated");
+
+      when others =>
+         for Source_Dirs use Project'Source_Dirs
+            & ("src/base/os-unix",
+               "src/base/os-" & UtilAda_Conf.Os_Version);
+
+   end case;
+
    for Library_Dir use "lib/utilada_core/" & Project'Library_Kind;
    for Object_Dir use "obj/utilada_core/" & Project'Library_Kind;
 
