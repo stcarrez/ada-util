@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes -- Process creation and control
---  Copyright (C) 2011, 2012, 2016, 2018, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with Util.Streams;
 with Util.Systems.Types;
+with Util.Systems.Os;
 with Util.Strings.Vectors;
 
 with Ada.Finalization;
@@ -53,7 +54,8 @@ package Util.Processes is
 
    type Argument_List is array (Positive range <>) of String_Access;
 
-   type Process_Identifier is new Integer;
+   subtype Process_Identifier is Util.Systems.Os.Process_Identifier;
+   use type Util.Systems.Os.Process_Identifier;
 
    --  ------------------------------
    --  Process
@@ -232,4 +234,3 @@ private
    procedure Finalize (Sys : in out System_Process) is abstract;
 
 end Util.Processes;
-
