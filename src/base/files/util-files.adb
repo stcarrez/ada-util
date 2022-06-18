@@ -15,7 +15,6 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Interfaces.C.Strings;
 with System;
 with Ada.Directories;
 with Ada.IO_Exceptions;
@@ -24,6 +23,8 @@ with Ada.Streams.Stream_IO;
 with Ada.Text_IO;
 with Util.Strings.Builders;
 with Util.Strings.Tokenizers;
+with Util.Systems.Constants;
+with Util.Systems.Os;
 package body Util.Files is
 
    --  ------------------------------
@@ -403,21 +404,14 @@ package body Util.Files is
    procedure Rename (Old_Name, New_Name : in String) is
       --  Rename a file (the Ada.Directories.Rename does not allow to use the
       --  Unix atomic file rename!)
-      function Sys_Rename (Oldpath  : in Interfaces.C.Strings.chars_ptr;
-                           Newpath  : in Interfaces.C.Strings.chars_ptr) return Integer;
-      pragma Import (C, Sys_Rename, "rename");
 
-      Old_Path : Interfaces.C.Strings.chars_ptr;
-      New_Path : Interfaces.C.Strings.chars_ptr;
-      Result   : Integer;
+      C_Old_Path : constant String := Old_Name & ASCII.NUL;
+      C_New_Path : constant String := New_Name & ASCII.NUL;
+      Result     : Integer;
    begin
       --  Do a system atomic rename of old file in the new file.
       --  Ada.Directories.Rename does not allow this.
-      Old_Path := Interfaces.C.Strings.New_String (Old_Name);
-      New_Path := Interfaces.C.Strings.New_String (New_Name);
-      Result := Sys_Rename (Old_Path, New_Path);
-      Interfaces.C.Strings.Free (Old_Path);
-      Interfaces.C.Strings.Free (New_Path);
+      Result := Util.Systems.Os.Sys_Rename (C_Old_Path, C_New_Path);
       if Result /= 0 then
          raise Ada.IO_Exceptions.Use_Error with "Cannot rename file";
       end if;
@@ -428,20 +422,72 @@ package body Util.Files is
    --  or socket files (which GNAT fails to delete,
    --  see gcc/63222 and gcc/56055).
    --  ------------------------------
-   procedure Delete_File (Path : in String) is
-      function Sys_Unlink (Path  : in System.Address) return Integer;
-      pragma Import (C, Sys_Unlink, "unlink");
-
-      C_Path : String (1 .. Path'Length + 1);
-      Result : Integer;
+   function Delete_File (Path : in String) return Integer is
+      C_Path : constant String := Path & ASCII.NUL;
    begin
-      C_Path (1 .. Path'Length) := Path;
-      C_Path (C_Path'Last) := ASCII.NUL;
+      if Util.Systems.Os.Sys_Unlink (C_Path) = 0 then
+         return 0;
+      else
+         return Util.Systems.Os.Errno;
+      end if;
+   end Delete_File;
 
-      Result := Sys_Unlink (C_Path'Address);
+   procedure Delete_File (Path : in String) is
+      Result : constant Integer := Delete_File (Path);
+   begin
       if Result /= 0 then
          raise Ada.IO_Exceptions.Use_Error with "file """ & Path & """ could not be deleted";
       end if;
    end Delete_File;
+
+   --  ------------------------------
+   --  Delete the directory tree recursively.  If the directory tree contains
+   --  sockets, special files and dangling symbolic links, they are removed
+   --  correctly.  This is a workarround for GNAT bug gcc/63222 and gcc/56055.
+   --  ------------------------------
+   procedure Delete_Tree (Path : in String) is
+      use type System.Address;
+      use type Util.Systems.Os.DIR;
+
+      C_Path         : constant String := Path & ASCII.NUL;
+      Dirp           : Util.Systems.Os.DIR;
+      Buffer         : String (1 .. 1024);
+      Length         : aliased Integer;
+      File_Name_Addr : System.Address;
+      Result         : Integer;
+   begin
+      Dirp := Util.Systems.Os.Opendir (C_Path);
+      if Dirp = Util.Systems.Os.Null_Dir then
+         raise Ada.Directories.Use_Error with "unreadable directory """ & Path & '"';
+      end if;
+
+      begin
+         loop
+            File_Name_Addr := Util.Systems.Os.Readdir (Dirp, Buffer'Address, Length'Access);
+            exit when File_Name_Addr = System.Null_Address;
+            declare
+               subtype File_Name_String is String (1 .. Length);
+
+               File_Name : constant File_Name_String
+                 with Import, Address => File_Name_Addr;
+            begin
+               if File_Name /= "." and File_Name /= ".." then
+                  Result := Delete_File (Compose (Path, File_Name));
+                  if Result = Util.Systems.Constants.EISDIR then
+                     Delete_Tree (Compose (Path, File_Name));
+                  end if;
+               end if;
+            end;
+         end loop;
+         Result := Util.Systems.Os.Closedir (Dirp);
+
+      exception
+         when others =>
+            Result := Util.Systems.Os.Closedir (Dirp);
+            raise;
+
+      end;
+      Ada.Directories.Delete_Directory (Path);
+   end Delete_Tree;
 
 end Util.Files;
