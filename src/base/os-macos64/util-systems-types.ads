@@ -47,6 +47,7 @@ package Util.Systems.Types is
    --  st_rdev@ 24
    --  st_size@ 96
    STAT_NAME  : constant String := "_stat64";
+   LSTAT_NAME  : constant String := "_lstat64";
    FSTAT_NAME : constant String := "_fstat64";
    type Stat_Type is record
       st_dev      : dev_t;
