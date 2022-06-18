@@ -24,7 +24,7 @@ package Util.Systems.Constants is
    EIO                           : constant := 5;
    ENOEXEC                       : constant := 8;
    EBADF                         : constant := 9;
-   EAGAIN                        : constant := 11;
+   EAGAIN                        : constant := 35;
    ENOMEM                        : constant := 12;
    EACCES                        : constant := 13;
    EFAULT                        : constant := 14;
@@ -49,7 +49,7 @@ package Util.Systems.Constants is
    RTLD_LAZY                     : constant Interfaces.C.int := 8#000001#;
    RTLD_NOW                      : constant Interfaces.C.int := 8#000002#;
    RTLD_NOLOAD                   : constant Interfaces.C.int := 8#020000#;
-   RTLD_DEEPBIND                 : constant Interfaces.C.int := 8#000000#;
+   RTLD_DEEPBIND                 : constant Interfaces.C.int := 8#040000#;
    RTLD_GLOBAL                   : constant Interfaces.C.int := 8#000400#;
    RTLD_LOCAL                    : constant Interfaces.C.int := 8#000000#;
    RTLD_NODELETE                 : constant Interfaces.C.int := 8#010000#;
