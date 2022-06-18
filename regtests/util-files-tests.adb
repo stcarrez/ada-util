@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  files.tests -- Unit tests for files
---  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2019 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,9 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
+with System;
 with Ada.Directories;
+with Util.Systems.Constants;
 with Util.Test_Caller;
 package body Util.Files.Tests is
 
@@ -42,6 +44,8 @@ package body Util.Files.Tests is
                        Test_Compose_Path'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Get_Relative_Path",
                        Test_Get_Relative_Path'Access);
+      Caller.Add_Test (Suite, "Test Util.Files.Delete_Tree",
+                       Test_Delete_Tree'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -195,5 +199,50 @@ package body Util.Files.Tests is
                      Get_Relative_Path ("/home/john/src/asf", "/home/john/src/asf/"),
                      "Invalid relative path");
    end Test_Get_Relative_Path;
+
+   function Sys_Symlink (Target : in System.Address; Link : in System.Address) return Integer
+     with Import => True, Convention => C,
+          Link_Name => Util.Systems.Constants.SYMBOL_PREFIX & "symlink";
+   pragma Weak_External (Sys_Symlink);
+
+   --  ------------------------------
+   --  Test the Delete_Tree operation.
+   --  ------------------------------
+   procedure Test_Delete_Tree (T : in out Test) is
+      use type System.Address;
+
+      Path : constant String := Util.Tests.Get_Test_Path ("test-delete-tree");
+   begin
+      if Ada.Directories.Exists (Path) then
+         Delete_Tree (Path);
+      end if;
+
+      --  Create a directory tree with symlink links that point to a non-existing file.
+      Ada.Directories.Create_Directory (Path);
+      for I in 1 .. 10 loop
+         declare
+            P : constant String := Compose (Path, Util.Strings.Image (I));
+            S : String (1 .. P'Length + 3);
+            R : Integer;
+         begin
+            Ada.Directories.Create_Directory (P);
+            S (1 .. P'Length) := P;
+            S (P'Length + 1) := '/';
+            S (P'Length + 2) := 'A';
+            S (S'Last) := ASCII.NUL;
+            for J in 1 .. 5 loop
+               Ada.Directories.Create_Path (Compose (P, Util.Strings.Image (J)));
+            end loop;
+            if Sys_Symlink'Address /= System.Null_Address then
+               R := Sys_Symlink (S'Address, S'Address);
+            end if;
+         end;
+      end loop;
+      T.Assert (Ada.Directories.Exists (Path), "Directory must exist");
+
+      --  Ada.Directories.Delete_Tree (Path) fails to delete the tree.
+      Delete_Tree (Path);
+      T.Assert (not Ada.Directories.Exists (Path), "Directory must have been deleted");
+   end Test_Delete_Tree;
 
 end Util.Files.Tests;
