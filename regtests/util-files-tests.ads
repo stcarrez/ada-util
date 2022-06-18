@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  files.tests -- Unit tests for files
---  Copyright (C) 2009, 2010, 2011, 2012 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,5 +34,8 @@ package Util.Files.Tests is
 
    --  Test the Get_Relative_Path operation.
    procedure Test_Get_Relative_Path (T : in out Test);
+
+   --  Test the Delete_Tree operation.
+   procedure Test_Delete_Tree (T : in out Test);
 
 end Util.Files.Tests;
