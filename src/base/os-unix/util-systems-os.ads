@@ -151,6 +151,10 @@ package Util.Systems.Os is
                       Stat : access Util.Systems.Types.Stat_Type) return Integer
      with Import => True, Convention => C, Link_Name => Util.Systems.Types.STAT_NAME;
 
+   function Sys_Lstat (Path : in String;
+                       Stat : access Util.Systems.Types.Stat_Type) return Integer
+     with Import => True, Convention => C, Link_Name => Util.Systems.Types.LSTAT_NAME;
+
    function Sys_Fstat (Fs : in File_Type;
                        Stat : access Util.Systems.Types.Stat_Type) return Integer
      with Import => True, Convention => C, Link_Name => Util.Systems.Types.FSTAT_NAME;
