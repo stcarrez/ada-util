@@ -41,6 +41,7 @@ package Util.Systems.Types is
    subtype fflags_t is Interfaces.C.unsigned;
    STAT_NAME  : constant String := "stat";
    FSTAT_NAME : constant String := "fstat";
+   LSTAT_NAME : constant String := "lstat";
    type Stat_Type is record
       st_dev      : dev_t;
       st_ino      : ino_t;

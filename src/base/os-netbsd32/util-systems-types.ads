@@ -40,6 +40,7 @@ package Util.Systems.Types is
 
    STAT_NAME  : constant String := "__stat50";
    FSTAT_NAME : constant String := "__fstat50";
+   LSTAT_NAME : constant String := "__lstat50";
    type Stat_Type is record
       st_dev       : dev_t;
       st_mode      : mode_t;

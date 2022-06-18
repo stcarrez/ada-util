@@ -24,7 +24,7 @@ package Util.Systems.Constants is
    EIO                           : constant := 5;
    ENOEXEC                       : constant := 8;
    EBADF                         : constant := 9;
-   EAGAIN                        : constant := 11;
+   EAGAIN                        : constant := 35;
    ENOMEM                        : constant := 12;
    EACCES                        : constant := 13;
    EFAULT                        : constant := 14;
