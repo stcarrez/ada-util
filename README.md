@@ -41,6 +41,9 @@ framework as it provides better reports.
   - New package Util.Files.Rolling to provide a rolling file manager
   - New package Util.Beans.Objects.Iterators to easily iterate over objects
   - Add a new log appender to support rolling log files
+  - New operation Util.Files.Delete_Tree to delete a directory tree and work arround
+    for GNAT bug gcc/63222 and gcc/56055
+  - New operation Util.Files.Realpath to find the canonicalized absolute path of a file
   - Fix compilation on NetBSD 9.2
   - Fix compilation with AWS >= 22.0
 
