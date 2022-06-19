@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Characters.Conversions;
+with Ada.Strings.UTF_Encoding.Wide_Strings;
 package body Util.Systems.Os is
 
    use type Interfaces.Unsigned_32;
@@ -217,5 +218,31 @@ package body Util.Systems.Os is
 
       return (if Result = 0 then -1 else 0);
    end Sys_Rename;
+
+   function Sys_Realpath (S : in Ptr;
+                          R : in Ptr) return Ptr is
+      pragma Unreferenced (R);
+
+      use Interfaces.C;
+
+      WPath  : Wchar_Ptr := To_WSTR (Interfaces.C.Strings.Value (S));
+      Length : constant := 1024;
+      Buffer : Wchar_Ptr := new Interfaces.C.wchar_array (0 .. Length);
+      Result : DWORD;
+   begin
+      Result := Get_Full_Pathname (WPath.all'Address, Length, Buffer.all'Address, NULL_STR);
+      Free (WPath);
+      if Result = 0 then
+         Free (Buffer);
+         return Interfaces.C.Strings.Null_Ptr;
+      end if;
+      declare
+         S : constant Wide_String (1 .. Natural (Result))
+           := Interfaces.C.To_Ada (Buffer (0 .. size_t (Result)));
+      begin
+         Free (Buffer);
+         return Strings.New_String (Ada.Strings.UTF_Encoding.Wide_Strings.Encode (S));
+      end;
+   end Sys_Realpath;
 
 end Util.Systems.Os;
