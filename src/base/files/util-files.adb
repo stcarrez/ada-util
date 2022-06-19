@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with System;
 with Interfaces.C;
+with Interfaces.C.Strings;
 with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Streams;
@@ -501,5 +502,27 @@ package body Util.Files is
       end;
       Ada.Directories.Delete_Directory (Path);
    end Delete_Tree;
+
+   --  ------------------------------
+   --  Find the canonicalized absolute path of the given file.
+   --  ------------------------------
+   function Realpath (Path : in String) return String is
+      use Interfaces.C.Strings;
+
+      P : chars_ptr := New_String (Path);
+      R : chars_ptr;
+   begin
+      R := Util.Systems.Os.Sys_Realpath (P, Null_Ptr);
+      Free (P);
+      if R = Null_Ptr then
+         raise Ada.Directories.Use_Error with "invalid file """ & Path & '"';
+      end if;
+      declare
+         Result : constant String := Value (R);
+      begin
+         Free (R);
+         return Result;
+      end;
+   end Realpath;
 
 end Util.Files;
