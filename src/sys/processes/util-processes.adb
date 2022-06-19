@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes -- Process creation and control
---  Copyright (C) 2011, 2016, 2018, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2018, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Unchecked_Deallocation;
+with Ada.Environment_Variables;
 
 with Util.Log.Loggers;
 with Util.Strings;
@@ -177,6 +178,14 @@ package body Util.Processes is
       end if;
       Iterate (Process'Access);
    end Set_Environment;
+
+   --  ------------------------------
+   --  Import the default environment variables from the current process.
+   --  ------------------------------
+   procedure Set_Default_Environment (Proc : in out Process) is
+   begin
+      Set_Environment (Proc, Ada.Environment_Variables.Iterate'Access);
+   end Set_Default_Environment;
 
    --  ------------------------------
    --  Spawn a new process with the given command and its arguments.  The standard input, output
@@ -397,4 +406,3 @@ package body Util.Processes is
    end Finalize;
 
 end Util.Processes;
-
