@@ -248,6 +248,9 @@ package body Util.Processes.Os is
       if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL or Mode = READ_WRITE_ALL then
          Build_Output_Pipe (Sys, Proc, Startup, Mode);
       end if;
+      if Mode = READ_ERROR then
+         Build_Output_Pipe (Sys, Proc, Startup, Mode);
+      end if;
       if Sys.Env /= null then
          Flags := 16#400#; --  CREATE_UNICODE_ENVIRONMENT
       else
@@ -353,14 +356,14 @@ package body Util.Processes.Os is
             Log.Error ("Cannot create pipe: {0}", Integer'Image (Get_Last_Error));
             raise Program_Error with "Cannot create pipe";
          end if;
-      elsif Sys.Out_File /= null then
+      elsif Sys.Out_File /= null or Mode = READ_ERROR then
          Error_Handle := Write_Handle;
       end if;
       Into.dwFlags    := 16#100#;
       if Sys.Out_File = null then
          Into.hStdOutput := Write_Handle;
       end if;
-      if Redirect_Error and Sys.Err_File = null then
+      if (Redirect_Error and Sys.Err_File = null) or Mode = READ_ERROR then
          Into.hStdError  := Error_Handle;
       end if;
       Proc.Output     := Create_Stream (Read_Pipe_Handle).all'Access;
