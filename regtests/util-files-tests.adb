@@ -46,6 +46,8 @@ package body Util.Files.Tests is
                        Test_Get_Relative_Path'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Delete_Tree",
                        Test_Delete_Tree'Access);
+      Caller.Add_Test (Suite, "Test Util.Files.Realpath",
+                       Test_Realpath'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -245,5 +247,14 @@ package body Util.Files.Tests is
       Delete_Tree (Path);
       T.Assert (not Ada.Directories.Exists (Path), "Directory must have been deleted");
    end Test_Delete_Tree;
+
+   --  ------------------------------
+   --  Test the Realpath function.
+   --  ------------------------------
+   procedure Test_Realpath (T : in out Test) is
+      P : constant String := Util.Files.Realpath ("bin/util_harness");
+   begin
+      Util.Tests.Assert_Matches (T, ".*/bin/util_harness", P);
+   end Test_Realpath;
 
 end Util.Files.Tests;
