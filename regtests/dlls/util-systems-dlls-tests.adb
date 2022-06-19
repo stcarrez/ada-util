@@ -158,6 +158,15 @@ package body Util.Systems.DLLs.Tests is
             null;
       end;
 
+      begin
+         Sym := Util.Systems.DLLs.Get_Symbol (Lib, "XML_ParserCreate");
+         T.Assert (Sym /= System.Null_Address, "Get_Symbol returned null");
+
+      exception
+         when Not_Found =>
+            null;
+      end;
+
       --  We must have found one of the two symbols
       T.Assert (Sym /= System.Null_Address, "Get_Symbol returned null");
 
