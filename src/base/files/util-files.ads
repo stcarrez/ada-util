@@ -176,4 +176,7 @@ package Util.Files is
    --  correctly.  This is a workarround for GNAT bug gcc/63222 and gcc/56055.
    procedure Delete_Tree (Path : in String);
 
+   --  Find the canonicalized absolute path of the given file.
+   function Realpath (Path : in String) return String;
+
 end Util.Files;
