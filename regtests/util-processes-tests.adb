@@ -29,6 +29,8 @@ package body Util.Processes.Tests is
    --  The logger
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Processes.Tests");
 
+   Windows  : constant Boolean := Util.Systems.Os.Directory_Separator = '\';
+
    package Caller is new Util.Test_Caller (Test, "Processes");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -108,7 +110,12 @@ package body Util.Processes.Tests is
       P : aliased Util.Streams.Pipes.Pipe_Stream;
    begin
       P.Set_Working_Directory ("bin");
-      P.Open ("./util_test_process 0 write b c d e f test_marker");
+      --  Note: windows does not change the working dir in the same way as Unix.
+      if Windows then
+         P.Open ("bin/util_test_process 0 write b c d e f test_marker");
+      else
+         P.Open ("./util_test_process 0 write b c d e f test_marker");
+      end if;
       declare
          Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
          Content : Ada.Strings.Unbounded.Unbounded_String;
@@ -384,16 +391,22 @@ package body Util.Processes.Tests is
       Util.Processes.Set_Input_Stream (P, In_Path);
       Util.Processes.Set_Output_Stream (P, Out_Path);
       Util.Processes.Set_Error_Stream (P, Err_Path);
-      Util.Processes.Spawn (P, "env | grep ENV_VAR");
+      if Windows then
+         Util.Processes.Spawn (P, "env");
+      else
+         Util.Processes.Spawn (P, "env | grep ENV_VAR");
+      end if;
       Util.Processes.Wait (P);
 
       T.Assert (not P.Is_Running, "Process has stopped");
       Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Process failed");
 
-      Util.Tests.Assert_Equal_Files (T       => T,
-                                     Expect  => Exp_Path,
-                                     Test    => Out_Path,
-                                     Message => "Process input/output redirection");
+      if not Windows then
+         Util.Tests.Assert_Equal_Files (T       => T,
+                                        Expect  => Exp_Path,
+                                        Test    => Out_Path,
+                                        Message => "Process input/output redirection");
+      end if;
    end Test_Set_Environment;
 
    --  ------------------------------
