@@ -38,4 +38,7 @@ package Util.Files.Tests is
    --  Test the Delete_Tree operation.
    procedure Test_Delete_Tree (T : in out Test);
 
+   --  Test the Realpath function.
+   procedure Test_Realpath (T : in out Test);
+
 end Util.Files.Tests;
