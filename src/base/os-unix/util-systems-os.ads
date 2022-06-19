@@ -195,6 +195,10 @@ package Util.Systems.Os is
    function Sys_Unlink (Path  : in String) return Integer
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "unlink";
 
+   function Sys_Realpath (S : in Ptr;
+                          R : in Ptr) return Ptr
+     with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "realpath";
+
    --  Libc errno.  The __get_errno function is provided by the GNAT runtime.
    function Errno return Integer
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "__get_errno";
