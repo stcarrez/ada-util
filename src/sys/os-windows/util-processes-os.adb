@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012, 2018, 2019, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2018, 2019, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -215,6 +215,7 @@ package body Util.Processes.Os is
       Result  : Integer;
       Startup : aliased Startup_Info;
       R       : BOOL with Unreferenced;
+      Flags   : DWORD;
    begin
       Sys.Prepare_Working_Directory (Proc);
       Sys.Prepare_Environment;
@@ -247,6 +248,11 @@ package body Util.Processes.Os is
       if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL or Mode = READ_WRITE_ALL then
          Build_Output_Pipe (Sys, Proc, Startup, Mode);
       end if;
+      if Sys.Env /= null then
+         Flags := 16#400#; --  CREATE_UNICODE_ENVIRONMENT
+      else
+         Flags := 0;
+      end if;
 
       --  Start the child process.
       Result := Create_Process
@@ -255,7 +261,7 @@ package body Util.Processes.Os is
          null,
          null,
          1,
-         16#0#,
+         Flags,
          (if Sys.Env /= null then Sys.Env.all'Address else System.Null_Address),
          (if Sys.Dir /= null then Sys.Dir.all'Address else System.Null_Address),
          Startup'Unchecked_Access,
@@ -524,6 +530,3 @@ package body Util.Processes.Os is
    end Finalize;
 
 end Util.Processes.Os;
-
-
-
