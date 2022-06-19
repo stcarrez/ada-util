@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-tests - Test for processes
---  Copyright (C) 2011, 2012, 2016, 2018, 2019, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2019, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -379,6 +379,7 @@ package body Util.Processes.Tests is
       Out_Path : constant String := Util.Tests.Get_Test_Path ("proc-env.txt");
       Err_Path : constant String := Util.Tests.Get_Test_Path ("proc-errres.txt");
    begin
+      Util.Processes.Set_Default_Environment (P);
       Util.Processes.Set_Environment (P, "ENV_VAR", "test1");
       Util.Processes.Set_Input_Stream (P, In_Path);
       Util.Processes.Set_Output_Stream (P, Out_Path);
