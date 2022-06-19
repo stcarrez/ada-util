@@ -113,6 +113,9 @@ package Util.Processes is
                                      (Name  : in String;
                                       Value : in String)));
 
+   --  Import the default environment variables from the current process.
+   procedure Set_Default_Environment (Proc : in out Process);
+
    --  Spawn a new process with the given command and its arguments.  The standard input, output
    --  and error streams are either redirected to a file or to a stream object.
    procedure Spawn (Proc      : in out Process;
