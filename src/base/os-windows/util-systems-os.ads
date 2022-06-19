@@ -279,6 +279,12 @@ package Util.Systems.Os is
                        Flags         : in DWORD) return BOOL
      with Import => True, Convention => Stdcall, Link_Name => "MoveFileExW";
 
+   function Get_Full_Pathname (Path   : in LPCTSTR;
+                               Length : in DWORD;
+                               Buffer : in LPCTSTR;
+                               Ptr    : in LPCSTR) return DWORD
+     with Import => True, Convention => Stdcall, Link_Name => "GetFullPathNameW";
+
    --  Close a file
    function Sys_Close (Fd : in File_Type) return Integer;
 
@@ -297,6 +303,9 @@ package Util.Systems.Os is
    function Sys_Chmod (Path  : in Ptr;
                        Mode  : in Util.Systems.Types.mode_t) return Integer
      with Import => True, Convention => Stdcall, Link_Name => "_chmod";
+
+   function Sys_Realpath (S : in Ptr;
+                          R : in Ptr) return Ptr;
 
    function Strerror (Errno : in Integer) return Interfaces.C.Strings.chars_ptr
      with Import => True, Convention => Stdcall, Link_Name => "strerror";
