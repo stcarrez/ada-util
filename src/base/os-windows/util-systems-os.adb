@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-system-os -- Windows system operations
---  Copyright (C) 2011, 2012, 2015, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2015, 2018, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -196,5 +196,26 @@ package body Util.Systems.Os is
       end if;
    end Sys_Close;
 
+   --  ------------------------------
+   --  Rename a file (the Ada.Directories.Rename does not allow to use
+   --  the Unix atomic file rename!)
+   --  ------------------------------
+   function Sys_Rename (Oldpath  : in String;
+                        Newpath  : in String) return Integer is
+      Old_WPath : Wchar_Ptr;
+      New_WPath : Wchar_Ptr;
+      Result    : BOOL;
+   begin
+      Old_WPath := To_WSTR (Oldpath (Oldpath'First .. Oldpath'Last - 1));
+      New_WPath := To_WSTR (Newpath (Newpath'First .. Newpath'Last - 1));
+      Result := Move_File (Old_WPath.all'Address,
+                           New_WPath.all'Address,
+                           3 + 8);
+
+      Free (Old_WPath);
+      Free (New_WPath);
+
+      return (if Result = 0 then -1 else 0);
+   end Sys_Rename;
 
 end Util.Systems.Os;

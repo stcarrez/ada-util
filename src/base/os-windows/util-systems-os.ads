@@ -153,6 +153,7 @@ package Util.Systems.Os is
    subtype Ptr is Interfaces.C.Strings.chars_ptr;
    subtype LPCTSTR is System.Address;
    subtype LPTSTR is System.Address;
+   subtype LPVOID is System.Address;
    type CommandPtr is access all Interfaces.C.wchar_array;
 
    NULL_STR : constant LPWSTR := Interfaces.C.Strings.Null_Ptr;
@@ -265,6 +266,19 @@ package Util.Systems.Os is
                          Template_File  : HANDLE) return HANDLE
      with Import => True, Convention => Stdcall, Link_Name => "CreateFileW";
 
+   function Replace_File (Replaced_File     : in LPCTSTR;
+                          Replacement_File  : in LPCTSTR;
+                          Backup_File       : in LPCTSTR;
+                          Replace_Flags     : in DWORD;
+                          Exclude           : in LPCTSTR;
+                          Reserved          : in LPCTSTR) return BOOL
+     with Import => True, Convention => Stdcall, Link_Name => "ReplaceFileW";
+
+   function Move_File (Existing_File : in LPCTSTR;
+                       New_File      : in LPCTSTR;
+                       Flags         : in DWORD) return BOOL
+     with Import => True, Convention => Stdcall, Link_Name => "MoveFileExW";
+
    --  Close a file
    function Sys_Close (Fd : in File_Type) return Integer;
 
@@ -301,8 +315,7 @@ package Util.Systems.Os is
    --  Rename a file (the Ada.Directories.Rename does not allow to use
    --  the Unix atomic file rename!)
    function Sys_Rename (Oldpath  : in String;
-                        Newpath  : in String) return Integer
-     with Import => True, Convention => C, Link_Name => "rename";
+                        Newpath  : in String) return Integer;
 
    function Sys_Unlink (Path  : in String) return Integer
      with Import => True, Convention => C, Link_Name => "unlink";
