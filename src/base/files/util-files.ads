@@ -20,7 +20,7 @@ with Util.Strings.Maps;
 with Util.Strings.Vectors;
 
 --  = Files =
---  The `Util.Files` package provides various utility operations arround files
+--  The `Util.Files` package provides various utility operations around files
 --  to help in reading, writing, searching for files in a path.
 --  To use the operations described here, use the following GNAT project:
 --
@@ -173,7 +173,7 @@ package Util.Files is
 
    --  Delete the directory tree recursively.  If the directory tree contains
    --  sockets, special files and dangling symbolic links, they are removed
-   --  correctly.  This is a workarround for GNAT bug gcc/63222 and gcc/56055.
+   --  correctly.  This is a workaround for GNAT bug gcc/63222 and gcc/56055.
    procedure Delete_Tree (Path : in String);
 
    --  Find the canonicalized absolute path of the given file.
