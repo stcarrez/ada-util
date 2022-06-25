@@ -167,7 +167,7 @@ package body Util.Files.Rolling is
       Last  : Natural := 0;
    begin
       if Ada.Directories.Exists (Dir) then
-         Manager.Elligible_Files (Dir, Names, First, Last);
+         Manager.Eligible_Files (Dir, Names, First, Last);
 
          while Natural (Names.Length) > Manager.Max_Files loop
             begin
@@ -223,7 +223,7 @@ package body Util.Files.Rolling is
       Last  : Natural := 0;
    begin
       if Ada.Directories.Exists (Dir) then
-         Manager.Elligible_Files (Dir, Names, First, Last);
+         Manager.Eligible_Files (Dir, Names, First, Last);
 
          while Natural (Names.Length) > Manager.Max_Files loop
             begin
@@ -286,13 +286,13 @@ package body Util.Files.Rolling is
    end Get_Purge_Pattern;
 
    --  ------------------------------
-   --  Find the files that are elligible to purge in the given directory.
+   --  Find the files that are eligible to purge in the given directory.
    --  ------------------------------
-   procedure Elligible_Files (Manager     : in out File_Manager;
-                              Path        : in String;
-                              Names       : in out Util.Strings.Vectors.Vector;
-                              First_Index : out Natural;
-                              Last_Index  : out Natural) is
+   procedure Eligible_Files (Manager     : in out File_Manager;
+                             Path        : in String;
+                             Names       : in out Util.Strings.Vectors.Vector;
+                             First_Index : out Natural;
+                             Last_Index  : out Natural) is
       function Get_Index (Name : in String) return Natural;
       function Compare (Left, Right : in String) return Boolean;
 
@@ -351,6 +351,6 @@ package body Util.Files.Rolling is
          First_Index := Manager.Min_Index;
          Last_Index := Manager.Min_Index;
       end if;
-   end Elligible_Files;
+   end Eligible_Files;
 
 end Util.Files.Rolling;

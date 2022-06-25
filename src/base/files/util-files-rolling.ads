@@ -126,12 +126,12 @@ package Util.Files.Rolling is
 
 private
 
-   --  Find the files that are elligible to purge in the given directory.
-   procedure Elligible_Files (Manager     : in out File_Manager;
-                              Path        : in String;
-                              Names       : in out Util.Strings.Vectors.Vector;
-                              First_Index : out Natural;
-                              Last_Index  : out Natural);
+   --  Find the files that are eligible to purge in the given directory.
+   procedure Eligible_Files (Manager     : in out File_Manager;
+                             Path        : in String;
+                             Names       : in out Util.Strings.Vectors.Vector;
+                             First_Index : out Natural;
+                             Last_Index  : out Natural);
 
    procedure Rename (Manager : in File_Manager;
                      Old     : in String);
