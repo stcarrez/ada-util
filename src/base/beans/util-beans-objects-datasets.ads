@@ -58,7 +58,7 @@ with Util.Beans.Objects.Iterators;
 --
 --  The dataset instance is converted to an `Object` by using the `To_Object`
 --  function.  Note that the default behavior of `To_Object` is to take
---  the ownershiup of the object and hence it will be released automatically.
+--  the ownership of the object and hence it will be released automatically.
 --
 --     List : Util.Beans.Objects.Object
 --        := Util.Beans.Objects.To_Object (Set);
