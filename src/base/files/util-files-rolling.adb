@@ -60,7 +60,7 @@ package body Util.Files.Rolling is
    end Format;
 
    --  ------------------------------
-   --  Initialize the file manager to roll the file refered by `Path` by using
+   --  Initialize the file manager to roll the file referred by `Path` by using
    --  the pattern defined in `Pattern`.
    --  ------------------------------
    procedure Initialize (Manager  : in out File_Manager;
