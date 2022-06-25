@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Util.Http.Clients.Curl;
 with Util.Http.Clients.Tests;
 package Util.Http.Clients.Curl.Tests is
    new Util.Http.Clients.Tests.Http_Tests (Util.Http.Clients.Curl.Register, "curl");

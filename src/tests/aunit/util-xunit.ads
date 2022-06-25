@@ -21,7 +21,6 @@ with AUnit.Assertions;
 with AUnit.Simple_Test_Cases;
 with AUnit.Test_Suites;
 with AUnit.Test_Fixtures;
-with Ada.Strings.Unbounded;
 
 with GNAT.Source_Info;
 
@@ -30,7 +29,6 @@ with GNAT.Source_Info;
 --  A quite identical package exist for Ahven implementation.
 package Util.XUnit is
 
-   use Ada.Strings.Unbounded;
    use AUnit.Test_Suites;
 
    subtype Status is AUnit.Status;
