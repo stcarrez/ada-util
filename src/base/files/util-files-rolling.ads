@@ -35,7 +35,11 @@ with Util.Strings.Vectors;
 --  * `Size_Policy`: size policy, the rolling is triggered when the file
 --     reaches a given size.
 --  * `Time_Policy`: time policy, the rolling is made when the date/time pattern
---     no longer applies to the active file.
+--     no longer applies to the active file; the `Interval` configuration
+--     defines the period to check for time changes,
+--  * `Size_Time_Policy`: combines the size and time policy, the rolling is
+--     triggered when either the file reaches a given size or the date/time
+--     pattern no longer applies to the active file.
 --
 --  To control how the rolling is made, the `Strategy_Type` defines the behavior
 --  of the rolling.
@@ -60,18 +64,16 @@ with Util.Strings.Vectors;
 --
 package Util.Files.Rolling is
 
-   type Policy_Kind is (No_Policy, Size_Policy, Time_Policy);
+   type Policy_Kind is (No_Policy, Size_Policy, Time_Policy, Size_Time_Policy);
 
    type Policy_Type (Kind : Policy_Kind) is record
       case Kind is
          when No_Policy =>
             null;
 
-         when Size_Policy =>
-            Size : Ada.Directories.File_Size := 100_000_000;
-
-         when Time_Policy =>
-            Interval : Natural := 1;
+         when Time_Policy | Size_Policy | Size_Time_Policy =>
+            Size     : Ada.Directories.File_Size := 100_000_000;
+            Interval : Natural := 0;
 
       end case;
    end record;
@@ -111,7 +113,7 @@ package Util.Files.Rolling is
    function Get_Current_Path (Manager : in File_Manager) return String;
 
    --  Check if a rollover is necessary based on the rolling strategy.
-   function Is_Rollover_Necessary (Manager : in File_Manager) return Boolean;
+   function Is_Rollover_Necessary (Manager : in out File_Manager) return Boolean;
 
    --  Perform a rollover according to the strategy that was configured.
    procedure Rollover (Manager : in out File_Manager);
