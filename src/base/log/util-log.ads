@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log -- Utility Log Package
---  Copyright (C) 2001 - 2021 Stephane Carrez
+--  Copyright (C) 2001 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +40,7 @@
 --
 --  == Logger Declaration ==
 --  Similar to other logging framework such as Java Log4j and Log4cxx, it is necessary to have
---  and instance of a logger to write a log message.  The logger instance holds the configuration
+--  an instance of a logger to write a log message.  The logger instance holds the configuration
 --  for the log to enable, disable and control the format and the appender that will receive
 --  the message.  The logger instance is associated with a name that is used for the
 --  configuration.  A good practice is to declare a `Log` instance in the package body or
