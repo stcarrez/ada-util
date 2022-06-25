@@ -156,7 +156,7 @@ package body Util.Files.Rolling is
          begin
             --  Get a new deadline to check for time change.
             Manager.Deadline := Now + Duration (Manager.Interval);
-            return Current /= Path;
+            return Path /= Manager.Last_Path;
          end;
 
       exception
@@ -225,7 +225,7 @@ package body Util.Files.Rolling is
       Manager.Rename (Old);
    end Rollover_Ascending;
 
-   procedure Rename (Manager : in File_Manager;
+   procedure Rename (Manager : in out File_Manager;
                      Old     : in String) is
       Path  : constant String := Format (Pattern => To_String (Manager.Pattern),
                                          Date    => Manager.Deadline,
@@ -239,6 +239,7 @@ package body Util.Files.Rolling is
 
          Util.Files.Rename (Old_Name => Old,
                             New_Name => Path);
+         Manager.Last_Path := To_Unbounded_String (Path);
       end if;
    end Rename;
 
