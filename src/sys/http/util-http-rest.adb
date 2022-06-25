@@ -42,7 +42,7 @@ package body Util.Http.Rest is
 
    --  -----------------------
    --  Execute an HTTP GET operation on the given <b>URI</b> and parse the JSON response
-   --  into the target object refered to by <b>Into</b> by using the mapping described
+   --  into the target object referred to by <b>Into</b> by using the mapping described
    --  in <b>Mapping</b>.
    --  -----------------------
    procedure Rest_Get (URI     : in String;

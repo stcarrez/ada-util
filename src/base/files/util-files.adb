@@ -445,7 +445,7 @@ package body Util.Files is
    --  ------------------------------
    --  Delete the directory tree recursively.  If the directory tree contains
    --  sockets, special files and dangling symbolic links, they are removed
-   --  correctly.  This is a workarround for GNAT bug gcc/63222 and gcc/56055.
+   --  correctly.  This is a workaround for GNAT bug gcc/63222 and gcc/56055.
    --  ------------------------------
    procedure Delete_Tree (Path : in String) is
       use type System.Address;

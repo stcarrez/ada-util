@@ -64,7 +64,7 @@
 --  | To_Duration  | Convert to a duration |
 --  | To_Bean | Convert to an access to the Read_Only_Bean'Class |
 --
---  Convertion to a time or enumeration is provided by specific packages.
+--  Conversion to a time or enumeration is provided by specific packages.
 --
 --  The support for enumeration is made by the generic package
 --  `Util.Beans.Objects.Enums` which must be instantiated with the enumeration

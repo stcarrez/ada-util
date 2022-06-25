@@ -99,7 +99,7 @@ package Util.Files.Rolling is
 
    type File_Manager is tagged limited private;
 
-   --  Initialize the file manager to roll the file refered by `Path` by using
+   --  Initialize the file manager to roll the file referred by `Path` by using
    --  the pattern defined in `Pattern`.
    procedure Initialize (Manager  : in out File_Manager;
                          Path     : in String;
