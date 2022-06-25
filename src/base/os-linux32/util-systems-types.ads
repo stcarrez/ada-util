@@ -40,6 +40,7 @@ package Util.Systems.Types is
 
    STAT_NAME  : constant String := "stat";
    FSTAT_NAME : constant String := "fstat";
+   LSTAT_NAME : constant String := "lstat";
    type Stat_Type is record
       st_dev     : dev_t;
       pad1       : Interfaces.C.unsigned_short;
