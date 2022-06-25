@@ -151,6 +151,9 @@ package body Util.Files.Rolling is
             Manager.Rollover_Direct;
 
       end case;
+      if Manager.Policy = Time_Policy then
+         Manager.Deadline := Ada.Calendar.Clock + Duration (3600 * Manager.Interval);
+      end if;
    end Rollover;
 
    procedure Rollover_Ascending (Manager : in out File_Manager) is
