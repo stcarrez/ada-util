@@ -75,14 +75,13 @@ package body Util.Files.Rolling is
       Manager.Cur_Index := 0;
       Manager.Policy := Policy.Kind;
       case Policy.Kind is
-         when Size_Policy =>
+         when Size_Policy | Size_Time_Policy | Time_Policy =>
             Manager.Max_Size := Policy.Size;
-
-         when Time_Policy =>
             Manager.Interval := Policy.Interval;
 
          when others =>
             null;
+
       end case;
       Manager.Strategy := Strategy.Kind;
       case Strategy.Kind is
@@ -109,35 +108,68 @@ package body Util.Files.Rolling is
    --  ------------------------------
    --  Check if a rollover is necessary based on the rolling strategy.
    --  ------------------------------
-   function Is_Rollover_Necessary (Manager : in File_Manager) return Boolean is
+   function Is_Rollover_Necessary (Manager : in out File_Manager) return Boolean is
+      Now : Ada.Calendar.Time;
    begin
-      case Manager.Policy is
-         when No_Policy =>
+      if Manager.Policy = No_Policy then
+         return False;
+      end if;
+
+      if Manager.Policy = Time_Policy then
+         Now := Ada.Calendar.Clock;
+         if Now < Manager.Deadline then
             return False;
+         end if;
+         --  Continue checking if the path has changed.
+      end if;
 
-         when Time_Policy =>
-            return Manager.Deadline < Ada.Calendar.Clock;
+      declare
+         Current : constant String := To_String (Manager.File_Path);
+         Exists  : constant Boolean := Ada.Directories.Exists (Current);
+      begin
+         if not Exists and Manager.Policy = Size_Policy then
+            return False;
+         end if;
 
-         when Size_Policy =>
-            declare
-               Path : constant String := To_String (Manager.File_Path);
-            begin
-               if not Ada.Directories.Exists (Path) then
-                  return False;
-               end if;
-               return Ada.Directories.Size (Path) >= Manager.Max_Size;
+         if Exists and then Manager.Policy in Size_Policy | Size_Time_Policy
+           and then Ada.Directories.Size (Current) >= Manager.Max_Size
+         then
+            return True;
+         end if;
 
-            exception
-               when Ada.Directories.Name_Error =>
-                  --  Even if we check for file existence, an exception could
-                  --  be raised if the file is moved/deleted.
-                  return False;
-            end;
+         if Manager.Policy = Size_Policy then
+            return False;
+         end if;
 
-      end case;
+         --  Time_Policy or Size_Time_Policy
+         Now := Ada.Calendar.Clock;
+         if Now < Manager.Deadline then
+            return False;
+         end if;
+
+         --  Check if the file pattern was changed due to the date.
+         declare
+            Pat  : constant String := To_String (Manager.Pattern);
+            Path : constant String := Format (Pattern => Pat,
+                                              Date    => Now,
+                                              Index   => Manager.Cur_Index);
+         begin
+            --  Get a new deadline to check for time change.
+            Manager.Deadline := Now + Duration (Manager.Interval);
+            return Current /= Path;
+         end;
+
+      exception
+         when Ada.Directories.Name_Error =>
+            --  Even if we check for file existence, an exception could
+            --  be raised if the file is moved/deleted.
+            return False;
+      end;
    end Is_Rollover_Necessary;
 
+   --  ------------------------------
    --  Perform a rollover according to the strategy that was configured.
+   --  ------------------------------
    procedure Rollover (Manager : in out File_Manager) is
    begin
       case (Manager.Strategy) is
@@ -151,15 +183,13 @@ package body Util.Files.Rolling is
             Manager.Rollover_Direct;
 
       end case;
-      if Manager.Policy = Time_Policy then
-         Manager.Deadline := Ada.Calendar.Clock + Duration (3600 * Manager.Interval);
-      end if;
    end Rollover;
 
    procedure Rollover_Ascending (Manager : in out File_Manager) is
+      Now   : constant Ada.Calendar.Time := Ada.Calendar.Clock;
       Old   : constant String := Manager.Get_Current_Path;
       Path  : constant String := Format (Pattern => To_String (Manager.Pattern),
-                                         Date    => Manager.Deadline,
+                                         Date    => Now,
                                          Index   => Manager.Cur_Index);
       Dir   : constant String := Ada.Directories.Containing_Directory (Path);
       Names : Util.Strings.Vectors.Vector;
@@ -213,9 +243,10 @@ package body Util.Files.Rolling is
    end Rename;
 
    procedure Rollover_Descending (Manager : in out File_Manager) is
+      Now   : constant Ada.Calendar.Time := Ada.Calendar.Clock;
       Old   : constant String := Manager.Get_Current_Path;
       Path  : constant String := Format (Pattern => To_String (Manager.Pattern),
-                                         Date    => Manager.Deadline,
+                                         Date    => Now,
                                          Index   => Manager.Cur_Index);
       Dir   : constant String := Ada.Directories.Containing_Directory (Path);
       Names : Util.Strings.Vectors.Vector;
@@ -277,6 +308,36 @@ package body Util.Files.Rolling is
                Append (Result, "[0-9]+");
             end if;
             Pos := Pos + 2;
+         elsif Pos + 3 < Name_Pat'Last and then Name_Pat (Pos + 1) = 'd'
+           and then Name_Pat (Pos + 2) = '{'
+         then
+            Pos := Pos + 3;
+            while Pos <= Name_Pat'Last and then Name_Pat (Pos) /= '}' loop
+               if Pos + 3 <= Name_Pat'Last and then Name_Pat (Pos .. Pos + 3) = "YYYY" then
+                  Pos := Pos + 4;
+                  Append (Result, "[0-9]+");
+               elsif Pos + 1 <= Name_Pat'Last and then Name_Pat (Pos .. Pos + 1) = "MM" then
+                  Pos := Pos + 2;
+                  Append (Result, "[0-9]+");
+               elsif Pos + 1 <= Name_Pat'Last and then Name_Pat (Pos .. Pos + 1) = "dd" then
+                  Pos := Pos + 2;
+                  Append (Result, "[0-9]+");
+               elsif Pos + 1 <= Name_Pat'Last and then Name_Pat (Pos .. Pos + 1) = "HH" then
+                  Pos := Pos + 2;
+                  Append (Result, "[0-9]+");
+               elsif Pos + 1 <= Name_Pat'Last and then Name_Pat (Pos .. Pos + 1) = "mm" then
+                  Pos := Pos + 2;
+                  Append (Result, "[0-9]+");
+               elsif Pos + 1 <= Name_Pat'Last and then Name_Pat (Pos .. Pos + 1) = "ss" then
+                  Pos := Pos + 2;
+                  Append (Result, "[0-9]+");
+               else
+                  Append (Result, Name_Pat (Pos));
+                  Pos := Pos + 1;
+               end if;
+            end loop;
+            Pos := Pos + 1;
+
          else
             Append (Result, Name_Pat (Pos));
             Pos := Pos + 1;
