@@ -24,7 +24,7 @@ A bit of terminology:
 
 ## Logger Declaration
 Similar to other logging framework such as [Java Log4j](https://logging.apache.org/log4j/2.x/) and [Log4cxx](https://logging.apache.org/log4cxx/latest_stable/index.html), it is necessary to have
-and instance of a logger to write a log message.  The logger instance holds the configuration
+an instance of a logger to write a log message.  The logger instance holds the configuration
 for the log to enable, disable and control the format and the appender that will receive
 the message.  The logger instance is associated with a name that is used for the
 configuration.  A good practice is to declare a `Log` instance in the package body or
