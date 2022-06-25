@@ -55,7 +55,7 @@ package body Util.XUnit is
                       XML    : in Boolean;
                       Label  : in String;
                       Result : out Status) is
-      use type AUnit.Status;
+      pragma Unreferenced (Label);
 
       function Runner is new AUnit.Run.Test_Runner_With_Status (Suite);
 
