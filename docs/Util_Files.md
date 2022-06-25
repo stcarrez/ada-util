@@ -1,5 +1,5 @@
 # Files
-The `Util.Files` package provides various utility operations arround files
+The `Util.Files` package provides various utility operations around files
 to help in reading, writing, searching for files in a path.
 To use the operations described here, use the following GNAT project:
 

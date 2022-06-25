@@ -78,7 +78,7 @@ type.
 | To_Duration  | Convert to a duration |
 | To_Bean | Convert to an access to the Read_Only_Bean'Class |
 
-Convertion to a time or enumeration is provided by specific packages.
+Conversion to a time or enumeration is provided by specific packages.
 
 The support for enumeration is made by the generic package
 `Util.Beans.Objects.Enums` which must be instantiated with the enumeration
@@ -187,7 +187,7 @@ of the new row.  The procedure gets the row as an array of `Object`:
 
 The dataset instance is converted to an `Object` by using the `To_Object`
 function.  Note that the default behavior of `To_Object` is to take
-the ownershiup of the object and hence it will be released automatically.
+the ownership of the object and hence it will be released automatically.
 
 ```Ada
  List : Util.Beans.Objects.Object
