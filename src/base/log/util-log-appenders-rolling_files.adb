@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-appenders-rolling_files -- Rolling file log appenders
---  Copyright (C) 2001 - 2021 Stephane Carrez
+--  Copyright (C) 2001 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -126,6 +126,7 @@ package body Util.Log.Appenders.Rolling_Files is
                              Mode => (if Append then Text_IO.Append_File
                                       else Text_IO.Out_File));
             end if;
+            File := Current;
          end;
       end Openlog;
 
