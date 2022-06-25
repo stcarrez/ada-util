@@ -135,13 +135,14 @@ private
                              First_Index : out Natural;
                              Last_Index  : out Natural);
 
-   procedure Rename (Manager : in File_Manager;
+   procedure Rename (Manager : in out File_Manager;
                      Old     : in String);
 
    type File_Manager is tagged limited record
       Policy    : Policy_Kind := No_Policy;
       Strategy  : Strategy_Kind := Ascending_Strategy;
       File_Path : Unbounded_String;
+      Last_Path : Unbounded_String;
       Pattern   : Unbounded_String;
       Interval  : Natural;
       Cur_Index : Natural := 1;
