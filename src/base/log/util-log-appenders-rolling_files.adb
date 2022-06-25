@@ -55,11 +55,17 @@ package body Util.Log.Appenders.Rolling_Files is
             if Str = "none" then
                return (Kind => Util.Files.Rolling.No_Policy);
             elsif Str = "time" then
-               return (Kind     => Util.Files.Rolling.Time_Policy,
+               return (Kind => Util.Files.Rolling.Time_Policy,
+                       Size => 0,
+                       Interval => Inter);
+            elsif Str = "size-time" or Str = "time-size" then
+               return (Kind => Util.Files.Rolling.Size_Time_Policy,
+                       Size => Ada.Directories.File_Size'Value (Size),
                        Interval => Inter);
             else
                return (Kind => Util.Files.Rolling.Size_Policy,
-                       Size => Ada.Directories.File_Size'Value (Size));
+                       Size => Ada.Directories.File_Size'Value (Size),
+                       Interval => 0);
             end if;
 
          exception
