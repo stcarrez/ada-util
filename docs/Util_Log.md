@@ -185,17 +185,42 @@ The `RollingFile` appender recognises the following configurations:
 |                | updated immediately at the expense of slowing down the processing    |
 |                | of logs.                                                             |
 | policy         | The triggering policy which drives when a rolling is performed.      |
-|                | Possible values are: `none`, `size`, `time`                          |
+|                | Possible values are: `none`, `size`, `time`, `size-time`             |
 | strategy       | The strategy to use to determine the name and location of the        |
 |                | archive file.  Possible values are: `ascending`, `descending`, and   |
 |                | `direct`.  Default is `ascending`.                                   |
 | policyInterval | How often a rollover should occur based on the most specific time    |
-|                | unit in the date pattern. For example, with a date pattern with      |
-|                | hours as the most specific item and and increment of 4 rollovers     |
-|                | would occur every 4 hours. The default value is 1.                   |
+|                | unit in the date pattern.  This indicates the period in seconds      |
+|                | to check for pattern change in the `time` or `size-time` policy.     |
 | policyMin      | The minimum value of the counter. The default value is 1.            |
 | policyMax      | The maximum value of the counter. Once this values is reached older  |
 |                | archives will be deleted on subsequent rollovers. The default        |
 |                | value is 7.                                                          |
 | minSize        | The minimum size the file must have to roll over.                    |
+
+A typical rolling file configuration would look like:
+
+```Ada
+log4j.rootCategory=DEBUG,applogger,apperror
+log4j.appender.applogger=RollingFile
+log4j.appender.applogger.layout=level-message
+log4j.appender.applogger.level=DEBUG
+log4j.appender.applogger.fileName=logs/debug.log
+log4j.appender.applogger.filePattern=logs/debug-%d{YYYY-MM}/debug-%{dd}-%i.log
+log4j.appender.applogger.strategy=descending
+log4j.appender.applogger.policy=time
+log4j.appender.applogger.policyMax=10
+log4j.appender.apperror=RollingFile
+log4j.appender.apperror.layout=level-message
+log4j.appender.apperror.level=ERROR
+log4j.appender.apperror.fileName=logs/error.log
+log4j.appender.apperror.filePattern=logs/error-%d{YYYY-MM}/error-%{dd}.log
+log4j.appender.apperror.strategy=descending
+log4j.appender.apperror.policy=time
+```
+
+With this configuration, the error messages are written in the `error.log` file and
+they are rotated on a day basis and moved in a directory whose name contains the year
+and month number.  At the same time, debug messages are written in the `debug.log`
+file.
 

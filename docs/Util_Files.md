@@ -73,7 +73,11 @@ It controls when the file rolling must be made.
 * `Size_Policy`: size policy, the rolling is triggered when the file
   reaches a given size.
 * `Time_Policy`: time policy, the rolling is made when the date/time pattern
-  no longer applies to the active file.
+  no longer applies to the active file; the `Interval` configuration
+  defines the period to check for time changes,
+* `Size_Time_Policy`: combines the size and time policy, the rolling is
+  triggered when either the file reaches a given size or the date/time
+  pattern no longer applies to the active file.
 
 To control how the rolling is made, the `Strategy_Type` defines the behavior
 of the rolling.
