@@ -65,11 +65,9 @@ package body Util.Files.Tests is
    end Test_Read_File;
 
    procedure Test_Read_File_Missing (T : in out Test) is
-      Result : Unbounded_String;
-
-      pragma Unreferenced (Result);
+      Unused_Result : Unbounded_String;
    begin
-      Read_File (Path => "regtests/files-test--util.adb", Into => Result);
+      Read_File (Path => "regtests/files-test--util.adb", Into => Unused_Result);
       T.Assert (False, "No exception raised");
    exception
       when others =>
