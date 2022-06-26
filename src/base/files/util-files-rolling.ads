@@ -124,13 +124,15 @@ package Util.Files.Rolling is
 
    --  Get the regex pattern to identify a file that must be purged.
    --  The default is to extract the file pattern part of the file manager pattern.
-   function Get_Purge_Pattern (Manager : in File_Manager) return String;
+   function Get_Purge_Pattern (Manager : in File_Manager;
+                               Date    : in Ada.Calendar.Time) return String;
 
 private
 
    --  Find the files that are eligible to purge in the given directory.
    procedure Eligible_Files (Manager     : in out File_Manager;
                              Path        : in String;
+                             Date        : in Ada.Calendar.Time;
                              Names       : in out Util.Strings.Vectors.Vector;
                              First_Index : out Natural;
                              Last_Index  : out Natural);

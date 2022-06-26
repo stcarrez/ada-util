@@ -197,7 +197,7 @@ package body Util.Files.Rolling is
       Last  : Natural := 0;
    begin
       if Ada.Directories.Exists (Dir) then
-         Manager.Eligible_Files (Dir, Names, First, Last);
+         Manager.Eligible_Files (Dir, Now, Names, First, Last);
 
          while Natural (Names.Length) > Manager.Max_Files loop
             begin
@@ -255,7 +255,7 @@ package body Util.Files.Rolling is
       Last  : Natural := 0;
    begin
       if Ada.Directories.Exists (Dir) then
-         Manager.Eligible_Files (Dir, Names, First, Last);
+         Manager.Eligible_Files (Dir, Now, Names, First, Last);
 
          while Natural (Names.Length) > Manager.Max_Files loop
             begin
@@ -291,12 +291,14 @@ package body Util.Files.Rolling is
    --  Get the regex pattern to identify a file that must be purged.
    --  The default is to extract the file pattern part of the file manager pattern.
    --  ------------------------------
-   function Get_Purge_Pattern (Manager : in File_Manager) return String is
+   function Get_Purge_Pattern (Manager : in File_Manager;
+                               Date    : in Ada.Calendar.Time) return String is
       Full_Pat : constant String := To_String (Manager.Pattern);
       Name_Pat : constant String := Ada.Directories.Simple_Name (Full_Pat);
       Pos      : Natural := Name_Pat'First;
       Result   : Unbounded_String;
       Found    : Boolean := False;
+      First    : Natural;
    begin
       while Pos <= Name_Pat'Last loop
          if Name_Pat (Pos) = '%' and then Pos + 1 <= Name_Pat'Last
@@ -313,32 +315,12 @@ package body Util.Files.Rolling is
            and then Name_Pat (Pos + 2) = '{'
          then
             Pos := Pos + 3;
-            while Pos <= Name_Pat'Last and then Name_Pat (Pos) /= '}' loop
-               if Pos + 3 <= Name_Pat'Last and then Name_Pat (Pos .. Pos + 3) = "YYYY" then
-                  Pos := Pos + 4;
-                  Append (Result, "[0-9]+");
-               elsif Pos + 1 <= Name_Pat'Last and then Name_Pat (Pos .. Pos + 1) = "MM" then
-                  Pos := Pos + 2;
-                  Append (Result, "[0-9]+");
-               elsif Pos + 1 <= Name_Pat'Last and then Name_Pat (Pos .. Pos + 1) = "dd" then
-                  Pos := Pos + 2;
-                  Append (Result, "[0-9]+");
-               elsif Pos + 1 <= Name_Pat'Last and then Name_Pat (Pos .. Pos + 1) = "HH" then
-                  Pos := Pos + 2;
-                  Append (Result, "[0-9]+");
-               elsif Pos + 1 <= Name_Pat'Last and then Name_Pat (Pos .. Pos + 1) = "mm" then
-                  Pos := Pos + 2;
-                  Append (Result, "[0-9]+");
-               elsif Pos + 1 <= Name_Pat'Last and then Name_Pat (Pos .. Pos + 1) = "ss" then
-                  Pos := Pos + 2;
-                  Append (Result, "[0-9]+");
-               else
-                  Append (Result, Name_Pat (Pos));
-                  Pos := Pos + 1;
-               end if;
+            First := Pos;
+            while Pos <= Name_Pat'Last and Name_Pat (Pos) /= '}' loop
+               Pos := Pos + 1;
             end loop;
+            Append (Result, Util.Dates.Simple_Format (Name_Pat (First .. Pos - 1), Date));
             Pos := Pos + 1;
-
          else
             Append (Result, Name_Pat (Pos));
             Pos := Pos + 1;
@@ -352,6 +334,7 @@ package body Util.Files.Rolling is
    --  ------------------------------
    procedure Eligible_Files (Manager     : in out File_Manager;
                              Path        : in String;
+                             Date        : in Ada.Calendar.Time;
                              Names       : in out Util.Strings.Vectors.Vector;
                              First_Index : out Natural;
                              Last_Index  : out Natural) is
@@ -362,7 +345,7 @@ package body Util.Files.Rolling is
         := (Ada.Directories.Ordinary_File => True,
             Ada.Directories.Directory     => False,
             Ada.Directories.Special_File  => False);
-      Pattern  : constant String := Manager.Get_Purge_Pattern;
+      Pattern  : constant String := Manager.Get_Purge_Pattern (Date);
       Regex    : constant GNAT.Regpat.Pattern_Matcher := GNAT.Regpat.Compile (Pattern);
       Glob1    : constant String := Util.Strings.Replace (Pattern, "([0-9]+)", "*", False);
       Glob2    : constant String := Util.Strings.Replace (Glob1, "[0-9]+", "*", False);
