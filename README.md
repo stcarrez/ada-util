@@ -12,6 +12,7 @@
 [![Documentation Status](https://readthedocs.org/projects/ada-util/badge/?version=latest)](https://ada-util.readthedocs.io/en/latest/?badge=latest)
 [![Download](https://img.shields.io/badge/download-2.4.1-brightgreen.svg)](http://download.vacs.fr/ada-util/ada-util-2.4.1.tar.gz)
 [![License](https://img.shields.io/badge/license-APACHE2-blue.svg)](LICENSE)
+[![GitLab](https://img.shields.io/badge/repo-GitLab-6C488A.svg)](https://gitlab.com/stcarrez/ada-util)
 [![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/2.4.1.svg)](Commits)
 
 
