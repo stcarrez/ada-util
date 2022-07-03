@@ -28,7 +28,7 @@ abstract project UtilAda_Conf is
    --  Enable the use of GNAT symbolic traceback.
    Has_Gnat_Traceback : UtilAda_Config.Yes_No := "yes";
 
-   type AWS_Impl_Type is ("1", "2", "3");
+   type AWS_Impl_Type is ("none", "1", "2", "3");
 
    AWS_Impl    : AWS_Impl_Type := external ("UTIL_AWS_IMPL", "3");
 
