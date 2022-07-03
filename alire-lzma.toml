@@ -11,9 +11,12 @@ tags = ["lzma", "streams"]
 website = "https://gitlab.com/stcarrez/ada-util"
 
 [[depends-on]]
-lzmada = "^1.1.0"
+lzmada = "^1.1.2"
 utilada = "^2.5.0"
 
 [gpr-externals]
 BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
 UTIL_LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
+
+[configuration]
+disabled = true

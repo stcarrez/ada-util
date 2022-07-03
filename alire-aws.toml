@@ -17,3 +17,6 @@ aws = "any"
 [gpr-externals]
 BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
 UTIL_LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
+
+[configuration]
+disabled = true
