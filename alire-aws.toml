@@ -12,11 +12,15 @@ website = "https://gitlab.com/stcarrez/ada-util"
 
 [[depends-on]]
 utilada = "^2.5.0"
-aws = "any"
+aws = "~21.0"
 
 [gpr-externals]
 BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
 UTIL_LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
+UTIL_AWS_IMPL = ["1", "2", "3"]
+
+[gpr-set-externals]
+UTIL_AWS_IMPL = "2"
 
 [configuration]
 disabled = true
