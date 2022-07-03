@@ -7,11 +7,12 @@ licenses = "Apache-2.0"
 maintainers = ["Stephane.Carrez@gmail.com"]
 maintainers-logins = ["stcarrez"]
 project-files = ["utilada_curl.gpr"]
-tags = ["web", "http"]
+tags = ["web", "http", "rest"]
 website = "https://gitlab.com/stcarrez/ada-util"
 
 [[depends-on]]
 utilada = "^2.5.0"
+curl = "*"
 
 [gpr-externals]
 BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
