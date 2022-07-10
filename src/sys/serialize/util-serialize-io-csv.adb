@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-csv -- CSV Serialization Driver
---  Copyright (C) 2011, 2015, 2016, 2017, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2015, 2016, 2017, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -197,6 +197,7 @@ package body Util.Serialize.IO.CSV is
       Stream.Write_Cell (Value);
    end Write_Attribute;
 
+   overriding
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object) is
@@ -280,6 +281,7 @@ package body Util.Serialize.IO.CSV is
    --  ------------------------------
    --  Write an entity with a null value.
    --  ------------------------------
+   overriding
    procedure Write_Null_Entity (Stream : in out Output_Stream;
                                 Name   : in String) is
    begin
@@ -425,12 +427,12 @@ package body Util.Serialize.IO.CSV is
       loop
          Stream.Read (Char => C);
 
-         if C = Ada.Characters.Latin_1.CR  or C = Ada.Characters.Latin_1.LF then
+         if C = Ada.Characters.Latin_1.CR or else C = Ada.Characters.Latin_1.LF then
             if C = Ada.Characters.Latin_1.LF then
                Handler.Line_Number := Handler.Line_Number + 1;
             end if;
             if not Ignore_Row then
-               if In_Quote_Token and not In_Escape then
+               if In_Quote_Token and then not In_Escape then
                   Append (Token, C);
 
                elsif Column > 1 or else Length (Token) > 0 then
@@ -445,8 +447,8 @@ package body Util.Serialize.IO.CSV is
                Ignore_Row := False;
             end if;
 
-         elsif C = Handler.Separator and not Ignore_Row then
-            if In_Quote_Token and not In_Escape then
+         elsif C = Handler.Separator and then not Ignore_Row then
+            if In_Quote_Token and then not In_Escape then
                Append (Token, C);
 
             else
@@ -457,7 +459,7 @@ package body Util.Serialize.IO.CSV is
                In_Escape      := False;
             end if;
 
-         elsif C = '"' and not Ignore_Row then
+         elsif C = '"' and then not Ignore_Row then
             if In_Quote_Token then
                In_Escape := True;
 
@@ -472,8 +474,8 @@ package body Util.Serialize.IO.CSV is
                Append (Token, C);
             end if;
 
-         elsif C = Handler.Comment and Handler.Comment /= ASCII.NUL
-           and Column = 1 and Length (Token) = 0
+         elsif C = Handler.Comment and then Handler.Comment /= ASCII.NUL
+           and then Column = 1 and then Length (Token) = 0
          then
             Ignore_Row := True;
 

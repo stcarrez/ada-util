@@ -112,6 +112,7 @@ package Util.Strings is
 
    --  Returns true if left and right string references are equivalent.
    function Equivalent_Keys (Left, Right : in String_Ref) return Boolean;
+   overriding
    function "=" (Left, Right : in String_Ref) return Boolean renames Equivalent_Keys;
    function "=" (Left  : in String_Ref;
                  Right : in String) return Boolean;

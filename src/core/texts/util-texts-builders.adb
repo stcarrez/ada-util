@@ -119,7 +119,7 @@ package body Util.Texts.Builders is
             Source.Current := B;
          end if;
          Process (B.Content (B.Last + 1 .. B.Len), Last);
-         exit when Last > B.Len or Last <= B.Last;
+         exit when Last > B.Len or else Last <= B.Last;
          Source.Length := Source.Length + Last - B.Last;
          B.Last := Last;
          exit when Last < B.Len;
@@ -424,7 +424,7 @@ package body Util.Texts.Builders is
                Old_Pos := Pos - 1;
                loop
                   if Element_Type'Pos (C) >= Character'Pos ('0')
-                    and Element_Type'Pos (C) <= Character'Pos ('9')
+                    and then Element_Type'Pos (C) <= Character'Pos ('9')
                   then
                      N := N * 10 + Natural (Element_Type'Pos (C) - Character'Pos ('0'));
                      Pos := Pos + 1;

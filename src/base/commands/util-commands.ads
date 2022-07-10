@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands -- Support to make command line tools
---  Copyright (C) 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -131,6 +131,7 @@ package Util.Commands is
                           Pos  : in Positive) return String;
 
    --  Get the command name.
+   overriding
    function Get_Command_Name (List : in Default_Argument_List) return String;
 
    type String_Argument_List (Max_Length : Positive;
@@ -157,13 +158,16 @@ package Util.Commands is
    type Dynamic_Argument_List is limited new Argument_List with private;
 
    --  Get the number of arguments available.
+   overriding
    function Get_Count (List : in Dynamic_Argument_List) return Natural;
 
    --  Get the argument at the given position.
+   overriding
    function Get_Argument (List : in Dynamic_Argument_List;
                           Pos  : in Positive) return String;
 
    --  Get the command name.
+   overriding
    function Get_Command_Name (List : in Dynamic_Argument_List) return String;
 
    function No_Translate (Message : in String) return String is (Message) with Inline;

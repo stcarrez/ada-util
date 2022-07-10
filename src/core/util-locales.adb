@@ -123,7 +123,7 @@ package body Util.Locales is
    function Get_Locale (Language : in String;
                         Country  : in String) return Locale is
    begin
-      if Language'Length /= 2 or else (Country'Length /= 0 and Country'Length /= 2) then
+      if Language'Length /= 2 or else (Country'Length /= 0 and then Country'Length /= 2) then
          return NULL_LOCALE;
       elsif Country'Length = 0 then
          return Get_Locale (Language);
@@ -140,12 +140,12 @@ package body Util.Locales is
                         Variant  : in String) return Locale is
    begin
       if Language'Length /= 2
-        or else (Country'Length /= 0 and Country'Length /= 2)
-        or else (Variant'Length /= 0 and Variant'Length /= 2)
+        or else (Country'Length /= 0 and then Country'Length /= 2)
+        or else (Variant'Length /= 0 and then Variant'Length /= 2)
       then
          return NULL_LOCALE;
       end if;
-      if Country'Length = 0 and Variant'Length = 0 then
+      if Country'Length = 0 and then Variant'Length = 0 then
          return Get_Locale (Language);
       elsif Variant'Length = 0 then
          return Get_Locale (Language, Country);
@@ -161,9 +161,9 @@ package body Util.Locales is
    begin
       if Loc = null then
          return "";
-      elsif Loc'Length > 3 and Loc (3) = '.' then
+      elsif Loc'Length > 3 and then Loc (3) = '.' then
          return Loc (1 .. 2);
-      elsif Loc'Length > 6 and Loc (6) = '.' then
+      elsif Loc'Length > 6 and then Loc (6) = '.' then
          return Loc (1 .. 5);
       else
          return Loc (1 .. 8);

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-texts-transforms -- Various Text Transformation Utilities
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2015, 2018 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2015, 2018, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -96,8 +96,9 @@ package body Util.Texts.Transforms is
             Upper := False;
          else
             C := Char'Pos (To_Lower (Content (I)));
-            if C = Character'Pos ('_') or C = Character'Pos ('.') or C = Character'Pos (':')
-              or C = Character'Pos (';') or C = Character'Pos (',') or C = Character'Pos (' ')
+            if C = Character'Pos ('_') or else C = Character'Pos ('.')
+              or else C = Character'Pos (':') or else C = Character'Pos (';')
+              or else C = Character'Pos (',') or else C = Character'Pos (' ')
             then
                Upper := True;
             end if;
@@ -120,8 +121,9 @@ package body Util.Texts.Transforms is
             Upper := False;
          else
             C := Char'Pos (To_Lower (Content (I)));
-            if C = Character'Pos ('_') or C = Character'Pos ('.') or C = Character'Pos (':')
-              or C = Character'Pos (';') or C = Character'Pos (',') or C = Character'Pos (' ')
+            if C = Character'Pos ('_') or else C = Character'Pos ('.')
+              or else C = Character'Pos (':') or else C = Character'Pos (';')
+              or else C = Character'Pos (',') or else C = Character'Pos (' ')
             then
                Upper := True;
             end if;
@@ -352,18 +354,18 @@ package body Util.Texts.Transforms is
                   if Entity (Entity'First + 2) = Char'Val (Character'Pos ('x')) then
                      for I in Entity'First + 3 .. Entity'Last - 1 loop
                         C := Char'Pos (Entity (I));
-                        if C >= Character'Pos ('0') and C <= Character'Pos ('9') then
+                        if C >= Character'Pos ('0') and then C <= Character'Pos ('9') then
                            V := (V * 16) + Unsigned_32 (C - Character'Pos ('0'));
-                        elsif C >= Character'Pos ('a') and C <= Character'Pos ('z') then
+                        elsif C >= Character'Pos ('a') and then C <= Character'Pos ('z') then
                            V := (V * 16) + 10 + Unsigned_32 (C - Character'Pos ('a'));
-                        elsif C >= Character'Pos ('A') and C <= Character'Pos ('Z') then
+                        elsif C >= Character'Pos ('A') and then C <= Character'Pos ('Z') then
                            V := (V * 16) + 10 + Unsigned_32 (C - Character'Pos ('A'));
                         end if;
                      end loop;
                   else
                      for I in Entity'First + 2 .. Entity'Last - 1 loop
                         C := Char'Pos (Entity (I));
-                        if C >= Character'Pos ('0') and C <= Character'Pos ('9') then
+                        if C >= Character'Pos ('0') and then C <= Character'Pos ('9') then
                            V := (V * 10) + Unsigned_32 (C - Character'Pos ('0'));
                         end if;
                      end loop;

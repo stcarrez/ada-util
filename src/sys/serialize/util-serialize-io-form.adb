@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  swagger-streams-forms -- x-www-form-urlencoded streams
---  Copyright (C) 2018 Stephane Carrez
+--  Copyright (C) 2018, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,13 +65,13 @@ package body Util.Serialize.IO.Form is
       for C of Value loop
          if C = ' ' then
             Stream.Stream.Write ('+');
-         elsif C >= 'a' and C <= 'z' then
+         elsif C >= 'a' and then C <= 'z' then
             Stream.Stream.Write (C);
-         elsif C >= 'A' and C <= 'Z' then
+         elsif C >= 'A' and then C <= 'Z' then
             Stream.Stream.Write (C);
-         elsif C >= '0' and C <= '9' then
+         elsif C >= '0' and then C <= '9' then
             Stream.Stream.Write (C);
-         elsif C = '_' or C = '-' then
+         elsif C = '_' or else C = '-' then
             Stream.Stream.Write (C);
          else
             Stream.Stream.Write ('%');
@@ -230,6 +230,7 @@ package body Util.Serialize.IO.Form is
    --  ------------------------------
    --  Parse the stream using the form parser.
    --  ------------------------------
+   overriding
    procedure Parse (Handler : in out Parser;
                     Stream  : in out Util.Streams.Buffered.Input_Buffer_Stream'Class;
                     Sink    : in out Reader'Class) is
@@ -242,11 +243,11 @@ package body Util.Serialize.IO.Form is
 
       function From_Hex (C : in Character) return Natural is
       begin
-         if C >= 'a' and C <= 'f' then
+         if C >= 'a' and then C <= 'f' then
             return Character'Pos (C) - Character'Pos ('a') + 10;
-         elsif C >= 'A' and C <= 'F' then
+         elsif C >= 'A' and then C <= 'F' then
             return Character'Pos (C) - Character'Pos ('A') + 10;
-         elsif C >= '0' and C <= '9' then
+         elsif C >= '0' and then C <= '9' then
             return Character'Pos (C) - Character'Pos ('0');
          else
             raise Parse_Error with "Invalid hexadecimal character: " & C;
@@ -259,7 +260,7 @@ package body Util.Serialize.IO.Form is
          Into := Ada.Strings.Unbounded.Null_Unbounded_String;
          loop
             Stream.Read (C1);
-            if C1 = '&' or C1 = '=' then
+            if C1 = '&' or else C1 = '=' then
                Last := C1;
                return;
             end if;
@@ -302,6 +303,7 @@ package body Util.Serialize.IO.Form is
    --  ------------------------------
    --  Get the current location (file and line) to report an error message.
    --  ------------------------------
+   overriding
    function Get_Location (Handler : in Parser) return String is
       pragma Unreferenced (Handler);
    begin

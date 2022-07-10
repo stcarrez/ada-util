@@ -46,7 +46,7 @@ package body Util.Files.Rolling is
          then
             Pos := Pos + 3;
             First := Pos;
-            while Pos <= Pattern'Last and Pattern (Pos) /= '}' loop
+            while Pos <= Pattern'Last and then Pattern (Pos) /= '}' loop
                Pos := Pos + 1;
             end loop;
             Append (Result, Util.Dates.Simple_Format (Pattern (First .. Pos - 1), Date));
@@ -127,7 +127,7 @@ package body Util.Files.Rolling is
          Current : constant String := To_String (Manager.File_Path);
          Exists  : constant Boolean := Ada.Directories.Exists (Current);
       begin
-         if not Exists and Manager.Policy = Size_Policy then
+         if not Exists and then Manager.Policy = Size_Policy then
             return False;
          end if;
 
@@ -316,7 +316,7 @@ package body Util.Files.Rolling is
          then
             Pos := Pos + 3;
             First := Pos;
-            while Pos <= Name_Pat'Last and Name_Pat (Pos) /= '}' loop
+            while Pos <= Name_Pat'Last and then Name_Pat (Pos) /= '}' loop
                Pos := Pos + 1;
             end loop;
             Append (Result, Util.Dates.Simple_Format (Name_Pat (First .. Pos - 1), Date));

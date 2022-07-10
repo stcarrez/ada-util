@@ -33,6 +33,7 @@ private
    end record;
    type File_Http_Manager_Access is access all File_Http_Manager'Class;
 
+   overriding
    procedure Create (Manager  : in File_Http_Manager;
                      Http     : in out Client'Class);
 

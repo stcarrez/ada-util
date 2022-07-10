@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-web -- HTTP Clients with AWS implementation
---  Copyright (C) 2011, 2012, 2017, 2019, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2019, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -140,6 +140,7 @@ package body Util.Http.Clients.AWS is
       end case;
    end To_Status;
 
+   overriding
    procedure Create (Manager  : in AWS_Http_Manager;
                      Http     : in out Client'Class) is
       pragma Unreferenced (Manager);
@@ -306,6 +307,7 @@ package body Util.Http.Clients.AWS is
    --  Returns a boolean indicating whether the named request header has already
    --  been set.
    --  ------------------------------
+   overriding
    function Contains_Header (Http : in AWS_Http_Request;
                              Name : in String) return Boolean is
       Values : constant AWS_I.Headers.VString_Array
@@ -373,6 +375,7 @@ package body Util.Http.Clients.AWS is
    --  Returns a boolean indicating whether the named response header has already
    --  been set.
    --  ------------------------------
+   overriding
    function Contains_Header (Reply : in AWS_Http_Response;
                              Name  : in String) return Boolean is
    begin
@@ -386,6 +389,7 @@ package body Util.Http.Clients.AWS is
    --  first head in the request. The header name is case insensitive. You can use
    --  this method with any response header.
    --  ------------------------------
+   overriding
    function Get_Header (Reply  : in AWS_Http_Response;
                         Name   : in String) return String is
    begin
@@ -426,6 +430,7 @@ package body Util.Http.Clients.AWS is
    --  ------------------------------
    --  Get the response body as a string.
    --  ------------------------------
+   overriding
    function Get_Body (Reply : in AWS_Http_Response) return String is
    begin
       return AWS_I.Response.Message_Body (Reply.Data);

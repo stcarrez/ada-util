@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-mappers -- Serialize objects in various formats
---  Copyright (C) 2010, 2011, 2017, 2021 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2017, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -102,7 +102,6 @@ package Util.Serialize.Mappers is
                          Name       : in String;
                          Attribute  : in Boolean := False) return Mapper_Access;
 
-
    function Is_Proxy (Controller : in Mapper) return Boolean;
 
    --  Returns true if the mapper is a wildcard node (matches any element).
@@ -123,26 +122,31 @@ package Util.Serialize.Mappers is
      and Util.Serialize.IO.Reader with private;
 
    --  Start a document.
+   overriding
    procedure Start_Document (Stream : in out Processing);
 
    --  Start a new object associated with the given name.  This is called when
    --  the '{' is reached.  The reader must be updated so that the next
    --  <b>Set_Member</b> procedure will associate the name/value pair on the
    --  new object.
+   overriding
    procedure Start_Object (Handler : in out Processing;
                            Name    : in String;
                            Logger  : in out Util.Log.Logging'Class);
 
    --  Finish an object associated with the given name.  The reader must be
    --  updated to be associated with the previous object.
+   overriding
    procedure Finish_Object (Handler : in out Processing;
                             Name    : in String;
                             Logger  : in out Util.Log.Logging'Class);
 
+   overriding
    procedure Start_Array (Handler : in out Processing;
                           Name    : in String;
                           Logger  : in out Util.Log.Logging'Class);
 
+   overriding
    procedure Finish_Array (Handler : in out Processing;
                            Name    : in String;
                            Count   : in Natural;
@@ -150,6 +154,7 @@ package Util.Serialize.Mappers is
 
    --  Set the name/value pair on the current object.  For each active mapping,
    --  find whether a rule matches our name and execute it.
+   overriding
    procedure Set_Member (Handler   : in out Processing;
                          Name      : in String;
                          Value     : in Util.Beans.Objects.Object;

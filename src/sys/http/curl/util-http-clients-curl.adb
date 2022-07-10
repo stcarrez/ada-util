@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-curl -- HTTP Clients with CURL
---  Copyright (C) 2012, 2017, 2018, 2020 Stephane Carrez
+--  Copyright (C) 2012, 2017, 2018, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -64,6 +64,7 @@ package body Util.Http.Clients.Curl is
    --  ------------------------------
    --  Create a new HTTP request associated with the current request manager.
    --  ------------------------------
+   overriding
    procedure Create (Manager  : in Curl_Http_Manager;
                      Http     : in out Client'Class) is
       pragma Unreferenced (Manager);
@@ -98,7 +99,7 @@ package body Util.Http.Clients.Curl is
       Line  : constant String := Interfaces.C.Strings.Value (Data, Total);
    begin
       Last := Line'Last;
-      while Last > Line'First and then (Line (Last) = ASCII.CR or Line (Last) = ASCII.LF) loop
+      while Last > Line'First and then (Line (Last) = ASCII.CR or else Line (Last) = ASCII.LF) loop
          Last := Last - 1;
       end loop;
       Log.Debug ("RCV: {0}", Line (Line'First .. Last));
@@ -115,7 +116,7 @@ package body Util.Http.Clients.Curl is
          begin
             if Pos > 0 then
                Start := Pos + 1;
-               while Start <= Line'Last and Line (Start) = ' ' loop
+               while Start <= Line'Last and then Line (Start) = ' ' loop
                   Start := Start + 1;
                end loop;
                Response.Add_Header (Name  => Line (Line'First .. Pos - 1),
@@ -148,6 +149,7 @@ package body Util.Http.Clients.Curl is
       Request.Iterate_Headers (Process'Access);
    end Set_Headers;
 
+   overriding
    procedure Do_Get (Manager  : in Curl_Http_Manager;
                      Http     : in Client'Class;
                      URI      : in String;
@@ -195,6 +197,7 @@ package body Util.Http.Clients.Curl is
       Response.Status := Natural (Status);
    end Do_Get;
 
+   overriding
    procedure Do_Head (Manager  : in Curl_Http_Manager;
                       Http     : in Client'Class;
                       URI      : in String;
@@ -242,6 +245,7 @@ package body Util.Http.Clients.Curl is
       Response.Status := Natural (Status);
    end Do_Head;
 
+   overriding
    procedure Do_Post (Manager  : in Curl_Http_Manager;
                       Http     : in Client'Class;
                       URI      : in String;

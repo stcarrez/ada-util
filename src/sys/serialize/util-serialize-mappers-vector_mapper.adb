@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Serialize.Mappers.Vector_Mapper -- Mapper for vector types
---  Copyright (C) 2010, 2011, 2014, 2016 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2014, 2016, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -70,6 +70,7 @@ package body Util.Serialize.Mappers.Vector_Mapper is
    --  Execute the mapping operation on the object associated with the current context.
    --  The object is extracted from the context and the <b>Execute</b> operation is called.
    --  -----------------------
+   overriding
    procedure Execute (Handler : in Mapper;
                       Map     : in Mapping'Class;
                       Ctx     : in out Util.Serialize.Contexts.Context'Class;
@@ -124,6 +125,7 @@ package body Util.Serialize.Mappers.Vector_Mapper is
       Controller.Mapper := Controller.Map'Unchecked_Access;
    end Initialize;
 
+   overriding
    procedure Start_Object (Handler : in Mapper;
                            Context : in out Util.Serialize.Contexts.Context'Class;
                            Name    : in String) is
@@ -156,6 +158,7 @@ package body Util.Serialize.Mappers.Vector_Mapper is
       end;
    end Start_Object;
 
+   overriding
    procedure Finish_Object (Handler : in Mapper;
                             Context : in out Util.Serialize.Contexts.Context'Class;
                             Name    : in String) is

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-drivers -- Support to make command line tools
---  Copyright (C) 2017, 2018, 2019, 2021 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -132,6 +132,7 @@ package body Util.Commands.Drivers is
    --  ------------------------------
    --  Write the help associated with the command.
    --  ------------------------------
+   overriding
    procedure Help (Command   : in out Help_Command_Type;
                    Name      : in String;
                    Context   : in out Context_Type) is

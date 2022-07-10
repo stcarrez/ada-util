@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io -- IO Drivers for serialization
---  Copyright (C) 2010, 2011, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2016, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -188,6 +188,7 @@ package body Util.Serialize.IO is
    --  on the logger associated with the parser.  The parser will be set as in error so that
    --  the <b>Has_Error</b> function will return True after parsing the whole file.
    --  ------------------------------
+   overriding
    procedure Error (Handler : in out Parser;
                     Message : in String) is
    begin

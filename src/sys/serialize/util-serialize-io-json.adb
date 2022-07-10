@@ -86,6 +86,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Start a JSON document.  This operation writes the initial JSON marker ('{').
    --  -----------------------
+   overriding
    procedure Start_Document (Stream : in out Output_Stream) is
       Current : access Node_Info;
    begin
@@ -97,6 +98,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Finish a JSON document by writing the final JSON marker ('}').
    --  -----------------------
+   overriding
    procedure End_Document (Stream : in out Output_Stream) is
       Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
    begin
@@ -225,6 +227,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Start writing an object identified by the given name
    --  -----------------------
+   overriding
    procedure Start_Entity (Stream : in out Output_Stream;
                            Name   : in String) is
       Current : access Node_Info := Node_Info_Stack.Current (Stream.Stack);
@@ -249,6 +252,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Finish writing an object identified by the given name
    --  -----------------------
+   overriding
    procedure End_Entity (Stream : in out Output_Stream;
                          Name   : in String) is
       pragma Unreferenced (Name);
@@ -303,6 +307,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Write an attribute member from the current object
    --  -----------------------
+   overriding
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object) is
@@ -343,6 +348,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Write an object value as an entity
    --  -----------------------
+   overriding
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object) is
@@ -534,11 +540,13 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Get the current location (file and line) to report an error message.
    --  -----------------------
+   overriding
    function Get_Location (Handler : in Parser) return String is
    begin
       return Util.Strings.Image (Handler.Line_Number);
    end Get_Location;
 
+   overriding
    procedure Parse (Handler : in out Parser;
                     Stream  : in out Util.Streams.Buffered.Input_Buffer_Stream'Class;
                     Sink    : in out Reader'Class) is
@@ -598,11 +606,11 @@ package body Util.Serialize.IO.JSON is
       function Hexdigit (C : in Character) return Interfaces.Unsigned_32 is
          use type Interfaces.Unsigned_32;
       begin
-         if C >= '0' and C <= '9' then
+         if C >= '0' and then C <= '9' then
             return Character'Pos (C) - Character'Pos ('0');
-         elsif C >= 'a' and C <= 'f' then
+         elsif C >= 'a' and then C <= 'f' then
             return Character'Pos (C) - Character'Pos ('a') + 10;
-         elsif C >= 'A' and C <= 'F' then
+         elsif C >= 'A' and then C <= 'F' then
             return Character'Pos (C) - Character'Pos ('A') + 10;
          else
             raise Constraint_Error with "Invalid hexdigit: " & C;
@@ -724,7 +732,8 @@ package body Util.Serialize.IO.JSON is
                   P.Line_Number := P.Line_Number + 1;
                else
                   exit when C /= ' '
-                    and C /= Ada.Characters.Latin_1.CR and C /= Ada.Characters.Latin_1.HT;
+                    and then C /= Ada.Characters.Latin_1.Cr
+                    and then C /= Ada.Characters.Latin_1.HT;
                end if;
             end loop;
          end if;
@@ -823,11 +832,11 @@ package body Util.Serialize.IO.JSON is
                      Append (P.Token, C);
                   end loop;
                end if;
-               if C = 'e' or C = 'E' then
+               if C = 'e' or else C = 'E' then
                   Token := T_FLOAT;
                   Append (P.Token, C);
                   Stream.Read (Char => C);
-                  if C = '+' or C = '-' then
+                  if C = '+' or else C = '-' then
                      Append (P.Token, C);
                      Stream.Read (Char => C);
                   end if;
@@ -853,8 +862,8 @@ package body Util.Serialize.IO.JSON is
             Append (P.Token, C);
             loop
                Stream.Read (Char => C);
-               exit when not (C in 'a' .. 'z' or C in 'A' .. 'Z'
-                              or C in '0' .. '9' or C = '_');
+               exit when not (C in 'a' .. 'z' or else C in 'A' .. 'Z'
+                              or else C in '0' .. '9' or else C = '_');
                Append (P.Token, C);
             end loop;
             --  Putback the last character unless we can ignore it.

@@ -107,7 +107,7 @@ package body Util.Log.Loggers is
    function Get_Appender (Value : in String) return String is
       Pos : constant Natural := Index (Value, ",");
    begin
-      if Pos <= Value'First or Pos >= Value'Last then
+      if Pos <= Value'First or else Pos >= Value'Last then
          return "";
       else
          return Trim (Value (Pos + 1 .. Value'Last), Both);
@@ -540,6 +540,7 @@ package body Util.Log.Loggers is
    --  ------------------------------
    --  Finalize the logger and flush the associated appender
    --  ------------------------------
+   overriding
    procedure Finalize (Log : in out Logger) is
    begin
       if Log.Instance.Appender /= null then

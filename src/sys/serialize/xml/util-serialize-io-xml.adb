@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-xml -- XML Serialization Driver
---  Copyright (C) 2011, 2012, 2013, 2016, 2017, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2013, 2016, 2017, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -309,6 +309,7 @@ package body Util.Serialize.IO.XML is
    --  ------------------------------
    --  Get the current location (file and line) to report an error message.
    --  ------------------------------
+   overriding
    function Get_Location (Handler : in Parser) return String is
       File : constant String := Util.Serialize.IO.Parser (Handler).Get_Location;
    begin
@@ -327,6 +328,7 @@ package body Util.Serialize.IO.XML is
    --  ------------------------------
 
    --  Parse the stream using the JSON parser.
+   overriding
    procedure Parse (Handler : in out Parser;
                     Stream  : in out Util.Streams.Buffered.Input_Buffer_Stream'Class;
                     Sink    : in out Reader'Class) is
@@ -343,10 +345,12 @@ package body Util.Serialize.IO.XML is
       end record;
 
       --  Return the next character in the string.
+      overriding
       procedure Next_Char (From : in out Stream_Input;
                            C    : out Unicode.Unicode_Char);
 
       --  True if From is past the last character in the string.
+      overriding
       function Eof (From : in Stream_Input) return Boolean;
       procedure Fill (From : in out Stream_Input'Class);
 
@@ -354,7 +358,7 @@ package body Util.Serialize.IO.XML is
          Last : Natural := From.Last;
       begin
          --  Move to the buffer start
-         if Last > From.Index and From.Index > From.Buffer'First then
+         if Last > From.Index and then From.Index > From.Buffer'First then
             From.Buffer (From.Buffer'First .. Last - 1 - From.Index + From.Buffer'First) :=
               From.Buffer (From.Index .. Last - 1);
             Last  := Last - From.Index + From.Buffer'First;
@@ -377,6 +381,7 @@ package body Util.Serialize.IO.XML is
       end Fill;
 
       --  Return the next character in the string.
+      overriding
       procedure Next_Char (From : in out Stream_Input;
                            C    : out Unicode.Unicode_Char) is
       begin
@@ -387,6 +392,7 @@ package body Util.Serialize.IO.XML is
       end Next_Char;
 
       --  True if From is past the last character in the string.
+      overriding
       function Eof (From : in Stream_Input) return Boolean is
       begin
          if From.Index < From.Last then
@@ -499,7 +505,7 @@ package body Util.Serialize.IO.XML is
       --  most of the Latin alphabet)
       if Code >= 16#80# then
          Stream.Write_Wide (Char);
-      elsif Code > 16#3F# or Code <= 16#20# then
+      elsif Code > 16#3F# or else Code <= 16#20# then
          Stream.Write (Character'Val (Code));
       elsif Char = '<' then
          Stream.Write ("&lt;");
@@ -570,6 +576,7 @@ package body Util.Serialize.IO.XML is
    --  ------------------------------
    --  Start a new XML object.
    --  ------------------------------
+   overriding
    procedure Start_Entity (Stream : in out Output_Stream;
                            Name   : in String) is
    begin
@@ -584,6 +591,7 @@ package body Util.Serialize.IO.XML is
    --  ------------------------------
    --  Terminates the current XML object.
    --  ------------------------------
+   overriding
    procedure End_Entity (Stream : in out Output_Stream;
                          Name   : in String) is
    begin
@@ -651,6 +659,7 @@ package body Util.Serialize.IO.XML is
    --  ------------------------------
    --  Write a XML name/value attribute.
    --  ------------------------------
+   overriding
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object) is
@@ -794,6 +803,7 @@ package body Util.Serialize.IO.XML is
    --  ------------------------------
    --  Write a XML name/value entity (see Write_Attribute).
    --  ------------------------------
+   overriding
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object) is

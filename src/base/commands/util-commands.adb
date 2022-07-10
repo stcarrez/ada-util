@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands -- Support to make command line tools
---  Copyright (C) 2017, 2018 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,6 +46,7 @@ package body Util.Commands is
    --  ------------------------------
    --  Get the command name.
    --  ------------------------------
+   overriding
    function Get_Command_Name (List : in Default_Argument_List) return String is
       pragma Unreferenced (List);
    begin
@@ -112,6 +113,7 @@ package body Util.Commands is
    --  ------------------------------
    --  Get the number of arguments available.
    --  ------------------------------
+   overriding
    function Get_Count (List : in Dynamic_Argument_List) return Natural is
    begin
       return Natural (List.List.Length);
@@ -120,6 +122,7 @@ package body Util.Commands is
    --  ------------------------------
    --  Get the argument at the given position.
    --  ------------------------------
+   overriding
    function Get_Argument (List : in Dynamic_Argument_List;
                           Pos  : in Positive) return String is
    begin
@@ -129,6 +132,7 @@ package body Util.Commands is
    --  ------------------------------
    --  Get the command name.
    --  ------------------------------
+   overriding
    function Get_Command_Name (List : in Dynamic_Argument_List) return String is
    begin
       return Ada.Strings.Unbounded.To_String (List.Name);

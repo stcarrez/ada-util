@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-curl -- HTTP Clients with CURL
---  Copyright (C) 2012, 2017, 2018, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2012, 2017, 2018, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,6 +66,7 @@ private
    type Curl_Http_Manager_Access is access all Http_Manager'Class;
 
    --  Create a new HTTP request associated with the current request manager.
+   overriding
    procedure Create (Manager  : in Curl_Http_Manager;
                      Http     : in out Client'Class);
 

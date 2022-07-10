@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-csv -- CSV Serialization Driver
---  Copyright (C) 2011, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -130,6 +130,7 @@ package Util.Serialize.IO.CSV is
                            Value  : in Util.Beans.Objects.Object);
 
    --  Write an entity with a null value.
+   overriding
    procedure Write_Null_Entity (Stream : in out Output_Stream;
                                 Name   : in String);
 

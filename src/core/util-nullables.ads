@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-nullables -- Basic types that can hold a null value
---  Copyright (C) 2017, 2021 Stephane Carrez
+--  Copyright (C) 2017, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,8 +43,9 @@ package Util.Nullables is
    Null_Boolean : constant Nullable_Boolean;
 
    --  Return True if the two nullable times are identical (both null or both same value).
+   overriding
    function "=" (Left, Right : in Nullable_Boolean) return Boolean is
-      ((Left.Is_Null = Right.Is_Null) and (Left.Is_Null or else Left.Value = Right.Value));
+      ((Left.Is_Null = Right.Is_Null) and then (Left.Is_Null or else Left.Value = Right.Value));
 
    --  ------------------------------
    --  An integer which can be null.
@@ -57,8 +58,9 @@ package Util.Nullables is
    Null_Integer : constant Nullable_Integer;
 
    --  Return True if the two nullable times are identical (both null or both same value).
+   overriding
    function "=" (Left, Right : in Nullable_Integer) return Boolean is
-      ((Left.Is_Null = Right.Is_Null) and (Left.Is_Null or else Left.Value = Right.Value));
+      ((Left.Is_Null = Right.Is_Null) and then (Left.Is_Null or else Left.Value = Right.Value));
 
    --  ------------------------------
    --  A long which can be null.
@@ -71,8 +73,9 @@ package Util.Nullables is
    Null_Long : constant Nullable_Long;
 
    --  Return True if the two nullable times are identical (both null or both same value).
+   overriding
    function "=" (Left, Right : in Nullable_Long) return Boolean is
-      ((Left.Is_Null = Right.Is_Null) and (Left.Is_Null or else Left.Value = Right.Value));
+      ((Left.Is_Null = Right.Is_Null) and then (Left.Is_Null or else Left.Value = Right.Value));
 
    --  ------------------------------
    --  A string which can be null.
@@ -85,8 +88,9 @@ package Util.Nullables is
    Null_String : constant Nullable_String;
 
    --  Return True if the two nullable times are identical (both null or both same value).
+   overriding
    function "=" (Left, Right : in Nullable_String) return Boolean is
-      ((Left.Is_Null = Right.Is_Null) and (Left.Is_Null or else Left.Value = Right.Value));
+      ((Left.Is_Null = Right.Is_Null) and then (Left.Is_Null or else Left.Value = Right.Value));
 
    --  ------------------------------
    --  A date which can be null.
@@ -99,8 +103,9 @@ package Util.Nullables is
    Null_Time : constant Nullable_Time;
 
    --  Return True if the two nullable times are identical (both null or both same time).
+   overriding
    function "=" (Left, Right : in Nullable_Time) return Boolean is
-      ((Left.Is_Null = Right.Is_Null) and (Left.Is_Null or else Left.Value = Right.Value));
+      ((Left.Is_Null = Right.Is_Null) and then (Left.Is_Null or else Left.Value = Right.Value));
 
 private
 

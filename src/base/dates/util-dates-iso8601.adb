@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-iso8601 -- ISO8601 dates
---  Copyright (C) 2011, 2013, 2015, 2016, 2017, 2018, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2015, 2016, 2017, 2018, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,7 +44,7 @@ package body Util.Dates.ISO8601 is
          Result.Month := 1;
          Result.Month_Day := 1;
 
-      elsif Date'Length = 7 and Date (Date'First + 4) = '-' then
+      elsif Date'Length = 7 and then Date (Date'First + 4) = '-' then
          --  ISO8601 date: YYYY-MM
          Result.Month := Month_Number'Value (Date (Date'First + 5 .. Date'Last));
          Result.Month_Day := 1;
@@ -83,7 +83,7 @@ package body Util.Dates.ISO8601 is
             Result.Second := Second_Number'Value (Date (Date'First + 17 .. Date'First + 18));
             Pos := Date'First + 19;
             if Pos <= Date'Last then
-               if Date (Pos) = '.' or Date (Pos) = ',' then
+               if Date (Pos) = '.' or else Date (Pos) = ',' then
                   if Date'Length < 22 then
                      raise Constraint_Error with "invalid date";
                   end if;
@@ -103,7 +103,7 @@ package body Util.Dates.ISO8601 is
                      if Pos /= Date'Last then
                         raise Constraint_Error with "invalid date";
                      end if;
-                  elsif Date (Pos) /= '-' and Date (Pos) /= '+' then
+                  elsif Date (Pos) /= '-' and then Date (Pos) /= '+' then
                      raise Constraint_Error with "invalid date";
 
                   elsif Pos + 2 = Date'Last then

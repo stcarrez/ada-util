@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,10 +73,12 @@ package Util.Serialize.IO.JSON is
    --  Start a new JSON object.  If the name is not empty, write it as a string
    --  followed by the ':' (colon).  The JSON object starts with '{' (curly brace).
    --  Example:   "list": {
+   overriding
    procedure Start_Entity (Stream : in out Output_Stream;
                            Name   : in String);
 
    --  Terminates the current JSON object.
+   overriding
    procedure End_Entity (Stream : in out Output_Stream;
                          Name   : in String);
 
@@ -106,6 +108,7 @@ package Util.Serialize.IO.JSON is
    --            "name": false
    --            "name": 12
    --            "name": "value"
+   overriding
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object);
@@ -116,6 +119,7 @@ package Util.Serialize.IO.JSON is
                                    Name   : in String);
 
    --  Write a JSON name/value pair (see Write_Attribute).
+   overriding
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object);
@@ -175,11 +179,13 @@ package Util.Serialize.IO.JSON is
    type Parser is new Serialize.IO.Parser with private;
 
    --  Parse the stream using the JSON parser.
+   overriding
    procedure Parse (Handler : in out Parser;
                     Stream  : in out Util.Streams.Buffered.Input_Buffer_Stream'Class;
                     Sink    : in out Reader'Class);
 
    --  Get the current location (file and line) to report an error message.
+   overriding
    function Get_Location (Handler : in Parser) return String;
 
    --  Read a JSON file and return an object.

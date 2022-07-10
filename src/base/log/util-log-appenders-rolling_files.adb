@@ -58,7 +58,7 @@ package body Util.Log.Appenders.Rolling_Files is
                return (Kind => Util.Files.Rolling.Time_Policy,
                        Size => 0,
                        Interval => Inter);
-            elsif Str = "size-time" or Str = "time-size" then
+            elsif Str = "size-time" or else Str = "time-size" then
                return (Kind => Util.Files.Rolling.Size_Time_Policy,
                        Size => Ada.Directories.File_Size'Value (Size),
                        Interval => Inter);

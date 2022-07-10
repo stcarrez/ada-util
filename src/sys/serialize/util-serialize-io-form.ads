@@ -117,11 +117,13 @@ package Util.Serialize.IO.Form is
    type Parser is new Serialize.IO.Parser with private;
 
    --  Parse the stream using the form parser.
+   overriding
    procedure Parse (Handler : in out Parser;
                     Stream  : in out Util.Streams.Buffered.Input_Buffer_Stream'Class;
                     Sink    : in out Reader'Class);
 
    --  Get the current location (file and line) to report an error message.
+   overriding
    function Get_Location (Handler : in Parser) return String;
 
    --  Read a form file and return an object.

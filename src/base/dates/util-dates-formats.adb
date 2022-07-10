@@ -168,7 +168,7 @@ package body Util.Dates.Formats is
                             Length  : in Natural := 2) is
       N : constant String := Natural'Image (Value);
    begin
-      if Length = 0 or (Padding /= ' ' and Padding /= '0') then
+      if Length = 0 or else (Padding /= ' ' and then Padding /= '0') then
          Append (Into, N (N'First + 1 .. N'Last));
       elsif N'Length <= Length then
          Append (Into, Padding);
@@ -240,7 +240,7 @@ package body Util.Dates.Formats is
             exit when Pos > Pattern'Last;
             C := Pattern (Pos);
             Pad := '0';
-            if C = '_' or C = '-' or C = 'E' or C  = 'O' or C = '^' then
+            if C in '_' | '-' | 'E' | 'O' | '^' then
                exit when Pos = Pattern'Last;
                if C = '-' then
                   Pad := '-';
@@ -600,7 +600,7 @@ package body Util.Dates.Formats is
                              Max : in Natural) return Natural is
          Value : Natural := 0;
       begin
-         if Date (Pos) < '0' or Date (Pos) > '9' then
+         if Date (Pos) < '0' or else Date (Pos) > '9' then
             raise Constraint_Error with "Invalid date format: expecting integer";
          end if;
          while (10 * Value) < Max and then Pos <= Date'Last
@@ -609,7 +609,7 @@ package body Util.Dates.Formats is
             Value := Value + Character'Pos (Date (Pos)) - Character'Pos ('0');
             Pos := Pos + 1;
          end loop;
-         if Value < Min or Value > Max then
+         if Value < Min or else Value > Max then
             raise Constraint_Error with "Invalid date format: out of range";
          end if;
          return Value;
@@ -651,7 +651,7 @@ package body Util.Dates.Formats is
       Week_Number : Integer := -1;
       pragma Unreferenced (Week_Number, Century);
    begin
-      while Pattern_Pos <= Pattern'Last and Pos <= Date'Last loop
+      while Pattern_Pos <= Pattern'Last and then Pos <= Date'Last loop
          C := Pattern (Pattern_Pos);
          if C = ' ' then
             Pattern_Pos := Pattern_Pos + 1;
@@ -665,7 +665,7 @@ package body Util.Dates.Formats is
             Pattern_Pos := Pattern_Pos + 1;
             exit when Pattern_Pos > Pattern'Last;
             C := Pattern (Pattern_Pos);
-            if C = '_' or C = '-' or C = 'E' or C  = 'O' or C = '^' then
+            if C in '_' | '-' | 'E' | 'O' | '^' then
                exit when Pattern_Pos = Pattern'Last;
                Pattern_Pos := Pattern_Pos + 1;
                C := Pattern (Pattern_Pos);

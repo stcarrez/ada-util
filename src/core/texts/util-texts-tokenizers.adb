@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-tests-tokenizers -- Split texts into tokens
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,7 +68,7 @@ package body Util.Texts.Tokenizers is
                   Done : Boolean;
                begin
                   Process (Token => Content (Sep_Pos .. Pos), Done => Done);
-                  exit when Done or Sep_Pos = Content'First;
+                  exit when Done or else Sep_Pos = Content'First;
                end;
                Pos := Sep_Pos - 1 - Pattern'Length;
             end loop;

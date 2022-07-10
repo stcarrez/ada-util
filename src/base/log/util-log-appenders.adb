@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-appenders -- Log appenders
---  Copyright (C) 2001 - 2021 Stephane Carrez
+--  Copyright (C) 2001 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -78,7 +78,7 @@ package body Util.Log.Appenders is
                Self.Layout := MESSAGE;
             elsif Value = "level-message" then
                Self.Layout := LEVEL_MESSAGE;
-            elsif Value = "date-level-message" or Value = "level-date-message" then
+            elsif Value = "date-level-message" or else Value = "level-date-message" then
                Self.Layout := DATE_LEVEL_MESSAGE;
             else
                Self.Layout := FULL;

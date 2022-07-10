@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util-texts-formats -- Text Format ala Java MessageFormat
---  Copyright (C) 2001, 2002, 2003, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +41,7 @@ package body Util.Texts.Formats is
             Old_Pos := Pos;
             while Pos <= Message'Last loop
                C := Char'Pos (Message (Pos));
-               if C >= Character'Pos ('0') and C <= Character'Pos ('9') then
+               if C >= Character'Pos ('0') and then C <= Character'Pos ('9') then
                   N := N * 10 + Natural (C - Character'Pos ('0'));
                   Pos := Pos + 1;
                elsif C = Character'Pos ('}') then
