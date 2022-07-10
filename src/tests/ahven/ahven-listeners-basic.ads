@@ -37,26 +37,32 @@ package Ahven.Listeners.Basic is
       Start_Time        : Ada.Calendar.Time;
    end record;
 
+   overriding
    procedure Add_Pass (Listener : in out Basic_Listener;
                        Info     :        Context);
    -- New implementation for Listeners.Add_Pass
 
+   overriding
    procedure Add_Failure (Listener : in out Basic_Listener;
                           Info     :        Context);
    -- New implementation for Listeners.Add_Failure
 
+   overriding
    procedure Add_Skipped (Listener : in out Basic_Listener;
                           Info     :        Context);
    -- New implementation for Listeners.Add_Skipped
 
+   overriding
    procedure Add_Error (Listener : in out Basic_Listener;
                         Info     :        Context);
    -- New implementation for Listeners.Add_Error
 
+   overriding
    procedure Start_Test (Listener : in out Basic_Listener;
                          Info     :        Context);
    -- New implementation for Listeners.Start_Test
 
+   overriding
    procedure End_Test (Listener : in out Basic_Listener;
                        Info     :        Context);
    -- New implementation for Listeners.End_Test
@@ -77,6 +83,7 @@ private
    procedure Remove_File (Name : String);
    procedure Remove_Files (Collection : in out Result_Collection);
 
+   overriding
    procedure Finalize (Listener : in out Basic_Listener);
 
 end Ahven.Listeners.Basic;

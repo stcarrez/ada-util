@@ -40,30 +40,35 @@ package body Ahven.Listeners.Basic is
       end if;
    end Set_Last_Test_Info;
 
+   overriding
    procedure Add_Pass (Listener : in out Basic_Listener;
                        Info     :        Context) is
    begin
       Set_Last_Test_Info (Listener, Info, PASS_RESULT);
    end Add_Pass;
 
+   overriding
    procedure Add_Failure (Listener : in out Basic_Listener;
                           Info     :        Context) is
    begin
       Set_Last_Test_Info (Listener, Info, FAILURE_RESULT);
    end Add_Failure;
 
+   overriding
    procedure Add_Skipped (Listener : in out Basic_Listener;
                          Info     :        Context) is
    begin
       Set_Last_Test_Info (Listener, Info, SKIPPED_RESULT);
    end Add_Skipped;
 
+   overriding
    procedure Add_Error (Listener : in out Basic_Listener;
                         Info     :        Context) is
    begin
       Set_Last_Test_Info (Listener, Info, ERROR_RESULT);
    end Add_Error;
 
+   overriding
    procedure Start_Test (Listener : in out Basic_Listener;
                          Info     :        Context) is
       R : Result_Collection_Access := null;
@@ -88,6 +93,7 @@ package body Ahven.Listeners.Basic is
       end if;
    end Start_Test;
 
+   overriding
    procedure End_Test (Listener : in out Basic_Listener;
                        Info     :        Context) is
       use type Ada.Calendar.Time;
@@ -204,6 +210,7 @@ package body Ahven.Listeners.Basic is
       end loop Child_Loop;
    end Remove_Files;
 
+   overriding
    procedure Finalize (Listener : in out Basic_Listener) is
    begin
       Remove_Files (Listener.Main_Result);

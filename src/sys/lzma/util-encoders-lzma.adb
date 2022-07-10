@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-lzma -- LZMA compression and decompression
---  Copyright (C) 2018, 2021 Stephane Carrez
+--  Copyright (C) 2018, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,7 +57,10 @@ package body Util.Encoders.Lzma is
          Result := Base.lzma_code (E.Stream'Unchecked_Access, Base.LZMA_RUN);
 
          --  Write the output data when the buffer is full or we reached the end of stream.
-         if E.Stream.avail_out = 0 or E.Stream.avail_in = 0 or Result = Base.LZMA_STREAM_END then
+         if E.Stream.avail_out = 0
+           or else E.Stream.avail_in = 0
+           or else Result = Base.Lzma_Stream_End
+         then
             Last := Into'First + Into'Length - Offset (E.Stream.avail_out) - 1;
             Encoded := Data'First + Data'Length - Offset (E.Stream.avail_in);
             return;

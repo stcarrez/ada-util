@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-aes -- AES encryption and decryption
---  Copyright (C) 2017, 2019, 2020 Stephane Carrez
+--  Copyright (C) 2017, 2019, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,11 +49,11 @@ package Util.Encoders.AES is
 
    procedure Set_Encrypt_Key (Key  : out Key_Type;
                               Data : in Secret_Key)
-     with Pre => Data.Length = 16 or Data.Length = 24 or Data.Length = 32;
+     with Pre => Data.Length in 16 | 24 | 32;
 
    procedure Set_Decrypt_Key (Key  : out Key_Type;
                               Data : in Secret_Key)
-     with Pre => Data.Length = 16 or Data.Length = 24 or Data.Length = 32;
+     with Pre => Data.Length in 16 | 24 | 32;
 
    procedure Encrypt (Data   : in out Word_Block_Type;
                       Key    : in Key_Type);
@@ -136,15 +136,15 @@ package Util.Encoders.AES is
    procedure Finish (E    : in out Encoder;
                      Into : in out Ada.Streams.Stream_Element_Array;
                      Last : in out Ada.Streams.Stream_Element_Offset) with
-     Pre  => E.Has_Key and Into'Length >= Block_Type'Length,
-     Post => Last = Into'First - 1 or Last = Into'First + Block_Type'Length - 1;
+     Pre  => E.Has_Key and then Into'Length >= Block_Type'Length,
+     Post => Last = Into'First - 1 or else Last = Into'First + Block_Type'Length - 1;
 
    --  Encrypt the secret using the encoder and return the encrypted value in the buffer.
    --  The target buffer must be a multiple of 16-bytes block.
    procedure Encrypt_Secret (E      : in out Encoder;
                              Secret : in Secret_Key;
                              Into   : out Ada.Streams.Stream_Element_Array) with
-     Pre => Into'Length mod 16 = 0 and
+     Pre => Into'Length mod 16 = 0 and then
      (case E.Padding is
         when NO_PADDING => Secret.Length = Into'Length,
           when PKCS7_PADDING | ZERO_PADDING => 16 * (1 + (Secret.Length / 16)) = Into'Length);
@@ -191,7 +191,7 @@ package Util.Encoders.AES is
    procedure Decrypt_Secret (E      : in out Decoder;
                              Data   : in Ada.Streams.Stream_Element_Array;
                              Secret : in out Secret_Key) with
-     Pre => Data'Length mod 16 = 0 and
+     Pre => Data'Length mod 16 = 0 and then
      (case E.Padding is
         when NO_PADDING => Secret.Length = Data'Length,
           when PKCS7_PADDING | ZERO_PADDING => 16 * (1 + (Secret.Length / 16)) = Data'Length);

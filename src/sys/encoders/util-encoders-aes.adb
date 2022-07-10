@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-aes -- AES encryption and decryption
---  Copyright (C) 2017, 2019, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2017, 2019, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -1017,7 +1017,7 @@ package body Util.Encoders.AES is
       Last_Limit := Into'Last - Block_Type'Length + 1;
       case E.Mode is
          when ECB =>
-            while Pos <= Pos_Limit and Last <= Last_Limit loop
+            while Pos <= Pos_Limit and then Last <= Last_Limit loop
                Encrypt (Data (Pos .. Pos + Block_Type'Length - 1),
                         Into (Last .. Last + Block_Type'Length - 1),
                         E.Key);
@@ -1026,7 +1026,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when CBC =>
-            while Pos <= Pos_Limit and Last <= Last_Limit loop
+            while Pos <= Pos_Limit and then Last <= Last_Limit loop
                E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
                E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
                E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
@@ -1042,7 +1042,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when PCBC =>
-            while Pos <= Pos_Limit and Last <= Last_Limit loop
+            while Pos <= Pos_Limit and then Last <= Last_Limit loop
                E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
                E.IV (2) := E.IV (2) xor To_Unsigned_32 (Data, Pos + 4);
                E.IV (3) := E.IV (3) xor To_Unsigned_32 (Data, Pos + 8);
@@ -1063,7 +1063,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when CFB =>
-            while Pos <= Pos_Limit and Last <= Last_Limit loop
+            while Pos <= Pos_Limit and then Last <= Last_Limit loop
                Encrypt (E.IV,
                         E.Key);
                E.IV (1) := E.IV (1) xor To_Unsigned_32 (Data, Pos);
@@ -1079,7 +1079,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when OFB =>
-            while Pos <= Pos_Limit and Last <= Last_Limit loop
+            while Pos <= Pos_Limit and then Last <= Last_Limit loop
                Encrypt (E.IV,
                         E.Key);
                Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (Data, Pos), Last);
@@ -1091,7 +1091,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when CTR =>
-            while Pos <= Pos_Limit and Last <= Last_Limit loop
+            while Pos <= Pos_Limit and then Last <= Last_Limit loop
                Encrypt (E.IV,
                         R,
                         E.Key);
@@ -1163,7 +1163,7 @@ package body Util.Encoders.AES is
                       Data : in Secret_Key;
                       Mode : in AES_Mode := CBC) is
    begin
-      if Mode = OFB or MODE = CFB or MODE = CTR then
+      if Mode in OFB | CFB | CTR then
          Set_Encrypt_Key (E.Key, Data);
       else
          Set_Decrypt_Key (E.Key, Data);
@@ -1291,7 +1291,7 @@ package body Util.Encoders.AES is
       Last_Limit := Into'Last - Block_Type'Length;
       case E.Mode is
          when ECB =>
-            while Pos <= Pos_Limit and Last <= Last_Limit loop
+            while Pos <= Pos_Limit and then Last <= Last_Limit loop
                Decrypt (Data (Pos .. Pos + Block_Type'Length - 1),
                         Into (Last .. Last + Block_Type'Length - 1),
                         E.Key);
@@ -1300,7 +1300,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when CBC =>
-            while Pos <= Pos_Limit and Last <= Last_Limit loop
+            while Pos <= Pos_Limit and then Last <= Last_Limit loop
                Decrypt (Data (Pos .. Pos + Block_Type'Length - 1),
                         E.Data,
                         E.Key);
@@ -1321,7 +1321,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when PCBC =>
-            while Pos <= Pos_Limit and Last <= Last_Limit loop
+            while Pos <= Pos_Limit and then Last <= Last_Limit loop
                Decrypt (Data (Pos .. Pos + Block_Type'Length - 1),
                         E.Data,
                         E.Key);
@@ -1342,7 +1342,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when CFB =>
-            while Pos <= Pos_Limit and Last <= Last_Limit loop
+            while Pos <= Pos_Limit and then Last <= Last_Limit loop
                Encrypt (E.IV,
                         E.Key);
                declare
@@ -1366,7 +1366,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when OFB =>
-            while Pos <= Pos_Limit and Last <= Last_Limit loop
+            while Pos <= Pos_Limit and then Last <= Last_Limit loop
                Encrypt (E.IV,
                         E.Key);
                Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (Data, Pos), Last);
@@ -1378,7 +1378,7 @@ package body Util.Encoders.AES is
             end loop;
 
          when CTR =>
-            while Pos <= Pos_Limit and Last <= Last_Limit loop
+            while Pos <= Pos_Limit and then Last <= Last_Limit loop
                Encrypt (E.IV,
                         R,
                         E.Key);

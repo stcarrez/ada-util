@@ -732,7 +732,7 @@ package body Util.Serialize.IO.JSON is
                   P.Line_Number := P.Line_Number + 1;
                else
                   exit when C /= ' '
-                    and then C /= Ada.Characters.Latin_1.Cr
+                    and then C /= Ada.Characters.Latin_1.CR
                     and then C /= Ada.Characters.Latin_1.HT;
                end if;
             end loop;
