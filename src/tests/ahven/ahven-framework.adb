@@ -182,9 +182,7 @@ package body Ahven.Framework is
       Execute_Impl (Test_Object => T, Listener_Object => Listener);
    end Execute;
 
-
    ----------- Test_Case ------------------------------
-
 
    -- Wrap an "object" routine inside a Test_Command record
    -- and add it to the test command list.
@@ -410,6 +408,7 @@ package body Ahven.Framework is
       end case;
    end Run_Command;
 
+   overriding
    function Get_Name (T : Test_Case) return String is
    begin
       return To_String (T.Name);
@@ -452,6 +451,7 @@ package body Ahven.Framework is
    -- Run procedure for Test_Case.
    --
    -- Loops over the test routine list and executes the routines.
+   overriding
    procedure Run (T        : in out Test_Case;
                   Listener : in out Listeners.Result_Listener'Class;
                   Timeout  :        Test_Duration)
@@ -474,6 +474,7 @@ package body Ahven.Framework is
 
    -- Purpose of the procedure is to run all
    -- test routines with name Test_Name.
+   overriding
    procedure Run (T         : in out Test_Case;
                   Test_Name :        String;
                   Listener  : in out Listeners.Result_Listener'Class;
@@ -496,11 +497,13 @@ package body Ahven.Framework is
       Run_All (T.Routines);
    end Run;
 
+   overriding
    function Test_Count (T : Test_Case) return Test_Count_Type is
    begin
       return Test_Count_Type (Test_Command_List.Length (T.Routines));
    end Test_Count;
 
+   overriding
    function Test_Count (T : Test_Case; Test_Name : String)
      return Test_Count_Type
    is
@@ -522,6 +525,7 @@ package body Ahven.Framework is
       return Counter;
    end Test_Count;
 
+   overriding
    procedure Finalize (T : in out Test_Case) is
    begin
       Test_Command_List.Clear (T.Routines);
@@ -532,9 +536,7 @@ package body Ahven.Framework is
       T.Name := To_Bounded_String (Source => Name, Drop => Ada.Strings.Right);
    end Set_Name;
 
-
    ----------- Test_Suite -----------------------------
-
 
    function Create_Suite (Suite_Name : String)
      return Test_Suite_Access is
@@ -576,11 +578,13 @@ package body Ahven.Framework is
       Indefinite_Test_List.Append (Suite.Static_Test_Cases, T);
    end Add_Static_Test;
 
+   overriding
    function Get_Name (T : Test_Suite) return String is
    begin
       return To_String (T.Suite_Name);
    end Get_Name;
 
+   overriding
    procedure Run (T        : in out Test_Suite;
                   Listener : in out Listeners.Result_Listener'Class;
                   Timeout  :        Test_Duration)
@@ -613,6 +617,7 @@ package body Ahven.Framework is
       Execute_Static_Cases (T.Static_Test_Cases);
    end Run;
 
+   overriding
    procedure Run (T         : in out Test_Suite;
                   Test_Name :        String;
                   Listener  : in out Listeners.Result_Listener'Class;
@@ -649,6 +654,7 @@ package body Ahven.Framework is
       end if;
    end Run;
 
+   overriding
    function Test_Count (T : Test_Suite) return Test_Count_Type is
       Counter : Test_Count_Type := 0;
 
@@ -679,6 +685,7 @@ package body Ahven.Framework is
       return Counter;
    end Test_Count;
 
+   overriding
    function Test_Count (T : Test_Suite; Test_Name : String)
      return Test_Count_Type is
       Counter : Test_Count_Type := 0;
@@ -712,6 +719,7 @@ package body Ahven.Framework is
       return Counter;
    end Test_Count;
 
+   overriding
    procedure Adjust (T : in out Test_Suite) is
       use Test_List;
 
@@ -729,6 +737,7 @@ package body Ahven.Framework is
       T.Test_Cases := New_List;
    end Adjust;
 
+   overriding
    procedure Finalize  (T : in out Test_Suite) is
       use Test_List;
 
@@ -776,9 +785,7 @@ package body Ahven.Framework is
       Log_Test_End;
    end Run;
 
-
    ----------- Indefinite_Test_List -------------------
-
 
    package body Indefinite_Test_List is
       procedure Remove (Ptr : Node_Access) is
@@ -832,17 +839,20 @@ package body Ahven.Framework is
          end loop;
       end For_Each;
 
+      overriding
       procedure Initialize (Target : in out List) is
       begin
          Target.Last := null;
          Target.First := null;
       end Initialize;
 
+      overriding
       procedure Finalize (Target : in out List) is
       begin
          Clear (Target);
       end Finalize;
 
+      overriding
       procedure Adjust (Target : in out List) is
          Target_Last : Node_Access := null;
          Target_First : Node_Access := null;

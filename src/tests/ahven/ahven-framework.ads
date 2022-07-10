@@ -133,27 +133,33 @@ package Ahven.Framework is
    type Test_Case is abstract new Test with private;
    -- The base type for other test cases.
 
+   overriding
    function Get_Name (T : Test_Case) return String;
    -- Return the name of the test case.
 
+   overriding
    procedure Run (T        : in out Test_Case;
                   Listener : in out Listeners.Result_Listener'Class;
                   Timeout  :        Test_Duration);
    -- Run Test_Case's test routines.
 
+   overriding
    procedure Run (T         : in out Test_Case;
                   Test_Name :        String;
                   Listener  : in out Listeners.Result_Listener'Class;
                   Timeout   :        Test_Duration);
    -- Run Test_Case's test routine which matches to the Name.
 
+   overriding
    function Test_Count (T : Test_Case) return Test_Count_Type;
    -- Implementation of Test_Count (T : Test).
 
+   overriding
    function Test_Count (T : Test_Case; Test_Name : String)
      return Test_Count_Type;
    -- Implementation of Test_Count (T : Test, Test_Name : String).
 
+   overriding
    procedure Finalize (T : in out Test_Case);
    -- Finalize procedure of the Test_Case.
 
@@ -231,31 +237,38 @@ package Ahven.Framework is
    -- made to it after adding the test are not propagated to
    -- the added object.
 
+   overriding
    function Get_Name (T : Test_Suite) return String;
    -- Return the name of Test_Suite.
 
+   overriding
    procedure Run (T      : in out Test_Suite;
                   Listener  : in out Listeners.Result_Listener'Class;
                   Timeout   :        Test_Duration);
    -- Run Test_Suite's Test_Cases.
 
+   overriding
    procedure Run (T         : in out Test_Suite;
                   Test_Name :        String;
                   Listener  : in out Listeners.Result_Listener'Class;
                   Timeout   :        Test_Duration);
    -- Run test suite's child which matches to the given name.
 
+   overriding
    function Test_Count (T : Test_Suite) return Test_Count_Type;
    -- Implementation of Test_Count (T : Test).
 
+   overriding
    function Test_Count (T : Test_Suite; Test_Name : String)
      return Test_Count_Type;
    -- Implementation of Test_Count (T : Test, Test_Name : String).
 
+   overriding
    procedure Adjust (T : in out Test_Suite);
    -- Adjust procedure of Test_Suite.
    -- Handles the copying of the structure properly
 
+   overriding
    procedure Finalize (T : in out Test_Suite);
    -- Finalize procedure of Test_Suite. Frees all added Tests.
 
@@ -346,8 +359,11 @@ private
          Last  : Node_Access := null;
       end record;
 
+      overriding
       procedure Initialize (Target : in out List);
+      overriding
       procedure Finalize   (Target : in out List);
+      overriding
       procedure Adjust     (Target : in out List);
 
       Empty_List : constant List :=

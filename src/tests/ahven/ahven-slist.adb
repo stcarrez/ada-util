@@ -102,6 +102,7 @@ package body Ahven.SList is
       end loop;
    end For_Each;
 
+   overriding
    procedure Initialize (Target : in out List) is
    begin
       Target.Last := null;
@@ -109,11 +110,13 @@ package body Ahven.SList is
       Target.Size := 0;
    end Initialize;
 
+   overriding
    procedure Finalize (Target : in out List) is
    begin
       Clear (Target);
    end Finalize;
 
+   overriding
    procedure Adjust (Target : in out List) is
       Target_Last  : Node_Access := null;
       Target_First : Node_Access := null;

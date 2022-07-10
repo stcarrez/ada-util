@@ -125,6 +125,7 @@ package body Ahven.Tap_Runner is
          Put_Line (Prefix & "no output");
    end Print_Log_File;
 
+   overriding
    procedure Add_Pass (Listener : in out Tap_Listener;
                        Info     :        Context) is
    begin
@@ -164,18 +165,21 @@ package body Ahven.Tap_Runner is
       end if;
    end Report_Not_Ok;
 
+   overriding
    procedure Add_Failure (Listener : in out Tap_Listener;
                           Info     :        Context) is
    begin
       Report_Not_Ok (Listener, Info, "fail");
    end Add_Failure;
 
+   overriding
    procedure Add_Error (Listener : in out Tap_Listener;
                         Info     :        Context) is
    begin
       Report_Not_Ok (Listener, Info, "error");
    end Add_Error;
 
+   overriding
    procedure Add_Skipped (Listener : in out Tap_Listener;
                           Info     :        Context) is
    begin
@@ -191,6 +195,7 @@ package body Ahven.Tap_Runner is
       New_Line;
    end Add_Skipped;
 
+   overriding
    procedure Start_Test (Listener : in out Tap_Listener;
                          Info     :        Context) is
    begin
@@ -203,6 +208,7 @@ package body Ahven.Tap_Runner is
       end if;
    end Start_Test;
 
+   overriding
    procedure End_Test (Listener : in out Tap_Listener;
                        Info     :        Context) is
       pragma Unreferenced (Info);

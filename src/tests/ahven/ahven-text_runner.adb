@@ -68,7 +68,7 @@ package body Ahven.Text_Runner is
       Pad (Level);
       for A in Input'Range loop
          Put (Input (A));
-         if (Input (A) = Ada.Characters.Latin_1.LF) and (A /= Input'Last) then
+         if (Input (A) = Ada.Characters.Latin_1.LF) and then (A /= Input'Last) then
             Pad (Level);
          end if;
       end loop;
@@ -173,7 +173,7 @@ package body Ahven.Text_Runner is
       loop
          exit Test_Loop when not Is_Valid (Position);
          Print_Test (Data (Position), Level, Status);
-         if Print_Log and
+         if Print_Log and then
            (Length (Get_Output_File (Data (Position))) > 0)
          then
             Print_Log_File (To_String (Get_Output_File (Data (Position))));
