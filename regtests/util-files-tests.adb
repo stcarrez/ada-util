@@ -128,7 +128,7 @@ package body Util.Files.Tests is
       procedure Check_Path (Dir : in String;
                             Done : out Boolean) is
       begin
-         if Dir = "a" or Dir = "bc" or Dir = "de" then
+         if Dir in "a" | "bc" | "de" then
             Done := False;
          else
             Done := True;
