@@ -207,7 +207,7 @@ package body Util.Beans.Objects.Discrete_Tests is
                 & Boolean'Image (Res) & " when we expected: "
                 & Boolean'Image (Is_Neg)
                 & " with value: " & V);
-      if V /= "0" and V /= "false" and V /= "true" then
+      if V /= "0" and then V /= "false" and then V /= "true" then
          Res := To_Object_Test (N) < To_Object_Test (N) + To_Object_Test (N);
          T.Assert (Condition => Res = not Is_Neg,
                    Message   => Test_Name & ".'<' returned invalid value: "
@@ -255,7 +255,7 @@ package body Util.Beans.Objects.Discrete_Tests is
                      & Boolean'Image (Is_Neg)
                      & " with value: " & V);
       end if;
-      if V /= "0" and V /= "false" and V /= "true" then
+      if V /= "0" and then V /= "false" and then V /= "true" then
          Res := To_Object_Test (N) <= To_Object_Test (N) + To_Object_Test (N);
          T.Assert (Condition => Res = not Is_Neg,
                    Message   => Test_Name & ".'<' returned invalid value: "

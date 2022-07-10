@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-cookies-tests - Unit tests for Cookies
---  Copyright (C) 2011, 2012, 2015 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2015, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,6 @@ with Util.Measures;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 package body Util.Http.Cookies.Tests is
-
 
    use Ada.Strings.Fixed;
    use Util.Tests;

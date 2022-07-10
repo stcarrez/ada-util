@@ -552,8 +552,8 @@ package body Util.Strings.Tests is
       procedure Process_Token (Token : in String;
                                Done  : out Boolean) is
       begin
-         T.Assert (Token = "one" or Token = "two" or Token = "three"
-                   or Token = "four five" or Token = "six seven",
+         T.Assert (Token = "one" or else Token = "two" or else Token = "three"
+                   or else Token = "four five" or else Token = "six seven",
                    "Invalid token: [" & Token & "]");
 
          Called := Called + 1;

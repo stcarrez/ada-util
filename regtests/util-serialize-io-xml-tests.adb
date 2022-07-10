@@ -45,7 +45,6 @@ package body Util.Serialize.IO.XML.Tests is
                          Field : in Map_Test_Fields;
                          Value : in Util.Beans.Objects.Object);
 
-
    procedure Set_Member (P     : in out Map_Test;
                          Field : in Map_Test_Fields;
                          Value : in Util.Beans.Objects.Object) is
@@ -308,7 +307,6 @@ package body Util.Serialize.IO.XML.Tests is
                 "Invalid node type");
 
    end Test_Parser_Deep_Wildcard_Mapping;
-
 
    --  ------------------------------
    --  Test XML de-serialization with some errors.

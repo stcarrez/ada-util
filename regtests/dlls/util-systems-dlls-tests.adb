@@ -98,8 +98,12 @@ package body Util.Systems.DLLs.Tests is
             Lib6 := Null_Handle;
       end;
 
-      T.Assert (Lib1 /= Null_Handle or Lib2 /= Null_Handle or Lib3 /= Null_Handle
-                or Lib4 /= Null_Handle or Lib5 /= Null_Handle or Lib6 /= Null_Handle,
+      T.Assert (Lib1 /= Null_Handle
+                  or else Lib2 /= Null_Handle
+                  or else Lib3 /= Null_Handle
+                  or else Lib4 /= Null_Handle
+                  or else Lib5 /= Null_Handle
+                  or else Lib6 /= Null_Handle,
                 "At least one Load operation should have succeeded");
    end Load_Library;
 

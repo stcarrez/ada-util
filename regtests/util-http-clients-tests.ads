@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-tests -- Unit tests for HTTP client
---  Copyright (C) 2012, 2020 Stephane Carrez
+--  Copyright (C) 2012, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -77,7 +77,6 @@ package Util.Http.Clients.Tests is
 
    --  Get the test server base URI.
    function Get_Uri (T : in Test) return String;
-
 
    --  The <b>Http_Tests</b> package must be instantiated with one of the HTTP implementation.
    --  The <b>Register</b> procedure configures the Http.Client to use the given HTTP

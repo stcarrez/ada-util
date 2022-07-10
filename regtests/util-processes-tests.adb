@@ -254,8 +254,8 @@ package body Util.Processes.Tests is
                      Pipes (I).Close;
 
                      --  Check status and output.
-                     State := State and Pipes (I).Get_Exit_Status = 0;
-                     State := State and Ada.Strings.Unbounded.Index (Content, "test_marker") > 0;
+                     State := State and then Pipes (I).Get_Exit_Status = 0
+                       and then Ada.Strings.Unbounded.Index (Content, "test_marker") > 0;
                   end;
                end loop;
 

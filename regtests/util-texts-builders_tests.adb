@@ -106,7 +106,7 @@ package body Util.Texts.Builders_Tests is
                         Last : out Natural) is
          Pos : Natural := Into'First;
       begin
-         while Pos <= Into'Last and I <= S'Last loop
+         while Pos <= Into'Last and then I <= S'Last loop
             Into (Pos) := S (I);
             Pos := Pos + 1;
             I := I + 1;

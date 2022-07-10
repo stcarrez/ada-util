@@ -61,11 +61,13 @@ package body Util.Commands.Tests is
                       Context   : in out Test_Context_Type);
 
    --  Setup the command before parsing the arguments and executing it.
+   overriding
    procedure Setup (Command : in out Test_Command_Type;
                     Config  : in out GNAT.Command_Line.Command_Line_Configuration;
                     Context : in out Test_Context_Type);
 
    --  Write the help associated with the command.
+   overriding
    procedure Help (Command   : in out Test_Command_Type;
                    Name      : in String;
                    Context   : in out Test_Context_Type);
@@ -91,16 +93,17 @@ package body Util.Commands.Tests is
    begin
       Command.Log (Util.Log.ERROR_LEVEL, "command", "execute command message");
 
-      Context.Success := Command.Opt_Count = Command.Expect_C and
-        Command.Opt_V = Command.Expect_V and
-        Command.Opt_N = Command.Expect_N and
-        Args.Get_Count = Command.Expect_A and
-        not Command.Expect_Help;
+      Context.Success := Command.Opt_Count = Command.Expect_C
+        and then Command.Opt_V = Command.Expect_V
+        and then Command.Opt_N = Command.Expect_N
+        and then Args.Get_Count = Command.Expect_A
+        and then not Command.Expect_Help;
    end Execute;
 
    --  ------------------------------
    --  Setup the command before parsing the arguments and executing it.
    --  ------------------------------
+   overriding
    procedure Setup (Command : in out Test_Command_Type;
                     Config  : in out GNAT.Command_Line.Command_Line_Configuration;
                     Context : in out Test_Context_Type) is
@@ -131,6 +134,7 @@ package body Util.Commands.Tests is
    --  ------------------------------
    --  Write the help associated with the command.
    --  ------------------------------
+   overriding
    procedure Help (Command   : in out Test_Command_Type;
                    Name      : in String;
                    Context   : in out Test_Context_Type) is

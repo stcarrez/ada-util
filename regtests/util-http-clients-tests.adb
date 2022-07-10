@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-tests -- Unit tests for HTTP client
---  Copyright (C) 2012, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2012, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -94,7 +94,7 @@ package body Util.Http.Clients.Tests is
       L   : constant String := Ada.Strings.Unbounded.To_String (Line);
       Pos : Natural := Util.Strings.Index (L, ' ');
    begin
-      if Pos > 0 and Into.Method = UNKNOWN then
+      if Pos > 0 and then Into.Method = UNKNOWN then
          if L (L'First .. Pos - 1) = "GET" then
             Into.Method := GET;
          elsif L (L'First .. Pos - 1) = "HEAD" then
@@ -181,7 +181,7 @@ package body Util.Http.Clients.Tests is
       Request.Set_Timeout (5.0);
       Request.Set_Header ("Accept", "text/html");
       Util.Http.Add_Int_Header (Request, "DNT", 0);
-      T.Assert (Reply.Get_Status = 200 or Reply.Get_Status = 302,
+      T.Assert (Reply.Get_Status = 200 or else Reply.Get_Status = 302,
                 "Get status is invalid: " & Natural'Image (Reply.Get_Status));
 
       Util.Http.Tools.Save_Response (Util.Tests.Get_Test_Path ("http_get.txt"), Reply, True);
@@ -216,7 +216,7 @@ package body Util.Http.Clients.Tests is
       Request.Head ("http://www.google.com", Reply);
       Request.Set_Timeout (5.0);
       Request.Add_Header ("Accept", "text/html");
-      T.Assert (Reply.Get_Status = 200 or Reply.Get_Status = 302,
+      T.Assert (Reply.Get_Status = 200 or else Reply.Get_Status = 302,
                 "Get status is invalid: " & Natural'Image (Reply.Get_Status));
 
       Util.Http.Tools.Save_Response (Util.Tests.Get_Test_Path ("http_head.txt"), Reply, True);
