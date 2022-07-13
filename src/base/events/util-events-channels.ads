@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-events-channel -- Event Channels
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2018 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2018, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,7 +51,6 @@ package Util.Events.Channels is
    --  Unsubscribe to events sent on the event channel.
    procedure Unsubscribe (To     : in out Channel;
                           Client : in Subscriber_Access);
-
 
    type Channel_Creator is access
      function (Name : String) return Channel_Access;

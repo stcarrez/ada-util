@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  AUnit utils - Helper for writing unit tests
---  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2017, 2019, 2021 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2017, 2019, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -159,7 +159,7 @@ package body Util.Tests is
    --  ------------------------------
    function Is_Test_Enabled (Name : in String) return Boolean is
    begin
-      return Length (Enabled_Test) = 0 or Enabled_Test = Name;
+      return Length (Enabled_Test) = 0 or else Enabled_Test = Name;
    end Is_Test_Enabled;
 
    --  ------------------------------

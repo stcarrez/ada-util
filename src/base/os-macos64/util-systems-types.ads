@@ -74,5 +74,4 @@ package Util.Systems.Types is
    end record;
    pragma Convention (C_Pass_By_Copy, Stat_Type);
 
-
 end Util.Systems.Types;

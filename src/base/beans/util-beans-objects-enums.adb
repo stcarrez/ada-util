@@ -35,7 +35,6 @@ package body Util.Beans.Objects.Enums is
    function To_String (Type_Def : in Enum_Type;
                        Value    : in Object_Value) return String;
 
-
    --  ------------------------------
    --  Get the type name
    --  ------------------------------

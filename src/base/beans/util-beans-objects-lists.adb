@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Lists -- List bean holding some object
---  Copyright (C) 2013, 2017 Stephane Carrez
+--  Copyright (C) 2013, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@ package body Util.Beans.Objects.Lists is
    --  ------------------------------
    --  Get the number of elements in the list.
    --  ------------------------------
+   overriding
    function Get_Count (From : in List_Bean) return Natural is
    begin
       return Natural (Vectors.Length (From.List));
@@ -29,6 +30,7 @@ package body Util.Beans.Objects.Lists is
    --  ------------------------------
    --  Set the current row index.  Valid row indexes start at 1.
    --  ------------------------------
+   overriding
    procedure Set_Row_Index (From  : in out List_Bean;
                             Index : in Natural) is
    begin
@@ -38,6 +40,7 @@ package body Util.Beans.Objects.Lists is
    --  ------------------------------
    --  Get the element at the current row index.
    --  ------------------------------
+   overriding
    function Get_Row (From : in List_Bean) return Util.Beans.Objects.Object is
    begin
       return Vectors.Element (From.List, From.Current);
@@ -47,6 +50,7 @@ package body Util.Beans.Objects.Lists is
    --  Get the value identified by the name.
    --  If the name cannot be found, the method should return the Null object.
    --  ------------------------------
+   overriding
    function Get_Value (From : in List_Bean;
                        Name : in String) return Util.Beans.Objects.Object is
    begin

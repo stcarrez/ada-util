@@ -22,6 +22,7 @@ package body Util.Beans.Objects.Vectors is
    --  Get the value identified by the name.
    --  If the name cannot be found, the method should return the Null object.
    --  ------------------------------
+   overriding
    function Get_Value (From : in Vector_Bean;
                        Name : in String) return Object is
    begin

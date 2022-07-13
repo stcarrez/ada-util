@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-encoders -- Streams with encoding and decoding capabilities
---  Copyright (C) 2017, 2018, 2019, 2021 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,7 @@ package body Util.Streams.Buffered.Encoders is
    --  -----------------------
    --  Initialize the stream with a buffer of <b>Size</b> bytes.
    --  -----------------------
+   overriding
    procedure Initialize (Stream  : in out Encoder_Stream;
                          Size    : in Positive) is
    begin

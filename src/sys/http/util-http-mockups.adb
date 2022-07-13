@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-curl -- HTTP Clients with CURL
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@ package body Util.Http.Mockups is
    --  Returns a boolean indicating whether the named response header has already
    --  been set.
    --  ------------------------------
+   overriding
    function Contains_Header (Message : in Mockup_Message;
                              Name    : in String) return Boolean is
    begin
@@ -35,6 +36,7 @@ package body Util.Http.Mockups is
    --  first head in the request. The header name is case insensitive. You can use
    --  this method with any response header.
    --  ------------------------------
+   overriding
    function Get_Header (Message : in Mockup_Message;
                         Name    : in String) return String is
       Pos : constant Util.Strings.Maps.Cursor := Message.Headers.Find (Name);

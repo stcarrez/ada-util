@@ -65,5 +65,4 @@ package Util.Systems.Types is
    pragma Convention (C_Pass_By_Copy, Stat_Type);
    for Stat_Type'Size use 1792;
 
-
 end Util.Systems.Types;

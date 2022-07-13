@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-basic-lists -- List bean given access to a vector
---  Copyright (C) 2011, 2013, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,6 +33,7 @@ package body Util.Beans.Basic.Lists is
    --  ------------------------------
    --  Get the number of elements in the list.
    --  ------------------------------
+   overriding
    function Get_Count (From : in List_Bean) return Natural is
    begin
       return Natural (Vectors.Length (From.List));
@@ -41,6 +42,7 @@ package body Util.Beans.Basic.Lists is
    --  ------------------------------
    --  Set the current row index.  Valid row indexes start at 1.
    --  ------------------------------
+   overriding
    procedure Set_Row_Index (From  : in out List_Bean;
                             Index : in Natural) is
    begin
@@ -59,6 +61,7 @@ package body Util.Beans.Basic.Lists is
    --  ------------------------------
    --  Get the element at the current row index.
    --  ------------------------------
+   overriding
    function Get_Row (From : in List_Bean) return Util.Beans.Objects.Object is
    begin
       return From.Row;
@@ -68,6 +71,7 @@ package body Util.Beans.Basic.Lists is
    --  Get the value identified by the name.
    --  If the name cannot be found, the method should return the Null object.
    --  ------------------------------
+   overriding
    function Get_Value (From : in List_Bean;
                        Name : in String) return Util.Beans.Objects.Object is
    begin

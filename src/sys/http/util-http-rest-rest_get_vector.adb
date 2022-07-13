@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-rest -- REST API support
---  Copyright (C) 2012, 2013 Stephane Carrez
+--  Copyright (C) 2012, 2013, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,4 +35,3 @@ begin
    Vector_Mapper.Set_Context (Mapper, Into);
    Http.Get (URI, Reader, Mapper);
 end Util.Http.Rest.Rest_Get_Vector;
-

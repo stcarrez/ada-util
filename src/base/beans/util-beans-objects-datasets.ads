@@ -140,7 +140,6 @@ private
    function Get_Value (From : in Row;
                        Name : in String) return Util.Beans.Objects.Object;
 
-
    --  Set the value identified by the name.
    --  If the name cannot be found, the method should raise the No_Value
    --  exception.

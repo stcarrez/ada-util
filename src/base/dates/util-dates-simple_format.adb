@@ -27,7 +27,7 @@ function Util.Dates.Simple_Format (Pattern : in String;
                             Length  : in Natural := 2) is
       N : constant String := Natural'Image (Value);
    begin
-      if Length = 0 or (Padding /= ' ' and Padding /= '0') then
+      if Length = 0 or else (Padding /= ' ' and then Padding /= '0') then
          Append (Into, N (N'First + 1 .. N'Last));
       elsif N'Length <= Length then
          Append (Into, Padding);

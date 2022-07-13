@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-factory -- Bean Registration and Factory
---  Copyright (C) 2010, 2018 Stephane Carrez
+--  Copyright (C) 2010, 2018, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,7 +44,6 @@ package Util.Beans.Factory is
    procedure Destroy (Def  : in Bean_Definition;
                       Bean : in out Util.Beans.Basic.Readonly_Bean_Access) is abstract;
 
-
    --  Defines the scope of the bean instance.
    type Scope_Type is
      (
@@ -77,7 +76,6 @@ package Util.Beans.Factory is
    --  Factory for bean creation
    type Bean_Factory is limited private;
 
-
    --  Register under the given name a function to create the bean instance when
    --  it is accessed for a first time.  The scope defines the scope of the bean.
    --  bean
@@ -106,6 +104,7 @@ package Util.Beans.Factory is
 
    type Simple_Binding is new Binding with private;
 
+   overriding
    procedure Create (Factory    : in Simple_Binding;
                      Name       : in Ada.Strings.Unbounded.Unbounded_String;
                      Result     : out Util.Beans.Basic.Readonly_Bean_Access;

@@ -59,7 +59,7 @@ package body Util.Encoders.Lzma is
          --  Write the output data when the buffer is full or we reached the end of stream.
          if E.Stream.avail_out = 0
            or else E.Stream.avail_in = 0
-           or else Result = Base.Lzma_Stream_End
+           or else Result = Base.LZMA_STREAM_END
          then
             Last := Into'First + Into'Length - Offset (E.Stream.avail_out) - 1;
             Encoded := Data'First + Data'Length - Offset (E.Stream.avail_in);

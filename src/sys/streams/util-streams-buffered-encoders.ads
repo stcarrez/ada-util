@@ -66,6 +66,7 @@ package Util.Streams.Buffered.Encoders is
    end record;
 
    --  Initialize the stream with a buffer of <b>Size</b> bytes.
+   overriding
    procedure Initialize (Stream  : in out Encoder_Stream;
                          Size    : in Positive);
 
