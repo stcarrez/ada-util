@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base64 -- Encode/Decode a stream in base64
---  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -132,7 +132,7 @@ package body Util.Encoders.Base64 is
       Alphabet : constant Alphabet_Access := E.Alphabet;
 
    begin
-      while E.Count /= 0 and I <= Data'Last loop
+      while E.Count /= 0 and then I <= Data'Last loop
          if E.Count = 2 then
             C1 := E.Value;
             C2 := Unsigned_8 (Data (I));

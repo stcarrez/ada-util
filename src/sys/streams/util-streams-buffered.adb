@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered -- Buffered streams utilities
---  Copyright (C) 2010 - 2021 Stephane Carrez
+--  Copyright (C) 2010 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -71,6 +71,7 @@ package body Util.Streams.Buffered is
    --  ------------------------------
    --  Initialize the stream to read from the string.
    --  ------------------------------
+   overriding
    procedure Initialize (Stream  : in out Input_Buffer_Stream;
                          Content : in String) is
    begin
@@ -81,6 +82,7 @@ package body Util.Streams.Buffered is
    --  ------------------------------
    --  Initialize the stream with a buffer of <b>Size</b> bytes.
    --  ------------------------------
+   overriding
    procedure Initialize (Stream  : in out Output_Buffer_Stream;
                          Size    : in Positive) is
    begin

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-raw -- Raw streams for Unix based systems
---  Copyright (C) 2011, 2016, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2018, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,11 +50,13 @@ package Util.Streams.Raw is
    procedure Close (Stream : in out Raw_Stream);
 
    --  Write the buffer array to the output stream.
+   overriding
    procedure Write (Stream : in out Raw_Stream;
                     Buffer : in Ada.Streams.Stream_Element_Array);
 
    --  Read into the buffer as many bytes as possible and return in
    --  <b>last</b> the position of the last byte read.
+   overriding
    procedure Read (Stream : in out Raw_Stream;
                    Into   : out Ada.Streams.Stream_Element_Array;
                    Last   : out Ada.Streams.Stream_Element_Offset);
@@ -69,6 +71,7 @@ private
    use Ada.Streams;
 
    --  Flush the stream and release the buffer.
+   overriding
    procedure Finalize (Object : in out Raw_Stream);
 
    type Raw_Stream is new Ada.Finalization.Limited_Controlled

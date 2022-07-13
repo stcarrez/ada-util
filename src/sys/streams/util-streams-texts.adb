@@ -152,7 +152,7 @@ package body Util.Streams.Texts is
                Ada.Strings.Unbounded.Append (Into, C);
             end if;
             return;
-         elsif C /= ASCII.CR or not Strip then
+         elsif C /= ASCII.CR or else not Strip then
             Ada.Strings.Unbounded.Append (Into, C);
          end if;
       end loop;

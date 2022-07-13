@@ -28,8 +28,8 @@ package Util.Encoders.Base16 is
    Conversion : constant String (1 .. 16) := "0123456789ABCDEF";
 
    function From_Hex (C : in Character) return Interfaces.Unsigned_8 is
-     (if C >= '0' and C <= '9' then Character'Pos (C) - Character'Pos ('0')
-      elsif C >= 'A' and C <= 'F' then Character'Pos (C) - Character'Pos ('A') + 10
+     (if C >= '0' and then C <= '9' then Character'Pos (C) - Character'Pos ('0')
+      elsif C >= 'A' and then C <= 'F' then Character'Pos (C) - Character'Pos ('A') + 10
       else 0);
 
    function From_Hex (C1, C2 : in Character) return Character is

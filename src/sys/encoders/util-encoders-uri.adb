@@ -75,7 +75,7 @@ package body Util.Encoders.URI is
    begin
       while Read_Pos <= URI'Last loop
          C := URI (Read_Pos);
-         if C = '%' and Read_Pos + 2 <= URI'Last then
+         if C = '%' and then Read_Pos + 2 <= URI'Last then
             C := Base16.From_Hex (URI (Read_Pos + 1), URI (Read_Pos + 2));
             Read_Pos := Read_Pos + 3;
          else

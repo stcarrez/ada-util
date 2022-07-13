@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-ecc -- Error Correction Code
---  Copyright (C) 2019 Stephane Carrez
+--  Copyright (C) 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,19 +55,19 @@ package Util.Encoders.ECC is
    --  Make the 3 bytes ECC code that corresponds to the data array.
    procedure Make (Data : in Ada.Streams.Stream_Element_Array;
                    Code : out ECC_Code) with
-     Pre => Data'Length = 256 or Data'Length = 512;
+     Pre => Data'Length in 256 | 512;
 
    --  Check and correct the data array according to the expected ECC codes and current codes.
    --  At most one bit can be fixed and two error bits can be detected.
    function Correct (Data         : in out Ada.Streams.Stream_Element_Array;
                      Expect_Code  : in ECC_Code;
                      Current_Code : in ECC_Code) return ECC_Result with
-     Pre => Data'Length = 256 or Data'Length = 512;
+     Pre => Data'Length in 256 | 512;
 
    --  Check and correct the data array according to the expected ECC codes and current codes.
    --  At most one bit can be fixed and two error bits can be detected.
    function Correct (Data        : in out Ada.Streams.Stream_Element_Array;
                      Expect_Code : in ECC_Code) return ECC_Result with
-     Pre => Data'Length = 256 or Data'Length = 512;
+     Pre => Data'Length in 256 | 512;
 
 end Util.Encoders.ECC;

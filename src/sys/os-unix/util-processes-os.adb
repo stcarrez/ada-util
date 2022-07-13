@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012, 2017, 2018, 2019, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2018, 2019, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -160,13 +160,13 @@ package body Util.Processes.Os is
       end if;
 
       --  Setup the pipes.
-      if Mode = WRITE or Mode = READ_WRITE or Mode = READ_WRITE_ALL then
+      if Mode in WRITE | READ_WRITE | READ_WRITE_ALL then
          if Sys_Pipe (Stdin_Pipes'Address) /= 0 then
             Cleanup;
             raise Process_Error with "Cannot create stdin pipe";
          end if;
       end if;
-      if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL or Mode = READ_WRITE_ALL then
+      if Mode in READ | READ_WRITE | READ_ALL | READ_WRITE_ALL then
          if Sys_Pipe (Stdout_Pipes'Address) /= 0 then
             Cleanup;
             raise Process_Error with "Cannot create stdout pipe";
@@ -195,19 +195,19 @@ package body Util.Processes.Os is
 
          --  Handle stdin/stdout/stderr pipe redirections unless they are file-redirected.
 
-         if Sys.Err_File = Null_Ptr and Stdout_Pipes (1) /= NO_FILE
-           and (Mode = READ_ALL or Mode = READ_WRITE_ALL)
+         if Sys.Err_File = Null_Ptr and then Stdout_Pipes (1) /= NO_FILE
+           and then Mode in READ_ALL | READ_WRITE_ALL
          then
             Result := Sys_Dup2 (Stdout_Pipes (1), STDERR_FILENO);
          end if;
 
          --  Redirect stdin to the pipe unless we use file redirection.
-         if Sys.In_File = Null_Ptr and Stdin_Pipes (0) /= NO_FILE then
+         if Sys.In_File = Null_Ptr and then Stdin_Pipes (0) /= NO_FILE then
             if Stdin_Pipes (0) /= STDIN_FILENO then
                Result := Sys_Dup2 (Stdin_Pipes (0), STDIN_FILENO);
             end if;
          end if;
-         if Stdin_Pipes (0) /= NO_FILE and Stdin_Pipes (0) /= STDIN_FILENO then
+         if Stdin_Pipes (0) /= NO_FILE and then Stdin_Pipes (0) /= STDIN_FILENO then
             Result := Sys_Close (Stdin_Pipes (0));
          end if;
          if Stdin_Pipes (1) /= NO_FILE then
@@ -215,19 +215,19 @@ package body Util.Processes.Os is
          end if;
 
          --  Redirect stdout to the pipe unless we use file redirection.
-         if Sys.Out_File = Null_Ptr and Stdout_Pipes (1) /= NO_FILE then
+         if Sys.Out_File = Null_Ptr and then Stdout_Pipes (1) /= NO_FILE then
             if Stdout_Pipes (1) /= STDOUT_FILENO then
                Result := Sys_Dup2 (Stdout_Pipes (1), STDOUT_FILENO);
             end if;
          end if;
-         if Stdout_Pipes (1) /= NO_FILE and Stdout_Pipes (1) /= STDOUT_FILENO then
+         if Stdout_Pipes (1) /= NO_FILE and then Stdout_Pipes (1) /= STDOUT_FILENO then
             Result := Sys_Close (Stdout_Pipes (1));
          end if;
          if Stdout_Pipes (0) /= NO_FILE then
             Result := Sys_Close (Stdout_Pipes (0));
          end if;
 
-         if Sys.Err_File = Null_Ptr and Stderr_Pipes (1) /= NO_FILE then
+         if Sys.Err_File = Null_Ptr and then Stderr_Pipes (1) /= NO_FILE then
             if Stderr_Pipes (1) /= STDERR_FILENO then
                Result := Sys_Dup2 (Stderr_Pipes (1), STDERR_FILENO);
                Result := Sys_Close (Stderr_Pipes (1));

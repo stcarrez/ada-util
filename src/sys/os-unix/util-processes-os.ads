@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012, 2016, 2018, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -99,6 +99,3 @@ private
                                         Proc : in out Process'Class);
 
 end Util.Processes.Os;
-
-
-

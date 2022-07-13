@@ -346,7 +346,7 @@ package body Util.Processes is
    --  ------------------------------
    function Is_Running (Proc : in Process) return Boolean is
    begin
-      return Proc.Pid > 0 and Proc.Exit_Value < 0;
+      return Proc.Pid > 0 and then Proc.Exit_Value < 0;
    end Is_Running;
 
    --  ------------------------------

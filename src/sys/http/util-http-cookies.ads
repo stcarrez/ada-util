@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-cookies -- HTTP Cookies
---  Copyright (C) 2011, 2012 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -149,7 +149,6 @@ package Util.Http.Cookies is
    function Get_Cookies (Header : in String) return Cookie_Array_Access;
 
 private
-
 
    type Cookie is record
       Name      : Ada.Strings.Unbounded.Unbounded_String;

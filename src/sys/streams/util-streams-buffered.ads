@@ -111,6 +111,7 @@ package Util.Streams.Buffered is
                          Size    : in Positive);
 
    --  Initialize the stream with a buffer of <b>Size</b> bytes.
+   overriding
    procedure Initialize (Stream  : in out Output_Buffer_Stream;
                          Size    : in Positive);
 
@@ -145,6 +146,7 @@ package Util.Streams.Buffered is
    type Input_Buffer_Stream is limited new Buffer_Stream and Input_Stream with private;
 
    --  Initialize the stream to read from the string.
+   overriding
    procedure Initialize (Stream  : in out Input_Buffer_Stream;
                          Content : in String);
 
