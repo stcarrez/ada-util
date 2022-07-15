@@ -17,6 +17,7 @@
 -----------------------------------------------------------------------
 with Util.Dates.RFC7231;
 
+with Util.Http.Mimes;
 package Util.Http.Headers is
 
    --  Some header names.
@@ -43,5 +44,18 @@ package Util.Http.Headers is
    procedure Split_Header (Header  : in String;
                            Process : access procedure (Item    : in String;
                                                        Quality : in Quality_Type));
+
+   --  Get the accepted media according to the `Accept` header value and a list
+   --  of media/mime types.  The quality matching and wildcard are handled
+   --  so that we return the best match.  With the following HTTP header:
+   --
+   --     Accept: image/*; q=0.2, image/jpeg
+   --
+   --  and if the mimes list contains `image/png` but not `image/jpeg`, the
+   --  first one is returned.  If the list contains both, then `image/jpeg` is
+   --  returned.
+   function Get_Accepted (Header : in String;
+                          Mimes  : in Util.Http.Mimes.Mime_List)
+                         return Util.Http.Mimes.Mime_Access;
 
 end Util.Http.Headers;
