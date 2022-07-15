@@ -20,6 +20,7 @@ with Ada.Strings.Fixed;
 with Util.Strings.Tokenizers;
 package body Util.Http.Headers is
 
+   --  ------------------------------
    --  Split an accept like header into multiple tokens and a quality value.
    --  Invoke the `Process` procedure for each token.  Example:
    --
@@ -27,6 +28,7 @@ package body Util.Http.Headers is
    --
    --  The `Process` will be called for "de", "en" with quality 0.7,
    --  and "jp", "fr" with quality 0.8 and then "ru" with quality 1.0.
+   --  ------------------------------
    procedure Split_Header (Header  : in String;
                            Process : access procedure (Item    : in String;
                                                        Quality : in Quality_Type)) is
@@ -85,5 +87,74 @@ package body Util.Http.Headers is
          end if;
       end loop;
    end Split_Header;
+
+   --  ------------------------------
+   --  Get the accepted media according to the `Accept` header value and a list
+   --  of media/mime types.  The quality matching and wildcard are handled
+   --  so that we return the best match.  With the following HTTP header:
+   --
+   --     Accept: image/*; q=0.2, image/jpeg
+   --
+   --  and if the mimes list contains `image/png` but not `image/jpeg`, the
+   --  first one is returned.  If the list contains both, then `image/jpeg` is
+   --  returned.
+   --  ------------------------------
+   function Get_Accepted (Header : in String;
+                          Mimes  : in Util.Http.Mimes.Mime_List)
+                         return Util.Http.Mimes.Mime_Access is
+
+      procedure Process_Accept (Name    : in String;
+                                Quality : in Quality_Type);
+
+      Selected         : Util.Http.Mimes.Mime_Access;
+      Selected_Quality : Quality_Type := 0.0;
+
+      procedure Process_Accept (Name    : in String;
+                                Quality : in Quality_Type) is
+         Pos : Natural;
+      begin
+         if Quality > Selected_Quality then
+            Pos := Util.Strings.Index (Name, '*');
+            if Pos = 0 then
+               for Mime of Mimes loop
+                  if Name = Mime.all then
+                     Selected := Mime;
+                     Selected_Quality := Quality;
+                     return;
+                  end if;
+               end loop;
+            elsif Name = "*/*" then
+               Selected := Mimes (Mimes'First);
+               Selected_Quality := Quality;
+               return;
+            else
+               Pos := Pos - 1;
+               if Pos <= Name'First then
+                  return;
+               end if;
+               if Name (Pos .. Name'Last) /= "/*" then
+                  return;
+               end if;
+               for Mime of Mimes loop
+                  if Util.Strings.Starts_With (Mime.all, Name (Name'First .. Pos)) then
+                     Selected := Mime;
+                     Selected_Quality := Quality;
+                     return;
+                  end if;
+               end loop;
+            end if;
+         end if;
+      end Process_Accept;
+
+   begin
+      if Mimes'Length > 0 then
+         if Header'Length > 0 then
+            Split_Header (Header, Process_Accept'Access);
+         else
+            Selected := Mimes (Mimes'First);
+         end if;
+      end if;
+      return Selected;
+   end Get_Accepted;
 
 end Util.Http.Headers;
