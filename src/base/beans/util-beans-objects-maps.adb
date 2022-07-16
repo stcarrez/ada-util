@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-maps -- Object maps
---  Copyright (C) 2010, 2011, 2012, 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2017, 2018, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,6 +63,7 @@ package body Util.Beans.Objects.Maps is
    --  ------------------------------
    overriding
    function Last (From : in Map_Bean) return Iterators.Proxy_Iterator_Access is
+      pragma Unreferenced (From);
    begin
       return null;
    end Last;

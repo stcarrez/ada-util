@@ -178,6 +178,8 @@ package body Util.Beans.Objects.Iterators is
       overriding
       function Next (Object : in Forward_Iterator;
                      Pos    : in Iterator) return Iterator is
+         pragma Unreferenced (Object);
+
          Result : Iterator := Pos;
       begin
          Next (Result);

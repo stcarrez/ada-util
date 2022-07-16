@@ -19,7 +19,6 @@ with Util.Strings;
 package Util.Http.Mimes is
 
    subtype Mime_Access is Util.Strings.Name_Access;
-   use all type Util.Strings.Name_Access;
 
    type Mime_List is array (Positive range <>) of Mime_Access;
    type Mime_List_Access is access constant Mime_List;
@@ -40,7 +39,8 @@ package Util.Http.Mimes is
    Octet : aliased constant String := "application/octet-stream";
 
    --  List of mime types for images.
-   Images : aliased constant Mime_List := (Jpg'Access, Png'Access, Gif'Access, Ico'Access, Svg'Access);
+   Images : aliased constant Mime_List
+     := (Jpg'Access, Png'Access, Gif'Access, Ico'Access, Svg'Access);
 
    --  List of mime types for HTTP responses.
    Api    : aliased constant Mime_List := (Json'Access, Xml'Access);
