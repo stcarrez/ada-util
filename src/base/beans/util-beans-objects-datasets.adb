@@ -216,6 +216,7 @@ package body Util.Beans.Objects.Datasets is
    --  ------------------------------
    overriding
    function Last (From : in Row) return Iterators.Proxy_Iterator_Access is
+      pragma Unreferenced (From);
    begin
       return null;
    end Last;
