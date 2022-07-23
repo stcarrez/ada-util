@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients -- HTTP Clients
---  Copyright (C) 2011, 2012, 2015, 2017, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2015, 2017, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -102,6 +102,8 @@ package Util.Http.Clients is
    --  Get the response body as a string.
    overriding
    function Get_Body (Reply : in Response) return String;
+   overriding
+   function Get_Body (Reply : in Response) return Util.Blobs.Blob_Ref;
 
    --  Get the response status code.
    overriding

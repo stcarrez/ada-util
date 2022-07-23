@@ -115,6 +115,16 @@ package body Util.Http.Clients is
       end if;
    end Get_Body;
 
+   overriding
+   function Get_Body (Reply : in Response) return Util.Blobs.Blob_Ref is
+   begin
+      if Reply.Delegate = null then
+         return Util.Blobs.Null_Blob;
+      else
+         return Reply.Delegate.Get_Body;
+      end if;
+   end Get_Body;
+
    --  ------------------------------
    --  Get the response status code.
    --  ------------------------------
