@@ -9,6 +9,7 @@ Version 2.5.0  -
   - New operation Util.Files.Delete_Tree to delete a directory tree and work arround
     for GNAT bug gcc/63222 and gcc/56055
   - New operation Util.Files.Realpath to find the canonicalized absolute path of a file
+  - New package Util.Blobs to hold binary content with reference counting
   - Fix compilation on NetBSD 9.2
   - Fix compilation with AWS >= 22.0
 
