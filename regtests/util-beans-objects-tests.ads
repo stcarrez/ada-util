@@ -39,4 +39,7 @@ package Util.Beans.Objects.Tests is
    --  Test the "&" operator.
    procedure Test_And_Operator (T : in out Test);
 
+   --  Test the Blob bean.
+   procedure Test_Blob (T : in out Test);
+
 end Util.Beans.Objects.Tests;

@@ -34,6 +34,8 @@ package body Util.Beans.Objects.Tests is
                        Test_Set_Value'Access);
       Caller.Add_Test (Suite, "Test Util.Beans.Objects.&",
                        Test_And_Operator'Access);
+      Caller.Add_Test (Suite, "Test Util.Beans.Objects.To_Blob",
+                       Test_Blob'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -114,5 +116,19 @@ package body Util.Beans.Objects.Tests is
       R := S1 & S3 & I1 & S3 & S2;
       Util.Tests.Assert_Equals (T, "wide hello 12345 normal hello", To_String (R));
    end Test_And_Operator;
+
+   --  ------------------------------
+   --  Test the Blob bean.
+   --  ------------------------------
+   procedure Test_Blob (T : in out Test) is
+      Blob  : constant Util.Blobs.Blob_Ref := Util.Blobs.Create_Blob (Size => 10);
+      R     : Object;
+      Blob2 : Util.Blobs.Blob_Ref;
+   begin
+      R := To_Object (Blob);
+      T.Assert (not Is_Null (R), "Is_Null must be false");
+      Blob2 := To_Blob (R);
+      T.Assert (not Blob2.Is_Null, "Blob2 must not be null");
+   end Test_Blob;
 
 end Util.Beans.Objects.Tests;
