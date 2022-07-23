@@ -143,5 +143,18 @@ begin
             return Hash_Type (Result);
          end;
 
+      when TYPE_BLOB =>
+         declare
+            Result : Unsigned_32 := 0;
+            Blob   : Util.Blobs.Blob_Ref := Key.V.Blob_Proxy.Blob;
+         begin
+            if not Blob.Is_Null then
+               for Val of Blob.Value.Data loop
+                  Result := Result xor Unsigned_32 (Val);
+               end loop;
+            end if;
+            return Hash_Type (Result);
+         end;
+
    end case;
 end Util.Beans.Objects.Hash;
