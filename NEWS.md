@@ -10,6 +10,7 @@ Version 2.5.0  -
     for GNAT bug gcc/63222 and gcc/56055
   - New operation Util.Files.Realpath to find the canonicalized absolute path of a file
   - New package Util.Blobs to hold binary content with reference counting
+  - New package Util.Http.Headers to provide some HTTP helper operations
   - Fix compilation on NetBSD 9.2
   - Fix compilation with AWS >= 22.0
 
