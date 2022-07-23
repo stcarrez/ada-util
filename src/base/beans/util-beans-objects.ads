@@ -85,6 +85,7 @@
 with Ada.Strings.Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Finalization;
+with Util.Blobs;
 private with Ada.Unchecked_Deallocation;
 private with Util.Concurrent.Counters;
 limited with Util.Beans.Basic;
@@ -107,14 +108,16 @@ package Util.Beans.Objects is
                       TYPE_FLOAT,
                       --  The object holds a date and time.
                       TYPE_TIME,
+                      --  The object holds some record object.
+                      TYPE_RECORD,
                       --  The object holds a string.
                       TYPE_STRING,
                       --  The object holds a wide wide string.
                       TYPE_WIDE_STRING,
                       --  The object holds an array of objects.
                       TYPE_ARRAY,
-                      --  The object holds some record object.
-                      TYPE_RECORD,
+                      --  The object holds an binary blob.
+                      TYPE_BLOB,
                       --  The object holds a generic bean.
                       TYPE_BEAN);
 
@@ -241,6 +244,7 @@ package Util.Beans.Objects is
    function To_Long_Float (Value : in Object) return Long_Float;
    function To_Long_Long_Float (Value : in Object) return Long_Long_Float;
    function To_Duration (Value : in Object) return Duration;
+   function To_Blob (Value : in Object) return Util.Blobs.Blob_Ref;
 
    function To_Bean (Value : in Object) return access Util.Beans.Basic.Readonly_Bean'Class;
 
@@ -271,6 +275,7 @@ package Util.Beans.Objects is
    function To_Object (Value : in Boolean) return Object;
    function To_Object (Value : in Duration) return Object;
    function To_Object (Value : in Object_Array) return Object;
+   function To_Object (Value : in Util.Blobs.Blob_Ref) return Object;
 
    --  Create an object that refers to the bean object.  With the storage type
    --  <b>DYNAMIC</b>, the default, the bean object will be freed when there is
@@ -672,6 +677,44 @@ private
 
    function Get_Array_Bean (Value : in Object) return access Util.Beans.Basic.Array_Bean'Class;
 
+   --  ------------------------------
+   --  Blob Type
+   --  ------------------------------
+   type Blob_Type is new Basic_Type with null record;
+
+   --  Get the type name
+   overriding
+   function Get_Name (Type_Def : in Blob_Type) return String;
+
+   --  Get the base data type.
+   overriding
+   function Get_Data_Type (Type_Def : in Blob_Type) return Data_Type;
+
+   --  Convert the value into a string.
+   overriding
+   function To_String (Type_Def : in Blob_Type;
+                       Value    : in Object_Value) return String;
+
+   --  Convert the value into an integer.
+   overriding
+   function To_Long_Long (Type_Def : in Blob_Type;
+                          Value    : in Object_Value) return Long_Long_Integer;
+
+   --  Convert the value into a float.
+   overriding
+   function To_Long_Float (Type_Def : in Blob_Type;
+                           Value    : in Object_Value) return Long_Long_Float;
+
+   --  Convert the value into a boolean.
+   overriding
+   function To_Boolean (Type_Def : in Blob_Type;
+                        Value    : in Object_Value) return Boolean;
+
+   --  Returns True if the value is empty.
+   overriding
+   function Is_Empty (Type_Def : in Blob_Type;
+                      Value    : in Object_Value) return Boolean;
+
    subtype Proxy_Data_Type is Data_Type range TYPE_STRING .. TYPE_BEAN;
 
    type Proxy is tagged limited record
@@ -705,6 +748,11 @@ private
    end record;
    type Array_Proxy_Access is access all Array_Proxy;
 
+   type Blob_Proxy is new Proxy with record
+      Blob : Util.Blobs.Blob_Ref;
+   end record;
+   type Blob_Proxy_Access is access all Blob_Proxy;
+
    --  Release the object pointed to by the proxy (if necessary).
    overriding
    procedure Release (P : in out Bean_Proxy);
@@ -735,6 +783,9 @@ private
 
          when TYPE_ARRAY =>
             Array_Proxy : Array_Proxy_Access;
+
+         when TYPE_BLOB =>
+            Blob_Proxy : Blob_Proxy_Access;
 
          when TYPE_RECORD =>
             Record_Proxy : Proxy_Access;

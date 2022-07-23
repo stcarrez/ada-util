@@ -45,6 +45,7 @@ package body Util.Beans.Objects is
    Duration_Type : aliased constant Duration_Type_Def := Duration_Type_Def '(null record);
    Bn_Type       : aliased constant Bean_Type        := Bean_Type '(null record);
    Ar_Type       : aliased constant Array_Type       := Array_Type '(null record);
+   Blob_Def      : aliased constant Blob_Type        := Blob_Type '(null record);
 
    --  ------------------------------
    --  Convert the value into a wide string.
@@ -815,6 +816,94 @@ package body Util.Beans.Objects is
    end Is_Empty;
 
    --  ------------------------------
+   --  Blob Type
+   --  ------------------------------
+
+   --  ------------------------------
+   --  Get the type name
+   --  ------------------------------
+   overriding
+   function Get_Name (Type_Def : in Blob_Type) return String is
+      pragma Unreferenced (Type_Def);
+   begin
+      return "Blob";
+   end Get_Name;
+
+   --  ------------------------------
+   --  Get the base data type.
+   --  ------------------------------
+   overriding
+   function Get_Data_Type (Type_Def : in Blob_Type) return Data_Type is
+      pragma Unreferenced (Type_Def);
+   begin
+      return TYPE_BLOB;
+   end Get_Data_Type;
+
+   --  ------------------------------
+   --  Convert the value into a string.
+   --  ------------------------------
+   overriding
+   function To_String (Type_Def : in Blob_Type;
+                       Value    : in Object_Value) return String is
+      pragma Unreferenced (Type_Def);
+   begin
+      if Value.Blob_Proxy = null then
+         return "<null array>";
+      else
+         return "<array>";
+      end if;
+   end To_String;
+
+   --  ------------------------------
+   --  Convert the value into an integer.
+   --  ------------------------------
+   overriding
+   function To_Long_Long (Type_Def : in Blob_Type;
+                          Value    : in Object_Value) return Long_Long_Integer is
+      pragma Unreferenced (Type_Def, Value);
+   begin
+      return 0;
+   end To_Long_Long;
+
+   --  ------------------------------
+   --  Convert the value into a float.
+   --  ------------------------------
+   overriding
+   function To_Long_Float (Type_Def : in Blob_Type;
+                           Value    : in Object_Value) return Long_Long_Float is
+      pragma Unreferenced (Type_Def, Value);
+   begin
+      return 0.0;
+   end To_Long_Float;
+
+   --  ------------------------------
+   --  Convert the value into a boolean.
+   --  ------------------------------
+   overriding
+   function To_Boolean (Type_Def : in Blob_Type;
+                        Value    : in Object_Value) return Boolean is
+      pragma Unreferenced (Type_Def);
+      Proxy : constant Blob_Proxy_Access := Value.Blob_Proxy;
+   begin
+      return Proxy /= null;
+   end To_Boolean;
+
+   --  ------------------------------
+   --  Returns True if the value is empty.
+   --  ------------------------------
+   overriding
+   function Is_Empty (Type_Def : in Blob_Type;
+                      Value    : in Object_Value) return Boolean is
+      pragma Unreferenced (Type_Def);
+   begin
+      if Value.Blob_Proxy = null then
+         return True;
+      else
+         return Value.Blob_Proxy.Blob.Is_Null;
+      end if;
+   end Is_Empty;
+
+   --  ------------------------------
    --  Array Type
    --  ------------------------------
 
@@ -1195,6 +1284,18 @@ package body Util.Beans.Objects is
    end To_Long_Long_Float;
 
    --  ------------------------------
+   --  Convert the object to a long float.
+   --  ------------------------------
+   function To_Blob (Value : Object) return Util.Blobs.Blob_Ref is
+   begin
+      if Value.V.Of_Type = TYPE_BLOB and then Value.V.Blob_Proxy /= null then
+         return Value.V.Blob_Proxy.Blob;
+      else
+         return Util.Blobs.Null_Blob;
+      end if;
+   end To_Blob;
+
+   --  ------------------------------
    --  Convert an integer into a generic typed object.
    --  ------------------------------
    function To_Object (Value : Integer) return Object is
@@ -1367,6 +1468,16 @@ package body Util.Beans.Objects is
                                                                  Count  => Value'Length,
                                                                  Values => Value)),
                       Type_Def => Ar_Type'Access);
+   end To_Object;
+
+   function To_Object (Value : in Util.Blobs.Blob_Ref) return Object is
+   begin
+      return Object '(Controlled with
+                        V => Object_Value '(Of_Type => TYPE_BLOB,
+                                            Blob_Proxy =>
+                                               new Blob_Proxy '(Ref_Counter => ONE,
+                                                                Blob => Value)),
+                      Type_Def => Blob_Def'Access);
    end To_Object;
 
    --  ------------------------------
@@ -1784,6 +1895,11 @@ package body Util.Beans.Objects is
                Util.Concurrent.Counters.Increment (Obj.V.Wide_Proxy.Ref_Counter);
             end if;
 
+         when TYPE_BLOB =>
+            if Obj.V.Blob_Proxy /= null then
+               Util.Concurrent.Counters.Increment (Obj.V.Blob_Proxy.Ref_Counter);
+            end if;
+
          when others =>
             null;
 
@@ -1805,6 +1921,10 @@ package body Util.Beans.Objects is
    procedure Free is
      new Ada.Unchecked_Deallocation (Object => Wide_String_Proxy,
                                      Name   => Wide_String_Proxy_Access);
+
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Object => Blob_Proxy,
+                                     Name   => Blob_Proxy_Access);
 
    overriding
    procedure Finalize (Obj : in out Object) is
@@ -1849,6 +1969,16 @@ package body Util.Beans.Objects is
                   Free (Obj.V.Array_Proxy);
                else
                   Obj.V.Array_Proxy := null;
+               end if;
+            end if;
+
+         when TYPE_BLOB =>
+            if Obj.V.Blob_Proxy /= null then
+               Util.Concurrent.Counters.Decrement (Obj.V.Blob_Proxy.Ref_Counter, Release);
+               if Release then
+                  Free (Obj.V.Blob_Proxy);
+               else
+                  Obj.V.Blob_Proxy := null;
                end if;
             end if;
 
