@@ -47,6 +47,7 @@ framework as it provides better reports.
   - New operation Util.Files.Realpath to find the canonicalized absolute path of a file
   - New package Util.Blobs to hold binary content with reference counting
   - New package Util.Http.Headers to provide some HTTP helper operations
+  - Add support for Blob in bean objects
   - Fix compilation on NetBSD 9.2
   - Fix compilation with AWS >= 22.0
 
