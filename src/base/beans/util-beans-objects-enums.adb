@@ -120,6 +120,9 @@ package body Util.Beans.Objects.Enums is
          when TYPE_ARRAY =>
             raise Constraint_Error with "Cannot convert an array into a discrete type";
 
+         when TYPE_BLOB =>
+            raise Constraint_Error with "Cannot convert a blob into a discrete type";
+
       end case;
    end To_Value;
 
