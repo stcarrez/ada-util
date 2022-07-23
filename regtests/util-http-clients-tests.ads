@@ -27,6 +27,7 @@ package Util.Http.Clients.Tests is
 
    type Test_Server is new Util.Tests.Servers.Server with record
       Method       : Method_Type := UNKNOWN;
+      Uri          : Ada.Strings.Unbounded.Unbounded_String;
       Result       : Ada.Strings.Unbounded.Unbounded_String;
       Content_Type : Ada.Strings.Unbounded.Unbounded_String;
       Length       : Natural := 0;
@@ -68,6 +69,9 @@ package Util.Http.Clients.Tests is
 
    --  Test the http timeout.
    procedure Test_Http_Timeout (T : in out Test);
+
+   --  Test the http GET with binary content.
+   procedure Test_Http_Binary (T : in out Test);
 
    overriding
    procedure Set_Up (T : in out Test);
