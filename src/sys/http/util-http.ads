@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Calendar;
+with Util.Blobs;
 
 --  = HTTP =
 --  The `Util.Http` package provides a set of APIs that allows applications to use
@@ -154,5 +155,8 @@ package Util.Http is
 
    --  Get the response body as a string.
    function Get_Body (Response : in Abstract_Response) return String is abstract;
+
+   --  Get the response body as a blob content.
+   function Get_Body (Response : in Abstract_Response) return Util.Blobs.Blob_Ref is abstract;
 
 end Util.Http;
