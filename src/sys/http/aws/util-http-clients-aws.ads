@@ -175,6 +175,9 @@ private
    overriding
    function Get_Body (Reply : in AWS_Http_Response) return String;
 
+   overriding
+   function Get_Body (Reply : in AWS_Http_Response) return Util.Blobs.Blob_Ref;
+
    --  Get the response status code.
    overriding
    function Get_Status (Reply : in AWS_Http_Response) return Natural;

@@ -436,6 +436,14 @@ package body Util.Http.Clients.AWS is
       return AWS_I.Response.Message_Body (Reply.Data);
    end Get_Body;
 
+   overriding
+   function Get_Body (Reply : in AWS_Http_Response) return Util.Blobs.Blob_Ref is
+      Data : constant Ada.Streams.Stream_Element_Array
+        := AWS_I.Response.Message_Body (Reply.Data);
+   begin
+      return Util.Blobs.Create_Blob (Data);
+   end Get_Body;
+
    --  Get the response status code.
    overriding
    function Get_Status (Reply : in AWS_Http_Response) return Natural is
