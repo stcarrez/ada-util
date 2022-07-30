@@ -45,4 +45,11 @@ package Util.Http.Mimes is
    --  List of mime types for HTTP responses.
    Api    : aliased constant Mime_List := (Json'Access, Xml'Access);
 
+   --  Returns true if the Content-Type header uses the given mime type.
+   --  The `Header` parameter is assumed to follow the media type specification
+   --  with the pattern:
+   --    type / subtype [; token = (token|quoted-string)]
+   function Is_Mime (Header : in String;
+                     Mime   : in String) return Boolean;
+
 end Util.Http.Mimes;
