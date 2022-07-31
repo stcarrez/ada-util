@@ -146,7 +146,7 @@ bin/utilgen:    support/utilgen.c Makefile.conf
 	$(CC) -o $@ $(CFLAGS) -g support/utilgen.c
 
 $(eval $(call alire_publish,alire.toml,ut/utilada,utilada-$(VERSION).toml))
-$(eval $(call alire_publish,alire-aunit.toml,ut/utilada_unit,utilada_unit-$(VERSION).toml))
+$(eval $(call alire_publish,alire-unit.toml,ut/utilada_unit,utilada_unit-$(VERSION).toml))
 $(eval $(call alire_publish,alire-xml.toml,ut/utilada_xml,utilada_xml-$(VERSION).toml))
 $(eval $(call alire_publish,alire-curl.toml,ut/utilada_curl,utilada_curl-$(VERSION).toml))
 $(eval $(call alire_publish,alire-aws.toml,ut/utilada_aws,utilada_aws-$(VERSION).toml))
