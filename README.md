@@ -10,9 +10,10 @@
 [![Test Status](https://img.shields.io/jenkins/t/https/jenkins.vacs.fr/Bionic-Ada-Util.svg)](https://jenkins.vacs.fr/job/Bionic-Ada-Util/)
 [![codecov](https://codecov.io/gh/stcarrez/ada-util/branch/master/graph/badge.svg)](https://codecov.io/gh/stcarrez/ada-util)
 [![Documentation Status](https://readthedocs.org/projects/ada-util/badge/?version=latest)](https://ada-util.readthedocs.io/en/latest/?badge=latest)
-[![Download](https://img.shields.io/badge/download-2.4.0-brightgreen.svg)](http://download.vacs.fr/ada-util/ada-util-2.4.0.tar.gz)
+[![Download](https://img.shields.io/badge/download-2.4.1-brightgreen.svg)](http://download.vacs.fr/ada-util/ada-util-2.4.1.tar.gz)
 [![License](https://img.shields.io/badge/license-APACHE2-blue.svg)](LICENSE)
-[![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/2.4.0.svg)](Commits)
+[![GitLab](https://img.shields.io/badge/repo-GitLab-6C488A.svg)](https://gitlab.com/stcarrez/ada-util)
+[![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/2.4.1.svg)](Commits)
 
 
 This Ada05 library contains various utility packages for building
@@ -32,6 +33,23 @@ Ada05 applications.  This includes:
 Ada Util also provides a small test utility library on top of
 Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
 framework as it provides better reports.
+
+## Version 2.5.0  - Under development
+  - New examples to illustrate the IO stream composition
+  - New examples for JSON parser and Util.Beans.Objects
+  - Add support to set environment variables when launching a process (without changing the current process environment!)
+  - Add support to indent XML output streams
+  - New package Util.Files.Rolling to provide a rolling file manager
+  - New package Util.Beans.Objects.Iterators to easily iterate over objects
+  - Add a new log appender to support rolling log files with size and time based policies
+  - New operation Util.Files.Delete_Tree to delete a directory tree and work arround
+    for GNAT bug gcc/63222 and gcc/56055
+  - New operation Util.Files.Realpath to find the canonicalized absolute path of a file
+  - New package Util.Blobs to hold binary content with reference counting
+  - New package Util.Http.Headers to provide some HTTP helper operations
+  - Add support for Blob in bean objects
+  - Fix compilation on NetBSD 9.2
+  - Fix compilation with AWS >= 22.0
 
 ## Version 2.4.1  - Jul 2021
   - Fix compilation issues with GNAT 2021
@@ -124,13 +142,48 @@ The samples can be built using:
    gnatmake -Psamples
 ```   
 
+| Package              | Example                                                                      |
+|----------------------|------------------------------------------------------------------------------|
+| `Util.Dates.Formats` | [date.adb](https://github.com/stcarrez/ada-util/tree/master/samples/date.adb)|
+| `Util.Beans.Objects` | [objcalc.adb](https://github.com/stcarrez/ada-util/tree/master/samples/objcalc.adb), [jsonobj.adb](https://github.com/stcarrez/ada-util/tree/master/samples/jsonobj.adb), [jsonread.adb](https://github.com/stcarrez/ada-util/tree/master/samples/jsonread.adb)|
+| `Util.Beans.Objects.Maps` | [jsonobj.adb](https://github.com/stcarrez/ada-util/tree/master/samples/jsonobj.adb), [genentities.adb](https://github.com/stcarrez/ada-util/tree/master/samples/genentities.adb)|
+| `Util.Beans.Objects.Vectors` | [datasets.adb](https://github.com/stcarrez/ada-util/tree/master/samples/datasets.adb), [jsonobj.adb](https://github.com/stcarrez/ada-util/tree/master/samples/jsonobj.adb)|
+| `Util.Beans.Objects.Datasets` | [datasets.adb](https://github.com/stcarrez/ada-util/tree/master/samples/datasets.adb)|
+| `Util.Beans.Objects.Iterators` | [jsonread.adb](https://github.com/stcarrez/ada-util/tree/master/samples/jsonread.adb)|
+| `Util.Encoders` | [encodes.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encodes.adb) |
+| `Util.Encoders.AES` | [decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/decrypt.adb), [encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encrypt.adb) |
+| `Util.Encoders.SHA256` | [sha256.adb](https://github.com/stcarrez/ada-util/tree/master/samples/sha256.adb) |
+| `Util.Files` | [realpath.adb](https://github.com/stcarrez/ada-util/tree/master/samples/realpath.adb), [gperfhash.adb](https://github.com/stcarrez/ada-util/tree/master/samples/gperfhash.adb) |
+| `Util.Files.Rolling` | [rolling_file.adb](https://github.com/stcarrez/ada-util/tree/master/samples/rolling_file.adb) |
+| `Util.Http.Clients` | [wget.adb](https://github.com/stcarrez/ada-util/tree/master/samples/wget.adb), [facebook.adb](https://github.com/stcarrez/ada-util/tree/master/samples/facebook.adb) |
+| `Util.Log.Loggers` | [log.adb](https://github.com/stcarrez/ada-util/tree/master/samples/log.adb), [multipro_refs.adb](https://github.com/stcarrez/ada-util/tree/master/samples/multipro_refs.adb), [date.adb](https://github.com/stcarrez/ada-util/tree/master/samples/date.adb), [xmlrd.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmlrd.adb), [gperfhash.adb](https://github.com/stcarrez/ada-util/tree/master/samples/gperfhash.adb), [multipro.adb](https://github.com/stcarrez/ada-util/tree/master/samples/multipro.adb), [mapping.adb](https://github.com/stcarrez/ada-util/tree/master/samples/mapping.adb), [csv_city.adb](https://github.com/stcarrez/ada-util/tree/master/samples/csv_city.adb), [bundles.adb](https://github.com/stcarrez/ada-util/tree/master/samples/bundles.adb) |
+| `Util.Measures` | [measures.adb](https://github.com/stcarrez/ada-util/tree/master/samples/measures.adb) |
+| `Util.Processes` | [launch.adb](https://github.com/stcarrez/ada-util/tree/master/samples/launch.adb), [env.adb](https://github.com/stcarrez/ada-util/tree/master/samples/env.adb), [popen.adb](https://github.com/stcarrez/ada-util/tree/master/samples/popen.adb) |
+| `Util.Properties` | [properties.adb](https://github.com/stcarrez/ada-util/tree/master/samples/properties.adb), [proplist.adb](https://github.com/stcarrez/ada-util/tree/master/samples/proplist.adb), [bundles.adb](https://github.com/stcarrez/ada-util/tree/master/samples/bundles.adb) |
+| `Util.Refs` | [multipro_refs.adb](https://github.com/stcarrez/ada-util/tree/master/samples/multipro_refs.adb) |
+| `Util.Streams.AES` | [decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/decrypt.adb), [encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encrypt.adb) |
+| `Util.Streams.Base64` | [lzma_encrypt_b64.adb](https://github.com/stcarrez/ada-util/tree/master/samples/lzma_encrypt_b64.adb), [lzma_decrypt_b64.adb](https://github.com/stcarrez/ada-util/tree/master/samples/lzma_decrypt_b64.adb) |
+| `Util.Streams.Files` | [copy.adb](https://github.com/stcarrez/ada-util/tree/master/samples/copy.adb), [sha256.adb](https://github.com/stcarrez/ada-util/tree/master/samples/sha256.adb), [compress.adb](https://github.com/stcarrez/ada-util/tree/master/samples/compress.adb), [decompress.adb](https://github.com/stcarrez/ada-util/tree/master/samples/decompress.adb), [decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/decrypt.adb), [encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encrypt.adb), [lzma_encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/lzma_encrypt.adb), [lzma_decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/lzma_decrypt.adb) |
+| `Util.Streams.Pipes` | [launch.adb](https://github.com/stcarrez/ada-util/tree/master/samples/launch.adb), [popen.adb](https://github.com/stcarrez/ada-util/tree/master/samples/popen.adb) |
+| `Util.Serialize.IO.CSV` | [csv_city.adb](https://github.com/stcarrez/ada-util/tree/master/samples/csv_city.adb) |
+| `Util.Serialize.IO.JSON` | [serialize.adb](https://github.com/stcarrez/ada-util/tree/master/samples/serialize.adb), [json.adb](https://github.com/stcarrez/ada-util/tree/master/samples/json.adb), [jsonobj.adb](https://github.com/stcarrez/ada-util/tree/master/samples/jsonobj.adb), [jsonread.adb](https://github.com/stcarrez/ada-util/tree/master/samples/jsonread.adb), [genentities.adb](https://github.com/stcarrez/ada-util/tree/master/samples/genentities.adb) |
+| `Util.Serialize.IO.XML` | [serialize_xml.adb](https://github.com/stcarrez/ada-util/tree/master/samples/serialize_xml.adb), [xmi.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmi.adb), [xmlrd.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmlrd.adb) |
+| `Util.Serialize.Mappers` | [csv_reader.adb](https://github.com/stcarrez/ada-util/tree/master/samples/csv_reader.adb), [csv_city.adb](https://github.com/stcarrez/ada-util/tree/master/samples/csv_city.adb), [xmi.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmi.adb), [xmlrd.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmlrd.adb) |
+| `Util.Serialize.Mappers.Record_Mapper` | [xmi.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmi.adb), [xmlrd.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmlrd.adb) |
+| `Util.Serialize.Mappers.Vector_Mapper` | [json.adb](https://github.com/stcarrez/ada-util/tree/master/samples/json.adb), [xmlrd.adb](https://github.com/stcarrez/ada-util/tree/master/samples/xmlrd.adb) |
+| `Util.Strings` | [cut.adb](https://github.com/stcarrez/ada-util/tree/master/samples/cut.adb), [escape.adb](https://github.com/stcarrez/ada-util/tree/master/samples/escape.adb) |
+| `Util.Strings.Tokenizers` | [cut.adb](https://github.com/stcarrez/ada-util/tree/master/samples/cut.adb), [escape.adb](https://github.com/stcarrez/ada-util/tree/master/samples/escape.adb) |
+| `Util.Strings.Transforms` | [escape.adb](https://github.com/stcarrez/ada-util/tree/master/samples/escape.adb), [gperfhash.adb](https://github.com/stcarrez/ada-util/tree/master/samples/gperfhash.adb) |
+| `Util.Strings.Vectors` | [gperfhash.adb](https://github.com/stcarrez/ada-util/tree/master/samples/gperfhash.adb) |
+
 # Documentation
 
-* [Ada Utility Library Programmer's Guide](https://ada-util.readthedocs.io/en/latest/intro/) [PDF](https://github.com/stcarrez/ada-util/blob/master/docs/utilada-book.pdf)
+* [Ada Utility Library Programmer's Guide](https://ada-util.readthedocs.io/en/latest/) [PDF](https://github.com/stcarrez/ada-util/blob/master/docs/utilada-book.pdf)
 * [Wiki Documentation](https://github.com/stcarrez/ada-util/wiki)
 
 # Articles
 
+* [IO stream composition and serialization with Ada Utility Library](https://blog.vacs.fr/vacs/blogs/post.html?post=2022/03/05/IO-stream-composition-and-serialization-with-Ada-Utility-Library)
 * [Easy reading and writing files with Ada Utility Library](https://blog.vacs.fr/vacs/blogs/post.html?post=2020/08/09/Easy-reading-and-writing-files-with-Ada-Utility-Library)
 * [Process creation in Java and Ada](https://blog.vacs.fr/vacs/blogs/post.html?post=2012/03/16/Process-creation-in-Java-and-Ada)
 * [Ada perfect hash generation with gperfhash](https://blog.vacs.fr/vacs/blogs/post.html?post=2012/01/16/Ada-perfect-hash-generation)

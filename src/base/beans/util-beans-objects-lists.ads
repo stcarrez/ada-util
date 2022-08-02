@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Beans.Objects.Lists -- List bean holding some object
---  Copyright (C) 2013 Stephane Carrez
+--  util-beans-objects-lists -- List bean holding some object
+--  Copyright (C) 2013, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Util.Beans.Objects;
 with Util.Beans.Objects.Vectors;
 with Util.Beans.Basic;
 

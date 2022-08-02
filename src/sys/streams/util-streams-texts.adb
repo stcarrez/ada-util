@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-texts -- Text stream utilities
---  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2019, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2019, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -152,13 +152,15 @@ package body Util.Streams.Texts is
                Ada.Strings.Unbounded.Append (Into, C);
             end if;
             return;
-         elsif C /= ASCII.CR or not Strip then
+         elsif C /= ASCII.CR or else not Strip then
             Ada.Strings.Unbounded.Append (Into, C);
          end if;
       end loop;
 
    exception
-      when Ada.IO_Exceptions.Data_Error =>
+      when Ada.IO_Exceptions.Data_Error
+        | Ada.IO_Exceptions.Device_Error
+        | Ada.IO_Exceptions.End_Error =>
          return;
    end Read_Line;
 

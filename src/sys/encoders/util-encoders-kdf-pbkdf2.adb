@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-kdf-pbkdf2 -- Password-Based Key Derivation Function 2, RFC 8018.
---  Copyright (C) 2019 Stephane Carrez
+--  Copyright (C) 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,9 +49,15 @@ begin
       --  With: U_c = PRF (P, U_{c-1}) .
       Result.Secret (First .. First + Len - 1) := U.Secret (1 .. Len);
       for C in 1 .. Counter - 1 loop
+         --  Cancel the warning: writable actual for "Data" overlaps with actual for "Into".
+         pragma Warnings (Off);
+
          Hash (Key  => Password.Secret,
                Data => U.Secret (1 .. Length),
                Into => U.Secret (1 .. Length));
+
+         pragma Warnings (On);
+
          for J in 1 .. Len loop
             Result.Secret (First + J - 1) := Result.Secret (First + J - 1) xor U.Secret (J);
          end loop;

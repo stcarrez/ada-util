@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  locales.tests -- Unit tests for Locales
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  util-locales-tests -- Unit tests for Locales
+--  Copyright (C) 2009, 2010, 2011, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,5 +28,6 @@ package Util.Locales.Tests is
    procedure Test_Hash_Locale (T : in out Test);
    procedure Test_Compare_Locale (T : in out Test);
    procedure Test_Get_Locales (T : in out Test);
+   procedure Test_Null_Locale (T : in out Test);
 
 end Util.Locales.Tests;

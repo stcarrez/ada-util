@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties -- Generic name/value property management
---  Copyright (C) 2001 - 2021 Stephane Carrez
+--  Copyright (C) 2001 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,7 +74,7 @@ package body Util.Properties is
          overriding
          function Is_Shared (Self : in Manager) return Boolean is
          begin
-            return not Self.Shared and Util.Concurrent.Counters.Value (Self.Count) > 1;
+            return not Self.Shared and then Util.Concurrent.Counters.Value (Self.Count) > 1;
          end Is_Shared;
 
          overriding
@@ -444,7 +444,21 @@ package body Util.Properties is
       Bean  : constant access Util.Beans.Basic.Readonly_Bean'Class
         := Util.Beans.Objects.To_Bean (Item);
    begin
-      if Bean = null or else not (Bean.all in Manager'Class) then
+      if Bean = null then
+         raise Util.Beans.Objects.Conversion_Error;
+      end if;
+      if Bean.all in Util.Beans.Objects.Maps.Map_Bean'Class then
+         declare
+            Props  : Manager;
+            Impl   : Property_Manager_Access;
+         begin
+            Check_And_Create_Impl (Props);
+            Impl := Property_Manager'Class (Props.Impl.all)'Access;
+            Impl.Props.Assign (Util.Beans.Objects.Maps.Map_Bean (Bean.all));
+            return Props;
+         end;
+      end if;
+      if not (Bean.all in Manager'Class) then
          raise Util.Beans.Objects.Conversion_Error;
       end if;
       return Manager (Bean.all);
@@ -543,7 +557,7 @@ package body Util.Properties is
                      Trim (Value, Trim_Chars, Trim_Chars);
                      Current.Set (Name, Value);
 
-                  elsif Pos > 0 and Prefix'Length = 0 then
+                  elsif Pos > 0 and then Prefix'Length = 0 then
                      Name  := Head (Line, Pos - 1);
                      Value := Tail (Line, Len - Pos);
                      Trim (Name, Trim_Chars, Trim_Chars);

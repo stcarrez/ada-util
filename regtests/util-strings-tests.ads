@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  strings.tests -- Unit tests for Strings
---  Copyright (C) 2009, 2010, 2011, 2012, 2015, 2018, 2020, 2021 Stephane Carrez
+--  util-strings-tests -- Unit tests for Strings
+--  Copyright (C) 2009, 2010, 2011, 2012, 2015, 2018, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,6 +42,7 @@ package Util.Strings.Tests is
    procedure Test_Rindex (T : in out Test);
    procedure Test_Starts_With (T : in out Test);
    procedure Test_Ends_With (T : in out Test);
+   procedure Test_Replace (T : in out Test);
 
    --  Do some benchmark on String -> X hash mapped.
    procedure Test_Measure_Hash (T : in out Test);

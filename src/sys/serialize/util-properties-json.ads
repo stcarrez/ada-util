@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties-json -- read json files into properties
---  Copyright (C) 2013, 2018 Stephane Carrez
+--  Copyright (C) 2013, 2018, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,9 +24,9 @@
 --
 --    { "id": "1",                                 id         -> 1
 --      "info": { "name": "search",                info.name  -> search
---                "count", "12",                   info.count -> 12
+--                "count": "12",                   info.count -> 12
 --                "data": { "value": "empty" }},   info.data.value  -> empty
---      "count": 1                                 info.count -> 1
+--      "count": 1                                 count      -> 1
 --    }
 --
 --  To get the value of a JSON property, the user can use the flatten name.  For example:

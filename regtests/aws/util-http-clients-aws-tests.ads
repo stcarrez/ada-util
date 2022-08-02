@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-curl-tests -- HTTP unit tests for AWS implementation
---  Copyright (C) 2012, 2019 Stephane Carrez
+--  Copyright (C) 2012, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Util.Http.Clients.AWS;
 with Util.Http.Clients.Tests;
 package Util.Http.Clients.AWS.Tests is
   new Util.Http.Clients.Tests.Http_Tests (Util.Http.Clients.AWS.Register, "aws");

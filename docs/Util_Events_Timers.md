@@ -38,7 +38,7 @@ Manager.Set_Timer (T, My_Timeout'Access, Ada.Real_Time.Seconds (1));
 ### Timer Main Loop
 Because the implementation does not impose any execution model, the timer management must
 be called regularly by some application's main loop.  The <tt>Process</tt> procedure
-executes the timer handler that have ellapsed and it returns the deadline to wait for the
+executes the timer handler that have elapsed and it returns the deadline to wait for the
 next timer to execute.
 
 ```Ada

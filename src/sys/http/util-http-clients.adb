@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients -- HTTP Clients
---  Copyright (C) 2011, 2012, 2013, 2017, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2013, 2017, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -115,9 +115,20 @@ package body Util.Http.Clients is
       end if;
    end Get_Body;
 
+   overriding
+   function Get_Body (Reply : in Response) return Util.Blobs.Blob_Ref is
+   begin
+      if Reply.Delegate = null then
+         return Util.Blobs.Null_Blob;
+      else
+         return Reply.Delegate.Get_Body;
+      end if;
+   end Get_Body;
+
    --  ------------------------------
    --  Get the response status code.
    --  ------------------------------
+   overriding
    function Get_Status (Reply : in Response) return Natural is
    begin
       return Reply.Delegate.Get_Status;

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates -- Date utilities
---  Copyright (C) 2011, 2013, 2014, 2018, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2018, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -99,8 +99,8 @@ package body Util.Dates is
    function Is_Same_Day (Date1, Date2 : in Date_Record) return Boolean is
    begin
       return Date1.Year = Date2.Year
-        and Date1.Month = Date2.Month
-        and Date1.Month_Day = Date2.Month_Day;
+        and then Date1.Month = Date2.Month
+        and then Date1.Month_Day = Date2.Month_Day;
    end Is_Same_Day;
 
    --  ------------------------------

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-curl -- HTTP Clients with CURL
---  Copyright (C) 2012, 2017, 2018, 2020 Stephane Carrez
+--  Copyright (C) 2012, 2017, 2018, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -64,6 +64,7 @@ package body Util.Http.Clients.Curl is
    --  ------------------------------
    --  Create a new HTTP request associated with the current request manager.
    --  ------------------------------
+   overriding
    procedure Create (Manager  : in Curl_Http_Manager;
                      Http     : in out Client'Class) is
       pragma Unreferenced (Manager);
@@ -88,34 +89,35 @@ package body Util.Http.Clients.Curl is
    --  ------------------------------
    --  This function is called by CURL when a response line was read.
    --  ------------------------------
-   function Read_Response (Data     : in Chars_Ptr;
+   function Read_Response (Data     : in System.Address;
                            Size     : in Size_T;
                            Nmemb    : in Size_T;
                            Response : in Curl_Http_Response_Access) return Size_T is
 
       Total : constant Size_T := Size * Nmemb;
       Last  : Natural;
-      Line  : constant String := Interfaces.C.Strings.Value (Data, Total);
+      Line  : String (1 .. Natural (Total));
+      for Line'Address use Data;
    begin
-      Last := Line'Last;
-      while Last > Line'First and then (Line (Last) = ASCII.CR or Line (Last) = ASCII.LF) loop
-         Last := Last - 1;
-      end loop;
-      Log.Debug ("RCV: {0}", Line (Line'First .. Last));
       if Response.Parsing_Body then
-         Ada.Strings.Unbounded.Append (Response.Content, Line);
+         Response.Append_Body (Line);
 
       elsif Total = 2 and then Line (1) = ASCII.CR and then Line (2) = ASCII.LF then
          Response.Parsing_Body := True;
 
       else
+         Last := Line'Last;
+         while Last > Line'First and then (Line (Last) = ASCII.CR or else Line (Last) = ASCII.LF) loop
+            Last := Last - 1;
+         end loop;
+         Log.Debug ("RCV: {0}", Line (Line'First .. Last));
          declare
             Pos   : constant Natural := Util.Strings.Index (Line, ':');
             Start : Natural;
          begin
             if Pos > 0 then
                Start := Pos + 1;
-               while Start <= Line'Last and Line (Start) = ' ' loop
+               while Start <= Line'Last and then Line (Start) = ' ' loop
                   Start := Start + 1;
                end loop;
                Response.Add_Header (Name  => Line (Line'First .. Pos - 1),
@@ -148,6 +150,7 @@ package body Util.Http.Clients.Curl is
       Request.Iterate_Headers (Process'Access);
    end Set_Headers;
 
+   overriding
    procedure Do_Get (Manager  : in Curl_Http_Manager;
                      Http     : in Client'Class;
                      URI      : in String;
@@ -192,9 +195,10 @@ package body Util.Http.Clients.Curl is
 
       Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
       Check_Code (Result, "get response code");
-      Response.Status := Natural (Status);
+      Response.Set_Status (Natural (Status));
    end Do_Get;
 
+   overriding
    procedure Do_Head (Manager  : in Curl_Http_Manager;
                       Http     : in Client'Class;
                       URI      : in String;
@@ -239,9 +243,10 @@ package body Util.Http.Clients.Curl is
 
       Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
       Check_Code (Result, "get response code");
-      Response.Status := Natural (Status);
+      Response.Set_Status (Natural (Status));
    end Do_Head;
 
+   overriding
    procedure Do_Post (Manager  : in Curl_Http_Manager;
                       Http     : in Client'Class;
                       URI      : in String;
@@ -296,7 +301,7 @@ package body Util.Http.Clients.Curl is
 
       Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
       Check_Code (Result, "get response code");
-      Response.Status := Natural (Status);
+      Response.Set_Status (Natural (Status));
       if Req.Curl_Headers /= null then
          Curl_Slist_Free_All (Req.Curl_Headers);
          Req.Curl_Headers := null;
@@ -361,7 +366,7 @@ package body Util.Http.Clients.Curl is
 
       Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
       Check_Code (Result, "get response code");
-      Response.Status := Natural (Status);
+      Response.Set_Status (Natural (Status));
 
       Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_CUSTOMREQUEST,
                                          Interfaces.C.Strings.Null_Ptr);
@@ -430,7 +435,7 @@ package body Util.Http.Clients.Curl is
 
       Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
       Check_Code (Result, "get response code");
-      Response.Status := Natural (Status);
+      Response.Set_Status (Natural (Status));
 
       Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_CUSTOMREQUEST,
                                          Interfaces.C.Strings.Null_Ptr);
@@ -495,7 +500,7 @@ package body Util.Http.Clients.Curl is
 
       Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
       Check_Code (Result, "get response code");
-      Response.Status := Natural (Status);
+      Response.Set_Status (Natural (Status));
 
       Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_CUSTOMREQUEST,
                                          Interfaces.C.Strings.Null_Ptr);
@@ -553,7 +558,7 @@ package body Util.Http.Clients.Curl is
 
       Result := Curl_Easy_Getinfo_Long (Req.Data, Constants.CURLINFO_RESPONSE_CODE, Status'Access);
       Check_Code (Result, "get response code");
-      Response.Status := Natural (Status);
+      Response.Set_Status (Natural (Status));
 
       Result := Curl_Easy_Setopt_String (Req.Data, Constants.CURLOPT_CUSTOMREQUEST,
                                          Interfaces.C.Strings.Null_Ptr);
@@ -591,23 +596,5 @@ package body Util.Http.Clients.Curl is
       Interfaces.C.Strings.Free (Request.URL);
       Interfaces.C.Strings.Free (Request.Content);
    end Finalize;
-
-   --  ------------------------------
-   --  Get the response body as a string.
-   --  ------------------------------
-   overriding
-   function Get_Body (Reply : in Curl_Http_Response) return String is
-   begin
-      return Ada.Strings.Unbounded.To_String (Reply.Content);
-   end Get_Body;
-
-   --  ------------------------------
-   --  Get the response status code.
-   --  ------------------------------
-   overriding
-   function Get_Status (Reply : in Curl_Http_Response) return Natural is
-   begin
-      return Reply.Status;
-   end Get_Status;
 
 end Util.Http.Clients.Curl;

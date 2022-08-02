@@ -19,8 +19,8 @@ endif
 TEST_TIMEOUT=30
 
 ifeq ($(HAVE_UTILGEN),yes)
-UTIL_GEN_FILES=src/sys/os-generated/util-systems-constants.ads
-UTIL_GEN_FILES+=src/sys/os-generated/util-systems-types.ads
+UTIL_GEN_FILES=src/base/os-generated/util-systems-constants.ads
+UTIL_GEN_FILES+=src/base/os-generated/util-systems-types.ads
 ifeq ($(HAVE_CURL),yes)
 UTIL_GEN_FILES+=src/sys/http/curl/util-http-clients-curl-constants.ads
 endif
@@ -74,6 +74,9 @@ regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile.conf
 		 -DOS_VERSION='"$(OS_VERSION)"' \
 		 regtests/util-testsuite.gpb $@
 
+samples:
+	$(GNATMAKE) $(GPRFLAGS) -p samples.gpr $(MAKE_ARGS)
+
 CLEAN_FILES=$(UTIL_GEN_FILES) bin/util_harness
 CLEAN_FILES+= bin/util_test_process bin/utilgen
 
@@ -87,6 +90,8 @@ UTIL_DOC= \
   index.md \
   pagebreak.tex \
   Installation.md \
+  pagebreak.tex \
+  Util_Files.md \
   pagebreak.tex \
   Util_Log.md \
   pagebreak.tex \
@@ -106,7 +111,7 @@ UTIL_DOC= \
   pagebreak.tex \
   Util_Encoders.md \
   pagebreak.tex \
-  Util_Events_Timers.md \
+  Util_Misc.md \
   pagebreak.tex \
   Util_Measures.md
 
@@ -115,19 +120,21 @@ DOC_OPTIONS+= --listings --number-sections --toc
 HTML_OPTIONS=-f markdown
 HTML_OPTIONS+= --listings --number-sections --toc --css docs/pandoc.css
 
-$(eval $(call pandoc_build,utilada-book,$(UTIL_DOC)))
+$(eval $(call pandoc_build,utilada-book,$(UTIL_DOC),\
+	rm -f docs/user-list.md docs/alloc-sequence.md docs/user_hbm.md; \
+	cat docs/Misc.md docs/Util_Texts_Builders.md docs/Util_Listeners.md docs/Util_Events_Timers.md docs/Util_Executors.md > docs/Util_Misc.md))
 
 install-support:
 	$(MKDIR) -p ${bindir}
 	${CP} support/*.sh ${bindir}
 	${CP} support/*.xsl ${bindir}
 
-src/sys/os-generated/util-systems-constants.ads:	bin/utilgen
-	mkdir -p src/sys/os-generated
+src/base/os-generated/util-systems-constants.ads:	bin/utilgen
+	mkdir -p src/base/os-generated
 	bin/utilgen > $@
 
-src/sys/os-generated/util-systems-types.ads:	bin/utilgen
-	mkdir -p src/sys/os-generated
+src/base/os-generated/util-systems-types.ads:	bin/utilgen
+	mkdir -p src/base/os-generated
 	bin/utilgen types > $@
 
 src/sys/http/curl/util-http-clients-curl-constants.ads:	bin/utilgen
@@ -137,3 +144,12 @@ src/sys/http/curl/util-http-clients-curl-constants.ads:	bin/utilgen
 bin/utilgen:    support/utilgen.c Makefile.conf
 	mkdir -p bin
 	$(CC) -o $@ $(CFLAGS) -g support/utilgen.c
+
+$(eval $(call alire_publish,alire.toml,ut/utilada,utilada-$(VERSION).toml))
+$(eval $(call alire_publish,alire-unit.toml,ut/utilada_unit,utilada_unit-$(VERSION).toml))
+$(eval $(call alire_publish,alire-xml.toml,ut/utilada_xml,utilada_xml-$(VERSION).toml))
+$(eval $(call alire_publish,alire-curl.toml,ut/utilada_curl,utilada_curl-$(VERSION).toml))
+$(eval $(call alire_publish,alire-aws.toml,ut/utilada_aws,utilada_aws-$(VERSION).toml))
+$(eval $(call alire_publish,alire-lzma.toml,ut/utilada_lzma,utilada_lzma-$(VERSION).toml))
+
+.PHONY: samples

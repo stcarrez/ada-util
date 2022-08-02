@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,11 +28,13 @@ with Util.Streams.Buffered;
 with Util.Streams.Texts.TR;
 with Util.Streams.Texts.WTR;
 with Util.Dates.ISO8601;
-with Util.Beans.Objects.Maps;
+with Util.Beans.Objects.Iterators;
 with Util.Beans.Objects.Readers;
 package body Util.Serialize.IO.JSON is
 
    use Ada.Strings.Unbounded;
+
+   package UBO renames Util.Beans.Objects;
 
    --  -----------------------
    --  Set the target output stream.
@@ -84,6 +86,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Start a JSON document.  This operation writes the initial JSON marker ('{').
    --  -----------------------
+   overriding
    procedure Start_Document (Stream : in out Output_Stream) is
       Current : access Node_Info;
    begin
@@ -95,6 +98,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Finish a JSON document by writing the final JSON marker ('}').
    --  -----------------------
+   overriding
    procedure End_Document (Stream : in out Output_Stream) is
       Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
    begin
@@ -211,7 +215,10 @@ package body Util.Serialize.IO.JSON is
          end if;
       end if;
 
-      if Name'Length > 0 and then (Current = null or else not Current.Is_Array) then
+      if (Name'Length > 0 and then (Current = null or else not Current.Is_Array))
+        or else (Name'Length = 0 and then Current /= null and then not Current.Is_Array
+                 and then not Current.Is_Root)
+      then
          Stream.Write_String (Name);
          Stream.Write (':');
       end if;
@@ -220,6 +227,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Start writing an object identified by the given name
    --  -----------------------
+   overriding
    procedure Start_Entity (Stream : in out Output_Stream;
                            Name   : in String) is
       Current : access Node_Info := Node_Info_Stack.Current (Stream.Stack);
@@ -244,6 +252,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Finish writing an object identified by the given name
    --  -----------------------
+   overriding
    procedure End_Entity (Stream : in out Output_Stream;
                          Name   : in String) is
       pragma Unreferenced (Name);
@@ -298,6 +307,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Write an attribute member from the current object
    --  -----------------------
+   overriding
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object) is
@@ -338,6 +348,7 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Write an object value as an entity
    --  -----------------------
+   overriding
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object) is
@@ -378,21 +389,25 @@ package body Util.Serialize.IO.JSON is
                Stream.End_Array (Name);
             else
                declare
-                  procedure Process (Name : in String; Item : in Object);
-
-                  procedure Process (Name : in String; Item : in Object) is
-                  begin
-                     Stream.Write (ASCII.LF);
-                     if Name'Length = 0 then
-                        Stream.Write (""""":");
-                     end if;
-                     Stream.Write_Entity (Name, Item);
-                  end Process;
-
+                  Iter : Util.Beans.Objects.Iterators.Iterator
+                    := Util.Beans.Objects.Iterators.First (Value);
                begin
-                  Stream.Start_Entity (Name);
-                  Util.Beans.Objects.Maps.Iterate (Value, Process'Access);
-                  Stream.End_Entity (Name);
+                  if not UBO.Iterators.Has_Key (Iter) then
+                     Stream.Start_Array (Name);
+                     while UBO.Iterators.Has_Element (Iter) loop
+                        Stream.Write_Entity ("", UBO.Iterators.Element (Iter));
+                        UBO.Iterators.Next (Iter);
+                     end loop;
+                     Stream.End_Array (Name);
+                  else
+                     Stream.Start_Entity (Name);
+                     while UBO.Iterators.Has_Element (Iter) loop
+                        Stream.Write_Entity (UBO.Iterators.Key (Iter),
+                                             UBO.Iterators.Element (Iter));
+                        UBO.Iterators.Next (Iter);
+                     end loop;
+                     Stream.End_Entity (Name);
+                  end if;
                end;
             end if;
 
@@ -525,11 +540,13 @@ package body Util.Serialize.IO.JSON is
    --  -----------------------
    --  Get the current location (file and line) to report an error message.
    --  -----------------------
+   overriding
    function Get_Location (Handler : in Parser) return String is
    begin
       return Util.Strings.Image (Handler.Line_Number);
    end Get_Location;
 
+   overriding
    procedure Parse (Handler : in out Parser;
                     Stream  : in out Util.Streams.Buffered.Input_Buffer_Stream'Class;
                     Sink    : in out Reader'Class) is
@@ -589,11 +606,11 @@ package body Util.Serialize.IO.JSON is
       function Hexdigit (C : in Character) return Interfaces.Unsigned_32 is
          use type Interfaces.Unsigned_32;
       begin
-         if C >= '0' and C <= '9' then
+         if C >= '0' and then C <= '9' then
             return Character'Pos (C) - Character'Pos ('0');
-         elsif C >= 'a' and C <= 'f' then
+         elsif C >= 'a' and then C <= 'f' then
             return Character'Pos (C) - Character'Pos ('a') + 10;
-         elsif C >= 'A' and C <= 'F' then
+         elsif C >= 'A' and then C <= 'F' then
             return Character'Pos (C) - Character'Pos ('A') + 10;
          else
             raise Constraint_Error with "Invalid hexdigit: " & C;
@@ -715,7 +732,8 @@ package body Util.Serialize.IO.JSON is
                   P.Line_Number := P.Line_Number + 1;
                else
                   exit when C /= ' '
-                    and C /= Ada.Characters.Latin_1.CR and C /= Ada.Characters.Latin_1.HT;
+                    and then C /= Ada.Characters.Latin_1.CR
+                    and then C /= Ada.Characters.Latin_1.HT;
                end if;
             end loop;
          end if;
@@ -814,11 +832,11 @@ package body Util.Serialize.IO.JSON is
                      Append (P.Token, C);
                   end loop;
                end if;
-               if C = 'e' or C = 'E' then
+               if C = 'e' or else C = 'E' then
                   Token := T_FLOAT;
                   Append (P.Token, C);
                   Stream.Read (Char => C);
-                  if C = '+' or C = '-' then
+                  if C = '+' or else C = '-' then
                      Append (P.Token, C);
                      Stream.Read (Char => C);
                   end if;
@@ -844,8 +862,8 @@ package body Util.Serialize.IO.JSON is
             Append (P.Token, C);
             loop
                Stream.Read (Char => C);
-               exit when not (C in 'a' .. 'z' or C in 'A' .. 'Z'
-                              or C in '0' .. '9' or C = '_');
+               exit when not (C in 'a' .. 'z' or else C in 'A' .. 'Z'
+                              or else C in '0' .. '9' or else C = '_');
                Append (P.Token, C);
             end loop;
             --  Putback the last character unless we can ignore it.
@@ -929,6 +947,18 @@ package body Util.Serialize.IO.JSON is
          return Util.Beans.Objects.Null_Object;
       else
          return R.Get_Root;
+      end if;
+   end Read;
+
+   function Read (Content : in String) return Util.Properties.Manager is
+      P : Parser;
+      R : Util.Beans.Objects.Readers.Reader;
+   begin
+      P.Parse_String (Content, R);
+      if P.Has_Error then
+         return Util.Properties.To_Manager (Util.Beans.Objects.Null_Object);
+      else
+         return Util.Properties.To_Manager (R.Get_Root);
       end if;
    end Read;
 

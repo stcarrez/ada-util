@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012, 2017, 2018, 2019, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2018, 2019, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@
 with Ada.Directories;
 with Ada.Unchecked_Deallocation;
 
+with Util.Strings;
 package body Util.Processes.Os is
 
    use Util.Systems.Os;
@@ -28,6 +29,9 @@ package body Util.Processes.Os is
 
    type Pipe_Type is array (0 .. 1) of File_Type;
    procedure Close (Pipes : in out Pipe_Type);
+   procedure Free_Array (Argv : in out Util.Systems.Os.Ptr_Ptr_Array);
+   procedure Allocate (Into  : in out Util.Systems.Os.Ptr_Ptr_Array;
+                       Count : in Interfaces.C.size_t);
 
    --  ------------------------------
    --  Create the output stream to read/write on the process input/output.
@@ -156,13 +160,13 @@ package body Util.Processes.Os is
       end if;
 
       --  Setup the pipes.
-      if Mode = WRITE or Mode = READ_WRITE or Mode = READ_WRITE_ALL then
+      if Mode in WRITE | READ_WRITE | READ_WRITE_ALL then
          if Sys_Pipe (Stdin_Pipes'Address) /= 0 then
             Cleanup;
             raise Process_Error with "Cannot create stdin pipe";
          end if;
       end if;
-      if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL or Mode = READ_WRITE_ALL then
+      if Mode in READ | READ_WRITE | READ_ALL | READ_WRITE_ALL then
          if Sys_Pipe (Stdout_Pipes'Address) /= 0 then
             Cleanup;
             raise Process_Error with "Cannot create stdout pipe";
@@ -191,19 +195,19 @@ package body Util.Processes.Os is
 
          --  Handle stdin/stdout/stderr pipe redirections unless they are file-redirected.
 
-         if Sys.Err_File = Null_Ptr and Stdout_Pipes (1) /= NO_FILE
-           and (Mode = READ_ALL or Mode = READ_WRITE_ALL)
+         if Sys.Err_File = Null_Ptr and then Stdout_Pipes (1) /= NO_FILE
+           and then Mode in READ_ALL | READ_WRITE_ALL
          then
             Result := Sys_Dup2 (Stdout_Pipes (1), STDERR_FILENO);
          end if;
 
          --  Redirect stdin to the pipe unless we use file redirection.
-         if Sys.In_File = Null_Ptr and Stdin_Pipes (0) /= NO_FILE then
+         if Sys.In_File = Null_Ptr and then Stdin_Pipes (0) /= NO_FILE then
             if Stdin_Pipes (0) /= STDIN_FILENO then
                Result := Sys_Dup2 (Stdin_Pipes (0), STDIN_FILENO);
             end if;
          end if;
-         if Stdin_Pipes (0) /= NO_FILE and Stdin_Pipes (0) /= STDIN_FILENO then
+         if Stdin_Pipes (0) /= NO_FILE and then Stdin_Pipes (0) /= STDIN_FILENO then
             Result := Sys_Close (Stdin_Pipes (0));
          end if;
          if Stdin_Pipes (1) /= NO_FILE then
@@ -211,19 +215,19 @@ package body Util.Processes.Os is
          end if;
 
          --  Redirect stdout to the pipe unless we use file redirection.
-         if Sys.Out_File = Null_Ptr and Stdout_Pipes (1) /= NO_FILE then
+         if Sys.Out_File = Null_Ptr and then Stdout_Pipes (1) /= NO_FILE then
             if Stdout_Pipes (1) /= STDOUT_FILENO then
                Result := Sys_Dup2 (Stdout_Pipes (1), STDOUT_FILENO);
             end if;
          end if;
-         if Stdout_Pipes (1) /= NO_FILE and Stdout_Pipes (1) /= STDOUT_FILENO then
+         if Stdout_Pipes (1) /= NO_FILE and then Stdout_Pipes (1) /= STDOUT_FILENO then
             Result := Sys_Close (Stdout_Pipes (1));
          end if;
          if Stdout_Pipes (0) /= NO_FILE then
             Result := Sys_Close (Stdout_Pipes (0));
          end if;
 
-         if Sys.Err_File = Null_Ptr and Stderr_Pipes (1) /= NO_FILE then
+         if Sys.Err_File = Null_Ptr and then Stderr_Pipes (1) /= NO_FILE then
             if Stderr_Pipes (1) /= STDERR_FILENO then
                Result := Sys_Dup2 (Stderr_Pipes (1), STDERR_FILENO);
                Result := Sys_Close (Stderr_Pipes (1));
@@ -294,7 +298,11 @@ package body Util.Processes.Os is
             end if;
          end if;
 
-         Result := Sys_Execvp (Sys.Argv (0), Sys.Argv.all);
+         if Sys.Envp /= null then
+            Result := Sys_Execve (Sys.Argv (0), Sys.Argv.all, Sys.Envp.all);
+         else
+            Result := Sys_Execvp (Sys.Argv (0), Sys.Argv.all);
+         end if;
          Sys_Exit (255);
       end if;
 
@@ -324,6 +332,22 @@ package body Util.Processes.Os is
    procedure Free is
      new Ada.Unchecked_Deallocation (Name => Ptr_Ptr_Array, Object => Ptr_Array);
 
+   procedure Allocate (Into  : in out Util.Systems.Os.Ptr_Ptr_Array;
+                       Count : in Interfaces.C.size_t) is
+   begin
+      if Into = null then
+         Into := new Ptr_Array (0 .. 10);
+      elsif Count = Into'Last - 1 then
+         declare
+            N : constant Ptr_Ptr_Array := new Ptr_Array (0 .. Count + 32);
+         begin
+            N (0 .. Count) := Into (0 .. Count);
+            Free (Into);
+            Into := N;
+         end;
+      end if;
+   end Allocate;
+
    --  ------------------------------
    --  Append the argument to the process argument list.
    --  ------------------------------
@@ -331,22 +355,53 @@ package body Util.Processes.Os is
    procedure Append_Argument (Sys : in out System_Process;
                               Arg : in String) is
    begin
-      if Sys.Argv = null then
-         Sys.Argv := new Ptr_Array (0 .. 10);
-      elsif Sys.Argc = Sys.Argv'Last - 1 then
-         declare
-            N : constant Ptr_Ptr_Array := new Ptr_Array (0 .. Sys.Argc + 32);
-         begin
-            N (0 .. Sys.Argc) := Sys.Argv (0 .. Sys.Argc);
-            Free (Sys.Argv);
-            Sys.Argv := N;
-         end;
-      end if;
+      Allocate (Sys.Argv, Sys.Argc);
 
       Sys.Argv (Sys.Argc) := Interfaces.C.Strings.New_String (Arg);
       Sys.Argc := Sys.Argc + 1;
       Sys.Argv (Sys.Argc) := Interfaces.C.Strings.Null_Ptr;
    end Append_Argument;
+
+   --  ------------------------------
+   --  Clear the program arguments.
+   --  ------------------------------
+   overriding
+   procedure Clear_Arguments (Sys : in out System_Process) is
+   begin
+      if Sys.Argv /= null then
+         Free_Array (Sys.Argv);
+      end if;
+      Sys.Argc := 0;
+   end Clear_Arguments;
+
+   --  ------------------------------
+   --  Set the environment variable to be used by the process before its creation.
+   --  ------------------------------
+   overriding
+   procedure Set_Environment (Sys   : in out System_Process;
+                              Name  : in String;
+                              Value : in String) is
+   begin
+      if Sys.Envc > 0 then
+         for I in 0 .. Sys.Envc - 1 loop
+            declare
+               Env : Interfaces.C.Strings.chars_ptr := Sys.Envp (I);
+               V   : constant String := Interfaces.C.Strings.Value (Env);
+            begin
+               if Util.Strings.Starts_With (V, Name & "=") then
+                  Interfaces.C.Strings.Free (Env);
+                  Sys.Envp (I) := Interfaces.C.Strings.New_String (Name & "=" & Value);
+                  return;
+               end if;
+            end;
+         end loop;
+      end if;
+      Allocate (Sys.Envp, Sys.Envc);
+
+      Sys.Envp (Sys.Envc) := Interfaces.C.Strings.New_String (Name & "=" & Value);
+      Sys.Envc := Sys.Envc + 1;
+      Sys.Envp (Sys.Envc) := Interfaces.C.Strings.Null_Ptr;
+   end Set_Environment;
 
    --  ------------------------------
    --  Set the process input, output and error streams to redirect and use specified files.
@@ -362,17 +417,31 @@ package body Util.Processes.Os is
    begin
       if Input'Length > 0 then
          Sys.In_File := Interfaces.C.Strings.New_String (Input);
+      else
+         Interfaces.C.Strings.Free (Sys.In_File);
       end if;
       if Output'Length > 0 then
          Sys.Out_File   := Interfaces.C.Strings.New_String (Output);
          Sys.Out_Append := Append_Output;
+      else
+         Interfaces.C.Strings.Free (Sys.Out_File);
       end if;
       if Error'Length > 0 then
          Sys.Err_File   := Interfaces.C.Strings.New_String (Error);
          Sys.Err_Append := Append_Error;
+      else
+         Interfaces.C.Strings.Free (Sys.Err_File);
       end if;
       Sys.To_Close := To_Close;
    end Set_Streams;
+
+   procedure Free_Array (Argv : in out Util.Systems.Os.Ptr_Ptr_Array) is
+   begin
+      for I in Argv'Range loop
+         Interfaces.C.Strings.Free (Argv (I));
+      end loop;
+      Free (Argv);
+   end Free_Array;
 
    --  ------------------------------
    --  Deletes the storage held by the system process.
@@ -381,10 +450,10 @@ package body Util.Processes.Os is
    procedure Finalize (Sys : in out System_Process) is
    begin
       if Sys.Argv /= null then
-         for I in Sys.Argv'Range loop
-            Interfaces.C.Strings.Free (Sys.Argv (I));
-         end loop;
-         Free (Sys.Argv);
+         Free_Array (Sys.Argv);
+      end if;
+      if Sys.Envp /= null then
+         Free_Array (Sys.Envp);
       end if;
       Interfaces.C.Strings.Free (Sys.In_File);
       Interfaces.C.Strings.Free (Sys.Out_File);

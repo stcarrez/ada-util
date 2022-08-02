@@ -347,17 +347,20 @@ package body Ahven.Results is
       return First (Collection.Errors);
    end First_Error;
 
+   overriding
    function Next (Position : Result_Info_Cursor) return Result_Info_Cursor is
    begin
       return Result_Info_Cursor
         (Result_Info_List.Next (Result_Info_List.Cursor (Position)));
    end Next;
 
+   overriding
    function Data (Position : Result_Info_Cursor) return Result_Info is
    begin
       return Result_Info_List.Data (Result_Info_List.Cursor (Position));
    end Data;
 
+   overriding
    function Is_Valid (Position : Result_Info_Cursor) return Boolean is
    begin
       return Result_Info_List.Is_Valid (Result_Info_List.Cursor (Position));
@@ -369,6 +372,7 @@ package body Ahven.Results is
       return First (Collection.Children);
    end First_Child;
 
+   overriding
    function Next (Position : Result_Collection_Cursor)
      return Result_Collection_Cursor is
    begin
@@ -376,6 +380,7 @@ package body Ahven.Results is
         (Result_List.Next (Result_List.Cursor (Position)));
    end Next;
 
+   overriding
    function Is_Valid (Position : Result_Collection_Cursor) return Boolean is
    begin
       return Result_List.Is_Valid (Result_List.Cursor (Position));

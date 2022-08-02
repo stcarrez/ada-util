@@ -64,10 +64,9 @@ package body Util.Streams.Sockets is
    overriding
    procedure Write (Stream : in out Socket_Stream;
                     Buffer : in Ada.Streams.Stream_Element_Array) is
-      Last : Ada.Streams.Stream_Element_Offset;
-      pragma Unreferenced (Last);
+      Unused_Last : Ada.Streams.Stream_Element_Offset;
    begin
-      GNAT.Sockets.Send_Socket (Stream.Sock, Buffer, Last);
+      GNAT.Sockets.Send_Socket (Stream.Sock, Buffer, Unused_Last);
    end Write;
 
    --  -----------------------

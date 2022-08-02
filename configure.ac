@@ -16,12 +16,13 @@ dnl  limitations under the License.
 dnl 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(src/core/util.ads)
+AC_INIT
+AC_CONFIG_SRCDIR([src/core/util.ads])
 
 # Current release settings
 UTIL_MAJOR_VERSION=2
-UTIL_MINOR_VERSION=4
-UTIL_MICRO_VERSION=1
+UTIL_MINOR_VERSION=5
+UTIL_MICRO_VERSION=0
 UTIL_VERSION=$UTIL_MAJOR_VERSION.$UTIL_MINOR_VERSION.$UTIL_MICRO_VERSION
 
 # checking for local tools
@@ -33,99 +34,14 @@ AC_SUBST(UTIL_MAJOR_VERSION)
 AC_SUBST(UTIL_MINOR_VERSION)
 AC_SUBST(UTIL_MICRO_VERSION)
 
+AM_ADA_UTIL_HARDWARE()
+
+AM_GNAT_LIBRARY_PROJECT(utilada_core)
 AC_CHECK_PROG(HAVE_PANDOC,pandoc,yes)
 AC_CHECK_PROG(HAVE_DYNAMO,dynamo,yes)
 
-AM_GNAT_LIBRARY_PROJECT(utilada_core)
 AM_GNAT_LIBRARY_SETUP(utilada_base)
 AM_GNAT_LIBRARY_SETUP(utilada_sys)
-
-os_base='unix'
-os_version='none'
-AC_MSG_CHECKING([operating system])
-case "${target_os}" in
-     linux|linux-*|solaris*|sysv-*)
-        os_version='linux'
-        ;;
-
-     netbsdelf*|dragonfly*)
-        os_version='netbsd'
-        ;;
-
-     openbsd*|freebsd*)
-        # Let OpenBSD people cry 
-        os_version='freebsd'
-        ;;
-
-     macos*|darwin*)
-        os_version='macos'
-        ;;
-
-     mingw32*|cygwin*|mingw64*|msys)
-        os_version='win'
-        os_base='windows'
-        ;;
-
-     mingw32*|cygwin*|mingw64*|msys)
-        os_version='win'
-        os_base='windows'
-        ;;
-
-     *)
-        # Be authoritative
-        os_version='linux'
-        ;;
-esac
-AC_MSG_RESULT($os_version)
-
-AC_MSG_CHECKING([hardware platform])
-case "${target_cpu}" in
-     x86_64)
-        os_version="${os_version}64"
-        HARDWARE_PLATFORM=${target_cpu}
-        ;;
-
-     i386|i486|i586|i686)
-        os_version="${os_version}32"
-        HARDWARE_PLATFORM='x86'
-        ;;
-
-     armv7*)
-        os_version="${os_version}32"
-        HARDWARE_PLATFORM=${target_cpu}
-        ;;
-
-     armv8*)
-        os_version="${os_version}64"
-        HARDWARE_PLATFORM=${target_cpu}
-        ;;
-
-     *)
-        HARDWARE_PLATFORM=${target_cpu}
-        ;;
-esac
-AC_MSG_RESULT($HARDWARE_PLATFORM)
-AC_SUBST(HARDWARE_PLATFORM)
-
-# Check for gcc intrinsics
-AM_HAS_INTRINSIC_SYNC_COUNTERS(src_asm='intrinsic',src_asm='')
-AC_MSG_CHECKING([specific processor support])
-if test T$src_asm = T; then
-   case "${target}" in
-   ## Intel 386 machines where we don't care about the manufacturer
-     i[[34567]]86-*-* | x86_* | x86-*)
-       src_asm='x86'
-       ;;
-
-     *)
-       src_asm='none'
-       ;;
-
-   esac
-fi
-AC_MSG_RESULT(using $src_asm)
-UTIL_ASM_TYPE="$src_asm"
-AC_SUBST(UTIL_ASM_TYPE)
 
 ac_enable_utilgen=no
 AC_ARG_ENABLE(utilgen,
@@ -147,9 +63,9 @@ if test T$ac_enable_utilgen = Tyes; then
     CFLAGS="$CFLAGS -DHAVE_DLOPEN=1"
   ])
   UTIL_OS_VERSION=$os_base
-
+else
+  UTIL_OS_VERSION=$os_version
 fi
-UTIL_OS_VERSION=$os_version
 AC_SUBST(UTIL_OS_VERSION)
 
 AM_GNAT_FIND_XML_ADA([
@@ -317,44 +233,7 @@ fi
 ##########################################
 # Check for Ada Web Server
 ##########################################
-AM_GNAT_CHECK_AWS(
-  [
-    UTIL_HAVE_AWS=no
-    WITH_SERVER="";
-    WITH_UTIL_AWS="";
-    UTIL_AWS_VERSION="none"
-  ], [
-    UTIL_HAVE_AWS=yes
-    WITH_UTIL_AWS="with \"utilada_aws\";";
-    WITH_SERVER=$ac_cv_gnat_project_with_aws
-    AM_GNAT_LIBRARY_SETUP(utilada_aws)
-
-    AM_GNAT_AWS_VERSION
-
-    AC_MSG_CHECKING([using AWS http client])
-    UTIL_AWS_VERSION=1
-case $AWS_VERSION in
-  *2017*|*2018*|*2019*|*202*|20.0)
-     UTIL_AWS_VERSION=2
-     ;;
-
-  3.3.2)
-     UTIL_AWS_VERSION=2
-     ;;
-
-  3.*|2.*)
-     UTIL_AWS_VERSION=1
-     ;;
-
-  *)
-     UTIL_AWS_VERSION=2
-     ;;
-esac
-    AC_MSG_RESULT(${UTIL_AWS_VERSION})
-
-  ])
-
-AC_SUBST(UTIL_AWS_VERSION)
+AM_ADA_UTIL_AWS_VERSION()
 
 AC_ARG_ENABLE(link-options-util,
 [  --enable-link-options-util=opts
@@ -403,8 +282,7 @@ dnl AC_MSG_NOTICE(  XML support:   $WITH_XML_ADA)
 dnl AC_MSG_NOTICE(  CURL support:  $WITH_UTIL_CURL)
 dnl AC_MSG_NOTICE(  AWS support:   $WITH_UTIL_AWS)
 
-AC_OUTPUT(
-Makefile.conf
+AC_CONFIG_FILES([Makefile.conf
 utilada.gpr
 utilada_http.gpr
 utilada_unit.gpr
@@ -412,4 +290,5 @@ utilada_xml.gpr
 utilada_lzma.gpr
 utilada_tests.gpr
 utilada_conf.gpr
-)
+])
+AC_OUTPUT

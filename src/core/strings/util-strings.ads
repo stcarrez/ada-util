@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-strings -- Various String Utility
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2017 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,6 +68,13 @@ package Util.Strings is
    function Contains (Source  : in String;
                       Pattern : in String) return Boolean;
 
+   --  Simple string replacement within the source of the specified content
+   --  by another string.  By default, replace only the first sequence.
+   function Replace (Source  : in String;
+                     Content : in String;
+                     By      : in String;
+                     First   : in Boolean := True) return String;
+
    --  Returns Integer'Image (Value) with the possible space stripped.
    function Image (Value : in Integer) return String;
 
@@ -105,6 +112,7 @@ package Util.Strings is
 
    --  Returns true if left and right string references are equivalent.
    function Equivalent_Keys (Left, Right : in String_Ref) return Boolean;
+   overriding
    function "=" (Left, Right : in String_Ref) return Boolean renames Equivalent_Keys;
    function "=" (Left  : in String_Ref;
                  Right : in String) return Boolean;

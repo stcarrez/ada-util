@@ -33,21 +33,27 @@ private
       Capture_Output : Boolean := False;
    end record;
 
+   overriding
    procedure Add_Pass (Listener : in out Tap_Listener;
                        Info     :        Context);
 
+   overriding
    procedure Add_Failure (Listener : in out Tap_Listener;
                           Info     :        Context);
 
+   overriding
    procedure Add_Error (Listener : in out Tap_Listener;
                         Info     :        Context);
 
+   overriding
    procedure Add_Skipped (Listener : in out Tap_Listener;
                           Info     :        Context);
 
+   overriding
    procedure Start_Test (Listener : in out Tap_Listener;
                          Info     :        Context);
 
+   overriding
    procedure End_Test (Listener : in out Tap_Listener;
                        Info     :        Context);
 end Ahven.Tap_Runner;

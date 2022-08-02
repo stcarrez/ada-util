@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-curl -- HTTP Clients with CURL
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@ package body Util.Http.Mockups is
    --  Returns a boolean indicating whether the named response header has already
    --  been set.
    --  ------------------------------
+   overriding
    function Contains_Header (Message : in Mockup_Message;
                              Name    : in String) return Boolean is
    begin
@@ -35,6 +36,7 @@ package body Util.Http.Mockups is
    --  first head in the request. The header name is case insensitive. You can use
    --  this method with any response header.
    --  ------------------------------
+   overriding
    function Get_Header (Message : in Mockup_Message;
                         Name    : in String) return String is
       Pos : constant Util.Strings.Maps.Cursor := Message.Headers.Find (Name);
@@ -104,7 +106,32 @@ package body Util.Http.Mockups is
    overriding
    function Get_Body (Reply : in Mockup_Response) return String is
    begin
-      return Ada.Strings.Unbounded.To_String (Reply.Content);
+      return Util.Strings.Builders.To_Array (Reply.Content);
+   end Get_Body;
+
+   --  ------------------------------
+   --  Get the response body as a string.
+   --  ------------------------------
+   overriding
+   function Get_Body (Reply : in Mockup_Response) return Util.Blobs.Blob_Ref is
+      use Ada.Streams;
+
+      Result : constant Util.Blobs.Blob_Ref
+        := Util.Blobs.Create_Blob (Size => Util.Strings.Builders.Length (Reply.Content));
+      Offset : Stream_Element_Offset := 1;
+
+      procedure Append (Content : in String) is
+         C : Stream_Element_Array (1 .. Stream_Element_Offset (Content'Length));
+         for C'Address use Content'Address;
+      begin
+         Result.Value.Data (Offset .. Offset + C'Length - 1) := C;
+         Offset := Offset + C'Length;
+      end Append;
+
+      procedure Copy is new Util.Strings.Builders.Inline_Iterate (Append);
+   begin
+      Copy (Reply.Content);
+      return Result;
    end Get_Body;
 
    --  ------------------------------
@@ -131,7 +158,17 @@ package body Util.Http.Mockups is
    procedure Set_Body (Reply   : in out Mockup_Response;
                        Content : in String) is
    begin
-      Reply.Content := Ada.Strings.Unbounded.To_Unbounded_String (Content);
+      Util.Strings.Builders.Clear (Reply.Content);
+      Util.Strings.Builders.Append (Reply.Content, Content);
    end Set_Body;
+
+   --  ------------------------------
+   --  Append the content to the response body.
+   --  ------------------------------
+   procedure Append_Body (Reply   : in out Mockup_Response;
+                          Content : in String) is
+   begin
+      Util.Strings.Builders.Append (Reply.Content, Content);
+   end Append_Body;
 
 end Util.Http.Mockups;

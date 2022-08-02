@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Beans.Objects.Datasets -- Datasets
---  Copyright (C) 2013 Stephane Carrez
+--  util-beans-objects-datasets -- Datasets
+--  Copyright (C) 2013, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -72,6 +72,36 @@ package body Util.Beans.Objects.Datasets is
          return Util.Beans.Objects.Null_Object;
       end if;
    end Get_Value;
+
+   --  ------------------------------
+   --  Get an iterator to iterate starting with the first element.
+   --  ------------------------------
+   overriding
+   function First (From : in Dataset) return Iterators.Proxy_Iterator_Access is
+      Iter : constant Dataset_Iterator_Access := new Dataset_Iterator;
+   begin
+      Iter.Current_Pos  := 1;
+      Iter.Current.Map := From.Current.Map;
+      if From.Count > 0 then
+         Iter.Current.Data := From.Data (1);
+      end if;
+      return Iter.all'Access;
+   end First;
+
+   --  ------------------------------
+   --  Get an iterator to iterate starting with the last element.
+   --  ------------------------------
+   overriding
+   function Last (From : in Dataset) return Iterators.Proxy_Iterator_Access is
+      Iter : constant Dataset_Iterator_Access := new Dataset_Iterator;
+   begin
+      Iter.Current_Pos  := From.Count;
+      Iter.Current.Map := From.Current.Map;
+      if From.Count > 0 then
+         Iter.Current.Data := From.Data (From.Count);
+      end if;
+      return Iter.all'Access;
+   end Last;
 
    --  ------------------------------
    --  Append a row in the dataset and call the fill procedure to populate
@@ -170,6 +200,28 @@ package body Util.Beans.Objects.Datasets is
    end Set_Value;
 
    --  ------------------------------
+   --  Get an iterator to iterate starting with the first element.
+   --  ------------------------------
+   overriding
+   function First (From : in Row) return Iterators.Proxy_Iterator_Access is
+      Iter : constant Row_Iterator_Access := new Row_Iterator;
+   begin
+      Iter.Pos := From.Map.First;
+      Iter.Data := From.Data;
+      return Iter.all'Access;
+   end First;
+
+   --  ------------------------------
+   --  Get an iterator to iterate starting with the last element.
+   --  ------------------------------
+   overriding
+   function Last (From : in Row) return Iterators.Proxy_Iterator_Access is
+      pragma Unreferenced (From);
+   begin
+      return null;
+   end Last;
+
+   --  ------------------------------
    --  Initialize the dataset and the row bean instance.
    --  ------------------------------
    overriding
@@ -189,5 +241,92 @@ package body Util.Beans.Objects.Datasets is
       Set.Clear;
       Free (Set.Data);
    end Finalize;
+
+   --  ------------------------------
+   --  Initialize the dataset and the row bean instance.
+   --  ------------------------------
+   overriding
+   procedure Initialize (Iter : in out Dataset_Iterator) is
+   begin
+      Iter.Row := To_Object (Value   => Iter.Current'Unchecked_Access,
+                             Storage => STATIC);
+   end Initialize;
+
+   function Get_Dataset is
+      new Util.Beans.Objects.Iterators.Get_Bean (Dataset, Dataset_Access);
+
+   overriding
+   function Has_Element (Iter : in Dataset_Iterator) return Boolean is
+      List : constant Dataset_Access := Get_Dataset (Iter);
+   begin
+      return List /= null and then Iter.Current_Pos /= 0
+        and then Iter.Current_Pos <= List.Count;
+   end Has_Element;
+
+   overriding
+   procedure Next (Iter : in out Dataset_Iterator) is
+      List : constant Dataset_Access := Get_Dataset (Iter);
+   begin
+      if List /= null and then Iter.Current_Pos <= List.Count then
+         Iter.Current_Pos := Iter.Current_Pos + 1;
+         if Iter.Current_Pos <= List.Count then
+            Iter.Current.Data := List.Data (Iter.Current_Pos);
+         end if;
+      end if;
+   end Next;
+
+   overriding
+   procedure Previous (Iter : in out Dataset_Iterator) is
+      List : constant Dataset_Access := Get_Dataset (Iter);
+   begin
+      if List /= null and then Iter.Current_Pos > 0 then
+         Iter.Current_Pos := Iter.Current_Pos - 1;
+         if Iter.Current_Pos > 0 then
+            Iter.Current.Data := List.Data (Iter.Current_Pos);
+         end if;
+      end if;
+   end Previous;
+
+   overriding
+   function Element (Iter : in Dataset_Iterator) return Object is
+   begin
+      return Iter.Row;
+   end Element;
+
+   overriding
+   procedure Initialize (Iter : in out Row_Iterator) is
+   begin
+      null;
+   end Initialize;
+
+   overriding
+   function Has_Element (Iter : in Row_Iterator) return Boolean is
+   begin
+      return Dataset_Map.Has_Element (Iter.Pos);
+   end Has_Element;
+
+   overriding
+   procedure Next (Iter : in out Row_Iterator) is
+   begin
+      Dataset_Map.Next (Iter.Pos);
+   end Next;
+
+   overriding
+   procedure Previous (Iter : in out Row_Iterator) is
+   begin
+      null;
+   end Previous;
+
+   overriding
+   function Element (Iter : in Row_Iterator) return Object is
+   begin
+      return Iter.Data (Dataset_Map.Element (Iter.Pos));
+   end Element;
+
+   overriding
+   function Key (Iter : in Row_Iterator) return String is
+   begin
+      return Dataset_Map.Key (Iter.Pos);
+   end Key;
 
 end Util.Beans.Objects.Datasets;

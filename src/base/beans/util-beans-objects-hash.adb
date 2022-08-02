@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Beans.Objects.Hash -- Hash on an object
---  Copyright (C) 2010, 2011, 2017 Stephane Carrez
+--  util-beans-objects-hash -- Hash on an object
+--  Copyright (C) 2010, 2011, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -130,6 +130,9 @@ begin
             return Hash_Type (Val);
          end;
 
+      when TYPE_RECORD =>
+         return 0;
+
       when TYPE_ARRAY =>
          declare
             Result : Unsigned_32 := 0;
@@ -137,6 +140,19 @@ begin
             for Object of Key.V.Array_Proxy.Values loop
                Result := Result xor Unsigned_32 (Hash (Object));
             end loop;
+            return Hash_Type (Result);
+         end;
+
+      when TYPE_BLOB =>
+         declare
+            Result : Unsigned_32 := 0;
+            Blob   : Util.Blobs.Blob_Ref := Key.V.Blob_Proxy.Blob;
+         begin
+            if not Blob.Is_Null then
+               for Val of Blob.Value.Data loop
+                  Result := Result xor Unsigned_32 (Val);
+               end loop;
+            end if;
             return Hash_Type (Result);
          end;
 

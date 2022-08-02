@@ -21,29 +21,25 @@ library project UtilAda_Sys is
       when "win64" | "win32" =>
          for Source_Dirs use Project'Source_Dirs
             & ("src/sys/processes",
-               "src/sys/os-windows",
-               "src/sys/os-" & UtilAda_Conf.Os_Version);
+               "src/sys/os-windows");
 
       when "unix" =>
          --  Unix with utilgen generated files
          for Source_Dirs use Project'Source_Dirs
             & ("src/sys/processes",
-               "src/sys/os-unix",
-               "src/sys/os-generated");
+               "src/sys/os-unix");
 
       when "windows" =>
          --  Windows with utilgen generated files
          -- (!!! requires correct gcc version to compile utilgen)
          for Source_Dirs use Project'Source_Dirs
             & ("src/sys/processes",
-               "src/sys/os-windows",
-               "src/sys/os-generated");
+               "src/sys/os-windows");
 
       when others =>
          for Source_Dirs use Project'Source_Dirs
             & ("src/sys/processes",
-               "src/sys/os-unix",
-               "src/sys/os-" & UtilAda_Conf.Os_Version);
+               "src/sys/os-unix");
 
    end case;
 

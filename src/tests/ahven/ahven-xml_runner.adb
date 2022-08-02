@@ -400,7 +400,97 @@ package body Ahven.XML_Runner is
             end if;
             CData_Ending := State_Change (CData_Ending);
 
-            Put (File, Char);
+            case Char is
+               when ASCII.NUL =>
+                  Put (File, "&#0;");
+
+               when ASCII.SOH =>
+                  Put (File, "&#1;");
+
+               when ASCII.STX =>
+                  Put (File, "&#2;");
+
+               when ASCII.ETX =>
+                  Put (File, "&#3;");
+
+               when ASCII.EOT =>
+                  Put (File, "&#4;");
+
+               when ASCII.ENQ =>
+                  Put (File, "&#5;");
+
+               when ASCII.ACK =>
+                  Put (File, "&#6;");
+
+               when ASCII.BEL =>
+                  Put (File, "&#7;");
+
+               when ASCII.BS =>
+                  Put (File, "&#8;");
+
+               when ASCII.VT =>
+                  Put (File, "&#xB;");
+
+               when ASCII.FF =>
+                  Put (File, "&#xC;");
+
+               when ASCII.SO =>
+                  Put (File, "&#xE;");
+
+               when ASCII.SI =>
+                  Put (File, "&#xF;");
+
+               when ASCII.DLE =>
+                  Put (File, "&#x10;");
+
+               when ASCII.DC1 =>
+                  Put (File, "&#x11;");
+
+               when ASCII.DC2 =>
+                  Put (File, "&#x12;");
+
+               when ASCII.DC3 =>
+                  Put (File, "&#x13;");
+
+               when ASCII.DC4 =>
+                  Put (File, "&#x14;");
+
+               when ASCII.NAK =>
+                  Put (File, "&#x15;");
+
+               when ASCII.SYN =>
+                  Put (File, "&#x16;");
+
+               when ASCII.ETB =>
+                  Put (File, "&#x17;");
+
+               when ASCII.CAN =>
+                  Put (File, "&#x18;");
+
+               when ASCII.EM =>
+                  Put (File, "&#x19;");
+
+               when ASCII.SUB =>
+                  Put (File, "&#x1A;");
+
+               when ASCII.ESC =>
+                  Put (File, "&#x1B;");
+
+               when ASCII.FS =>
+                  Put (File, "&#x1C;");
+
+               when ASCII.GS =>
+                  Put (File, "&#x1D;");
+
+               when ASCII.RS =>
+                  Put (File, "&#x1E;");
+
+               when ASCII.US =>
+                  Put (File, "&#x1F;");
+
+               when others =>
+                  Put (File, Char);
+            end case;
             if End_Of_Line (Handle) then
                New_Line (File);
             end if;

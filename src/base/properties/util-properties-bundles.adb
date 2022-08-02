@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties-bundles -- Generic name/value property management
---  Copyright (C) 2001 - 2020 Stephane Carrez
+--  Copyright (C) 2001 - 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -113,11 +113,13 @@ package body Util.Properties.Bundles is
       Interface_P.Manager'Class (Self.Impl.all).Add_Bundle (Props);
    end Add_Bundle;
 
+   overriding
    procedure Initialize (Object : in out Manager) is
    begin
       Interface_P.Check_And_Create_Impl (Object);
    end Initialize;
 
+   overriding
    procedure Adjust (Object : in out Manager) is
    begin
       Interface_P.Check_And_Create_Impl (Object);
@@ -353,6 +355,7 @@ package body Util.Properties.Bundles is
       --  ------------------------------
       --  Returns TRUE if the property exists.
       --  ------------------------------
+      overriding
       function Exists (Self : in Manager; Name : in String)
                       return Boolean is
          Iter : Cursor := Self.List.First;
@@ -378,6 +381,7 @@ package body Util.Properties.Bundles is
       --  ------------------------------
       --  Remove the property given its name.
       --  ------------------------------
+      overriding
       procedure Remove (Self : in out Manager;
                         Name : in String) is
       begin
@@ -386,6 +390,7 @@ package body Util.Properties.Bundles is
 
       --  Iterate over the properties and execute the given procedure passing the
       --  property name and its value.
+      overriding
       procedure Iterate (Self    : in Manager;
                          Process : access procedure (Name : in String;
                                                      Item : in Util.Beans.Objects.Object)) is
@@ -447,6 +452,7 @@ package body Util.Properties.Bundles is
    --  ------------------------------
    --  Finalize the bundle loader and clear the cache
    --  ------------------------------
+   overriding
    procedure Finalize (Factory : in out Loader) is
    begin
       Clear_Cache (Factory);

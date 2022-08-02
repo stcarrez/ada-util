@@ -19,7 +19,7 @@
 with Util.Serialize.Mappers.Vector_Mapper;
 
 --  Execute an HTTP GET operation on the given <b>URI</b> and parse the JSON response
---  into the target object refered to by <b>Into</b> by using the mapping described
+--  into the target object referred to by <b>Into</b> by using the mapping described
 --  in <b>Mapping</b>.
 generic
    --  Package that maps the element into a vector of records.

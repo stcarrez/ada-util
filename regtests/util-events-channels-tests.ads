@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  events.tests -- Unit tests for event channels
---  Copyright (C) 2009, 2010 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,7 @@ package Util.Events.Channels.Tests is
       Count : Natural := 0;
    end record;
 
+   overriding
    procedure Receive_Event (Sub  : in out Test;
                             Item : in Event'Class);
 

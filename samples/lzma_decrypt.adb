@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  lzma_decrypt -- Decrypt and decompress file using Util.Streams.AES
---  Copyright (C) 2019, 2021 Stephane Carrez
+--  Copyright (C) 2019, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ with Ada.Command_Line;
 with Ada.Streams.Stream_IO;
 with Util.Streams.Files;
 with Util.Streams.AES;
-with Util.Streams.Buffered.Lzma;
+with Util.Streams.Lzma;
 with Util.Encoders.AES;
 with Util.Encoders.KDF.PBKDF2_HMAC_SHA256;
 procedure Lzma_Decrypt is
@@ -36,7 +36,7 @@ procedure Lzma_Decrypt is
                            Password    : in String) is
       In_Stream    : aliased Util.Streams.Files.File_Stream;
       Out_Stream   : aliased Util.Streams.Files.File_Stream;
-      Decompress   : aliased Util.Streams.Buffered.Lzma.Decompress_Stream;
+      Decompress   : aliased Util.Streams.Lzma.Decompress_Stream;
       Decipher     : aliased Util.Streams.AES.Decoding_Stream;
       Password_Key : constant Util.Encoders.Secret_Key := Util.Encoders.Create (Password);
       Salt         : constant Util.Encoders.Secret_Key := Util.Encoders.Create ("fake-salt");
@@ -51,9 +51,9 @@ procedure Lzma_Decrypt is
       --  Setup file -> input and cipher -> output file streams.
       In_Stream.Open (Ada.Streams.Stream_IO.In_File, Source);
       Out_Stream.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Destination);
-      Decipher.Consumes (Input => In_Stream'Access, Size   => 32768);
+      Decipher.Consumes (Input => In_Stream'Unchecked_Access, Size   => 32768);
       Decipher.Set_Key (Secret => Key, Mode => Util.Encoders.AES.ECB);
-      Decompress.Initialize (Input => Decipher'Access, Size => 32768);
+      Decompress.Initialize (Input => Decipher'Unchecked_Access, Size => 32768);
 
       --  Copy input to output through the cipher.
       Util.Streams.Copy (From => Decompress, Into => Out_Stream);
@@ -61,7 +61,7 @@ procedure Lzma_Decrypt is
 
 begin
    if Ada.Command_Line.Argument_Count /= 3 then
-      Ada.Text_IO.Put_Line ("Usage: decrypt source password destination");
+      Ada.Text_IO.Put_Line ("Usage: lzma_decrypt source password destination");
       return;
    end if;
 

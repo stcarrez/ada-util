@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-tests -- Unit tests for HTTP client
---  Copyright (C) 2012, 2020 Stephane Carrez
+--  Copyright (C) 2012, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,7 @@ package Util.Http.Clients.Tests is
 
    type Test_Server is new Util.Tests.Servers.Server with record
       Method       : Method_Type := UNKNOWN;
+      Uri          : Ada.Strings.Unbounded.Unbounded_String;
       Result       : Ada.Strings.Unbounded.Unbounded_String;
       Content_Type : Ada.Strings.Unbounded.Unbounded_String;
       Length       : Natural := 0;
@@ -69,6 +70,9 @@ package Util.Http.Clients.Tests is
    --  Test the http timeout.
    procedure Test_Http_Timeout (T : in out Test);
 
+   --  Test the http GET with binary content.
+   procedure Test_Http_Binary (T : in out Test);
+
    overriding
    procedure Set_Up (T : in out Test);
 
@@ -77,7 +81,6 @@ package Util.Http.Clients.Tests is
 
    --  Get the test server base URI.
    function Get_Uri (T : in Test) return String;
-
 
    --  The <b>Http_Tests</b> package must be instantiated with one of the HTTP implementation.
    --  The <b>Register</b> procedure configures the Http.Client to use the given HTTP

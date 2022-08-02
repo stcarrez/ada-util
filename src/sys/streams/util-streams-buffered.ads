@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered -- Buffered streams utilities
---  Copyright (C) 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2010 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,7 +35,7 @@ with Ada.Finalization;
 --       Pipe   : aliased Util.Streams.Pipes.Pipe_Stream;
 --       Buffer : Util.Streams.Buffered.Output_Buffer_Stream;
 --       ...
---          Buffer.Initialize (Output => Pipe'Access,
+--          Buffer.Initialize (Output => Pipe'Unchecked_Access,
 --                             Size => 1024);
 --
 --  In this example, the buffer of 1024 bytes is configured to flush its content to the
@@ -57,13 +57,13 @@ with Ada.Finalization;
 --       Pipe   : aliased Util.Streams.Pipes.Pipe_Stream;
 --       Buffer : Util.Streams.Buffered.Input_Buffer_Stream;
 --       ...
---          Buffer.Initialize (Input => Pipe'Access, Size => 1024);
+--          Buffer.Initialize (Input => Pipe'Unchecked_Access, Size => 1024);
 --
 --  In this case, the buffer of 1024 bytes is filled by reading the pipe stream, and thus
 --  getting the program's output.
 package Util.Streams.Buffered is
 
---   pragma Preelaborate;
+   pragma Preelaborate;
 
    type Buffer_Access is access Ada.Streams.Stream_Element_Array;
 
@@ -111,6 +111,7 @@ package Util.Streams.Buffered is
                          Size    : in Positive);
 
    --  Initialize the stream with a buffer of <b>Size</b> bytes.
+   overriding
    procedure Initialize (Stream  : in out Output_Buffer_Stream;
                          Size    : in Positive);
 
@@ -145,6 +146,7 @@ package Util.Streams.Buffered is
    type Input_Buffer_Stream is limited new Buffer_Stream and Input_Stream with private;
 
    --  Initialize the stream to read from the string.
+   overriding
    procedure Initialize (Stream  : in out Input_Buffer_Stream;
                          Content : in String);
 

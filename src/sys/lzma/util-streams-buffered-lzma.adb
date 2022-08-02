@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered-lzma -- LZMA streams
---  Copyright (C) 2018, 2019 Stephane Carrez
+--  Copyright (C) 2018, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -78,14 +78,14 @@ package body Util.Streams.Buffered.Lzma is
          Result := Base.lzma_code (Stream.Stream'Unchecked_Access, Base.LZMA_RUN);
 
          --  Write the output data when the buffer is full or we reached the end of stream.
-         if Stream.Stream.avail_out = 0 or Result = Base.LZMA_STREAM_END then
+         if Stream.Stream.avail_out = 0 or else Result = Base.LZMA_STREAM_END then
             Last_Pos := Stream.Buffer'First + Stream.Buffer'Length
               - Offset (Stream.Stream.avail_out) - 1;
             Stream.Output.Write (Stream.Buffer (Stream.Buffer'First .. Last_Pos));
             Stream.Stream.next_out := Stream.Buffer (Stream.Buffer'First)'Unchecked_Access;
             Stream.Stream.avail_out := Stream.Buffer'Length;
          end if;
-         exit when Result /= Base.LZMA_OK or (Stream.Stream.avail_in = 0 and Encoded);
+         exit when Result /= Base.LZMA_OK or else (Stream.Stream.avail_in = 0 and then Encoded);
       end loop;
    end Write;
 
@@ -107,7 +107,7 @@ package body Util.Streams.Buffered.Lzma is
       loop
          Result := Base.lzma_code (Stream.Stream'Unchecked_Access, Base.LZMA_FINISH);
 
-         if Stream.Stream.avail_out = 0 or Result = Base.LZMA_STREAM_END then
+         if Stream.Stream.avail_out = 0 or else Result = Base.LZMA_STREAM_END then
             Last_Pos := Stream.Buffer'First + Stream.Buffer'Length
               - Offset (Stream.Stream.avail_out) - 1;
             if Last_Pos >= Stream.Buffer'First then
@@ -167,8 +167,9 @@ package body Util.Streams.Buffered.Lzma is
       Stream.Stream.next_out  := Into (Into'First)'Unrestricted_Access;
       Stream.Stream.avail_out := Into'Length;
       loop
-         if Stream.Stream.avail_in = 0 and not Stream.Is_Eof
-           and Stream.Action = Base.LZMA_RUN
+         if Stream.Stream.avail_in = 0
+           and then not Stream.Is_Eof
+           and then Stream.Action = Base.LZMA_RUN
          then
             Stream.Fill;
             if Stream.Write_Pos >= Stream.Read_Pos then
@@ -182,7 +183,7 @@ package body Util.Streams.Buffered.Lzma is
          end if;
          Result := Base.lzma_code (Stream.Stream'Unchecked_Access, Stream.Action);
 
-         if Stream.Stream.avail_out = 0 or Result = Base.LZMA_STREAM_END then
+         if Stream.Stream.avail_out = 0 or else Result = Base.LZMA_STREAM_END then
             Last := Into'First + Into'Length
               - Offset (Stream.Stream.avail_out) - 1;
             return;

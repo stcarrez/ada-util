@@ -3,6 +3,7 @@ docs_dir: docs
 pages:
   - Introduction: index.md
   - Installation: Installation.md
+  - Files: Util_Files.md
   - Log: Util_Log.md
   - Properties: Util_Properties.md
   - Dates: Util_Dates.md
@@ -12,6 +13,6 @@ pages:
   - HTTP: Util_Http.md
   - Streams: Util_Streams.md
   - Encoders: Util_Encoders.md
+  - Misc: Util_Misc.md
   - Measures: Util_Measures.md
-  - Timers: Util_Events_Timers.md
 theme: readthedocs

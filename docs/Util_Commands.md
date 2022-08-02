@@ -2,7 +2,7 @@
 The `Util.Commands` package provides a support to help in writing command line
 applications.  It allows to have several commands in the application, each of them
 being identified by a unique name.  Each command has its own options and arguments.
-The command line support is built arround several children packages.
+The command line support is built around several children packages.
 
 The `Util.Commands.Drivers` package is a generic package that must be instantiated
 to define the list of commands that the application supports.  It provides operations
@@ -41,6 +41,7 @@ application specific context to the command.
 The `Config_Parser` describes the parser package that will handle the analysis of
 command line options.  To use the GNAT options parser, it is possible to use the
 `Util.Commands.Parsers.GNAT_Parser` package.
+
 ## Command line parsers
 Parsing command line arguments before their execution is handled by the
 `Config_Parser` generic package.  This allows to customize how the arguments are

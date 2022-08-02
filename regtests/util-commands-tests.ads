@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-tests - Test for commands
---  Copyright (C) 2018 Stephane Carrez
+--  Copyright (C) 2018, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,5 +31,8 @@ package Util.Commands.Tests is
 
    --  Test usage operation.
    procedure Test_Usage (T : in out Test);
+
+   --  Test command based on the No_Parser.
+   procedure Test_Simple_Command (T : in out Test);
 
 end Util.Commands.Tests;

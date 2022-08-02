@@ -42,7 +42,7 @@ package body Ahven.Parameters is
                   raise Invalid_Parameter;
                end if;
             when TAP_PARAMETERS =>
-               if (C = 'd') or (C = 'x') then
+               if (C = 'd') or else (C = 'x') then
                   raise Invalid_Parameter;
                end if;
          end case;
@@ -99,7 +99,7 @@ package body Ahven.Parameters is
          elsif Arg = "--" then
             Files_Only := True;
          elsif Arg'Size > 1 then
-            if (not Files_Only) and (Arg (Arg'First) = '-') then
+            if (not Files_Only) and then (Arg (Arg'First) = '-') then
                Parse_Options
                  (Info => P,
                   Mode => Mode,

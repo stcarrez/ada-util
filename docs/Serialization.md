@@ -13,7 +13,7 @@ for each data structure that must be read.  Basically,
 it consists in writing an enum type, a procedure and instantiating
 a mapping package.  Let's assume we have a record declared as follows:
 
-```
+```Ada
 type Address is record       
   City      : Unbounded_String;
   Street    : Unbounded_String;
@@ -25,14 +25,14 @@ end record;
 The enum type shall define one value for each record member that has
 to be serialized/deserialized.
 
-```
+```Ada
  type Address_Fields is (FIELD_CITY, FIELD_STREET, FIELD_COUNTRY, FIELD_ZIP);
 ```
 
 The de-serialization uses a specific procedure to fill the record member.
 The procedure that must be written is in charge of writing one field in the record. For that it gets the record as an in out parameter, the field identification and the value.
 
-```
+```Ada
 procedure Set_Member (Addr  : in out Address;
                       Field : in Address_Fields;
                       Value : in Util.Beans.Objects.Object) is
@@ -60,7 +60,8 @@ The serialization to JSON or XML needs a function that returns the field
 value from the record value and the field identification.  The value is
 returned as a **Util.Beans.Objects.Object** type which can hold a string,
 a wide wide string, a boolean, a date, an integer or a float.
-```
+
+```Ada
 function Get_Member (Addr  : in Address;
                      Field : in Address_Fields) return Util.Beans.Objects.Object is
 begin
@@ -84,7 +85,7 @@ end Get_Member;
 A mapping package has to be instantiated to provide the necessary
 glue to tie the set procedure to the framework.
 
-```
+```Ada
 package Address_Mapper is
   new Util.Serialize.Mappers.Record_Mapper
      (Element_Type        => Address,    
@@ -104,13 +105,13 @@ mapping definition.  The mapping definition tells a mapper what name correspond 
 It is possible to define several mappings
 for the same record type.  The mapper object is declared as follows:
 
-```
+```Ada
 Address_Mapping : Address_Mapper.Mapper;  
 ```
 
 Then, each field is bound to a name as follows:
 
-```
+```Ada
 Address_Mapping.Add_Mapping ("city", FIELD_CITY);
 Address_Mapping.Add_Mapping ("street", FIELD_STREET);
 Address_Mapping.Add_Mapping ("country", FIELD_COUNTRY);
@@ -123,7 +124,7 @@ threads at the same time (the mapper is only read by the JSON/XML parsers).
 ## De-serialization
 
 To de-serialize a JSON object, a parser object is created and one or several mappings are defined:
-```
+```Ada
 Reader : Util.Serialize.IO.JSON.Parser;
 ...
    Reader.Add_Mapping ("address", Address_Mapping'Access);
@@ -131,7 +132,7 @@ Reader : Util.Serialize.IO.JSON.Parser;
 
 For an XML de-serialize, we just have to use another parser:
 
-```
+```Ada
 Reader : Util.Serialize.IO.XML.Parser;
 ...
    Reader.Add_Mapping ("address", Address_Mapping'Access);
@@ -139,7 +140,7 @@ Reader : Util.Serialize.IO.XML.Parser;
 
 For a CSV de-serialize, we just have to use another parser:
 
-```
+```Ada
 Reader : Util.Serialize.IO.CSV.Parser;
 ...
    Reader.Add_Mapping ("", Address_Mapping'Access);
@@ -149,14 +150,14 @@ The next step is to indicate the object that the de-serialization will write int
 to register the root object that will be
 filled according to the mapping.
 
-```
+```Ada
 Addr : aliased Address;
 ...
   Address_Mapper.Set_Context (Reader, Addr'Access);
 ```
 
 The `Parse` procedure parses a file using a CSV, JSON or XML parser.  It uses the mappings registered by `Add_Mapping` and fills the objects registered by `Set_Context`.  When the parsing is successful, the `Addr` object will hold the values.
-```
+```Ada
   Reader.Parse (File);
 ```
 
@@ -169,7 +170,7 @@ For the mapping, to specify that a value is stored in an XML attribute, the
 name must be prefixed by the **@** sign (this is very close to an XPath expression).  For example if the `city` XML entity has an `id` attribute,
 we could map it to a field `FIELD_CITY_ID` as follows:
 
-```
+```Ada
 Address_Mapping.Add_Mapping ("city/@id", FIELD_CITY_ID);
 ```
 
@@ -184,6 +185,6 @@ If a CSV file does not contain a column header, the mapping must be created
 by using the default column header names (Ex: A, B, C, ..., AA, AB, ...).
 The parser must be told about this lack of column header:
 
-```
+```Ada
    Parser.Set_Default_Headers;
 ```

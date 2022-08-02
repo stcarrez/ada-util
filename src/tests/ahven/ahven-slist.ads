@@ -81,8 +81,11 @@ private
       Size  : Count_Type  := 0;
    end record;
 
+   overriding
    procedure Initialize (Target : in out List);
+   overriding
    procedure Finalize   (Target : in out List);
+   overriding
    procedure Adjust     (Target : in out List);
 
    Empty_List : constant List :=

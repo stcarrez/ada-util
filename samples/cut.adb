@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  cut -- Text Transformations
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,8 @@ with Ada.Command_Line;
 with Util.Strings;
 with Util.Strings.Tokenizers;
 procedure Cut is
+   procedure Print_Token (Token : in String;
+                          Done  : out Boolean);
 
    procedure Print_Token (Token : in String;
                           Done  : out Boolean) is

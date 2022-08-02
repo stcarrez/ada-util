@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-tests - Test for processes
---  Copyright (C) 2011, 2012, 2016, 2018, 2019, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2019, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,8 @@ package body Util.Processes.Tests is
    --  The logger
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Processes.Tests");
 
+   Windows  : constant Boolean := Util.Systems.Os.Directory_Separator = '\';
+
    package Caller is new Util.Test_Caller (Test, "Processes");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -51,6 +53,8 @@ package body Util.Processes.Tests is
                        Test_Input_Redirect'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn(CHDIR)",
                        Test_Set_Working_Directory'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Spawn(Environment)",
+                      Test_Set_Environment'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Spawn(errors)",
                        Test_Errors'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Open/Read/Close (Multi spawn)",
@@ -106,7 +110,12 @@ package body Util.Processes.Tests is
       P : aliased Util.Streams.Pipes.Pipe_Stream;
    begin
       P.Set_Working_Directory ("bin");
-      P.Open ("./util_test_process 0 write b c d e f test_marker");
+      --  Note: windows does not change the working dir in the same way as Unix.
+      if Windows then
+         P.Open ("bin/util_test_process 0 write b c d e f test_marker");
+      else
+         P.Open ("./util_test_process 0 write b c d e f test_marker");
+      end if;
       declare
          Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
          Content : Ada.Strings.Unbounded.Unbounded_String;
@@ -139,7 +148,10 @@ package body Util.Processes.Tests is
                                     "Invalid content");
       end;
       T.Assert (not P.Is_Running, "Process has stopped");
-      Util.Tests.Assert_Equals (T, 4, P.Get_Exit_Status, "Invalid exit status");
+      --  gprbuild can exit with status 7 for newer version and status 4 for old versions.
+      if P.Get_Exit_Status /= 7 then
+         Util.Tests.Assert_Equals (T, 4, P.Get_Exit_Status, "Invalid exit status");
+      end if;
    end Test_Error_Pipe;
 
    --  ------------------------------
@@ -242,8 +254,8 @@ package body Util.Processes.Tests is
                      Pipes (I).Close;
 
                      --  Check status and output.
-                     State := State and Pipes (I).Get_Exit_Status = 0;
-                     State := State and Ada.Strings.Unbounded.Index (Content, "test_marker") > 0;
+                     State := State and then Pipes (I).Get_Exit_Status = 0
+                       and then Ada.Strings.Unbounded.Index (Content, "test_marker") > 0;
                   end;
                end loop;
 
@@ -365,6 +377,39 @@ package body Util.Processes.Tests is
    end Test_Set_Working_Directory;
 
    --  ------------------------------
+   --  Test changing working directory.
+   --  ------------------------------
+   procedure Test_Set_Environment (T : in out Test) is
+      P        : Process;
+      In_Path  : constant String := Util.Tests.Get_Path ("regtests/files/proc-empty.txt");
+      Exp_Path : constant String := Util.Tests.Get_Path ("regtests/expect/proc-env.txt");
+      Out_Path : constant String := Util.Tests.Get_Test_Path ("proc-env.txt");
+      Err_Path : constant String := Util.Tests.Get_Test_Path ("proc-errres.txt");
+   begin
+      Util.Processes.Set_Default_Environment (P);
+      Util.Processes.Set_Environment (P, "ENV_VAR", "test1");
+      Util.Processes.Set_Input_Stream (P, In_Path);
+      Util.Processes.Set_Output_Stream (P, Out_Path);
+      Util.Processes.Set_Error_Stream (P, Err_Path);
+      if Windows then
+         Util.Processes.Spawn (P, "env");
+      else
+         Util.Processes.Spawn (P, "env | grep ENV_VAR");
+      end if;
+      Util.Processes.Wait (P);
+
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Process failed");
+
+      if not Windows then
+         Util.Tests.Assert_Equal_Files (T       => T,
+                                        Expect  => Exp_Path,
+                                        Test    => Out_Path,
+                                        Message => "Process input/output redirection");
+      end if;
+   end Test_Set_Environment;
+
+   --  ------------------------------
    --  Test various errors.
    --  ------------------------------
    procedure Test_Errors (T : in out Test) is
@@ -398,6 +443,22 @@ package body Util.Processes.Tests is
       begin
          Util.Processes.Set_Error_Stream (P, ".");
          T.Fail ("Set_Error_Stream: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         Util.Processes.Set_Environment (P, "ENV_VAR", "test1");
+         T.Fail ("Set_Environment: no exception raised");
+
+      exception
+         when Invalid_State =>
+            null;
+      end;
+      begin
+         Util.Processes.Spawn (P, "sleep 1");
+         T.Fail ("Spawn: no exception raised");
 
       exception
          when Invalid_State =>

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-tests -- Unit tests for objects
---  Copyright (C) 2017, 2021 Stephane Carrez
+--  Copyright (C) 2017, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +32,10 @@ package body Util.Beans.Objects.Tests is
                        Test_Get_Value'Access);
       Caller.Add_Test (Suite, "Test Util.Beans.Objects.Set_Value",
                        Test_Set_Value'Access);
+      Caller.Add_Test (Suite, "Test Util.Beans.Objects.&",
+                       Test_And_Operator'Access);
+      Caller.Add_Test (Suite, "Test Util.Beans.Objects.To_Blob",
+                       Test_Blob'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -98,5 +102,33 @@ package body Util.Beans.Objects.Tests is
       Util.Tests.Assert_Equals (T, "joe", To_String (Get_Value (Value, "username")));
       Util.Tests.Assert_Equals (T, 32, To_Integer (Get_Value (Value, "age")));
    end Test_Set_Value;
+
+   --  ------------------------------
+   --  Test the "&" operator.
+   --  ------------------------------
+   procedure Test_And_Operator (T : in out Test) is
+      S1 : constant Object := To_Object (Wide_Wide_String '("wide hello"));
+      S2 : constant Object := To_Object (String '("normal hello"));
+      S3 : constant Object := To_Object (String '(" "));
+      I1 : constant Object := To_Object (Integer '(12345));
+      R  : Object;
+   begin
+      R := S1 & S3 & I1 & S3 & S2;
+      Util.Tests.Assert_Equals (T, "wide hello 12345 normal hello", To_String (R));
+   end Test_And_Operator;
+
+   --  ------------------------------
+   --  Test the Blob bean.
+   --  ------------------------------
+   procedure Test_Blob (T : in out Test) is
+      Blob  : constant Util.Blobs.Blob_Ref := Util.Blobs.Create_Blob (Size => 10);
+      R     : Object;
+      Blob2 : Util.Blobs.Blob_Ref;
+   begin
+      R := To_Object (Blob);
+      T.Assert (not Is_Null (R), "Is_Null must be false");
+      Blob2 := To_Blob (R);
+      T.Assert (not Blob2.Is_Null, "Blob2 must not be null");
+   end Test_Blob;
 
 end Util.Beans.Objects.Tests;

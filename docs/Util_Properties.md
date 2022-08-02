@@ -77,9 +77,9 @@ Example:
 ```Ada
 { "id": "1",                                 id         -> 1
   "info": { "name": "search",                info.name  -> search
-            "count", "12",                   info.count -> 12
+            "count": "12",                   info.count -> 12
             "data": { "value": "empty" }},   info.data.value  -> empty
-  "count": 1                                 info.count -> 1
+  "count": 1                                 count      -> 1
 }
 ```
 
@@ -101,6 +101,7 @@ Then, the property will be fetch by using:
 ```Ada
  Value : constant String := Props.Get ("info|data|value");
 ```
+
 ## Property bundles
 Property bundles represent several property files that share some overriding rules and
 capabilities.  Their introduction comes from Java resource bundles which allow to

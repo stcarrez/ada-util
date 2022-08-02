@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-files -- Various File Utility Packages
---  Copyright (C) 2001, 2002, 2003, 2009, 2010, 2011, 2012, 2015, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2001 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +15,18 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with System;
+with Interfaces.C;
 with Interfaces.C.Strings;
 with Ada.Directories;
 with Ada.IO_Exceptions;
-with Ada.Strings.Fixed;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
 with Ada.Text_IO;
+with Util.Strings.Builders;
 with Util.Strings.Tokenizers;
+with Util.Systems.Os;
+with Util.Systems.Types;
 package body Util.Files is
 
    --  ------------------------------
@@ -162,21 +166,20 @@ package body Util.Files is
    end Iterate_Path;
 
    --  ------------------------------
-   --  Find the file in one of the search directories.  Each search directory
-   --  is separated by ';' (yes, even on Unix).
+   --  Find the file `Name` in one of the search directories defined in `Paths`.
+   --  Each search directory is separated by ';' by default (yes, even on Unix).
+   --  This can be changed by specifying the `Separator` value.
    --  Returns the path to be used for reading the file.
    --  ------------------------------
-   function Find_File_Path (Name  : String;
-                            Paths : String) return String is
-      use Ada.Strings.Fixed;
-
+   function Find_File_Path (Name      : in String;
+                            Paths     : in String;
+                            Separator : in Character := ';') return String is
       Sep_Pos : Natural;
       Pos     : Positive := Paths'First;
       Last    : constant Natural := Paths'Last;
-
    begin
       while Pos <= Last loop
-         Sep_Pos := Index (Paths, ";", Pos);
+         Sep_Pos := Util.Strings.Index (Paths, Separator, Pos);
          if Sep_Pos = 0 then
             Sep_Pos := Last;
          else
@@ -280,26 +283,27 @@ package body Util.Files is
    --  ------------------------------
    --  Compose an existing path by adding the specified name to each path component
    --  and return a new paths having only existing directories.  Each directory is
-   --  separated by ';'.
+   --  separated by ';' (this can be overriding with the `Separator` parameter).
    --  If the composed path exists, it is added to the result path.
    --  Example:
    --    paths = 'web;regtests'  name = 'info'
    --    result = 'web/info;regtests/info'
    --  Returns the composed path.
    --  ------------------------------
-   function Compose_Path (Paths : in String;
-                          Name  : in String) return String is
+   function Compose_Path (Paths     : in String;
+                          Name      : in String;
+                          Separator : in Character := ';') return String is
 
-      procedure Compose (Dir : in String;
+      procedure Compose (Dir  : in String;
                          Done : out Boolean);
 
-      Result  : Unbounded_String;
+      Result  : Util.Strings.Builders.Builder (256);
 
       --  ------------------------------
       --  Build the new path by checking if <b>Name</b> exists in <b>Dir</b>
       --  and appending the new path in the <b>Result</b>.
       --  ------------------------------
-      procedure Compose (Dir : in String;
+      procedure Compose (Dir  : in String;
                          Done : out Boolean) is
          use Ada.Directories;
 
@@ -307,10 +311,10 @@ package body Util.Files is
       begin
          Done := False;
          if Exists (Path) and then Kind (Path) = Directory then
-            if Length (Result) > 0 then
-               Append (Result, ';');
+            if Util.Strings.Builders.Length (Result) > 0 then
+               Util.Strings.Builders.Append (Result, Separator);
             end if;
-            Append (Result, Path);
+            Util.Strings.Builders.Append (Result, Path);
          end if;
       exception
          when Name_Error =>
@@ -319,7 +323,7 @@ package body Util.Files is
 
    begin
       Iterate_Path (Path => Paths, Process => Compose'Access);
-      return To_String (Result);
+      return Util.Strings.Builders.To_Array (Result);
    end Compose_Path;
 
    --  ------------------------------
@@ -352,7 +356,7 @@ package body Util.Files is
    --  ------------------------------
    --  Returns a relative path whose origin is defined by <b>From</b> and which refers
    --  to the absolute path referenced by <b>To</b>.  Both <b>From</b> and <b>To</b> are
-   --  assumed to be absolute pathes.  Returns the absolute path <b>To</b> if the relative
+   --  assumed to be absolute paths.  Returns the absolute path <b>To</b> if the relative
    --  path could not be found.  Both paths must have at least one root component in common.
    --  ------------------------------
    function Get_Relative_Path (From : in String;
@@ -368,28 +372,29 @@ package body Util.Files is
             end if;
 
             for J in Last .. From'Last - 1 loop
-               if From (J) = '/' or From (J) = '\' then
+               if From (J) = '/' or else From (J) = '\' then
                   Append (Result, "../");
                end if;
             end loop;
-            if Last <= To'Last and From (I) /= '/' and From (I) /= '\' then
+            if Last <= To'Last and then From (I) /= '/' and then From (I) /= '\' then
                Append (Result, "../");
                Append (Result, To (Last .. To'Last));
             end if;
             return To_String (Result);
 
-         elsif I < From'Last and then (From (I) = '/' or From (I) = '\') then
+         elsif I < From'Last and then (From (I) = '/' or else From (I) = '\') then
             Last := I + 1;
 
          end if;
       end loop;
-      if To'Last = From'Last or (To'Last = From'Last + 1
-                                 and (To (To'Last) = '/' or To (To'Last) = '\'))
+      if To'Last = From'Last
+        or else (To'Last = From'Last + 1
+                   and then (To (To'Last) = '/' or else To (To'Last) = '\'))
       then
          return ".";
       elsif Last = 0 then
          return To;
-      elsif To (From'Last + 1) = '/' or To (From'Last + 1) = '\' then
+      elsif To (From'Last + 1) = '/' or else To (From'Last + 1) = '\' then
          return To (From'Last + 2 .. To'Last);
       else
          return To (Last .. To'Last);
@@ -402,24 +407,123 @@ package body Util.Files is
    procedure Rename (Old_Name, New_Name : in String) is
       --  Rename a file (the Ada.Directories.Rename does not allow to use the
       --  Unix atomic file rename!)
-      function Sys_Rename (Oldpath  : in Interfaces.C.Strings.chars_ptr;
-                           Newpath  : in Interfaces.C.Strings.chars_ptr) return Integer;
-      pragma Import (C, Sys_Rename, "rename");
 
-      Old_Path : Interfaces.C.Strings.chars_ptr;
-      New_Path : Interfaces.C.Strings.chars_ptr;
-      Result   : Integer;
+      C_Old_Path : constant String := Old_Name & ASCII.NUL;
+      C_New_Path : constant String := New_Name & ASCII.NUL;
+      Result     : Integer;
    begin
       --  Do a system atomic rename of old file in the new file.
       --  Ada.Directories.Rename does not allow this.
-      Old_Path := Interfaces.C.Strings.New_String (Old_Name);
-      New_Path := Interfaces.C.Strings.New_String (New_Name);
-      Result := Sys_Rename (Old_Path, New_Path);
-      Interfaces.C.Strings.Free (Old_Path);
-      Interfaces.C.Strings.Free (New_Path);
+      Result := Util.Systems.Os.Sys_Rename (C_Old_Path, C_New_Path);
       if Result /= 0 then
          raise Ada.IO_Exceptions.Use_Error with "Cannot rename file";
       end if;
    end Rename;
+
+   --  ------------------------------
+   --  Delete the file including missing symbolic link
+   --  or socket files (which GNAT fails to delete,
+   --  see gcc/63222 and gcc/56055).
+   --  ------------------------------
+   function Delete_File (Path : in String) return Integer is
+      C_Path : constant String := Path & ASCII.NUL;
+   begin
+      if Util.Systems.Os.Sys_Unlink (C_Path) = 0 then
+         return 0;
+      else
+         return Util.Systems.Os.Errno;
+      end if;
+   end Delete_File;
+
+   procedure Delete_File (Path : in String) is
+      Result : constant Integer := Delete_File (Path);
+   begin
+      if Result /= 0 then
+         raise Ada.IO_Exceptions.Use_Error with "file """ & Path & """ could not be deleted";
+      end if;
+   end Delete_File;
+
+   --  ------------------------------
+   --  Delete the directory tree recursively.  If the directory tree contains
+   --  sockets, special files and dangling symbolic links, they are removed
+   --  correctly.  This is a workaround for GNAT bug gcc/63222 and gcc/56055.
+   --  ------------------------------
+   procedure Delete_Tree (Path : in String) is
+      use type System.Address;
+      use Util.Systems.Types;
+      use Util.Systems.Os;
+      use Interfaces.C;
+
+      C_Path         : constant String := Path & ASCII.NUL;
+      Dirp           : Util.Systems.Os.DIR;
+      Buffer         : String (1 .. 1024);
+      Length         : aliased Integer;
+      File_Name_Addr : System.Address;
+      Result         : Integer;
+      St             : aliased Util.Systems.Types.Stat_Type;
+   begin
+      Dirp := Util.Systems.Os.Opendir (C_Path);
+      if Dirp = Util.Systems.Os.Null_Dir then
+         raise Ada.Directories.Use_Error with "unreadable directory """ & Path & '"';
+      end if;
+
+      begin
+         loop
+            File_Name_Addr := Util.Systems.Os.Readdir (Dirp, Buffer'Address, Length'Access);
+            exit when File_Name_Addr = System.Null_Address;
+            declare
+               subtype File_Name_String is String (1 .. Length);
+
+               File_Name : constant File_Name_String
+                 with Import, Address => File_Name_Addr;
+
+            begin
+               if File_Name /= "." and then File_Name /= ".." then
+                  declare
+                     File_Path : constant String
+                       := Path & Directory_Separator & File_Name & ASCII.NUL;
+                  begin
+                     Result := Util.Systems.Os.Sys_Lstat (File_Path, St'Unchecked_Access);
+                     if Result = 0 and then (St.st_mode and S_IFMT) = S_IFDIR then
+                        Delete_Tree (File_Path (File_Path'First .. File_Path'Last - 1));
+                     else
+                        Result := Util.Systems.Os.Sys_Unlink (File_Path);
+                     end if;
+                  end;
+               end if;
+            end;
+         end loop;
+         Result := Util.Systems.Os.Closedir (Dirp);
+
+      exception
+         when others =>
+            Result := Util.Systems.Os.Closedir (Dirp);
+            raise;
+
+      end;
+      Ada.Directories.Delete_Directory (Path);
+   end Delete_Tree;
+
+   --  ------------------------------
+   --  Find the canonicalized absolute path of the given file.
+   --  ------------------------------
+   function Realpath (Path : in String) return String is
+      use Interfaces.C.Strings;
+
+      P : chars_ptr := New_String (Path);
+      R : chars_ptr;
+   begin
+      R := Util.Systems.Os.Sys_Realpath (P, Null_Ptr);
+      Free (P);
+      if R = Null_Ptr then
+         raise Ada.Directories.Use_Error with "invalid file """ & Path & '"';
+      end if;
+      declare
+         Result : constant String := Value (R);
+      begin
+         Free (R);
+         return Result;
+      end;
+   end Realpath;
 
 end Util.Files;

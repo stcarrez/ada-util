@@ -53,6 +53,9 @@ package Util.Processes.Tests is
    --  Test changing working directory.
    procedure Test_Set_Working_Directory (T : in out Test);
 
+   --  Test setting specific environment variables.
+   procedure Test_Set_Environment (T : in out Test);
+
    --  Test various errors.
    procedure Test_Errors (T : in out Test);
 

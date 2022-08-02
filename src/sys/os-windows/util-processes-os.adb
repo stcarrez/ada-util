@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2018, 2019, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,6 +38,8 @@ package body Util.Processes.Os is
 
    procedure Prepare_Working_Directory (Sys  : in out System_Process;
                                         Proc : in out Process'Class);
+
+   procedure Prepare_Environment (Sys  : in out System_Process);
 
    procedure Redirect_Output (Path   : in Wchar_Ptr;
                               Append : in Boolean;
@@ -85,6 +87,20 @@ package body Util.Processes.Os is
       end if;
       Proc.Exit_Value := Integer (Code);
       Log.Debug ("Process exit is: {0}", Integer'Image (Proc.Exit_Value));
+
+      --  Release the resources
+      if Sys.Process_Info.hProcess /= NO_FILE then
+         Status := Close_Handle (Sys.Process_Info.hProcess);
+         Sys.Process_Info.hProcess := NO_FILE;
+      end if;
+      if Sys.Process_Info.hThread /= NO_FILE then
+         Status := Close_Handle (Sys.Process_Info.hThread);
+         Sys.Process_Info.hThread := NO_FILE;
+      end if;
+
+      Free (Sys.Dir);
+      Free (Sys.Env);
+      Free (Sys.Command);
    end Wait;
 
    --  ------------------------------
@@ -117,6 +133,32 @@ package body Util.Processes.Os is
          Sys.Dir := To_WSTR (Dir);
       end if;
    end Prepare_Working_Directory;
+
+   procedure Prepare_Environment (Sys  : in out System_Process) is
+      Len    : Interfaces.C.size_t := 2;
+      Result : Wchar_Ptr;
+      Pos    : Interfaces.C.size_t := 0;
+   begin
+      Free (Sys.Env);
+      if Sys.Environment.Is_Empty then
+         return;
+      end if;
+      for Env of Sys.Environment loop
+         Len := Len + Env'Length + 1;
+      end loop;
+      Result := new Interfaces.C.wchar_array (0 .. Len);
+      for Env of Sys.Environment loop
+         for C of Env loop
+            Result (Pos) := Interfaces.C.To_C (Ada.Characters.Conversions.To_Wide_Character (C));
+            Pos := Pos + 1;
+         end loop;
+         Result (Pos) := Interfaces.C.wide_nul;
+         Pos := Pos + 1;
+      end loop;
+      Result (Pos) := Interfaces.C.wide_nul;
+      Result (Pos + 1) := Interfaces.C.wide_nul;
+      Sys.Env := Result;
+   end Prepare_Environment;
 
    procedure Redirect_Output (Path   : in Wchar_Ptr;
                               Append : in Boolean;
@@ -173,8 +215,10 @@ package body Util.Processes.Os is
       Result  : Integer;
       Startup : aliased Startup_Info;
       R       : BOOL with Unreferenced;
+      Flags   : DWORD;
    begin
       Sys.Prepare_Working_Directory (Proc);
+      Sys.Prepare_Environment;
 
       --  Since checks are disabled, verify by hand that the argv table is correct.
       if Sys.Command = null or else Sys.Command'Length < 1 then
@@ -204,31 +248,27 @@ package body Util.Processes.Os is
       if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL or Mode = READ_WRITE_ALL then
          Build_Output_Pipe (Sys, Proc, Startup, Mode);
       end if;
+      if Mode = READ_ERROR then
+         Build_Output_Pipe (Sys, Proc, Startup, Mode);
+      end if;
+      if Sys.Env /= null then
+         Flags := 16#400#; --  CREATE_UNICODE_ENVIRONMENT
+      else
+         Flags := 0;
+      end if;
 
       --  Start the child process.
-      if Sys.Dir /= null then
-         Result := Create_Process (System.Null_Address,
-                                   Sys.Command.all'Address,
-                                   null,
-                                   null,
-                                   1,
-                                   16#0#,
-                                   System.Null_Address,
-                                   Sys.Dir.all'Address,
-                                   Startup'Unchecked_Access,
-                                   Sys.Process_Info'Unchecked_Access);
-      else
-         Result := Create_Process (System.Null_Address,
-                                   Sys.Command.all'Address,
-                                   null,
-                                   null,
-                                   1,
-                                   16#0#,
-                                   System.Null_Address,
-                                   System.Null_Address,
-                                   Startup'Unchecked_Access,
-                                   Sys.Process_Info'Unchecked_Access);
-      end if;
+      Result := Create_Process
+        (System.Null_Address,
+         Sys.Command.all'Address,
+         null,
+         null,
+         1,
+         Flags,
+         (if Sys.Env /= null then Sys.Env.all'Address else System.Null_Address),
+         (if Sys.Dir /= null then Sys.Dir.all'Address else System.Null_Address),
+         Startup'Unchecked_Access,
+         Sys.Process_Info'Unchecked_Access);
 
       --  Close the handles which are not necessary.
       if Startup.hStdInput /= Get_Std_Handle (STD_INPUT_HANDLE) then
@@ -316,14 +356,14 @@ package body Util.Processes.Os is
             Log.Error ("Cannot create pipe: {0}", Integer'Image (Get_Last_Error));
             raise Program_Error with "Cannot create pipe";
          end if;
-      elsif Sys.Out_File /= null then
+      elsif Sys.Out_File /= null or Mode = READ_ERROR then
          Error_Handle := Write_Handle;
       end if;
       Into.dwFlags    := 16#100#;
       if Sys.Out_File = null then
          Into.hStdOutput := Write_Handle;
       end if;
-      if Redirect_Error and Sys.Err_File = null then
+      if (Redirect_Error and Sys.Err_File = null) or Mode = READ_ERROR then
          Into.hStdError  := Error_Handle;
       end if;
       Proc.Output     := Create_Stream (Read_Pipe_Handle).all'Access;
@@ -409,6 +449,38 @@ package body Util.Processes.Os is
    end Append_Argument;
 
    --  ------------------------------
+   --  Clear the program arguments.
+   --  ------------------------------
+   overriding
+   procedure Clear_Arguments (Sys : in out System_Process) is
+   begin
+      Sys.Pos := 0;
+   end Clear_Arguments;
+
+   --  ------------------------------
+   --  Set the environment variable to be used by the process before its creation.
+   --  ------------------------------
+   overriding
+   procedure Set_Environment (Sys   : in out System_Process;
+                              Name  : in String;
+                              Value : in String) is
+   begin
+      if not Sys.Environment.Is_Empty then
+         for Iter in Sys.Environment.Iterate loop
+            declare
+               Env : constant String := Sys.Environment (Iter);
+            begin
+               if Util.Strings.Starts_With (Env, Name & "=") then
+                  Sys.Environment (Iter) := Name & "=" & Value;
+                  return;
+               end if;
+            end;
+         end loop;
+      end if;
+      Sys.Environment.Append (Name & "=" & Value);
+   end Set_Environment;
+
+   --  ------------------------------
    --  Set the process input, output and error streams to redirect and use specified files.
    --  ------------------------------
    overriding
@@ -456,10 +528,8 @@ package body Util.Processes.Os is
       Free (Sys.Out_File);
       Free (Sys.Err_File);
       Free (Sys.Dir);
+      Free (Sys.Env);
       Free (Sys.Command);
    end Finalize;
 
 end Util.Processes.Os;
-
-
-

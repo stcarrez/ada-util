@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-cookies -- HTTP Cookies
---  Copyright (C) 2011, 2012, 2015 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2015, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -381,7 +381,7 @@ package body Util.Http.Cookies is
             C : constant Character := Header (Pos);
          begin
             if In_Value then
-               if C = ';' or C = ',' then
+               if C = ';' or else C = ',' then
                   In_Value := False;
                end if;
             else
@@ -413,7 +413,7 @@ package body Util.Http.Cookies is
          --  Skip spaces
          while Pos < Header'Last loop
             C := Header (Pos);
-            exit when C /= ' ' and C /= ASCII.HT;
+            exit when C /= ' ' and then C /= ASCII.HT;
             Pos := Pos + 1;
          end loop;
 
@@ -437,7 +437,7 @@ package body Util.Http.Cookies is
          --  Skip spaces
          while Pos < Header'Last loop
             C := Header (Pos);
-            exit when C /= ' ' and C /= ASCII.HT;
+            exit when C /= ' ' and then C /= ASCII.HT;
             Pos := Pos + 1;
          end loop;
 
@@ -447,7 +447,7 @@ package body Util.Http.Cookies is
             --  Skip spaces
             while Pos <= Header'Last loop
                C := Header (Pos);
-               exit when C /= ' ' and C /= ASCII.HT;
+               exit when C /= ' ' and then C /= ASCII.HT;
                Pos := Pos + 1;
             end loop;
 
@@ -472,7 +472,7 @@ package body Util.Http.Cookies is
          exit when Idx > Cnt;
          while Pos <= Header'Last loop
             C := Header (Pos);
-            exit when C /= ' ' and C /= ASCII.HT;
+            exit when C /= ' ' and then C /= ASCII.HT;
             Pos := Pos + 1;
          end loop;
          if C = ';' then

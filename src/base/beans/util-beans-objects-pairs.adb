@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Beans.Objects.Pairs -- Pairs of objects
---  Copyright (C) 2013 Stephane Carrez
+--  Copyright (C) 2013, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,9 +26,9 @@ package body Util.Beans.Objects.Pairs is
    function Get_Value (From : in Pair;
                        Name : in String) return Util.Beans.Objects.Object is
    begin
-      if Name = "key" or Name = "first" then
+      if Name = "key" or else Name = "first" then
          return From.First;
-      elsif Name = "value" or Name = "second" then
+      elsif Name = "value" or else Name = "second" then
          return From.Second;
       else
          return Null_Object;
@@ -45,9 +45,9 @@ package body Util.Beans.Objects.Pairs is
                         Name  : in String;
                         Value : in Util.Beans.Objects.Object) is
    begin
-      if Name = "key" or Name = "first" then
+      if Name = "key" or else Name = "first" then
          From.First := Value;
-      elsif Name = "value" or Name = "second" then
+      elsif Name = "value" or else Name = "second" then
          From.Second := Value;
       end if;
    end Set_Value;

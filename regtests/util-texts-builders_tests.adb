@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-texts-builders_tests -- Unit tests for text builders
---  Copyright (C) 2013, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2013, 2016, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,14 +36,22 @@ package body Util.Texts.Builders_Tests is
                        Test_Length'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Append",
                        Test_Append'Access);
+      Caller.Add_Test (Suite, "Test Util.Texts.Builders.Inline_Append",
+                       Test_Inline_Append'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Clear",
                        Test_Clear'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Iterate",
                        Test_Iterate'Access);
+      Caller.Add_Test (Suite, "Test Util.Texts.Builders.Inline_Iterate",
+                       Test_Inline_Iterate'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Tail",
                        Test_Tail'Access);
+      Caller.Add_Test (Suite, "Test Util.Texts.Builders.Find",
+                       Test_Find'Access);
       Caller.Add_Test (Suite, "Test Util.Texts.Builders.Perf",
                        Test_Perf'Access);
+      Caller.Add_Test (Suite, "Test Util.Texts.Builders.Element",
+                       Test_Element'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -82,6 +90,86 @@ package body Util.Texts.Builders_Tests is
       Util.Tests.Assert_Equals (T, 10, String_Builder.Length (B), "Invalid length");
       Util.Tests.Assert_Equals (T, S, String_Builder.To_Array (B), "Invalid append");
    end Test_Append;
+
+   --  ------------------------------
+   --  Test the append operation.
+   --  ------------------------------
+   procedure Test_Inline_Append (T : in out Test) is
+      procedure Append (Into : in out String;
+                        Last : out Natural);
+
+      S : constant String := "0123456789";
+      I : Positive := S'First;
+      B : String_Builder.Builder (3);
+
+      procedure Append (Into : in out String;
+                        Last : out Natural) is
+         Pos : Natural := Into'First;
+      begin
+         while Pos <= Into'Last and then I <= S'Last loop
+            Into (Pos) := S (I);
+            Pos := Pos + 1;
+            I := I + 1;
+         end loop;
+         Last := Pos - 1;
+      end Append;
+
+      procedure Fill is new String_Builder.Inline_Append (Append);
+
+   begin
+      Fill (B);
+      Util.Tests.Assert_Equals (T, S'Length, String_Builder.Length (B), "Invalid length");
+      Util.Tests.Assert_Equals (T, "0123456789", String_Builder.To_Array (B), "Invalid content");
+
+      I := S'First;
+      Fill (B);
+      Util.Tests.Assert_Equals (T, "01234567890123456789",
+                                String_Builder.To_Array (B), "Invalid content");
+
+      String_Builder.Clear (B);
+      I := S'Last;
+      Fill (B);
+      Util.Tests.Assert_Equals (T, "9", String_Builder.To_Array (B), "Invalid content");
+
+      String_Builder.Clear (B);
+      I := S'Last + 1;
+      Fill (B);
+      Util.Tests.Assert_Equals (T, "", String_Builder.To_Array (B), "Invalid content");
+   end Test_Inline_Append;
+
+   --  ------------------------------
+   --  Test the Find generic operation.
+   --  ------------------------------
+   procedure Test_Find (T : in out Test) is
+      function Index (Content : in String) return Natural;
+
+      B : String_Builder.Builder (3);
+
+      function Index (Content : in String) return Natural is
+      begin
+         for I in Content'Range loop
+            if Content (I) = 'b' then
+               return I;
+            end if;
+         end loop;
+         return 0;
+      end Index;
+
+      function Find is new String_Builder.Find (Index);
+
+      Pos : Natural;
+   begin
+      String_Builder.Append (B, "ab");
+      Pos := Find (B, 1);
+      Util.Tests.Assert_Equals (T, 2, Pos, "Invalid find");
+
+      String_Builder.Append (B, "deab");
+      Pos := Find (B, Pos + 1);
+      Util.Tests.Assert_Equals (T, 6, Pos, "Invalid find");
+
+      Pos := Find (B, Pos + 1);
+      Util.Tests.Assert_Equals (T, 0, Pos, "Invalid find");
+   end Test_Find;
 
    --  ------------------------------
    --  Test the clear operation.
@@ -151,14 +239,13 @@ package body Util.Texts.Builders_Tests is
    procedure Test_Iterate (T : in out Test) is
       procedure Process (S : in String);
 
-      B : String_Builder.Builder (13);
-      R : Ada.Strings.Unbounded.Unbounded_String;
+      B  : String_Builder.Builder (13);
+      R  : Ada.Strings.Unbounded.Unbounded_String;
 
       procedure Process (S : in String) is
       begin
          Ada.Strings.Unbounded.Append (R, S);
       end Process;
-
    begin
       for I in 1 .. 100 loop
          String_Builder.Append (B, "The Iterate procedure avoids the string copy "
@@ -170,6 +257,33 @@ package body Util.Texts.Builders_Tests is
       Util.Tests.Assert_Equals (T, String_Builder.To_Array (B),
                                 Ada.Strings.Unbounded.To_String (R), "Invalid Iterate");
    end Test_Iterate;
+
+   --  ------------------------------
+   --  Test the iterate operation.
+   --  ------------------------------
+   procedure Test_Inline_Iterate (T : in out Test) is
+      procedure Process (S : in String);
+
+      B  : String_Builder.Builder (13);
+      R  : Ada.Strings.Unbounded.Unbounded_String;
+
+      procedure Process (S : in String) is
+      begin
+         Ada.Strings.Unbounded.Append (R, S);
+      end Process;
+
+      procedure Get is new String_Builder.Inline_Iterate (Process);
+   begin
+      for I in 1 .. 100 loop
+         String_Builder.Append (B, "The Iterate procedure avoids the string copy "
+                                & "on the secondary stack");
+      end loop;
+      Get (B);
+      Util.Tests.Assert_Equals (T, String_Builder.Length (B), Ada.Strings.Unbounded.Length (R),
+                                "Invalid length in iterate string");
+      Util.Tests.Assert_Equals (T, String_Builder.To_Array (B),
+                                Ada.Strings.Unbounded.To_String (R), "Invalid Iterate");
+   end Test_Inline_Iterate;
 
    --  ------------------------------
    --  Test the append and iterate performance.
@@ -276,5 +390,48 @@ package body Util.Texts.Builders_Tests is
          Ada.Text_IO.New_Line (Perf);
       end loop;
    end Test_Perf;
+
+   --  ------------------------------
+   --  Test the Element function.
+   --  ------------------------------
+   procedure Test_Element (T : in out Test) is
+      B : String_Builder.Builder (10);
+   begin
+      for I in 1 .. 1_000 loop
+         String_Builder.Append (B, 'a');
+      end loop;
+
+      declare
+         S   : Util.Measures.Stamp;
+         C   : Character;
+         Cnt : Natural := 0;
+      begin
+         for I in 1 .. String_Builder.Length (B) loop
+            C := String_Builder.Element (B, I);
+            Cnt := Cnt + (if C = 'a' then 1 else 0);
+         end loop;
+         Util.Measures.Report (S, "Util.Texts.Builders.Element", 1000);
+         Util.Tests.Assert_Equals (T, 1_000, Cnt, "Invalid count");
+      end;
+
+      declare
+         procedure Compute (Item : in String);
+
+         S   : Util.Measures.Stamp;
+         Cnt : Natural := 0;
+         procedure Compute (Item : in String) is
+         begin
+            for C of Item loop
+               Cnt := Cnt + (if C = 'a' then 1 else 0);
+            end loop;
+         end Compute;
+         procedure Iterate is
+           new String_Builder.Inline_Iterate (Compute);
+      begin
+         Iterate (B);
+         Util.Measures.Report (S, "Util.Texts.Builders.Iterate", 1000);
+         Util.Tests.Assert_Equals (T, 1_000, Cnt, "Invalid count");
+      end;
+   end Test_Element;
 
 end Util.Texts.Builders_Tests;

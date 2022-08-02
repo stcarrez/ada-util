@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util testsuite - Util Testsuite
---  Copyright (C) 2009 - 2021 Stephane Carrez
+--  util-testsuite - Util Testsuite
+--  Copyright (C) 2009 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@ with Util.Properties.JSON.Tests;
 with Util.Properties.Form.Tests;
 with Util.Log.Tests;
 with Util.Files.Tests;
+with Util.Files.Rolling.Tests;
 with Util.Concurrent.Tests;
 with Util.Events.Channels.Tests;
 with Util.Events.Timers.Tests;
@@ -61,6 +62,7 @@ with Util.Serialize.IO.CSV.Tests;
 with Util.Serialize.Tools.Tests;
 with Util.Processes.Tests;
 with Util.Http.Cookies.Tests;
+with Util.Http.Headers.Tests;
 #if HAVE_CURL = "yes"
 with Util.Http.Clients.Curl.Tests;
 # end if;
@@ -88,6 +90,7 @@ package body Util.Testsuite is
       Util.Dates.Formats.Tests.Add_Tests (Result);
       Util.Log.Tests.Add_Tests (Result);
       Util.Files.Tests.Add_Tests (Result);
+      Util.Files.Rolling.Tests.Add_Tests (Result);
       Util.Commands.Tests.Add_Tests (Result);
       Util.Concurrent.Tests.Add_Tests (Result);
       Util.Events.Channels.Tests.Add_Tests (Result);
@@ -122,6 +125,7 @@ package body Util.Testsuite is
 #end if;
       Util.Serialize.Tools.Tests.Add_Tests (Result);
       Util.Processes.Tests.Add_Tests (Result);
+      Util.Http.Headers.Tests.Add_Tests (Result);
       Util.Http.Cookies.Tests.Add_Tests (Result);
 #if HAVE_CURL = "yes"
       Util.Http.Clients.Curl.Tests.Add_Tests (Result);

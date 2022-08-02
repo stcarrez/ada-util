@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-factory -- Bean Registration and Factory
---  Copyright (C) 2009, 2010, 2015, 2018 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2015, 2018, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -87,6 +87,7 @@ package body Util.Beans.Factory is
       end if;
    end Create;
 
+   overriding
    procedure Create (Factory    : in Simple_Binding;
                      Name       : in Ada.Strings.Unbounded.Unbounded_String;
                      Result     : out Util.Beans.Basic.Readonly_Bean_Access;

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-consoles-text -- Text console interface
---  Copyright (C) 2014, 2015, 2017, 2018, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2014, 2015, 2017, 2018, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,7 @@ package body Util.Commands.Consoles.Text is
             Val : constant Interfaces.Unsigned_8 := Character'Pos (C);
          begin
             --  Take into account only the first byte of the UTF-8 sequence.
-            if Val < 16#80# or Val >= 16#C0# then
+            if Val < 16#80# or else Val >= 16#C0# then
                Console.Cur_Col := Console.Cur_Col + 1;
             end if;
          end;
@@ -84,7 +84,7 @@ package body Util.Commands.Consoles.Text is
    begin
       case Justify is
          when J_LEFT =>
-            if Value'Length >= Size and Size > 0 then
+            if Value'Length >= Size and then Size > 0 then
                Start := Last - Size + 1 + 1;
             end if;
 
@@ -145,6 +145,7 @@ package body Util.Commands.Consoles.Text is
    --  ------------------------------
    --  Finish a new title in a report.
    --  ------------------------------
+   overriding
    procedure End_Title (Console : in out Console_Type) is
    begin
       Ada.Text_IO.New_Line;

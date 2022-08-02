@@ -23,11 +23,11 @@ abstract project Config is
 
          when "debug" =>
             for Default_Switches ("Ada") use defaults & warnings
-               & ("-g", "-gnata", "-gnatVaMI", "-gnaty3abcefhiklmnprstxM99");
+               & ("-g", "-gnata", "-gnatVaMI", "-gnaty3abcefhiklmnprstxM99OABu");
 
          when "coverage" =>
             for Default_Switches ("Ada") use defaults & warnings
-               & ("-g", "-O2", "-gnata", "-gnatVaMI", "-gnaty3abcefhiklmnprstxM99",
+               & ("-g", "-O2", "-gnata", "-gnatVaMI", "-gnaty3abcefhiklmnprstxM99O",
                   "-fprofile-arcs", "-ftest-coverage");
 
          when "optimize" =>

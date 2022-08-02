@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-concurrent-tests -- Unit tests for concurrency package
---  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2019 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,11 +40,13 @@ package body Util.Concurrent.Tests is
       Value : Natural := 0;
    end record;
 
+   overriding
    function "=" (Left, Right : in Connection) return Boolean;
 
    overriding
    procedure Finalize (C : in out Connection);
 
+   overriding
    function "=" (Left, Right : in Connection) return Boolean is
    begin
       return Left.Value = Right.Value;
@@ -324,11 +326,11 @@ package body Util.Concurrent.Tests is
       --  We can't predict the exact value for string after the rotation passes.
       --  At least, we must have one of the following values (when using an unprotected
       --  copy, the string value contains garbage).
-      T.Assert (D.Get.S = "0123456789" or D.Get.S = "1234567890" or
-                D.Get.S = "2345678901" or D.Get.S = "3456789012" or
-                  D.Get.S = "4567890123" or D.Get.S = "5678901234" or
-                    D.Get.S = "6789012345" or D.Get.S = "7890123456" or
-                      D.Get.S = "8901234567" or D.Get.S = "9012345678",
+      T.Assert (D.Get.S = "0123456789" or else D.Get.S = "1234567890" or else
+                D.Get.S = "2345678901" or else D.Get.S = "3456789012" or else
+                  D.Get.S = "4567890123" or else D.Get.S = "5678901234" or else
+                    D.Get.S = "6789012345" or else D.Get.S = "7890123456" or else
+                      D.Get.S = "8901234567" or else D.Get.S = "9012345678",
               "Invalid result: " & D.Get.S);
    end Test_Copy;
 
@@ -627,7 +629,7 @@ package body Util.Concurrent.Tests is
          Seq_Error := False;
          while Next < Last_Sequence loop
             F.Get_Available (Avail);
-            if Avail /= Pool_Count and Next - Expect_Seq <= Pool_Count then
+            if Avail /= Pool_Count and then Next - Expect_Seq <= Pool_Count then
                C.Value := Next;
                F.Release (C);
                Next := Next + 1;

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-systems-dlls-tests -- Unit tests for shared libraries
---  Copyright (C) 2013, 2017, 2019 Stephane Carrez
+--  Copyright (C) 2013, 2017, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,6 +42,7 @@ package body Util.Systems.DLLs.Tests is
       Lib3 : Handle;
       Lib4 : Handle;
       Lib5 : Handle;
+      Lib6 : Handle;
    begin
       begin
          Lib1 := Util.Systems.DLLs.Load ("libcrypto.so");
@@ -53,7 +54,7 @@ package body Util.Systems.DLLs.Tests is
       end;
 
       begin
-         Lib2 := Util.Systems.DLLs.Load ("libcrypto.dylib");
+         Lib2 := Util.Systems.DLLs.Load ("libgmp.dylib");
          T.Assert (Lib2 /= Null_Handle, "Load operation returned null");
          Lib := Lib2;
       exception
@@ -88,8 +89,21 @@ package body Util.Systems.DLLs.Tests is
             Lib5 := Null_Handle;
       end;
 
-      T.Assert (Lib1 /= Null_Handle or Lib2 /= Null_Handle or Lib3 /= Null_Handle
-                or Lib4 /= Null_Handle or Lib5 /= Null_Handle,
+      begin
+         Lib6 := Util.Systems.DLLs.Load ("libexpat-1.dll");
+         T.Assert (Lib6 /= Null_Handle, "Load operation returned null");
+         Lib := Lib6;
+      exception
+         when Load_Error =>
+            Lib6 := Null_Handle;
+      end;
+
+      T.Assert (Lib1 /= Null_Handle
+                  or else Lib2 /= Null_Handle
+                  or else Lib3 /= Null_Handle
+                  or else Lib4 /= Null_Handle
+                  or else Lib5 /= Null_Handle
+                  or else Lib6 /= Null_Handle,
                 "At least one Load operation should have succeeded");
    end Load_Library;
 
@@ -141,6 +155,15 @@ package body Util.Systems.DLLs.Tests is
 
       begin
          Sym := Util.Systems.DLLs.Get_Symbol (Lib, "__gmpf_cmp");
+         T.Assert (Sym /= System.Null_Address, "Get_Symbol returned null");
+
+      exception
+         when Not_Found =>
+            null;
+      end;
+
+      begin
+         Sym := Util.Systems.DLLs.Get_Symbol (Lib, "XML_ParserCreate");
          T.Assert (Sym /= System.Null_Address, "Get_Symbol returned null");
 
       exception

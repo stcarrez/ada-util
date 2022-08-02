@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  json -- JSON Reader
---  Copyright (C) 2010, 2011, 2014, 2017 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2014, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,6 @@ procedure Json is
 
    use Util.Streams.Buffered;
    use Ada.Strings.Unbounded;
-   use type Mapping.Person_Access;
    use type Ada.Containers.Count_Type;
    use Mapping;
 
@@ -40,8 +39,6 @@ procedure Json is
    package Person_Vector_Mapper is
      new Util.Serialize.Mappers.Vector_Mapper (Vectors        => Person_Vector,
                                                Element_Mapper => Person_Mapper);
-
-   subtype Person_Vector_Context is Person_Vector_Mapper.Vector_Data;
 
    --  Mapping for a list of Person records (stored as a Vector).
    Person_Vector_Mapping : aliased Person_Vector_Mapper.Mapper;
@@ -118,9 +115,10 @@ begin
             Output.Write ("{""list"":");
             Person_Vector_Mapping.Write (Output, List);
             Output.Write ("}");
+            Output.Flush;
 
             Ada.Text_IO.Put_Line ("IO:");
-            Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Print));
+            Ada.Text_IO.Put_Line (Util.Streams.Texts.To_String (Buffer));
          end;
       end;
    end loop;

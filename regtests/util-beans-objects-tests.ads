@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-tests -- Unit tests for objects
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,5 +35,11 @@ package Util.Beans.Objects.Tests is
 
    --  Test the Set_Value operation.
    procedure Test_Set_Value (T : in out Test);
+
+   --  Test the "&" operator.
+   procedure Test_And_Operator (T : in out Test);
+
+   --  Test the Blob bean.
+   procedure Test_Blob (T : in out Test);
 
 end Util.Beans.Objects.Tests;

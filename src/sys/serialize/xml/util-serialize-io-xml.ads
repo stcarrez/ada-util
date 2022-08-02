@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-xml -- XML Serialization Driver
---  Copyright (C) 2011, 2012, 2016, 2017, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2017, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,6 +34,7 @@ package Util.Serialize.IO.XML is
    type Parser is new Serialize.IO.Parser with private;
 
    --  Parse the stream using the JSON parser.
+   overriding
    procedure Parse (Handler : in out Parser;
                     Stream  : in out Util.Streams.Buffered.Input_Buffer_Stream'Class;
                     Sink    : in out Reader'Class);
@@ -48,10 +49,10 @@ package Util.Serialize.IO.XML is
                                      Value  : in Boolean);
 
    --  Get the current location (file and line) to report an error message.
+   overriding
    function Get_Location (Handler : in Parser) return String;
 
    type Xhtml_Reader is new Sax.Readers.Reader with private;
-
 
    --  ------------------------------
    --  XML Output Stream
@@ -97,10 +98,12 @@ package Util.Serialize.IO.XML is
                            Value  : in Util.Beans.Objects.Object);
 
    --  Start a new XML object.
+   overriding
    procedure Start_Entity (Stream : in out Output_Stream;
                            Name   : in String);
 
    --  Terminates the current XML object.
+   overriding
    procedure End_Entity (Stream : in out Output_Stream;
                          Name   : in String);
 
@@ -126,6 +129,7 @@ package Util.Serialize.IO.XML is
                               Value  : in Boolean);
 
    --  Write a XML name/value attribute.
+   overriding
    procedure Write_Attribute (Stream : in out Output_Stream;
                               Name   : in String;
                               Value  : in Util.Beans.Objects.Object);
@@ -191,6 +195,10 @@ package Util.Serialize.IO.XML is
    overriding
    procedure End_Array (Stream : in out Output_Stream;
                         Name   : in String);
+
+   --  Set the indentation level when writing XML entities.
+   procedure Set_Indentation (Stream : in out Output_Stream;
+                              Count  : in Natural);
 
    --  Return the location where the exception was raised.
    function Get_Location (Except : Sax.Exceptions.Sax_Parse_Exception'Class)
@@ -310,6 +318,9 @@ private
 
    type Output_Stream is limited new Util.Serialize.IO.Output_Stream with record
       Close_Start : Boolean := False;
+      Is_Closed   : Boolean := False;
+      Level       : Natural := 0;
+      Indent      : Natural := 0;
       Stream      : Util.Streams.Texts.Print_Stream_Access;
    end record;
 

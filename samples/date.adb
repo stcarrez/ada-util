@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  date -- Print the date
---  Copyright (C) 2011, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,6 @@ with Util.Dates.Formats;
 with Util.Properties.Bundles;
 procedure Date is
 
-   use type Ada.Calendar.Time;
    use Util.Log.Loggers;
    use Ada.Strings.Unbounded;
    use Util.Properties.Bundles;

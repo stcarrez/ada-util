@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-web -- HTTP Clients with AWS implementation
---  Copyright (C) 2011, 2012, 2017, 2019, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2019, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,6 +31,7 @@ private
    end record;
    type AWS_Http_Manager_Access is access all Http_Manager'Class;
 
+   overriding
    procedure Create (Manager  : in AWS_Http_Manager;
                      Http     : in out Client'Class);
 
@@ -171,7 +172,11 @@ private
                                            Value : in String));
 
    --  Get the response body as a string.
+   overriding
    function Get_Body (Reply : in AWS_Http_Response) return String;
+
+   overriding
+   function Get_Body (Reply : in AWS_Http_Response) return Util.Blobs.Blob_Ref;
 
    --  Get the response status code.
    overriding

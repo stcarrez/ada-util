@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-events-timers -- Timer list management
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -83,7 +83,7 @@ package body Util.Events.Timers is
       Timer.Handler := Handler;
 
       --  Cancel the timer if it is part of another timer manager.
-      if Timer.List /= null and Timer.List /= List.Manager'Unchecked_Access then
+      if Timer.List /= null and then Timer.List /= List.Manager'Unchecked_Access then
          Timer.List.Cancel (Timer);
       end if;
 
@@ -132,7 +132,7 @@ package body Util.Events.Timers is
    --  -----------------------
    --  Procedure called when a timer handler raises an exception.
    --  The default operation reports an error in the logs.  This procedure can be
-   --  overriden to implement specific error handling.
+   --  overridden to implement specific error handling.
    --  -----------------------
    procedure Error (List : in out Timer_List;
                     Handler : in Timer_Access;

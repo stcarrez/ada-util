@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  events.tests -- Unit tests for event channels
---  Copyright (C) 2009, 2010, 2011 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +30,7 @@ package body Util.Events.Channels.Tests is
                        Test_Post_Event'Access);
    end Add_Tests;
 
+   overriding
    procedure Receive_Event (Sub  : in out Test;
                             Item : in Event'Class) is
       pragma Unreferenced (Item);

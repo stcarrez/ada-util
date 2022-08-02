@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-curl -- HTTP Clients with CURL
---  Copyright (C) 2012, 2017, 2018, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2012, 2017, 2018, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,6 @@
 with System;
 with Interfaces.C;
 with Interfaces.C.Strings;
-with Ada.Strings.Unbounded;
 with Util.Http.Mockups;
 package Util.Http.Clients.Curl is
 
@@ -66,6 +65,7 @@ private
    type Curl_Http_Manager_Access is access all Http_Manager'Class;
 
    --  Create a new HTTP request associated with the current request manager.
+   overriding
    procedure Create (Manager  : in Curl_Http_Manager;
                      Http     : in out Client'Class);
 
@@ -136,26 +136,16 @@ private
 
    type Curl_Http_Response is new Util.Http.Mockups.Mockup_Response with record
       C : CURL;
-      Content : Ada.Strings.Unbounded.Unbounded_String;
-      Status  : Natural;
       Parsing_Body : Boolean := False;
    end record;
    type Curl_Http_Response_Access is access all Curl_Http_Response'Class;
-
-   --  Get the response body as a string.
-   overriding
-   function Get_Body (Reply : in Curl_Http_Response) return String;
-
-   --  Get the response status code.
-   overriding
-   function Get_Status (Reply : in Curl_Http_Response) return Natural;
 
    --  Add a string to a CURL slist.
    function Curl_Slist_Append (List  : in CURL_Slist_Access;
                                Value : in Chars_Ptr) return CURL_Slist_Access;
    pragma Import (C, Curl_Slist_Append, "curl_slist_append");
 
-   --  Free an entrire CURL slist.
+   --  Free an entire CURL slist.
    procedure Curl_Slist_Free_All (List : in CURL_Slist_Access);
    pragma Import (C, Curl_Slist_Free_All, "curl_slist_free_all");
 
@@ -206,7 +196,7 @@ private
    pragma Import (C, Curl_Easy_Getinfo_Long, "curl_easy_getinfo");
 
    type Write_Callback_Access is access
-     function (Data  : in Chars_Ptr;
+     function (Data  : in System.Address;
                Size  : in Size_T;
                Nmemb : in Size_T;
                Ptr   : in Curl_Http_Response_Access) return Size_T;
@@ -226,7 +216,7 @@ private
    pragma Warnings (Off, Curl_Easy_Setopt_Data);
    pragma Import (C, Curl_Easy_Setopt_Data, "curl_easy_setopt");
 
-   function Read_Response (Data     : in Chars_Ptr;
+   function Read_Response (Data     : in System.Address;
                            Size     : in Size_T;
                            Nmemb    : in Size_T;
                            Response : in Curl_Http_Response_Access) return Size_T;

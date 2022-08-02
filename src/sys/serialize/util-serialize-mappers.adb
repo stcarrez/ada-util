@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-mappers -- Serialize objects in various formats
---  Copyright (C) 2010, 2011, 2012, 2014, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2014, 2017, 2018, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -75,11 +75,11 @@ package body Util.Serialize.Mappers is
       Recurse : Boolean := True;
       Result  : Mapper_Access := null;
    begin
-      if Node = null and Controller.Mapper /= null then
+      if Node = null and then Controller.Mapper /= null then
          return Controller.Mapper.Find_Mapper (Name, Attribute);
       end if;
       while Node /= null loop
-         if not Attribute and Node.Is_Wildcard then
+         if not Attribute and then Node.Is_Wildcard then
             Result := Node.Find_Mapper (Name, Attribute);
             if Result /= null then
                return Result;
@@ -88,16 +88,18 @@ package body Util.Serialize.Mappers is
             end if;
          end if;
          if Node.Name = Name then
-            if (not Attribute and Node.Mapping = null)
+            if (not Attribute and then Node.Mapping = null)
               or else not Node.Mapping.Is_Attribute
             then
                return Node;
             end if;
-            if Attribute and Node.Mapping.Is_Attribute then
+            if Attribute and then Node.Mapping.Is_Attribute then
                return Node;
             end if;
          end if;
-         if Node.Is_Deep_Wildcard and not Attribute and Node.Mapper /= null and Recurse then
+         if Node.Is_Deep_Wildcard and then not Attribute
+           and then Node.Mapper /= null and then Recurse
+         then
             Node := Node.Mapper.First_Child;
             Result := Node.Mapper;
             Recurse := False;
@@ -124,7 +126,7 @@ package body Util.Serialize.Mappers is
       Wildcard      : constant Boolean := Name = "*";
       Deep_Wildcard : constant Boolean := Name = "**";
    begin
-      if Root = null and Deep_Wildcard then
+      if Root = null and then Deep_Wildcard then
          Root := Node;
       end if;
       if Node = null then
@@ -171,7 +173,7 @@ package body Util.Serialize.Mappers is
             Previous := Previous.Next_Mapping;
          end loop;
 
-         if not Previous.Is_Wildcard and not Previous.Is_Deep_Wildcard then
+         if not Previous.Is_Wildcard and then not Previous.Is_Deep_Wildcard then
             Node := new Mapper;
             Node.Name             := To_Unbounded_String ("**");
             Node.Is_Deep_Wildcard := True;
@@ -288,6 +290,7 @@ package body Util.Serialize.Mappers is
          N   : Mapper_Access;
          Src : Mapper_Access := From;
       begin
+         --  Add_Mapper (From, null);
          while Src /= null loop
             N := Src.Clone;
             N.Is_Clone := True;
@@ -428,8 +431,10 @@ package body Util.Serialize.Mappers is
          Name : constant String := Ada.Strings.Unbounded.To_String (Map.Name);
       begin
          if Map.Mapping /= null and then Map.Mapping.Is_Attribute then
-            Log.Info (" {0}@{1}", Prefix,
-                      Ada.Strings.Unbounded.To_String (Map.Mapping.Name));
+            Log.Info (" {0}@{1}", Prefix, Name);
+         elsif Map.Is_Deep_Wildcard and then Map.Next_Mapping = null then
+            Log.Info (" {0}/{1} [proxy]", Prefix, Name);
+            Dump (Map, Log, Prefix & "/" & Name);
          else
             Log.Info (" {0}/{1}", Prefix, Name);
             Dump (Map, Log, Prefix & "/" & Name);
@@ -488,6 +493,7 @@ package body Util.Serialize.Mappers is
    --  ------------------------------
    --  Start a document.
    --  ------------------------------
+   overriding
    procedure Start_Document (Stream : in out Processing) is
       Context        : Element_Context_Access;
    begin
@@ -526,6 +532,7 @@ package body Util.Serialize.Mappers is
    --  <b>Set_Member</b> procedure will associate the name/value pair on the
    --  new object.
    --  ------------------------------
+   overriding
    procedure Start_Object (Handler : in out Processing;
                            Name    : in String;
                            Logger  : in out Util.Log.Logging'Class) is
@@ -574,6 +581,7 @@ package body Util.Serialize.Mappers is
    --  Finish an object associated with the given name.  The reader must be
    --  updated to be associated with the previous object.
    --  ------------------------------
+   overriding
    procedure Finish_Object (Handler : in out Processing;
                             Name    : in String;
                             Logger  : in out Util.Log.Logging'Class) is
@@ -599,6 +607,7 @@ package body Util.Serialize.Mappers is
       Handler.Pop;
    end Finish_Object;
 
+   overriding
    procedure Start_Array (Handler : in out Processing;
                           Name    : in String;
                           Logger  : in out Util.Log.Logging'Class) is
@@ -607,6 +616,7 @@ package body Util.Serialize.Mappers is
       Handler.Push;
    end Start_Array;
 
+   overriding
    procedure Finish_Array (Handler : in out Processing;
                            Name    : in String;
                            Count   : in Natural;
@@ -620,6 +630,7 @@ package body Util.Serialize.Mappers is
    --  Set the name/value pair on the current object.  For each active mapping,
    --  find whether a rule matches our name and execute it.
    --  -----------------------
+   overriding
    procedure Set_Member (Handler   : in out Processing;
                          Name      : in String;
                          Value     : in Util.Beans.Objects.Object;

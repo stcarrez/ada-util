@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  xmi -- XMI parser example
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,6 @@
 with Ada.Text_IO;
 with Ada.Command_Line;
 
-with Util.Log.Loggers;
 with Util.Beans;
 with Util.Beans.Objects;
 with Util.Serialize.Mappers.Record_Mapper;
@@ -70,6 +69,8 @@ procedure XMI is
    procedure Set_Member (P     : in out XMI_Info;
                          Field : in XMI_Fields;
                          Value : in Util.Beans.Objects.Object);
+   procedure Print (Col  : in Ada.Text_IO.Count;
+                    Line : in String);
 
    procedure Print (Col  : in Ada.Text_IO.Count;
                     Line : in String) is

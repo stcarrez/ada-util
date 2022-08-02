@@ -16,7 +16,16 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
---  Write log events to the console.
+--  === Console appender ===
+--  The `Console` appender recognises the following configurations:
+--
+--  | Name           | Description                                                          |
+--  | -------------- | --------------------------------------------------------------       |
+--  | layout         | Defines the format of the message printed by the appender.           |
+--  | level          | Defines the minimum level above which messages are printed.          |
+--  | stderr         | When 'true' or '1', use the console standard error,                  |
+--  |                | by default the appender uses the standard output                     |
+--
 package Util.Log.Appenders.Consoles is
 
    type Console_Appender (Length : Positive) is new Appender with private;

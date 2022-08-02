@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- Windows specific and low level operations
---  Copyright (C) 2011, 2012, 2016, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2019, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
 with Util.Streams.Raw;
 
 with Util.Systems.Os;
+with Util.Strings.Vectors;
 with Interfaces.C;
 private package Util.Processes.Os is
 
@@ -35,9 +36,11 @@ private package Util.Processes.Os is
       Out_File     : Wchar_Ptr := null;
       Err_File     : Wchar_Ptr := null;
       Dir          : Wchar_Ptr := null;
+      Env          : Wchar_Ptr := null;
       To_Close     : File_Type_Array_Access;
       Out_Append   : Boolean := False;
       Err_Append   : Boolean := False;
+      Environment  : Util.Strings.Vectors.Vector;
    end record;
 
    --  Wait for the process to exit.
@@ -64,6 +67,16 @@ private package Util.Processes.Os is
    overriding
    procedure Append_Argument (Sys : in out System_Process;
                               Arg : in String);
+
+   --  Clear the program arguments.
+   overriding
+   procedure Clear_Arguments (Sys : in out System_Process);
+
+   --  Set the environment variable to be used by the process before its creation.
+   overriding
+   procedure Set_Environment (Sys   : in out System_Process;
+                              Name  : in String;
+                              Value : in String);
 
    --  Set the process input, output and error streams to redirect and use specified files.
    overriding

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-mockups -- HTTP Clients mockups
---  Copyright (C) 2011, 2012, 2017, 2020 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Util.Http.Clients;
 with Ada.Strings.Unbounded;
 package Util.Http.Clients.Mockups is
 
@@ -34,6 +33,7 @@ private
    end record;
    type File_Http_Manager_Access is access all File_Http_Manager'Class;
 
+   overriding
    procedure Create (Manager  : in File_Http_Manager;
                      Http     : in out Client'Class);
 

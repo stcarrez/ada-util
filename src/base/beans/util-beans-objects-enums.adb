@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Beans.Objects.Enums -- Helper conversion for discrete types
---  Copyright (C) 2010, 2016, 2017 Stephane Carrez
+--  util-beans-objects-enums -- Helper conversion for discrete types
+--  Copyright (C) 2010, 2016, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +34,6 @@ package body Util.Beans.Objects.Enums is
    overriding
    function To_String (Type_Def : in Enum_Type;
                        Value    : in Object_Value) return String;
-
 
    --  ------------------------------
    --  Get the type name
@@ -112,11 +111,17 @@ package body Util.Beans.Objects.Enums is
          when TYPE_TIME =>
             raise Constraint_Error with "Cannot convert a date into a discrete type";
 
+         when TYPE_RECORD =>
+            raise Constraint_Error with "Cannot convert a record into a discrete type";
+
          when TYPE_BEAN =>
             raise Constraint_Error with "Cannot convert a bean into a discrete type";
 
          when TYPE_ARRAY =>
             raise Constraint_Error with "Cannot convert an array into a discrete type";
+
+         when TYPE_BLOB =>
+            raise Constraint_Error with "Cannot convert a blob into a discrete type";
 
       end case;
    end To_Value;

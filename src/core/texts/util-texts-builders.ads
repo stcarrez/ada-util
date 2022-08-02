@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-texts-builders -- Text builder
---  Copyright (C) 2013, 2017, 2021 Stephane Carrez
+--  Copyright (C) 2013, 2017, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,21 +17,20 @@
 -----------------------------------------------------------------------
 private with Ada.Finalization;
 
---  == Description ==
---  The <tt>Util.Texts.Builders</tt> generic package was designed to provide string builders.
+--  == Text Builders ==
+--  The `Util.Texts.Builders` generic package was designed to provide string builders.
 --  The interface was designed to reduce memory copies as much as possible.
 --
---    * The <tt>Builder</tt> type holds a list of chunks into which texts are appended.
+--    * The `Builder` type holds a list of chunks into which texts are appended.
 --    * The builder type holds an initial chunk whose capacity is defined when the builder
 --      instance is declared.
---    * There is only an <tt>Append</tt> procedure which allows to append text to the builder.
+--    * There is only an `Append` procedure which allows to append text to the builder.
 --      This is the only time when a copy is made.
---    * The package defines the <tt>Iterate</tt> operation that allows to get the content
---      collected by the builder.  When using the <tt>Iterate</tt> operation, no copy is
+--    * The package defines the `Iterate` operation that allows to get the content
+--      collected by the builder.  When using the `Iterate` operation, no copy is
 --      performed since chunks data are passed passed by reference.
 --    * The type is limited to forbid copies of the builder instance.
 --
---  == Example ==
 --  First, instantiate the package for the element type (eg, String):
 --
 --    package String_Builder is new Util.Texts.Builders (Character, String);
@@ -44,12 +43,12 @@ private with Ada.Finalization;
 --
 --    String_Builder.Append (Builder, "Hello");
 --
---  To get the content collected in the builder instance, write a procedure that recieves
+--  To get the content collected in the builder instance, write a procedure that receives
 --  the chunk data as parameter:
 --
 --    procedure Collect (Item : in String) is ...
 --
---  And use the <tt>Iterate</tt> operation:
+--  And use the `Iterate` operation:
 --
 --    String_Builder.Iterate (Builder, Collect'Access);
 --
@@ -84,6 +83,17 @@ package Util.Texts.Builders is
    procedure Append (Source   : in out Builder;
                      New_Item : in Element_Type);
 
+   --  Append in `Into` builder the `Content` builder starting at `From` position
+   --  and the up to and including the `To` position.
+   procedure Append (Into     : in out Builder;
+                     Content  : in Builder;
+                     From     : in Positive;
+                     To       : in Positive);
+
+   generic
+      with procedure Process (Content : in out Input; Last : out Natural);
+   procedure Inline_Append (Source  : in out Builder);
+
    --  Clear the source freeing any storage allocated for the buffer.
    procedure Clear (Source : in out Builder);
 
@@ -92,12 +102,33 @@ package Util.Texts.Builders is
    procedure Iterate (Source  : in Builder;
                       Process : not null access procedure (Chunk : in Input));
 
+   generic
+      with procedure Process (Content : in Input);
+   procedure Inline_Iterate (Source  : in Builder);
+
+   generic
+      with procedure Process (Content : in out Input);
+   procedure Inline_Update (Source : in out Builder);
+
    --  Get the buffer content as an array.
    function To_Array (Source : in Builder) return Input;
 
    --  Return the content starting from the tail and up to <tt>Length</tt> items.
    function Tail (Source : in Builder;
                   Length : in Natural) return Input;
+
+   --  Get the element at the given position.
+   function Element (Source   : in Builder;
+                     Position : in Positive) return Element_Type;
+
+   --  Find the position of some content by running the `Index` function.
+   --  The `Index` function is called with chunks starting at the given position and
+   --  until it returns a positive value or we reach the last chunk.  It must return
+   --  the found position in the chunk.
+   generic
+      with function Index (Content : in Input) return Natural;
+   function Find (Source   : in Builder;
+                  Position : in Positive) return Natural;
 
    --  Call the <tt>Process</tt> procedure with the full buffer content, trying to avoid
    --  secondary stack copies as much as possible.

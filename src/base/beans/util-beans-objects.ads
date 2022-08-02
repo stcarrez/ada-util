@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects -- Generic Typed Data Representation
---  Copyright (C) 2009, 2010, 2011, 2013, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013, 2017, 2018, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,16 +28,65 @@
 --    * a date,
 --    * a string,
 --    * a wide wide string,
---    * a generic data
+--    * an array of objects,
+--    * a generic data bean,
+--    * a map of objects,
+--    * a vector of object
 --
 --  Several operations are provided to convert a value into an `Object`.
 --
---    Value : Util.Beans.Objects.Object := Util.Beans.Objects.To_Object ("something");
---    Value := Value + To_Object ("12");
+--    with Util.Beans.Objects;
+--
+--      Value : Util.Beans.Objects.Object
+--         := Util.Beans.Objects.To_Object (String '("something"));
+--      Value := Value + To_Object (String '("12"));
+--      Value := Value - To_Object (Integer (3));
+--
+--  The package provides various operations to check, convert and use the `Object`
+--  type.
+--
+--  | Name      | Description                              |
+--  | --------- | ---------------------------------------- |
+--  | Is_Empty  | Returns true if the object is the empty string or empty list |
+--  | Is_Null   | Returns true if the object does not contain any value |
+--  | Is_Array  | Returns true if the object is an array |
+--  | Get_Type  | Get the type of the object |
+--  | To_String | Converts the object to a string |
+--  | To_Wide_Wide_String | Convert to a wide wide string |
+--  | To_Unbounded_String | Convert to an unbounded string |
+--  | To_Boolean | Convert to a boolean |
+--  | To_Integer | Convert to an integer |
+--  | To_Long_Integer | Convert to a long integer |
+--  | To_Long_Long_Integer | Convert to a long long integer |
+--  | To_Float   | Convert to a float |
+--  | To_Long_Float | Convert to a long float |
+--  | To_Long_Long_Float | Convert to a long long float |
+--  | To_Duration  | Convert to a duration |
+--  | To_Bean | Convert to an access to the Read_Only_Bean'Class |
+--
+--  Conversion to a time or enumeration is provided by specific packages.
+--
+--  The support for enumeration is made by the generic package
+--  `Util.Beans.Objects.Enums` which must be instantiated with the enumeration
+--  type.  Example of instantiation:
+--
+--     with Util.Beans.Objects.Enum;
+--     ...
+--        type Color_Type is (GREEN, BLUE, RED, BROWN);
+--        package Color_Enum is
+--           new Util.Beans.Objects.Enum (Color_Type);
+--
+--  Then, two functions are available to convert the enum value into an `Object`
+--  or convert back the `Object` in the enum value:
+--
+--     Color : Object := Color_Enum.To_Object (BLUE);
+--     C : Color_Type := Color_Enum.To_Value (Color);
 --
 with Ada.Strings.Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Finalization;
+with Util.Blobs;
+private with Ada.Unchecked_Deallocation;
 private with Util.Concurrent.Counters;
 limited with Util.Beans.Basic;
 package Util.Beans.Objects is
@@ -59,12 +108,16 @@ package Util.Beans.Objects is
                       TYPE_FLOAT,
                       --  The object holds a date and time.
                       TYPE_TIME,
+                      --  The object holds some record object.
+                      TYPE_RECORD,
                       --  The object holds a string.
                       TYPE_STRING,
                       --  The object holds a wide wide string.
                       TYPE_WIDE_STRING,
                       --  The object holds an array of objects.
                       TYPE_ARRAY,
+                      --  The object holds an binary blob.
+                      TYPE_BLOB,
                       --  The object holds a generic bean.
                       TYPE_BEAN);
 
@@ -191,6 +244,7 @@ package Util.Beans.Objects is
    function To_Long_Float (Value : in Object) return Long_Float;
    function To_Long_Long_Float (Value : in Object) return Long_Long_Float;
    function To_Duration (Value : in Object) return Duration;
+   function To_Blob (Value : in Object) return Util.Blobs.Blob_Ref;
 
    function To_Bean (Value : in Object) return access Util.Beans.Basic.Readonly_Bean'Class;
 
@@ -221,11 +275,12 @@ package Util.Beans.Objects is
    function To_Object (Value : in Boolean) return Object;
    function To_Object (Value : in Duration) return Object;
    function To_Object (Value : in Object_Array) return Object;
+   function To_Object (Value : in Util.Blobs.Blob_Ref) return Object;
 
    --  Create an object that refers to the bean object.  With the storage type
    --  <b>DYNAMIC</b>, the default, the bean object will be freed when there is
    --  no <b>Object</b> that refers to that bean.  With <b>STATIC</b>, the bean
-   --  is a static bean and it will not be freed automaticaly.
+   --  is a static bean and it will not be freed automatically.
    function To_Object (Value   : access Util.Beans.Basic.Readonly_Bean'Class;
                        Storage : in Storage_Type := DYNAMIC) return Object;
 
@@ -234,6 +289,7 @@ package Util.Beans.Objects is
    function "<=" (Left, Right : Object) return Boolean;
    function ">" (Left, Right : Object) return Boolean;
    function ">=" (Left, Right : Object) return Boolean;
+   overriding
    function "=" (Left, Right : Object) return Boolean;
 
    --  Arithmetic operations on objects
@@ -254,26 +310,32 @@ private
    type Basic_Type is abstract limited new Object_Type with null record;
 
    --  Convert the value into a wide string.
+   overriding
    function To_Wide_Wide_String (Type_Def : in Basic_Type;
                                  Value    : in Object_Value) return Wide_Wide_String;
 
    --  Convert the value into an integer.
+   overriding
    function To_Long_Long (Type_Def : in Basic_Type;
                           Value    : in Object_Value) return Long_Long_Integer;
 
    --  Convert the value into a float.
+   overriding
    function To_Long_Float (Type_Def : in Basic_Type;
                            Value    : in Object_Value) return Long_Long_Float;
 
    --  Convert the value into a boolean.
+   overriding
    function To_Boolean (Type_Def : in Basic_Type;
                         Value    : in Object_Value) return Boolean;
 
    --  Convert the value into a duration.
+   overriding
    function To_Duration (Type_Def : in Basic_Type;
                          Value    : in Object_Value) return Duration;
 
    --  Returns False
+   overriding
    function Is_Empty (Type_Def : in Basic_Type;
                       Value    : in Object_Value) return Boolean;
 
@@ -283,16 +345,20 @@ private
    type Null_Type is new Basic_Type with null record;
 
    --  Get the type name
+   overriding
    function Get_Name (Type_Def : Null_Type) return String;
 
    --  Get the base data type.
+   overriding
    function Get_Data_Type (Type_Def : Null_Type) return Data_Type;
 
    --  Convert the value into a string.
+   overriding
    function To_String (Type_Def : in Null_Type;
                        Value    : in Object_Value) return String;
 
    --  Returns True
+   overriding
    function Is_Empty (Type_Def : in Null_Type;
                       Value    : in Object_Value) return Boolean;
 
@@ -302,27 +368,34 @@ private
    type Int_Type is new Basic_Type with null record;
 
    --  Get the type name
+   overriding
    function Get_Name (Type_Def : Int_Type) return String;
 
    --  Get the base data type.
+   overriding
    function Get_Data_Type (Type_Def : Int_Type) return Data_Type;
 
+   overriding
    function To_String (Type_Def : in Int_Type;
                        Value    : in Object_Value) return String;
 
    --  Convert the value into an integer.
+   overriding
    function To_Long_Long (Type_Def : in Int_Type;
                           Value    : in Object_Value) return Long_Long_Integer;
 
    --  Convert the value into a float.
+   overriding
    function To_Long_Float (Type_Def : in Int_Type;
                            Value    : in Object_Value) return Long_Long_Float;
 
    --  Convert the value into a boolean.
+   overriding
    function To_Boolean (Type_Def : in Int_Type;
                         Value    : in Object_Value) return Boolean;
 
    --  Convert the value into a duration.
+   overriding
    function To_Duration (Type_Def : in Int_Type;
                          Value    : in Object_Value) return Duration;
 
@@ -332,28 +405,35 @@ private
    type Float_Type is new Basic_Type with null record;
 
    --  Get the type name
+   overriding
    function Get_Name (Type_Def : in Float_Type) return String;
 
    --  Get the base data type.
+   overriding
    function Get_Data_Type (Type_Def : in Float_Type) return Data_Type;
 
    --  Convert the value into a string.
+   overriding
    function To_String (Type_Def : in Float_Type;
                        Value    : in Object_Value) return String;
 
    --  Convert the value into an integer.
+   overriding
    function To_Long_Long (Type_Def : in Float_Type;
                           Value    : in Object_Value) return Long_Long_Integer;
 
    --  Convert the value into a float.
+   overriding
    function To_Long_Float (Type_Def : in Float_Type;
                            Value    : in Object_Value) return Long_Long_Float;
 
    --  Convert the value into a boolean.
+   overriding
    function To_Boolean (Type_Def : in Float_Type;
                         Value    : in Object_Value) return Boolean;
 
    --  Convert the value into a duration.
+   overriding
    function To_Duration (Type_Def : in Float_Type;
                          Value    : in Object_Value) return Duration;
 
@@ -363,32 +443,40 @@ private
    type String_Type is new Basic_Type with null record;
 
    --  Get the type name
+   overriding
    function Get_Name (Type_Def : in String_Type) return String;
 
    --  Get the base data type.
+   overriding
    function Get_Data_Type (Type_Def : in String_Type) return Data_Type;
 
    --  Convert the value into a string.
+   overriding
    function To_String (Type_Def : in String_Type;
                        Value    : in Object_Value) return String;
 
    --  Convert the value into an integer.
+   overriding
    function To_Long_Long (Type_Def : in String_Type;
                           Value    : in Object_Value) return Long_Long_Integer;
 
    --  Convert the value into a float.
+   overriding
    function To_Long_Float (Type_Def : in String_Type;
                            Value    : in Object_Value) return Long_Long_Float;
 
    --  Convert the value into a boolean.
+   overriding
    function To_Boolean (Type_Def : in String_Type;
                         Value    : in Object_Value) return Boolean;
 
    --  Convert the value into a duration.
+   overriding
    function To_Duration (Type_Def : in String_Type;
                          Value    : in Object_Value) return Duration;
 
    --  Returns True if the value is empty.
+   overriding
    function Is_Empty (Type_Def : in String_Type;
                       Value    : in Object_Value) return Boolean;
 
@@ -398,36 +486,45 @@ private
    type Wide_String_Type is new Basic_Type with null record;
 
    --  Get the type name
+   overriding
    function Get_Name (Type_Def : in Wide_String_Type) return String;
 
    --  Get the base data type.
+   overriding
    function Get_Data_Type (Type_Def : in Wide_String_Type) return Data_Type;
 
    --  Convert the value into a string.
+   overriding
    function To_String (Type_Def : in Wide_String_Type;
                        Value    : in Object_Value) return String;
 
    --  Convert the value into a wide string.
+   overriding
    function To_Wide_Wide_String (Type_Def : in Wide_String_Type;
                                  Value    : in Object_Value) return Wide_Wide_String;
 
    --  Convert the value into an integer.
+   overriding
    function To_Long_Long (Type_Def : in Wide_String_Type;
                           Value    : in Object_Value) return Long_Long_Integer;
 
    --  Convert the value into a float.
+   overriding
    function To_Long_Float (Type_Def : in Wide_String_Type;
                            Value    : in Object_Value) return Long_Long_Float;
 
    --  Convert the value into a boolean.
+   overriding
    function To_Boolean (Type_Def : in Wide_String_Type;
                         Value    : in Object_Value) return Boolean;
 
    --  Convert the value into a duration.
+   overriding
    function To_Duration (Type_Def : in Wide_String_Type;
                          Value    : in Object_Value) return Duration;
 
    --  Returns True if the value is empty.
+   overriding
    function Is_Empty (Type_Def : in Wide_String_Type;
                       Value    : in Object_Value) return Boolean;
 
@@ -437,24 +534,30 @@ private
    type Boolean_Type is new Basic_Type with null record;
 
    --  Get the type name
+   overriding
    function Get_Name (Type_Def : in Boolean_Type) return String;
 
    --  Get the base data type.
+   overriding
    function Get_Data_Type (Type_Def : in Boolean_Type) return Data_Type;
 
    --  Convert the value into a string.
+   overriding
    function To_String (Type_Def : in Boolean_Type;
                        Value    : in Object_Value) return String;
 
    --  Convert the value into an integer.
+   overriding
    function To_Long_Long (Type_Def : in Boolean_Type;
                           Value    : in Object_Value) return Long_Long_Integer;
 
    --  Convert the value into a float.
+   overriding
    function To_Long_Float (Type_Def : in Boolean_Type;
                            Value    : in Object_Value) return Long_Long_Float;
 
    --  Convert the value into a boolean.
+   overriding
    function To_Boolean (Type_Def : in Boolean_Type;
                         Value    : in Object_Value) return Boolean;
 
@@ -464,28 +567,35 @@ private
    type Duration_Type_Def is new Basic_Type with null record;
 
    --  Get the type name
+   overriding
    function Get_Name (Type_Def : in Duration_Type_Def) return String;
 
    --  Get the base data type.
+   overriding
    function Get_Data_Type (Type_Def : in Duration_Type_Def) return Data_Type;
 
    --  Convert the value into a string.
+   overriding
    function To_String (Type_Def : in Duration_Type_Def;
                        Value    : in Object_Value) return String;
 
    --  Convert the value into an integer.
+   overriding
    function To_Long_Long (Type_Def : in Duration_Type_Def;
                           Value    : in Object_Value) return Long_Long_Integer;
 
    --  Convert the value into a float.
+   overriding
    function To_Long_Float (Type_Def : in Duration_Type_Def;
                            Value    : in Object_Value) return Long_Long_Float;
 
    --  Convert the value into a boolean.
+   overriding
    function To_Boolean (Type_Def : in Duration_Type_Def;
                         Value    : in Object_Value) return Boolean;
 
    --  Convert the value into a duration.
+   overriding
    function To_Duration (Type_Def : in Duration_Type_Def;
                          Value    : in Object_Value) return Duration;
 
@@ -495,28 +605,35 @@ private
    type Bean_Type is new Basic_Type with null record;
 
    --  Get the type name
+   overriding
    function Get_Name (Type_Def : in Bean_Type) return String;
 
    --  Get the base data type.
+   overriding
    function Get_Data_Type (Type_Def : in Bean_Type) return Data_Type;
 
    --  Convert the value into a string.
+   overriding
    function To_String (Type_Def : in Bean_Type;
                        Value    : in Object_Value) return String;
 
    --  Convert the value into an integer.
+   overriding
    function To_Long_Long (Type_Def : in Bean_Type;
                           Value    : in Object_Value) return Long_Long_Integer;
 
    --  Convert the value into a float.
+   overriding
    function To_Long_Float (Type_Def : in Bean_Type;
                            Value    : in Object_Value) return Long_Long_Float;
 
    --  Convert the value into a boolean.
+   overriding
    function To_Boolean (Type_Def : in Bean_Type;
                         Value    : in Object_Value) return Boolean;
 
    --  Returns True if the value is empty.
+   overriding
    function Is_Empty (Type_Def : in Bean_Type;
                       Value    : in Object_Value) return Boolean;
 
@@ -526,32 +643,77 @@ private
    type Array_Type is new Basic_Type with null record;
 
    --  Get the type name
+   overriding
    function Get_Name (Type_Def : in Array_Type) return String;
 
    --  Get the base data type.
+   overriding
    function Get_Data_Type (Type_Def : in Array_Type) return Data_Type;
 
    --  Convert the value into a string.
+   overriding
    function To_String (Type_Def : in Array_Type;
                        Value    : in Object_Value) return String;
 
    --  Convert the value into an integer.
+   overriding
    function To_Long_Long (Type_Def : in Array_Type;
                           Value    : in Object_Value) return Long_Long_Integer;
 
    --  Convert the value into a float.
+   overriding
    function To_Long_Float (Type_Def : in Array_Type;
                            Value    : in Object_Value) return Long_Long_Float;
 
    --  Convert the value into a boolean.
+   overriding
    function To_Boolean (Type_Def : in Array_Type;
                         Value    : in Object_Value) return Boolean;
 
    --  Returns True if the value is empty.
+   overriding
    function Is_Empty (Type_Def : in Array_Type;
                       Value    : in Object_Value) return Boolean;
 
    function Get_Array_Bean (Value : in Object) return access Util.Beans.Basic.Array_Bean'Class;
+
+   --  ------------------------------
+   --  Blob Type
+   --  ------------------------------
+   type Blob_Type is new Basic_Type with null record;
+
+   --  Get the type name
+   overriding
+   function Get_Name (Type_Def : in Blob_Type) return String;
+
+   --  Get the base data type.
+   overriding
+   function Get_Data_Type (Type_Def : in Blob_Type) return Data_Type;
+
+   --  Convert the value into a string.
+   overriding
+   function To_String (Type_Def : in Blob_Type;
+                       Value    : in Object_Value) return String;
+
+   --  Convert the value into an integer.
+   overriding
+   function To_Long_Long (Type_Def : in Blob_Type;
+                          Value    : in Object_Value) return Long_Long_Integer;
+
+   --  Convert the value into a float.
+   overriding
+   function To_Long_Float (Type_Def : in Blob_Type;
+                           Value    : in Object_Value) return Long_Long_Float;
+
+   --  Convert the value into a boolean.
+   overriding
+   function To_Boolean (Type_Def : in Blob_Type;
+                        Value    : in Object_Value) return Boolean;
+
+   --  Returns True if the value is empty.
+   overriding
+   function Is_Empty (Type_Def : in Blob_Type;
+                      Value    : in Object_Value) return Boolean;
 
    subtype Proxy_Data_Type is Data_Type range TYPE_STRING .. TYPE_BEAN;
 
@@ -562,7 +724,7 @@ private
    --  Release the object pointed to by the proxy (if necessary).
    procedure Release (P : in out Proxy) is null;
 
-   type Bean_Proxy_Access is access all Proxy'Class;
+   type Proxy_Access is access all Proxy'Class;
 
    type String_Proxy (Len : Natural) is new Proxy with record
       Value : String (1 .. Len);
@@ -578,12 +740,18 @@ private
       Bean    : access Util.Beans.Basic.Readonly_Bean'Class;
       Storage : Storage_Type;
    end record;
+   type Bean_Proxy_Access is access all Bean_Proxy'Class;
 
    type Array_Proxy (Len : Natural) is new Proxy with record
       Count  : Natural := 0;
       Values : Object_Array (1 .. Len);
    end record;
    type Array_Proxy_Access is access all Array_Proxy;
+
+   type Blob_Proxy is new Proxy with record
+      Blob : Util.Blobs.Blob_Ref;
+   end record;
+   type Blob_Proxy_Access is access all Blob_Proxy;
 
    --  Release the object pointed to by the proxy (if necessary).
    overriding
@@ -616,6 +784,12 @@ private
          when TYPE_ARRAY =>
             Array_Proxy : Array_Proxy_Access;
 
+         when TYPE_BLOB =>
+            Blob_Proxy : Blob_Proxy_Access;
+
+         when TYPE_RECORD =>
+            Record_Proxy : Proxy_Access;
+
          when TYPE_BEAN =>
             Proxy : Bean_Proxy_Access;
 
@@ -636,6 +810,31 @@ private
 
    overriding
    procedure Finalize (Obj : in out Object);
+
+   type Proxy_Iterator is abstract new Limited_Controlled with record
+      Ref_Counter : Util.Concurrent.Counters.Counter;
+      Proxy       : Proxy_Access;
+   end record;
+   type Proxy_Iterator_Access is access all Proxy_Iterator'Class;
+
+   overriding
+   procedure Finalize (Proxy : in out Proxy_Iterator);
+
+   function Is_Empty (Iter : in Proxy_Iterator) return Boolean is abstract;
+
+   procedure Next (Iter : in out Proxy_Iterator) is abstract;
+
+   procedure Previous (Iter : in out Proxy_Iterator) is abstract;
+
+   function Element (Iter : in Proxy_Iterator) return Object'Class is abstract;
+
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Object => Bean_Proxy'Class,
+                                     Name   => Bean_Proxy_Access);
+
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Object => Proxy'Class,
+                                     Name   => Proxy_Access);
 
    Null_Object : constant Object := Object '(Controlled with
                                              V        => Object_Value '(Of_Type => TYPE_NULL),

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects-time  -- Helper conversion for Ada Calendar Time
---  Copyright (C) 2010, 2013, 2016, 2019 Stephane Carrez
+--  Copyright (C) 2010, 2013, 2016, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,9 +36,11 @@ package body Util.Beans.Objects.Time is
    type Time_Type_Def is new Duration_Type_Def with null record;
 
    --  Get the type name
+   overriding
    function Get_Name (Type_Def : Time_Type_Def) return String;
 
    --  Convert the value into a string.
+   overriding
    function To_String (Type_Def : in Time_Type_Def;
                        Value    : in Object_Value) return String;
 
@@ -47,6 +49,7 @@ package body Util.Beans.Objects.Time is
    --  ------------------------------
    --  Get the type name
    --  ------------------------------
+   overriding
    function Get_Name (Type_Def : in Time_Type_Def) return String is
       pragma Unreferenced (Type_Def);
    begin
@@ -56,6 +59,7 @@ package body Util.Beans.Objects.Time is
    --  ------------------------------
    --  Convert the value into a string.
    --  ------------------------------
+   overriding
    function To_String (Type_Def : in Time_Type_Def;
                        Value    : in Object_Value) return String is
       pragma Unreferenced (Type_Def);

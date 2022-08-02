@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes -- Process creation and control
---  Copyright (C) 2011, 2012, 2016, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,8 @@
 -----------------------------------------------------------------------
 with Util.Streams;
 with Util.Systems.Types;
+with Util.Systems.Os;
+with Util.Strings.Vectors;
 
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
@@ -52,7 +54,8 @@ package Util.Processes is
 
    type Argument_List is array (Positive range <>) of String_Access;
 
-   type Process_Identifier is new Integer;
+   subtype Process_Identifier is Util.Systems.Os.Process_Identifier;
+   use type Util.Systems.Os.Process_Identifier;
 
    --  ------------------------------
    --  Process
@@ -98,14 +101,34 @@ package Util.Processes is
    procedure Append_Argument (Proc : in out Process;
                               Arg  : in String);
 
+   --  Set the environment variable to be used by the process before its creation.
+   procedure Set_Environment (Proc  : in out Process;
+                              Name  : in String;
+                              Value : in String);
+
+   procedure Set_Environment (Proc    : in out Process;
+                              Iterate : not null access
+                                procedure
+                                  (Process : not null access procedure
+                                     (Name  : in String;
+                                      Value : in String)));
+
+   --  Import the default environment variables from the current process.
+   procedure Set_Default_Environment (Proc : in out Process);
+
    --  Spawn a new process with the given command and its arguments.  The standard input, output
    --  and error streams are either redirected to a file or to a stream object.
    procedure Spawn (Proc      : in out Process;
                     Command   : in String;
-                    Arguments : in Argument_List);
-
+                    Arguments : in Argument_List;
+                    Mode      : in Pipe_Mode := NONE);
+   procedure Spawn (Proc      : in out Process;
+                    Arguments : in Util.Strings.Vectors.Vector;
+                    Mode      : in Pipe_Mode := NONE);
    procedure Spawn (Proc      : in out Process;
                     Command   : in String;
+                    Mode      : in Pipe_Mode := NONE);
+   procedure Spawn (Proc      : in out Process;
                     Mode      : in Pipe_Mode := NONE);
 
    --  Wait for the process to terminate.
@@ -189,9 +212,17 @@ private
                     Proc : in out Process'Class;
                     Mode : in Pipe_Mode := NONE) is abstract;
 
+   --  Clear the program arguments.
+   procedure Clear_Arguments (Sys : in out System_Process) is abstract;
+
    --  Append the argument to the process argument list.
    procedure Append_Argument (Sys : in out System_Process;
                               Arg : in String) is abstract;
+
+   --  Set the environment variable to be used by the process before its creation.
+   procedure Set_Environment (Sys   : in out System_Process;
+                              Name  : in String;
+                              Value : in String) is abstract;
 
    --  Set the process input, output and error streams to redirect and use specified files.
    procedure Set_Streams (Sys           : in out System_Process;
@@ -206,4 +237,3 @@ private
    procedure Finalize (Sys : in out System_Process) is abstract;
 
 end Util.Processes;
-

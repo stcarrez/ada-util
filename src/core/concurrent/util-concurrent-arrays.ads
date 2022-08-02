@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-concurrent-arrays -- Concurrent Arrays
---  Copyright (C) 2012, 2017 Stephane Carrez
+--  Copyright (C) 2012, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -84,7 +84,6 @@ package Util.Concurrent.Arrays is
    --  with the element as parameter.
    procedure Reverse_Iterate (Container : in Ref;
                               Process   : not null access procedure (Item : in Element_Type));
-
 
    --  Vector of elements.
    type Vector is new Ada.Finalization.Limited_Controlled with private;

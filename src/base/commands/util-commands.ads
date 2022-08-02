@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands -- Support to make command line tools
---  Copyright (C) 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@ private with Ada.Strings.Unbounded;
 --  The `Util.Commands` package provides a support to help in writing command line
 --  applications.  It allows to have several commands in the application, each of them
 --  being identified by a unique name.  Each command has its own options and arguments.
---  The command line support is built arround several children packages.
+--  The command line support is built around several children packages.
 --
 --  The `Util.Commands.Drivers` package is a generic package that must be instantiated
 --  to define the list of commands that the application supports.  It provides operations
@@ -131,6 +131,7 @@ package Util.Commands is
                           Pos  : in Positive) return String;
 
    --  Get the command name.
+   overriding
    function Get_Command_Name (List : in Default_Argument_List) return String;
 
    type String_Argument_List (Max_Length : Positive;
@@ -157,13 +158,16 @@ package Util.Commands is
    type Dynamic_Argument_List is limited new Argument_List with private;
 
    --  Get the number of arguments available.
+   overriding
    function Get_Count (List : in Dynamic_Argument_List) return Natural;
 
    --  Get the argument at the given position.
+   overriding
    function Get_Argument (List : in Dynamic_Argument_List;
                           Pos  : in Positive) return String;
 
    --  Get the command name.
+   overriding
    function Get_Command_Name (List : in Dynamic_Argument_List) return String;
 
    function No_Translate (Message : in String) return String is (Message) with Inline;

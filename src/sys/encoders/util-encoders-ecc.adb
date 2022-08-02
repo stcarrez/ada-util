@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-ecc -- Error Correction Code
---  Copyright (C) 2019 Stephane Carrez
+--  Copyright (C) 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -183,7 +183,9 @@ package body Util.Encoders.ECC is
          return NO_ERROR;
       end if;
       Bits := Count (Check (0)) + Count (Check (1)) + Count (Check (2));
-      if (Bits = 11 and Data'Length = 256) or (Bits = 12 and Data'Length = 512) then
+      if (Bits = 11 and then Data'Length = 256)
+        or else (Bits = 12 and then Data'Length = 512)
+      then
          Bit_Pos := Natural ((Shift_Right (Unsigned_8 (Check (2)), 3) and 16#01#)
                              or (Shift_Right (Unsigned_8 (Check (2)), 4) and 16#02#)
                              or (Shift_Right (Unsigned_8 (Check (2)), 5) and 16#04#));

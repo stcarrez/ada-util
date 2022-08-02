@@ -18,7 +18,21 @@
 with Ada.Text_IO;
 with Util.Properties;
 
---  Write log events to a file.
+--  === File appender ===
+--  The `File` appender recognises the following configurations:
+--
+--  | Name           | Description                                                          |
+--  | -------------- | --------------------------------------------------------------       |
+--  | layout         | Defines the format of the message printed by the appender.           |
+--  | level          | Defines the minimum level above which messages are printed.          |
+--  | File           | The path used by the appender to create the output file.             |
+--  | append         | When 'true' or '1', the file is opened in append mode otherwise      |
+--  |                | it is truncated (the default is to truncate).                        |
+--  | immediateFlush | When 'true' or '1', the file is flushed after each message log.      |
+--  |                | Immediate flush is useful in some situations to have the log file    |
+--  |                | updated immediately at the expense of slowing down the processing    |
+--  |                | of logs.                                                             |
+--
 package Util.Log.Appenders.Files is
 
    --  ------------------------------

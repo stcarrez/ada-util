@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-clients-tests -- Unit tests for HTTP client
---  Copyright (C) 2012, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2012, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,15 +16,19 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Unchecked_Deallocation;
+with Ada.Streams;
 
 with Util.Test_Caller;
 
 with Util.Strings.Transforms;
 with Util.Http.Tools;
+with Util.Http.Mimes;
 with Util.Strings;
 with Util.Log.Loggers;
 
 package body Util.Http.Clients.Tests is
+
+   use type Ada.Strings.Unbounded.Unbounded_String;
 
    --  The logger
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Http.Clients.Tests");
@@ -50,6 +54,8 @@ package body Util.Http.Clients.Tests is
                           Test_Http_Patch'Access);
          Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Get (timeout)",
                           Test_Http_Timeout'Access);
+         Caller.Add_Test (Suite, "Test Util.Http.Clients." & NAME & ".Get (Blob)",
+                          Test_Http_Binary'Access);
       end Add_Tests;
 
       overriding
@@ -94,7 +100,7 @@ package body Util.Http.Clients.Tests is
       L   : constant String := Ada.Strings.Unbounded.To_String (Line);
       Pos : Natural := Util.Strings.Index (L, ' ');
    begin
-      if Pos > 0 and Into.Method = UNKNOWN then
+      if Pos > 0 and then Into.Method = UNKNOWN then
          if L (L'First .. Pos - 1) = "GET" then
             Into.Method := GET;
          elsif L (L'First .. Pos - 1) = "HEAD" then
@@ -112,6 +118,11 @@ package body Util.Http.Clients.Tests is
          else
             Into.Method := UNKNOWN;
          end if;
+         declare
+            Last : constant Natural := Util.Strings.Index (L, ' ', Pos + 1);
+         begin
+            Into.Uri := Ada.Strings.Unbounded.To_Unbounded_String (L (Pos + 1 .. Last - 1));
+         end;
       end if;
 
       Pos := Util.Strings.Index (L, ':');
@@ -144,6 +155,9 @@ package body Util.Http.Clients.Tests is
             Output.Initialize (Client'Unchecked_Access);
             Output.Write ("HTTP/1.1 200 Found" & ASCII.CR & ASCII.LF);
             Output.Write ("Content-Length: 4" & ASCII.CR & ASCII.LF);
+            Output.Write ("Content-Type: ");
+            Output.Write (Util.Http.Mimes.Text);
+            Output.Write (ASCII.CR & ASCII.LF);
             Output.Write (ASCII.CR & ASCII.LF);
             Output.Write ("OK" & ASCII.CR & ASCII.LF);
             Output.Flush;
@@ -153,8 +167,20 @@ package body Util.Http.Clients.Tests is
             Output : Util.Streams.Texts.Print_Stream;
          begin
             Output.Initialize (Client'Unchecked_Access);
-            Output.Write ("HTTP/1.1 204 No Content" & ASCII.CR & ASCII.LF);
-            Output.Write (ASCII.CR & ASCII.LF);
+            if Into.Uri = "/image" then
+               Output.Write ("HTTP/1.1 200 Found" & ASCII.CR & ASCII.LF);
+               Output.Write ("Content-Length: 8000" & ASCII.CR & ASCII.LF);
+               Output.Write ("Content-Type: ");
+               Output.Write (Util.Http.Mimes.Octet);
+               Output.Write (ASCII.CR & ASCII.LF);
+               Output.Write (ASCII.CR & ASCII.LF);
+               for I in 1 .. 8000 loop
+                  Output.Write (Character'Val (I mod 256));
+               end loop;
+            else
+               Output.Write ("HTTP/1.1 204 No Content" & ASCII.CR & ASCII.LF);
+               Output.Write (ASCII.CR & ASCII.LF);
+            end if;
             Output.Flush;
          end;
       end if;
@@ -181,7 +207,7 @@ package body Util.Http.Clients.Tests is
       Request.Set_Timeout (5.0);
       Request.Set_Header ("Accept", "text/html");
       Util.Http.Add_Int_Header (Request, "DNT", 0);
-      T.Assert (Reply.Get_Status = 200 or Reply.Get_Status = 302,
+      T.Assert (Reply.Get_Status = 200 or else Reply.Get_Status = 302,
                 "Get status is invalid: " & Natural'Image (Reply.Get_Status));
 
       Util.Http.Tools.Save_Response (Util.Tests.Get_Test_Path ("http_get.txt"), Reply, True);
@@ -216,7 +242,7 @@ package body Util.Http.Clients.Tests is
       Request.Head ("http://www.google.com", Reply);
       Request.Set_Timeout (5.0);
       Request.Add_Header ("Accept", "text/html");
-      T.Assert (Reply.Get_Status = 200 or Reply.Get_Status = 302,
+      T.Assert (Reply.Get_Status = 200 or else Reply.Get_Status = 302,
                 "Get status is invalid: " & Natural'Image (Reply.Get_Status));
 
       Util.Http.Tools.Save_Response (Util.Tests.Get_Test_Path ("http_head.txt"), Reply, True);
@@ -376,5 +402,37 @@ package body Util.Http.Clients.Tests is
       end;
 
    end Test_Http_Timeout;
+
+   --  ------------------------------
+   --  Test the http GET with binary content.
+   --  ------------------------------
+   procedure Test_Http_Binary (T : in out Test) is
+      use Ada.Streams;
+
+      Request : Client;
+      Reply   : Response;
+      Uri     : constant String := T.Get_Uri;
+      Data    : Util.Blobs.Blob_Ref;
+   begin
+      Log.Info ("Get on " & Uri);
+
+      T.Server.Method := UNKNOWN;
+      Request.Set_Timeout (1.0);
+      Request.Get (Uri & "/image", Reply);
+
+      T.Assert (T.Server.Method = GET, "Invalid method received by server");
+      Util.Tests.Assert_Equals (T, "/image", T.Server.Uri,
+                                "Invalid URI received by server");
+      Util.Tests.Assert_Equals (T, 200, Reply.Get_Status, "Invalid status response");
+      Data := Reply.Get_Body;
+      T.Assert (not Data.Is_Null, "Null blob body in response");
+      Util.Tests.Assert_Equals (T, 8000, Natural (Data.Value.Len), "Invalid data length");
+
+      for I in 1 .. 8000 loop
+         Util.Tests.Assert_Equals (T, I mod 256,
+                                   Natural (Data.Value.Data (Stream_Element_Offset (I))),
+                                   "Invalid content at " & Natural'Image (I));
+      end loop;
+   end Test_Http_Binary;
 
 end Util.Http.Clients.Tests;

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  pipe -- Print the GNAT version by using a pipe
---  Copyright (C) 2011 Stephane Carrez
+--  popen -- Print the GNAT version by using a pipe
+--  Copyright (C) 2011, 2021 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,7 @@ procedure Popen is
    Content : Ada.Strings.Unbounded.Unbounded_String;
 begin
    Pipe.Open (Command, Util.Processes.READ);
-   Buffer.Initialize (Pipe'Access, 1024);
+   Buffer.Initialize (Pipe'Unchecked_Access, 1024);
    Buffer.Read (Content);
    Pipe.Close;
 

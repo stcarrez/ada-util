@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-beans-objects -- Generic Typed Data Representation
---  Copyright (C) 2009, 2010, 2011, 2013, 2016, 2017, 2018, 2020 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2013, 2016, 2017, 2018, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 
 with Ada.Characters.Conversions;
-with Ada.Unchecked_Deallocation;
 with Ada.Tags;
 with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 with Util.Beans.Basic;
@@ -46,10 +45,12 @@ package body Util.Beans.Objects is
    Duration_Type : aliased constant Duration_Type_Def := Duration_Type_Def '(null record);
    Bn_Type       : aliased constant Bean_Type        := Bean_Type '(null record);
    Ar_Type       : aliased constant Array_Type       := Array_Type '(null record);
+   Blob_Def      : aliased constant Blob_Type        := Blob_Type '(null record);
 
    --  ------------------------------
    --  Convert the value into a wide string.
    --  ------------------------------
+   overriding
    function To_Wide_Wide_String (Type_Def : in Basic_Type;
                                  Value    : in Object_Value) return Wide_Wide_String is
    begin
@@ -59,6 +60,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a float.
    --  ------------------------------
+   overriding
    function To_Long_Float (Type_Def : in Basic_Type;
                            Value    : in Object_Value) return Long_Long_Float is
       pragma Unreferenced (Type_Def, Value);
@@ -69,6 +71,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a boolean.
    --  ------------------------------
+   overriding
    function To_Boolean (Type_Def : in Basic_Type;
                         Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def, Value);
@@ -79,6 +82,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a duration.
    --  ------------------------------
+   overriding
    function To_Duration (Type_Def : in Basic_Type;
                          Value    : in Object_Value) return Duration is
       pragma Unreferenced (Type_Def, Value);
@@ -89,6 +93,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Returns False
    --  ------------------------------
+   overriding
    function Is_Empty (Type_Def : in Basic_Type;
                       Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def, Value);
@@ -103,6 +108,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the type name
    --  ------------------------------
+   overriding
    function Get_Name (Type_Def : Null_Type) return String is
       pragma Unreferenced (Type_Def);
    begin
@@ -112,6 +118,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the base data type.
    --  ------------------------------
+   overriding
    function Get_Data_Type (Type_Def : Null_Type) return Data_Type is
       pragma Unreferenced (Type_Def);
    begin
@@ -121,6 +128,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a string.
    --  ------------------------------
+   overriding
    function To_String (Type_Def : in Null_Type;
                        Value    : in Object_Value) return String is
       pragma Unreferenced (Type_Def, Value);
@@ -131,6 +139,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Returns True
    --  ------------------------------
+   overriding
    function Is_Empty (Type_Def : in Null_Type;
                       Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def, Value);
@@ -145,6 +154,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the type name
    --  ------------------------------
+   overriding
    function Get_Name (Type_Def : Int_Type) return String is
       pragma Unreferenced (Type_Def);
    begin
@@ -154,6 +164,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the base data type.
    --  ------------------------------
+   overriding
    function Get_Data_Type (Type_Def : Int_Type) return Data_Type is
       pragma Unreferenced (Type_Def);
    begin
@@ -163,6 +174,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a string.
    --  ------------------------------
+   overriding
    function To_String (Type_Def : in Int_Type;
                        Value    : in Object_Value) return String is
       pragma Unreferenced (Type_Def);
@@ -179,6 +191,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into an integer.
    --  ------------------------------
+   overriding
    function To_Long_Long (Type_Def : in Int_Type;
                           Value    : in Object_Value) return Long_Long_Integer is
       pragma Unreferenced (Type_Def);
@@ -189,6 +202,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a float.
    --  ------------------------------
+   overriding
    function To_Long_Float (Type_Def : in Int_Type;
                            Value    : in Object_Value) return Long_Long_Float is
       pragma Unreferenced (Type_Def);
@@ -199,6 +213,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a boolean.
    --  ------------------------------
+   overriding
    function To_Boolean (Type_Def : in Int_Type;
                         Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
@@ -209,6 +224,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a duration.
    --  ------------------------------
+   overriding
    function To_Duration (Type_Def : in Int_Type;
                          Value    : in Object_Value) return Duration is
       pragma Unreferenced (Type_Def);
@@ -223,6 +239,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the type name
    --  ------------------------------
+   overriding
    function Get_Name (Type_Def : in Float_Type) return String is
       pragma Unreferenced (Type_Def);
    begin
@@ -232,6 +249,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the base data type.
    --  ------------------------------
+   overriding
    function Get_Data_Type (Type_Def : in Float_Type) return Data_Type is
       pragma Unreferenced (Type_Def);
    begin
@@ -241,6 +259,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a string.
    --  ------------------------------
+   overriding
    function To_String (Type_Def : in Float_Type;
                        Value    : in Object_Value) return String is
       pragma Unreferenced (Type_Def);
@@ -251,6 +270,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into an integer.
    --  ------------------------------
+   overriding
    function To_Long_Long (Type_Def : in Float_Type;
                           Value    : in Object_Value) return Long_Long_Integer is
       pragma Unreferenced (Type_Def);
@@ -261,6 +281,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a float.
    --  ------------------------------
+   overriding
    function To_Long_Float (Type_Def : in Float_Type;
                            Value    : in Object_Value) return Long_Long_Float is
       pragma Unreferenced (Type_Def);
@@ -271,6 +292,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a boolean.
    --  ------------------------------
+   overriding
    function To_Boolean (Type_Def : in Float_Type;
                         Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
@@ -281,6 +303,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a duration.
    --  ------------------------------
+   overriding
    function To_Duration (Type_Def : in Float_Type;
                          Value    : in Object_Value) return Duration is
       pragma Unreferenced (Type_Def);
@@ -295,6 +318,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the type name
    --  ------------------------------
+   overriding
    function Get_Name (Type_Def : in String_Type) return String is
       pragma Unreferenced (Type_Def);
    begin
@@ -304,6 +328,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the base data type.
    --  ------------------------------
+   overriding
    function Get_Data_Type (Type_Def : in String_Type) return Data_Type is
       pragma Unreferenced (Type_Def);
    begin
@@ -313,6 +338,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a string.
    --  ------------------------------
+   overriding
    function To_String (Type_Def : in String_Type;
                        Value    : in Object_Value) return String is
       pragma Unreferenced (Type_Def);
@@ -328,6 +354,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into an integer.
    --  ------------------------------
+   overriding
    function To_Long_Long (Type_Def : in String_Type;
                           Value    : in Object_Value) return Long_Long_Integer is
       pragma Unreferenced (Type_Def);
@@ -343,6 +370,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a float.
    --  ------------------------------
+   overriding
    function To_Long_Float (Type_Def : in String_Type;
                            Value    : in Object_Value) return Long_Long_Float is
       pragma Unreferenced (Type_Def);
@@ -358,6 +386,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a boolean.
    --  ------------------------------
+   overriding
    function To_Boolean (Type_Def : in String_Type;
                         Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
@@ -365,13 +394,14 @@ package body Util.Beans.Objects is
    begin
       return Proxy /= null
         and then (Proxy.Value = "true"
-                  or Proxy.Value = "TRUE"
-                  or Proxy.Value = "1");
+                  or else Proxy.Value = "TRUE"
+                  or else Proxy.Value = "1");
    end To_Boolean;
 
    --  ------------------------------
    --  Returns True if the value is empty.
    --  ------------------------------
+   overriding
    function Is_Empty (Type_Def : in String_Type;
                       Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
@@ -383,6 +413,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a duration.
    --  ------------------------------
+   overriding
    function To_Duration (Type_Def : in String_Type;
                          Value    : in Object_Value) return Duration is
       pragma Unreferenced (Type_Def);
@@ -402,6 +433,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the type name
    --  ------------------------------
+   overriding
    function Get_Name (Type_Def : in Wide_String_Type) return String is
       pragma Unreferenced (Type_Def);
    begin
@@ -411,6 +443,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the base data type.
    --  ------------------------------
+   overriding
    function Get_Data_Type (Type_Def : in Wide_String_Type) return Data_Type is
       pragma Unreferenced (Type_Def);
    begin
@@ -420,6 +453,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a string.
    --  ------------------------------
+   overriding
    function To_String (Type_Def : in Wide_String_Type;
                        Value    : in Object_Value) return String is
       pragma Unreferenced (Type_Def);
@@ -435,6 +469,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a wide string.
    --  ------------------------------
+   overriding
    function To_Wide_Wide_String (Type_Def : in Wide_String_Type;
                                  Value    : in Object_Value) return Wide_Wide_String is
       pragma Unreferenced (Type_Def);
@@ -450,6 +485,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into an integer.
    --  ------------------------------
+   overriding
    function To_Long_Long (Type_Def : in Wide_String_Type;
                           Value    : in Object_Value) return Long_Long_Integer is
       pragma Unreferenced (Type_Def);
@@ -465,6 +501,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a float.
    --  ------------------------------
+   overriding
    function To_Long_Float (Type_Def : in Wide_String_Type;
                            Value    : in Object_Value) return Long_Long_Float is
       pragma Unreferenced (Type_Def);
@@ -480,6 +517,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a boolean.
    --  ------------------------------
+   overriding
    function To_Boolean (Type_Def : in Wide_String_Type;
                         Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
@@ -487,13 +525,14 @@ package body Util.Beans.Objects is
    begin
       return Proxy /= null
         and then (Proxy.Value = "true"
-                  or Proxy.Value = "TRUE"
-                  or Proxy.Value = "1");
+                  or else Proxy.Value = "TRUE"
+                  or else Proxy.Value = "1");
    end To_Boolean;
 
    --  ------------------------------
    --  Convert the value into a duration.
    --  ------------------------------
+   overriding
    function To_Duration (Type_Def : in Wide_String_Type;
                          Value    : in Object_Value) return Duration is
       pragma Unreferenced (Type_Def);
@@ -509,6 +548,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Returns True if the value is empty.
    --  ------------------------------
+   overriding
    function Is_Empty (Type_Def : in Wide_String_Type;
                       Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
@@ -524,6 +564,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the type name
    --  ------------------------------
+   overriding
    function Get_Name (Type_Def : in Boolean_Type) return String is
       pragma Unreferenced (Type_Def);
    begin
@@ -533,6 +574,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the base data type.
    --  ------------------------------
+   overriding
    function Get_Data_Type (Type_Def : in Boolean_Type) return Data_Type is
       pragma Unreferenced (Type_Def);
    begin
@@ -542,6 +584,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a string.
    --  ------------------------------
+   overriding
    function To_String (Type_Def : in Boolean_Type;
                        Value    : in Object_Value) return String is
       pragma Unreferenced (Type_Def);
@@ -556,6 +599,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into an integer.
    --  ------------------------------
+   overriding
    function To_Long_Long (Type_Def : in Boolean_Type;
                           Value    : in Object_Value) return Long_Long_Integer is
       pragma Unreferenced (Type_Def);
@@ -570,6 +614,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a float.
    --  ------------------------------
+   overriding
    function To_Long_Float (Type_Def : in Boolean_Type;
                            Value    : in Object_Value) return Long_Long_Float is
       pragma Unreferenced (Type_Def);
@@ -584,6 +629,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a boolean.
    --  ------------------------------
+   overriding
    function To_Boolean (Type_Def : in Boolean_Type;
                         Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
@@ -598,6 +644,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the type name
    --  ------------------------------
+   overriding
    function Get_Name (Type_Def : in Duration_Type_Def) return String is
       pragma Unreferenced (Type_Def);
    begin
@@ -607,6 +654,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the base data type.
    --  ------------------------------
+   overriding
    function Get_Data_Type (Type_Def : in Duration_Type_Def) return Data_Type is
       pragma Unreferenced (Type_Def);
    begin
@@ -616,6 +664,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a string.
    --  ------------------------------
+   overriding
    function To_String (Type_Def : in Duration_Type_Def;
                        Value    : in Object_Value) return String is
       pragma Unreferenced (Type_Def);
@@ -626,6 +675,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into an integer.
    --  ------------------------------
+   overriding
    function To_Long_Long (Type_Def : in Duration_Type_Def;
                           Value    : in Object_Value) return Long_Long_Integer is
       pragma Unreferenced (Type_Def);
@@ -636,6 +686,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a float.
    --  ------------------------------
+   overriding
    function To_Long_Float (Type_Def : in Duration_Type_Def;
                            Value    : in Object_Value) return Long_Long_Float is
       pragma Unreferenced (Type_Def);
@@ -646,6 +697,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a boolean.
    --  ------------------------------
+   overriding
    function To_Boolean (Type_Def : in Duration_Type_Def;
                         Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
@@ -656,6 +708,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a duration.
    --  ------------------------------
+   overriding
    function To_Duration (Type_Def : in Duration_Type_Def;
                          Value    : in Object_Value) return Duration is
       pragma Unreferenced (Type_Def);
@@ -670,6 +723,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the type name
    --  ------------------------------
+   overriding
    function Get_Name (Type_Def : in Bean_Type) return String is
       pragma Unreferenced (Type_Def);
    begin
@@ -679,6 +733,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the base data type.
    --  ------------------------------
+   overriding
    function Get_Data_Type (Type_Def : in Bean_Type) return Data_Type is
       pragma Unreferenced (Type_Def);
    begin
@@ -688,20 +743,22 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a string.
    --  ------------------------------
+   overriding
    function To_String (Type_Def : in Bean_Type;
                        Value    : in Object_Value) return String is
       pragma Unreferenced (Type_Def);
    begin
-      if Value.Proxy = null then
+      if Value.Proxy = null or else Value.Proxy.Bean = null then
          return "<null bean>";
       else
-         return "<" & Ada.Tags.Expanded_Name (Value.Proxy'Tag) & ">";
+         return "<" & Ada.Tags.Expanded_Name (Value.Proxy.Bean'Tag) & ">";
       end if;
    end To_String;
 
    --  ------------------------------
    --  Convert the value into an integer.
    --  ------------------------------
+   overriding
    function To_Long_Long (Type_Def : in Bean_Type;
                           Value    : in Object_Value) return Long_Long_Integer is
       pragma Unreferenced (Type_Def, Value);
@@ -712,6 +769,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a float.
    --  ------------------------------
+   overriding
    function To_Long_Float (Type_Def : in Bean_Type;
                            Value    : in Object_Value) return Long_Long_Float is
       pragma Unreferenced (Type_Def, Value);
@@ -722,6 +780,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a boolean.
    --  ------------------------------
+   overriding
    function To_Boolean (Type_Def : in Bean_Type;
                         Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
@@ -733,6 +792,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Returns True if the value is empty.
    --  ------------------------------
+   overriding
    function Is_Empty (Type_Def : in Bean_Type;
                       Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
@@ -744,15 +804,103 @@ package body Util.Beans.Objects is
       if not (Proxy.all in Bean_Proxy'Class) then
          return False;
       end if;
-      if not (Bean_Proxy (Proxy.all).Bean.all in Util.Beans.Basic.List_Bean'Class) then
+      if not (Proxy.Bean.all in Util.Beans.Basic.List_Bean'Class) then
          return False;
       end if;
       declare
          L : constant Util.Beans.Basic.List_Bean_Access :=
-           Beans.Basic.List_Bean'Class (Bean_Proxy (Proxy.all).Bean.all)'Unchecked_Access;
+           Beans.Basic.List_Bean'Class (Proxy.Bean.all)'Unchecked_Access;
       begin
          return L.Get_Count = 0;
       end;
+   end Is_Empty;
+
+   --  ------------------------------
+   --  Blob Type
+   --  ------------------------------
+
+   --  ------------------------------
+   --  Get the type name
+   --  ------------------------------
+   overriding
+   function Get_Name (Type_Def : in Blob_Type) return String is
+      pragma Unreferenced (Type_Def);
+   begin
+      return "Blob";
+   end Get_Name;
+
+   --  ------------------------------
+   --  Get the base data type.
+   --  ------------------------------
+   overriding
+   function Get_Data_Type (Type_Def : in Blob_Type) return Data_Type is
+      pragma Unreferenced (Type_Def);
+   begin
+      return TYPE_BLOB;
+   end Get_Data_Type;
+
+   --  ------------------------------
+   --  Convert the value into a string.
+   --  ------------------------------
+   overriding
+   function To_String (Type_Def : in Blob_Type;
+                       Value    : in Object_Value) return String is
+      pragma Unreferenced (Type_Def);
+   begin
+      if Value.Blob_Proxy = null then
+         return "<null array>";
+      else
+         return "<array>";
+      end if;
+   end To_String;
+
+   --  ------------------------------
+   --  Convert the value into an integer.
+   --  ------------------------------
+   overriding
+   function To_Long_Long (Type_Def : in Blob_Type;
+                          Value    : in Object_Value) return Long_Long_Integer is
+      pragma Unreferenced (Type_Def, Value);
+   begin
+      return 0;
+   end To_Long_Long;
+
+   --  ------------------------------
+   --  Convert the value into a float.
+   --  ------------------------------
+   overriding
+   function To_Long_Float (Type_Def : in Blob_Type;
+                           Value    : in Object_Value) return Long_Long_Float is
+      pragma Unreferenced (Type_Def, Value);
+   begin
+      return 0.0;
+   end To_Long_Float;
+
+   --  ------------------------------
+   --  Convert the value into a boolean.
+   --  ------------------------------
+   overriding
+   function To_Boolean (Type_Def : in Blob_Type;
+                        Value    : in Object_Value) return Boolean is
+      pragma Unreferenced (Type_Def);
+      Proxy : constant Blob_Proxy_Access := Value.Blob_Proxy;
+   begin
+      return Proxy /= null;
+   end To_Boolean;
+
+   --  ------------------------------
+   --  Returns True if the value is empty.
+   --  ------------------------------
+   overriding
+   function Is_Empty (Type_Def : in Blob_Type;
+                      Value    : in Object_Value) return Boolean is
+      pragma Unreferenced (Type_Def);
+   begin
+      if Value.Blob_Proxy = null then
+         return True;
+      else
+         return Value.Blob_Proxy.Blob.Is_Null;
+      end if;
    end Is_Empty;
 
    --  ------------------------------
@@ -762,6 +910,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the type name
    --  ------------------------------
+   overriding
    function Get_Name (Type_Def : in Array_Type) return String is
       pragma Unreferenced (Type_Def);
    begin
@@ -771,6 +920,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Get the base data type.
    --  ------------------------------
+   overriding
    function Get_Data_Type (Type_Def : in Array_Type) return Data_Type is
       pragma Unreferenced (Type_Def);
    begin
@@ -780,6 +930,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a string.
    --  ------------------------------
+   overriding
    function To_String (Type_Def : in Array_Type;
                        Value    : in Object_Value) return String is
       pragma Unreferenced (Type_Def);
@@ -794,6 +945,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into an integer.
    --  ------------------------------
+   overriding
    function To_Long_Long (Type_Def : in Array_Type;
                           Value    : in Object_Value) return Long_Long_Integer is
       pragma Unreferenced (Type_Def, Value);
@@ -804,6 +956,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a float.
    --  ------------------------------
+   overriding
    function To_Long_Float (Type_Def : in Array_Type;
                            Value    : in Object_Value) return Long_Long_Float is
       pragma Unreferenced (Type_Def, Value);
@@ -814,10 +967,11 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a boolean.
    --  ------------------------------
+   overriding
    function To_Boolean (Type_Def : in Array_Type;
                         Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
-      Proxy : constant Bean_Proxy_Access := Value.Proxy;
+      Proxy : constant Array_Proxy_Access := Value.Array_Proxy;
    begin
       return Proxy /= null;
    end To_Boolean;
@@ -825,6 +979,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Returns True if the value is empty.
    --  ------------------------------
+   overriding
    function Is_Empty (Type_Def : in Array_Type;
                       Value    : in Object_Value) return Boolean is
       pragma Unreferenced (Type_Def);
@@ -839,6 +994,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    --  Convert the value into a string.
    --  ------------------------------
+   overriding
    function To_Long_Long (Type_Def : in Basic_Type;
                           Value    : in Object_Value) return Long_Long_Integer is
       pragma Unreferenced (Type_Def, Value);
@@ -873,7 +1029,7 @@ package body Util.Beans.Objects is
       if Bean = null or else not (Bean.all in Util.Beans.Basic.Array_Bean'Class) then
          return null;
       else
-         return Util.Beans.Basic.Array_Bean'Class (Bean.all)'Access;
+         return Util.Beans.Basic.Array_Bean'Class (Bean.all)'Unchecked_Access;
       end if;
    end Get_Array_Bean;
 
@@ -1087,10 +1243,9 @@ package body Util.Beans.Objects is
    end To_Duration;
 
    function To_Bean (Value : in Object) return access Util.Beans.Basic.Readonly_Bean'Class is
---        Proxy : constant Bean_Proxy_Access;
    begin
       if Value.V.Of_Type = TYPE_BEAN and then Value.V.Proxy /= null then
-         return Bean_Proxy (Value.V.Proxy.all).Bean;
+         return Value.V.Proxy.Bean;
       else
          return null;
       end if;
@@ -1127,6 +1282,18 @@ package body Util.Beans.Objects is
    begin
       return Value.Type_Def.To_Long_Float (Value.V);
    end To_Long_Long_Float;
+
+   --  ------------------------------
+   --  Convert the object to a long float.
+   --  ------------------------------
+   function To_Blob (Value : Object) return Util.Blobs.Blob_Ref is
+   begin
+      if Value.V.Of_Type = TYPE_BLOB and then Value.V.Blob_Proxy /= null then
+         return Value.V.Blob_Proxy.Blob;
+      else
+         return Util.Blobs.Null_Blob;
+      end if;
+   end To_Blob;
 
    --  ------------------------------
    --  Convert an integer into a generic typed object.
@@ -1303,6 +1470,16 @@ package body Util.Beans.Objects is
                       Type_Def => Ar_Type'Access);
    end To_Object;
 
+   function To_Object (Value : in Util.Blobs.Blob_Ref) return Object is
+   begin
+      return Object '(Controlled with
+                        V => Object_Value '(Of_Type => TYPE_BLOB,
+                                            Blob_Proxy =>
+                                               new Blob_Proxy '(Ref_Counter => ONE,
+                                                                Blob => Value)),
+                      Type_Def => Blob_Def'Access);
+   end To_Object;
+
    --  ------------------------------
    --  Convert the object to an object of another time.
    --  Force the object to be an integer.
@@ -1343,7 +1520,7 @@ package body Util.Beans.Objects is
    --  ------------------------------
    function Cast_String (Value : Object) return Object is
    begin
-      if Value.V.Of_Type = TYPE_STRING or Value.V.Of_Type = TYPE_WIDE_STRING then
+      if Value.V.Of_Type = TYPE_STRING or else Value.V.Of_Type = TYPE_WIDE_STRING then
          return Value;
       else
          return To_Object (To_Wide_Wide_String (Value));
@@ -1421,13 +1598,13 @@ package body Util.Beans.Objects is
    --  ------------------------------
    function Get_Arithmetic_Type (Left, Right : Object) return Data_Type is
    begin
-      if Left.V.Of_Type = TYPE_FLOAT or Right.V.Of_Type = TYPE_FLOAT then
+      if Left.V.Of_Type = TYPE_FLOAT or else Right.V.Of_Type = TYPE_FLOAT then
          return TYPE_FLOAT;
       end if;
-      if Left.V.Of_Type = TYPE_INTEGER or Right.V.Of_Type = TYPE_INTEGER then
+      if Left.V.Of_Type = TYPE_INTEGER or else Right.V.Of_Type = TYPE_INTEGER then
          return TYPE_INTEGER;
       end if;
-      if Left.V.Of_Type = TYPE_BOOLEAN and Right.V.Of_Type = TYPE_BOOLEAN then
+      if Left.V.Of_Type = TYPE_BOOLEAN and then Right.V.Of_Type = TYPE_BOOLEAN then
          return TYPE_BOOLEAN;
       end if;
       return TYPE_FLOAT;
@@ -1441,16 +1618,16 @@ package body Util.Beans.Objects is
       if Left.V.Of_Type = Right.V.Of_Type then
          return Left.V.Of_Type;
       end if;
-      if Left.V.Of_Type = TYPE_FLOAT or Right.V.Of_Type = TYPE_FLOAT then
+      if Left.V.Of_Type = TYPE_FLOAT or else Right.V.Of_Type = TYPE_FLOAT then
          return TYPE_FLOAT;
       end if;
-      if Left.V.Of_Type = TYPE_INTEGER or Right.V.Of_Type = TYPE_INTEGER then
+      if Left.V.Of_Type = TYPE_INTEGER or else Right.V.Of_Type = TYPE_INTEGER then
          return TYPE_INTEGER;
       end if;
-      if Left.V.Of_Type = TYPE_TIME or Right.V.Of_Type = TYPE_TIME then
+      if Left.V.Of_Type = TYPE_TIME or else Right.V.Of_Type = TYPE_TIME then
          return TYPE_TIME;
       end if;
-      if Left.V.Of_Type = TYPE_BOOLEAN and Right.V.Of_Type = TYPE_BOOLEAN then
+      if Left.V.Of_Type = TYPE_BOOLEAN and then Right.V.Of_Type = TYPE_BOOLEAN then
          return TYPE_BOOLEAN;
       end if;
       return TYPE_FLOAT;
@@ -1547,8 +1724,8 @@ package body Util.Beans.Objects is
    begin
       return Cmp (Left, Right);
    end ">=";
---   function "=" (Left, Right : Object) return Boolean;
 
+   overriding
    function "=" (Left, Right : Object) return Boolean is
       function Cmp is new Compare (Int_Comparator => "=",
                                    Time_Comparator => "=",
@@ -1686,7 +1863,7 @@ package body Util.Beans.Objects is
    begin
       case T is
          when TYPE_BOOLEAN =>
-            return To_Object (To_Boolean (Left) and To_Boolean (Right));
+            return To_Object (To_Boolean (Left) and then To_Boolean (Right));
 
          when others =>
             return To_Object (To_String (Left) & To_String (Right));
@@ -1718,6 +1895,11 @@ package body Util.Beans.Objects is
                Util.Concurrent.Counters.Increment (Obj.V.Wide_Proxy.Ref_Counter);
             end if;
 
+         when TYPE_BLOB =>
+            if Obj.V.Blob_Proxy /= null then
+               Util.Concurrent.Counters.Increment (Obj.V.Blob_Proxy.Ref_Counter);
+            end if;
+
          when others =>
             null;
 
@@ -1733,16 +1915,16 @@ package body Util.Beans.Objects is
                                      Name   => Array_Proxy_Access);
 
    procedure Free is
-     new Ada.Unchecked_Deallocation (Object => Proxy'Class,
-                                     Name   => Bean_Proxy_Access);
-
-   procedure Free is
      new Ada.Unchecked_Deallocation (Object => String_Proxy,
                                      Name   => String_Proxy_Access);
 
    procedure Free is
      new Ada.Unchecked_Deallocation (Object => Wide_String_Proxy,
                                      Name   => Wide_String_Proxy_Access);
+
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Object => Blob_Proxy,
+                                     Name   => Blob_Proxy_Access);
 
    overriding
    procedure Finalize (Obj : in out Object) is
@@ -1790,6 +1972,16 @@ package body Util.Beans.Objects is
                end if;
             end if;
 
+         when TYPE_BLOB =>
+            if Obj.V.Blob_Proxy /= null then
+               Util.Concurrent.Counters.Decrement (Obj.V.Blob_Proxy.Ref_Counter, Release);
+               if Release then
+                  Free (Obj.V.Blob_Proxy);
+               else
+                  Obj.V.Blob_Proxy := null;
+               end if;
+            end if;
+
          when others =>
             null;
 
@@ -1802,7 +1994,7 @@ package body Util.Beans.Objects is
    overriding
    procedure Release (P : in out Bean_Proxy) is
    begin
-      if P.Storage = DYNAMIC and P.Bean /= null then
+      if P.Storage = DYNAMIC and then P.Bean /= null then
          declare
             Bean : Basic.Readonly_Bean_Access := P.Bean.all'Access;
          begin
@@ -1811,5 +2003,19 @@ package body Util.Beans.Objects is
          end;
       end if;
    end Release;
+
+   overriding
+   procedure Finalize (Proxy : in out Proxy_Iterator) is
+      Release : Boolean;
+   begin
+      if Proxy.Proxy /= null then
+         Util.Concurrent.Counters.Decrement (Proxy.Proxy.Ref_Counter, Release);
+         if Release then
+            Free (Proxy.Proxy);
+         else
+            Proxy.Proxy := null;
+         end if;
+      end if;
+   end Finalize;
 
 end Util.Beans.Objects;

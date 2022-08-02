@@ -4,7 +4,7 @@ from the [Java Log4j](https://logging.apache.org/log4j/2.x/) library.  It is int
 available in other languages, be flexible, extensible, small and efficient.  Having
 log messages in large applications is very helpful to understand, track and fix complex
 issues, some of them being related to configuration issues or interaction with other
-systems.  The overhead of calling a log operation is negligeable when the log is disabled
+systems.  The overhead of calling a log operation is negligible when the log is disabled
 as it is in the order of 30ns and reasonable for a file appender has it is in the order
 of 5us.  To use the packages described here, use the following GNAT project:
 
@@ -16,17 +16,15 @@ with "utilada_base";
 A bit of terminology:
 
 * A *logger* is the abstraction that provides operations to emit a message.  The message
- is composed of a text, optional formatting parameters, a log level and a timestamp.
-
+  is composed of a text, optional formatting parameters, a log level and a timestamp.
 * A *formatter* is the abstraction that takes the information about the log to format
- the final message.
-
+  the final message.
 * An *appender* is the abstraction that writes the message either to a console, a file
- or some other final mechanism.
+  or some other final mechanism.
 
 ## Logger Declaration
 Similar to other logging framework such as [Java Log4j](https://logging.apache.org/log4j/2.x/) and [Log4cxx](https://logging.apache.org/log4cxx/latest_stable/index.html), it is necessary to have
-and instance of a logger to write a log message.  The logger instance holds the configuration
+an instance of a logger to write a log message.  The logger instance holds the configuration
 for the log to enable, disable and control the format and the appender that will receive
 the message.  The logger instance is associated with a name that is used for the
 configuration.  A good practice is to declare a `Log` instance in the package body or
@@ -63,7 +61,7 @@ The example below shows several calls to emit a log message with different level
 ```
 
 The logger also provides a special `Error` procedure that accepts an Ada exception
-occurence as parameter.  The exception name and message are printed together with
+occurrence as parameter.  The exception name and message are printed together with
 the error message.  It is also possible to activate a complete traceback of the
 exception and report it in the error message.  With this mechanism, an exception
 can be handled and reported easily:
@@ -83,14 +81,12 @@ Apache [Log4cxx](https://logging.apache.org/log4cxx/latest_stable/index.html) co
 The configuration file contains several parts to configure the logging framework:
 
 * First, the *appender* configuration indicates the appender that exists and can receive
- a log message.
-
+  a log message.
 * Second, a root configuration allows to control the default behavior of the logging
- framework.  The root configuration controls the default log level as well as the
- appenders that can be used.
-
+  framework.  The root configuration controls the default log level as well as the
+  appenders that can be used.
 * Last, a logger configuration is defined to control the logging level more precisely
- for each logger.
+  for each logger.
 
 Here is a simple log configuration that creates a file appender where log messages are
 written.  The file appender is given the name `result` and is configured to write the
@@ -145,6 +141,7 @@ Opening file test.txt
 Reading line ......
 ```
 
+### Console appender
 The `Console` appender recognises the following configurations:
 
 | Name           | Description                                                          |
@@ -154,6 +151,7 @@ The `Console` appender recognises the following configurations:
 | stderr         | When 'true' or '1', use the console standard error,                  |
 |                | by default the appender uses the standard output                     |
 
+### File appender
 The `File` appender recognises the following configurations:
 
 | Name           | Description                                                          |
@@ -167,4 +165,62 @@ The `File` appender recognises the following configurations:
 |                | Immediate flush is useful in some situations to have the log file    |
 |                | updated immediately at the expense of slowing down the processing    |
 |                | of logs.                                                             |
+
+### Rolling file appender
+The `RollingFile` appender recognises the following configurations:
+
+| Name           | Description                                                          |
+| -------------- | --------------------------------------------------------------       |
+| layout         | Defines the format of the message printed by the appender.           |
+| level          | Defines the minimum level above which messages are printed.          |
+| fileName       | The name of the file to write to. If the file, or any of its parent  |
+|                | directories, do not exist, they will be created.                     |
+| filePattern    | The pattern of the file name of the archived log file.  The pattern  |
+|                | can contain '%i' which are replaced by a counter incremented at each |
+|                | rollover, a '%d' is replaced by a date pattern.                      |
+| append         | When 'true' or '1', the file is opened in append mode otherwise      |
+|                | it is truncated (the default is to truncate).                        |
+| immediateFlush | When 'true' or '1', the file is flushed after each message log.      |
+|                | Immediate flush is useful in some situations to have the log file    |
+|                | updated immediately at the expense of slowing down the processing    |
+|                | of logs.                                                             |
+| policy         | The triggering policy which drives when a rolling is performed.      |
+|                | Possible values are: `none`, `size`, `time`, `size-time`             |
+| strategy       | The strategy to use to determine the name and location of the        |
+|                | archive file.  Possible values are: `ascending`, `descending`, and   |
+|                | `direct`.  Default is `ascending`.                                   |
+| policyInterval | How often a rollover should occur based on the most specific time    |
+|                | unit in the date pattern.  This indicates the period in seconds      |
+|                | to check for pattern change in the `time` or `size-time` policy.     |
+| policyMin      | The minimum value of the counter. The default value is 1.            |
+| policyMax      | The maximum value of the counter. Once this values is reached older  |
+|                | archives will be deleted on subsequent rollovers. The default        |
+|                | value is 7.                                                          |
+| minSize        | The minimum size the file must have to roll over.                    |
+
+A typical rolling file configuration would look like:
+
+```Ada
+log4j.rootCategory=DEBUG,applogger,apperror
+log4j.appender.applogger=RollingFile
+log4j.appender.applogger.layout=level-message
+log4j.appender.applogger.level=DEBUG
+log4j.appender.applogger.fileName=logs/debug.log
+log4j.appender.applogger.filePattern=logs/debug-%d{YYYY-MM}/debug-%{dd}-%i.log
+log4j.appender.applogger.strategy=descending
+log4j.appender.applogger.policy=time
+log4j.appender.applogger.policyMax=10
+log4j.appender.apperror=RollingFile
+log4j.appender.apperror.layout=level-message
+log4j.appender.apperror.level=ERROR
+log4j.appender.apperror.fileName=logs/error.log
+log4j.appender.apperror.filePattern=logs/error-%d{YYYY-MM}/error-%{dd}.log
+log4j.appender.apperror.strategy=descending
+log4j.appender.apperror.policy=time
+```
+
+With this configuration, the error messages are written in the `error.log` file and
+they are rotated on a day basis and moved in a directory whose name contains the year
+and month number.  At the same time, debug messages are written in the `debug.log`
+file.
 

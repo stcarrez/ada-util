@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-mockups -- Mockup implementations for HTTP requests and responses
---  Copyright (C) 2012 Stephane Carrez
+--  Copyright (C) 2012, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,9 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
 with Ada.Finalization;
 with Util.Strings.Maps;
+with Util.Strings.Builders;
 package Util.Http.Mockups is
 
    package AF renames Ada.Finalization;
@@ -73,6 +73,10 @@ package Util.Http.Mockups is
    overriding
    function Get_Body (Reply : in Mockup_Response) return String;
 
+   --  Get the response body as a blob content.
+   overriding
+   function Get_Body (Reply : in Mockup_Response) return Util.Blobs.Blob_Ref;
+
    --  Get the response status code.
    overriding
    function Get_Status (Reply : in Mockup_Response) return Natural;
@@ -85,6 +89,10 @@ package Util.Http.Mockups is
    procedure Set_Body (Reply   : in out Mockup_Response;
                        Content : in String);
 
+   --  Append the content to the response body.
+   procedure Append_Body (Reply   : in out Mockup_Response;
+                          Content : in String);
+
 private
 
    type Mockup_Message is new AF.Limited_Controlled and Abstract_Message with record
@@ -94,7 +102,7 @@ private
    type Mockup_Request is new Mockup_Message and Abstract_Request with null record;
 
    type Mockup_Response is new Mockup_Message and Abstract_Response with record
-      Content : Ada.Strings.Unbounded.Unbounded_String;
+      Content : Util.Strings.Builders.Builder (1024);
       Status  : Natural;
    end record;
 

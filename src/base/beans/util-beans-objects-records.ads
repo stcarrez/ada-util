@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  Util.Beans.Objects.Records -- Generic Typed Data Representation
---  Copyright (C) 2011 Stephane Carrez
+--  util-beans-objects-records -- Generic Typed Data Representation
+--  Copyright (C) 2011, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");

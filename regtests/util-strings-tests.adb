@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  strings.tests -- Unit tests for strings
---  Copyright (C) 2009, 2010, 2011, 2012, 2015, 2018, 2020, 2021 Stephane Carrez
+--  util-strings-tests -- Unit tests for strings
+--  Copyright (C) 2009, 2010, 2011, 2012, 2015, 2018, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -78,7 +78,8 @@ package body Util.Strings.Tests is
                        Test_Perf_Vector'Access);
       Caller.Add_Test (Suite, "Test Util.Strings.Formats",
                        Test_Format'Access);
-
+      Caller.Add_Test (Suite, "Test Util.Strings.Replace",
+                       Test_Replace'Access);
    end Add_Tests;
 
    procedure Test_Escape_Javascript (T : in out Test) is
@@ -102,6 +103,9 @@ package body Util.Strings.Tests is
       Escape_Java (Content => ASCII.LF & " ""a string"" a 'single quote'",
                    Into    => Result);
       Assert_Equals (T, "\n \""a string\"" a 'single quote'", Result);
+
+      Assert_Equals (T, "\n \""a string\"" a 'single quote'",
+                     Escape_Java (ASCII.LF & " ""a string"" a 'single quote'"));
 
       Result := To_Unbounded_String ("");
       Escape_Javascript (Content => ASCII.CR & ASCII.LF & ASCII.HT & ASCII.BS
@@ -325,6 +329,22 @@ package body Util.Strings.Tests is
       T.Assert (not Ends_With ("abde", "cde"), "Ends_With should return False");
    end Test_Ends_With;
 
+   procedure Test_Replace (T : in out Test) is
+   begin
+      Assert_Equals (T, "rolling-12.log",
+                     Replace ("rolling-%i.log", "%i", "12"),
+                     "Invalid replace");
+
+      Assert_Equals (T, "1456/rolling-1456.log",
+                     Replace ("%i/rolling-%i.log", "%i", "1456", False),
+                     "Invalid replace");
+
+      Assert_Equals (T, "1/rolling-<replace>.log",
+                     Replace ("<replace>/rolling-<replace>.log", "<replace>", "1"),
+                     "Invalid replace");
+
+   end Test_Replace;
+
    package String_Map is new Ada.Containers.Hashed_Maps
      (Key_Type        => Unbounded_String,
       Element_Type    => Unbounded_String,
@@ -532,8 +552,8 @@ package body Util.Strings.Tests is
       procedure Process_Token (Token : in String;
                                Done  : out Boolean) is
       begin
-         T.Assert (Token = "one" or Token = "two" or Token = "three"
-                   or Token = "four five" or Token = "six seven",
+         T.Assert (Token = "one" or else Token = "two" or else Token = "three"
+                   or else Token = "four five" or else Token = "six seven",
                    "Invalid token: [" & Token & "]");
 
          Called := Called + 1;

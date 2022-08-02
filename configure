@@ -644,13 +644,12 @@ WITH_UTILADA_XML
 HAVE_XML_ADA
 VERSION_XML_ADA
 WITH_XML_ADA
-UTIL_OS_VERSION
 EGREP
 GREP
 CPP
 HAVE_UTILGEN
-UTIL_ASM_TYPE
-HARDWARE_PLATFORM
+HAVE_DYNAMO
+HAVE_PANDOC
 NR_CPUS
 BUILD
 BUILDS_COVERAGE
@@ -669,6 +668,9 @@ GNATCLEAN
 GPRCLEAN
 GNATMAKE
 GPRBUILD
+UTIL_OS_VERSION
+UTIL_ASM_TYPE
+HARDWARE_PLATFORM
 target_os
 target_vendor
 target_cpu
@@ -681,8 +683,6 @@ build_os
 build_vendor
 build_cpu
 build
-HAVE_DYNAMO
-HAVE_PANDOC
 UTIL_MICRO_VERSION
 UTIL_MINOR_VERSION
 UTIL_MAJOR_VERSION
@@ -2134,10 +2134,11 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+
 # Current release settings
 UTIL_MAJOR_VERSION=2
-UTIL_MINOR_VERSION=4
-UTIL_MICRO_VERSION=1
+UTIL_MINOR_VERSION=5
+UTIL_MICRO_VERSION=0
 UTIL_VERSION=$UTIL_MAJOR_VERSION.$UTIL_MINOR_VERSION.$UTIL_MICRO_VERSION
 
 # checking for local tools
@@ -2937,81 +2938,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-# Extract the first word of "pandoc", so it can be a program name with args.
-set dummy pandoc; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_HAVE_PANDOC+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$HAVE_PANDOC"; then
-  ac_cv_prog_HAVE_PANDOC="$HAVE_PANDOC" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_HAVE_PANDOC="yes"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-HAVE_PANDOC=$ac_cv_prog_HAVE_PANDOC
-if test -n "$HAVE_PANDOC"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_PANDOC" >&5
-$as_echo "$HAVE_PANDOC" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-# Extract the first word of "dynamo", so it can be a program name with args.
-set dummy dynamo; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_HAVE_DYNAMO+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$HAVE_DYNAMO"; then
-  ac_cv_prog_HAVE_DYNAMO="$HAVE_DYNAMO" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_HAVE_DYNAMO="yes"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-HAVE_DYNAMO=$ac_cv_prog_HAVE_DYNAMO
-if test -n "$HAVE_DYNAMO"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_DYNAMO" >&5
-$as_echo "$HAVE_DYNAMO" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-
 ac_aux_dir=
 for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do
   if test -f "$ac_dir/install-sh"; then
@@ -3151,6 +3077,157 @@ test -n "$target_alias" &&
   test "$program_prefix$program_suffix$program_transform_name" = \
     NONENONEs,x,x, &&
   program_prefix=${target_alias}-
+
+
+
+  os_base='unix'
+  os_version='none'
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking operating system" >&5
+$as_echo_n "checking operating system... " >&6; }
+  case "${target_os}" in
+     linux|linux-*|solaris*|sysv-*)
+        os_version='linux'
+        ;;
+
+     netbsd*|dragonfly*)
+        os_version='netbsd'
+        ;;
+
+     openbsd*|freebsd*)
+        # Let OpenBSD people cry
+        os_version='freebsd'
+        ;;
+
+     macos*|darwin*)
+        os_version='macos'
+        ;;
+
+     mingw32*|cygwin*|mingw64*|msys)
+        os_version='win'
+        os_base='windows'
+        ;;
+
+     mingw32*|cygwin*|mingw64*|msys)
+        os_version='win'
+        os_base='windows'
+        ;;
+
+     *)
+        # Be authoritative
+        os_version='linux'
+        ;;
+  esac
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $os_version" >&5
+$as_echo "$os_version" >&6; }
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking hardware platform" >&5
+$as_echo_n "checking hardware platform... " >&6; }
+  case "${target_cpu}" in
+     x86_64)
+        os_version="${os_version}64"
+        HARDWARE_PLATFORM=${target_cpu}
+        ;;
+
+     i386|i486|i586|i686)
+        os_version="${os_version}32"
+        HARDWARE_PLATFORM='x86'
+        ;;
+
+     armv8*|aarch64*|mips64*|mipsisa64*|sh64*|riscv64*|sparc64*)
+        os_version="${os_version}64"
+        HARDWARE_PLATFORM=${target_cpu}
+        ;;
+
+     armv7*|mips*|mipsisa*|sh*|riscv32*|sparc*)
+        os_version="${os_version}32"
+        HARDWARE_PLATFORM=${target_cpu}
+        ;;
+
+     *)
+        os_version="${os_version}64"
+        HARDWARE_PLATFORM=${target_cpu}
+        ;;
+  esac
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $HARDWARE_PLATFORM" >&5
+$as_echo "$HARDWARE_PLATFORM" >&6; }
+
+
+  # Check for gcc intrinsics
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether platform supports atomic inc/dec" >&5
+$as_echo_n "checking whether platform supports atomic inc/dec... " >&6; }
+
+   cat > conftest.ada <<EOF
+
+with Interfaces; use Interfaces;
+procedure Check is
+   function Sync_Add_And_Fetch
+     (Ptr   : access Interfaces.Integer_32;
+      Value : Interfaces.Integer_32) return Interfaces.Integer_32;
+   pragma Import (Intrinsic, Sync_Add_And_Fetch, "__sync_add_and_fetch_4");
+   X : aliased Interfaces.Integer_32;
+   Y : Interfaces.Integer_32 := 0;
+   pragma Volatile (Y);
+   --  On some platforms (e.g. i386), GCC has limited support for
+   --  __sync_add_and_fetch_4 for the case where the result is not used.
+   --  Here we want to test for general availability, so make Y volatile to
+   --  prevent the store operation from being discarded.
+begin
+   Y := Sync_Add_And_Fetch (X'Access, 1);
+end Check;
+
+EOF
+   if { ac_try='gnatchop -q conftest.ada && gnatmake check.adb >/dev/null 2>conftest.out'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }
+   then
+      : Success
+
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+   src_asm='intrinsic'
+
+   else
+      : Failure
+
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+   src_asm=''
+
+   fi
+   rm -rf conftest.ada
+
+
+   rm -f check.adb check check.o check.ali
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking specific processor support" >&5
+$as_echo_n "checking specific processor support... " >&6; }
+  if test T$src_asm = T; then
+   case "${target}" in
+   ## Intel 386 machines where we don't care about the manufacturer
+     i[34567]86-*-* | x86_* | x86-*)
+       src_asm='x86'
+       ;;
+
+     *)
+       src_asm='none'
+       ;;
+
+   esac
+  fi
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: using $src_asm" >&5
+$as_echo "using $src_asm" >&6; }
+  UTIL_ASM_TYPE="$src_asm"
+
+
+  UTIL_OS_VERSION=$os_version
+
+
+
+
 # Find a good install program.  We prefer a C program (faster),
 # so one script is as good as another.  But avoid the broken or
 # incompatible versions:
@@ -3717,6 +3794,81 @@ $as_echo_n "checking preparing for GNAT project utilada_core... " >&6; }
 $as_echo "done" >&6; }
 
 
+# Extract the first word of "pandoc", so it can be a program name with args.
+set dummy pandoc; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_HAVE_PANDOC+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$HAVE_PANDOC"; then
+  ac_cv_prog_HAVE_PANDOC="$HAVE_PANDOC" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_HAVE_PANDOC="yes"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+HAVE_PANDOC=$ac_cv_prog_HAVE_PANDOC
+if test -n "$HAVE_PANDOC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_PANDOC" >&5
+$as_echo "$HAVE_PANDOC" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+# Extract the first word of "dynamo", so it can be a program name with args.
+set dummy dynamo; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_HAVE_DYNAMO+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$HAVE_DYNAMO"; then
+  ac_cv_prog_HAVE_DYNAMO="$HAVE_DYNAMO" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_HAVE_DYNAMO="yes"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+HAVE_DYNAMO=$ac_cv_prog_HAVE_DYNAMO
+if test -n "$HAVE_DYNAMO"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_DYNAMO" >&5
+$as_echo "$HAVE_DYNAMO" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking preparing for GNAT project utilada_base" >&5
 $as_echo_n "checking preparing for GNAT project utilada_base... " >&6; }
@@ -3730,148 +3882,6 @@ $as_echo_n "checking preparing for GNAT project utilada_sys... " >&6; }
   mkdir -p obj/utilada_sys/static obj/utilada_sys/relocatable lib/utilada_sys/static lib/utilada_sys/relocatable
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: done" >&5
 $as_echo "done" >&6; }
-
-
-os_base='unix'
-os_version='none'
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking operating system" >&5
-$as_echo_n "checking operating system... " >&6; }
-case "${target_os}" in
-     linux|linux-*|solaris*|sysv-*)
-        os_version='linux'
-        ;;
-
-     netbsdelf*|dragonfly*)
-        os_version='netbsd'
-        ;;
-
-     openbsd*|freebsd*)
-        # Let OpenBSD people cry
-        os_version='freebsd'
-        ;;
-
-     macos*|darwin*)
-        os_version='macos'
-        ;;
-
-     mingw32*|cygwin*|mingw64*|msys)
-        os_version='win'
-        os_base='windows'
-        ;;
-
-     mingw32*|cygwin*|mingw64*|msys)
-        os_version='win'
-        os_base='windows'
-        ;;
-
-     *)
-        # Be authoritative
-        os_version='linux'
-        ;;
-esac
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $os_version" >&5
-$as_echo "$os_version" >&6; }
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking hardware platform" >&5
-$as_echo_n "checking hardware platform... " >&6; }
-case "${target_cpu}" in
-     x86_64)
-        os_version="${os_version}64"
-        HARDWARE_PLATFORM=${target_cpu}
-        ;;
-
-     i386|i486|i586|i686)
-        os_version="${os_version}32"
-        HARDWARE_PLATFORM='x86'
-        ;;
-
-     armv7*)
-        os_version="${os_version}32"
-        HARDWARE_PLATFORM=${target_cpu}
-        ;;
-
-     armv8*)
-        os_version="${os_version}64"
-        HARDWARE_PLATFORM=${target_cpu}
-        ;;
-
-     *)
-        HARDWARE_PLATFORM=${target_cpu}
-        ;;
-esac
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $HARDWARE_PLATFORM" >&5
-$as_echo "$HARDWARE_PLATFORM" >&6; }
-
-
-# Check for gcc intrinsics
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether platform supports atomic inc/dec" >&5
-$as_echo_n "checking whether platform supports atomic inc/dec... " >&6; }
-
-   cat > conftest.ada <<EOF
-
-with Interfaces; use Interfaces;
-procedure Check is
-   function Sync_Add_And_Fetch
-     (Ptr   : access Interfaces.Integer_32;
-      Value : Interfaces.Integer_32) return Interfaces.Integer_32;
-   pragma Import (Intrinsic, Sync_Add_And_Fetch, "__sync_add_and_fetch_4");
-   X : aliased Interfaces.Integer_32;
-   Y : Interfaces.Integer_32 := 0;
-   pragma Volatile (Y);
-   --  On some platforms (e.g. i386), GCC has limited support for
-   --  __sync_add_and_fetch_4 for the case where the result is not used.
-   --  Here we want to test for general availability, so make Y volatile to
-   --  prevent the store operation from being discarded.
-begin
-   Y := Sync_Add_And_Fetch (X'Access, 1);
-end Check;
-
-EOF
-   if { ac_try='gnatchop -q conftest.ada && gnatmake check.adb >/dev/null 2>conftest.out'
-  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; }
-   then
-      : Success
-
-   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-   src_asm='intrinsic'
-
-   else
-      : Failure
-
-   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-   src_asm=''
-
-   fi
-   rm -rf conftest.ada
-
-
-   rm -f check.adb check
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking specific processor support" >&5
-$as_echo_n "checking specific processor support... " >&6; }
-if test T$src_asm = T; then
-   case "${target}" in
-   ## Intel 386 machines where we don't care about the manufacturer
-     i[34567]86-*-* | x86_* | x86-*)
-       src_asm='x86'
-       ;;
-
-     *)
-       src_asm='none'
-       ;;
-
-   esac
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: using $src_asm" >&5
-$as_echo "using $src_asm" >&6; }
-UTIL_ASM_TYPE="$src_asm"
 
 
 ac_enable_utilgen=no
@@ -4345,9 +4355,9 @@ if test "x$ac_cv_lib_dl_dlopen" = xyes; then :
 fi
 
   UTIL_OS_VERSION=$os_base
-
+else
+  UTIL_OS_VERSION=$os_version
 fi
-UTIL_OS_VERSION=$os_version
 
 
 
@@ -4902,6 +4912,7 @@ fi
 # Check for Ada Web Server
 ##########################################
 
+
     gnat_enable_aws=yes
   gnat_project_aws=no
   gnat_project_name_aws=
@@ -5017,6 +5028,29 @@ EOF
     else
        ac_cv_gnat_aws_version='none'
     fi
+
+    rm -f conftest conftest.o conftest.ali
+    if test "$ac_cv_gnat_aws_version" = "20.0"; then
+                        cat > conftest.adb <<EOF
+with AWS;
+with Ada.Text_IO;
+procedure Conftest is
+begin
+  Ada.Text_IO.Put_Line (AWS.HTTP_2);
+end Conftest;
+EOF
+      if { ac_try='gnatmake -Pconftest.gpr >/dev/null 2>conftest.out'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }
+      then
+         ac_cv_gnat_aws_version="22.0"
+      fi
+
+    fi
+
     rm -f conftest.gpr conftest.adb conftest.o conftest.ali
     rm -f b__conftest.ads b__conftest.adb b__conftest.o b__conftest.ali
 
@@ -5028,10 +5062,14 @@ $as_echo "$ac_cv_gnat_aws_version" >&6; }
 
 
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking using AWS http client" >&5
-$as_echo_n "checking using AWS http client... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking using Ada Util AWS http client" >&5
+$as_echo_n "checking using Ada Util AWS http client... " >&6; }
     UTIL_AWS_VERSION=1
 case $AWS_VERSION in
+  22.0)
+     UTIL_AWS_VERSION=3
+     ;;
+
   *2017*|*2018*|*2019*|*202*|20.0)
      UTIL_AWS_VERSION=2
      ;;
@@ -5045,7 +5083,7 @@ case $AWS_VERSION in
      ;;
 
   *)
-     UTIL_AWS_VERSION=2
+     UTIL_AWS_VERSION=3
      ;;
 esac
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${UTIL_AWS_VERSION}" >&5
@@ -5053,6 +5091,8 @@ $as_echo "${UTIL_AWS_VERSION}" >&6; }
 
 
   fi
+
+
 
 
 

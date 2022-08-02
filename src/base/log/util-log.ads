@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log -- Utility Log Package
---  Copyright (C) 2001 - 2021 Stephane Carrez
+--  Copyright (C) 2001 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@
 --  available in other languages, be flexible, extensible, small and efficient.  Having
 --  log messages in large applications is very helpful to understand, track and fix complex
 --  issues, some of them being related to configuration issues or interaction with other
---  systems.  The overhead of calling a log operation is negligeable when the log is disabled
+--  systems.  The overhead of calling a log operation is negligible when the log is disabled
 --  as it is in the order of 30ns and reasonable for a file appender has it is in the order
 --  of 5us.  To use the packages described here, use the following GNAT project:
 --
@@ -40,7 +40,7 @@
 --
 --  == Logger Declaration ==
 --  Similar to other logging framework such as Java Log4j and Log4cxx, it is necessary to have
---  and instance of a logger to write a log message.  The logger instance holds the configuration
+--  an instance of a logger to write a log message.  The logger instance holds the configuration
 --  for the log to enable, disable and control the format and the appender that will receive
 --  the message.  The logger instance is associated with a name that is used for the
 --  configuration.  A good practice is to declare a `Log` instance in the package body or
@@ -73,7 +73,7 @@
 --     Log.Debug ("Reading line {0}", Line);
 --
 --  The logger also provides a special `Error` procedure that accepts an Ada exception
---  occurence as parameter.  The exception name and message are printed together with
+--  occurrence as parameter.  The exception name and message are printed together with
 --  the error message.  It is also possible to activate a complete traceback of the
 --  exception and report it in the error message.  With this mechanism, an exception
 --  can be handled and reported easily:
@@ -141,28 +141,9 @@
 --    Opening file test.txt
 --    Reading line ......
 --
---  The `Console` appender recognises the following configurations:
---
---  | Name           | Description                                                          |
---  | -------------- | --------------------------------------------------------------       |
---  | layout         | Defines the format of the message printed by the appender.           |
---  | level          | Defines the minimum level above which messages are printed.          |
---  | stderr         | When 'true' or '1', use the console standard error,                  |
---  |                | by default the appender uses the standard output                     |
---
---  The `File` appender recognises the following configurations:
---
---  | Name           | Description                                                          |
---  | -------------- | --------------------------------------------------------------       |
---  | layout         | Defines the format of the message printed by the appender.           |
---  | level          | Defines the minimum level above which messages are printed.          |
---  | File           | The path used by the appender to create the output file.             |
---  | append         | When 'true' or '1', the file is opened in append mode otherwise      |
---  |                | it is truncated (the default is to truncate).                        |
---  | immediateFlush | When 'true' or '1', the file is flushed after each message log.      |
---  |                | Immediate flush is useful in some situations to have the log file    |
---  |                | updated immediately at the expense of slowing down the processing    |
---  |                | of logs.                                                             |
+--  @include util-log-appenders-consoles.ads
+--  @include util-log-appenders-files.ads
+--  @include util-log-appenders-rolling_files.ads
 package Util.Log is
 
    pragma Preelaborate;

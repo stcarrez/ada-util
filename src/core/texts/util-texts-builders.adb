@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-texts-builders -- Text builder
---  Copyright (C) 2013, 2016, 2017, 2021 Stephane Carrez
+--  Copyright (C) 2013, 2016, 2017, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -108,6 +108,63 @@ package body Util.Texts.Builders is
       B.Content (B.Last) := New_Item;
    end Append;
 
+   procedure Inline_Append (Source   : in out Builder) is
+      B     : Block_Access := Source.Current;
+      Last  : Natural;
+   begin
+      loop
+         if B.Len = B.Last then
+            B.Next_Block := new Block (Source.Block_Size);
+            B := B.Next_Block;
+            Source.Current := B;
+         end if;
+         Process (B.Content (B.Last + 1 .. B.Len), Last);
+         exit when Last > B.Len or else Last <= B.Last;
+         Source.Length := Source.Length + Last - B.Last;
+         B.Last := Last;
+         exit when Last < B.Len;
+      end loop;
+   end Inline_Append;
+
+   --  ------------------------------
+   --  Append in `Into` builder the `Content` builder starting at `From` position
+   --  and the up to and including the `To` position.
+   --  ------------------------------
+   procedure Append (Into    : in out Builder;
+                     Content : in Builder;
+                     From    : in Positive;
+                     To      : in Positive) is
+   begin
+      if From <= Content.First.Last then
+         if To <= Content.First.Last then
+            Append (Into, Content.First.Content (From .. To));
+            return;
+         end if;
+         Append (Into, Content.First.Content (From .. Content.First.Last));
+      end if;
+      declare
+         Pos    : Integer := From - Into.First.Last;
+         Last   : Integer := To - Into.First.Last;
+         B      : Block_Access := Into.First.Next_Block;
+      begin
+         loop
+            if B = null then
+               return;
+            end if;
+            if Pos <= B.Last then
+               if Last <= B.Last then
+                  Append (Into, B.Content (1 .. Last));
+                  return;
+               end if;
+               Append (Into, B.Content (1 .. B.Last));
+            end if;
+            Pos := Pos - B.Last;
+            Last := Last - B.Last;
+            B := B.Next_Block;
+         end loop;
+      end;
+   end Append;
+
    --  ------------------------------
    --  Clear the source freeing any storage allocated for the buffer.
    --  ------------------------------
@@ -147,6 +204,36 @@ package body Util.Texts.Builders is
          end;
       end if;
    end Iterate;
+
+   procedure Inline_Iterate (Source  : in Builder) is
+   begin
+      if Source.First.Last > 0 then
+         Process (Source.First.Content (1 .. Source.First.Last));
+         declare
+            B : Block_Access := Source.First.Next_Block;
+         begin
+            while B /= null loop
+               Process (B.Content (1 .. B.Last));
+               B := B.Next_Block;
+            end loop;
+         end;
+      end if;
+   end Inline_Iterate;
+
+   procedure Inline_Update (Source  : in out Builder) is
+   begin
+      if Source.First.Last > 0 then
+         Process (Source.First.Content (1 .. Source.First.Last));
+         declare
+            B : Block_Access := Source.First.Next_Block;
+         begin
+            while B /= null loop
+               Process (B.Content (1 .. B.Last));
+               B := B.Next_Block;
+            end loop;
+         end;
+      end if;
+   end Inline_Update;
 
    --  ------------------------------
    --  Return the content starting from the tail and up to <tt>Length</tt> items.
@@ -215,6 +302,72 @@ package body Util.Texts.Builders is
    end To_Array;
 
    --  ------------------------------
+   --  Get the element at the given position.
+   --  ------------------------------
+   function Element (Source   : in Builder;
+                     Position : in Positive) return Element_Type is
+   begin
+      if Position <= Source.First.Last then
+         return Source.First.Content (Position);
+      else
+         declare
+            Pos : Positive := Position - Source.First.Last;
+            B   : Block_Access := Source.First.Next_Block;
+         begin
+            loop
+               if Pos <= B.Last then
+                  return B.Content (Pos);
+               end if;
+               Pos := Pos - B.Last;
+               B := B.Next_Block;
+            end loop;
+         end;
+      end if;
+   end Element;
+
+   --  ------------------------------
+   --  Find the position of some content by running the `Index` function.
+   --  The `Index` function is called with chunks starting at the given position and
+   --  until it returns a positive value or we reach the last chunk.  It must return
+   --  the found position in the chunk.
+   --  ------------------------------
+   function Find (Source   : in Builder;
+                  Position : in Positive) return Natural is
+      Result : Natural;
+   begin
+      if Position <= Source.First.Last then
+         Result := Index (Source.First.Content (Position .. Source.First.Last));
+         if Result > 0 then
+            return Result;
+         end if;
+      end if;
+      declare
+         Pos    : Integer := Position - Source.First.Last;
+         Offset : Positive := Source.First.Last;
+         B      : Block_Access := Source.First.Next_Block;
+      begin
+         loop
+            if B = null then
+               return 0;
+            end if;
+            if Pos <= B.Last then
+               if Pos > 0 then
+                  Result := Index (B.Content (Pos .. B.Last));
+               else
+                  Result := Index (B.Content (1 .. B.Last));
+               end if;
+               if Result > 0 then
+                  return Offset + Result;
+               end if;
+            end if;
+            Pos := Pos - B.Last;
+            Offset := Offset + B.Last;
+            B := B.Next_Block;
+         end loop;
+      end;
+   end Find;
+
+   --  ------------------------------
    --  Call the <tt>Process</tt> procedure with the full buffer content, trying to avoid
    --  secondary stack copies as much as possible.
    --  ------------------------------
@@ -271,7 +424,7 @@ package body Util.Texts.Builders is
                Old_Pos := Pos - 1;
                loop
                   if Element_Type'Pos (C) >= Character'Pos ('0')
-                    and Element_Type'Pos (C) <= Character'Pos ('9')
+                    and then Element_Type'Pos (C) <= Character'Pos ('9')
                   then
                      N := N * 10 + Natural (Element_Type'Pos (C) - Character'Pos ('0'));
                      Pos := Pos + 1;

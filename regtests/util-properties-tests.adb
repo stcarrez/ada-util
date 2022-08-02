@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties-tests -- Tests for properties
---  Copyright (C) 2009, 2010, 2011, 2014, 2017, 2018, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2014, 2017, 2018, 2020, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,6 @@ with Util.Test_Caller;
 with Ada.Text_IO;
 with Ada.Containers;
 
-with Util.Properties;
 with Util.Properties.Basic;
 
 package body Util.Properties.Tests is

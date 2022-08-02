@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-form -- x-www-form-urlencoded streams
---  Copyright (C) 2018 Stephane Carrez
+--  Copyright (C) 2018, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 with Ada.Streams;
 with Util.Streams.Texts;
-with Util.Serialize.IO;
 package Util.Serialize.IO.Form is
 
    type Output_Stream is limited new Util.Serialize.IO.Output_Stream with private;
@@ -118,11 +117,13 @@ package Util.Serialize.IO.Form is
    type Parser is new Serialize.IO.Parser with private;
 
    --  Parse the stream using the form parser.
+   overriding
    procedure Parse (Handler : in out Parser;
                     Stream  : in out Util.Streams.Buffered.Input_Buffer_Stream'Class;
                     Sink    : in out Reader'Class);
 
    --  Get the current location (file and line) to report an error message.
+   overriding
    function Get_Location (Handler : in Parser) return String;
 
    --  Read a form file and return an object.

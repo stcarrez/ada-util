@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  Util.Serialize.Mappers.Record_Mapper -- Mapper for record types
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -69,6 +69,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
    --  Execute the mapping operation on the object associated with the current context.
    --  The object is extracted from the context and the <b>Execute</b> operation is called.
    --  -----------------------
+   overriding
    procedure Execute (Handler : in Mapper;
                       Map     : in Mapping'Class;
                       Ctx     : in out Util.Serialize.Contexts.Context'Class;
@@ -266,6 +267,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
    --  -----------------------
    --  Clone the <b>Handler</b> instance and get a copy of that single object.
    --  -----------------------
+   overriding
    function Clone (Handler : in Mapper) return Util.Serialize.Mappers.Mapper_Access is
       Result : constant Mapper_Access := new Mapper;
    begin

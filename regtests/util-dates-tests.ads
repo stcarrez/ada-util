@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-tests - Test for dates
---  Copyright (C) 2018, 2020 Stephane Carrez
+--  Copyright (C) 2018, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,5 +37,8 @@ package Util.Dates.Tests is
 
    --  Test Get_Day_Count operation.
    procedure Test_Get_Day_Count (T : in out Test);
+
+   --  Test the Simple_Format option.
+   procedure Test_Simple_Format (T : in out Test);
 
 end Util.Dates.Tests;

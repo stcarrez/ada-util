@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base16 -- Encode/Decode a stream in hexadecimal
---  Copyright (C) 2009, 2010, 2011, 2017 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -83,13 +83,13 @@ package body Util.Encoders.Base16 is
       function To_Output_Char (Ch : Input_Char) return Code is
          C : constant Code := Input_Char'Pos (Ch);
       begin
-         if C >= Character'Pos ('a') and C <= Character'Pos ('f') then
+         if C >= Character'Pos ('a') and then C <= Character'Pos ('f') then
             return C - Character'Pos ('a') + 10;
 
-         elsif C >= Character'Pos ('A') and C <= Character'Pos ('F') then
+         elsif C >= Character'Pos ('A') and then C <= Character'Pos ('F') then
             return C - Character'Pos ('A') + 10;
 
-         elsif C >= Character'Pos ('0') and C <= Character'Pos ('9') then
+         elsif C >= Character'Pos ('0') and then C <= Character'Pos ('9') then
             return C - Character'Pos ('0');
 
          else

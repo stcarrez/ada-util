@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  csv_city -- Read CSV file which contains city mapping
---  Copyright (C) 2011, 2017 Stephane Carrez
+--  Copyright (C) 2011, 2017, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,6 @@ procedure CSV_City is
 
    use Ada.Containers;
    use Ada.Strings.Unbounded;
-   use Ada.Text_IO;
    use Util.Serialize.IO.CSV;
 
    Count  : constant Natural := Ada.Command_Line.Argument_Count;

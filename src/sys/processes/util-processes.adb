@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes -- Process creation and control
---  Copyright (C) 2011, 2016, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2018, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Unchecked_Deallocation;
+with Ada.Environment_Variables;
 
 with Util.Log.Loggers;
 with Util.Strings;
@@ -144,12 +145,56 @@ package body Util.Processes is
    end Append_Argument;
 
    --  ------------------------------
+   --  Set the environment variable to be used by the process before its creation.
+   --  ------------------------------
+   procedure Set_Environment (Proc  : in out Process;
+                              Name  : in String;
+                              Value : in String) is
+   begin
+      if Proc.Is_Running then
+         Log.Error ("Cannot set environment '{0}' while process is running", Name);
+         raise Invalid_State with "Process is running";
+      end if;
+      Proc.Sys.Set_Environment (Name, Value);
+   end Set_Environment;
+
+   procedure Set_Environment (Proc    : in out Process;
+                              Iterate : not null access
+                                procedure
+                                  (Process : not null access procedure
+                                     (Name  : in String;
+                                      Value : in String))) is
+      procedure Process (Name, Value : in String);
+
+      procedure Process (Name, Value : in String) is
+      begin
+         Proc.Sys.Set_Environment (Name, Value);
+      end Process;
+
+   begin
+      if Proc.Is_Running then
+         Log.Error ("Cannot set environment while process is running");
+         raise Invalid_State with "Process is running";
+      end if;
+      Iterate (Process'Access);
+   end Set_Environment;
+
+   --  ------------------------------
+   --  Import the default environment variables from the current process.
+   --  ------------------------------
+   procedure Set_Default_Environment (Proc : in out Process) is
+   begin
+      Set_Environment (Proc, Ada.Environment_Variables.Iterate'Access);
+   end Set_Default_Environment;
+
+   --  ------------------------------
    --  Spawn a new process with the given command and its arguments.  The standard input, output
    --  and error streams are either redirected to a file or to a stream object.
    --  ------------------------------
    procedure Spawn (Proc      : in out Process;
                     Command   : in String;
-                    Arguments : in Argument_List) is
+                    Arguments : in Argument_List;
+                    Mode      : in Pipe_Mode := NONE) is
    begin
       if Is_Running (Proc) then
          raise Invalid_State with "A process is running";
@@ -157,28 +202,36 @@ package body Util.Processes is
 
       Log.Info ("Starting process {0}", Command);
 
-      if Proc.Sys /= null then
-         Proc.Sys.Finalize;
-         Free (Proc.Sys);
-      end if;
-      Proc.Sys := new Util.Processes.Os.System_Process;
+      Proc.Sys.Clear_Arguments;
 
-      --  Build the argc/argv table, terminate by NULL
+      --  Build the argc/argv table, terminated by NULL
+      Proc.Sys.Append_Argument (Command);
       for I in Arguments'Range loop
          Proc.Sys.Append_Argument (Arguments (I).all);
       end loop;
 
-      --  Prepare to redirect the input/output/error streams.
-      Proc.Sys.Set_Streams (Input         => To_String (Proc.In_File),
-                            Output        => To_String (Proc.Out_File),
-                            Error         => To_String (Proc.Err_File),
-                            Append_Output => Proc.Out_Append,
-                            Append_Error  => Proc.Err_Append,
-                            To_Close      => Proc.To_Close);
+      Spawn (Proc, Mode);
+   end Spawn;
 
-      --  System specific spawn
-      Proc.Exit_Value := -1;
-      Proc.Sys.Spawn (Proc);
+   procedure Spawn (Proc      : in out Process;
+                    Arguments : in Util.Strings.Vectors.Vector;
+                    Mode      : in Pipe_Mode := NONE) is
+      Command : constant String := Arguments.First_Element;
+   begin
+      if Is_Running (Proc) then
+         raise Invalid_State with "A process is running";
+      end if;
+
+      Log.Info ("Starting process {0}", Command);
+
+      Proc.Sys.Clear_Arguments;
+
+      --  Build the argc/argv table, terminated by NULL
+      for Argument of Arguments loop
+         Proc.Sys.Append_Argument (Argument);
+      end loop;
+
+      Spawn (Proc, Mode);
    end Spawn;
 
    --  ------------------------------
@@ -188,8 +241,6 @@ package body Util.Processes is
    procedure Spawn (Proc      : in out Process;
                     Command   : in String;
                     Mode      : in Pipe_Mode := NONE) is
-      Pos  : Natural := Command'First;
-      N    : Natural;
    begin
       if Is_Running (Proc) then
          raise Invalid_State with "A process is running";
@@ -197,26 +248,41 @@ package body Util.Processes is
 
       Log.Info ("Starting process {0}", Command);
 
-      if Proc.Sys /= null then
-         Proc.Sys.Finalize;
-         Free (Proc.Sys);
-      end if;
-      Proc.Sys := new Util.Processes.Os.System_Process;
+      Proc.Sys.Clear_Arguments;
 
       if Length (Proc.Shell) > 0 then
          Proc.Sys.Append_Argument (To_String (Proc.Shell));
          Proc.Sys.Append_Argument ("-c");
          Proc.Sys.Append_Argument (Command);
       else
-         --  Build the argc/argv table
-         while Pos <= Command'Last loop
-            N := Util.Strings.Index (Command, ' ', Pos);
-            if N = 0 then
-               N := Command'Last + 1;
-            end if;
-            Proc.Sys.Append_Argument (Command (Pos .. N - 1));
-            Pos := N + 1;
-         end loop;
+         declare
+            Pos  : Natural := Command'First;
+            N    : Natural;
+         begin
+            --  Build the argc/argv table
+            while Pos <= Command'Last loop
+               N := Util.Strings.Index (Command, ' ', Pos);
+               if N = 0 then
+                  N := Command'Last + 1;
+               end if;
+               Proc.Sys.Append_Argument (Command (Pos .. N - 1));
+               Pos := N + 1;
+            end loop;
+         end;
+      end if;
+
+      Spawn (Proc, Mode);
+   end Spawn;
+
+   --  ------------------------------
+   --  Spawn a new process with the given command and its arguments.  The standard input, output
+   --  and error streams are either redirected to a file or to a stream object.
+   --  ------------------------------
+   procedure Spawn (Proc      : in out Process;
+                    Mode      : in Pipe_Mode := NONE) is
+   begin
+      if Is_Running (Proc) then
+         raise Invalid_State with "A process is running";
       end if;
 
       --  Prepare to redirect the input/output/error streams.
@@ -280,7 +346,7 @@ package body Util.Processes is
    --  ------------------------------
    function Is_Running (Proc : in Process) return Boolean is
    begin
-      return Proc.Pid > 0 and Proc.Exit_Value < 0;
+      return Proc.Pid > 0 and then Proc.Exit_Value < 0;
    end Is_Running;
 
    --  ------------------------------
@@ -340,4 +406,3 @@ package body Util.Processes is
    end Finalize;
 
 end Util.Processes;
-

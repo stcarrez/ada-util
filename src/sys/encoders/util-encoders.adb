@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009, 2010, 2011, 2016, 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -285,7 +285,7 @@ package body Util.Encoders is
       First    : Streams.Stream_Element_Offset := Into'First;
    begin
       Last := Into'First - 1;
-      while Pos <= Data'Last and Last < Into'Last loop
+      while Pos <= Data'Last and then Last < Into'Last loop
          declare
             Last_Encoded  : Streams.Stream_Element_Offset;
             Size          : Streams.Stream_Element_Offset;
@@ -468,7 +468,7 @@ package body Util.Encoders is
    --  ------------------------------
    function Create (Name : String) return Encoder is
    begin
-      if Name = BASE_16 or Name = HEX then
+      if Name = BASE_16 or else Name = HEX then
          return E : Encoder do
             E.Encode := new Util.Encoders.Base16.Encoder;
          end return;
@@ -496,7 +496,7 @@ package body Util.Encoders is
    --  ------------------------------
    function Create (Name : String) return Decoder is
    begin
-      if Name = BASE_16 or Name = HEX then
+      if Name = BASE_16 or else Name = HEX then
          return E : Decoder do
             E.Decode := new Util.Encoders.Base16.Decoder;
          end return;

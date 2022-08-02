@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-consoles-text -- Text console interface
---  Copyright (C) 2014, 2017, 2018, 2021 Stephane Carrez
+--  Copyright (C) 2014, 2017, 2018, 2021, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,6 +50,7 @@ package Util.Commands.Consoles.Text is
    procedure Start_Title (Console : in out Console_Type);
 
    --  Finish a new title in a report.
+   overriding
    procedure End_Title (Console : in out Console_Type);
 
    --  Start a new row in a report.

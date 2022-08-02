@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-texts -- Text stream utilities
---  Copyright (C) 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -91,7 +91,6 @@ package Util.Streams.Texts is
    procedure Read_Line (Stream : in out Reader_Stream;
                         Into   : out Ada.Strings.Unbounded.Unbounded_String;
                         Strip  : in Boolean := False);
-
 
 private
 

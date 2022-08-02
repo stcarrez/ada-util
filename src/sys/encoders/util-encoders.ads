@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017, 2019 Stephane Carrez
+--  Copyright (C) 2009 - 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,12 +19,27 @@ with Ada.Streams;
 with Ada.Finalization;
 with Interfaces;
 
---  === Encoder and Decoders ===
---  The <b>Util.Encoders</b> package defines the <b>Encoder</b> and <b>Decode</b> objects
+--  = Encoders =
+--  The `Util.Encoders` package defines the `Encoder` and `Decoder` types
 --  which provide a mechanism to transform a stream from one format into
---  another format.
+--  another format.  The basic encoder and decoder support `base16`, `base64`,
+--  `base64url` and `sha1`.
+--  The following code extract will encode in `base64`:
 --
---  ==== Simple encoding and decoding ====
+--    C : constant Encoder := Util.Encoders.Create ("base64");
+--    S : constant String := C.Encode ("Ada is great!");
+--
+--  and the next code extract will decode the `base64`:
+--
+--    D : constant Decoder := Util.Encoders.Create ("base64");
+--    S : constant String := D.Decode ("QWRhIGlzIGdyZWF0IQ==");
+--
+--  To use the packages described here, use the following GNAT project:
+--
+--    with "utilada_sys";
+--
+--  @include util-encoders-uri.ads
+--  @include util-encoders-ecc.ads
 --
 package Util.Encoders is
 
