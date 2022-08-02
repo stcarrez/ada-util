@@ -5,7 +5,7 @@ with "utilada_aws";
 abstract project UtilAda_Http is
    type Yes_No is ("yes", "no");
 
-   Version := "2.4.0";
+   Version := "2.5.0";
    Library_Dir := "lib";
 
    Has_Curl    : Yes_No := "yes";
