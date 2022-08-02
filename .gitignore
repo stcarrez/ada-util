@@ -37,6 +37,13 @@ utilada_http.gpr
 utilada_unit.gpr
 utilada_lzma.gpr
 utilada_tests.gpr
+*.substvars
+debian/lib*
+debian/.debhelper/
+debian/autoreconf.after
+debian/autoreconf.before
+debian/debhelper-build-stamp
+debian/files
 docs/utilada-book.html
 wiki
 cover
