@@ -1,4 +1,4 @@
-Version 2.5.0  -
+Version 2.5.0  - Aug 2022
   - New examples to illustrate the IO stream composition
   - New examples for JSON parser and Util.Beans.Objects
   - Add support to set environment variables when launching a process (without changing the current process environment!)
