@@ -115,6 +115,7 @@ package body Util.Http.Mockups is
    overriding
    function Get_Body (Reply : in Mockup_Response) return Util.Blobs.Blob_Ref is
       use Ada.Streams;
+      procedure Append (Content : in String);
 
       Result : constant Util.Blobs.Blob_Ref
         := Util.Blobs.Create_Blob (Size => Util.Strings.Builders.Length (Reply.Content));
