@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  log -- Log example
---  Copyright (C) 2010 Stephane Carrez
+--  Copyright (C) 2010, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
 -----------------------------------------------------------------------
 with Util.Log;
 with Util.Log.Loggers;
-
+with Syslog_Appenders;
 procedure Log is
 
    use Util.Log;
@@ -34,6 +34,8 @@ procedure Log is
    end Report;
 
 begin
+   Syslog_Appenders.Syslog_Factory.Register;
+
    --  Initialization is optional.  Get the log configuration by reading the property
    --  file 'samples/log4j.properties'.  The 'log.util' logger will use a DEBUG level
    --  and write the message in 'result.log'.
