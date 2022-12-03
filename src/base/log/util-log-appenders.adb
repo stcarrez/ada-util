@@ -180,7 +180,7 @@ package body Util.Log.Appenders is
          if Appender.Name = Name then
             return Appender;
          end if;
-         Appender := Appender.Next;
+         Appender := Appender.Next.Next;
       end loop;
       return null;
    end Find_Appender;
@@ -191,7 +191,7 @@ package body Util.Log.Appenders is
    procedure Add_Appender (List     : in out Appender_List;
                            Appender : in Appender_Access) is
    begin
-      Appender.Next := List.First;
+      Appender.Next.Next := List.First;
       List.First := Appender;
    end Add_Appender;
 
@@ -207,7 +207,7 @@ package body Util.Log.Appenders is
       loop
          Appender := List.First;
          exit when Appender = null;
-         List.First := Appender.Next;
+         List.First := Appender.Next.Next;
          Free (Appender);
       end loop;
    end Clear;

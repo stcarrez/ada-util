@@ -44,8 +44,15 @@ package Util.Log.Appenders is
          --  Ex: "2011-03-04 12:13:34 ERROR - my.application - Cannot open file"
          FULL);
 
-   type Appender (Length : Positive) is
-     abstract new Ada.Finalization.Limited_Controlled with private;
+   type Appender_Internal is limited private;
+
+   type Appender (Length : Positive) is abstract
+     new Ada.Finalization.Limited_Controlled with record
+      Next     : Appender_Internal;
+      Level    : Level_Type := INFO_LEVEL;
+      Layout   : Layout_Type := FULL;
+      Name     : String (1 .. Length);
+   end record;
 
    type Appender_Access is access all Appender'Class;
 
@@ -155,15 +162,8 @@ package Util.Log.Appenders is
 
 private
 
-   --  ------------------------------
-   --  Log appender
-   --  ------------------------------
-   type Appender (Length : Positive) is abstract
-     new Ada.Finalization.Limited_Controlled with record
-      Next     : Appender_Access;
-      Level    : Level_Type := INFO_LEVEL;
-      Layout   : Layout_Type := FULL;
-      Name     : String (1 .. Length);
+   type Appender_Internal is limited record
+      Next  : Appender_Access;
    end record;
 
    type Appender_List is limited record
