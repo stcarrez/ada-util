@@ -21,6 +21,12 @@ UTIL_OS = "linux32"
 [gpr-set-externals."case(os)".linux."case(word-size)".bits-64]
 UTIL_OS = "linux64"
 
+[gpr-set-externals."case(os)".freebsd."case(word-size)".bits-32]
+UTIL_OS = "freebsd32"
+
+[gpr-set-externals."case(os)".freebsd."case(word-size)".bits-64]
+UTIL_OS = "freebsd64"
+
 [gpr-set-externals."case(os)".macos]
 UTIL_OS = "macos64"
 [gpr-set-externals."case(os)".windows."case(word-size)".bits-32]
