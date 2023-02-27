@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2022 Stephane Carrez
+--  Copyright (C) 2009 - 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
 with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 with Util.Encoders.Base16;
+with Util.Encoders.Base32;
 with Util.Encoders.Base64;
 with Util.Encoders.SHA1;
 package body Util.Encoders is
@@ -483,6 +484,11 @@ package body Util.Encoders is
             E.Encode := Util.Encoders.Base64.Create_URL_Encoder;
          end return;
 
+      elsif Name = BASE_32 then
+         return E : Encoder do
+            E.Encode := Util.Encoders.Base32.Create_Encoder;
+         end return;
+
       elsif Name = HASH_SHA1 then
          return E : Encoder do
             E.Encode := new Util.Encoders.SHA1.Encoder;
@@ -509,6 +515,11 @@ package body Util.Encoders is
       elsif Name = BASE_64_URL then
          return E : Decoder do
             E.Decode := Util.Encoders.Base64.Create_URL_Decoder;
+         end return;
+
+      elsif Name = BASE_32 then
+         return E : Decoder do
+            E.Decode := Util.Encoders.Base32.Create_Decoder;
          end return;
 
       elsif Name = HASH_SHA1 then
