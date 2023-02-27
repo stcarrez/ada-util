@@ -3,7 +3,7 @@ with "utilada_sys";
 with "aws";
 
 library project UtilAda_Aws is
-   Version := "2.5.0";
+   Version := "2.6.0";
    Library_Dir := "lib";
 
    AWS_Impl    : Utilada_Conf.AWS_Impl_Type := Utilada_Conf.AWS_Impl;
