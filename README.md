@@ -34,6 +34,9 @@ Ada Util also provides a small test utility library on top of
 Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
 framework as it provides better reports.
 
+## Version 2.6.0  - Under development
+  - New encoder/decoder for Base32
+
 ## Version 2.5.0  - Aug 2022
   - New examples to illustrate the IO stream composition
   - New examples for JSON parser and Util.Beans.Objects

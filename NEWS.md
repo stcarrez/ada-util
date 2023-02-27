@@ -1,3 +1,6 @@
+Version 2.6.0  - Under development
+  - New encoder/decoder for Base32
+
 Version 2.5.0  - Aug 2022
   - New examples to illustrate the IO stream composition
   - New examples for JSON parser and Util.Beans.Objects
