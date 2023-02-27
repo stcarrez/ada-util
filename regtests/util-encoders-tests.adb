@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encodes-tests - Test for encoding
---  Copyright (C) 2009 - 2022 Stephane Carrez
+--  Copyright (C) 2009 - 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,6 +60,10 @@ package body Util.Encoders.Tests is
                        Test_Base64_URL_Decode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Benchmark",
                        Test_Base64_Benchmark'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base32.Encode",
+                       Test_Base32_Encode'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base32.Decode",
+                       Test_Base32_Decode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.SHA1.Encode",
                        Test_SHA1_Encode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.SHA1.Benchmark",
@@ -159,6 +163,30 @@ package body Util.Encoders.Tests is
       Assert_Equals (T, "|~" & ASCII.DEL, Util.Encoders.Decode (D, "fH5_"));
       Test_Encoder (T, C, D);
    end Test_Base64_URL_Decode;
+
+   procedure Test_Base32_Encode (T : in out Test) is
+      C : constant Util.Encoders.Encoder := Create ("base32");
+      D : constant Util.Encoders.Decoder := Create ("base32");
+   begin
+      Assert_Equals (T, "ME======", Util.Encoders.Encode (C, "a"));
+      Assert_Equals (T, "MFRA====", Util.Encoders.Encode (C, "ab"));
+      Assert_Equals (T, "MFRGG===", Util.Encoders.Encode (C, "abc"));
+      Assert_Equals (T, "MFRGGZA=", Util.Encoders.Encode (C, "abcd"));
+      Assert_Equals (T, "MFRGGZDF", Util.Encoders.Encode (C, "abcde"));
+      Test_Encoder (T, C, D);
+   end Test_Base32_Encode;
+
+   procedure Test_Base32_Decode (T : in out Test) is
+      C : constant Util.Encoders.Encoder := Create ("base32");
+      D : constant Util.Encoders.Decoder := Create ("base32");
+   begin
+      Assert_Equals (T, "a", Util.Encoders.Decode (D, "ME======"));
+      Assert_Equals (T, "ab", Util.Encoders.Decode (D, "MFRA===="));
+      Assert_Equals (T, "abc", Util.Encoders.Decode (D, "MFRGG==="));
+      Assert_Equals (T, "abcd", Util.Encoders.Decode (D, "MFRGGZA="));
+      Assert_Equals (T, "abcde", Util.Encoders.Decode (D, "MFRGGZDF"));
+      Test_Encoder (T, C, D);
+   end Test_Base32_Decode;
 
    procedure Test_Encoder (T : in out Test;
                            C : in Util.Encoders.Encoder;

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encodes-tests - Test for encoding
---  Copyright (C) 2009 - 2022 Stephane Carrez
+--  Copyright (C) 2009 - 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,8 @@ package Util.Encoders.Tests is
    procedure Test_Base64_Decode (T : in out Test);
    procedure Test_Base64_URL_Encode (T : in out Test);
    procedure Test_Base64_URL_Decode (T : in out Test);
+   procedure Test_Base32_Encode (T : in out Test);
+   procedure Test_Base32_Decode (T : in out Test);
    procedure Test_Encoder (T : in out Test;
                            C : in Util.Encoders.Encoder;
                            D : in Util.Encoders.Decoder);
