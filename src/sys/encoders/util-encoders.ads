@@ -22,7 +22,7 @@ with Interfaces;
 --  = Encoders =
 --  The `Util.Encoders` package defines the `Encoder` and `Decoder` types
 --  which provide a mechanism to transform a stream from one format into
---  another format.  The basic encoder and decoder support `base16`,    
+--  another format.  The basic encoder and decoder support `base16`,
 --  `base32`, `base64`, `base64url` and `sha1`.
 --  The following code extract will encode in `base64`:
 --
