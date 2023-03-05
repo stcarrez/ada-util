@@ -79,4 +79,7 @@ package Util.Encoders.Tests is
    --  Test the percent URI encoding.
    procedure Test_Encode_URI (T : in out Test);
 
+   --  Test the HOTP method.
+   procedure Test_HMAC_HOTP (T : in out Test);
+
 end Util.Encoders.Tests;

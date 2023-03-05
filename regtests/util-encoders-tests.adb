@@ -24,6 +24,7 @@ with Util.Encoders.SHA1;
 with Util.Encoders.SHA256;
 with Util.Encoders.HMAC.SHA1;
 with Util.Encoders.HMAC.SHA256;
+with Util.Encoders.HMAC.HOTP;
 with Util.Encoders.Base16;
 with Util.Encoders.Base64;
 with Util.Encoders.AES;
@@ -116,6 +117,8 @@ package body Util.Encoders.Tests is
                        Test_Decode_Quoted_Printable'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.URI.Encode",
                        Test_Encode_URI'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.HOTP",
+                       Test_HMAC_HOTP'Access);
    end Add_Tests;
 
    procedure Test_Base64_Encode (T : in out Test) is
@@ -732,5 +735,55 @@ package body Util.Encoders.Tests is
       Check ("example.com/%D1%8F%D1%87%D0%BC%D0%B5%D0%BD%D0%BD%D1%8B%D0%B9",
              "example.com/ячменный", URI.HREF_LOOSE);
    end Test_Encode_URI;
+
+   --  ------------------------------
+   --  Test the HOTP method.
+   --  ------------------------------
+   procedure Test_HMAC_HOTP (T : in out Test) is
+      procedure HOTP_SHA1 is
+        new Util.Encoders.HMAC.HOTP (Util.Encoders.SHA1.HASH_SIZE,
+                                     Util.Encoders.HMAC.SHA1.Sign);
+
+      S : constant Secret_Key := Create ("12345678901234567890");
+      R : Natural;
+   begin
+      --  Use tests from RFC 4226
+      --  Appendix D - HOTP Algorithm: Test Values
+      HOTP_SHA1 (Secret => S, Counter => 0, Count => 6, Result => R);
+      Util.Tests.Assert_Equals (T, 755224, R, "Invalid HOTP value");
+
+      HOTP_SHA1 (Secret => S, Counter => 1, Count => 6, Result => R);
+      Util.Tests.Assert_Equals (T, 287082, R, "Invalid HOTP value");
+
+      HOTP_SHA1 (Secret => S, Counter => 2, Count => 6, Result => R);
+      Util.Tests.Assert_Equals (T, 359152, R, "Invalid HOTP value");
+
+      HOTP_SHA1 (Secret => S, Counter => 3, Count => 6, Result => R);
+      Util.Tests.Assert_Equals (T, 969429, R, "Invalid HOTP value");
+
+      HOTP_SHA1 (Secret => S, Counter => 4, Count => 6, Result => R);
+      Util.Tests.Assert_Equals (T, 338314, R, "Invalid HOTP value");
+
+      HOTP_SHA1 (Secret => S, Counter => 5, Count => 6, Result => R);
+      Util.Tests.Assert_Equals (T, 254676, R, "Invalid HOTP value");
+
+      HOTP_SHA1 (Secret => S, Counter => 6, Count => 6, Result => R);
+      Util.Tests.Assert_Equals (T, 287922, R, "Invalid HOTP value");
+
+      HOTP_SHA1 (Secret => S, Counter => 7, Count => 6, Result => R);
+      Util.Tests.Assert_Equals (T, 162583, R, "Invalid HOTP value");
+
+      HOTP_SHA1 (Secret => S, Counter => 8, Count => 6, Result => R);
+      Util.Tests.Assert_Equals (T, 399871, R, "Invalid HOTP value");
+
+      HOTP_SHA1 (Secret => S, Counter => 9, Count => 6, Result => R);
+      Util.Tests.Assert_Equals (T, 520489, R, "Invalid HOTP value");
+
+      HOTP_SHA1 (Secret => S, Counter => 9, Count => 5, Result => R);
+      Util.Tests.Assert_Equals (T, 20489, R, "Invalid HOTP value");
+
+      HOTP_SHA1 (Secret => S, Counter => 9, Count => 4, Result => R);
+      Util.Tests.Assert_Equals (T, 489, R, "Invalid HOTP value");
+   end Test_HMAC_HOTP;
 
 end Util.Encoders.Tests;
