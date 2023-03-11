@@ -82,4 +82,7 @@ package Util.Encoders.Tests is
    --  Test the HOTP method.
    procedure Test_HMAC_HOTP (T : in out Test);
 
+   --  Test the Decode_Key function.
+   procedure Test_Decode_Key (T : in out Test);
+
 end Util.Encoders.Tests;

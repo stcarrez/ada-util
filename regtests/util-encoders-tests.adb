@@ -20,6 +20,7 @@ with Util.Test_Caller;
 with Util.Measures;
 with Util.Strings.Transforms;
 with Ada.Text_IO;
+with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 with Util.Encoders.SHA1;
 with Util.Encoders.SHA256;
 with Util.Encoders.HMAC.SHA1;
@@ -119,6 +120,8 @@ package body Util.Encoders.Tests is
                        Test_Encode_URI'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.HOTP",
                        Test_HMAC_HOTP'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Decode_Key",
+                       Test_Decode_Key'Access);
    end Add_Tests;
 
    procedure Test_Base64_Encode (T : in out Test) is
@@ -729,11 +732,12 @@ package body Util.Encoders.Tests is
          Assert_Equals (T, Item, URI.Decode (Res));
       end Check;
 
+      S : constant Wide_Wide_String := "example.com/ячменный";
    begin
       Check ("http://example.com/%5C%5B%5C", "http://example.com/\[\", URI.HREF_LOOSE);
       Check ("%20escape%20%3A%20%2F%20%23%40", " escape : / #@", URI.HREF_STRICT);
       Check ("example.com/%D1%8F%D1%87%D0%BC%D0%B5%D0%BD%D0%BD%D1%8B%D0%B9",
-             "example.com/ячменный", URI.HREF_LOOSE);
+             Ada.Strings.UTF_Encoding.Wide_Wide_Strings.Encode (S), URI.HREF_LOOSE);
    end Test_Encode_URI;
 
    --  ------------------------------
@@ -785,5 +789,21 @@ package body Util.Encoders.Tests is
       R := HOTP_SHA1 (Secret => S, Counter => 9, Count => 4);
       Util.Tests.Assert_Equals (T, 489, R, "Invalid HOTP value");
    end Test_HMAC_HOTP;
+
+   --  ------------------------------
+   --  Test the Decode_Key function.
+   --  ------------------------------
+   procedure Test_Decode_Key (T : in out Test) is
+      Decoder : constant Util.Encoders.Decoder := Util.Encoders.Create (Util.Encoders.BASE_32);
+      Key     : Util.Encoders.Secret_Key := Decoder.Decode_Key ("ONSWG4TFOQWWWZLZ");
+   begin
+      Util.Tests.Assert_Equals (T, 10, Integer (Key.Length), "Invalid key length");
+      declare
+         S : String (1 .. 10);
+         for S'Address use Key.Secret'Address;
+      begin
+         Util.Tests.Assert_Equals (T, "secret-key", S, "Invalid secret key");
+      end;
+   end Test_Decode_Key;
 
 end Util.Encoders.Tests;
