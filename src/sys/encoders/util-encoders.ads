@@ -135,6 +135,8 @@ package Util.Encoders is
                     Data : in String) return String;
    function Decode_Binary (E    : in Decoder;
                            Data : in String) return Ada.Streams.Stream_Element_Array;
+   function Decode_Key (E    : in Decoder'Class;
+                        Data : in String) return Secret_Key;
 
    --  Create the decoder object for the specified encoding format.
    function Create (Name : in String) return Decoder;

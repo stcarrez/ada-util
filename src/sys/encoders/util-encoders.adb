@@ -31,6 +31,26 @@ package body Util.Encoders is
    procedure Free is
      new Ada.Unchecked_Deallocation (Transformer'Class, Transformer_Access);
 
+   MIN_BUFFER_SIZE : constant Streams.Stream_Element_Offset := 64;
+   MAX_BUFFER_SIZE : constant Streams.Stream_Element_Offset := 2_048;
+
+   function Best_Size (Length : Natural) return Streams.Stream_Element_Offset;
+   pragma Inline (Best_Size);
+
+   --  ------------------------------
+   --  Compute a good size for allocating a buffer on the stack
+   --  ------------------------------
+   function Best_Size (Length : Natural) return Streams.Stream_Element_Offset is
+   begin
+      if Length < Natural (MIN_BUFFER_SIZE) then
+         return MIN_BUFFER_SIZE;
+      elsif Length > Natural (MAX_BUFFER_SIZE) then
+         return MAX_BUFFER_SIZE;
+      else
+         return Streams.Stream_Element_Offset (((Length + 15) / 16) * 16);
+      end if;
+   end Best_Size;
+
    --  ------------------------------
    --  Create the secret key from the password string.
    --  ------------------------------
@@ -172,25 +192,36 @@ package body Util.Encoders is
       return E.Decode.all.Transform (Buf);
    end Decode_Binary;
 
-   MIN_BUFFER_SIZE : constant Streams.Stream_Element_Offset := 64;
-   MAX_BUFFER_SIZE : constant Streams.Stream_Element_Offset := 2_048;
-
-   function Best_Size (Length : Natural) return Streams.Stream_Element_Offset;
-   pragma Inline (Best_Size);
-
-   --  ------------------------------
-   --  Compute a good size for allocating a buffer on the stack
-   --  ------------------------------
-   function Best_Size (Length : Natural) return Streams.Stream_Element_Offset is
+   function Decode_Key (E    : in Decoder'Class;
+                        Data : in String) return Secret_Key is
+      Buf : Ada.Streams.Stream_Element_Array (Offset (Data'First) .. Offset (Data'Last));
+      for Buf'Address use Data'Address;
    begin
-      if Length < Natural (MIN_BUFFER_SIZE) then
-         return MIN_BUFFER_SIZE;
-      elsif Length > Natural (MAX_BUFFER_SIZE) then
-         return MAX_BUFFER_SIZE;
-      else
-         return Streams.Stream_Element_Offset (((Length + 15) / 16) * 16);
+      if E.Decode = null then
+         raise Not_Supported with "There is no decoder";
       end if;
-   end Best_Size;
+
+      --  Decode in a Secret_Key large enough to handle the decoded content
+      --  and we return a Secret_Key with the correct length.  The temp secret
+      --  key will have its finalizer that clears the buffer.
+      --  Constraint_Error will be raised if the temp secret is not large enough.
+      declare
+         Buf_Size      : constant Streams.Stream_Element_Offset := Best_Size (Buf'Length);
+         Tmp_Key       : Secret_Key (Length => Buf_Size);
+         Last_Encoded  : Streams.Stream_Element_Offset;
+         Last          : Streams.Stream_Element_Offset;
+      begin
+         E.Decode.Transform (Data    => Buf,
+                             Into    => Tmp_Key.Secret,
+                             Encoded => Last_Encoded,
+                             Last    => Last);
+
+         E.Decode.Finish (Tmp_Key.Secret (Last + 1 .. Tmp_Key.Secret'Last), Last);
+         return Key : Secret_Key (Last) do
+            Key.Secret := Tmp_Key.Secret (1 .. Last);
+         end return;
+      end;
+   end Decode_Key;
 
    --  ------------------------------
    --  Transform the input string <b>Data</b> using the transformation
