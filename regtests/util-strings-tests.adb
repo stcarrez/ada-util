@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-strings-tests -- Unit tests for strings
---  Copyright (C) 2009, 2010, 2011, 2012, 2015, 2018, 2020, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2009 - 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,7 @@ with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Strings.Fixed.Hash;
 with Ada.Strings.Unbounded.Hash;
+with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 with Ada.Containers;
 with Util.Test_Caller;
 with Util.Strings.Transforms;
@@ -152,7 +153,12 @@ package body Util.Strings.Tests is
       Unescape_Xml (Content    => "Test &#x65;&#xc0;&#x111;&#x126;&#xcb; end",
                     Translator => Util.Strings.Transforms.TR.Translate_Xml_Entity'Access,
                     Into       => Result);
-      Util.Tests.Assert_Equals (T, "Test eÀđĦË end", Result, "Invalid Decimal Unescape");
+      declare
+         S : constant Wide_Wide_String := "Test eÀđĦË end";
+         Expect : constant String := Ada.Strings.UTF_Encoding.Wide_Wide_Strings.Encode (S);
+      begin
+         Util.Tests.Assert_Equals (T, Expect, Result, "Invalid Decimal Unescape");
+      end;
 
       Unescape_Xml (Content    => "&;&#qsf;&qsd;&#12121212121212121212;; &#41",
                     Translator => Util.Strings.Transforms.TR.Translate_Xml_Entity'Access,
