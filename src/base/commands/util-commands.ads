@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands -- Support to make command line tools
---  Copyright (C) 2017, 2018, 2019, 2022 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019, 2022, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,6 +65,7 @@ private with Ada.Strings.Unbounded;
 --      new Util.Commands.Drivers
 --        (Context_Type  => Context_Type,
 --         Config_Parser => Util.Commands.Parsers.GNAT_Parser.Config_Parser,
+--         IO            => Util.Commands.Text_IO,
 --         Driver_Name   => "tool");
 --
 --  Then an instance of the command driver must be declared.  Commands are then registered
@@ -171,6 +172,18 @@ package Util.Commands is
    function Get_Command_Name (List : in Dynamic_Argument_List) return String;
 
    function No_Translate (Message : in String) return String is (Message) with Inline;
+
+   generic
+      type Count_Type is (<>);
+      with procedure Put (Message : in String);
+      with procedure Put_Line (Message : in String);
+      with procedure New_Line (Count : Count_Type);
+   package IO is
+   end IO;
+
+   procedure Put_Raw (Content : in String);
+   procedure Put_Raw_Line (Content : in String);
+   procedure New_Line_Raw (Count : in Positive);
 
 private
 

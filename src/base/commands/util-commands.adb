@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands -- Support to make command line tools
---  Copyright (C) 2017, 2018, 2022 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2022, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,8 @@
 -----------------------------------------------------------------------
 with Ada.Command_Line;
 with Ada.Characters.Handling;
+with Util.Systems.IO;
+with Util.Systems.Os;
 package body Util.Commands is
 
    --  ------------------------------
@@ -137,5 +139,24 @@ package body Util.Commands is
    begin
       return Ada.Strings.Unbounded.To_String (List.Name);
    end Get_Command_Name;
+
+   procedure Put_Raw (Content : in String) is
+   begin
+      Util.Systems.IO.Put_Raw (Util.Systems.IO.STDOUT_FILENO, Content);
+   end Put_Raw;
+
+   procedure Put_Raw_Line (Content : in String) is
+   begin
+      Util.Systems.IO.Put_Raw (Util.Systems.IO.STDOUT_FILENO,
+                               Content & Util.Systems.Os.Line_Separator);
+   end Put_Raw_Line;
+
+   procedure New_Line_Raw (Count : in Positive) is
+   begin
+      for I in 1 .. Count loop
+         Util.Systems.IO.Put_Raw (Util.Systems.IO.STDOUT_FILENO,
+                                  Util.Systems.Os.Line_Separator);
+      end loop;
+   end New_Line_Raw;
 
 end Util.Commands;
