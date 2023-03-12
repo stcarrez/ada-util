@@ -20,6 +20,7 @@ with Util.Test_Caller;
 with Util.Log;
 with Util.Commands.Parsers.GNAT_Parser;
 with Util.Commands.Drivers;
+with Util.Commands.Text_IO;
 package body Util.Commands.Tests is
 
    package Caller is new Util.Test_Caller (Test, "Commands");
@@ -36,11 +37,13 @@ package body Util.Commands.Tests is
    package Test_Command is new
      Util.Commands.Drivers (Context_Type => Test_Context_Type,
                             Config_Parser => Util.Commands.Parsers.GNAT_Parser.Config_Parser,
+                            IO => Util.Commands.Text_IO,
                             Driver_Name  => "test");
 
    package Simple_Command is new
      Util.Commands.Drivers (Context_Type => Test_Context_Type,
                             Config_Parser => Util.Commands.Parsers.No_Parser,
+                            IO => Util.Commands.Text_IO,
                             Driver_Name  => "simple");
 
    type Test_Command_Type is new Test_Command.Command_Type with record
