@@ -16,7 +16,6 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Util.Strings;
 package body Util.Commands.Consoles is
 
    --  ------------------------------
