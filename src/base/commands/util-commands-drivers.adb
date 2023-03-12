@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-drivers -- Support to make command line tools
---  Copyright (C) 2017, 2018, 2019, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019, 2021, 2022, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------
 with Util.Log.Loggers;
 with Util.Strings.Formats;
-with Ada.Text_IO; use Ada.Text_IO;
 package body Util.Commands.Drivers is
 
    use Ada.Strings.Unbounded;
@@ -80,27 +79,27 @@ package body Util.Commands.Drivers is
       procedure Compute_Size (Position : in Command_Sets.Cursor);
       procedure Print (Position : in Command_Sets.Cursor);
 
-      Column : Ada.Text_IO.Positive_Count := 1;
+      Column : Positive := 1;
 
       procedure Compute_Size (Position : in Command_Sets.Cursor) is
          Cmd  : constant Command_Access := Command_Sets.Element (Position);
          Len  : constant Natural := Length (Cmd.Name);
       begin
          if Natural (Column) < Len then
-            Column := Ada.Text_IO.Positive_Count (Len);
+            Column := Positive (Len);
          end if;
       end Compute_Size;
 
       procedure Print (Position : in Command_Sets.Cursor) is
          Cmd  : constant Command_Access := Command_Sets.Element (Position);
+         Name : constant String := To_String (Cmd.Name);
+         Desc : constant String := To_String (Cmd.Description);
+         Max  : constant Positive := 3 + Column + Desc'Length;
+         Line : String (1 .. Max) := (others => ' ');
       begin
-         Put ("   ");
-         Put (To_String (Cmd.Name));
-         if Length (Cmd.Description) > 0 then
-            Set_Col (Column + 7);
-            Put (To_String (Cmd.Description));
-         end if;
-         New_Line;
+         Line (3 .. 3 + Name'Length - 1) := Name;
+         Line (Column + 4 .. Line'Last) := Desc;
+         IO.Put_Line (Line);
       end Print;
 
    begin
@@ -108,10 +107,10 @@ package body Util.Commands.Drivers is
 
       if Args.Get_Count = 0 then
          Usage (Command.Driver.all, Args, Context);
-         New_Line;
-         Put_Line (Strings.Formats.Format (-("Type '{0} help {command}' for help "
-                                               & "on a specific command."), Driver_Name));
-         Put_Line (-("Available subcommands:"));
+         IO.New_Line (IO.Count_Type'First);
+         IO.Put_Line (Strings.Formats.Format (-("Type '{0} help {command}' for help "
+                      & "on a specific command."), Driver_Name));
+         IO.Put_Line (-("Available subcommands:"));
          Command.Driver.List.Iterate (Process => Compute_Size'Access);
          Command.Driver.List.Iterate (Process => Print'Access);
       else
@@ -148,8 +147,8 @@ package body Util.Commands.Drivers is
                     Context : in out Context_Type;
                     Name    : in String := "") is
    begin
-      Put_Line (To_String (Driver.Desc));
-      New_Line;
+      IO.Put_Line (To_String (Driver.Desc));
+      IO.New_Line (IO.Count_Type'First);
       if Name'Length > 0 then
          declare
             Command : constant Command_Access := Driver.Find_Command (Name);
@@ -157,14 +156,11 @@ package body Util.Commands.Drivers is
             if Command /= null then
                Command.Usage (Name, Context);
             else
-               Put (-("Invalid command"));
+               IO.Put_Line (-("Invalid command"));
             end if;
          end;
       else
-         Put (-("Usage: "));
-         Put (Args.Get_Command_Name);
-         Put (" ");
-         Put_Line (To_String (Driver.Usage));
+         IO.Put_Line (-("Usage: ") & Args.Get_Command_Name & " " & To_String (Driver.Usage));
       end if;
    end Usage;
 

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-drivers -- Support to make command line tools
---  Copyright (C) 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,11 +33,19 @@ private with Ada.Containers.Ordered_Sets;
 --  The `Config_Parser` describes the parser package that will handle the analysis of
 --  command line options.  To use the GNAT options parser, it is possible to use the
 --  `Util.Commands.Parsers.GNAT_Parser` package.
+--
+--  The `IO` package parameter allows to control the operations that the command line
+--  support will use to print some message on the console.  When strings are encoded
+--  in Latin-1, it is possible to give the `Util.Commands.Text_IO` package that will
+--  use the standard `Ada.Text_IO` package to write on the console.  When strings are
+--  encoded in UTF-8, it is best to use the `Util.Commands.Raw_IO` package that will
+--  write the strings unmodified on the console.
 generic
    --  The command execution context.
    type Context_Type (<>) is limited private;
    with package Config_Parser is new Util.Commands.Parsers.Config_Parser (<>);
    with function Translate (Message : in String) return String is No_Translate;
+   with package IO is new Util.Commands.IO (<>);
    Driver_Name : String := "Drivers";
 package Util.Commands.Drivers is
 
