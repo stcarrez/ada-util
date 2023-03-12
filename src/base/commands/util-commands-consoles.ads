@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-consoles -- Console interface
---  Copyright (C) 2014, 2015, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2014, 2015, 2017, 2018, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,9 @@ with Ada.Strings.Unbounded;
 generic
    type Field_Type is (<>);
    type Notice_Type is (<>);
+   type Element_Type is (<>);
+   type Input_Type is array (Positive range <>) of Element_Type;
+   with function To_Input (Value : in Integer) return Input_Type;
 package Util.Commands.Consoles is
 
    type Justify_Type is (J_LEFT,           --  Justify left   |item    |
@@ -32,23 +35,24 @@ package Util.Commands.Consoles is
 
    --  Report an error message.
    procedure Error (Console : in out Console_Type;
-                    Message : in String) is abstract;
+                    Message : in Input_Type) is abstract;
 
    --  Report a notice message.
    procedure Notice (Console : in out Console_Type;
                      Kind    : in Notice_Type;
-                     Message : in String) is abstract;
+                     Message : in Input_Type) is abstract;
 
    --  Print the field value for the given field.
    procedure Print_Field (Console : in out Console_Type;
                           Field   : in Field_Type;
-                          Value   : in String;
+                          Value   : in Input_Type;
                           Justify : in Justify_Type := J_LEFT) is abstract;
 
    --  Print the title for the given field.
    procedure Print_Title (Console : in out Console_Type;
                           Field   : in Field_Type;
-                          Title   : in String) is abstract;
+                          Title   : in Input_Type;
+                          Justify : in Justify_Type := J_LEFT) is abstract;
 
    --  Start a new title in a report.
    procedure Start_Title (Console : in out Console_Type) is abstract;
@@ -65,19 +69,19 @@ package Util.Commands.Consoles is
    --  Print the title for the given field and setup the associated field size.
    procedure Print_Title (Console : in out Console_Type;
                           Field   : in Field_Type;
-                          Title   : in String;
-                          Length  : in Positive);
+                          Title   : in Input_Type;
+                          Length  : in Positive;
+                          Justify : in Justify_Type := J_LEFT);
+
+   --  Set the length of a field.
+   procedure Set_Field_Length (Console : in out Console_Type;
+                               Field   : in Field_Type;
+                               Length  : in Positive);
 
    --  Format the integer and print it for the given field.
    procedure Print_Field (Console : in out Console_Type;
                           Field   : in Field_Type;
                           Value   : in Integer;
-                          Justify : in Justify_Type := J_LEFT);
-
-   --  Format the integer and print it for the given field.
-   procedure Print_Field (Console : in out Console_Type;
-                          Field   : in Field_Type;
-                          Value   : in Ada.Strings.Unbounded.Unbounded_String;
                           Justify : in Justify_Type := J_LEFT);
 
    --  Get the field count that was setup through the Print_Title calls.

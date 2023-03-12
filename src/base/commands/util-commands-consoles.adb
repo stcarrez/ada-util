@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-consoles -- Console interface
---  Copyright (C) 2014, 2015, 2017, 2018 Stephane Carrez
+--  Copyright (C) 2014, 2015, 2017, 2018, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +24,9 @@ package body Util.Commands.Consoles is
    --  ------------------------------
    procedure Print_Title (Console : in out Console_Type;
                           Field   : in Field_Type;
-                          Title   : in String;
-                          Length  : in Positive) is
+                          Title   : in Input_Type;
+                          Length  : in Positive;
+                          Justify : in Justify_Type := J_LEFT) is
    begin
       Console.Sizes (Field) := Length;
       if Console.Field_Count >= 1 then
@@ -36,8 +37,26 @@ package body Util.Commands.Consoles is
       end if;
       Console.Field_Count := Console.Field_Count + 1;
       Console.Fields (Console.Field_Count) := Field;
-      Console_Type'Class (Console).Print_Title (Field, Title);
+      Console_Type'Class (Console).Print_Title (Field, Title, Justify);
    end Print_Title;
+
+   --  ------------------------------
+   --  Set the length of a field.
+   --  ------------------------------
+   procedure Set_Field_Length (Console : in out Console_Type;
+                               Field   : in Field_Type;
+                               Length  : in Positive) is
+   begin
+      Console.Sizes (Field) := Length;
+      if Console.Field_Count >= 1 then
+         Console.Cols (Field) := Console.Cols (Console.Fields (Console.Field_Count))
+           + Console.Sizes (Console.Fields (Console.Field_Count));
+      else
+         Console.Cols (Field) := 1;
+      end if;
+      Console.Field_Count := Console.Field_Count + 1;
+      Console.Fields (Console.Field_Count) := Field;
+   end Set_Field_Length;
 
    --  ------------------------------
    --  Format the integer and print it for the given field.
@@ -46,28 +65,9 @@ package body Util.Commands.Consoles is
                           Field   : in Field_Type;
                           Value   : in Integer;
                           Justify : in Justify_Type := J_LEFT) is
-      Val : constant String := Util.Strings.Image (Value);
+      Val : constant Input_Type := To_Input (Value);
    begin
       Console_Type'Class (Console).Print_Field (Field, Val, Justify);
-   end Print_Field;
-
-   --  ------------------------------
-   --  Format the integer and print it for the given field.
-   --  ------------------------------
-   procedure Print_Field (Console : in out Console_Type;
-                          Field   : in Field_Type;
-                          Value   : in Ada.Strings.Unbounded.Unbounded_String;
-                          Justify : in Justify_Type := J_LEFT) is
-      Item : String := Ada.Strings.Unbounded.To_String (Value);
-      Size : constant Natural := Console.Sizes (Field);
-   begin
-      if Size <= Item'Length then
-         Item (Item'Last - Size + 2 .. Item'Last - Size + 4) := "...";
-         Console_Type'Class (Console).Print_Field (Field,
-                                                   Item (Item'Last - Size + 2 .. Item'Last));
-      else
-         Console_Type'Class (Console).Print_Field (Field, Item, Justify);
-      end if;
    end Print_Field;
 
    --  ------------------------------
