@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-consoles-text -- Text console interface
---  Copyright (C) 2014, 2015, 2017, 2018, 2020, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2014, 2015, 2017, 2018, 2020, 2021, 2022, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,33 +15,28 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Interfaces;
 package body Util.Commands.Consoles.Text is
 
    procedure Set_Col (Console : in out Console_Type;
                       Col     : in Positive) is
    begin
-      while Console.Cur_Col < Col loop
-         Ada.Text_IO.Put (" ");
-         Console.Cur_Col := Console.Cur_Col + 1;
-      end loop;
+      if Console.Cur_Col < Col then
+         declare
+            Count  : constant Positive := Col - Console.Cur_Col;
+            Spaces : constant String (1 .. Count)
+              := (others => ' ');
+         begin
+            IO.Put (Spaces);
+            Console.Cur_Col := Col;
+         end;
+      end if;
    end Set_Col;
 
    procedure Put (Console : in out Console_Type;
-                  Content : in String) is
-      use type Interfaces.Unsigned_8;
+                  Content : in Input_Type) is
    begin
-      Ada.Text_IO.Put (Content);
-      for C of Content loop
-         declare
-            Val : constant Interfaces.Unsigned_8 := Character'Pos (C);
-         begin
-            --  Take into account only the first byte of the UTF-8 sequence.
-            if Val < 16#80# or else Val >= 16#C0# then
-               Console.Cur_Col := Console.Cur_Col + 1;
-            end if;
-         end;
-      end loop;
+      IO.Put (To_String (Content));
+      Console.Cur_Col := Console.Cur_Col + Content'Length;
    end Put;
 
    --  ------------------------------
@@ -49,9 +44,9 @@ package body Util.Commands.Consoles.Text is
    --  ------------------------------
    overriding
    procedure Error (Console : in out Console_Type;
-                    Message : in String) is
+                    Message : in Input_Type) is
    begin
-      Ada.Text_IO.Put_Line (Message);
+      IO.Put_Line (To_String (Message));
       Console.Cur_Col := 1;
    end Error;
 
@@ -61,10 +56,10 @@ package body Util.Commands.Consoles.Text is
    overriding
    procedure Notice (Console : in out Console_Type;
                      Kind    : in Notice_Type;
-                     Message : in String) is
+                     Message : in Input_Type) is
       pragma Unreferenced (Kind);
    begin
-      Ada.Text_IO.Put_Line (Message);
+      IO.Put_Line (To_String (Message));
       Console.Cur_Col := 1;
    end Notice;
 
@@ -74,7 +69,7 @@ package body Util.Commands.Consoles.Text is
    overriding
    procedure Print_Field (Console : in out Console_Type;
                           Field   : in Field_Type;
-                          Value   : in String;
+                          Value   : in Input_Type;
                           Justify : in Justify_Type := J_LEFT) is
       Pos   : constant Positive := Console.Cols (Field);
       Size  : constant Natural := Console.Sizes (Field);
@@ -122,13 +117,10 @@ package body Util.Commands.Consoles.Text is
    overriding
    procedure Print_Title (Console : in out Console_Type;
                           Field   : in Field_Type;
-                          Title   : in String) is
-      Pos : constant Positive := Console.Cols (Field);
+                          Title   : in Input_Type;
+                          Justify : in Justify_Type := J_LEFT) is
    begin
-      if Pos > 1 then
-         Console.Set_Col (Pos);
-      end if;
-      Console.Put (Title);
+      Console.Print_Field (Field, Title, Justify);
    end Print_Title;
 
    --  ------------------------------
@@ -148,7 +140,7 @@ package body Util.Commands.Consoles.Text is
    overriding
    procedure End_Title (Console : in out Console_Type) is
    begin
-      Ada.Text_IO.New_Line;
+      IO.New_Line (IO.Count_Type'First);
       Console.Cur_Col := 1;
    end End_Title;
 
@@ -168,7 +160,7 @@ package body Util.Commands.Consoles.Text is
    overriding
    procedure End_Row (Console : in out Console_Type) is
    begin
-      Ada.Text_IO.New_Line;
+      IO.New_Line (IO.Count_Type'First);
       Console.Cur_Col := 1;
    end End_Row;
 

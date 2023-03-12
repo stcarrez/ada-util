@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-commands-consoles-text -- Text console interface
---  Copyright (C) 2014, 2017, 2018, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2014, 2017, 2018, 2021, 2022, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,9 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Ada.Text_IO;
 generic
+   with package IO is new Util.Commands.IO (<>);
+   with function To_String (Input : in Input_Type) return String is <>;
 package Util.Commands.Consoles.Text is
 
    type Console_Type is new Util.Commands.Consoles.Console_Type with private;
@@ -24,26 +25,27 @@ package Util.Commands.Consoles.Text is
    --  Report an error message.
    overriding
    procedure Error (Console : in out Console_Type;
-                    Message : in String);
+                    Message : in Input_Type);
 
    --  Report a notice message.
    overriding
    procedure Notice (Console : in out Console_Type;
                      Kind    : in Notice_Type;
-                     Message : in String);
+                     Message : in Input_Type);
 
    --  Print the field value for the given field.
    overriding
    procedure Print_Field (Console : in out Console_Type;
                           Field   : in Field_Type;
-                          Value   : in String;
+                          Value   : in Input_Type;
                           Justify : in Justify_Type := J_LEFT);
 
    --  Print the title for the given field.
    overriding
    procedure Print_Title (Console : in out Console_Type;
                           Field   : in Field_Type;
-                          Title   : in String);
+                          Title   : in Input_Type;
+                          Justify : in Justify_Type := J_LEFT);
 
    --  Start a new title in a report.
    overriding
@@ -64,20 +66,13 @@ package Util.Commands.Consoles.Text is
 private
 
    type Console_Type is new Util.Commands.Consoles.Console_Type with record
-      File    : Ada.Text_IO.File_Type;
       Cur_Col : Positive := 1;
    end record;
-
-   --  The Ada Text_IO package does not handle UTF-8 when computing the column position.
-   --  We must do this ourselves.  The alternative is to use the Wide_Wide_Text_IO package
-   --  but this brings other problems and increase complexity in using this package.
-   --  The `Put` procedure will advance the `Col` member according to the UTF-8 sequences
-   --  that are found in the string (and not the actual string length).
 
    procedure Set_Col (Console : in out Console_Type;
                       Col     : in Positive);
 
    procedure Put (Console : in out Console_Type;
-                  Content : in String);
+                  Content : in Input_Type);
 
 end Util.Commands.Consoles.Text;
