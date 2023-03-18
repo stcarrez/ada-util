@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012, 2017, 2018, 2019, 2020, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -160,19 +160,19 @@ package body Util.Processes.Os is
       end if;
 
       --  Setup the pipes.
-      if Mode in WRITE | READ_WRITE | READ_WRITE_ALL then
+      if Mode in WRITE | READ_WRITE | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
          if Sys_Pipe (Stdin_Pipes'Address) /= 0 then
             Cleanup;
             raise Process_Error with "Cannot create stdin pipe";
          end if;
       end if;
-      if Mode in READ | READ_WRITE | READ_ALL | READ_WRITE_ALL then
+      if Mode in READ | READ_WRITE | READ_ALL | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
          if Sys_Pipe (Stdout_Pipes'Address) /= 0 then
             Cleanup;
             raise Process_Error with "Cannot create stdout pipe";
          end if;
       end if;
-      if Mode = READ_ERROR then
+      if Mode in READ_ERROR | READ_WRITE_ALL_SEPARATE then
          if Sys_Pipe (Stderr_Pipes'Address) /= 0 then
             Cleanup;
             raise Process_Error with "Cannot create stderr pipe";

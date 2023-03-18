@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes -- Process creation and control
---  Copyright (C) 2011, 2012, 2016, 2018, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2021, 2022, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,8 +45,11 @@ package Util.Processes is
    --    <dd>Combines the <b>READ</b> and <b>WRITE</b> modes.</dd>
    --    <dt>READ_WRITE_ALL</dt>
    --    <dd>Combines the <b>READ_ALL</b> and <b>WRITE</b> modes.</dd>
+   --    <dt>READ_WRITE_ALL_SEPARATE</dt>
+   --    <dd>3 pipes are created for the input, output and error</dd>
    --  </dl>
-   type Pipe_Mode is (NONE, READ, READ_ERROR, READ_ALL, WRITE, READ_WRITE, READ_WRITE_ALL);
+   type Pipe_Mode is (NONE, READ, READ_ERROR, READ_ALL, WRITE,
+                      READ_WRITE, READ_WRITE_ALL, READ_WRITE_ALL_SEPARATE);
 
    subtype String_Access is Ada.Strings.Unbounded.String_Access;
 
