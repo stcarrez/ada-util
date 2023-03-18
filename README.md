@@ -38,6 +38,8 @@ framework as it provides better reports.
   - New encoder/decoder for Base32
   - Feature #32: Custom log appender
   - Feature #36: Add HOTP algorithm
+  - Feature #38: Allow to read stdout and stderr as separate streams when spawning a process
+  - Fix #37: Support to build with -gnatW8
 
 ## Version 2.5.0  - Aug 2022
   - New examples to illustrate the IO stream composition
