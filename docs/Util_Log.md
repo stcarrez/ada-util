@@ -142,14 +142,20 @@ Reading line ......
 ```
 
 ### Console appender
-The `Console` appender recognises the following configurations:
+The `Console` appender uses either `Ada.Text_IO` or a direct write on console
+to write messages.  The default is to use `Ada.Text_IO` and the appender expects
+standard Ada strings encoded in Latin-1 in the configuration.  When the appender
+gets UTF-8 strings, it should be configured for a direct write on the console.
+The console appender recognises the following configurations:
 
 | Name           | Description                                                          |
 | -------------- | --------------------------------------------------------------       |
 | layout         | Defines the format of the message printed by the appender.           |
 | level          | Defines the minimum level above which messages are printed.          |
 | stderr         | When 'true' or '1', use the console standard error,                  |
-|                | by default the appender uses the standard output                     |
+|                | by default the appender uses the standard output.                    |
+| utf8           | When 'true', use a direct write on the console and avoid using       |
+|                | `Ada.Text_IO`.                                                       |
 
 ### File appender
 The `File` appender recognises the following configurations:

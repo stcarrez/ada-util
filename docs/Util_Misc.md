@@ -2,6 +2,14 @@
 
 
 
+### Nullable types
+Sometimes it is necessary to represent a simple data type with an optional boolean information
+that indicates whether the value is valid or just null.  The concept of nullable type is often
+used in databases but also in JSON data representation.  The <tt>Util.Nullables</tt> package
+provides several standard type to express the null capability of a value.
+
+By default a nullable instance is created with the null flag set.
+
 ## Text Builders
 The `Util.Texts.Builders` generic package was designed to provide string builders.
 The interface was designed to reduce memory copies as much as possible.

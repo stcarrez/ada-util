@@ -122,7 +122,8 @@ HTML_OPTIONS+= --listings --number-sections --toc --css docs/pandoc.css
 
 $(eval $(call pandoc_build,utilada-book,$(UTIL_DOC),\
 	rm -f docs/user-list.md docs/alloc-sequence.md docs/user_hbm.md; \
-	cat docs/Misc.md docs/Util_Texts_Builders.md docs/Util_Listeners.md docs/Util_Events_Timers.md docs/Util_Executors.md > docs/Util_Misc.md))
+	cat docs/Misc.md docs/Util_Nullables.md docs/Util_Texts_Builders.md docs/Util_Listeners.md docs/Util_Events_Timers.md docs/Util_Executors.md > docs/Util_Misc.md; \
+	rm -f docs/Util_Nullables.md docs/Util_Texts_Builders.md docs/Util_Listeners.md docs/Util_Events_Timers.md docs/Util_Executors.md))
 
 install-support:
 	$(MKDIR) -p ${bindir}

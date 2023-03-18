@@ -42,6 +42,13 @@ The `Config_Parser` describes the parser package that will handle the analysis o
 command line options.  To use the GNAT options parser, it is possible to use the
 `Util.Commands.Parsers.GNAT_Parser` package.
 
+The `IO` package parameter allows to control the operations that the command line
+support will use to print some message on the console.  When strings are encoded
+in Latin-1, it is possible to give the `Util.Commands.Text_IO` package that will
+use the standard `Ada.Text_IO` package to write on the console.  When strings are
+encoded in UTF-8, it is best to use the `Util.Commands.Raw_IO` package that will
+write the strings unmodified on the console.
+
 ## Command line parsers
 Parsing command line arguments before their execution is handled by the
 `Config_Parser` generic package.  This allows to customize how the arguments are
@@ -67,6 +74,7 @@ package Drivers is
   new Util.Commands.Drivers
     (Context_Type  => Context_Type,
      Config_Parser => Util.Commands.Parsers.GNAT_Parser.Config_Parser,
+     IO            => Util.Commands.Text_IO,
      Driver_Name   => "tool");
 
 ```
