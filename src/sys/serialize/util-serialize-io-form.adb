@@ -278,6 +278,7 @@ package body Util.Serialize.IO.Form is
 
       exception
          when Ada.IO_Exceptions.Data_Error =>
+            Last := ' ';
             return;
       end Parse_Token;
 
