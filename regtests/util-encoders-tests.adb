@@ -35,6 +35,9 @@ package body Util.Encoders.Tests is
 
    use Util.Tests;
 
+   --  This file contains Wide_Wide_String constants.
+   pragma Wide_Character_Encoding (UTF8);
+
    procedure Check_HMAC (T      : in out Test'Class;
                          Key    : in String;
                          Value  : in String;

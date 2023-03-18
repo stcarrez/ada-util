@@ -37,6 +37,9 @@ package body Util.Strings.Tests is
    use Util.Tests;
    use Util.Strings.Transforms;
 
+   --  This file contains Wide_Wide_String constants.
+   pragma Wide_Character_Encoding (UTF8);
+
    package Caller is new Util.Test_Caller (Test, "Strings");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
