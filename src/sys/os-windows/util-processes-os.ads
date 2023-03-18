@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- Windows specific and low level operations
---  Copyright (C) 2011, 2012, 2016, 2018, 2019, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2019, 2021, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -98,6 +98,12 @@ private package Util.Processes.Os is
                                 Into : in out Startup_Info;
                                 Mode : in Pipe_Mode);
 
+   --  Build the error pipe redirection to read the process error.
+   procedure Build_Error_Pipe (Sys  : in out System_Process;
+                               Proc : in out Process'Class;
+                               Into : in out Startup_Info;
+                               Mode : in Pipe_Mode);
+
    --  Build the input pipe redirection to write the process standard input.
    procedure Build_Input_Pipe (Sys  : in out System_Process;
                                Proc : in out Process'Class;
@@ -111,6 +117,3 @@ private
                            return Util.Streams.Raw.Raw_Stream_Access;
 
 end Util.Processes.Os;
-
-
-

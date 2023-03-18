@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012, 2018, 2019, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2018, 2019, 2021, 2022, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -242,14 +242,14 @@ package body Util.Processes.Os is
          Redirect_Input (Sys.In_File, Startup.hStdInput);
          Startup.dwFlags := 16#100#;
       end if;
-      if Mode = WRITE or Mode = READ_WRITE or Mode = READ_WRITE_ALL then
+      if Mode in WRITE | READ_WRITE | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
          Build_Input_Pipe (Sys, Proc, Startup);
       end if;
-      if Mode = READ or Mode = READ_WRITE or Mode = READ_ALL or Mode = READ_WRITE_ALL then
+      if Mode in READ | READ_WRITE | READ_ALL | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
          Build_Output_Pipe (Sys, Proc, Startup, Mode);
       end if;
-      if Mode = READ_ERROR then
-         Build_Output_Pipe (Sys, Proc, Startup, Mode);
+      if Sys.Err_File = null and then Mode in READ_ERROR | READ_WRITE_ALL_SEPARATE then
+         Build_Error_Pipe (Sys, Proc, Startup, Mode);
       end if;
       if Sys.Env /= null then
          Flags := 16#400#; --  CREATE_UNICODE_ENVIRONMENT
@@ -316,7 +316,7 @@ package body Util.Processes.Os is
       Result           : BOOL;
       R                : BOOL with Unreferenced;
       Current_Proc     : constant HANDLE := Get_Current_Process;
-      Redirect_Error   : constant Boolean := Mode = READ_ALL or Mode = READ_WRITE_ALL;
+      Redirect_Error   : constant Boolean := Mode in READ_ALL | READ_WRITE_ALL;
    begin
       Sec.Length  := Sec'Size / 8;
       Sec.Inherit := 1;
@@ -344,7 +344,7 @@ package body Util.Processes.Os is
       end if;
       R := Close_Handle (Read_Handle);
 
-      if Redirect_Error and Sys.Out_File = null and Sys.Err_File = null then
+      if Redirect_Error and then Sys.Out_File = null and then Sys.Err_File = null then
          Result := Duplicate_Handle (SourceProcessHandle => Current_Proc,
                                      SourceHandle        => Write_Handle,
                                      TargetProcessHandle => Current_Proc,
@@ -356,18 +356,70 @@ package body Util.Processes.Os is
             Log.Error ("Cannot create pipe: {0}", Integer'Image (Get_Last_Error));
             raise Program_Error with "Cannot create pipe";
          end if;
-      elsif Sys.Out_File /= null or Mode = READ_ERROR then
+      elsif Sys.Out_File /= null or else Mode = READ_ERROR then
          Error_Handle := Write_Handle;
       end if;
       Into.dwFlags    := 16#100#;
       if Sys.Out_File = null then
          Into.hStdOutput := Write_Handle;
       end if;
-      if (Redirect_Error and Sys.Err_File = null) or Mode = READ_ERROR then
+      if (Redirect_Error and then Sys.Err_File = null) or else Mode = READ_ERROR then
          Into.hStdError  := Error_Handle;
       end if;
-      Proc.Output     := Create_Stream (Read_Pipe_Handle).all'Access;
+      if Mode = READ_ERROR then
+         Proc.Error := Create_Stream (Read_Pipe_Handle).all'Access;
+      else
+         Proc.Output := Create_Stream (Read_Pipe_Handle).all'Access;
+      end if;
    end Build_Output_Pipe;
+
+   --  ------------------------------
+   --  Build the error pipe redirection to read the process error.
+   --  ------------------------------
+   procedure Build_Error_Pipe (Sys  : in out System_Process;
+                               Proc : in out Process'Class;
+                               Into : in out Startup_Info;
+                               Mode : in Pipe_Mode) is
+      pragma Unreferenced (Sys);
+
+      Sec              : aliased Security_Attributes;
+      Read_Handle      : aliased HANDLE;
+      Write_Handle     : aliased HANDLE;
+      Read_Pipe_Handle : aliased HANDLE;
+      Result           : BOOL;
+      R                : BOOL with Unreferenced;
+      Current_Proc     : constant HANDLE := Get_Current_Process;
+   begin
+      Sec.Length  := Sec'Size / 8;
+      Sec.Inherit := 1;
+      Sec.Security_Descriptor := System.Null_Address;
+
+      Result := Create_Pipe (Read_Handle  => Read_Handle'Unchecked_Access,
+                             Write_Handle => Write_Handle'Unchecked_Access,
+                             Attributes   => Sec'Unchecked_Access,
+                             Buf_Size     => 0);
+      if Result = 0 then
+         Log.Error ("Cannot create error pipe: {0}", Integer'Image (Get_Last_Error));
+         raise Program_Error with "Cannot create error pipe";
+      end if;
+
+      Result := Duplicate_Handle (SourceProcessHandle => Current_Proc,
+                                  SourceHandle        => Read_Handle,
+                                  TargetProcessHandle => Current_Proc,
+                                  TargetHandle        => Read_Pipe_Handle'Unchecked_Access,
+                                  DesiredAccess       => 0,
+                                  InheritHandle       => 0,
+                                  Options             => 2);
+      if Result = 0 then
+         Log.Error ("Cannot create error pipe: {0}", Integer'Image (Get_Last_Error));
+         raise Program_Error with "Cannot create erro pipe";
+      end if;
+      R := Close_Handle (Read_Handle);
+
+      Into.dwFlags    := 16#100#;
+      Into.hStdError  := Write_Handle;
+      Proc.Error := Create_Stream (Read_Pipe_Handle).all'Access;
+   end Build_Error_Pipe;
 
    --  ------------------------------
    --  Build the input pipe redirection to write the process standard input.
