@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-hmac-sha1 -- Compute HMAC-SHA1 authentication code
---  Copyright (C) 2011, 2012, 2017, 2019, 2022 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2019, 2022, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,8 @@ with Util.Encoders.SHA1;
 package Util.Encoders.HMAC.SHA1 is
 
    pragma Preelaborate;
+
+   HASH_SIZE : constant := Util.Encoders.SHA1.HASH_SIZE;
 
    --  Sign the data string with the key and return the HMAC-SHA1 code in binary.
    function Sign (Key  : in String;
