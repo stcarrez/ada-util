@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io -- IO Drivers for serialization
---  Copyright (C) 2010, 2011, 2016, 2017, 2022 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2016, 2017, 2022, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -184,6 +184,10 @@ package Util.Serialize.IO is
                          Attribute : in Boolean := False) is abstract;
 
    type Parser is abstract new Util.Log.Logging with private;
+
+   --  Set the filename to report by `Get_Location` when an error is found.
+   procedure Set_Filename (Handler : in out Parser;
+                           Name    : in String);
 
    --  Parse the stream using the JSON parser.
    procedure Parse (Handler : in out Parser;
