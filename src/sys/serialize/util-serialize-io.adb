@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io -- IO Drivers for serialization
---  Copyright (C) 2010, 2011, 2016, 2017, 2022 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2016, 2017, 2022, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -98,6 +98,15 @@ package body Util.Serialize.IO is
    end Write_Entity;
 
    --  ------------------------------
+   --  Set the filename to report by `Get_Location` when an error is found.
+   --  ------------------------------
+   procedure Set_Filename (Handler : in out Parser;
+                           Name    : in String) is
+   begin
+      Handler.File := Ada.Strings.Unbounded.To_Unbounded_String (Name);
+   end Set_Filename;
+
+   --  ------------------------------
    --  Read the file and parse it using the JSON parser.
    --  ------------------------------
    procedure Parse (Handler : in out Parser;
@@ -111,7 +120,7 @@ package body Util.Serialize.IO is
       end if;
       Handler.Error_Logger.Info ("Reading file {0}", File);
 
-      Handler.File := Ada.Strings.Unbounded.To_Unbounded_String (File);
+      Handler.Set_Filename (File);
       Buffer.Initialize (Input  => Stream'Unchecked_Access,
                          Size   => 1024);
       Stream.Open (Mode => Ada.Streams.Stream_IO.In_File, Name => File);
@@ -119,9 +128,6 @@ package body Util.Serialize.IO is
       Parser'Class (Handler).Parse (Buffer, Sink);
 
    exception
---      when Util.Serialize.Mappers.Field_Fatal_Error =>
---         null;
-
       when Ada.IO_Exceptions.Name_Error =>
          Parser'Class (Handler).Error ("File '" & File & "' does not exist.");
 
@@ -148,9 +154,6 @@ package body Util.Serialize.IO is
       Parser'Class (Handler).Parse (Stream, Sink);
 
    exception
---      when Util.Serialize.Mappers.Field_Fatal_Error =>
---         null;
-
       when E : others =>
          if not Handler.Error_Flag then
             Parser'Class (Handler).Error ("Exception " & Ada.Exceptions.Exception_Name (E));
