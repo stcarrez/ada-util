@@ -204,7 +204,7 @@ package body Util.Serialize.Mappers.Record_Mapper is
          declare
             Name : constant String := To_Lower_Case (Fields'Image (Field));
          begin
-            if Name (Name'First .. Name'First + 5) = "field_" then
+            if Name'Length > 5 and then Name (Name'First .. Name'First + 5) = "field_" then
                Into.Add_Mapping (Name (Name'First + 6 .. Name'Last), Field);
             else
                Into.Add_Mapping (Name, Field);
