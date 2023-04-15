@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered -- Buffered streams utilities
---  Copyright (C) 2010 - 2022 Stephane Carrez
+--  Copyright (C) 2010 - 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -223,6 +223,9 @@ private
 
       --  Reached end of file when reading.
       Eof         : Boolean := False;
+
+      --  Reached end of buffer.
+      Eob         : Boolean := False;
    end record;
 
    type Input_Output_Buffer_Stream is abstract limited new Buffer_Stream

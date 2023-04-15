@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-buffered -- Buffered streams utilities
---  Copyright (C) 2010 - 2022 Stephane Carrez
+--  Copyright (C) 2010 - 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -106,6 +106,8 @@ package body Util.Streams.Buffered is
       Stream.Input     := Input;
       Stream.Write_Pos := 1;
       Stream.Read_Pos  := 1;
+      Stream.Eof       := False;
+      Stream.Eob       := False;
    end Initialize;
 
    --  ------------------------------
@@ -121,6 +123,8 @@ package body Util.Streams.Buffered is
       Stream.Read_Pos := 1;
       Stream.Write_Pos := From.Write_Pos + 1;
       Stream.Last := From.Last;
+      Stream.Eof  := False;
+      Stream.Eob  := False;
    end Initialize;
 
    --  ------------------------------
@@ -257,6 +261,7 @@ package body Util.Streams.Buffered is
    begin
       if Stream.Input = null then
          Stream.Eof := True;
+         Stream.Eob := True;
       else
          Stream.Input.Read (Stream.Buffer (1 .. Stream.Last - 1), Stream.Write_Pos);
          Stream.Eof := Stream.Write_Pos < 1;
@@ -275,7 +280,7 @@ package body Util.Streams.Buffered is
    begin
       if Stream.Read_Pos >= Stream.Write_Pos then
          Stream.Fill;
-         if Stream.Eof then
+         if Stream.Eof or else Stream.Eob then
             raise Ada.IO_Exceptions.Data_Error with "End of buffer";
          end if;
       end if;
@@ -288,7 +293,7 @@ package body Util.Streams.Buffered is
    begin
       if Stream.Read_Pos >= Stream.Write_Pos then
          Stream.Fill;
-         if Stream.Eof then
+         if Stream.Eof or else Stream.Eob then
             raise Ada.IO_Exceptions.Data_Error with "End of buffer";
          end if;
       end if;
@@ -360,7 +365,7 @@ package body Util.Streams.Buffered is
          Size := Into'Last - Start + 1;
          Avail := Stream.Write_Pos - Pos;
          if Avail = 0 then
-            Stream.Fill;
+            Input_Buffer_Stream'Class (Stream).Fill;
             Pos := Stream.Read_Pos;
             Avail := Stream.Write_Pos - Pos;
             exit when Avail <= 0;
@@ -389,8 +394,8 @@ package body Util.Streams.Buffered is
       loop
          Avail := Stream.Write_Pos - Pos;
          if Avail = 0 then
-            Stream.Fill;
-            if Stream.Eof then
+            Input_Buffer_Stream'Class (Stream).Fill;
+            if Stream.Eof or else Stream.Eob then
                return;
             end if;
             Pos   := Stream.Read_Pos;
@@ -414,8 +419,8 @@ package body Util.Streams.Buffered is
          Pos := Stream.Read_Pos;
          Avail := Stream.Write_Pos - Pos;
          if Avail = 0 then
-            Stream.Fill;
-            if Stream.Eof then
+            Input_Buffer_Stream'Class (Stream).Fill;
+            if Stream.Eof or else Stream.Eob then
                return;
             end if;
             Pos   := Stream.Read_Pos;
