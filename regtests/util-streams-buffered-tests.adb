@@ -41,8 +41,10 @@ package body Util.Streams.Buffered.Tests is
                        Test_Write_Stream'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Read (UTF-8)",
                        Test_Read_UTF_8'Access);
-      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Parts",
+      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Parts (1)",
                        Test_Parts'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Parts (2)",
+                       Test_Parts_2'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -199,5 +201,33 @@ package body Util.Streams.Buffered.Tests is
       Assert_Equals (T, "signature", Sign, "invalid signature extraction");
 
    end Test_Parts;
+
+   --  ------------------------------
+   --  Test reading a streams with several parts separated by boundaries.
+   --  ------------------------------
+   procedure Test_Parts_2 (T : in out Test) is
+      SEP     : constant String := "" & ASCII.LF;
+      Path    : constant String := Util.Tests.Get_Path ("regtests/files/test-parts-2.txt");
+      File    : aliased Util.Streams.Files.File_Stream;
+      Parts   : Util.Streams.Buffered.Parts.Input_Part_Stream;
+      Head    : Ada.Strings.Unbounded.Unbounded_String;
+      Msg     : Ada.Strings.Unbounded.Unbounded_String;
+      Sign    : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      File.Open (Ada.Streams.Stream_IO.In_File, Path);
+      Parts.Initialize (Input => File'Unchecked_Access, Size => 128);
+      Parts.Set_Boundary (SEP & "-----SEP-----" & SEP);
+      Parts.Read (Head);
+      Assert_Equals (T, "A-----SEP-----", Head, "invalid first extraction");
+
+      Parts.Set_Boundary (SEP & "-----SEP-----" & SEP);
+      Parts.Read (Msg);
+      Assert_Equals (T, "-----SEP----B", Msg, "invalid second extraction");
+
+      Parts.Set_Boundary (SEP & "-----SEP-----" & SEP);
+      Parts.Read (Sign);
+      Assert_Equals (T, "-----SEP----C-----SEP----", Sign, "invalid third extraction");
+
+   end Test_Parts_2;
 
 end Util.Streams.Buffered.Tests;

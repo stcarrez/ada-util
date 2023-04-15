@@ -38,5 +38,6 @@ package Util.Streams.Buffered.Tests is
 
    --  Test reading a streams with several parts separated by boundaries.
    procedure Test_Parts (T : in out Test);
+   procedure Test_Parts_2 (T : in out Test);
 
 end Util.Streams.Buffered.Tests;
