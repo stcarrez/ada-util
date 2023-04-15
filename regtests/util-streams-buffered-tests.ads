@@ -36,4 +36,7 @@ package Util.Streams.Buffered.Tests is
    --  Test reading UTF-8 file.
    procedure Test_Read_UTF_8 (T : in out Test);
 
+   --  Test reading a streams with several parts separated by boundaries.
+   procedure Test_Parts (T : in out Test);
+
 end Util.Streams.Buffered.Tests;

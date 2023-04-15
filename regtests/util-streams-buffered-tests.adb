@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  streams.buffered.tests -- Unit tests for buffered streams
---  Copyright (C) 2010, 2011, 2017, 2018, 2019, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2017, 2018, 2019, 2020, 2021, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@ with Ada.Streams.Stream_IO;
 with Util.Test_Caller;
 with Util.Streams.Texts;
 with Util.Streams.Files;
+with Util.Streams.Buffered.Parts;
 package body Util.Streams.Buffered.Tests is
 
    pragma Wide_Character_Encoding (UTF8);
@@ -40,6 +41,8 @@ package body Util.Streams.Buffered.Tests is
                        Test_Write_Stream'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Read (UTF-8)",
                        Test_Read_UTF_8'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Parts",
+                       Test_Parts'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -168,5 +171,33 @@ package body Util.Streams.Buffered.Tests is
          end;
       end;
    end Test_Read_UTF_8;
+
+   --  ------------------------------
+   --  Test reading a streams with several parts separated by boundaries.
+   --  ------------------------------
+   procedure Test_Parts (T : in out Test) is
+      SEP     : constant String := "" & ASCII.LF;
+      Path    : constant String := Util.Tests.Get_Path ("regtests/files/test-parts-1.txt");
+      File    : aliased Util.Streams.Files.File_Stream;
+      Parts   : Util.Streams.Buffered.Parts.Input_Part_Stream;
+      Head    : Ada.Strings.Unbounded.Unbounded_String;
+      Msg     : Ada.Strings.Unbounded.Unbounded_String;
+      Sign    : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      File.Open (Ada.Streams.Stream_IO.In_File, Path);
+      Parts.Initialize (Input => File'Unchecked_Access, Size => 128);
+      Parts.Set_Boundary (SEP & "-----BEGIN PGP SIGNED MESSAGE-----" & SEP);
+      Parts.Read (Head);
+      Assert_Equals (T, "head", Head, "invalid head extraction");
+
+      Parts.Set_Boundary (SEP & "-----BEGIN PGP SIGNATURE-----" & SEP);
+      Parts.Read (Msg);
+      Assert_Equals (T, "message", Msg, "invalid message extraction");
+
+      Parts.Set_Boundary (SEP & "-----END PGP SIGNATURE-----" & SEP);
+      Parts.Read (Sign);
+      Assert_Equals (T, "signature", Sign, "invalid signature extraction");
+
+   end Test_Parts;
 
 end Util.Streams.Buffered.Tests;
