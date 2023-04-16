@@ -47,6 +47,8 @@ package body Util.Streams.Buffered.Tests is
                        Test_Parts_2'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Parts (3)",
                        Test_Parts_3'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Parts (4)",
+                       Test_Parts_4'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -264,5 +266,25 @@ package body Util.Streams.Buffered.Tests is
       Parts.Read (C);
 
    end Test_Parts_3;
+
+   procedure Test_Parts_4 (T : in out Test) is
+      SEP     : constant String := "" & ASCII.LF;
+      Path    : constant String := Util.Tests.Get_Path ("regtests/files/public.pem");
+      File    : aliased Util.Streams.Files.File_Stream;
+      Parts   : Util.Streams.Buffered.Parts.Input_Part_Stream;
+      Content : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      File.Open (Ada.Streams.Stream_IO.In_File, Path);
+      Parts.Initialize (Input => File'Unchecked_Access, Size => 1024);
+      Parts.Set_Boundary ("-----BEGIN PUBLIC KEY-----" & SEP);
+      Assert (T, Parts.Is_Eob, "Start public key header not found");
+
+      Parts.Set_Boundary (SEP & "-----END PUBLIC KEY-----" & SEP);
+      Parts.Read (Content);
+      Assert (T, Parts.Is_Eob, "End public key header not found");
+      Assert_Equals (T, "MCowBQYDK2VwAyEAOq9Igie0zBxiRE9HctjYr+lK9w6yJhR7U0dkffx1tfk=", Content,
+         "Invalid public key extracted");
+
+   end Test_Parts_4;
 
 end Util.Streams.Buffered.Tests;
