@@ -279,7 +279,7 @@ package body Util.Streams.Buffered is
                    Char   : out Character) is
    begin
       if Stream.Read_Pos >= Stream.Write_Pos then
-         Stream.Fill;
+         Input_Buffer_Stream'Class (Stream).Fill;
          if Stream.Eof or else Stream.Eob then
             raise Ada.IO_Exceptions.Data_Error with "End of buffer";
          end if;
@@ -292,7 +292,7 @@ package body Util.Streams.Buffered is
                    Value  : out Ada.Streams.Stream_Element) is
    begin
       if Stream.Read_Pos >= Stream.Write_Pos then
-         Stream.Fill;
+         Input_Buffer_Stream'Class (Stream).Fill;
          if Stream.Eof or else Stream.Eob then
             raise Ada.IO_Exceptions.Data_Error with "End of buffer";
          end if;
