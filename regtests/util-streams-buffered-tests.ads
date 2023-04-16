@@ -41,5 +41,6 @@ package Util.Streams.Buffered.Tests is
    procedure Test_Parts_2 (T : in out Test);
    procedure Test_Parts_3 (T : in out Test);
    procedure Test_Parts_4 (T : in out Test);
+   procedure Test_Parts_5 (T : in out Test);
 
 end Util.Streams.Buffered.Tests;

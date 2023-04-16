@@ -49,6 +49,8 @@ package body Util.Streams.Buffered.Tests is
                        Test_Parts_3'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Parts (4)",
                        Test_Parts_4'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Parts (5)",
+                       Test_Parts_5'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -270,21 +272,62 @@ package body Util.Streams.Buffered.Tests is
    procedure Test_Parts_4 (T : in out Test) is
       SEP     : constant String := "" & ASCII.LF;
       Path    : constant String := Util.Tests.Get_Path ("regtests/files/public.pem");
-      File    : aliased Util.Streams.Files.File_Stream;
-      Parts   : Util.Streams.Buffered.Parts.Input_Part_Stream;
-      Content : Ada.Strings.Unbounded.Unbounded_String;
    begin
-      File.Open (Ada.Streams.Stream_IO.In_File, Path);
-      Parts.Initialize (Input => File'Unchecked_Access, Size => 1024);
-      Parts.Set_Boundary ("-----BEGIN PUBLIC KEY-----" & SEP);
-      Assert (T, Parts.Is_Eob, "Start public key header not found");
+      for I in 30 .. 114 loop
+         declare
+            File    : aliased Util.Streams.Files.File_Stream;
+            Parts   : Util.Streams.Buffered.Parts.Input_Part_Stream;
+            Content : Ada.Strings.Unbounded.Unbounded_String;
+         begin
+            File.Open (Ada.Streams.Stream_IO.In_File, Path);
+            Parts.Initialize (Input => File'Unchecked_Access, Size => 1024);
+            Parts.Set_Boundary ("-----BEGIN PUBLIC KEY-----" & SEP);
+            Assert (T, Parts.Is_Eob, "Start public key header not found");
 
-      Parts.Set_Boundary (SEP & "-----END PUBLIC KEY-----" & SEP);
-      Parts.Read (Content);
-      Assert (T, Parts.Is_Eob, "End public key header not found");
-      Assert_Equals (T, "MCowBQYDK2VwAyEAOq9Igie0zBxiRE9HctjYr+lK9w6yJhR7U0dkffx1tfk=", Content,
-         "Invalid public key extracted");
-
+            Parts.Set_Boundary (SEP & "-----END PUBLIC KEY-----" & SEP);
+            Parts.Read (Content);
+            Assert (T, Parts.Is_Eob, "End public key header not found");
+            Assert_Equals (T, "MCowBQYDK2VwAyEAOq9Igie0zBxiRE9HctjYr+lK9w6yJhR7U0dkffx1tfk=",
+               Content, "Invalid public key extracted");
+         end;
+      end loop;
    end Test_Parts_4;
+
+   procedure Test_Parts_5 (T : in out Test) is
+      SEP     : constant String := "" & ASCII.LF;
+      Path    : constant String := Util.Tests.Get_Path ("regtests/files/test-parts-5.txt");
+   begin
+      for I in 30 .. 114 loop
+         declare
+            File    : aliased Util.Streams.Files.File_Stream;
+            Parts   : Util.Streams.Buffered.Parts.Input_Part_Stream;
+            K1, K2, K3 : Ada.Strings.Unbounded.Unbounded_String;
+         begin
+            File.Open (Ada.Streams.Stream_IO.In_File, Path);
+            Parts.Initialize (Input => File'Unchecked_Access, Size => 1024);
+            Parts.Set_Boundary ("-----KEY-----" & SEP);
+            Assert (T, Parts.Is_Eob, "Start key header not found");
+
+            Parts.Next_Part;
+            Assert (T, not Parts.Is_Eob, "Moving to next key 1 failed");
+            Parts.Read (K1);
+            Assert (T, Parts.Is_Eob, "End key1 not found");
+
+            Parts.Next_Part;
+            Assert (T, not Parts.Is_Eob, "Moving to next key 2 failed");
+            Parts.Read (K2);
+            Assert (T, Parts.Is_Eob, "End key2 not found");
+
+            Parts.Next_Part;
+            Assert (T, not Parts.Is_Eob, "Moving to next key 2 failed");
+            Parts.Read (K3);
+            Assert (T, Parts.Is_Eob, "End key3 not found");
+
+            Assert_Equals (T, "K1" & SEP, K1, "Invalid K1 extracted");
+            Assert_Equals (T, "K2" & SEP, K2, "Invalid K2 extracted");
+            Assert_Equals (T, "K3" & SEP, K3, "Invalid K3 extracted");
+         end;
+      end loop;
+   end Test_Parts_5;
 
 end Util.Streams.Buffered.Tests;
