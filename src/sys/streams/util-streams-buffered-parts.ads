@@ -47,8 +47,7 @@ package Util.Streams.Buffered.Parts is
                            Boundary : in String);
 
    --  Prepare to read the next part with the same boundary.
-   procedure Next_Part (Stream : in out Input_Part_Stream) with
-      Pre => Stream.Is_Eob;
+   procedure Next_Part (Stream : in out Input_Part_Stream);
 
    --  Fill the buffer by reading the input stream.
    --  Raises Data_Error if there is no input stream;

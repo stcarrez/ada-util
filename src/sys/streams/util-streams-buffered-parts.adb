@@ -67,13 +67,7 @@ package body Util.Streams.Buffered.Parts is
          Free_Buffer (Stream.Boundary);
       end if;
       Stream.Boundary := new Ada.Streams.Stream_Element_Array '(Boundary);
-      Stream.Eob := False;
-      if Stream.Real_Write_Pos > Stream.Write_Pos then
-         Stream.Write_Pos := Stream.Real_Write_Pos;
-      end if;
-      if Stream.Read_Pos < Stream.Write_Pos then
-         Stream.Check_Boundary;
-      end if;
+      Stream.Next_Part;
    end Set_Boundary;
 
    procedure Set_Boundary (Stream   : in out Input_Part_Stream;
@@ -90,7 +84,13 @@ package body Util.Streams.Buffered.Parts is
    --  ------------------------------
    procedure Next_Part (Stream : in out Input_Part_Stream) is
    begin
-      Stream.Check_Boundary;
+      Stream.Eob := False;
+      if Stream.Real_Write_Pos > Stream.Write_Pos then
+         Stream.Write_Pos := Stream.Real_Write_Pos;
+      end if;
+      if Stream.Read_Pos < Stream.Write_Pos then
+         Stream.Check_Boundary;
+      end if;
    end Next_Part;
 
    overriding
@@ -190,7 +190,6 @@ package body Util.Streams.Buffered.Parts is
          Pos      : Stream_Element_Offset := Stream.Read_Pos;
          Boundary : constant Buffer_Access := Stream.Boundary;
          Buffer   : constant Buffer_Access := Stream.Buffer;
-         Count    : Stream_Element_Offset;
       begin
          if Pos + Boundary'Length <= Stream.Real_Write_Pos then
             if Buffer (Pos .. Pos + Boundary'Length - 1) = Boundary.all then
