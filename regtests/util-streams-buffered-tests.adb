@@ -45,6 +45,8 @@ package body Util.Streams.Buffered.Tests is
                        Test_Parts'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Parts (2)",
                        Test_Parts_2'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Parts (3)",
+                       Test_Parts_3'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -244,5 +246,23 @@ package body Util.Streams.Buffered.Tests is
          end;
       end loop;
    end Test_Parts_2;
+
+   procedure Test_Parts_3 (T : in out Test) is
+      SEP     : constant String := "" & ASCII.LF;
+      Parts   : Util.Streams.Buffered.Parts.Input_Part_Stream;
+      C       : Stream_Element;
+   begin
+      Parts.Initialize ("--AB--" & SEP & SEP & "--CD--" & SEP & "a" & SEP & "--EF--" & SEP);
+      Parts.Set_Boundary ("--AB--" & SEP);
+      Assert (T, Parts.Is_Eob, "First part must be empty");
+
+      Parts.Set_Boundary (SEP & "--CD--" & SEP);
+      Assert (T, Parts.Is_Eob, "Second part must be empty");
+
+      Parts.Set_Boundary (SEP & "--EF--" & SEP);
+      Assert (T, not Parts.Is_Eob, "Third part must not be empty");
+      Parts.Read (C);
+
+   end Test_Parts_3;
 
 end Util.Streams.Buffered.Tests;
