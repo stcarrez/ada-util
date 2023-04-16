@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base64 -- Encode/Decode a stream in Base64
---  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -101,6 +101,10 @@ package Util.Encoders.Base64 is
    --  The URL alphabet uses the '-' and '_' instead of the '+' and '/' characters.
    procedure Set_URL_Mode (E    : in out Decoder;
                            Mode : in Boolean);
+
+   --  Set the ignore ligne break mode when reading the input stream.
+   procedure Set_Ignore_Line_Break (E : in out Decoder;
+                                    Ignore : in Boolean);
 
    --  Create a base64 decoder using the URL alphabet.
    --  The URL alphabet uses the '-' and '_' instead of the '+' and '/' characters.
@@ -229,8 +233,13 @@ private
       Character'Pos ('-') => 62, Character'Pos ('_') => 63,
       others => 16#FF#);
 
+   type Decode_State_Type is new Natural range 0 .. 3;
+
    type Decoder is new Util.Encoders.Transformer with record
-      Values : Alphabet_Values_Access := BASE64_VALUES'Access;
+      Values   : Alphabet_Values_Access := BASE64_VALUES'Access;
+      State    : Decode_State_Type := 0;
+      Remain   : Interfaces.Unsigned_8 := 0;
+      Ignore_Line_Break : Boolean := False;
    end record;
 
 end Util.Encoders.Base64;

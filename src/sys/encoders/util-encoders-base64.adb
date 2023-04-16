@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base64 -- Encode/Decode a stream in base64
---  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019, 2022 Stephane Carrez
+--  Copyright (C) 2009 - 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -262,79 +262,69 @@ package body Util.Encoders.Base64 is
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset) is
 
-      Pos      : Ada.Streams.Stream_Element_Offset := Into'First;
-      I        : Ada.Streams.Stream_Element_Offset := Data'First;
-      C1, C2   : Ada.Streams.Stream_Element;
-      Val1, Val2 : Unsigned_8;
+      Pos    : Ada.Streams.Stream_Element_Offset := Into'First;
+      I      : Ada.Streams.Stream_Element_Offset := Data'First;
+      C      : Ada.Streams.Stream_Element;
+      Val    : Unsigned_8;
 
       Values : constant Alphabet_Values_Access := E.Values;
-
+      State  : Decode_State_Type := E.State;
+      Remain : Unsigned_8 := E.Remain;
    begin
       while I <= Data'Last loop
-         if Pos + 3 > Into'Last + 1 then
-            Last    := Pos - 1;
-            Encoded := I - 1;
-            return;
-         end if;
+         C := Data (I);
+         I := I + 1;
+         Val := Values (C);
+         if (Val and 16#C0#) /= 0 then
+            if C = Character'Pos ('=') then
+               case State is
+                  when 2 =>
+                     Remain := 0;
+                     State := 3;
 
-         --  Decode the first two bytes to produce the first output byte
-         C1 := Data (I);
-         Val1 := Values (C1);
-         if (Val1 and 16#C0#) /= 0 then
-            raise Encoding_Error with "Invalid character '" & Character'Val (C1) & "'";
-         end if;
+                  when 3 =>
+                     Remain := 0;
+                     State := 0;
 
-         C2 := Data (I + 1);
-         Val2 := Values (C2);
-         if (Val2 and 16#C0#) /= 0 then
-            raise Encoding_Error with "Invalid character '" & Character'Val (C2) & "'";
-         end if;
-
-         Into (Pos) := Stream_Element (Shift_Left (Val1, 2) or Shift_Right (Val2, 4));
-
-         if I + 2 > Data'Last then
-            Encoded := I + 1;
-            Last    := Pos;
-            return;
-         end if;
-
-         --  Decode the next byte
-         C1 := Data (I + 2);
-         Val1 := Values (C1);
-         if (Val1 and 16#C0#) /= 0 then
-            if C1 /= Character'Pos ('=') then
-               raise Encoding_Error with "Invalid character '" & Character'Val (C1) & "'";
+                  when others =>
+                     raise Encoding_Error with "Invalid character '" & Character'Val (C) & "'";
+               end case;
+            elsif not E.Ignore_Line_Break or else not (C in 16#0A# | 16#0D#) then
+               raise Encoding_Error with "Invalid character '" & Character'Val (C) & "'";
             end if;
-            Encoded := I + 3;
-            Last    := Pos;
-            return;
+         else
+            case State is
+               when 0 =>
+                  State := 1;
+                  Remain := Shift_Left (Val, 2);
+
+               when 1 =>
+                  Into (Pos) := Stream_Element (Remain or Shift_Right (Val, 4));
+                  Remain := Shift_Left (Val, 4);
+                  Pos := Pos + 1;
+                  State := 2;
+                  exit when Pos > Into'Last;
+
+               when 2 =>
+                  Into (Pos) := Stream_Element (Remain or Shift_Right (Val, 2));
+                  Remain := Shift_Left (Val, 6);
+                  Pos := Pos + 1;
+                  State := 3;
+                  exit when Pos > Into'Last;
+
+               when 3 =>
+                  Into (Pos) := Stream_Element (Remain or Val);
+                  Pos := Pos + 1;
+                  State := 0;
+                  exit when Pos > Into'Last;
+
+            end case;
          end if;
-
-         Into (Pos + 1) := Stream_Element (Shift_Left (Val2, 4) or Shift_Right (Val1, 2));
-
-         if I + 3 > Data'Last then
-            Encoded := I + 2;
-            Last    := Pos + 1;
-            return;
-         end if;
-
-         C2 := Data (I + 3);
-         Val2 := Values (C2);
-         if (Val2 and 16#C0#) /= 0 then
-            if C2 /= Character'Pos ('=') then
-               raise Encoding_Error with "Invalid character '" & Character'Val (C2) & "'";
-            end if;
-            Encoded := I + 3;
-            Last    := Pos + 1;
-            return;
-         end if;
-
-         Into (Pos + 2) := Stream_Element (Shift_Left (Val1, 6) or Val2);
-         Pos := Pos + 3;
-         I   := I + 4;
       end loop;
-      Last    := Pos - 1;
-      Encoded := Data'Last;
+      E.State  := State;
+      E.Remain := Remain;
+      Last     := Pos - 1;
+      Encoded  := Data'Last;
    end Transform;
 
    --  ------------------------------
@@ -352,12 +342,24 @@ package body Util.Encoders.Base64 is
    end Set_URL_Mode;
 
    --  ------------------------------
+   --  Set the ignore ligne break mode when reading the input stream.
+   --  ------------------------------
+   procedure Set_Ignore_Line_Break (E : in out Decoder;
+                                    Ignore : in Boolean) is
+   begin
+      E.Ignore_Line_Break := Ignore;
+   end Set_Ignore_Line_Break;
+
+   --  ------------------------------
    --  Create a base64 decoder using the URL alphabet.
    --  The URL alphabet uses the '-' and '_' instead of the '+' and '/' characters.
    --  ------------------------------
    function Create_URL_Decoder return Transformer_Access is
    begin
-      return new Decoder '(Values => BASE64_URL_VALUES'Access);
+      return new Decoder '(Values => BASE64_URL_VALUES'Access,
+                           State  => 0,
+                           Remain => 0,
+                           Ignore_Line_Break => False);
    end Create_URL_Decoder;
 
 end Util.Encoders.Base64;
