@@ -70,6 +70,8 @@ package body Util.Streams.Buffered.Parts is
       Stream.Eob := False;
       if Stream.Real_Write_Pos > Stream.Write_Pos then
          Stream.Write_Pos := Stream.Real_Write_Pos;
+      end if;
+      if Stream.Read_Pos < Stream.Write_Pos then
          Stream.Check_Boundary;
       end if;
    end Set_Boundary;
@@ -82,6 +84,14 @@ package body Util.Streams.Buffered.Parts is
    begin
       Stream.Set_Boundary (Content);
    end Set_Boundary;
+
+   --  ------------------------------
+   --  Prepare to read the next part with the same boundary.
+   --  ------------------------------
+   procedure Next_Part (Stream : in out Input_Part_Stream) is
+   begin
+      Stream.Check_Boundary;
+   end Next_Part;
 
    overriding
    procedure Fill (Stream : in out Input_Part_Stream) is
@@ -106,22 +116,21 @@ package body Util.Streams.Buffered.Parts is
             Stream.Eob := True;
             Stream.Write_Pos := Boundary'Length + 1;
             Stream.Read_Pos := Boundary'Length + 1;
-            Stream.Real_Write_Pos := Pos;
+            Stream.Real_Write_Pos := Pos + 1;
             return;
          end if;
 
-         Stream.Input.Read (Stream.Buffer (Pos + 1 .. Stream.Last - 1), Stream.Write_Pos);
+         Stream.Input.Read (Stream.Buffer (Pos + 1 .. Stream.Last), Stream.Write_Pos);
          Stream.Eof := Stream.Write_Pos < Pos + 1;
-         Stream.Read_Pos := 1;
       else
-         Stream.Input.Read (Stream.Buffer (1 .. Stream.Last - 1), Stream.Write_Pos);
+         Stream.Input.Read (Stream.Buffer (1 .. Stream.Last), Stream.Write_Pos);
          Stream.Eof := Stream.Write_Pos < 1;
-         if not Stream.Eof then
-            Stream.Write_Pos := Stream.Write_Pos + 1;
-         end if;
-         Stream.Read_Pos := 1;
       end if;
 
+      if not Stream.Eof then
+         Stream.Write_Pos := Stream.Write_Pos + 1;
+      end if;
+      Stream.Read_Pos := 1;
       Stream.Check_Boundary;
    end Fill;
 
@@ -138,10 +147,8 @@ package body Util.Streams.Buffered.Parts is
       Pos      : Stream_Element_Offset := Stream.Read_Pos;
       Count    : Stream_Element_Offset;
    begin
-      while Pos <= Stream.Write_Pos loop
-         if Buffer (Pos) /= C then
-            Pos := Pos + 1;
-         else
+      while Pos < Stream.Write_Pos loop
+         if Buffer (Pos) = C then
             if Pos + Boundary'Length <= Stream.Write_Pos then
                Count := Boundary'Length;
             else
@@ -151,20 +158,56 @@ package body Util.Streams.Buffered.Parts is
                if Stream.Real_Write_Pos < Stream.Write_Pos then
                   Stream.Real_Write_Pos := Stream.Write_Pos;
                end if;
+               if Pos = Stream.Read_Pos and then Count = Boundary'Length then
+                  Pos := Pos + Count;
+                  Stream.Read_Pos := Pos;
+                  Stream.Eob := True;
+               end if;
                Stream.Write_Pos := Pos;
                exit;
             end if;
-            Pos := Pos + 1;
          end if;
+         Pos := Pos + 1;
       end loop;
    end Check_Boundary;
 
    --  ------------------------------
    --  Returns True if the end of the boundary is reached.
    --  ------------------------------
-   function Is_Eob (Stream : in Input_Part_Stream) return Boolean is
+   function Is_Eob (Stream : in out Input_Part_Stream) return Boolean is
    begin
-      return Stream.Eob or else Stream.Eof;
+      if Stream.Eob or else Stream.Eof then
+         return True;
+      end if;
+
+      --  Done if we have not reached the end of buffer or it does not contain a possible boundary.
+      if Stream.Read_Pos < Stream.Write_Pos or else Stream.Real_Write_Pos < Stream.Write_Pos then
+         return False;
+      end if;
+
+      --  We could have reached a boundary.
+      declare
+         Pos      : Stream_Element_Offset := Stream.Read_Pos;
+         Boundary : constant Buffer_Access := Stream.Boundary;
+         Buffer   : constant Buffer_Access := Stream.Buffer;
+         Count    : Stream_Element_Offset;
+      begin
+         if Pos + Boundary'Length <= Stream.Real_Write_Pos then
+            if Buffer (Pos .. Pos + Boundary'Length - 1) = Boundary.all then
+               Pos := Pos + Boundary'Length;
+               Stream.Read_Pos := Pos;
+               Stream.Eob := True;
+               Stream.Write_Pos := Pos;
+               return True;
+            end if;
+            return False;
+         else
+            --  Not enough data to check, fill the buffer and check.
+            --  We could reach eof but this is not yet the eob because we still have unread data.
+            Stream.Fill;
+            return Stream.Eob;
+         end if;
+      end;
    end Is_Eob;
 
    --  ------------------------------

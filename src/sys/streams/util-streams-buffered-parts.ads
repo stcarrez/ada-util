@@ -41,9 +41,14 @@ package Util.Streams.Buffered.Parts is
 
    --  Set the boundary when reading the input stream.
    procedure Set_Boundary (Stream   : in out Input_Part_Stream;
-                           Boundary : in Ada.Streams.Stream_Element_Array);
+                           Boundary : in Ada.Streams.Stream_Element_Array) with
+      Pre => Boundary'Length < Stream.Get_Buffer'Length;
    procedure Set_Boundary (Stream   : in out Input_Part_Stream;
                            Boundary : in String);
+
+   --  Prepare to read the next part with the same boundary.
+   procedure Next_Part (Stream : in out Input_Part_Stream) with
+      Pre => Stream.Is_Eob;
 
    --  Fill the buffer by reading the input stream.
    --  Raises Data_Error if there is no input stream;
@@ -51,7 +56,7 @@ package Util.Streams.Buffered.Parts is
    procedure Fill (Stream : in out Input_Part_Stream);
 
    --  Returns True if the end of the boundary is reached.
-   function Is_Eob (Stream : in Input_Part_Stream) return Boolean;
+   function Is_Eob (Stream : in out Input_Part_Stream) return Boolean;
 
    --  Release the buffer.
    overriding
