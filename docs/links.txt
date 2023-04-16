@@ -11,3 +11,4 @@ Log4cxx                    https://logging.apache.org/log4cxx/latest_stable/inde
 RFC 7231                   https://tools.ietf.org/html/rfc7231
 RFC 8018                   https://tools.ietf.org/html/rfc8018
 RFC 3986                   https://tools.ietf.org/html/rfc3986
+RFC 4648                   https://tools.ietf.org/html/rfc4648

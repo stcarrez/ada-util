@@ -73,7 +73,16 @@ read text content.
 
 ## File streams
 The `Util.Streams.Files` package provides input and output streams that access
-files on top of the Ada `Stream_IO` standard package.
+files on top of the Ada `Stream_IO` standard package.  The `File_Stream` implements
+both the `Input_Stream` and `Output_Stream` interfaces.  The stream is opened
+by using the `Open` or `Create` procedures.
+
+```Ada
+with Util.Streams.Files;
+...
+  In_Stream : Util.Streams.Files.File_Stream;
+  In_Stream.Open (Mode => Ada.Streams.Stream_IO.In_File, "cert.pem");
+```
 
 ## Pipes
 The `Util.Streams.Pipes` package defines a pipe stream to or from a process.
@@ -159,6 +168,61 @@ The <b>Util.Streams.Sockets</b> package defines a socket stream.
 ## Raw files
 The <b>Util.Streams.Raw</b> package provides a stream directly on top of
 file system operations <b>read</b> and <b>write</b>.
+
+## Part streams
+The `Input_Part_Stream` is an input stream which decomposes an input stream
+in several parts separated by well known and fixed boundaries.  It can be used
+to read multipart streams, certificate files, private and public keys and others.
+The example below shows how to read a file composed of several parts separated
+by well defined text boundaries.
+
+```Ada
+with Util.Streams.Files;
+with Util.Streams.Buffered.Parts;
+...
+  In_Stream   : aliased Util.Streams.Files.File_Stream;
+  Part_Stream : Util.Streams.Buffered.Parts.Input_Part_Stream;
+```
+
+With the above declarations, the `Input_Part_Stream` is configured to read from
+the `File_Stream` by using the `Initialize` procedure and giving a buffer size.
+The buffer size must be large enough to hold the largest fixed boundary plus some
+extra.
+
+```Ada
+Part_Stream.Initialize (Input => In_Stream'Unchecked_Access, Size => 4096);
+```
+
+Once it is configured, the first boundary to stop at is configured by using
+the `Set_Boundary` procedure.  The example below is intended to extract the
+certificate from a PEM file.  The certificate (encoded in Base64) is enclosed in
+two different markers.  The first boundary is first defined as follows:
+
+```Ada
+Part_Stream.Set_Boundary ("-----BEGIN CERTIFICATE-----" & ASCII.LF);
+```
+
+After calling `Set_Boundary`, we can start reading the `Part_Stream` and it will
+stop when the boundary string is found.  If we want to drop content until the
+first boundary is found, we can loop until the boundary is found.  To extract the
+certificate content, we want to skip everything until the first boundary is found
+in the stream:
+
+```Ada
+while not Part_Stream.Is_Eob loop
+  Part_Stream.Read (Item);
+end loop;
+```
+
+Once a boundary is reached, trying to read from the stream will raise the standard
+`Data_Error` exception.  We can either use `Next_Part` to prepare and read for a
+next part with the same boundary or call `Set_Boundary` with another boundary.
+To extract the certificate content, we can do:
+
+```Ada
+Part_Stream.Set_Boundary ("-----END CERTIFICATE-----" & ASCII.LF);
+Part_Stream.Read (Content);
+```
 
 ## Encoder Streams
 The `Util.Streams.Buffered.Encoders` is a generic package which implements an
