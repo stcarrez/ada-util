@@ -39,6 +39,7 @@ framework as it provides better reports.
   - Feature #32: Custom log appender
   - Feature #36: Add HOTP algorithm
   - Feature #38: Allow to read stdout and stderr as separate streams when spawning a process
+  - Feature #40: Input stream reader to read parts from another stream
   - Fix #37: Support to build with -gnatW8
 
 ## Version 2.5.0  - Aug 2022
@@ -165,7 +166,8 @@ The samples can be built using:
 | `Util.Properties` | [properties.adb](https://github.com/stcarrez/ada-util/tree/master/samples/properties.adb), [proplist.adb](https://github.com/stcarrez/ada-util/tree/master/samples/proplist.adb), [bundles.adb](https://github.com/stcarrez/ada-util/tree/master/samples/bundles.adb) |
 | `Util.Refs` | [multipro_refs.adb](https://github.com/stcarrez/ada-util/tree/master/samples/multipro_refs.adb) |
 | `Util.Streams.AES` | [decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/decrypt.adb), [encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encrypt.adb) |
-| `Util.Streams.Base64` | [lzma_encrypt_b64.adb](https://github.com/stcarrez/ada-util/tree/master/samples/lzma_encrypt_b64.adb), [lzma_decrypt_b64.adb](https://github.com/stcarrez/ada-util/tree/master/samples/lzma_decrypt_b64.adb) |
+| `Util.Streams.Base64` | [lzma_encrypt_b64.adb](https://github.com/stcarrez/ada-util/tree/master/samples/lzma_encrypt_b64.adb), [lzma_decrypt_b64.adb](https://github.com/stcarrez/ada-util/tree/master/samples/lzma_decrypt_b64.adb), [dumpcert.adb](https://github.com/stcarrez/ada-util/tree/master/samples/dumpcert.adb) |
+| `Util.Streams.Buffered.Parts` | [multipart.adb](https://github.com/stcarrez/ada-util/tree/master/samples/multipart.adb), [dumpcert.adb](https://github.com/stcarrez/ada-util/tree/master/samples/dumpcert.adb) |
 | `Util.Streams.Files` | [copy.adb](https://github.com/stcarrez/ada-util/tree/master/samples/copy.adb), [sha256.adb](https://github.com/stcarrez/ada-util/tree/master/samples/sha256.adb), [compress.adb](https://github.com/stcarrez/ada-util/tree/master/samples/compress.adb), [decompress.adb](https://github.com/stcarrez/ada-util/tree/master/samples/decompress.adb), [decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/decrypt.adb), [encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/encrypt.adb), [lzma_encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/lzma_encrypt.adb), [lzma_decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/lzma_decrypt.adb) |
 | `Util.Streams.Pipes` | [launch.adb](https://github.com/stcarrez/ada-util/tree/master/samples/launch.adb), [popen.adb](https://github.com/stcarrez/ada-util/tree/master/samples/popen.adb) |
 | `Util.Serialize.IO.CSV` | [csv_city.adb](https://github.com/stcarrez/ada-util/tree/master/samples/csv_city.adb) |
