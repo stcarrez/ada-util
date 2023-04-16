@@ -48,6 +48,7 @@ package Util.Encoders.Tests is
    procedure Test_HMAC_SHA1_RFC2202_T5 (T : in out Test);
    procedure Test_HMAC_SHA1_RFC2202_T6 (T : in out Test);
    procedure Test_HMAC_SHA1_RFC2202_T7 (T : in out Test);
+   procedure Test_HMAC_SHA1_Sign (T : in out Test);
 
    --  Test HMAC-SHA256
    procedure Test_HMAC_SHA256_RFC4231_T1 (T : in out Test);

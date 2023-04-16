@@ -89,6 +89,8 @@ package body Util.Encoders.Tests is
                        Test_HMAC_SHA1_RFC2202_T6'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA1.Sign_SHA1 (RFC2202 test7)",
                        Test_HMAC_SHA1_RFC2202_T7'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA1.Sign_Base64",
+                       Test_HMAC_SHA1_Sign'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Encode_LEB128",
                        Test_LEB128'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Encode",
@@ -479,6 +481,14 @@ package body Util.Encoders.Tests is
                     & "Than One Block-Size Data",
                   "e8e99d0f45237d786d6bbaa7965c7808bbff1a91");
    end Test_HMAC_SHA1_RFC2202_T7;
+
+   procedure Test_HMAC_SHA1_Sign (T : in out Test) is
+      Key  : constant String (1 .. 20) := (others => Character'Val (16#0c#));
+      D : Util.Encoders.SHA1.Base64_Digest;
+   begin
+      D := Util.Encoders.HMAC.SHA1.Sign_Base64 (Key, "Test With Truncation");
+      Util.Tests.Assert_Equals (T, "TBoDQktV4H/n8nvh1Yu5MkqaWgQ=", D, "Invalid HMAC");
+   end Test_HMAC_SHA1_Sign;
 
    --  ------------------------------
    --  Test encoding leb128.
