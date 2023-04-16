@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-files -- File Stream utilities
---  Copyright (C) 2010, 2013, 2015, 2017, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2010, 2013, 2015, 2017, 2018, 2019, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,15 @@ with Ada.Streams.Stream_IO;
 
 --  == File streams ==
 --  The `Util.Streams.Files` package provides input and output streams that access
---  files on top of the Ada `Stream_IO` standard package.
+--  files on top of the Ada `Stream_IO` standard package.  The `File_Stream` implements
+--  both the `Input_Stream` and `Output_Stream` interfaces.  The stream is opened
+--  by using the `Open` or `Create` procedures.
+--
+--    with Util.Streams.Files;
+--    ...
+--      In_Stream : Util.Streams.Files.File_Stream;
+--      In_Stream.Open (Mode => Ada.Streams.Stream_IO.In_File, "cert.pem");
+--
 package Util.Streams.Files is
 
    --  -----------------------

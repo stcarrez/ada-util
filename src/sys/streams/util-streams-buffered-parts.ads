@@ -18,7 +18,49 @@
 
 --  == Part streams ==
 --  The `Input_Part_Stream` is an input stream which decomposes an input stream
---  in several parts separated by well known and fixed boundaries.
+--  in several parts separated by well known and fixed boundaries.  It can be used
+--  to read multipart streams, certificate files, private and public keys and others.
+--  The example below shows how to read a file composed of several parts separated
+--  by well defined text boundaries.
+--
+--    with Util.Streams.Files;
+--    with Util.Streams.Buffered.Parts;
+--    ...
+--      In_Stream   : aliased Util.Streams.Files.File_Stream;
+--      Part_Stream : Util.Streams.Buffered.Parts.Input_Part_Stream;
+--
+--  With the above declarations, the `Input_Part_Stream` is configured to read from
+--  the `File_Stream` by using the `Initialize` procedure and giving a buffer size.
+--  The buffer size must be large enough to hold the largest fixed boundary plus some
+--  extra.
+--
+--    Part_Stream.Initialize (Input => In_Stream'Unchecked_Access, Size => 4096);
+--
+--  Once it is configured, the first boundary to stop at is configured by using
+--  the `Set_Boundary` procedure.  The example below is intended to extract the
+--  certificate from a PEM file.  The certificate (encoded in Base64) is enclosed in
+--  two different markers.  The first boundary is first defined as follows:
+--
+--    Part_Stream.Set_Boundary ("-----BEGIN CERTIFICATE-----" & ASCII.LF);
+--
+--  After calling `Set_Boundary`, we can start reading the `Part_Stream` and it will
+--  stop when the boundary string is found.  If we want to drop content until the
+--  first boundary is found, we can loop until the boundary is found.  To extract the
+--  certificate content, we want to skip everything until the first boundary is found
+--  in the stream:
+--
+--    while not Part_Stream.Is_Eob loop
+--      Part_Stream.Read (Item);
+--    end loop;
+--
+--  Once a boundary is reached, trying to read from the stream will raise the standard
+--  `Data_Error` exception.  We can either use `Next_Part` to prepare and read for a
+--  next part with the same boundary or call `Set_Boundary` with another boundary.
+--  To extract the certificate content, we can do:
+--
+--    Part_Stream.Set_Boundary ("-----END CERTIFICATE-----" & ASCII.LF);
+--    Part_Stream.Read (Content);
+--
 package Util.Streams.Buffered.Parts is
 
    type Input_Part_Stream is limited new Input_Buffer_Stream with private;
