@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  AUnit utils - Helper for writing unit tests
---  Copyright (C) 2009, 2010, 2011, 2012, 2013 Stephane Carrez
+--  util-tests - Helper for writing unit tests
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,7 @@ with GNAT.Source_Info;
 with Util.Properties;
 with Util.Assertions;
 with Util.XUnit;
+with Util.Strings.Vectors;
 package Util.Tests is
 
    use Ada.Strings.Unbounded;
@@ -36,6 +37,29 @@ package Util.Tests is
    function Format (S : in String) return Message_String renames Util.XUnit.Format;
 
    type Test is new Util.XUnit.Test with null record;
+
+   procedure Execute (T       : in out Test;
+                      Command : in String;
+                      Input   : in String;
+                      Output  : in String;
+                      Result  : out Ada.Strings.Unbounded.Unbounded_String;
+                      Status  : in Natural := 0;
+                      Source  : String := GNAT.Source_Info.File;
+                      Line    : Natural := GNAT.Source_Info.Line);
+
+   procedure Execute (T       : in out Test;
+                      Command : in String;
+                      Result  : out Ada.Strings.Unbounded.Unbounded_String;
+                      Status  : in Natural := 0;
+                      Source  : String := GNAT.Source_Info.File;
+                      Line    : Natural := GNAT.Source_Info.Line);
+
+   procedure Execute (T       : in out Test;
+                      Command : in String;
+                      Expect  : in String;
+                      Status  : in Natural := 0;
+                      Source  : String := GNAT.Source_Info.File;
+                      Line    : Natural := GNAT.Source_Info.Line);
 
    --  Get a path to access a test file.
    function Get_Path (File : String) return String;
@@ -150,6 +174,13 @@ package Util.Tests is
                    Message : in String := "Test failed";
                    Source  : in String := GNAT.Source_Info.File;
                    Line    : in Natural := GNAT.Source_Info.Line);
+
+   procedure Assert_Equal_Vectors (T : in Test'Class;
+                                   Expect  : in Util.Strings.Vectors.Vector;
+                                   List    : in Util.Strings.Vectors.Vector;
+                                   Message : in String := "Test failed";
+                                   Source  : String := GNAT.Source_Info.File;
+                                   Line    : Natural := GNAT.Source_Info.Line);
 
    --  Default initialization procedure.
    procedure Initialize_Test (Props : in Util.Properties.Manager);

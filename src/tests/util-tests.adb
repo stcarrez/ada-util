@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  AUnit utils - Helper for writing unit tests
---  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2017, 2019, 2021, 2022 Stephane Carrez
+--  util-tests - Helper for writing unit tests
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2017, 2019, 2021, 2022, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,9 +32,14 @@ with Util.Measures;
 with Util.Files;
 with Util.Strings.Vectors;
 with Util.Log.Loggers;
+with Util.Processes;
+with Util.Streams.Buffered;
+with Util.Streams.Pipes;
 package body Util.Tests is
 
    Test_Properties : Util.Properties.Manager;
+
+   Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Tests");
 
    --  When a test uses external test files to match a result against a well
    --  defined content, it can be difficult to maintain those external files.
@@ -59,6 +64,68 @@ package body Util.Tests is
    --  When not empty, defines the name of the test that is enabled.  Other tests are disabled.
    --  This is initialized by the -r test option.
    Enabled_Test      : Unbounded_String;
+
+   --  ------------------------------
+   --  Execute the command and get the output in a string.
+   --  ------------------------------
+   procedure Execute (T       : in out Test;
+                      Command : in String;
+                      Input   : in String;
+                      Output  : in String;
+                      Result  : out Ada.Strings.Unbounded.Unbounded_String;
+                      Status  : in Natural := 0;
+                      Source  : String := GNAT.Source_Info.File;
+                      Line    : Natural := GNAT.Source_Info.Line) is
+      P        : aliased Util.Streams.Pipes.Pipe_Stream;
+      Buffer   : Util.Streams.Buffered.Input_Buffer_Stream;
+   begin
+      if Input'Length > 0 then
+         Log.Info ("Execute: {0} < {1}", Command, Input);
+      elsif Output'Length > 0 then
+         Log.Info ("Execute: {0} > {1}", Command, Output);
+      else
+         Log.Info ("Execute: {0}", Command);
+      end if;
+      P.Set_Input_Stream (Input);
+      P.Set_Output_Stream (Output);
+      P.Open (Command, Util.Processes.READ_ALL);
+
+      --  Write on the process input stream.
+      Result := Ada.Strings.Unbounded.Null_Unbounded_String;
+      Buffer.Initialize (P'Unchecked_Access, 8192);
+      Buffer.Read (Result);
+      P.Close;
+      Ada.Text_IO.Put_Line (Ada.Strings.Unbounded.To_String (Result));
+      Log.Info ("Command result: {0}", Result);
+      Util.Tests.Assert_Equals (T, Status, P.Get_Exit_Status, "Command '" & Command & "' failed",
+                                Source, Line);
+   end Execute;
+
+   procedure Execute (T       : in out Test;
+                      Command : in String;
+                      Result  : out Ada.Strings.Unbounded.Unbounded_String;
+                      Status  : in Natural := 0;
+                      Source  : String := GNAT.Source_Info.File;
+                      Line    : Natural := GNAT.Source_Info.Line) is
+   begin
+      T.Execute (Command, "", "", Result, Status, Source, Line);
+   end Execute;
+
+   procedure Execute (T       : in out Test;
+                      Command : in String;
+                      Expect  : in String;
+                      Status  : in Natural := 0;
+                      Source  : String := GNAT.Source_Info.File;
+                      Line    : Natural := GNAT.Source_Info.Line) is
+      Path   : constant String := Util.Tests.Get_Path ("regtests/expect/" & Expect);
+      Output : constant String := Util.Tests.Get_Test_Path (Expect);
+      Result : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      T.Execute (Command, "", Output, Result, Status, Source, Line);
+
+      Util.Tests.Assert_Equal_Files (T, Path, Output, "Command '" & Command & "' invalid output",
+                                     Source, Line);
+   end Execute;
 
    --  ------------------------------
    --  Get a path to access a test file.
@@ -414,6 +481,29 @@ package body Util.Tests is
    begin
       T.Assert (False, Message, Source, Line);
    end Fail;
+
+   procedure Assert_Equal_Vectors (T : in Test'Class;
+                                   Expect  : in Util.Strings.Vectors.Vector;
+                                   List    : in Util.Strings.Vectors.Vector;
+                                   Message : in String := "Test failed";
+                                   Source  : String := GNAT.Source_Info.File;
+                                   Line    : Natural := GNAT.Source_Info.Line) is
+   begin
+      Assert_Equals (T      => T,
+                     Expect => Natural (Expect.Length),
+                     Value  => Natural (List.Length),
+                     Message => "Invalid length:" & Message,
+                     Source  => Source,
+                     Line    => Line);
+      for I in 1 .. Natural (Expect.Length) loop
+         Assert_Equals (T      => T,
+                        Expect => Expect.Element (I),
+                        Value  => List.Element (I),
+                        Message => "Bad value" & I'Image & ":" & Message,
+                        Source  => Source,
+                        Line    => Line);
+      end loop;
+   end Assert_Equal_Vectors;
 
    --  ------------------------------
    --  Default initialization procedure.
