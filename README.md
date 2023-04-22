@@ -41,6 +41,7 @@ framework as it provides better reports.
   - Feature #38: Allow to read stdout and stderr as separate streams when spawning a process
   - Feature #40: Input stream reader to read parts from another stream
   - Feature #41: Support to ignore line breaks when decoding Base64 streams
+  - Feature #42: Improvement of test framework to launch and verify external program execution and output
   - Fix #37: Support to build with -gnatW8
 
 ## Version 2.5.0  - Aug 2022
