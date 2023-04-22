@@ -33,6 +33,7 @@ procedure Multipart is
 begin
    if Ada.Command_Line.Argument_Count /= 1 then
       Ada.Text_IO.Put_Line ("Usage: multipart certificate.pem");
+      Ada.Text_IO.Put_Line ("Example: multipart ./samples/ISRG_Root_X1.pem");
       return;
    end if;
 

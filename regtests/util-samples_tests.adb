@@ -57,10 +57,14 @@ package body Util.Samples_Tests is
          Caller.Add_Test (Suite, "Test compress/decompress",
                           Test_Compress_Decompress'Access);
          Caller.Add_Test (Suite, "Test lzma_encrypt/lzma_decrypt",
-                          Test_Encrypt_Decrypt'Access);
+                          Test_Lzma_Encrypt_Decrypt'Access);
+         Caller.Add_Test (Suite, "Test lzma_encrypt_b64/lzma_decrypt_b64",
+                          Test_Lzma_Encrypt_Decrypt_B64'Access);
       end if;
       Caller.Add_Test (Suite, "Test encrypt/decrypt",
                        Test_Encrypt_Decrypt'Access);
+      Caller.Add_Test (Suite, "Test multipart",
+                       Test_Multipart'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -238,7 +242,42 @@ package body Util.Samples_Tests is
       end if;
       T.Execute ("bin/lzma_encrypt Makefile secret-key " & Path1, Result);
       T.Execute ("bin/lzma_decrypt " & Path1 & " secret-key " & Path2, Result);
-      Assert_Equal_Files (T, "Makefile", Path2, "Encrypt+Decrypt failed");
+      Assert_Equal_Files (T, "Makefile", Path2, "LZMA+Encrypt+Decrypt failed");
    end Test_Lzma_Encrypt_Decrypt;
+
+   --  ------------------------------
+   --  Tests the lzma_encrypt_b64/lzma_decrypt_b6 example.
+   --  ------------------------------
+   procedure Test_Lzma_Encrypt_Decrypt_B64 (T : in out Test) is
+      Path1  : constant String := Util.Tests.Get_Test_Path ("copy.aes.xz.b64");
+      Path2  : constant String := Util.Tests.Get_Test_Path ("copy.aes.xz.b64.txt");
+      Result : UString;
+   begin
+      if Ada.Directories.Exists (Path1) then
+         Ada.Directories.Delete_File (Path1);
+      end if;
+      if Ada.Directories.Exists (Path2) then
+         Ada.Directories.Delete_File (Path2);
+      end if;
+      T.Execute ("bin/lzma_encrypt_b64 Makefile secret-key " & Path1, Result);
+      T.Execute ("bin/lzma_decrypt_b64 " & Path1 & " secret-key " & Path2, Result);
+      Assert_Equal_Files (T, "Makefile", Path2, "LZMA+Encrypt+Decrypt_B64 failed");
+   end Test_Lzma_Encrypt_Decrypt_B64;
+
+   --  ------------------------------
+   --  Tests the multipart example.
+   --  ------------------------------
+   procedure Test_Multipart (T : in out Test) is
+      List   : Util.Strings.Vectors.Vector;
+      Status : Integer;
+   begin
+      Util.Processes.Tools.Execute ("bin/multipart samples/ISRG_Root_X1.pem" & Path, List, Status);
+      Assert_Equals (T, 0, Status, "Invalid execution status");
+      Assert_Equals (T, 29, Natural (List.Length), "Invalid number of lines");
+      Assert (T, List.Contains ("MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw"),
+              "Expected first line not found");
+      Assert (T, List.Contains ("emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc="),
+              "Expected last line not found");
+   end Test_Multipart;
 
 end Util.Samples_Tests;
