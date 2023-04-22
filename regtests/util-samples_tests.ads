@@ -36,5 +36,6 @@ package Util.Samples_Tests is
    procedure Test_Lzma_Encrypt_Decrypt (T : in out Test);
    procedure Test_Lzma_Encrypt_Decrypt_B64 (T : in out Test);
    procedure Test_Multipart (T : in out Test);
+   procedure Test_Dumpcert (T : in out Test);
 
 end Util.Samples_Tests;

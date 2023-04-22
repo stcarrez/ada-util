@@ -65,6 +65,8 @@ package body Util.Samples_Tests is
                        Test_Encrypt_Decrypt'Access);
       Caller.Add_Test (Suite, "Test multipart",
                        Test_Multipart'Access);
+      Caller.Add_Test (Suite, "Test dumpcert",
+                       Test_Dumpcert'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -271,7 +273,7 @@ package body Util.Samples_Tests is
       List   : Util.Strings.Vectors.Vector;
       Status : Integer;
    begin
-      Util.Processes.Tools.Execute ("bin/multipart samples/ISRG_Root_X1.pem" & Path, List, Status);
+      Util.Processes.Tools.Execute ("bin/multipart samples/ISRG_Root_X1.pem", List, Status);
       Assert_Equals (T, 0, Status, "Invalid execution status");
       Assert_Equals (T, 29, Natural (List.Length), "Invalid number of lines");
       Assert (T, List.Contains ("MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw"),
@@ -279,5 +281,25 @@ package body Util.Samples_Tests is
       Assert (T, List.Contains ("emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc="),
               "Expected last line not found");
    end Test_Multipart;
+
+   --  ------------------------------
+   --  Tests the dumpcert example.
+   --  ------------------------------
+   procedure Test_Dumpcert (T : in out Test) is
+      List   : Util.Strings.Vectors.Vector;
+      Status : Integer;
+   begin
+      Util.Processes.Tools.Execute ("bin/dumpcert samples/ISRG_Root_X1.pem", List, Status);
+      Assert_Equals (T, 0, Status, "Invalid execution status");
+      Assert_Equals (T, 47, Natural (List.Length), "Invalid number of lines");
+      Assert (T, List.Contains ("      Tag: OID len  9 value: 1.2.840.113549.1.1.11"),
+              "Expected line not found");
+      Assert (T, List.Contains ("          Tag: PRINTABLESTRING len  32 value: Internet Security Research Group"),
+              "Expected line not found");
+      Assert (T, List.Contains ("    Tag: OID len  9 value: 1.2.840.113549.1.1.11"),
+              "Expected line not found");
+      Assert (T, List.Contains ("  Tag: BITSTRING Len  513"),
+              "Expected line not found");
+   end Test_Dumpcert;
 
 end Util.Samples_Tests;
