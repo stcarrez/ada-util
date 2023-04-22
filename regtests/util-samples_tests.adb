@@ -17,13 +17,8 @@
 -----------------------------------------------------------------------
 with Ada.Strings.Unbounded;
 with Ada.Directories;
-with Util.Log.Loggers;
 with Util.Test_Caller;
-with Util.Files;
 with Util.Strings.Vectors;
-with Util.Streams.Pipes;
-with Util.Streams.Buffered;
-with Util.Streams.Texts;
 with Util.Processes.Tools;
 package body Util.Samples_Tests is
 
@@ -31,9 +26,6 @@ package body Util.Samples_Tests is
    use type Util.Strings.Vectors.Vector;
 
    subtype UString is Ada.Strings.Unbounded.Unbounded_String;
-
-   --  The logger
-   Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Util.Samples");
 
    package Caller is new Util.Test_Caller (Test, "Samples");
 
@@ -109,11 +101,6 @@ package body Util.Samples_Tests is
       Assert_Matches (T, "Encodes sha1: AAF4C61DDCC5E8A2DABEDE0F3B482CD9AEA9434D", Result);
    end Test_Encodes;
 
-   procedure Tst (L : in Util.Strings.Vectors.Vector) is
-   begin
-      null;
-   end Tst;
-
    --  ------------------------------
    --  Tests the cut example.
    --  ------------------------------
@@ -171,7 +158,7 @@ package body Util.Samples_Tests is
    begin
       T.Execute ("bin/objcalc", Result);
       Assert_Matches (T, "111", Result);
-    end Test_Objcalc;
+   end Test_Objcalc;
 
    --  ------------------------------
    --  Tests the log example.
@@ -288,9 +275,11 @@ package body Util.Samples_Tests is
       Util.Processes.Tools.Execute ("bin/multipart samples/ISRG_Root_X1.pem", List, Status);
       Assert_Equals (T, 0, Status, "Invalid execution status");
       Assert_Equals (T, 29, Natural (List.Length), "Invalid number of lines");
-      Assert (T, List.Contains ("MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw"),
+      Assert (T, List.Contains ("MIIFazCCA1OgAwIBAgIRAIIQz7DSQON"
+                                & "ZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw"),
               "Expected first line not found");
-      Assert (T, List.Contains ("emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc="),
+      Assert (T, List.Contains ("emyPxgcYxn/eR44/KJ4EBs+lVDR3vey"
+                                & "Jm+kXQ99b21/+jh5Xos1AnX5iItreGCc="),
               "Expected last line not found");
    end Test_Multipart;
 
@@ -306,7 +295,8 @@ package body Util.Samples_Tests is
       Assert_Equals (T, 47, Natural (List.Length), "Invalid number of lines");
       Assert (T, List.Contains ("      Tag: OID len  9 value: 1.2.840.113549.1.1.11"),
               "Expected line not found");
-      Assert (T, List.Contains ("          Tag: PRINTABLESTRING len  32 value: Internet Security Research Group"),
+      Assert (T, List.Contains ("          Tag: PRINTABLESTRING len  32 value:"
+                                & " Internet Security Research Group"),
               "Expected line not found");
       Assert (T, List.Contains ("    Tag: OID len  9 value: 1.2.840.113549.1.1.11"),
               "Expected line not found");
@@ -345,7 +335,8 @@ package body Util.Samples_Tests is
       Result : UString;
    begin
       T.Execute ("bin/serialize", Result);
-      Assert_Matches (T, "{""person"":{""name"":""Harry Potter"",""gender"":""male"",""age"": 17}}",
+      Assert_Matches (T, "{""person"":{""name"":""Harry Potter"""
+                      & ",""gender"":""male"",""age"": 17}}",
                       Result);
    end Test_Serialize;
 
@@ -356,7 +347,8 @@ package body Util.Samples_Tests is
       Result : UString;
    begin
       T.Execute ("bin/serialize_xml", Result);
-      Assert_Matches (T, "<person><name>Harry Potter</name><gender>male</gender><age>17</age></person>",
+      Assert_Matches (T, "<person><name>Harry Potter</name>"
+                      & "<gender>male</gender><age>17</age></person>",
                       Result);
    end Test_Serialize_XML;
 
