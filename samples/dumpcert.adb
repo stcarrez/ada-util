@@ -94,6 +94,9 @@ procedure Dumpcert is
             when 17 | 49 =>
                return "SET";
 
+            when 19 =>
+               return "PRINTABLESTRING";
+
             when others =>
                return "Tag " & Util.Encoders.Encode_Unsigned_16 (Hex, Unsigned_16 (Tag));
 
@@ -123,6 +126,13 @@ procedure Dumpcert is
             Put_Line ("Tag: INTEGER len " & Len'Image & " value: " & Val'Image);
          elsif Tag = 12 then
             Put ("Tag: UTF8STRING len " & Len'Image & " value: ");
+            for I in 1 .. Len loop
+               Put (Character'Val (Content (Pos)));
+               Pos := Pos + 1;
+            end loop;
+            New_Line;
+         elsif Tag = 19 then
+            Put ("Tag: PRINTABLESTRING len " & Len'Image & " value: ");
             for I in 1 .. Len loop
                Put (Character'Val (Content (Pos)));
                Pos := Pos + 1;
