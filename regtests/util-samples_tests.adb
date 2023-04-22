@@ -67,6 +67,8 @@ package body Util.Samples_Tests is
                        Test_Multipart'Access);
       Caller.Add_Test (Suite, "Test dumpcert",
                        Test_Dumpcert'Access);
+      Caller.Add_Test (Suite, "Test sha256",
+                       Test_Sha256'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -301,5 +303,16 @@ package body Util.Samples_Tests is
       Assert (T, List.Contains ("  Tag: BITSTRING Len  513"),
               "Expected line not found");
    end Test_Dumpcert;
+
+   --  ------------------------------
+   --  Tests the sha256 example.
+   --  ------------------------------
+   procedure Test_Sha256 (T : in out Test) is
+      Result : UString;
+   begin
+      T.Execute ("bin/sha256 samples/ISRG_Root_X1.pem", Result);
+      Assert_Matches (T, "22b557a27055b33606b6559f37703928d3e4ad79f110b407d04986e1843543d1",
+                      Result);
+   end Test_Sha256;
 
 end Util.Samples_Tests;
