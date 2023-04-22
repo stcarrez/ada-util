@@ -63,8 +63,8 @@ build-test:: regtests/util-testsuite.adb
 	$(GNATMAKE) $(GPRFLAGS) -p -Putilada_tests $(MAKE_ARGS)
 
 # Build and run the unit tests
-test:	build
-	-bin/util_harness -l $(NAME): -xml util-aunit.xml -timeout ${TEST_TIMEOUT}
+test:	build samples
+	-bin/util_harness -v -l $(NAME): -xml util-aunit.xml -timeout ${TEST_TIMEOUT}
 
 regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile.conf
 	gnatprep -DHAVE_XML=$(HAVE_XML_ADA) -DHAVE_CURL=$(HAVE_CURL) \
