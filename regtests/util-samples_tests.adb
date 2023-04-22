@@ -77,6 +77,8 @@ package body Util.Samples_Tests is
                        Test_Serialize_XML'Access);
       Caller.Add_Test (Suite, "Test proplist",
                        Test_Proplist'Access);
+      Caller.Add_Test (Suite, "Test properties",
+                       Test_Properties'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -374,5 +376,20 @@ package body Util.Samples_Tests is
       Assert (T, List.Contains ("http://xml.org/sax/features/namespaces=1"),
               "Expected line not found");
    end Test_Proplist;
+
+   --  ------------------------------
+   --  Tests the properties example.
+   --  ------------------------------
+   procedure Test_Properties (T : in out Test) is
+      List   : Util.Strings.Vectors.Vector;
+      Status : Integer;
+      Expect : constant Util.Strings.Vectors.Vector :=
+         "test.count =  20"
+       & "No property: 'test.repeat'";
+   begin
+      Util.Processes.Tools.Execute ("bin/properties", List, Status);
+      Assert_Equals (T, 0, Status, "Invalid execution status");
+      Assert_Equal_Vectors (T, Expect, List, "invalid log output");
+   end Test_Properties;
 
 end Util.Samples_Tests;
