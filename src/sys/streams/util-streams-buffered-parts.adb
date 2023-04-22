@@ -123,14 +123,15 @@ package body Util.Streams.Buffered.Parts is
          Stream.Input.Read (Stream.Buffer (Pos + 1 .. Stream.Last), Stream.Write_Pos);
          Stream.Eof := Stream.Write_Pos < Pos + 1;
       else
+         Stream.Real_Write_Pos := 1;
          Stream.Input.Read (Stream.Buffer (1 .. Stream.Last), Stream.Write_Pos);
          Stream.Eof := Stream.Write_Pos < 1;
       end if;
 
       if not Stream.Eof then
          Stream.Write_Pos := Stream.Write_Pos + 1;
+         Stream.Read_Pos := 1;
       end if;
-      Stream.Read_Pos := 1;
       Stream.Check_Boundary;
    end Fill;
 

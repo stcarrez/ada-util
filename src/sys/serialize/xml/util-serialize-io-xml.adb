@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-xml -- XML Serialization Driver
---  Copyright (C) 2011, 2012, 2013, 2016, 2017, 2020, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2013, 2016, 2017, 2020, 2021, 2022, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -342,6 +342,7 @@ package body Util.Serialize.IO.XML is
          Last     : Natural;
          Encoding : Unicode.CES.Encoding_Scheme;
          Buffer   : String_Access;
+         Eof      : Boolean := False;
       end record;
 
       --  Return the next character in the string.
@@ -375,7 +376,7 @@ package body Util.Serialize.IO.XML is
             end loop;
          exception
             when others =>
-               null;
+               From.Eof := True;
          end;
          From.Last := Last;
       end Fill;
@@ -398,7 +399,7 @@ package body Util.Serialize.IO.XML is
          if From.Index < From.Last then
             return False;
          end if;
-         return Stream.Is_Eof;
+         return Stream.Is_Eof or else From.Eof;
       end Eof;
 
       Input      : Stream_Input;

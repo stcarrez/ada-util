@@ -267,8 +267,8 @@ package body Util.Streams.Buffered is
          Stream.Eof := Stream.Write_Pos < 1;
          if not Stream.Eof then
             Stream.Write_Pos := Stream.Write_Pos + 1;
+            Stream.Read_Pos := 1;
          end if;
-         Stream.Read_Pos := 1;
       end if;
    end Fill;
 
@@ -366,6 +366,7 @@ package body Util.Streams.Buffered is
          Avail := Stream.Write_Pos - Pos;
          if Avail = 0 then
             Input_Buffer_Stream'Class (Stream).Fill;
+            exit when Stream.Eof or else Stream.Eob;
             Pos := Stream.Read_Pos;
             Avail := Stream.Write_Pos - Pos;
             exit when Avail <= 0;
