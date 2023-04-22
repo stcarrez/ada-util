@@ -41,5 +41,6 @@ package Util.Samples_Tests is
    procedure Test_Env (T : in out Test);
    procedure Test_Serialize (T : in out Test);
    procedure Test_Serialize_XML (T : in out Test);
+   procedure Test_Proplist (T : in out Test);
 
 end Util.Samples_Tests;

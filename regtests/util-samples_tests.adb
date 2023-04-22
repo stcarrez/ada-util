@@ -75,6 +75,8 @@ package body Util.Samples_Tests is
                        Test_Serialize'Access);
       Caller.Add_Test (Suite, "Test serialize_xml",
                        Test_Serialize_XML'Access);
+      Caller.Add_Test (Suite, "Test proplist",
+                       Test_Proplist'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -355,5 +357,22 @@ package body Util.Samples_Tests is
       Assert_Matches (T, "<person><name>Harry Potter</name><gender>male</gender><age>17</age></person>",
                       Result);
    end Test_Serialize_XML;
+
+   --  ------------------------------
+   --  Tests the proplist example.
+   --  ------------------------------
+   procedure Test_Proplist (T : in out Test) is
+      List   : Util.Strings.Vectors.Vector;
+      Status : Integer;
+   begin
+      Util.Processes.Tools.Execute ("bin/proplist samples/test.ini", List, Status);
+      Assert_Equals (T, 0, Status, "Invalid execution status");
+      Assert (T, List.Contains ("user=mysql"),
+              "Expected line not found");
+      Assert (T, List.Contains ("[XML::SAX::Expat]"),
+              "Expected line not found");
+      Assert (T, List.Contains ("http://xml.org/sax/features/namespaces=1"),
+              "Expected line not found");
+   end Test_Proplist;
 
 end Util.Samples_Tests;
