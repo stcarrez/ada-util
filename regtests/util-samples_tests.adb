@@ -69,6 +69,8 @@ package body Util.Samples_Tests is
                        Test_Dumpcert'Access);
       Caller.Add_Test (Suite, "Test sha256",
                        Test_Sha256'Access);
+      Caller.Add_Test (Suite, "Test env",
+                       Test_Env'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -314,5 +316,18 @@ package body Util.Samples_Tests is
       Assert_Matches (T, "22b557a27055b33606b6559f37703928d3e4ad79f110b407d04986e1843543d1",
                       Result);
    end Test_Sha256;
+
+   --  ------------------------------
+   --  Tests the env example.
+   --  ------------------------------
+   procedure Test_Env (T : in out Test) is
+      List   : Util.Strings.Vectors.Vector;
+      Status : Integer;
+   begin
+      Util.Processes.Tools.Execute ("bin/env", List, Status);
+      Assert_Equals (T, 0, Status, "Invalid execution status");
+      Assert (T, List.Contains ("ENV_VAR=test1"),
+              "Expected line not found");
+   end Test_Env;
 
 end Util.Samples_Tests;
