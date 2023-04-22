@@ -73,6 +73,8 @@ package body Util.Samples_Tests is
                        Test_Env'Access);
       Caller.Add_Test (Suite, "Test serialize",
                        Test_Serialize'Access);
+      Caller.Add_Test (Suite, "Test serialize_xml",
+                       Test_Serialize_XML'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -342,5 +344,16 @@ package body Util.Samples_Tests is
       Assert_Matches (T, "{""person"":{""name"":""Harry Potter"",""gender"":""male"",""age"": 17}}",
                       Result);
    end Test_Serialize;
+
+   --  ------------------------------
+   --  Tests the serialize_xml example.
+   --  ------------------------------
+   procedure Test_Serialize_XML (T : in out Test) is
+      Result : UString;
+   begin
+      T.Execute ("bin/serialize_xml", Result);
+      Assert_Matches (T, "<person><name>Harry Potter</name><gender>male</gender><age>17</age></person>",
+                      Result);
+   end Test_Serialize_XML;
 
 end Util.Samples_Tests;
