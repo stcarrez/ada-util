@@ -61,6 +61,7 @@ with Util.Serialize.IO.CSV.Tests;
 #end if;
 with Util.Serialize.Tools.Tests;
 with Util.Processes.Tests;
+with Util.Samples_Tests;
 with Util.Http.Cookies.Tests;
 with Util.Http.Headers.Tests;
 #if HAVE_CURL = "yes"
@@ -80,6 +81,7 @@ package body Util.Testsuite is
    function Suite return Util.Tests.Access_Test_Suite is
       Result : constant Util.Tests.Access_Test_Suite := Tests'Access;
    begin
+      Util.Samples_Tests.Add_Tests (Result);
       Util.Properties.Tests.Add_Tests (Result);
       Util.Properties.Bundles.Tests.Add_Tests (Result);
       Util.Locales.Tests.Add_Tests (Result);
