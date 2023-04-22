@@ -30,7 +30,6 @@ with Ada.Containers;
 with Util.Strings;
 with Util.Measures;
 with Util.Files;
-with Util.Strings.Vectors;
 with Util.Log.Loggers;
 with Util.Processes;
 with Util.Streams.Buffered;

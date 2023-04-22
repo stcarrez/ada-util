@@ -107,7 +107,8 @@ package body Util.Http.Clients.Curl is
 
       else
          Last := Line'Last;
-         while Last > Line'First and then (Line (Last) = ASCII.CR or else Line (Last) = ASCII.LF) loop
+         while Last > Line'First and then
+           (Line (Last) = ASCII.CR or else Line (Last) = ASCII.LF) loop
             Last := Last - 1;
          end loop;
          Log.Debug ("RCV: {0}", Line (Line'First .. Last));
