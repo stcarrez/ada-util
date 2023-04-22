@@ -39,5 +39,6 @@ package Util.Samples_Tests is
    procedure Test_Dumpcert (T : in out Test);
    procedure Test_Sha256 (T : in out Test);
    procedure Test_Env (T : in out Test);
+   procedure Test_Serialize (T : in out Test);
 
 end Util.Samples_Tests;

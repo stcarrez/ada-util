@@ -71,6 +71,8 @@ package body Util.Samples_Tests is
                        Test_Sha256'Access);
       Caller.Add_Test (Suite, "Test env",
                        Test_Env'Access);
+      Caller.Add_Test (Suite, "Test serialize",
+                       Test_Serialize'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -329,5 +331,16 @@ package body Util.Samples_Tests is
       Assert (T, List.Contains ("ENV_VAR=test1"),
               "Expected line not found");
    end Test_Env;
+
+   --  ------------------------------
+   --  Tests the serialize example.
+   --  ------------------------------
+   procedure Test_Serialize (T : in out Test) is
+      Result : UString;
+   begin
+      T.Execute ("bin/serialize", Result);
+      Assert_Matches (T, "{""person"":{""name"":""Harry Potter"",""gender"":""male"",""age"": 17}}",
+                      Result);
+   end Test_Serialize;
 
 end Util.Samples_Tests;
