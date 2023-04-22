@@ -53,9 +53,13 @@ package body Util.Samples_Tests is
                        Test_Log'Access);
       Caller.Add_Test (Suite, "Test copy",
                        Test_Copy'Access);
-      Caller.Add_Test (Suite, "Test compress/decompress",
-                       Test_Compress_Decompress'Access);
-      Caller.Add_Test (Suite, "Test lzma_encrypt/lzma_decrypt",
+      if Ada.Directories.Exists ("bin/compress") then
+         Caller.Add_Test (Suite, "Test compress/decompress",
+                          Test_Compress_Decompress'Access);
+         Caller.Add_Test (Suite, "Test lzma_encrypt/lzma_decrypt",
+                          Test_Encrypt_Decrypt'Access);
+      end if;
+      Caller.Add_Test (Suite, "Test encrypt/decrypt",
                        Test_Encrypt_Decrypt'Access);
    end Add_Tests;
 
@@ -200,7 +204,7 @@ package body Util.Samples_Tests is
    end Test_Compress_Decompress;
 
    --  ------------------------------
-   --  Tests the lzma_encrypt/lzma_decrypt example.
+   --  Tests the encrypt/decrypt example.
    --  ------------------------------
    procedure Test_Encrypt_Decrypt (T : in out Test) is
       Path1  : constant String := Util.Tests.Get_Test_Path ("copy.aes");
@@ -217,5 +221,24 @@ package body Util.Samples_Tests is
       T.Execute ("bin/decrypt " & Path1 & " secret-key " & Path2, Result);
       Assert_Equal_Files (T, "Makefile", Path2, "Encrypt+Decrypt failed");
    end Test_Encrypt_Decrypt;
+
+   --  ------------------------------
+   --  Tests the lzma_encrypt/lzma_decrypt example.
+   --  ------------------------------
+   procedure Test_Lzma_Encrypt_Decrypt (T : in out Test) is
+      Path1  : constant String := Util.Tests.Get_Test_Path ("copy.aes.xz");
+      Path2  : constant String := Util.Tests.Get_Test_Path ("copy.aes.xz.txt");
+      Result : UString;
+   begin
+      if Ada.Directories.Exists (Path1) then
+         Ada.Directories.Delete_File (Path1);
+      end if;
+      if Ada.Directories.Exists (Path2) then
+         Ada.Directories.Delete_File (Path2);
+      end if;
+      T.Execute ("bin/lzma_encrypt Makefile secret-key " & Path1, Result);
+      T.Execute ("bin/lzma_decrypt " & Path1 & " secret-key " & Path2, Result);
+      Assert_Equal_Files (T, "Makefile", Path2, "Encrypt+Decrypt failed");
+   end Test_Lzma_Encrypt_Decrypt;
 
 end Util.Samples_Tests;

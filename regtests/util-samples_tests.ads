@@ -33,5 +33,6 @@ package Util.Samples_Tests is
    procedure Test_Copy (T : in out Test);
    procedure Test_Compress_Decompress (T : in out Test);
    procedure Test_Encrypt_Decrypt (T : in out Test);
+   procedure Test_Lzma_Encrypt_Decrypt (T : in out Test);
 
 end Util.Samples_Tests;
