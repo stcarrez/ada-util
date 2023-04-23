@@ -53,6 +53,8 @@ package body Syslog_Appenders is
                      Date    : in Ada.Calendar.Time;
                      Level   : in Util.Log.Level_Type;
                      Logger  : in String) is
+      pragma Unreferenced (Date, Logger);
+
       Def_Format : aliased constant String := "%s" & ASCII.NUL;
    begin
       if Self.Level >= Level and then Sys_Syslog'Address /= System.Null_Address
