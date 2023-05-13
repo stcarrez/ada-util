@@ -43,6 +43,16 @@ package Util.Tests is
                       Input   : in String;
                       Output  : in String;
                       Result  : out Ada.Strings.Unbounded.Unbounded_String;
+                      Working_Directory : in String;
+                      Status  : in Natural := 0;
+                      Source  : String := GNAT.Source_Info.File;
+                      Line    : Natural := GNAT.Source_Info.Line);
+
+   procedure Execute (T       : in out Test;
+                      Command : in String;
+                      Input   : in String;
+                      Output  : in String;
+                      Result  : out Ada.Strings.Unbounded.Unbounded_String;
                       Status  : in Natural := 0;
                       Source  : String := GNAT.Source_Info.File;
                       Line    : Natural := GNAT.Source_Info.Line);

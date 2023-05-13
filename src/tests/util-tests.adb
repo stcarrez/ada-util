@@ -72,6 +72,7 @@ package body Util.Tests is
                       Input   : in String;
                       Output  : in String;
                       Result  : out Ada.Strings.Unbounded.Unbounded_String;
+                      Working_Directory : in String;
                       Status  : in Natural := 0;
                       Source  : String := GNAT.Source_Info.File;
                       Line    : Natural := GNAT.Source_Info.Line) is
@@ -87,6 +88,9 @@ package body Util.Tests is
       end if;
       P.Set_Input_Stream (Input);
       P.Set_Output_Stream (Output);
+      if Working_Directory'Length > 0 then
+         P.Set_Working_Directory (Working_Directory);
+      end if;
       P.Open (Command, Util.Processes.READ_ALL);
 
       --  Write on the process input stream.
@@ -102,12 +106,24 @@ package body Util.Tests is
 
    procedure Execute (T       : in out Test;
                       Command : in String;
+                      Input   : in String;
+                      Output  : in String;
                       Result  : out Ada.Strings.Unbounded.Unbounded_String;
                       Status  : in Natural := 0;
                       Source  : String := GNAT.Source_Info.File;
                       Line    : Natural := GNAT.Source_Info.Line) is
    begin
-      T.Execute (Command, "", "", Result, Status, Source, Line);
+      T.Execute (Command, Input, Output, Result, "", Status, Source, Line);
+   end Execute;
+
+   procedure Execute (T       : in out Test;
+                      Command : in String;
+                      Result  : out Ada.Strings.Unbounded.Unbounded_String;
+                      Status  : in Natural := 0;
+                      Source  : String := GNAT.Source_Info.File;
+                      Line    : Natural := GNAT.Source_Info.Line) is
+   begin
+      T.Execute (Command, "", "", Result, "", Status, Source, Line);
    end Execute;
 
    procedure Execute (T       : in out Test;
@@ -120,7 +136,7 @@ package body Util.Tests is
       Output : constant String := Util.Tests.Get_Test_Path (Expect);
       Result : Ada.Strings.Unbounded.Unbounded_String;
    begin
-      T.Execute (Command, "", Output, Result, Status, Source, Line);
+      T.Execute (Command, "", Output, Result, "", Status, Source, Line);
 
       Util.Tests.Assert_Equal_Files (T, Path, Output, "Command '" & Command & "' invalid output",
                                      Source, Line);
