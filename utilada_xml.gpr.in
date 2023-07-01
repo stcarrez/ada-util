@@ -23,18 +23,8 @@ library project UtilAda_Xml is
    end case;
 
    package Naming is
-      case UtilAda_Conf.Xml_Version is
-         when "4" =>
-            for Implementation ("Util.Serialize.IO.XML.Get_Location")
-               use "util-serialize-io-xml-get_location-xmlada-4.adb";
-
-         when "3" =>
-            for Implementation ("Util.Serialize.IO.XML.Get_Location")
-               use "util-serialize-io-xml-get_location-xmlada-3.adb";
-
-         when "none" =>
-
-      end case;
+      for Implementation ("Util.Serialize.IO.XML.Get_Location")
+         use "util-serialize-io-xml-get_location-xmlada-4.adb";
    end Naming;
 
    case UtilAda_Conf.Library_Type is
