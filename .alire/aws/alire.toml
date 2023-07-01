@@ -24,6 +24,3 @@ UTIL_AWS_IMPL = "2"
 
 [configuration]
 disabled = true
-
-[origin]
-subdir = ".alire/aws"
