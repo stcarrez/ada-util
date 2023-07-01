@@ -19,6 +19,3 @@ UTIL_LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
 
 [configuration]
 disabled = true
-
-[origin]
-subdir = ".alire/unit"
