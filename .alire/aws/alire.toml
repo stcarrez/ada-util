@@ -6,7 +6,7 @@ authors = ["Stephane.Carrez@gmail.com"]
 licenses = "Apache-2.0"
 maintainers = ["Stephane.Carrez@gmail.com"]
 maintainers-logins = ["stcarrez"]
-project-files = [".alire/aws/utilada_aws.gpr"]
+project-files = ["utilada_aws.gpr"]
 tags = ["web", "http"]
 website = "https://gitlab.com/stcarrez/ada-util"
 
@@ -24,3 +24,6 @@ UTIL_AWS_IMPL = "2"
 
 [configuration]
 disabled = true
+
+[origin]
+subdir = ".alire/aws"
