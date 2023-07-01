@@ -13,7 +13,7 @@ library project UtilAda_Curl is
    for Object_Dir use "../../obj/utilada_curl/" & Project'Library_Kind;
 
    for Library_Options use ("-lcurl");
-        
+
    package Builder  renames UtilAda_Conf.Builder;
    package Compiler renames UtilAda_Conf.Compiler;
    package Ide      renames UtilAda_Conf.Ide;
