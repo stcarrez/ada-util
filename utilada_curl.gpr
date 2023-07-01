@@ -16,8 +16,7 @@ library project UtilAda_Curl is
 
          case UtilAda_Conf.Library_Type is
             when "relocatable" =>
-                --  for Library_Interface use ("Util.Http.Clients.Curl");
-                for Library_Options use (UtilAda_Conf.Curl_Library_Options);
+                for Library_Options use ("-lcurl");
 
             when others =>
                 null;
@@ -27,22 +26,7 @@ library project UtilAda_Curl is
       when "no" =>
          for Source_Dirs use ();
 
-   end case;
-   
-   case UtilAda_Conf.Library_Type is
-     when "relocatable" =>
-       case UtilAda_Conf.Has_Curl is
-         when "yes" =>
-            for Library_Options use ("-lcurl");
-
-         when "no" =>
-            null;
-
-       end case;
-
-     when others =>
-       null;
-   end case;
+   end case;   
 
    package Builder  renames UtilAda_Conf.Builder;
    package Compiler renames UtilAda_Conf.Compiler;
