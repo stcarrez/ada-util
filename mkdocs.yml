@@ -1,6 +1,6 @@
 site_name: Ada Utility Library
 docs_dir: docs
-pages:
+nav:
   - Introduction: index.md
   - Installation: Installation.md
   - Files: Util_Files.md
