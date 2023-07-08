@@ -230,3 +230,40 @@ they are rotated on a day basis and moved in a directory whose name contains the
 and month number.  At the same time, debug messages are written in the `debug.log`
 file.
 
+## Custom appender
+It is possible to write a customer log appender and use it in the generation of logs.
+This is done in three steps:
+
+* first by extending the `Util.Log.Appenders.Appender` type and overriding some of the methods
+  to implement the custom log appender and by writing a `Create` function whose role is to
+  create instances of the appender and configure them according to the user configuration.
+* second by instantiating the `Util.Log.Appenders.Factories` package which provides a `Register`
+  procedure.  The package is instantiated with the appender's name and the `Create` function.
+* third by calling the `Register` procedure before configuring the logs.
+
+For example, the first step could be implemented as follows (methods are not shown):
+
+```Ada
+ type Syslog_Appender (Length : Positive) is
+    new Util.Log.Appenders.Appender (Length) with null record;
+ function Create (Name       : in String;
+                Properties : in Util.Properties.Manager;
+                Default    : in Util.Log.Level_Type)
+               return Util.Log.Appenders.Appender_Access;
+```
+
+Then, the package is instantiated as follows:
+
+```Ada
+ package Syslog_Factory is
+   new Util.Log.Appenders.Factories (Name   => "syslog",
+                                     Create => Create'Access);
+```
+
+The last step should be done before configuring the log appenders:
+
+```Ada
+ Syslog_Appenders.Syslog_Factory.Register;
+ Util.Log.Loggers.Initialize ("samples/log4j.properties");
+```
+

@@ -2,7 +2,24 @@
 
 This chapter explains how to build and install the library.
 
-## Before Building
+## Using Alire
+
+The Ada Utility Library is available as several Alire crates to simplify the installation
+and setup your project.  Run the following commands to setup your project to use the library:
+
+```
+alr index --update-all
+alr with utilada
+alr with utilada_xml
+alr with utilada_unit
+alr with utilada_curl
+alr with utilada_aws
+alr with utilada_lzma
+```
+
+## Without Alire
+
+### Before Building
 
 Before building the library, you will need:
 
@@ -10,9 +27,9 @@ Before building the library, you will need:
 * [AWS](http://libre.adacore.com/libre/tools/aws/)
 
 First get, build and install the [XML/Ada](http://libre.adacore.com/libre/tools/xmlada/)
-and then get, build and install the [Ada Utility Library](https://github.com/stcarrez/ada-util).
+and then get, build and install the [Ada Utility Library](https://gitlab.com/stcarrez/ada-util).
 
-## Configuration
+### Configuration
 
 The library uses the `configure` script to detect the build environment, check whether XML/Ada,
 AWS, Curl support are available and configure everything before building.  If some component is missing, the
@@ -34,7 +51,7 @@ and you may use:
   * `--disable-lzma` to disable the support for LZMA,
   * `--with-xmlada=PATH` to control the installation path of [XML/Ada](http://libre.adacore.com/libre/tools/xmlada/),
   * `--with-aws=PATH` to control the installation path of [AWS](http://libre.adacore.com/libre/tools/aws/),
-  * `--with-ada-lzma=PATH` to control the installation path of [Ada LZMA](https://github.com/stcarrez/ada-lzma),
+  * `--with-ada-lzma=PATH` to control the installation path of [Ada LZMA](https://gitlab.com/stcarrez/ada-lzma),
   * `--enable-link-options-util=opts` to add some linker options when building the Ada Util shared library,
   * `--enable-link-options-curl=opts` to add some linker options when building the Ada Util Curl shared library,
   * `--help` to get a detailed list of supported options.
@@ -62,7 +79,7 @@ with the following command:
 ./configure --enable-shared --enable-link-options-util=--no-as-needed,-ldl,--as-needed
 ```
 
-## Build
+### Build
 
 After configuration is successful, you can build the library by running:
 ```

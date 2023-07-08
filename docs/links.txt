@@ -1,10 +1,10 @@
-Ada Server Faces           https://github.com/stcarrez/ada-asf
-Ada Database Objects       https://github.com/stcarrez/ada-ado
-Ada Utility Library        https://github.com/stcarrez/ada-util
-Ada Wiki                   https://github.com/stcarrez/ada-wiki
-Ada EL                     https://github.com/stcarrez/ada-el
-Ada Security               https://github.com/stcarrez/ada-security
-Dynamo                     https://github.com/stcarrez/dynamo
+Ada Server Faces           https://gitlab.com/stcarrez/ada-asf
+Ada Database Objects       https://gitlab.com/stcarrez/ada-ado
+Ada Utility Library        https://gitlab.com/stcarrez/ada-util
+Ada Wiki                   https://gitlab.com/stcarrez/ada-wiki
+Ada EL                     https://gitlab.com/stcarrez/ada-el
+Ada Security               https://gitlab.com/stcarrez/ada-security
+Dynamo                     https://gitlab.com/stcarrez/dynamo
 Java Bean                  https://en.wikipedia.org/wiki/JavaBean
 Java Log4j                 https://logging.apache.org/log4j/2.x/
 Log4cxx                    https://logging.apache.org/log4cxx/latest_stable/index.html

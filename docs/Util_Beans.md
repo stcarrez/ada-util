@@ -19,7 +19,7 @@ a method on an object but you don't know at compile time the object or method.
 That step being done later through some external configuration or presentation file.
 
 The Ada Bean framework is the basis for the implementation of
-[Ada Server Faces](https://github.com/stcarrez/ada-asf) and [Ada EL](https://github.com/stcarrez/ada-el).  It allows the presentation layer to
+[Ada Server Faces](https://gitlab.com/stcarrez/ada-asf) and [Ada EL](https://gitlab.com/stcarrez/ada-el).  It allows the presentation layer to
 access information provided by Ada beans.
 
 To use the packages described here, use the following GNAT project:
