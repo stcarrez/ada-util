@@ -157,7 +157,7 @@ I don't know if it works. I suspect there will be problems.
 
 The samples can be built using:
 ```
-   gnatmake -Psamples
+   gprbuild -Psamples
 ```   
 
 | Package              | Example                                                                      |
