@@ -1,5 +1,3 @@
-description = "Utility Library REST support on top of CURL"
-long-description = "\n[![Build Status](https://img.shields.io/jenkins/s/https/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)\n[![Test Status](https://img.shields.io/jenkins/t/https/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)\n[![codecov](https://codecov.io/gh/stcarrez/ada-util/branch/master/graph/badge.svg)](https://codecov.io/gh/stcarrez/ada-util)\n\n\nThis small library provides an HTTP backend on top of CURL.\nIt is can be used by the `Util.Http` package.\n\nAn alternate HTTP backend is provided by AWS with utilada_aws.\n\n"
 name = "utilada_curl"
 version = "2.6.0"
 authors = ["Stephane.Carrez@gmail.com"]
@@ -9,13 +7,31 @@ maintainers-logins = ["stcarrez"]
 project-files = ["utilada_curl.gpr"]
 tags = ["web", "http", "rest"]
 website = "https://gitlab.com/stcarrez/ada-util"
+description = "Utility Library REST support on top of CURL"
+long-description = """
+
+[![Build Status](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/build.json)](https://porion.vacs.fr/porion/projects/view/ada-util/summary)
+[![Test Status](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/tests.json)](https://porion.vacs.fr/porion/projects/view/ada-util/xunits)
+[![Coverage](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/coverage.json)](https://porion.vacs.fr/porion/projects/view/ada-util/summary)
+[![Documentation Status](https://readthedocs.org/projects/ada-util/badge/?version=latest)](https://ada-util.readthedocs.io/en/latest/?badge=latest)
+
+This small library provides an HTTP backend on top of CURL.
+It can be used by the `Util.Http` package.
+
+An alternate HTTP backend is provided by AWS with `utilada_aws`.
+
+# Documentation
+
+* [Ada Utility Library Programmer's Guide](https://ada-util.readthedocs.io/en/latest/) [PDF](https://github.com/stcarrez/ada-util/blob/master/docs/utilada-book.pdf)
+
+"""
 
 [[depends-on]]
 utilada = "^2.6.0"
-curl = "*"
+libcurl = "*"
 
 [gpr-externals]
-BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
+UTIL_BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
 UTIL_LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
 
 [configuration]
