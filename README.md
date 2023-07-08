@@ -34,7 +34,7 @@ Ada Util also provides a small test utility library on top of
 Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
 framework as it provides better reports.
 
-## Version 2.6.0  - Under development
+## Version 2.6.0  - Jul 2023
   - New encoder/decoder for Base32
   - Feature #32: Custom log appender
   - Feature #36: Add HOTP algorithm
@@ -44,23 +44,6 @@ framework as it provides better reports.
   - Feature #42: Improvement of test framework to launch and verify external program execution and output
   - Fix #37: Support to build with -gnatW8
   - Fix #35: utilada_curl crate uses wrong curl dependency
-
-## Version 2.5.0  - Aug 2022
-  - New examples to illustrate the IO stream composition
-  - New examples for JSON parser and Util.Beans.Objects
-  - Add support to set environment variables when launching a process (without changing the current process environment!)
-  - Add support to indent XML output streams
-  - New package Util.Files.Rolling to provide a rolling file manager
-  - New package Util.Beans.Objects.Iterators to easily iterate over objects
-  - Add a new log appender to support rolling log files with size and time based policies
-  - New operation Util.Files.Delete_Tree to delete a directory tree and work arround
-    for GNAT bug gcc/63222 and gcc/56055
-  - New operation Util.Files.Realpath to find the canonicalized absolute path of a file
-  - New package Util.Blobs to hold binary content with reference counting
-  - New package Util.Http.Headers to provide some HTTP helper operations
-  - Add support for Blob in bean objects
-  - Fix compilation on NetBSD 9.2
-  - Fix compilation with AWS >= 22.0
 
 [List all versions](https://github.com/stcarrez/ada-util/blob/master/NEWS.md)
 

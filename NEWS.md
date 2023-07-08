@@ -1,4 +1,4 @@
-Version 2.6.0  - Under development
+Version 2.6.0  - Jul 2023
   - New encoder/decoder for Base32
   - Feature #32: Custom log appender
   - Feature #36: Add HOTP algorithm
