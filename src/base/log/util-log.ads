@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log -- Utility Log Package
---  Copyright (C) 2001 - 2022 Stephane Carrez
+--  Copyright (C) 2001 - 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -144,6 +144,7 @@
 --  @include util-log-appenders-consoles.ads
 --  @include util-log-appenders-files.ads
 --  @include util-log-appenders-rolling_files.ads
+--  @include util-log-appenders-factories.ads
 package Util.Log is
 
    pragma Preelaborate;
