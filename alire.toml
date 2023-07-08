@@ -1,5 +1,4 @@
 description = "Utility Library with streams, processes, logs, serialization, encoders"
-long-description = "\n[![Build Status](https://img.shields.io/jenkins/s/https/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)\n[![Test Status](https://img.shields.io/jenkins/t/https/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)\n[![codecov](https://codecov.io/gh/stcarrez/ada-util/branch/master/graph/badge.svg)](https://codecov.io/gh/stcarrez/ada-util)\n\nThis Ada05 library contains various utility packages for building\nAda05 applications.  This includes:\n\n* A logging framework close to Java log4j framework,\n* Support for properties\n* A serialization/deserialization framework for XML, JSON, CSV\n* Ada beans framework\n* Encoding/decoding framework (Base16, Base64, SHA, HMAC-SHA, AES-256)\n* A composing stream framework (raw, files, buffers, pipes, sockets)\n* Several concurrency tools (reference counters, counters, pools, fifos, arrays)\n* Process creation and pipes\n* Support for loading shared libraries (on Windows or Unix)\n* HTTP client library on top of CURL or AWS\n\nAda Util also provides a small test utility library on top of\nAhven or AUnit to help in writing unit tests.  Ahven is the default testing\nframework as it provides better reports.\n\n## Documentation\n\n* [Ada Utility Library Programmer's Guide](https://ada-util.readthedocs.io/en/latest/)\n\n"
 name = "utilada"
 version = "2.6.0"
 authors = ["Stephane.Carrez@gmail.com"]
@@ -9,6 +8,35 @@ maintainers-logins = ["stcarrez"]
 project-files = [".alire/utilada_conf.gpr", "utilada_core.gpr", "utilada_base.gpr", "utilada_sys.gpr"]
 tags = ["logging", "processes", "streams", "json", "beans", "encoders", "decoders"]
 website = "https://gitlab.com/stcarrez/ada-util"
+long-description = """
+
+[![Build Status](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/build.json)](https://porion.vacs.fr/porion/projects/view/ada-util/summary)
+[![Test Status](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/tests.json)](https://porion.vacs.fr/porion/projects/view/ada-util/xunits)
+[![Coverage](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/coverage.json)](https://porion.vacs.fr/porion/projects/view/ada-util/summary)
+[![Documentation Status](https://readthedocs.org/projects/ada-util/badge/?version=latest)](https://ada-util.readthedocs.io/en/latest/?badge=latest)
+
+This Ada library contains various utility packages for building
+Ada applications.  This includes:
+
+* A logging framework close to Java log4j framework,
+* Support for INI and property files,
+* A serialization/deserialization framework for XML, JSON, CSV, Forms
+* Ada beans framework,
+* Encoding/decoding framework (Base16, Base32, Base64, SHA, HMAC-SHA, AES-256),
+* A composing stream framework (raw, files, buffers, pipes, sockets, encryption, decryption, LZMA compression, LZMA decompression),
+* Several concurrency tools (reference counters, counters, pools, fifos, arrays),
+* Process creation and pipes,
+* Support for loading shared libraries (on Windows or Unix),
+* HTTP client library on top of CURL or AWS.
+
+# Documentation
+
+* [Ada Utility Library Programmer's Guide](https://ada-util.readthedocs.io/en/latest/) [PDF](https://github.com/stcarrez/ada-util/blob/master/docs/utilada-book.pdf)
+* [IO stream composition and serialization with Ada Utility Library](https://blog.vacs.fr/vacs/blogs/post.html?post=2022/03/05/IO-stream-composition-and-serialization-with-Ada-Utility-Library)
+* [Easy reading and writing files with Ada Utility Library](https://blog.vacs.fr/vacs/blogs/post.html?post=2020/08/09/Easy-reading-and-writing-files-with-Ada-Utility-Library)
+* [Process creation in Java and Ada](https://blog.vacs.fr/vacs/blogs/post.html?post=2012/03/16/Process-creation-in-Java-and-Ada)
+
+"""
 
 [gpr-externals]
 UTIL_BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]

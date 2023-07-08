@@ -1,5 +1,4 @@
 description = "Utility Library serialization with XML/Ada"
-long-description = "\n[![Build Status](https://img.shields.io/jenkins/s/https/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)\n[![Test Status](https://img.shields.io/jenkins/t/https/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)\n[![codecov](https://codecov.io/gh/stcarrez/ada-util/branch/master/graph/badge.svg)](https://codecov.io/gh/stcarrez/ada-util)\n\nThis library provides a serialization framework on top of XML/Ada for\nAda Utility Library.\n\n"
 name = "utilada_xml"
 version = "2.6.0"
 authors = ["Stephane.Carrez@gmail.com"]
@@ -9,6 +8,20 @@ maintainers-logins = ["stcarrez"]
 project-files = ["utilada_xml.gpr"]
 tags = ["xml", "serialization"]
 website = "https://gitlab.com/stcarrez/ada-util"
+long-description = """
+
+[![Build Status](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/build.json)](https://porion.vacs.fr/porion/projects/view/ada-util/summary)
+[![Test Status](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/tests.json)](https://porion.vacs.fr/porion/projects/view/ada-util/xunits)
+[![Coverage](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/coverage.json)](https://porion.vacs.fr/porion/projects/view/ada-util/summary)
+[![Documentation Status](https://readthedocs.org/projects/ada-util/badge/?version=latest)](https://ada-util.readthedocs.io/en/latest/?badge=latest)
+
+This library provides a serialization framework on top of XML/Ada for Ada Utility Library.
+
+# Documentation
+
+* [Ada Utility Library Programmer's Guide](https://ada-util.readthedocs.io/en/latest/) [PDF](https://github.com/stcarrez/ada-util/blob/master/docs/utilada-book.pdf)
+
+"""
 
 [[depends-on]]
 utilada = "^2.6.0"

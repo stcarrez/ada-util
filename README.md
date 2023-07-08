@@ -16,19 +16,19 @@
 [![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/2.5.0.svg)](Commits)
 
 
-This Ada05 library contains various utility packages for building
-Ada05 applications.  This includes:
+This Ada library contains various utility packages for building
+Ada applications.  This includes:
 
 * A logging framework close to Java log4j framework,
-* Support for properties
-* A serialization/deserialization framework for XML, JSON, CSV
-* Ada beans framework
-* Encoding/decoding framework (Base16, Base64, SHA, HMAC-SHA, AES-256)
-* A composing stream framework (raw, files, buffers, pipes, sockets)
-* Several concurrency tools (reference counters, counters, pools, fifos, arrays)
-* Process creation and pipes
-* Support for loading shared libraries (on Windows or Unix)
-* HTTP client library on top of CURL or AWS
+* Support for INI and property files,
+* A serialization/deserialization framework for XML, JSON, CSV, Forms
+* Ada beans framework,
+* Encoding/decoding framework (Base16, Base32, Base64, SHA, HMAC-SHA, AES-256),
+* A composing stream framework (raw, files, buffers, pipes, sockets, encryption, decryption, LZMA compression, LZMA decompression),
+* Several concurrency tools (reference counters, counters, pools, fifos, arrays),
+* Process creation and pipes,
+* Support for loading shared libraries (on Windows or Unix),
+* HTTP client library on top of CURL or AWS.
 
 Ada Util also provides a small test utility library on top of
 Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
@@ -43,6 +43,7 @@ framework as it provides better reports.
   - Feature #41: Support to ignore line breaks when decoding Base64 streams
   - Feature #42: Improvement of test framework to launch and verify external program execution and output
   - Fix #37: Support to build with -gnatW8
+  - Fix #35: utilada_curl crate uses wrong curl dependency
 
 ## Version 2.5.0  - Aug 2022
   - New examples to illustrate the IO stream composition

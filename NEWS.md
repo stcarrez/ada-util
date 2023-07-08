@@ -7,6 +7,7 @@ Version 2.6.0  - Under development
   - Feature #41: Support to ignore line breaks when decoding Base64 streams
   - Feature #42: Improvement of test framework to launch and verify external program execution and output
   - Fix #37: Support to build with -gnatW8
+  - Fix #35: utilada_curl crate uses wrong curl dependency
 
 Version 2.5.0  - Aug 2022
   - New examples to illustrate the IO stream composition
