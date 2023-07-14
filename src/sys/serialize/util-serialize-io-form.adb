@@ -204,6 +204,14 @@ package body Util.Serialize.IO.Form is
    end Write_Long_Entity;
 
    overriding
+   procedure Write_Long_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Long_Long_Float) is
+   begin
+      null;
+   end Write_Long_Entity;
+
+   overriding
    procedure Write_Enum_Entity (Stream : in out Output_Stream;
                                 Name   : in String;
                                 Value  : in String) is

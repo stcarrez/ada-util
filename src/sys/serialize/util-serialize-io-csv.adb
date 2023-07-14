@@ -257,7 +257,15 @@ package body Util.Serialize.IO.CSV is
                                 Name   : in String;
                                 Value  : in Long_Long_Integer) is
    begin
-      null;
+      Stream.Write_Entity (Name, Long_Long_Integer'Image (Value));
+   end Write_Long_Entity;
+
+   overriding
+   procedure Write_Long_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Long_Long_Float) is
+   begin
+      Stream.Write_Entity (Name, Long_Long_Float'Image (Value));
    end Write_Long_Entity;
 
    overriding

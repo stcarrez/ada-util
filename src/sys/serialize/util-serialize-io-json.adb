@@ -484,6 +484,15 @@ package body Util.Serialize.IO.JSON is
    end Write_Long_Entity;
 
    overriding
+   procedure Write_Long_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Long_Long_Float) is
+   begin
+      Stream.Write_Field_Name (Name);
+      Stream.Write (Long_Long_Float'Image (Value));
+   end Write_Long_Entity;
+
+   overriding
    procedure Write_Enum_Entity (Stream : in out Output_Stream;
                                 Name   : in String;
                                 Value  : in String) is

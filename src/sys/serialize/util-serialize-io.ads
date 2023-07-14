@@ -106,6 +106,10 @@ package Util.Serialize.IO is
                                 Name   : in String;
                                 Value  : in String) is abstract;
 
+   procedure Write_Long_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Long_Long_Float) is abstract;
+
    procedure Write_Entity (Stream : in out Output_Stream;
                            Name   : in String;
                            Value  : in Util.Beans.Objects.Object) is abstract;

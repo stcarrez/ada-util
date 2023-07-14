@@ -100,6 +100,11 @@ package Util.Serialize.IO.Form is
                                 Value  : in Long_Long_Integer);
 
    overriding
+   procedure Write_Long_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Long_Long_Float);
+
+   overriding
    procedure Write_Enum_Entity (Stream : in out Output_Stream;
                                 Name   : in String;
                                 Value  : in String);

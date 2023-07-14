@@ -794,6 +794,22 @@ package body Util.Serialize.IO.XML is
    end Write_Long_Entity;
 
    overriding
+   procedure Write_Long_Entity (Stream : in out Output_Stream;
+                                Name   : in String;
+                                Value  : in Long_Long_Float) is
+   begin
+      Close_Current (Stream, True);
+      Stream.Write ('<');
+      Stream.Write (Name);
+      Stream.Write ('>');
+      Stream.Stream.Write (Long_Long_Float'Image (Value));
+      Stream.Write ("</");
+      Stream.Write (Name);
+      Stream.Write ('>');
+      Stream.Is_Closed := True;
+   end Write_Long_Entity;
+
+   overriding
    procedure Write_Enum_Entity (Stream : in out Output_Stream;
                                 Name   : in String;
                                 Value  : in String) is
