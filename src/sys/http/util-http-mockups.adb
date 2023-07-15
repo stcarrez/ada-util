@@ -39,10 +39,10 @@ package body Util.Http.Mockups is
    overriding
    function Get_Header (Message : in Mockup_Message;
                         Name    : in String) return String is
-      Pos : constant Util.Strings.Maps.Cursor := Message.Headers.Find (Name);
+      Pos : constant Util.Strings.Maps_Incensitive.Cursor := Message.Headers.Find (Name);
    begin
-      if Util.Strings.Maps.Has_Element (Pos) then
-         return Util.Strings.Maps.Element (Pos);
+      if Util.Strings.Maps_Incensitive.Has_Element (Pos) then
+         return Util.Strings.Maps_Incensitive.Element (Pos);
       else
          return "";
       end if;
@@ -70,11 +70,11 @@ package body Util.Http.Mockups is
                          Name    : in String;
                          Value   : in String) is
 
-      Pos : constant Util.Strings.Maps.Cursor := Message.Headers.Find (Name);
+      Pos : constant Util.Strings.Maps_Incensitive.Cursor := Message.Headers.Find (Name);
    begin
-      if Util.Strings.Maps.Has_Element (Pos) then
+      if Util.Strings.Maps_Incensitive.Has_Element (Pos) then
          declare
-            Header : constant String := Util.Strings.Maps.Element (Pos);
+            Header : constant String := Util.Strings.Maps_Incensitive.Element (Pos);
          begin
             Message.Headers.Replace_Element (Pos, Header & ASCII.CR & ASCII.LF & Value);
          end;
@@ -91,11 +91,11 @@ package body Util.Http.Mockups is
                               Process : not null access
                                 procedure (Name  : in String;
                                            Value : in String)) is
-      Iter : Util.Strings.Maps.Cursor := Message.Headers.First;
+      Iter : Util.Strings.Maps_Incensitive.Cursor := Message.Headers.First;
    begin
-      while Util.Strings.Maps.Has_Element (Iter) loop
-         Util.Strings.Maps.Query_Element (Iter, Process);
-         Util.Strings.Maps.Next (Iter);
+      while Util.Strings.Maps_Incensitive.Has_Element (Iter) loop
+         Util.Strings.Maps_Incensitive.Query_Element (Iter, Process);
+         Util.Strings.Maps_Incensitive.Next (Iter);
       end loop;
    end Iterate_Headers;
 

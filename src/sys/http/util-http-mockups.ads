@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-http-mockups -- Mockup implementations for HTTP requests and responses
---  Copyright (C) 2012, 2022 Stephane Carrez
+--  Copyright (C) 2012, 2022, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
 -----------------------------------------------------------------------
 
 with Ada.Finalization;
-with Util.Strings.Maps;
+with Util.Strings.Maps_Incensitive;
 with Util.Strings.Builders;
 package Util.Http.Mockups is
 
@@ -96,7 +96,7 @@ package Util.Http.Mockups is
 private
 
    type Mockup_Message is new AF.Limited_Controlled and Abstract_Message with record
-      Headers : Util.Strings.Maps.Map;
+      Headers : Util.Strings.Maps_Incensitive.Map;
    end record;
 
    type Mockup_Request is new Mockup_Message and Abstract_Request with null record;
