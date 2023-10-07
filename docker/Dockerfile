@@ -1,4 +1,4 @@
-FROM ciceron/ada-focal:latest
+FROM ciceron/aws-bookworm
 
 MAINTAINER Stephane Carrez <Stephane.Carrez@gmail.com>
 
