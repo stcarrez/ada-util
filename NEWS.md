@@ -1,3 +1,6 @@
+Version 2.7.0  - Under development
+  - New package Util.Files.Walk to iterate over directory trees and honor .gitignore
+
 Version 2.6.0  - Jul 2023
   - New encoder/decoder for Base32
   - Feature #32: Custom log appender
