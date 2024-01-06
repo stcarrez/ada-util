@@ -41,4 +41,7 @@ package Util.Files.Tests is
    --  Test the Realpath function.
    procedure Test_Realpath (T : in out Test);
 
+   --  Test the Util.Files.Walk package
+   procedure Test_Walk (T : in out Test);
+
 end Util.Files.Tests;

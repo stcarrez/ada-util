@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
---  files.tests -- Unit tests for files
+--  util-files-tests -- Unit tests for files
 --  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2019, 2022 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
@@ -19,7 +19,9 @@
 with System;
 with Ada.Directories;
 with Util.Systems.Constants;
+with Util.Strings.Sets;
 with Util.Test_Caller;
+with Util.Files.Walk;
 package body Util.Files.Tests is
 
    use Util.Tests;
@@ -48,6 +50,8 @@ package body Util.Files.Tests is
                        Test_Delete_Tree'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Realpath",
                        Test_Realpath'Access);
+      Caller.Add_Test (Suite, "Test Util.Files.Walk",
+                       Test_Walk'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -254,5 +258,67 @@ package body Util.Files.Tests is
    begin
       Util.Tests.Assert_Matches (T, ".*/bin/util_harness", P);
    end Test_Realpath;
+
+   --  ------------------------------
+   --  Test the Util.Files.Walk package
+   --  ------------------------------
+   procedure Test_Walk (T : in out Test) is
+      subtype Filter_Context_Type is Util.Files.Walk.Filter_Context_Type;
+      type Walker_Type is new Util.Files.Walk.Walker_Type with record
+         Files : Util.Strings.Sets.Set;
+         Dirs  : Util.Strings.Sets.Set;
+      end record;
+
+      overriding
+      function Get_Ignore_Path (Walker : Walker_Type;
+                                Path   : String) return String;
+
+      overriding
+      procedure Scan_File (Walker : in out Walker_Type;
+                           Path   : String);
+
+      overriding
+      procedure Scan_Directory (Walker : in out Walker_Type;
+                                Path   : String;
+                                Filter : Filter_Context_Type);
+
+      overriding
+      function Get_Ignore_Path (Walker : Walker_Type;
+                                Path   : String) return String is
+      begin
+         return Util.Files.Compose (Path, ".gitignore");
+      end Get_Ignore_Path;
+
+      overriding
+      procedure Scan_File (Walker : in out Walker_Type;
+                           Path   : String) is
+      begin
+         Walker.Files.Insert (Path);
+      end Scan_File;
+
+      overriding
+      procedure Scan_Directory (Walker : in out Walker_Type;
+                                Path   : String;
+                                Filter : Filter_Context_Type) is
+      begin
+         Walker.Dirs.Insert (Path);
+         Util.Files.Walk.Walker_Type (Walker).Scan_Directory (Path, Filter);
+      end Scan_Directory;
+
+      W : Walker_Type;
+      Filter : Util.Files.Walk.Filter_Type;
+   begin
+      W.Scan (".", Filter);
+      T.Assert (W.Files.Contains ("./regtests/util-files-tests.ads"),
+                "Missing './regtests/util-files-tests.ads'");
+      T.Assert (W.Files.Contains ("./regtests/util-files-tests.adb"),
+                "Missing './regtests/util-files-tests.adb'");
+      T.Assert (W.Dirs.Contains ("./regtests/files"),
+                "Missing dir './regtests/files");
+      T.Assert (not W.Dirs.Contains ("./bin"),
+                "'bin' was scanned (see .gitignore)");
+      T.Assert (not W.Dirs.Contains ("./alire"),
+                "'alire' was scanned (see .gitignore)");
+   end Test_Walk;
 
 end Util.Files.Tests;
