@@ -34,7 +34,7 @@ package body Util.Files is
    --  The <b>Max_Size</b> parameter indicates the maximum size that is read.
    --  ------------------------------
    procedure Read_File (Path     : in String;
-                        Into     : out Unbounded_String;
+                        Into     : in out Unbounded_String;
                         Max_Size : in Natural := 0) is
       use Ada.Streams;
       use Ada.Streams.Stream_IO;

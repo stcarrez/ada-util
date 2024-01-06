@@ -76,7 +76,7 @@ package Util.Files is
    --  Read a complete file into a string.
    --  The <b>Max_Size</b> parameter indicates the maximum size that is read.
    procedure Read_File (Path     : in String;
-                        Into     : out Unbounded_String;
+                        Into     : in out Unbounded_String;
                         Max_Size : in Natural := 0);
 
    --  Read the file with the given path, one line at a time and execute the <b>Process</b>
