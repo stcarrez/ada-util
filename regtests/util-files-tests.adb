@@ -285,6 +285,7 @@ package body Util.Files.Tests is
       overriding
       function Get_Ignore_Path (Walker : Walker_Type;
                                 Path   : String) return String is
+         pragma Unreferenced (Walker);
       begin
          return Util.Files.Compose (Path, ".gitignore");
       end Get_Ignore_Path;

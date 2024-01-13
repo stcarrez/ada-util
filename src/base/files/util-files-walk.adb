@@ -344,6 +344,8 @@ package body Util.Files.Walk is
    procedure Load_Ignore (Walker : in out Walker_Type;
                           Path   : String;
                           Filter : in out Filter_Type'Class) is
+      pragma Unreferenced (Walker);
+
       procedure Process (Line : String);
 
       Line_Number : Natural := 0;
