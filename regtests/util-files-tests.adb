@@ -18,6 +18,7 @@
 
 with System;
 with Ada.Directories;
+with Ada.Text_IO;
 with Util.Systems.Constants;
 with Util.Strings.Sets;
 with Util.Test_Caller;
@@ -310,6 +311,8 @@ package body Util.Files.Tests is
       Filter : Util.Files.Walk.Filter_Type;
    begin
       W.Scan (".", Filter);
+      Ada.Text_IO.Put_Line ("Number of files:" & W.Files.Length'Image);
+      Ada.Text_IO.Put_Line ("Number of dirs:" & W.Dirs.Length'Image);
       T.Assert (W.Files.Contains ("./regtests/util-files-tests.ads"),
                 "Missing './regtests/util-files-tests.ads'");
       T.Assert (W.Files.Contains ("./regtests/util-files-tests.adb"),
