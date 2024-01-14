@@ -303,12 +303,12 @@ package body Util.Files.Walk is
       Dir_Filter.Current := Filter.Root;
       Dir_Filter.Recursive := Filter.Recursive;
       Dir_Context.Filter := Dir_Filter'Unchecked_Access;
-      Walker.Scan (Path, Dir_Context);
+      Walker.Scan_Subdir (Path, Dir_Context);
    end Scan;
 
-   procedure Scan (Walker  : in out Walker_Type;
-                   Path    : String;
-                   Filter  : Filter_Context_Type) is
+   procedure Scan_Subdir (Walker  : in out Walker_Type;
+                          Path    : String;
+                          Filter  : Filter_Context_Type) is
       Ignore_File : constant String
         := Walker_Type'Class (Walker).Get_Ignore_Path (Path);
       Dir_Filter  : aliased Filter_Info_Type;
@@ -335,7 +335,7 @@ package body Util.Files.Walk is
          Walker_Type'Class (Walker).Scan_Directory (Path,
                                                     Dir_Context);
       end if;
-   end Scan;
+   end Scan_Subdir;
 
    --  ------------------------------
    --  Load the file that contains a list of files to ignore.  The default
@@ -406,9 +406,6 @@ package body Util.Files.Walk is
          declare
             Name   : constant String := AD.Simple_Name (Ent);
          begin
-            if Name = "regtests" then
-               Log.Debug ("Found regtests");
-            end if;
             if Name /= "." and then Name /= ".." then
                Result.Pattern := Match (Filter.Filter.all, Name);
                if Result.Pattern = null or else not Result.Pattern.Exclude
@@ -425,7 +422,7 @@ package body Util.Files.Walk is
                      elsif Kind = AD.Directory
                        and then (Result.Pattern = null or else not Result.Pattern.Exclude)
                      then
-                        Walker_Type'Class (Walker).Scan (Full_Path, Result);
+                        Walker_Type'Class (Walker).Scan_Subdir (Full_Path, Result);
                      end if;
                   end;
                end if;
