@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-appenders -- Log appenders
---  Copyright (C) 2001 - 2021 Stephane Carrez
+--  Copyright (C) 2001 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,6 +51,7 @@ package Util.Log.Appenders is
       Next     : Appender_Internal;
       Level    : Level_Type := INFO_LEVEL;
       Layout   : Layout_Type := FULL;
+      Use_UTC  : Boolean := False;
       Name     : String (1 .. Length);
    end record;
 
@@ -80,6 +81,10 @@ package Util.Log.Appenders is
                     Date    : in Ada.Calendar.Time;
                     Level   : in Level_Type;
                     Logger  : in String) return String;
+
+   --  Format the date into a string.
+   function Format (Self : in Appender;
+                    Date : in Ada.Calendar.Time) return String;
 
    --  Append a log event to the appender.  Depending on the log level
    --  defined on the appender, the event can be taken into account or

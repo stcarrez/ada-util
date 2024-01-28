@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-appenders-files -- File log appenders
---  Copyright (C) 2001 - 2021 Stephane Carrez
+--  Copyright (C) 2001 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +25,7 @@ with Util.Properties;
 --  | -------------- | --------------------------------------------------------------       |
 --  | layout         | Defines the format of the message printed by the appender.           |
 --  | level          | Defines the minimum level above which messages are printed.          |
+--  | utc            | When 'true' or '1', print the date in UTC instead of local time      |
 --  | File           | The path used by the appender to create the output file.             |
 --  | append         | When 'true' or '1', the file is opened in append mode otherwise      |
 --  |                | it is truncated (the default is to truncate).                        |

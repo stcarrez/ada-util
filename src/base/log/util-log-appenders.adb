@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-appenders -- Log appenders
---  Copyright (C) 2001 - 2022 Stephane Carrez
+--  Copyright (C) 2001 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,7 @@ with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
+with Util.Properties.Basic;
 with Util.Strings.Transforms;
 package body Util.Log.Appenders is
 
@@ -67,12 +68,14 @@ package body Util.Log.Appenders is
                          Layout     : in Layout_Type) is
       use Ada.Strings;
       use Util.Strings.Transforms;
-      Prop_Name : constant String := "appender." & Name & ".layout";
+      use Util.Properties.Basic;
+      Layout_Name : constant String := "appender." & Name & ".layout";
+      Utc_Name    : constant String := "appender." & Name & ".utc";
    begin
-      if Properties.Exists (Prop_Name) then
+      if Properties.Exists (Layout_Name) then
          declare
             Value : constant String
-              := To_Lower_Case (Fixed.Trim (Properties.Get (Prop_Name), Both));
+              := To_Lower_Case (Fixed.Trim (Properties.Get (Layout_Name), Both));
          begin
             if Value = "message" then
                Self.Layout := MESSAGE;
@@ -87,6 +90,9 @@ package body Util.Log.Appenders is
       else
          Self.Layout := Layout;
       end if;
+      if Properties.Exists (Utc_Name) then
+         Self.Use_UTC := Boolean_Property.Get (Properties, Utc_Name);
+      end if;
    end Set_Layout;
 
    procedure Set_Layout (Self       : in out Appender;
@@ -94,6 +100,16 @@ package body Util.Log.Appenders is
    begin
       Self.Layout := Layout;
    end Set_Layout;
+
+   function Format (Self : in Appender;
+                    Date : in Ada.Calendar.Time) return String is
+   begin
+      if Self.Use_UTC then
+         return Calendar.Formatting.Image (Date);
+      else
+         return Calendar.Formatting.Local_Image (Date);
+      end if;
+   end Format;
 
    --  ------------------------------
    --  Format the event into a string
@@ -111,11 +127,11 @@ package body Util.Log.Appenders is
             return Get_Level_Name (Level) & ": ";
 
          when DATE_LEVEL_MESSAGE =>
-            return "[" & Calendar.Formatting.Image (Date) & "] "
+            return "[" & Self.Format (Date) & "] "
               & Get_Level_Name (Level) & ": ";
 
          when FULL =>
-            return "[" & Calendar.Formatting.Image (Date)
+            return "[" & Self.Format (Date)
               & "] " & Get_Level_Name (Level) & " - " & Logger & " - : ";
 
       end case;

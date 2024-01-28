@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-appenders-consoles -- Console log appenders
---  Copyright (C) 2001 - 2019, 2021, 2023 Stephane Carrez
+--  Copyright (C) 2001 - 2019, 2021, 2023, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,7 @@
 --  | -------------- | --------------------------------------------------------------       |
 --  | layout         | Defines the format of the message printed by the appender.           |
 --  | level          | Defines the minimum level above which messages are printed.          |
+--  | utc            | When 'true' or '1', print the date in UTC instead of local time      |
 --  | stderr         | When 'true' or '1', use the console standard error,                  |
 --  |                | by default the appender uses the standard output.                    |
 --  | utf8           | When 'true', use a direct write on the console and avoid using       |

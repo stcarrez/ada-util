@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-appenders-rolling_files -- Rolling file log appenders
---  Copyright (C) 2022 Stephane Carrez
+--  Copyright (C) 2022, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,7 @@ private with Util.Files.Rolling;
 --  | -------------- | --------------------------------------------------------------       |
 --  | layout         | Defines the format of the message printed by the appender.           |
 --  | level          | Defines the minimum level above which messages are printed.          |
+--  | utc            | When 'true' or '1', print the date in UTC instead of local time      |
 --  | fileName       | The name of the file to write to. If the file, or any of its parent  |
 --  |                | directories, do not exist, they will be created.                     |
 --  | filePattern    | The pattern of the file name of the archived log file.  The pattern  |
