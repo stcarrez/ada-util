@@ -152,6 +152,7 @@ The console appender recognises the following configurations:
 | -------------- | --------------------------------------------------------------       |
 | layout         | Defines the format of the message printed by the appender.           |
 | level          | Defines the minimum level above which messages are printed.          |
+| utc            | When 'true' or '1', print the date in UTC instead of local time      |
 | stderr         | When 'true' or '1', use the console standard error,                  |
 |                | by default the appender uses the standard output.                    |
 | utf8           | When 'true', use a direct write on the console and avoid using       |
@@ -164,6 +165,7 @@ The `File` appender recognises the following configurations:
 | -------------- | --------------------------------------------------------------       |
 | layout         | Defines the format of the message printed by the appender.           |
 | level          | Defines the minimum level above which messages are printed.          |
+| utc            | When 'true' or '1', print the date in UTC instead of local time      |
 | File           | The path used by the appender to create the output file.             |
 | append         | When 'true' or '1', the file is opened in append mode otherwise      |
 |                | it is truncated (the default is to truncate).                        |
@@ -179,6 +181,7 @@ The `RollingFile` appender recognises the following configurations:
 | -------------- | --------------------------------------------------------------       |
 | layout         | Defines the format of the message printed by the appender.           |
 | level          | Defines the minimum level above which messages are printed.          |
+| utc            | When 'true' or '1', print the date in UTC instead of local time      |
 | fileName       | The name of the file to write to. If the file, or any of its parent  |
 |                | directories, do not exist, they will be created.                     |
 | filePattern    | The pattern of the file name of the archived log file.  The pattern  |
