@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
---  measure -- Benchmark tools
---  Copyright (C) 2008 - 2019, 2021 Stephane Carrez
+--  util-measure -- Benchmark tools
+--  Copyright (C) 2008 - 2019, 2021, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -100,8 +100,8 @@ package body Util.Measures is
             Stream.Write (Total (Total'First + 1 .. Total'Last));
          end if;
          Stream.Write (""" title=""");
-         Util.Streams.Texts.TR.Escape_Java_Script (Into => Stream,
-                                                   Content => Item.Name.all);
+         Util.Streams.Texts.TR.Escape_Xml (Into => Stream,
+                                           Content => Item.Name.all);
          Stream.Write ("""/>");
          Stream.Write (ASCII.LF);
       end Dump_XML;
@@ -112,8 +112,8 @@ package body Util.Measures is
    begin
       Measures.Data.Steal_Map (Buckets, TS, TE);
       Stream.Write ("<measures title=""");
-      Util.Streams.Texts.TR.Escape_Java_Script (Into    => Stream,
-                                                Content => Title);
+      Util.Streams.Texts.TR.Escape_Xml (Into    => Stream,
+                                        Content => Title);
       Stream.Write (""" start=""");
       Stream.Write (TS, ISO_DATE_TIME);
       Stream.Write (""" end=""");
