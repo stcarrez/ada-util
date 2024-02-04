@@ -110,7 +110,7 @@ package body Util.Log.Appenders is
       else
          return Calendar.Formatting.Image
            (Date, False,
-            Ada.Calendar.Time_Zones.Local_Time_Offset (Date));
+            Ada.Calendar.Time_Zones.UTC_Time_Offset (Date));
       end if;
    end Format;
 
