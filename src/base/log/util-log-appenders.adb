@@ -16,6 +16,7 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with Ada.Calendar.Formatting;
+with Ada.Calendar.Time_Zones;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
@@ -107,7 +108,9 @@ package body Util.Log.Appenders is
       if Self.Use_UTC then
          return Calendar.Formatting.Image (Date);
       else
-         return Calendar.Formatting.Local_Image (Date);
+         return Calendar.Formatting.Image
+           (Date, False,
+            Ada.Calendar.Time_Zones.Local_Time_Offset (Date));
       end if;
    end Format;
 
