@@ -48,14 +48,15 @@ package body Util.Files.Walk is
    --  ------------------------------
    --  Check if a path matches the included or excluded patterns.
    --  ------------------------------
-   function Match (Filter : in Filter_Type;
-                   Path   : in String) return Filter_Result is
+   function Match_Pattern (Root : in Pattern_Access;
+                           Path : in String) return Filter_Result is
       Last  : constant Natural := Path'Last;
       First : Natural := Path'First;
       Pos   : Natural := First;
-      Node  : Pattern_Access := Filter.Root;
+      Node  : Pattern_Access := Root;
       Next  : Pattern_Access;
    begin
+      --  Step 1: find a match with an absolute pattern.
       while Pos <= Last and then Node /= null loop
          First := Pos;
          Pos := Util.Strings.Index (Path, '/', First);
@@ -90,6 +91,42 @@ package body Util.Files.Walk is
          end if;
       end loop;
       return Not_Found;
+   end Match_Pattern;
+
+   --  ------------------------------
+   --  Check if a path matches the included or excluded patterns.
+   --  ------------------------------
+   function Match (Filter : in Filter_Type;
+                   Path   : in String) return Filter_Result is
+      Result : Filter_Result;
+   begin
+      --  Step 1: find a match with an absolute pattern.
+      if Filter.Root /= null then
+         Result := Match_Pattern (Filter.Root, Path);
+         if Result /= Not_Found then
+            return Result;
+         end if;
+      end if;
+      if Filter.Recursive = null then
+         return Not_Found;
+      end if;
+
+      --  Step 2: find a match on a recursive pattern.
+      declare
+         Last  : constant Natural := Path'Last;
+         Pos   : Natural := Path'First;
+      begin
+         while Pos <= Last loop
+            Result := Match_Pattern (Filter.Recursive, Path (Pos .. Path'Last));
+            if Result /= Not_Found then
+               return Result;
+            end if;
+            Pos := Util.Strings.Index (Path, '/', Pos);
+            exit when Pos = 0;
+            Pos := Pos + 1;
+         end loop;
+         return Not_Found;
+      end;
    end Match;
 
    overriding
