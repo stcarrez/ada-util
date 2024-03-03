@@ -47,4 +47,6 @@ package Util.Files.Tests is
    --  Test the Util.Files.Filter operations.
    procedure Test_Filter (T : in out Test);
 
+   procedure Test_Filter_Recursive (T : in out Test);
+
 end Util.Files.Tests;

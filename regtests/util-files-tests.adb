@@ -59,6 +59,8 @@ package body Util.Files.Tests is
                        Test_Walk'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Walk.Filter",
                        Test_Filter'Access);
+      Caller.Add_Test (Suite, "Test Util.Files.Walk.Filter (Recursive)",
+                       Test_Filter_Recursive'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -331,7 +333,9 @@ package body Util.Files.Tests is
                 "'alire' was scanned (see .gitignore)");
    end Test_Walk;
 
+   --  ------------------------------
    --  Test the Util.Files.Filter operations.
+   --  ------------------------------
    procedure Test_Filter (T : in out Test) is
       F : Walk.Filter_Type;
    begin
@@ -362,5 +366,46 @@ package body Util.Files.Tests is
       F.Exclude ("/a/b/c");
       Assert_Equals (T, Walk.Excluded, F.Match ("a/b/c"));
    end Test_Filter;
+
+   --  ------------------------------
+   --  Test the Util.Files.Filter operations.
+   --  ------------------------------
+   procedure Test_Filter_Recursive (T : in out Test) is
+      F : Walk.Filter_Type;
+   begin
+      F.Include ("a/b/c/d");
+      F.Include ("a/b/d/e");
+      F.Include ("b/e/d");
+      F.Exclude ("a/b/d/f");
+      F.Exclude ("b/e/c");
+      F.Include ("a/c");
+
+      Assert_Equals (T, Walk.Included, F.Match ("a/b/c/d"));
+      Assert_Equals (T, Walk.Included, F.Match ("a/b/d/e"));
+      Assert_Equals (T, Walk.Included, F.Match ("a/c"));
+      Assert_Equals (T, Walk.Excluded, F.Match ("a/b/d/f"));
+      Assert_Equals (T, Walk.Excluded, F.Match ("b/e/c"));
+      Assert_Equals (T, Walk.Included, F.Match ("a/c"));
+
+      Assert_Equals (T, Walk.Included, F.Match ("x/y/a/b/c/d"));
+      Assert_Equals (T, Walk.Included, F.Match ("q/w/e/a/b/d/e"));
+      Assert_Equals (T, Walk.Included, F.Match ("t/y/u/a/c"));
+      Assert_Equals (T, Walk.Excluded, F.Match ("i/a/b/d/f"));
+      Assert_Equals (T, Walk.Excluded, F.Match ("o/b/e/c"));
+      Assert_Equals (T, Walk.Included, F.Match ("z/a/c"));
+
+      Assert_Equals (T, Walk.Not_Found, F.Match ("z/a"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("b/c"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("x/d/e"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("q/a/b/c/d/e"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("w/a/b/e"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("e/a/b/c"));
+
+      F.Include ("a/b/c");
+      Assert_Equals (T, Walk.Included, F.Match ("a/b/c"));
+      Assert_Equals (T, Walk.Included, F.Match ("a/b/c/d"));
+      F.Exclude ("a/b/c");
+      Assert_Equals (T, Walk.Excluded, F.Match ("a/b/c"));
+   end Test_Filter_Recursive;
 
 end Util.Files.Tests;
