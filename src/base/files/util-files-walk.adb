@@ -15,6 +15,11 @@ package body Util.Files.Walk is
                      Pattern : String;
                      Exclude : Boolean);
 
+   function Match_Recursive_Pattern (Recursive : in Pattern_Access;
+                                     Path      : in String) return Filter_Result;
+   function Match_Pattern (Root : in Pattern_Access;
+                           Path : in String) return Filter_Result;
+
    --  ------------------------------
    --  Add a new pattern to include files or directories in the walk.
    --  ------------------------------
@@ -48,6 +53,27 @@ package body Util.Files.Walk is
    --  ------------------------------
    --  Check if a path matches the included or excluded patterns.
    --  ------------------------------
+   function Match_Recursive_Pattern (Recursive : in Pattern_Access;
+                                     Path      : in String) return Filter_Result is
+      Last   : constant Natural := Path'Last;
+      Pos    : Natural := Path'First;
+      Result : Filter_Result;
+   begin
+      while Pos <= Last loop
+         Result := Match_Pattern (Recursive, Path (Pos .. Path'Last));
+         if Result /= Not_Found then
+            return Result;
+         end if;
+         Pos := Util.Strings.Index (Path, '/', Pos);
+         exit when Pos = 0;
+         Pos := Pos + 1;
+      end loop;
+      return Not_Found;
+   end Match_Recursive_Pattern;
+
+   --  ------------------------------
+   --  Check if a path matches the included or excluded patterns.
+   --  ------------------------------
    function Match_Pattern (Root : in Pattern_Access;
                            Path : in String) return Filter_Result is
       Last  : constant Natural := Path'Last;
@@ -63,7 +89,7 @@ package body Util.Files.Walk is
          if Pos > 0 then
             loop
                Next := Match (Node, Path (First .. Pos - 1));
-               if Next /= null then
+               if Next /= null and then Next.Dir_Only then
                   Node := Next.Child;
                   Pos := Pos + 1;
                   exit;
@@ -112,21 +138,7 @@ package body Util.Files.Walk is
       end if;
 
       --  Step 2: find a match on a recursive pattern.
-      declare
-         Last  : constant Natural := Path'Last;
-         Pos   : Natural := Path'First;
-      begin
-         while Pos <= Last loop
-            Result := Match_Pattern (Filter.Recursive, Path (Pos .. Path'Last));
-            if Result /= Not_Found then
-               return Result;
-            end if;
-            Pos := Util.Strings.Index (Path, '/', Pos);
-            exit when Pos = 0;
-            Pos := Pos + 1;
-         end loop;
-         return Not_Found;
-      end;
+      return Match_Recursive_Pattern (Filter.Recursive, Path);
    end Match;
 
    overriding
@@ -165,6 +177,9 @@ package body Util.Files.Walk is
    procedure Insert (Root    : in out Pattern_Access;
                      Pattern : String;
                      Exclude : Boolean) is
+
+      function Find_Child (Node : Pattern_Access;
+                           Name : String) return Pattern_Access;
 
       function Is_Wildcard (Name : String)
                             return Boolean is (Name = "*");
