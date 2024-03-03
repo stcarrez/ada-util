@@ -45,6 +45,53 @@ package body Util.Files.Walk is
       end if;
    end Exclude;
 
+   --  ------------------------------
+   --  Check if a path matches the included or excluded patterns.
+   --  ------------------------------
+   function Match (Filter : in Filter_Type;
+                   Path   : in String) return Filter_Result is
+      Last  : constant Natural := Path'Last;
+      First : Natural := Path'First;
+      Pos   : Natural := First;
+      Node  : Pattern_Access := Filter.Root;
+      Next  : Pattern_Access;
+   begin
+      while Pos <= Last and then Node /= null loop
+         First := Pos;
+         Pos := Util.Strings.Index (Path, '/', First);
+         if Pos > 0 then
+            loop
+               Next := Match (Node, Path (First .. Pos - 1));
+               if Next /= null then
+                  Node := Next.Child;
+                  Pos := Pos + 1;
+                  exit;
+               end if;
+               Node := Node.Next;
+               exit when Node = null;
+            end loop;
+         else
+            loop
+               Next := Match (Node, Path (First .. Last));
+               if Next /= null then
+                  --  We found the matching node, if this is not the leaf
+                  --  look for a child with an empty name.
+                  if Next.Child /= null then
+                     Next := Find_Pattern (Next.Child, "");
+                     if Next = null then
+                        return Not_Found;
+                     end if;
+                  end if;
+                  return (if Next.Exclude then Excluded else Included);
+               end if;
+               Node := Node.Next;
+               exit when Node = null;
+            end loop;
+         end if;
+      end loop;
+      return Not_Found;
+   end Match;
+
    overriding
    procedure Finalize (Filter : in out Filter_Type) is
       procedure Release (Tree : in out Pattern_Access);
@@ -88,6 +135,16 @@ package body Util.Files.Walk is
       function Is_Multi_Wildcard (Name : String)
                                   return Boolean is (Name = "**");
 
+      function Find_Child (Node : Pattern_Access;
+                           Name : String) return Pattern_Access is
+      begin
+         if Node /= null then
+            return Find_Pattern (Node.Child, Name);
+         else
+            return Find_Pattern (Root, Name);
+         end if;
+      end Find_Child;
+
       First : Positive := Pattern'First;
       Exact : Boolean;
       Pos   : Natural;
@@ -108,35 +165,97 @@ package body Util.Files.Walk is
          end loop;
          if Exact then
             if Pos = Pattern'Last and then Pattern (Pos) = '/' then
-               Node := new Name_Pattern_Type
-                 '(Len  => Pos - First,
-                   Name => Pattern (First .. Pos - 1),
-                   Exclude  => Exclude,
-                   Negative => False,
-                   Dir_Only => True,
-                   others => <>);
+               Node := Find_Child (Previous, Pattern (First .. Pos - 1));
+               if Node = null then
+                  Node := new Name_Pattern_Type
+                    '(Len  => Pos - First,
+                      Name => Pattern (First .. Pos - 1),
+                      Exclude  => Exclude,
+                      Negative => False,
+                      Dir_Only => True,
+                      others => <>);
+                  if Previous = null then
+                     Node.Next := Root;
+                     Root := Node;
+                  else
+                     Node.Next := Previous.Child;
+                     Previous.Child := Node;
+                  end if;
+               elsif Node.Child = null then
+                  --  This is a leaf node and we are adding a directory node.
+                  --  Add a leaf node with empty name for it.
+                  Node.Child := new Name_Pattern_Type
+                    '(Len  => 0,
+                      Name => "",
+                      Exclude => Node.Exclude,
+                      Dir_Only => False,
+                      others => <>);
+                  Node.Dir_Only := True;
+               end if;
+               Previous := Node;
             elsif Pos < Pattern'Last then
-               Node := new Name_Pattern_Type
-                 '(Len  => Pos - First,
-                   Name => Pattern (First .. Pos - 1),
-                   Exclude => False,
-                   Dir_Only => True,
-                   others => <>);
-            else
-               Node := new Name_Pattern_Type
-                 '(Len  => Pos - First,
-                   Name => Pattern (First .. Pos - 1),
-                   Exclude => Exclude,
-                   Dir_Only => False,
-                   others => <>);
-            end if;
-            if First = Pattern'First then
-               Node.Next := Root;
-               Root := Node;
+               Node := Find_Child (Previous, Pattern (First .. Pos - 1));
+               if Node = null then
+                  Node := new Name_Pattern_Type
+                    '(Len  => Pos - First,
+                      Name => Pattern (First .. Pos - 1),
+                      Exclude => False,
+                      Dir_Only => True,
+                      others => <>);
+                  if Previous = null then
+                     Node.Next := Root;
+                     Root := Node;
+                  else
+                     Node.Next := Previous.Child;
+                     Previous.Child := Node;
+                  end if;
+               elsif Node.Child = null then
+                  --  This is a leaf node and we are adding a directory node.
+                  --  Add a leaf node with empty name for it.
+                  Node.Child := new Name_Pattern_Type
+                    '(Len  => 0,
+                      Name => "",
+                      Exclude => Node.Exclude,
+                      Dir_Only => False,
+                      others => <>);
+                  Node.Dir_Only := True;
+               end if;
                Previous := Node;
             else
-               Previous.Child := Node;
-               Previous := Node;
+               Node := Find_Child (Previous, Pattern (First .. Pattern'Last));
+               if Node = null then
+                  Node := new Name_Pattern_Type
+                    '(Len  => Pos - First,
+                      Name => Pattern (First .. Pos - 1),
+                      Exclude => Exclude,
+                      Dir_Only => False,
+                      others => <>);
+                  if Previous = null then
+                     Node.Next := Root;
+                     Root := Node;
+                  else
+                     Node.Next := Previous.Child;
+                     Previous.Child := Node;
+                  end if;
+               else
+                  if Node.Child /= null then
+                     Previous := Node;
+                     Node := Find_Pattern (Previous.Child, "");
+                     if Node = null then
+                        Node := new Name_Pattern_Type
+                          '(Len  => 0,
+                            Name => "",
+                            Exclude => Exclude,
+                            Dir_Only => False,
+                            Next => Previous.Child,
+                            others => <>);
+                        Previous.Child := Node;
+                     end if;
+                  end if;
+                  Node.Exclude := Exclude;
+                  Node.Dir_Only := False;
+               end if;
+               return;
             end if;
          else
             if Is_Multi_Wildcard (Pattern (First .. Pos - 1)) then
@@ -164,18 +283,31 @@ package body Util.Files.Walk is
                    Dir_Only => False,
                    others => <>);
             end if;
-            if First = Pattern'First then
+            if Previous = null then
                Node.Next := Root;
                Root := Node;
-               Previous := Node;
             else
+               Node.Next := Previous.Child;
                Previous.Child := Node;
-               Previous := Node;
             end if;
+            Previous := Node;
          end if;
          First := Pos + 1;
       end loop;
    end Insert;
+
+   function Find_Pattern (Node : in Pattern_Access;
+                          Name : in String) return Pattern_Access is
+      N : Pattern_Access := Node;
+   begin
+      while N /= null loop
+         if N.Is_Pattern (Name) then
+            return N;
+         end if;
+         N := N.Next;
+      end loop;
+      return null;
+   end Find_Pattern;
 
    function Match (Pattern : Pattern_Access;
                    Name    : String) return Pattern_Access is
