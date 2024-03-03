@@ -31,8 +31,27 @@ private with GNAT.Regexp;
 --     Filter.Include ("/docs/*");
 --
 --  The `Match` function looks in the filter for a match.  The path could be
---  included, excluded or not found.
+--  included, excluded or not found.  For example, the following paths will
+--  match:
 --
+--  | Operation                    | Result         |
+--  | ---------------------------- | -------------- |
+--  | Filter.Match ("test.o")      | Walk.Excluded  |
+--  | Filter.Match ("test.a")      | Walk.Not_Found |
+--  | Filter.Match ("docs/test.o") | Walk.Included  |
+--  | Filter.Match ("alire/")      | Walk.Included  |
+--  | Filter.Match ("test/alire")  | Walk.Not_Found |
+--
+--  To scan a directory tree, the `Walker_Type` must have some of its operations
+--  overriden:
+--
+--  * The `Scan_File` should be overriden to be notified when a file is found
+--    and handle it.
+--  * The `Scan_Directory` should be overriden to be notified when a directory
+--    is entered.
+--  * The `Get_Ignore_Path` is called when entering a new directory.  It can
+--    be overriden to indicate a path of a file which contains some patterns
+--    to be ignored (ex: the `.gitignore` file).
 package Util.Files.Walk is
 
    package AF renames Ada.Finalization;

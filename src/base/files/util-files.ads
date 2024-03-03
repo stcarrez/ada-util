@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-files -- Various File Utility Packages
---  Copyright (C) 2001 - 2022 Stephane Carrez
+--  Copyright (C) 2001 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,6 +67,7 @@ with Util.Strings.Vectors;
 --  This will return `/usr/bin/ls` on most Unix systems.
 --
 --  @include util-files-rolling.ads
+--  @include util-files-walk.ads
 package Util.Files is
 
    use Ada.Strings.Unbounded;
