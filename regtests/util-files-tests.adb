@@ -61,6 +61,8 @@ package body Util.Files.Tests is
                        Test_Filter'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Walk.Filter (Recursive)",
                        Test_Filter_Recursive'Access);
+      Caller.Add_Test (Suite, "Test Util.Files.Walk.Filter (Wildcard)",
+                       Test_Filter_Wildcard'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -407,5 +409,40 @@ package body Util.Files.Tests is
       F.Exclude ("a/b/c");
       Assert_Equals (T, Walk.Excluded, F.Match ("a/b/c"));
    end Test_Filter_Recursive;
+
+   --  ------------------------------
+   --  Test the Util.Files.Filter operations.
+   --  ------------------------------
+   procedure Test_Filter_Wildcard (T : in out Test) is
+      F : Walk.Filter_Type;
+   begin
+      F.Include ("*.o");
+      F.Include ("*.a");
+      F.Include ("*.lib");
+      F.Exclude ("a/b/*.o");
+      F.Exclude ("b/e/*.a");
+      F.Include ("a/**/*.c");
+
+      Assert_Equals (T, Walk.Included, F.Match ("test.o"));
+      Assert_Equals (T, Walk.Included, F.Match ("test.a"));
+      Assert_Equals (T, Walk.Included, F.Match ("test.lib"));
+      Assert_Equals (T, Walk.Excluded, F.Match ("a/b/test.o"));
+      Assert_Equals (T, Walk.Excluded, F.Match ("b/e/test.a"));
+      --  Assert_Equals (T, Walk.Included, F.Match ("a/c/d/e/test.c"));
+
+      Assert_Equals (T, Walk.Included, F.Match ("x/y/a/b/c/d.o"));
+      Assert_Equals (T, Walk.Included, F.Match ("q/w/e/a/b/d/e.a"));
+      --  Assert_Equals (T, Walk.Included, F.Match ("t/y/u/a/b/x.c"));
+      Assert_Equals (T, Walk.Excluded, F.Match ("i/a/b/x.o"));
+      Assert_Equals (T, Walk.Excluded, F.Match ("o/b/e/c.a"));
+      --  Assert_Equals (T, Walk.Included, F.Match ("z/a/t.c"));
+
+      Assert_Equals (T, Walk.Not_Found, F.Match ("z/a"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("b/c"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("x/d/e"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("q/a/b/c/d/e"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("w/a/b/e"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("e/a/b/c"));
+   end Test_Filter_Wildcard;
 
 end Util.Files.Tests;

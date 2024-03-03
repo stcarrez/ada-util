@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-files-rolling-tests -- Unit tests for rolling file manager
---  Copyright (C) 2022 Stephane Carrez
+--  Copyright (C) 2022, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@ with Ada.Calendar.Formatting;
 with Util.Test_Caller;
 package body Util.Files.Rolling.Tests is
 
-   package Caller is new Util.Test_Caller (Test, "Files");
+   package Caller is new Util.Test_Caller (Test, "Files.Rolling");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin

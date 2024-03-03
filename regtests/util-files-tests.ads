@@ -49,4 +49,6 @@ package Util.Files.Tests is
 
    procedure Test_Filter_Recursive (T : in out Test);
 
+   procedure Test_Filter_Wildcard (T : in out Test);
+
 end Util.Files.Tests;
