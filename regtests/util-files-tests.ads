@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  files.tests -- Unit tests for files
---  Copyright (C) 2009, 2010, 2011, 2012, 2022 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2022, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,5 +43,8 @@ package Util.Files.Tests is
 
    --  Test the Util.Files.Walk package
    procedure Test_Walk (T : in out Test);
+
+   --  Test the Util.Files.Filter operations.
+   procedure Test_Filter (T : in out Test);
 
 end Util.Files.Tests;

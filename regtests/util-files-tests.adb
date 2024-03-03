@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-files-tests -- Unit tests for files
---  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2019, 2022 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2019, 2022, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@
 with System;
 with Ada.Directories;
 with Ada.Text_IO;
+with Util.Assertions;
 with Util.Systems.Constants;
 with Util.Strings.Sets;
 with Util.Test_Caller;
@@ -26,6 +27,9 @@ with Util.Files.Walk;
 package body Util.Files.Tests is
 
    use Util.Tests;
+
+   procedure Assert_Equals is
+     new Util.Assertions.Assert_Equals_T (Value_Type => Walk.Filter_Result);
 
    package Caller is new Util.Test_Caller (Test, "Files");
 
@@ -53,6 +57,8 @@ package body Util.Files.Tests is
                        Test_Realpath'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Walk",
                        Test_Walk'Access);
+      Caller.Add_Test (Suite, "Test Util.Files.Walk.Filter",
+                       Test_Filter'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -324,5 +330,37 @@ package body Util.Files.Tests is
       T.Assert (not W.Dirs.Contains ("./alire"),
                 "'alire' was scanned (see .gitignore)");
    end Test_Walk;
+
+   --  Test the Util.Files.Filter operations.
+   procedure Test_Filter (T : in out Test) is
+      F : Walk.Filter_Type;
+   begin
+      F.Include ("/a/b/c/d");
+      F.Include ("/a/b/d/e");
+      F.Include ("/b/e/d");
+      F.Exclude ("/a/b/d/f");
+      F.Exclude ("/b/e/c");
+      F.Include ("/a/c");
+
+      Assert_Equals (T, Walk.Included, F.Match ("a/b/c/d"));
+      Assert_Equals (T, Walk.Included, F.Match ("a/b/d/e"));
+      Assert_Equals (T, Walk.Included, F.Match ("a/c"));
+      Assert_Equals (T, Walk.Excluded, F.Match ("a/b/d/f"));
+      Assert_Equals (T, Walk.Excluded, F.Match ("b/e/c"));
+      Assert_Equals (T, Walk.Included, F.Match ("a/c"));
+
+      Assert_Equals (T, Walk.Not_Found, F.Match ("a"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("c"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("d/e"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("a/b/c/d/e"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("a/b/e"));
+      Assert_Equals (T, Walk.Not_Found, F.Match ("a/b/c"));
+
+      F.Include ("/a/b/c");
+      Assert_Equals (T, Walk.Included, F.Match ("a/b/c"));
+      Assert_Equals (T, Walk.Included, F.Match ("a/b/c/d"));
+      F.Exclude ("/a/b/c");
+      Assert_Equals (T, Walk.Excluded, F.Match ("a/b/c"));
+   end Test_Filter;
 
 end Util.Files.Tests;
