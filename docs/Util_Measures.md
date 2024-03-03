@@ -1,3 +1,4 @@
+
 # Performance Measurements
 
 Performance measurements is often made using profiling tools such as GNU gprof or others.

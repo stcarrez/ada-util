@@ -102,4 +102,49 @@ before writing content on the file.  When it returns `True`, it means you
 should call the `Rollover` procedure that will perform roll over according
 to the rolling strategy.
 
+## Directory tree walk
+It is sometimes necessary to walk a directory tree while taking into
+account some inclusion or exclusion patterns or more complex ignore lists.
+The `Util.Files.Walk` package provides a support to walk such directory
+tree while taking into account some possible ignore lists such as the
+`.gitignore` file.  The package defines the `Filter_Type` tagged type
+to represent and control the exclusion or inclusion filters and a second
+tagged type `Walker_Type` to walk the directory tree.
 
+The `Filter_Type` provides two operations to add patterns in the filter
+and one operation to check against a path whether it matches a pattern.
+A pattern can contain fixed paths, wildcards or regular expressions.
+Similar to `.gitignore` rules, a pattern which starts with a `/` will
+define a pattern that must match the complete path.  Otherwise, the pattern
+is a recursive pattern.  Example of pattern setup:
+
+```Ada
+ Filter : Util.Files.Walk.Filter_Type;
+ ...
+ Filter.Exclude ("*.o");
+ Filter.Exclude ("/alire/");
+ Filter.Include ("/docs/*");
+```
+
+The `Match` function looks in the filter for a match.  The path could be
+included, excluded or not found.  For example, the following paths will
+match:
+
+| Operation                    | Result         |
+| ---------------------------- | -------------- |
+| Filter.Match ("test.o")      | Walk.Excluded  |
+| Filter.Match ("test.a")      | Walk.Not_Found |
+| Filter.Match ("docs/test.o") | Walk.Included  |
+| Filter.Match ("alire/")      | Walk.Included  |
+| Filter.Match ("test/alire")  | Walk.Not_Found |
+
+To scan a directory tree, the `Walker_Type` must have some of its operations
+overriden:
+
+* The `Scan_File` should be overriden to be notified when a file is found
+  and handle it.
+* The `Scan_Directory` should be overriden to be notified when a directory
+  is entered.
+* The `Get_Ignore_Path` is called when entering a new directory.  It can
+  be overriden to indicate a path of a file which contains some patterns
+  to be ignored (ex: the `.gitignore` file).
