@@ -6,7 +6,7 @@
 
 with Ada.Finalization;
 with Ada.Directories;
-private with GNAT.Regexp;
+with Util.Files.Filters;
 
 --  == Directory tree walk ==
 --  It is sometimes necessary to walk a directory tree while taking into
@@ -56,25 +56,26 @@ package Util.Files.Walk is
 
    package AF renames Ada.Finalization;
 
+   type Filter_Mode is (Not_Found, Included, Excluded);
+
+   package Path_Filter is
+      new Util.Files.Filters (Filter_Mode);
+
    type Filter_Type is limited new AF.Limited_Controlled with private;
-   type Filter_Result is (Not_Found, Included, Excluded);
 
    --  Add a new pattern to include files or directories in the walk.
    procedure Include (Filter  : in out Filter_Type;
-                      Pattern : String) with
+                      Pattern : in String) with
      Pre => Pattern'Length > 0;
 
    --  Add a new pattern to exclude (ignore) files or directories in the walk.
    procedure Exclude (Filter  : in out Filter_Type;
-                      Pattern : String) with
+                      Pattern : in String) with
      Pre => Pattern'Length > 0;
 
    --  Check if a path matches the included or excluded patterns.
    function Match (Filter : in Filter_Type;
-                   Path   : in String) return Filter_Result;
-
-   overriding
-   procedure Finalize (Filter : in out Filter_Type);
+                   Path   : in String) return Filter_Mode;
 
    type Walker_Type is limited new AF.Limited_Controlled with private;
 
@@ -91,8 +92,8 @@ package Util.Files.Walk is
    --  * when sub-directories are found and are not excluded, it calls
    --    `Scan_Directory`.
    procedure Scan (Walker : in out Walker_Type;
-                   Path   : String;
-                   Filter : Filter_Type'Class) with
+                   Path   : in String;
+                   Filter : in Filter_Type'Class) with
      Pre => Path'Length > 0 and then Ada.Directories.Exists (Path);
 
    --  Get the path of a file that can be read to get a list of files to ignore
@@ -112,16 +113,20 @@ package Util.Files.Walk is
                         Path   : String) is null with
      Pre'Class => Path'Length > 0 and then Ada.Directories.Exists (Path);
 
-   type Filter_Context_Type is limited private;
+   use Path_Filter;
+
+   subtype Filter_Result is Path_Filter.Filter_Result;
+   subtype Filter_Context_Type is Path_Filter.Filter_Context_Type;
 
    --  Called when a directory is found during a directory tree walk.
    --  The default implementation checks for a configuration file to ignore
    --  files (a .gitignore) and builds a new filter to scan the sub-tree.
    --  Once the filter is created, it calls Scan_Directory to proceed with
    --  the scan.
-   procedure Scan_Subdir (Walker  : in out Walker_Type;
-                          Path    : String;
-                          Filter  : Filter_Context_Type) with
+   procedure Scan_Subdir (Walker : in out Walker_Type;
+                          Path   : in String;
+                          Filter : in Filter_Context_Type;
+                          Match  : in Filter_Result) with
      Pre => Path'Length > 0 and then Ada.Directories.Exists (Path);
 
    --  Called by Scan_Subdir when a directory was found.
@@ -135,104 +140,7 @@ package Util.Files.Walk is
 
 private
 
-   --  Inclusion and exclusion patterns are represented within a tree where
-   --  a node must match a single path component.
-   --  * a Wildcard node matches any path component only once,
-   --  * a Multi_Wildcard node matches any path component several times,
-   --  * the `Name_Pattern_Type` node is used for an exact name match,
-   --  * the `Regex_Pattern_Type` node contains a Regexp patern.
-   --
-   --  With the following ignore lists:
-   --
-   --  src
-   --  bin
-   --  lib
-   --  obj
-   --  src/sys/http
-   --  src/sys/os-generated
-   --
-   --  The pattern tree looks like:
-   --
-   --  "src" ---[Next]---> "bin" ---[Next]---> "lib" --->[Next]---> "obj"
-   --    |
-   --   [Child]
-   --    |
-   --    v
-   --  "sys"
-   --    |
-   --   [Child]
-   --    |
-   --    v
-   --   "http" ---[Next]---> "os-generated"
-   type Pattern_Type is tagged;
-   type Pattern_Access is access all Pattern_Type'Class;
-
-   type Pattern_Type is tagged limited record
-      Child          : Pattern_Access;
-      Next           : Pattern_Access;
-      Negative       : Boolean := False;
-      Dir_Only       : Boolean := False;
-      Exclude        : Boolean := True;
-      Wildcard       : Boolean := False;
-      Multi_Wildcard : Boolean := False;
-   end record;
-
-   function Is_Matched (Pattern : Pattern_Type;
-                        Name    : String) return Boolean is (Pattern.Wildcard);
-
-   function Is_Pattern (Pattern : Pattern_Type;
-                        Name    : String) return Boolean is (False);
-
-   function Find_Pattern (Node : in Pattern_Access;
-                          Name : in String) return Pattern_Access;
-
-   type Name_Pattern_Type (Len : Natural) is new Pattern_Type with record
-      Name : String (1 .. Len);
-   end record;
-
-   overriding
-   function Is_Matched (Pattern : Name_Pattern_Type;
-                        Name    : String)
-                        return Boolean is (Pattern.Name = Name);
-
-   overriding
-   function Is_Pattern (Pattern : Name_Pattern_Type;
-                        Name    : String) return Boolean is (Pattern.Name = Name);
-
-   type Regex_Pattern_Type is new Pattern_Type with record
-      Regex : GNAT.Regexp.Regexp;
-   end record;
-
-   overriding
-   function Is_Matched (Pattern : Regex_Pattern_Type;
-                        Name    : String)
-                        return Boolean is (GNAT.Regexp.Match (Name,
-                                           Pattern.Regex));
-
-   type Filter_Info_Type is limited record
-      Previous        : access Filter_Info_Type;
-      Recursive       : Pattern_Access;
-      Current         : Pattern_Access;
-      Local           : Pattern_Access;
-      Local_Recursive : Pattern_Access;
-   end record;
-
-   function Match (Filter : Filter_Info_Type;
-                   Name   : String) return Pattern_Access;
-   function Match (Pattern : Pattern_Access;
-                   Name    : String) return Pattern_Access;
-   function Match_Sibling (Filter : access Filter_Info_Type;
-                           Name   : String) return Pattern_Access;
-
-   type Filter_Context_Type is limited record
-      Filter  : access Filter_Info_Type;
-      Pattern : Pattern_Access;
-   end record;
-
-   type Filter_Type is limited new AF.Limited_Controlled with record
-      Root      : Pattern_Access;
-      Recursive : Pattern_Access;
-   end record;
+   type Filter_Type is limited new Path_Filter.Filter_Type with null record;
 
    type Walker_Type is limited new AF.Limited_Controlled with null record;
 
