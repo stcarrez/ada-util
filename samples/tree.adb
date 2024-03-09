@@ -6,6 +6,7 @@ with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Strings.UTF_Encoding;
 with Util.Files.Walk;
 with Util.Strings;
+--  with Util.Log.Loggers;
 procedure Tree is
 
    use GNAT.IO;
@@ -20,6 +21,7 @@ procedure Tree is
      new Ada.Containers.Indefinite_Ordered_Sets (Element_Type => String);
 
    subtype Filter_Context_Type is Util.Files.Walk.Filter_Context_Type;
+   subtype Filter_Result is Util.Files.Walk.Filter_Result;
 
    type Walker_Type is new Util.Files.Walk.Walker_Type with record
       Files       : String_Sets.Set;
@@ -42,7 +44,8 @@ procedure Tree is
    overriding
    procedure Scan_Subdir (Walker  : in out Walker_Type;
                           Path    : String;
-                          Filter  : Filter_Context_Type);
+                          Filter  : Filter_Context_Type;
+                          Match   : Filter_Result);
 
    overriding
    procedure Scan_Directory (Walker : in out Walker_Type;
@@ -67,7 +70,8 @@ procedure Tree is
    overriding
    procedure Scan_Subdir (Walker  : in out Walker_Type;
                           Path    : String;
-                          Filter  : Filter_Context_Type) is
+                          Filter  : Filter_Context_Type;
+                          Match   : Filter_Result) is
    begin
       Walker.Dirs.Include (Path);
    end Scan_Subdir;
@@ -111,7 +115,8 @@ procedure Tree is
                Walker.Seg_Prefix := To_Unbounded_String (SEP_MARKER);
                Walker.Ptr_Prefix := To_Unbounded_String (MID_MARKER);
             end if;
-            Util.Files.Walk.Walker_Type (Walker).Scan_Subdir (Dir, Filter);
+            Util.Files.Walk.Walker_Type (Walker).Scan_Subdir
+              (Dir, Filter, Util.Files.Walk.Path_Filter.NO_MATCH);
          end loop;
       end;
       Walker.Prefix := Prefix;
@@ -121,6 +126,7 @@ procedure Tree is
    Filter : Util.Files.Walk.Filter_Type;
    Count  : constant Natural := Ada.Command_Line.Argument_Count;
 begin
+   --  Util.Log.Loggers.Initialize ("samples/log4j.properties");
    W.Prefix := To_Unbounded_String ("");
    W.Seg_Prefix := To_Unbounded_String ("");
    for I in 1 .. Count loop
