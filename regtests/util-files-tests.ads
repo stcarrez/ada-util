@@ -44,6 +44,9 @@ package Util.Files.Tests is
    --  Test the Util.Files.Walk package
    procedure Test_Walk (T : in out Test);
 
+   --  Test the Util.Files.Filters package.
+   procedure Test_Path_Filter (T : in out Test);
+
    --  Test the Util.Files.Filter operations.
    procedure Test_Filter (T : in out Test);
 

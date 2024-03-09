@@ -24,14 +24,21 @@ with Util.Systems.Constants;
 with Util.Strings.Sets;
 with Util.Test_Caller;
 with Util.Files.Walk;
+with Util.Files.Filters;
 package body Util.Files.Tests is
 
    use Util.Tests;
 
    procedure Assert_Equals is
-     new Util.Assertions.Assert_Equals_T (Value_Type => Walk.Filter_Result);
+     new Util.Assertions.Assert_Equals_T (Value_Type => Walk.Filter_Mode);
 
    package Caller is new Util.Test_Caller (Test, "Files");
+
+   package String_Filters is
+      new Util.Files.Filters (Element_Type => String);
+
+   procedure Assert_Equals is
+     new Util.Assertions.Assert_Equals_T (Value_Type => String_Filters.Match_Result);
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
    begin
@@ -63,6 +70,8 @@ package body Util.Files.Tests is
                        Test_Filter_Recursive'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Walk.Filter (Wildcard)",
                        Test_Filter_Wildcard'Access);
+      Caller.Add_Test (Suite, "Test Util.Files.Filters.Insert",
+                       Test_Path_Filter'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -320,9 +329,15 @@ package body Util.Files.Tests is
       W : Walker_Type;
       Filter : Util.Files.Walk.Filter_Type;
    begin
-      W.Scan (".", Filter);
+      W.Scan ("./regtests", Filter);
       Ada.Text_IO.Put_Line ("Number of files:" & W.Files.Length'Image);
+      for S of W.Files loop
+         Ada.Text_IO.Put_Line (S);
+      end loop;
       Ada.Text_IO.Put_Line ("Number of dirs:" & W.Dirs.Length'Image);
+      for S of W.Dirs loop
+         Ada.Text_IO.Put_Line (S);
+      end loop;
       T.Assert (W.Files.Contains ("./regtests/util-files-tests.ads"),
                 "Missing './regtests/util-files-tests.ads'");
       T.Assert (W.Files.Contains ("./regtests/util-files-tests.adb"),
@@ -334,6 +349,59 @@ package body Util.Files.Tests is
       T.Assert (not W.Dirs.Contains ("./alire"),
                 "'alire' was scanned (see .gitignore)");
    end Test_Walk;
+
+   --  ------------------------------
+   --  Test the Util.Files.Filter operations.
+   --  ------------------------------
+   procedure Test_Path_Filter (T : in out Test) is
+      F : String_Filters.Filter_Type;
+   begin
+      F.Insert ("/a/b/c/d", False, "a-b-c-d");
+      F.Insert ("/a/b/d/e", False, "a-b-d-e");
+      F.Insert ("/b/e/d", False, "b-e-d");
+      F.Insert ("/a/b/d/f", False, "a-b-d-f");
+      F.Insert ("/b/e/c", False, "b-e-c");
+      F.Insert ("/a/c", False, "a-c");
+
+      Assert_Equals (T, String_Filters.Found, F.Match ("a/b/c/d").Match);
+      Assert_Equals (T, "a-b-c-d", String_Filters.Get_Value (F.Match ("a/b/c/d")));
+
+      Assert_Equals (T, String_Filters.Found, F.Match ("a/b/d/e").Match);
+      Assert_Equals (T, "a-b-d-e", String_Filters.Get_Value (F.Match ("a/b/d/e")));
+
+      Assert_Equals (T, String_Filters.Found, F.Match ("b/e/d").Match);
+      Assert_Equals (T, "b-e-d", String_Filters.Get_Value (F.Match ("b/e/d")));
+
+      Assert_Equals (T, String_Filters.Found, F.Match ("a/b/d/f").Match);
+      Assert_Equals (T, "a-b-d-f", String_Filters.Get_Value (F.Match ("a/b/d/f")));
+
+      Assert_Equals (T, String_Filters.Found, F.Match ("b/e/c").Match);
+      Assert_Equals (T, "b-e-c", String_Filters.Get_Value (F.Match ("b/e/c")));
+
+      Assert_Equals (T, String_Filters.Found, F.Match ("a/c").Match);
+      Assert_Equals (T, "a-c", String_Filters.Get_Value (F.Match ("a/c")));
+
+      Assert_Equals (T, String_Filters.No_Value, F.Match ("a/b/c").Match);
+      Assert_Equals (T, String_Filters.No_Value, F.Match ("a/b").Match);
+      Assert_Equals (T, String_Filters.No_Value, F.Match ("b/e").Match);
+
+      Assert_Equals (T, String_Filters.Not_Found, F.Match ("d/e").Match);
+
+      F.Insert ("*.c", True, "C");
+      Assert_Equals (T, String_Filters.Found, F.Match ("test.c").Match);
+      Assert_Equals (T, "C", String_Filters.Get_Value (F.Match ("test.c")));
+
+      Assert_Equals (T, String_Filters.Found, F.Match ("a/b/c/d/test.c").Match);
+      Assert_Equals (T, "C", String_Filters.Get_Value (F.Match ("a/b/c/d/test.c")));
+
+      F.Insert ("test/*.o", True, "O");
+      Assert_Equals (T, String_Filters.Found, F.Match ("test/p.o").Match);
+      Assert_Equals (T, "O", String_Filters.Get_Value (F.Match ("test/p.o")));
+
+      Assert_Equals (T, String_Filters.Found, F.Match ("a/b/test/x.o").Match);
+      Assert_Equals (T, "O", String_Filters.Get_Value (F.Match ("a/b/test/x.o")));
+
+   end Test_Path_Filter;
 
    --  ------------------------------
    --  Test the Util.Files.Filter operations.
