@@ -989,19 +989,19 @@ package body Util.Encoders.AES is
          when OFB =>
             Encrypt (E.IV,
                      E.Key);
-            Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (E.Data, Pos), Last);
-            Put_Unsigned_32 (Into, E.IV (2) xor To_Unsigned_32 (E.Data, Pos + 4), Last + 4);
-            Put_Unsigned_32 (Into, E.IV (3) xor To_Unsigned_32 (E.Data, Pos + 8), Last + 8);
-            Put_Unsigned_32 (Into, E.IV (4) xor To_Unsigned_32 (E.Data, Pos + 12), Last + 12);
+            Put_Unsigned_32 (Into, E.IV (1) xor To_Unsigned_32 (E.Data, E.Data'First), Last);
+            Put_Unsigned_32 (Into, E.IV (2) xor To_Unsigned_32 (E.Data, E.Data'First + 4), Last + 4);
+            Put_Unsigned_32 (Into, E.IV (3) xor To_Unsigned_32 (E.Data, E.Data'First + 8), Last + 8);
+            Put_Unsigned_32 (Into, E.IV (4) xor To_Unsigned_32 (E.Data, E.Data'First + 12), Last + 12);
 
          when CTR =>
             Encrypt (E.IV,
                      R,
                      E.Key);
-            Put_Unsigned_32 (Into, R (1) xor To_Unsigned_32 (E.Data, Pos), Last);
-            Put_Unsigned_32 (Into, R (2) xor To_Unsigned_32 (E.Data, Pos + 4), Last + 4);
-            Put_Unsigned_32 (Into, R (3) xor To_Unsigned_32 (E.Data, Pos + 8), Last + 8);
-            Put_Unsigned_32 (Into, R (4) xor To_Unsigned_32 (E.Data, Pos + 12), Last + 12);
+            Put_Unsigned_32 (Into, R (1) xor To_Unsigned_32 (E.Data, E.Data'First), Last);
+            Put_Unsigned_32 (Into, R (2) xor To_Unsigned_32 (E.Data, E.Data'First + 4), Last + 4);
+            Put_Unsigned_32 (Into, R (3) xor To_Unsigned_32 (E.Data, E.Data'First + 8), Last + 8);
+            Put_Unsigned_32 (Into, R (4) xor To_Unsigned_32 (E.Data, E.Data'First + 12), Last + 12);
             E.IV (4) := E.IV (4) + 1;
             if E.IV (4) = 0 then
                E.IV (3) := E.IV (3) + 1;
