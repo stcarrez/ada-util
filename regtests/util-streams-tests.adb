@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-tests -- Unit tests for encoding buffered streams
---  Copyright (C) 2017, 2018, 2019, 2021 Stephane Carrez
+--  Copyright (C) 2017, 2018, 2019, 2021, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -165,13 +165,13 @@ package body Util.Streams.Tests is
       new Test_AES_Mode (Mode => Util.Encoders.AES.PCBC, Label => "AES-PCBC");
 
    procedure Test_AES_CFB is
-      new Test_AES_Mode (Mode => Util.Encoders.AES.PCBC, Label => "AES-CFB");
+      new Test_AES_Mode (Mode => Util.Encoders.AES.CFB, Label => "AES-CFB");
 
    procedure Test_AES_OFB is
-      new Test_AES_Mode (Mode => Util.Encoders.AES.PCBC, Label => "AES-OFB");
+      new Test_AES_Mode (Mode => Util.Encoders.AES.OFB, Label => "AES-OFB");
 
    procedure Test_AES_CTR is
-      new Test_AES_Mode (Mode => Util.Encoders.AES.PCBC, Label => "AES-CTR");
+      new Test_AES_Mode (Mode => Util.Encoders.AES.CTR, Label => "AES-CTR");
 
    procedure Test_Base64_Stream (T : in out Test) is
       Stream  : aliased File_Stream;
