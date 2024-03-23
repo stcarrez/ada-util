@@ -2,6 +2,7 @@ Version 2.7.0  - Under development
   - New package Util.Files.Walk to iterate over directory trees and honor .gitignore
   - Feature #48: Change the log time from UTC to Local Time (configurable)
   - Fix #49: Perf report generates incorrect XML title attributes
+  - Fix #50: 128Bit AES-CTR Encoding doesn't work (thanks Adam Jasinski)
 
 Version 2.6.0  - Jul 2023
   - New encoder/decoder for Base32
