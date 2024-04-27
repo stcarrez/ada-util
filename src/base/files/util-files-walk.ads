@@ -77,6 +77,21 @@ package Util.Files.Walk is
    function Match (Filter : in Filter_Type;
                    Path   : in String) return Filter_Mode;
 
+   --  Load a series of lines that contains a list of files to ignore.
+   --  The `Reader` procedure is called with a `Process` procedure that is
+   --  expected to be called for each line which comes from the ignore
+   --  file (such as the .gitignore file).  The `Process` procedure handles
+   --  the interpretation of ignore patterns as defined by `.gitignore`
+   --  and it updates the `Filter` accordingly.
+   procedure Load_Ignore (Filter : in out Filter_Type'Class;
+                          Label  : in String;
+                          Reader : not null access
+                              procedure (Process : not null access
+                                   procedure (Line : in String)));
+   procedure Load_Ignore (Filter : in out Filter_Type'Class;
+                          Path   : String) with
+      Pre => Path'Length > 0 and then Ada.Directories.Exists (Path);
+
    type Walker_Type is limited new AF.Limited_Controlled with private;
 
    --  Scan the directory tree given by the path for files and sub-directories

@@ -5,11 +5,7 @@
 -----------------------------------------------------------------------
 
 with Ada.Unchecked_Deallocation;
-with Util.Log.Loggers;
 package body Util.Files.Filters is
-
-   Log : constant Util.Log.Loggers.Logger :=
-     Util.Log.Loggers.Create ("Util.Files.Filters");
 
    procedure Free is
      new Ada.Unchecked_Deallocation (Object => Element_Type,
@@ -22,11 +18,17 @@ package body Util.Files.Filters is
                                      Path      : in String) return Pattern_Access;
    function Match_Pattern (Root : in Pattern_Access;
                            Path : in String) return Pattern_Access;
+   function Get_Result (Pattern : in Pattern_Access) return Filter_Result;
 
    function Get_Value (Result : in Filter_Result) return Element_Type is
    begin
       return Result.Pattern.Value.all;
    end Get_Value;
+
+   function Is_Only_Directory (Result : in Filter_Result) return Boolean is
+   begin
+      return Result.Pattern.Dir_Only;
+   end Is_Only_Directory;
 
    --  ------------------------------
    --  Add a new pattern and associate it with the given value.
@@ -122,7 +124,8 @@ package body Util.Files.Filters is
                       others => <>);
                   Node.Dir_Only := True;
                end if;
-               Previous := Node;
+               Set_Value (Node, Value);
+               return;
             elsif Pos < Pattern'Last then
                Node := Find_Child (Previous, Pattern (First .. Pos - 1));
                if Node = null then

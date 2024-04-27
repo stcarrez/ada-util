@@ -51,6 +51,9 @@ package Util.Files.Filters is
    function Get_Value (Result : in Filter_Result) return Element_Type
      with Pre => Result.Match = Found;
 
+   function Is_Only_Directory (Result : in Filter_Result) return Boolean
+     with Pre => Result.Match in No_Value | Found;
+
    NO_MATCH : constant Filter_Result;
 
    type Filter_Type is limited new AF.Limited_Controlled with private;
