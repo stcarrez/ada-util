@@ -82,6 +82,8 @@ package Util.Files.Filters is
    function Create (Context : in Filter_Context_Type;
                     Match   : in Filter_Result) return Filter_Context_Type;
 
+   function Create (Context : in Filter_Context_Type) return Filter_Context_Type;
+
    --  Check if a path matches the included or excluded patterns.
    function Match (Filter : in Filter_Context_Type;
                    Path   : in String) return Filter_Result;

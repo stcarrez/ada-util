@@ -387,6 +387,13 @@ package body Util.Files.Filters is
       end return;
    end Create;
 
+   function Create (Context : in Filter_Context_Type) return Filter_Context_Type is
+   begin
+      return Result : Filter_Context_Type do
+         Result.Filter.Previous := Context.Filter'Unchecked_Access;
+      end return;
+   end Create;
+
    function Find_Pattern (Node : in Pattern_Access;
                           Name : in String) return Pattern_Access is
       N : Pattern_Access := Node;

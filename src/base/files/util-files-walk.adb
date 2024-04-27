@@ -125,8 +125,13 @@ package body Util.Files.Walk is
                                                        Dir_Context);
          end;
       else
-         Walker_Type'Class (Walker).Scan_Directory (Path,
-                                                    Filter);
+         declare
+            Dir_Context : constant Filter_Context_Type
+              := Path_Filter.Create (Filter);
+         begin
+            Walker_Type'Class (Walker).Scan_Directory (Path,
+                                                       Dir_Context);
+         end;
       end if;
    end Scan_Subdir;
 
