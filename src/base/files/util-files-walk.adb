@@ -222,7 +222,7 @@ package body Util.Files.Walk is
 
    function Is_Directory_Excluded (Result : Filter_Result) return Boolean
      is ((Result.Match = Found and then Get_Value (Result) = Excluded)
-          or else (Result.Match /= Not_Found and then Is_Only_Directory (Result)));
+          or else (Result.Match = Found and then Is_Only_Directory (Result)));
 
    --  ------------------------------
    --  Called when a directory is found during a directory tree walk.
