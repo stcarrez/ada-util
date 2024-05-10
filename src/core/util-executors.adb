@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-executors -- Execute work that is queued
---  Copyright (C) 2019, 2020 Stephane Carrez
+--  Copyright (C) 2019, 2020, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,12 +51,23 @@ package body Util.Executors is
    --  ------------------------------
    procedure Stop (Manager : in out Executor_Manager) is
       W : Work_Info;
+      N : Natural := 0;
    begin
       W.Done := True;
+      --  We must process in two separate steps because as soon as we enqueue
+      --  a stop work, a next worker in the list could dequeue and stop immediately
+      --  and we may loose a correct number of stop work.
+      --  Step 1: See how many workers are still running.
       for Worker of Manager.Workers loop
          if not Worker'Terminated then
-            Manager.Queue.Enqueue (W);
+            N := N + 1;
          end if;
+      end loop;
+
+      --  Step 2: Enqueue a stop work for each worker.
+      while N > 0 loop
+         Manager.Queue.Enqueue (W);
+         N := N - 1;
       end loop;
    end Stop;
 
