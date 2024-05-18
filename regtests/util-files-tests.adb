@@ -19,6 +19,7 @@
 with System;
 with Ada.Directories;
 with Ada.Text_IO;
+with Ada.Strings.Fixed;
 with Util.Assertions;
 with Util.Systems.Constants;
 with Util.Strings.Sets;
@@ -289,6 +290,8 @@ package body Util.Files.Tests is
          Dirs  : Util.Strings.Sets.Set;
       end record;
 
+      function Simplify_Path (Path : String) return String;
+
       overriding
       function Get_Ignore_Path (Walker : Walker_Type;
                                 Path   : String) return String;
@@ -302,6 +305,17 @@ package body Util.Files.Tests is
                                 Path   : String;
                                 Filter : Filter_Context_Type);
 
+      function Simplify_Path (Path : String) return String is
+         Pos : constant Natural
+           := Ada.Strings.Fixed.Index (Path, "/regtests/");
+      begin
+         if Pos = 0 then
+            return Path;
+         else
+            return Path (Pos .. Path'Last);
+         end if;
+      end Simplify_Path;
+
       overriding
       function Get_Ignore_Path (Walker : Walker_Type;
                                 Path   : String) return String is
@@ -314,7 +328,7 @@ package body Util.Files.Tests is
       procedure Scan_File (Walker : in out Walker_Type;
                            Path   : String) is
       begin
-         Walker.Files.Insert (Path);
+         Walker.Files.Insert (Simplify_Path (Path));
       end Scan_File;
 
       overriding
@@ -322,7 +336,11 @@ package body Util.Files.Tests is
                                 Path   : String;
                                 Filter : Filter_Context_Type) is
       begin
-         Walker.Dirs.Insert (Path);
+         T.Assert (Ada.Strings.Fixed.Index (Path, "/bin") = 0,
+                   "directory bin was not filtered by .gitignore");
+         T.Assert (Ada.Strings.Fixed.Index (Path, "/alire") = 0,
+                   "directory alire was not filtered by .gitignore");
+         Walker.Dirs.Insert (Simplify_Path (Path));
          Util.Files.Walk.Walker_Type (Walker).Scan_Directory (Path, Filter);
       end Scan_Directory;
 
@@ -338,16 +356,12 @@ package body Util.Files.Tests is
       for S of W.Dirs loop
          Ada.Text_IO.Put_Line (S);
       end loop;
-      T.Assert (W.Files.Contains ("./regtests/util-files-tests.ads"),
-                "Missing './regtests/util-files-tests.ads'");
-      T.Assert (W.Files.Contains ("./regtests/util-files-tests.adb"),
-                "Missing './regtests/util-files-tests.adb'");
-      T.Assert (W.Dirs.Contains ("./regtests/files"),
-                "Missing dir './regtests/files");
-      T.Assert (not W.Dirs.Contains ("./bin"),
-                "'bin' was scanned (see .gitignore)");
-      T.Assert (not W.Dirs.Contains ("./alire"),
-                "'alire' was scanned (see .gitignore)");
+      T.Assert (W.Files.Contains ("/regtests/util-files-tests.ads"),
+                "Missing '/regtests/util-files-tests.ads'");
+      T.Assert (W.Files.Contains ("/regtests/util-files-tests.adb"),
+                "Missing '/regtests/util-files-tests.adb'");
+      T.Assert (W.Dirs.Contains ("/regtests/files"),
+                "Missing dir '/regtests/files");
    end Test_Walk;
 
    --  ------------------------------
