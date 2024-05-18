@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-loggers -- Utility Log Package
---  Copyright (C) 2006, 2008, 2009, 2011, 2018, 2019, 2021 Free Software Foundation, Inc.
+--  Copyright (C) 2006 - 2024 Free Software Foundation, Inc.
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,6 +50,10 @@ package Util.Log.Loggers is
 
    --  Get the log level name.
    function Get_Level_Name (Log : in Logger) return String;
+
+   --  Check if debug log or info log are enabled for this logger.
+   function Is_Debug_Enabled (Log : in Logger) return Boolean;
+   function Is_Info_Enabled (Log : in Logger) return Boolean;
 
    procedure Print (Log     : in Logger;
                     Level   : in Level_Type;

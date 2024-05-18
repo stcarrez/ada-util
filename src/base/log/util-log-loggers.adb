@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-loggers -- Utility Log Package
---  Copyright (C) 2001 - 2022 Stephane Carrez
+--  Copyright (C) 2001 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -404,6 +404,21 @@ package body Util.Log.Loggers is
       return Get_Level_Name (Log.Instance.Level);
    end Get_Level_Name;
 
+   --  ------------------------------
+   --  Check if debug log or info log are enabled for this logger.
+   --  ------------------------------
+   function Is_Debug_Enabled (Log : in Logger) return Boolean is
+      Instance : constant Logger_Info_Access := Log.Instance;
+   begin
+      return Instance /= null and then Instance.Level >= DEBUG_LEVEL;
+   end Is_Debug_Enabled;
+
+   function Is_Info_Enabled (Log : in Logger) return Boolean is
+      Instance : constant Logger_Info_Access := Log.Instance;
+   begin
+      return Instance /= null and then Instance.Level >= INFO_LEVEL;
+   end Is_Info_Enabled;
+
    procedure Print (Log     : in Logger;
                     Level   : in Level_Type;
                     Message : in String;
@@ -520,7 +535,6 @@ package body Util.Log.Loggers is
                     E       : in Exception_Occurrence;
                     Trace   : in Boolean := False) is
    begin
-
       if Trace then
          Print (Log, ERROR_LEVEL,
                 "{0}: Exception {1}: {2} at {3}",
