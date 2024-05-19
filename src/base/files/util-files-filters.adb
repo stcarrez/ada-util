@@ -394,6 +394,20 @@ package body Util.Files.Filters is
       end return;
    end Create;
 
+   function Is_Matched (Pattern : Pattern_Type;
+                        Name    : String) return Boolean is
+      pragma Unreferenced (Name);
+   begin
+      return Pattern.Wildcard;
+   end Is_Matched;
+
+   function Is_Pattern (Pattern : Pattern_Type;
+                        Name    : String) return Boolean is
+      pragma Unreferenced (Pattern, Name);
+   begin
+      return False;
+   end Is_Pattern;
+
    function Find_Pattern (Node : in Pattern_Access;
                           Name : in String) return Pattern_Access is
       N : Pattern_Access := Node;

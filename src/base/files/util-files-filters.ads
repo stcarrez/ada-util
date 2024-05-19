@@ -135,10 +135,10 @@ private
    end record;
 
    function Is_Matched (Pattern : Pattern_Type;
-                        Name    : String) return Boolean is (Pattern.Wildcard);
+                        Name    : String) return Boolean;
 
    function Is_Pattern (Pattern : Pattern_Type;
-                        Name    : String) return Boolean is (False);
+                        Name    : String) return Boolean;
 
    function Find_Pattern (Node : in Pattern_Access;
                           Name : in String) return Pattern_Access;

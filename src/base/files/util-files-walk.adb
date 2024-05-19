@@ -62,6 +62,17 @@ package body Util.Files.Walk is
    end Match;
 
    --  ------------------------------
+   --  Get the path of a file that can be read to get a list of files to ignore
+   --  in the given directory (ie, .gitignore).
+   --  ------------------------------
+   function Get_Ignore_Path (Walker : Walker_Type;
+                             Path   : String) return String is
+      pragma Unreferenced (Walker, Path);
+   begin
+      return "";
+   end Get_Ignore_Path;
+
+   --  ------------------------------
    --  Scan the directory tree given by the path for files and sub-directories
    --  matching the filters:
    --  * it calls `Get_Ignore_Path` to get an optional path of files to read
