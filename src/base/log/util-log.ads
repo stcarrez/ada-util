@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log -- Utility Log Package
---  Copyright (C) 2001 - 2023 Stephane Carrez
+--  Copyright (C) 2001 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,10 +33,13 @@
 --
 --  * A *logger* is the abstraction that provides operations to emit a message.  The message
 --    is composed of a text, optional formatting parameters, a log level and a timestamp.
---  * A *formatter* is the abstraction that takes the information about the log to format
---    the final message.
+--  * A *formatter* is the abstraction that takes the information about the log and its
+--    parameters to create the formatted message.
 --  * An *appender* is the abstraction that writes the message either to a console, a file
---    or some other final mechanism.
+--    or some other final mechanism.  A same log can be sent to several appenders at the
+--    same time.
+--  * A *layout* describes how the formatted message, log level, date are used to form the
+--    final message.  Each appender can be configured with its own layout.
 --
 --  == Logger Declaration ==
 --  Similar to other logging framework such as Java Log4j and Log4cxx, it is necessary to have
@@ -64,6 +67,8 @@
 --  The first parameter is represented by `{0}`, the second by `{1}` and so on.  Parameters are
 --  replaced in the final message only when the message is enabled by the log configuration.
 --  The use of parameters allows to avoid formatting the log message when the log is not used.
+--  The log formatter is responsible for creating the message from the format string and
+--  the parameters.
 --
 --  The example below shows several calls to emit a log message with different levels:
 --
@@ -97,6 +102,15 @@
 --    appenders that can be used.
 --  * Last, a logger configuration is defined to control the logging level more precisely
 --    for each logger.
+--
+--  The log configuration is loaded with `Initialize` either from a file or from a
+--  `Properties` object that has been loaded or populated programatically.  The procedure
+--  takes two arguments.  The first argument must be either a path to the file that must
+--  be loaded or the `Properties` object.  The second argument is a prefix string which
+--  indicates the prefix of configuration properties.  Historically, the default prefix
+--  used is the string `"log4j."`.  Each application can use its own prefix.
+--
+--     Util.Log.Loggers.Initialize ("config.properties", "log4j.");
 --
 --  Here is a simple log configuration that creates a file appender where log messages are
 --  written.  The file appender is given the name `result` and is configured to write the
@@ -145,9 +159,8 @@
 --  @include util-log-appenders-files.ads
 --  @include util-log-appenders-rolling_files.ads
 --  @include util-log-appenders-factories.ads
+--  @include util-log-formatters-factories.ads
 package Util.Log is
-
-   pragma Preelaborate;
 
    subtype Level_Type is Natural;
 

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log -- Utility Log Package
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2011, 2018 Stephane Carrez
+--  Copyright (C) 2001 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +17,11 @@
 -----------------------------------------------------------------------
 with Ada.Strings;
 with Ada.Strings.Fixed;
-
+with Ada.Strings.Maps;
 package body Util.Log is
+
+   Separator : constant Ada.Strings.Maps.Character_Mapping
+      := Ada.Strings.Maps.To_Mapping (":", ",");
 
    --  ------------------------------
    --  Get the log level name.
@@ -48,7 +51,7 @@ package body Util.Log is
       use Ada.Strings;
 
       Val : constant String  := Fixed.Trim (Value, Both);
-      Pos : constant Natural := Fixed.Index (Val, ",");
+      Pos : constant Natural := Fixed.Index (Val, ",", Mapping => Separator);
    begin
       if Pos > Val'First then
          return Get_Level (Val (Val'First .. Pos - 1), Default);
