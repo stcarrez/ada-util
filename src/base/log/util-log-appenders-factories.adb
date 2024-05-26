@@ -17,11 +17,12 @@
 -----------------------------------------------------------------------
 package body Util.Log.Appenders.Factories is
 
-   Factory : aliased Appender_Factory (Length => Name'Length);
+   Factory : aliased Appender_Factory
+        := Appender_Factory '(Length  => Name'Length,
+                              Name    => Name,
+                              Factory => Create,
+                              Next_Factory => Appender_Factories);
 
-   procedure Register is
-   begin
-      Register (Factory'Access, Name, Create);
-   end Register;
-
+begin
+   Appender_Factories := Factory'Access;
 end Util.Log.Appenders.Factories;
