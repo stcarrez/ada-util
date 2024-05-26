@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-properties-discrete -- Generic package for get/set of discrete properties
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2018, 2021 Stephane Carrez
+--  Copyright (C) 2001 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@ package body Util.Properties.Discrete is
    --  ------------------------------
    function Get (Self : in Manager'Class;
                  Name : in String) return Property_Type is
-      Val : constant String := -Get (Self, Name);
+      Val : constant String := Get (Self, Name);
    begin
       return Property_Type'Value (Val);
    end Get;
