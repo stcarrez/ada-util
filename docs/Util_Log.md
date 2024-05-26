@@ -17,10 +17,13 @@ A bit of terminology:
 
 * A *logger* is the abstraction that provides operations to emit a message.  The message
   is composed of a text, optional formatting parameters, a log level and a timestamp.
-* A *formatter* is the abstraction that takes the information about the log to format
-  the final message.
+* A *formatter* is the abstraction that takes the information about the log and its
+  parameters to create the formatted message.
 * An *appender* is the abstraction that writes the message either to a console, a file
-  or some other final mechanism.
+  or some other final mechanism.  A same log can be sent to several appenders at the
+  same time.
+* A *layout* describes how the formatted message, log level, date are used to form the
+  final message.  Each appender can be configured with its own layout.
 
 ## Logger Declaration
 Similar to other logging framework such as [Java Log4j](https://logging.apache.org/log4j/2.x/) and [Log4cxx](https://logging.apache.org/log4cxx/latest_stable/index.html), it is necessary to have
@@ -50,6 +53,8 @@ less the Java `MessageFormat` class.  A parameter is represented by a number enc
 The first parameter is represented by `{0}`, the second by `{1}` and so on.  Parameters are
 replaced in the final message only when the message is enabled by the log configuration.
 The use of parameters allows to avoid formatting the log message when the log is not used.
+The log formatter is responsible for creating the message from the format string and
+the parameters.
 
 The example below shows several calls to emit a log message with different levels:
 
@@ -87,6 +92,17 @@ The configuration file contains several parts to configure the logging framework
   appenders that can be used.
 * Last, a logger configuration is defined to control the logging level more precisely
   for each logger.
+
+The log configuration is loaded with `Initialize` either from a file or from a
+`Properties` object that has been loaded or populated programatically.  The procedure
+takes two arguments.  The first argument must be either a path to the file that must
+be loaded or the `Properties` object.  The second argument is a prefix string which
+indicates the prefix of configuration properties.  Historically, the default prefix
+used is the string `"log4j."`.  Each application can use its own prefix.
+
+```Ada
+ Util.Log.Loggers.Initialize ("config.properties", "log4j.");
+```
 
 Here is a simple log configuration that creates a file appender where log messages are
 written.  The file appender is given the name `result` and is configured to write the
@@ -157,6 +173,15 @@ The console appender recognises the following configurations:
 |                | by default the appender uses the standard output.                    |
 | utf8           | When 'true', use a direct write on the console and avoid using       |
 |                | `Ada.Text_IO`.                                                       |
+
+Example of configuration:
+
+```Ada
+log4j.appender.console=Console
+log4j.appender.console.level=WARN
+log4j.appender.console.layout=level-message
+log4j.appender.console.utc=false
+```
 
 ### File appender
 The `File` appender recognises the following configurations:
@@ -235,16 +260,15 @@ file.
 
 ## Custom appender
 It is possible to write a customer log appender and use it in the generation
-of logs.  This is done in three steps:
+of logs.  This is done in two steps:
 
-* first by extending the `Util.Log.Appenders.Appender` type and overriding
+* first by extending the `Util.Log.Appenders.Appender` tagged type and overriding
   some of the methods to implement the custom log appender and by writing
   a `Create` function whose role is to create instances of the appender and
   configure them according to the user configuration.
-* second by instantiating the `Util.Log.Appenders.Factories` package which
-  provides a `Register` procedure.  The package is instantiated with the
-  appender's name and the `Create` function.
-* third by calling the `Register` procedure before configuring the logs.
+* second by instantiating the `Util.Log.Appenders.Factories` package.
+  The package is instantiated with the appender's name and the `Create` function.
+  It contains an elaboration body that registers automatically the factory.
 
 For example, the first step could be implemented as follows (methods are
 not shown):
@@ -253,8 +277,8 @@ not shown):
  type Syslog_Appender (Length : Positive) is
     new Util.Log.Appenders.Appender (Length) with null record;
  function Create (Name       : in String;
-                Properties : in Util.Properties.Manager;
-                Default    : in Util.Log.Level_Type)
+                  Properties : in Util.Properties.Manager;
+                  Default    : in Util.Log.Level_Type)
                return Util.Log.Appenders.Appender_Access;
 ```
 
@@ -263,13 +287,88 @@ Then, the package is instantiated as follows:
 ```Ada
  package Syslog_Factory is
    new Util.Log.Appenders.Factories (Name   => "syslog",
-                                     Create => Create'Access);
+                                     Create => Create'Access)
+   with Unreferenced;
 ```
 
-The last step should be done before configuring the log appenders:
+The appender for `syslog` can be configured as follows to report all errors
+to `syslog`:
 
 ```Ada
- Syslog_Appenders.Syslog_Factory.Register;
- Util.Log.Loggers.Initialize ("samples/log4j.properties");
+ log4j.logger.X.Y=INFO,console,syslog
+ log4j.appender.test=syslog
+ log4j.appender.test.level=ERROR
 ```
+
+## Custom formatter
+The formatter is responsible for preparing the message to be displayed
+by log appenders.  It takes the message string and its arguments and builds
+the message.  The same formatted message is given to each log appender.
+
+Using a custom formatter can be useful to change the message before it is
+formatter, filter messages to hide sensitive information and so on.
+Implementing a custom formatter is made in three steps:
+
+* first by extending the `Util.Log.Formatters.Formatter` tagged type and
+  overriding the `Format` procedure.  The procedure gets the log message passed
+  to the `Debug`, `Info`, `Warn` or `Error` procedure as well as every parameter
+  passed to customize the final message.  It must populate a `Builder`
+  object with the formatted message.
+* second by writing a `Create` function that allocates an instance of
+  the formatter and customizes it with some configuration properties.
+* third by instantiating the `Util.Log.Formatters.Factories` generic package.
+  It contains an elaboration body that registers automatically the factory.
+
+For example, the two first steps could be implemented as follows (methods are
+not shown):
+
+```Ada
+ type NLS_Formatter (Length : Positive) is
+    new Util.Log.Formatters.Formatter (Length) with null record;
+ function Create (Name       : in String;
+                  Properties : in Util.Properties.Manager;
+                  Default    : in Util.Log.Level_Type)
+               return Util.Log.Formatters.Formatter_Access;
+```
+
+Then, the package is instantiated as follows:
+
+```Ada
+ package NLS_Factory is
+   new Util.Log.Appenders.Factories (Name   => "NLS",
+                                     Create => Create'Access)
+   with Unreferenced;
+```
+
+To use the new registered formatter, it is necessary to declare some minimal
+configuration.  A `log4j.formatter.<name>` definition must be declared for each
+named formatter where `<name>` is the logical name of the formatter.  The
+property must indicate the factory name that must be used (example: `NLS`).
+The named formatter can have custom properties and they are passed to the
+`Create` procedure when it is created.  Such properties can be used to customize
+the behavior of the formatter.
+
+```Ada
+ log4j.formatter.nlsFormatter=NLS
+ log4j.formatter.nslFormatter.prop1=value1
+ log4j.formatter.nlsFormatter.prop2=value2
+```
+
+Once the named formatter is declared, it can be selected for one or several
+logger by appending the string `:<name>` after the log level.  For example:
+
+```Ada
+ log4j.logger.X.Y=WARN:nlsFormatter
+```
+
+With the above configuration, the `X.Y` and its descendant loggers will use
+the formatter identified by `nlsFormatter`.  Note that it is also possible
+to specify an appender for the configuration:
+
+```Ada
+ log4j.logger.X.Y=INFO:nlsFormatter,console
+```
+
+The above configuration will use the `nlsFormatter` formatter and the `console`
+appender to write on the console.
 
