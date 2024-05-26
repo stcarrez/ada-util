@@ -19,7 +19,6 @@ with Ada.Calendar.Formatting;
 with Ada.Calendar.Time_Zones;
 with Ada.Strings;
 with Ada.Strings.Fixed;
-with Ada.Unchecked_Deallocation;
 
 with Util.Properties.Basic;
 with Util.Strings.Transforms;
@@ -27,8 +26,6 @@ package body Util.Log.Appenders is
 
    use Ada;
    use Ada.Finalization;
-
-   Appender_Factories : Appender_Factory_Access;
 
    --  ------------------------------
    --  Get the log level that triggers display of the log events
@@ -186,63 +183,6 @@ package body Util.Log.Appenders is
    begin
       return Result;
    end Create_List_Appender;
-
-   --  ------------------------------
-   --  Find an appender with a given name from the list of appenders.
-   --  Returns null if there is no such appender.
-   --  ------------------------------
-   function Find_Appender (List : in Appender_List;
-                           Name : in String) return Appender_Access is
-      Appender : Appender_Access := List.First;
-   begin
-      while Appender /= null loop
-         if Appender.Name = Name then
-            return Appender;
-         end if;
-         Appender := Appender.Next.Next;
-      end loop;
-      return null;
-   end Find_Appender;
-
-   --  ------------------------------
-   --  Add the appender to the list of appenders.
-   --  ------------------------------
-   procedure Add_Appender (List     : in out Appender_List;
-                           Appender : in Appender_Access) is
-   begin
-      Appender.Next.Next := List.First;
-      List.First := Appender;
-   end Add_Appender;
-
-   --  ------------------------------
-   --  Clear the list of appenders.
-   --  ------------------------------
-   procedure Clear (List : in out Appender_List) is
-      procedure Free is new Ada.Unchecked_Deallocation (Object => Appender'Class,
-                                                        Name   => Appender_Access);
-
-      Appender : Appender_Access;
-   begin
-      loop
-         Appender := List.First;
-         exit when Appender = null;
-         List.First := Appender.Next.Next;
-         Free (Appender);
-      end loop;
-   end Clear;
-
-   --  ------------------------------
-   --  Register the factory handler to create an appender instance.
-   --  ------------------------------
-   procedure Register (Into   : in Appender_Factory_Access;
-                       Name   : in String;
-                       Create : in Factory_Access) is
-   begin
-      Into.Name := Name;
-      Into.Factory := Create;
-      Into.Next_Factory := Appender_Factories;
-      Appender_Factories := Into;
-   end Register;
 
    --  ------------------------------
    --  Create an appender instance with a factory with the given name.

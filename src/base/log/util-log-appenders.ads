@@ -19,6 +19,7 @@ with Ada.Calendar;
 with Ada.Finalization;
 with Util.Properties;
 with Util.Strings.Builders;
+with Util.Named_Lists;
 
 --  The log <b>Appender</b> will handle the low level operations to write
 --  the log content to a file, the console, a database.
@@ -44,15 +45,13 @@ package Util.Log.Appenders is
          --  Ex: "2011-03-04 12:13:34 ERROR - my.application - Cannot open file"
          FULL);
 
-   type Appender_Internal is limited private;
+   package Lists is new Util.Named_Lists (Ada.Finalization.Limited_Controlled);
 
    type Appender (Length : Positive) is abstract
-     new Ada.Finalization.Limited_Controlled with record
-      Next     : Appender_Internal;
+     new Lists.Named_Element (Length) with record
       Level    : Level_Type := INFO_LEVEL;
       Layout   : Layout_Type := FULL;
       Use_UTC  : Boolean := False;
-      Name     : String (1 .. Length);
    end record;
 
    type Appender_Access is access all Appender'Class;
@@ -127,38 +126,10 @@ package Util.Log.Appenders is
    --  Create a list appender and configure it according to the properties
    function Create_List_Appender (Name : in String) return List_Appender_Access;
 
-   type Appender_List is limited private;
-
-   --  Find an appender with a given name from the list of appenders.
-   --  Returns null if there is no such appender.
-   function Find_Appender (List : in Appender_List;
-                           Name : in String) return Appender_Access;
-
-   --  Add the appender to the list of appenders.
-   procedure Add_Appender (List     : in out Appender_List;
-                           Appender : in Appender_Access);
-
-   --  Clear the list of appenders.
-   procedure Clear (List : in out Appender_List);
-
    type Factory_Access is
      access function (Name       : in String;
                       Properties : in Util.Properties.Manager;
                       Default    : in Level_Type) return Appender_Access;
-
-   type Appender_Factory;
-   type Appender_Factory_Access is access all Appender_Factory;
-
-   type Appender_Factory (Length : Positive) is limited record
-      Next_Factory : Appender_Factory_Access;
-      Factory      : Factory_Access;
-      Name         : String (1 .. Length);
-   end record;
-
-   --  Register the factory handler to create an appender instance.
-   procedure Register (Into   : in Appender_Factory_Access;
-                       Name   : in String;
-                       Create : in Factory_Access);
 
    --  Create an appender instance with a factory with the given name.
    function Create (Name    : in String;
@@ -167,13 +138,17 @@ package Util.Log.Appenders is
 
 private
 
-   type Appender_Internal is limited record
-      Next  : Appender_Access;
+   type Appender_Factory;
+   type Appender_Factory_Access is access all Appender_Factory;
+
+   type Appender_Factory (Length       : Positive;
+                          Factory      : Factory_Access;
+                          Next_Factory : Appender_Factory_Access) is limited
+   record
+      Name : String (1 .. Length);
    end record;
 
-   type Appender_List is limited record
-      First : Appender_Access;
-   end record;
+   Appender_Factories : Appender_Factory_Access;
 
    type Appender_Array_Access is array (1 .. MAX_APPENDERS) of Appender_Access;
 
