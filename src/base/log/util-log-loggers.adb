@@ -27,37 +27,57 @@ with Util.Log.Appenders.Factories;
 with Util.Log.Appenders.Consoles;
 with Util.Log.Appenders.Files;
 with Util.Log.Appenders.Rolling_Files;
+with Util.Log.Formatters.Factories;
 package body Util.Log.Loggers is
 
    use Ada.Strings;
    use Ada.Strings.Fixed;
    use Log.Appenders;
+   use Log.Formatters;
 
    function Traceback (E : in Exception_Occurrence) return String is separate;
 
    package File_Factory is
       new Util.Log.Appenders.Factories (Name   => "File",
-                                        Create => Files.Create'Access);
+                                        Create => Files.Create'Access)
+                                         with Unreferenced;
 
    package Rolling_File_Factory is
       new Util.Log.Appenders.Factories (Name   => "RollingFile",
-                                        Create => Rolling_Files.Create'Access);
+                                        Create => Rolling_Files.Create'Access)
+                                         with Unreferenced;
 
    package Console_Factory is
       new Util.Log.Appenders.Factories (Name   => "Console",
-                                        Create => Consoles.Create'Access);
+                                        Create => Consoles.Create'Access)
+                                         with Unreferenced;
+
+   package Formatter_Factory is
+      new Util.Log.Formatters.Factories (Name   => Formatters.DEFAULT,
+                                         Create => Formatters.Create_Default'Access)
+                                          with Unreferenced;
+
+   type Log_Context is new Ada.Finalization.Limited_Controlled with record
+      Appenders  : Log.Appenders.Lists.Named_List;
+      Formatters : Log.Formatters.Lists.Named_List;
+   end record;
+
+   overriding
+   procedure Finalize (Context : in out Log_Context);
 
    --  The log manager controls the configuration of loggers.
-   --  The log appenders are shared by loggers and they are created by
+   --  The log appenders and formatters are shared by loggers and they are created by
    --  the log manager when a logger is created.
    --
    protected type Log_Manager is
 
       --  Initialize the log environment with the property file.
-      procedure Initialize (Name : in String);
+      procedure Initialize (Name   : in String;
+                            Prefix : in String);
 
       --  Initialize the log environment with the property file.
-      procedure Initialize (Properties : in Util.Properties.Manager);
+      procedure Initialize (Properties : in Util.Properties.Manager;
+                            Prefix     : in String);
 
       --  Create and initialize the logger
       procedure Create (Name : in String;
@@ -80,22 +100,29 @@ package body Util.Log.Loggers is
       procedure Find_Appender (Property : in String;
                                Appender : out Appender_Access);
 
+      --  Find the formatter instance to be used for the logger.
+      --  Create it if necessary.
+      procedure Find_Formatter (Property  : in String;
+                                Formatter : out Formatter_Access);
+
       --  Obtain an appender given its name.  If the appender does not exist, it is created.
       procedure Build_Appender (Name     : in String;
                                 Appender : out Appender_Access);
 
       procedure Create_Default_Appender;
 
-      Config           : Properties.Manager;
-      Appenders        : Log.Appenders.Appender_List;
-      Default_Level    : Level_Type := WARN_LEVEL;
-      Default_Appender : Log.Appenders.Appender_Access := null;
-      First_Logger     : Logger_Info_Access := null;
+      Config            : Properties.Manager;
+      Context           : Log_Context;
+      Default_Level     : Level_Type := WARN_LEVEL;
+      Default_Appender  : Log.Appenders.Appender_Access := null;
+      Default_Formatter : Log.Formatters.Formatter_Access := null;
+      First_Logger      : Logger_Info_Access := null;
    end Log_Manager;
 
    Manager : Log_Manager;
 
    function Get_Appender (Value : in String) return String with Inline_Always;
+   function Get_Formatter (Value : in String) return String;
 
    --  Get the logger property associated with a given logger
    function Get_Logger_Property (Properties : in Util.Properties.Manager;
@@ -113,6 +140,26 @@ package body Util.Log.Loggers is
          return Trim (Value (Pos + 1 .. Value'Last), Both);
       end if;
    end Get_Appender;
+
+   --  ------------------------------
+   --  Get the name of the formatter from the property value.
+   --  ------------------------------
+   function Get_Formatter (Value : in String) return String is
+      Pos  : constant Natural := Index (Value, ":");
+      Last : Natural;
+   begin
+      if Pos <= Value'First or else Pos >= Value'Last then
+         return "";
+      else
+         Last := Index (Value, ",", Pos + 1);
+         if Last = 0 then
+            Last := Value'Last;
+         else
+            Last := Last - 1;
+         end if;
+         return Trim (Value (Pos + 1 .. Last), Both);
+      end if;
+   end Get_Formatter;
 
    --  ------------------------------
    --  Get the logger property associated with a given logger
@@ -137,27 +184,37 @@ package body Util.Log.Loggers is
    --  ------------------------------
    --  Initialize the log environment with the property file.
    --  ------------------------------
-   procedure Initialize (Name : in String) is
+   procedure Initialize (Name   : in String;
+                         Prefix : in String := DEFAULT_PREFIX) is
    begin
-      Manager.Initialize (Name);
+      Manager.Initialize (Name, Prefix);
    end Initialize;
 
    --  ------------------------------
    --  Initialize the log environment with the properties.
    --  ------------------------------
-   procedure Initialize (Properties : in Util.Properties.Manager) is
+   procedure Initialize (Properties : in Util.Properties.Manager;
+                         Prefix     : in String := DEFAULT_PREFIX) is
    begin
-      Manager.Initialize (Properties);
+      Manager.Initialize (Properties, Prefix);
    end Initialize;
+
+   overriding
+   procedure Finalize (Context : in out Log_Context) is
+   begin
+      Util.Log.Appenders.Lists.Clear (Context.Appenders);
+      Util.Log.Formatters.Lists.Clear (Context.Formatters);
+   end Finalize;
 
    protected body Log_Manager is
 
       --  ------------------------------
       --  Initialize the log environment with the property file.
       --  ------------------------------
-      procedure Initialize (Name : in String) is
+      procedure Initialize (Name   : in String;
+                            Prefix : in String) is
       begin
-         Util.Properties.Load_Properties (Config, Path => Name, Prefix => "log4j.", Strip => True);
+         Util.Properties.Load_Properties (Config, Path => Name, Prefix => Prefix, Strip => True);
 
          Initialize_Again;
 
@@ -181,8 +238,10 @@ package body Util.Log.Loggers is
       procedure Initialize_Again is
          L : Logger_Info_Access := First_Logger;
       begin
-         Util.Log.Appenders.Clear (Appenders);
+         Util.Log.Appenders.Lists.Clear (Context.Appenders);
+         Util.Log.Formatters.Lists.Clear (Context.Formatters);
          Default_Appender := null;
+         Default_Formatter := null;
 
          --  Initialize the default category.
          if Config.Exists ("rootCategory") then
@@ -209,10 +268,11 @@ package body Util.Log.Loggers is
       --  ------------------------------
       --  Initialize the log environment with the properties.
       --  ------------------------------
-      procedure Initialize (Properties : in Util.Properties.Manager) is
+      procedure Initialize (Properties : in Util.Properties.Manager;
+                            Prefix     : in String) is
          New_Config : Util.Properties.Manager;
       begin
-         New_Config.Copy (From => Properties, Prefix => "log4j.", Strip => True);
+         New_Config.Copy (From => Properties, Prefix => Prefix, Strip => True);
          Config := New_Config;
          Initialize_Again;
       end Initialize;
@@ -226,6 +286,7 @@ package body Util.Log.Loggers is
          Appender : Appender_Access;
       begin
          Log.Level := Get_Level (Prop, Default_Level);
+         Find_Formatter (Prop, Log.Formatter);
          Find_Appender (Prop, Appender);
          if Appender /= null then
             Log.Appender := Appender.all'Access;
@@ -280,16 +341,19 @@ package body Util.Log.Loggers is
       --  ------------------------------
       procedure Build_Appender (Name     : in String;
                                 Appender : out Appender_Access) is
+         use type Util.Log.Appenders.Lists.Named_Element_Access;
+         Element : constant Util.Log.Appenders.Lists.Named_Element_Access
+            := Util.Log.Appenders.Lists.Find (Context.Appenders, Name);
       begin
-         Appender := Util.Log.Appenders.Find_Appender (Appenders, Name);
-         if Appender /= null then
+         if Element /= null then
+            Appender := Log.Appenders.Appender'Class (Element.all)'Access;
             return;
          end if;
 
          if Name'Length > 0 then
             Appender := Util.Log.Appenders.Create (Name, Config, Default_Level);
             if Appender /= null then
-               Util.Log.Appenders.Add_Appender (Appenders, Appender);
+               Util.Log.Appenders.Lists.Add (Context.Appenders, Appender.all'Access);
             end if;
          end if;
       end Build_Appender;
@@ -299,7 +363,7 @@ package body Util.Log.Loggers is
          if Default_Appender = null then
             Default_Appender := Consoles.Create ("root", Config, ERROR_LEVEL);
             Set_Layout (Default_Appender.all, MESSAGE);
-            Util.Log.Appenders.Add_Appender (Appenders, Default_Appender);
+            Util.Log.Appenders.Lists.Add (Context.Appenders, Default_Appender.all'Access);
          end if;
       end Create_Default_Appender;
 
@@ -319,11 +383,16 @@ package body Util.Log.Loggers is
             return;
          end if;
 
-         Appender := Util.Log.Appenders.Find_Appender (Appenders, Appender_Name);
-         if Appender /= null then
-            return;
-         end if;
-
+         declare
+            use type Util.Log.Appenders.Lists.Named_Element_Access;
+            Element : constant Util.Log.Appenders.Lists.Named_Element_Access
+               := Util.Log.Appenders.Lists.Find (Context.Appenders, Appender_Name);
+         begin
+            if Element /= null then
+               Appender := Log.Appenders.Appender'Class (Element.all)'Access;
+               return;
+            end if;
+         end;
          declare
             N        : Natural := Index (Appender_Name, ",");
             Last_Pos : Natural := Appender_Name'First;
@@ -346,12 +415,45 @@ package body Util.Log.Loggers is
                   end if;
                end loop;
                Appender := List.all'Access;
-               Util.Log.Appenders.Add_Appender (Appenders, Appender);
+               Util.Log.Appenders.Lists.Add (Context.Appenders, Appender.all'Access);
             else
                Build_Appender (Appender_Name, Appender);
             end if;
          end;
       end Find_Appender;
+
+      --  ------------------------------
+      --  Find an appender given the property value
+      --  ------------------------------
+      procedure Find_Formatter (Property  : in String;
+                                Formatter : out Formatter_Access) is
+         Name  : constant String := Get_Formatter (Property);
+      begin
+         if Name'Length > 0 then
+            declare
+               use type Util.Log.Formatters.Lists.Named_Element_Access;
+               Element : constant Util.Log.Formatters.Lists.Named_Element_Access
+                  := Util.Log.Formatters.Lists.Find (Context.Formatters, Name);
+            begin
+               if Element /= null then
+                  Formatter := Log.Formatters.Formatter'Class (Element.all)'Access;
+                  return;
+               end if;
+            end;
+            Formatter := Util.Log.Formatters.Create (Name, Config);
+            if Formatter /= null then
+               Log.Formatters.Lists.Add (Context.Formatters, Formatter.all'Access);
+               return;
+            end if;
+         end if;
+         Formatter := Default_Formatter;
+         if Formatter = null then
+            Default_Formatter
+               := Util.Log.Formatters.Create_Default (Log.Formatters.DEFAULT, Config);
+            Formatter := Default_Formatter;
+            Log.Formatters.Lists.Add (Context.Formatters, Formatter.all'Access);
+         end if;
+      end Find_Formatter;
 
    end Log_Manager;
 
@@ -432,9 +534,16 @@ package body Util.Log.Loggers is
          declare
             Result : Util.Strings.Builders.Builder (256);
             Date   : constant Ada.Calendar.Time := Ada.Calendar.Clock;
+            Args   : constant String_Array_Access (1 .. 4)
+               := (1 => Arg1'Unrestricted_Access,
+                   2 => Arg2'Unrestricted_Access,
+                   3 => Arg3'Unrestricted_Access,
+                   4 => Arg4'Unrestricted_Access);
          begin
-            Strings.Formats.Format (Result, Message, Arg1, Arg2, Arg3, Arg4);
-            Instance.Appender.Append (Result, Date, Level, Instance.Name);
+            Instance.Formatter.Format (Result, Level, Instance.Name, Message, Args);
+            if Util.Strings.Builders.Length (Result) > 0 then
+               Instance.Appender.Append (Result, Date, Level, Instance.Name);
+            end if;
          end;
       end if;
    end Print;
@@ -563,8 +672,4 @@ package body Util.Log.Loggers is
       Manager.Remove (Log.Instance);
    end Finalize;
 
-begin
-   Console_Factory.Register;
-   File_Factory.Register;
-   Rolling_File_Factory.Register;
 end Util.Log.Loggers;

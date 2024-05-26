@@ -21,6 +21,7 @@ with Ada.Strings.Unbounded;
 with Util.Properties;
 private with Ada.Finalization;
 private with Util.Log.Appenders;
+private with Util.Log.Formatters;
 package Util.Log.Loggers is
 
    use Ada.Exceptions;
@@ -124,11 +125,15 @@ package Util.Log.Loggers is
                     E       : in Exception_Occurrence;
                     Trace   : in Boolean := False);
 
+   DEFAULT_PREFIX : constant String := "log4j.";
+
    --  Initialize the log environment with the property file.
-   procedure Initialize (Name : in String);
+   procedure Initialize (Name   : in String;
+                         Prefix : in String := DEFAULT_PREFIX);
 
    --  Initialize the log environment with the properties.
-   procedure Initialize (Properties : in Util.Properties.Manager);
+   procedure Initialize (Properties : in Util.Properties.Manager;
+                         Prefix     : in String := DEFAULT_PREFIX);
 
    --  Return a printable traceback that correspond to the exception.
    function Traceback (E : in Exception_Occurrence) return String;
@@ -141,8 +146,9 @@ private
    type Logger_Info (Len : Positive) is limited record
       Next_Logger : Logger_Info_Access;
       Prev_Logger : Logger_Info_Access;
-      Level       : Level_Type := INFO_LEVEL;
       Appender    : Appenders.Appender_Access;
+      Formatter   : Formatters.Formatter_Access;
+      Level       : Level_Type := INFO_LEVEL;
       Name        : String (1 .. Len);
    end record;
 
