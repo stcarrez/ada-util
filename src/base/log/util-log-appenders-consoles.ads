@@ -33,6 +33,12 @@
 --  | utf8           | When 'true', use a direct write on the console and avoid using       |
 --  |                | `Ada.Text_IO`.                                                       |
 --
+--  Example of configuration:
+--
+--    log4j.appender.console=Console
+--    log4j.appender.console.level=WARN
+--    log4j.appender.console.layout=level-message
+--    log4j.appender.console.utc=false
 package Util.Log.Appenders.Consoles is
 
    type Console_Appender (Length : Positive) is new Appender with private;
