@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  log.tests -- Unit tests for loggers
---  Copyright (C) 2009, 2010, 2011, 2015, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2009 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,5 +41,8 @@ package Util.Log.Tests is
 
    --  Test the rolling file appender.
    procedure Test_Rolling_File_Appender (T : in out Test);
+
+   --  Test using a custom formatter.
+   procedure Test_Custom_Formatter (T : in out Test);
 
 end Util.Log.Tests;

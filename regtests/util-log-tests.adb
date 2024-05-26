@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  log.tests -- Unit tests for loggers
---  Copyright (C) 2009, 2010, 2011, 2013, 2015, 2018, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2009 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,17 +20,64 @@ with Ada.Strings.Fixed;
 with Ada.Directories;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
+with Ada.Finalization;
 
 with Util.Test_Caller;
 
 with Util.Log.Loggers;
 with Util.Files;
-with Util.Strings;
+with Util.Strings.Builders;
 with Util.Properties;
 with Util.Measures;
+with Util.Log.Formatters.Factories;
 package body Util.Log.Tests is
 
    Log : constant Loggers.Logger := Loggers.Create ("util.log.test");
+
+   use Util.Log.Formatters;
+
+   type Test_Formatter is new Util.Log.Formatters.Formatter with null record;
+
+   --  Format the message with the list of arguments.
+   overriding
+   procedure Format (Format    : in Test_Formatter;
+                     Into      : in out Util.Strings.Builders.Builder;
+                     Level     : in Level_Type;
+                     Logger    : in String;
+                     Message   : in String;
+                     Arguments : in String_Array_Access);
+
+   --  Create a formatter instance with a factory with the given name.
+   function Create_Test_Formatter (Name    : in String;
+                                   Config  : in Util.Properties.Manager) return Formatter_Access;
+
+   overriding
+   procedure Format (Format    : in Test_Formatter;
+                     Into      : in out Util.Strings.Builders.Builder;
+                     Level     : in Level_Type;
+                     Logger    : in String;
+                     Message   : in String;
+                     Arguments : in String_Array_Access) is
+   begin
+      Formatter (Format).Format (Into, Level, Logger, "Test:" & Message, Arguments);
+   end Format;
+
+   --  Create a formatter instance with a factory with the given name.
+   function Create_Test_Formatter (Name    : in String;
+                                   Config  : in Util.Properties.Manager) return Formatter_Access is
+      pragma Unreferenced (Config);
+
+      Result : constant Formatter_Access
+        := new Test_Formatter '(Ada.Finalization.Limited_Controlled with Length => Name'Length,
+                                Name => Name,
+                                others => <>);
+   begin
+      return Result.all'Access;
+   end Create_Test_Formatter;
+
+   package Test_Formatter_Factory is
+      new Util.Log.Formatters.Factories ("TestFormatter", Create_Test_Formatter'Access)
+      with Unreferenced;
 
    procedure Test_Log (T : in out Test) is
       L : Loggers.Logger := Loggers.Create ("util.log.test.debug");
@@ -83,6 +130,8 @@ package body Util.Log.Tests is
       L.Info ("My log message");
       L.Print (Util.Log.FATAL_LEVEL, "Test fatal message (ignore)");
       L.Print (9, "Test custom level 9 message");
+      T.Assert (L.Is_Debug_Enabled, "Is_Debug_Enabled is wrong");
+      T.Assert (L.Is_Info_Enabled, "Is_Info_Enabled is wrong");
 
       Util.Tests.Assert_Equals (T, "FATAL", Get_Level_Name (FATAL_LEVEL),
                                 "Invalid fatal level");
@@ -94,6 +143,10 @@ package body Util.Log.Tests is
                                 "Invalid error level");
       Util.Tests.Assert_Equals (T, ERROR_LEVEL, Get_Level ("ERROR"),
                                 "Invalid error level");
+
+      L.Set_Level (INFO_LEVEL);
+      T.Assert (not L.Is_Debug_Enabled, "Is_Debug_Enabled is wrong");
+      T.Assert (L.Is_Info_Enabled, "Is_Info_Enabled is wrong");
 
    end Test_Level_Custom;
 
@@ -409,6 +462,45 @@ package body Util.Log.Tests is
       end loop;
    end Test_Rolling_File_Appender;
 
+   --  ------------------------------
+   --  Test configuration and creation of file
+   --  ------------------------------
+   procedure Test_Custom_Formatter (T : in out Test) is
+      Path  : constant String := Util.Tests.Get_Test_Path ("test-custom-formatter.log");
+      Props : Util.Properties.Manager;
+   begin
+      if Ada.Directories.Exists (Path) then
+         Ada.Directories.Delete_File (Path);
+      end if;
+      Props.Set ("test.appender.test", "File");
+      Props.Set ("test.appender.test.File", Path);
+      Props.Set ("test.appender.test.layout", "level-message");
+      Props.Set ("test.logger.util.log.test.file", "DEBUG:testFormat,test");
+      Props.Set ("test.formatter.testFormat", "TestFormatter");
+      Util.Log.Loggers.Initialize (Props, "test.");
+
+      declare
+         L : constant Loggers.Logger := Loggers.Create ("util.log.test.file");
+      begin
+         L.Debug ("Writing a debug message");
+         L.Debug ("{0}: {1}", "Parameter", "Value");
+         L.Info ("A message {0}", "Param1");
+      end;
+      T.Assert (Ada.Directories.Exists (Path), "Log file " & Path & " not found");
+
+      Props.Set ("test.logger.util.log.test.file", "DEBUG:testFormat");
+      Util.Log.Loggers.Initialize (Props, "test.");
+      declare
+         Content : Ada.Strings.Unbounded.Unbounded_String;
+      begin
+         Util.Files.Read_File (Path, Content);
+         Util.Tests.Assert_Matches (T, ".*DEBUG: Test:Writing a debug message", Content,
+                                    "Invalid formatter (DEBUG)");
+         Util.Tests.Assert_Matches (T, ".*INFO : Test:A message Param1", Content,
+                                    "Invalid formatter (INFO)");
+      end;
+   end Test_Custom_Formatter;
+
    package Caller is new Util.Test_Caller (Test, "Log");
 
    procedure Add_Tests (Suite : in Util.Tests.Access_Test_Suite) is
@@ -437,6 +529,8 @@ package body Util.Log.Tests is
                        Test_Log_Perf'Access);
       Caller.Add_Test (Suite, "Test Util.Log.Appenders.Rolling_Appender",
                        Test_Rolling_File_Appender'Access);
+      Caller.Add_Test (Suite, "Test Util.Log.Formatters.Factories",
+                       Test_Custom_Formatter'Access);
    end Add_Tests;
 
 end Util.Log.Tests;
