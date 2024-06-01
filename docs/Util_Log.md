@@ -300,27 +300,33 @@ to `syslog`:
  log4j.appender.test.level=ERROR
 ```
 
+See the log.adb and syslog_appender.adb example.
+
 ## Custom formatter
 The formatter is responsible for preparing the message to be displayed
 by log appenders.  It takes the message string and its arguments and builds
 the message.  The same formatted message is given to each log appender.
+This step is handled by `Format_Message`.  Then, each log appender can use
+the log appender to format the log event which is composed of the log level,
+the date of the event, the logger name.  This step is handled by `Format_Event`.
 
 Using a custom formatter can be useful to change the message before it is
-formatter, filter messages to hide sensitive information and so on.
-Implementing a custom formatter is made in three steps:
+formatted, translate messages, filter messages to hide sensitive information
+and so on.  Implementing a custom formatter is made in three steps:
 
 * first by extending the `Util.Log.Formatters.Formatter` tagged type and
-  overriding the `Format` procedure.  The procedure gets the log message passed
-  to the `Debug`, `Info`, `Warn` or `Error` procedure as well as every parameter
-  passed to customize the final message.  It must populate a `Builder`
-  object with the formatted message.
+  overriding one of the `Format_XXX` procedures.  The procedure gets the
+  log message passed to the `Debug`, `Info`, `Warn` or `Error` procedure
+  as well as every parameter passed to customize the final message.
+  It must populate a `Builder` object with the formatted message.
 * second by writing a `Create` function that allocates an instance of
   the formatter and customizes it with some configuration properties.
 * third by instantiating the `Util.Log.Formatters.Factories` generic package.
   It contains an elaboration body that registers automatically the factory.
 
-For example, the two first steps could be implemented as follows (methods are
-not shown):
+For example, a formatter that translates the message when it is printed
+can be created.  The two first steps could be implemented as follows (method
+bodies are not shown):
 
 ```Ada
  type NLS_Formatter (Length : Positive) is
@@ -350,7 +356,7 @@ the behavior of the formatter.
 
 ```Ada
  log4j.formatter.nlsFormatter=NLS
- log4j.formatter.nslFormatter.prop1=value1
+ log4j.formatter.nlsFormatter.prop1=value1
  log4j.formatter.nlsFormatter.prop2=value2
 ```
 
@@ -371,4 +377,14 @@ to specify an appender for the configuration:
 
 The above configuration will use the `nlsFormatter` formatter and the `console`
 appender to write on the console.
+
+A formatter can also be configured specifically for an appender by
+using the following configuration:
+
+```Ada
+ log4j.appender.console.formatter=nlsFormatter
+```
+
+In that configuration, the `Format_Event` function of the configured formatter
+will be called to format the log level, date and logger's name.
 

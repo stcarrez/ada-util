@@ -102,6 +102,80 @@ before writing content on the file.  When it returns `True`, it means you
 should call the `Rollover` procedure that will perform roll over according
 to the rolling strategy.
 
+## Path filters
+The generic package `Util.Files.Filters` implements a path filter mechanism
+that emulates the classical `.gitignore` path filter.  It defines the
+`Filter_Type` tagged type to represent and control a set of path patterns
+associated with values represented by the `Element_Type` generic type.
+The package must be instantiated with the type representing values
+associated to path patterns.  A typical instantation for an inclusion,
+exclusion filter such as `.gitignore` could be:
+
+```Ada
+ type Filter_Mode is (Not_Found, Included, Excluded);
+ package Path_Filter is
+    new Util.Files.Filters (Filter_Mode);
+```
+
+The `Filter_Type` provides one operation to add a pattern in the filter
+and associate it with a value.  A pattern can contain fixed paths, wildcards
+or regular expressions.  When inserting a filter, you can indicate
+whether the filter is to be applied locally on recursively
+(this is similar to the `.gitignore` rules, with a pattern that starts
+with a `/` or without).  Example of pattern setup:
+
+```Ada
+ Filter : Path_Filter.Filter_Type;
+ ...
+ Filter.Insert ("*.o", Recursive => True, Value => Excluded);
+ Filter.Insert ("alire/", Recursive => False, Value => Excluded);
+ Filter.Insert ("docs/*", Recursive => False, Value => Included);
+```
+
+The `Match` function looks in the filter for a match and it indicates
+either that there is a match with a value (`Found`), a match witout
+a value (`No_Value`) or no match at all (`Not_Found`).  When there is
+a match `Found`, the associated value is retrieved by using `Get_Value`.
+The `Match` operation is called as follows:
+
+```Ada
+ Result : Path_Filter.Filter_Result := Filter.Match ("test.o");
+ ...
+ if Result.Match = Path_Filter.Found then
+    ...
+ end if;
+```
+
+The table below gives results found for several paths and with the
+filters defined above:
+
+| Operation                    | Result.Match   | Path_Filter.Get_Value |
+| ---------------------------- | -------------- | --------- |
+| Filter.Match ("test.o")      | Found          | Excluded  |
+| Filter.Match ("test.a")      | Not_Found      |           |
+| Filter.Match ("docs/test.o") | Found          | Included  |
+| Filter.Match ("alire/")      | Found          | Included  |
+| Filter.Match ("test/alire")  | Not_Found      |           |
+
+It is also possible to use the generic package as a mapping framework
+to implement a mapping of a path to a string, for example:
+
+```Ada
+ package Language_Mappers is
+    new Util.Files.Filters (Element_Type => String);
+```
+
+And filters could be populated as follows:
+
+```Ada
+ Filter : Language_Mappers.Filter_Type;
+ ...
+ Filter.Add ("*.c", True, "C");
+ Filter.Add ("*.adb", True, "Ada");
+ Filter.Add ("*.ads", True, "Ada");
+ Filter.Add ("Makefile", True, "Make");
+```
+
 ## Directory tree walk
 It is sometimes necessary to walk a directory tree while taking into
 account some inclusion or exclusion patterns or more complex ignore lists.
@@ -148,3 +222,6 @@ overriden:
 * The `Get_Ignore_Path` is called when entering a new directory.  It can
   be overriden to indicate a path of a file which contains some patterns
   to be ignored (ex: the `.gitignore` file).
+
+See the `tree.adb` example.
+
