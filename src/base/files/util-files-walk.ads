@@ -52,6 +52,8 @@ with Util.Files.Filters;
 --  * The `Get_Ignore_Path` is called when entering a new directory.  It can
 --    be overriden to indicate a path of a file which contains some patterns
 --    to be ignored (ex: the `.gitignore` file).
+--
+--  See the `tree.adb` example.
 package Util.Files.Walk is
 
    package AF renames Ada.Finalization;
