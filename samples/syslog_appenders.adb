@@ -2,6 +2,7 @@ with System;
 with Interfaces.C;
 with Ada.Finalization;
 with Util.Systems.Constants;
+with Util.Log.Formatters;
 package body Syslog_Appenders is
 
    use Util.Systems.Constants;
@@ -17,7 +18,8 @@ package body Syslog_Appenders is
 
    procedure Sys_Syslog (Priority : Interfaces.C.int;
                          Format   : System.Address;
-                         Param1   : System.Address)
+                         Param1   : System.Address;
+                         Param2   : System.Address)
      with Import => True, Convention => C,
      Link_Name => SYMBOL_PREFIX & "syslog";
 
@@ -30,17 +32,19 @@ package body Syslog_Appenders is
    LOG_LOCAL1 : constant Interfaces.C.int := 136;
 
    function Create (Name       : in String;
+                    Formatter  : in Util.Log.Appenders.Formatter_Access;
                     Properties : in Util.Properties.Manager;
                     Default    : in Util.Log.Level_Type)
                     return Util.Log.Appenders.Appender_Access is
       Result : constant Syslog_Appender_Access
         := new Syslog_Appender '(Ada.Finalization.Limited_Controlled
                                    with Length => Name'Length,
+                                   Formatter => Formatter,
                                  Name => Name,
                                  others => <>);
    begin
       Result.Set_Level (Name, Properties, Default);
-      Result.Set_Layout (Name, Properties, Util.Log.Appenders.FULL);
+      Result.Set_Layout (Name, Properties, Util.Log.Formatters.FULL);
       if Sys_Openlog'Address /= System.Null_Address then
          Sys_Openlog (Result.Name'Address, LOG_PID, LOG_LOCAL1);
       end if;
@@ -63,7 +67,7 @@ package body Syslog_Appenders is
             Msg : constant String
               := Util.Strings.Builders.To_Array (Message) & ASCII.NUL;
          begin
-            Sys_Syslog (LOG_ERROR, Def_Format'Address, Msg'Address);
+            Sys_Syslog (LOG_ERROR, Def_Format'Address, Msg'Address, System.Null_Address);
          end;
       end if;
    end Append;

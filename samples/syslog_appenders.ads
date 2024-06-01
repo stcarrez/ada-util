@@ -12,11 +12,13 @@ with Util.Log.Appenders.Factories;
 --
 package Syslog_Appenders is
 
-   type Syslog_Appender (Length : Positive) is
-     new Util.Log.Appenders.Appender (Length) with null record;
+   type Syslog_Appender (Length : Positive;
+                         Formatter : Util.Log.Appenders.Formatter_Access) is
+     new Util.Log.Appenders.Appender (Length, Formatter) with null record;
 
    --  Create a syslog appender instance.
    function Create (Name       : in String;
+                    Formatter  : in Util.Log.Appenders.Formatter_Access;
                     Properties : in Util.Properties.Manager;
                     Default    : in Util.Log.Level_Type)
                    return Util.Log.Appenders.Appender_Access;
