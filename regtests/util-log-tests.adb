@@ -40,27 +40,27 @@ package body Util.Log.Tests is
 
    --  Format the message with the list of arguments.
    overriding
-   procedure Format (Format    : in Test_Formatter;
-                     Into      : in out Util.Strings.Builders.Builder;
-                     Level     : in Level_Type;
-                     Logger    : in String;
-                     Message   : in String;
-                     Arguments : in String_Array_Access);
+   procedure Format_Message (Format    : in Test_Formatter;
+                             Into      : in out Util.Strings.Builders.Builder;
+                             Level     : in Level_Type;
+                             Logger    : in String;
+                             Message   : in String;
+                             Arguments : in String_Array_Access);
 
    --  Create a formatter instance with a factory with the given name.
    function Create_Test_Formatter (Name    : in String;
                                    Config  : in Util.Properties.Manager) return Formatter_Access;
 
    overriding
-   procedure Format (Format    : in Test_Formatter;
-                     Into      : in out Util.Strings.Builders.Builder;
-                     Level     : in Level_Type;
-                     Logger    : in String;
-                     Message   : in String;
-                     Arguments : in String_Array_Access) is
+   procedure Format_Message (Format    : in Test_Formatter;
+                             Into      : in out Util.Strings.Builders.Builder;
+                             Level     : in Level_Type;
+                             Logger    : in String;
+                             Message   : in String;
+                             Arguments : in String_Array_Access) is
    begin
-      Formatter (Format).Format (Into, Level, Logger, "Test:" & Message, Arguments);
-   end Format;
+      Formatter (Format).Format_Message (Into, Level, Logger, "Test:" & Message, Arguments);
+   end Format_Message;
 
    --  Create a formatter instance with a factory with the given name.
    function Create_Test_Formatter (Name    : in String;
