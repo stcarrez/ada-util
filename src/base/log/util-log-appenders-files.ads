@@ -39,7 +39,8 @@ package Util.Log.Appenders.Files is
    --  ------------------------------
    --  File appender
    --  ------------------------------
-   type File_Appender (Length : Positive) is new Appender with private;
+   type File_Appender (Length    : Positive;
+                       Formatter : Formatter_Access) is new Appender with private;
    type File_Appender_Access is access all File_Appender'Class;
 
    overriding
@@ -66,13 +67,16 @@ package Util.Log.Appenders.Files is
 
    --  Create a file appender and configure it according to the properties
    function Create (Name       : in String;
+                    Formatter  : in Formatter_Access;
                     Properties : in Util.Properties.Manager;
                     Default    : in Level_Type)
      return Appender_Access;
 
 private
 
-   type File_Appender (Length : Positive) is new Appender (Length) with record
+   type File_Appender (Length    : Positive;
+                       Formatter : Formatter_Access) is new Appender (Length, Formatter) with
+   record
       Output          : Ada.Text_IO.File_Type;
       Immediate_Flush : Boolean := False;
    end record;

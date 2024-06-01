@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-appenders-consoles -- Console log appenders
---  Copyright (C) 2001 - 2019, 2021, 2023 Stephane Carrez
+--  Copyright (C) 2001 - 2019, 2021, 2023, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -61,7 +61,7 @@ package body Util.Log.Appenders.Consoles is
       begin
          --  Write on stderr or stdout but call Put_Raw only once with
          --  the final formatted string because Put_Raw does not bufferize.
-         if Self.Layout /= Appenders.MESSAGE then
+         if Self.Layout /= Formatters.MESSAGE then
             IO.Put_Raw (Fd, Prefix
                         & Format (Self, Date, Level, Logger)
                         & Msg & Os.Line_Separator);
@@ -112,6 +112,7 @@ package body Util.Log.Appenders.Consoles is
    --  Create a console appender and configure it according to the properties
    --  ------------------------------
    function Create (Name       : in String;
+                    Formatter  : in Formatter_Access;
                     Properties : in Util.Properties.Manager;
                     Default    : in Level_Type)
                    return Appender_Access is
@@ -119,6 +120,7 @@ package body Util.Log.Appenders.Consoles is
 
       Result : constant Console_Appender_Access
         := new Console_Appender '(Finalization.Limited_Controlled with Length => Name'Length,
+                                  Formatter => Formatter,
                                   Name => Name,
                                   others => <>);
    begin

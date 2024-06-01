@@ -20,23 +20,27 @@
 --  The formatter is responsible for preparing the message to be displayed
 --  by log appenders.  It takes the message string and its arguments and builds
 --  the message.  The same formatted message is given to each log appender.
+--  This step is handled by `Format_Message`.  Then, each log appender can use
+--  the log appender to format the log event which is composed of the log level,
+--  the date of the event, the logger name.  This step is handled by `Format_Event`.
 --
 --  Using a custom formatter can be useful to change the message before it is
---  formatter, filter messages to hide sensitive information and so on.
---  Implementing a custom formatter is made in three steps:
+--  formatted, translate messages, filter messages to hide sensitive information
+--  and so on.  Implementing a custom formatter is made in three steps:
 --
 --  * first by extending the `Util.Log.Formatters.Formatter` tagged type and
---    overriding the `Format` procedure.  The procedure gets the log message passed
---    to the `Debug`, `Info`, `Warn` or `Error` procedure as well as every parameter
---    passed to customize the final message.  It must populate a `Builder`
---    object with the formatted message.
+--    overriding one of the `Format_XXX` procedures.  The procedure gets the
+--    log message passed to the `Debug`, `Info`, `Warn` or `Error` procedure
+--    as well as every parameter passed to customize the final message.
+--    It must populate a `Builder` object with the formatted message.
 --  * second by writing a `Create` function that allocates an instance of
 --    the formatter and customizes it with some configuration properties.
 --  * third by instantiating the `Util.Log.Formatters.Factories` generic package.
 --    It contains an elaboration body that registers automatically the factory.
 --
---  For example, the two first steps could be implemented as follows (methods are
---  not shown):
+--  For example, a formatter that translates the message when it is printed
+--  can be created.  The two first steps could be implemented as follows (method
+--  bodies are not shown):
 --
 --     type NLS_Formatter (Length : Positive) is
 --        new Util.Log.Formatters.Formatter (Length) with null record;
@@ -61,7 +65,7 @@
 --  the behavior of the formatter.
 --
 --     log4j.formatter.nlsFormatter=NLS
---     log4j.formatter.nslFormatter.prop1=value1
+--     log4j.formatter.nlsFormatter.prop1=value1
 --     log4j.formatter.nlsFormatter.prop2=value2
 --
 --  Once the named formatter is declared, it can be selected for one or several

@@ -35,6 +35,8 @@ package body Util.Log.Loggers is
    use Log.Appenders;
    use Log.Formatters;
 
+   subtype Formatter_Access is Log.Formatters.Formatter_Access;
+
    function Traceback (E : in Exception_Occurrence) return String is separate;
 
    package File_Factory is
@@ -102,7 +104,7 @@ package body Util.Log.Loggers is
 
       --  Find the formatter instance to be used for the logger.
       --  Create it if necessary.
-      procedure Find_Formatter (Property  : in String;
+      procedure Find_Formatter (Name      : in String;
                                 Formatter : out Formatter_Access);
 
       --  Obtain an appender given its name.  If the appender does not exist, it is created.
@@ -286,7 +288,7 @@ package body Util.Log.Loggers is
          Appender : Appender_Access;
       begin
          Log.Level := Get_Level (Prop, Default_Level);
-         Find_Formatter (Prop, Log.Formatter);
+         Find_Formatter (Get_Formatter (Prop), Log.Formatter);
          Find_Appender (Prop, Appender);
          if Appender /= null then
             Log.Appender := Appender.all'Access;
@@ -351,19 +353,31 @@ package body Util.Log.Loggers is
          end if;
 
          if Name'Length > 0 then
-            Appender := Util.Log.Appenders.Create (Name, Config, Default_Level);
-            if Appender /= null then
-               Util.Log.Appenders.Lists.Add (Context.Appenders, Appender.all'Access);
-            end if;
+            declare
+               Base   : constant String := "appender." & Name;
+               Formatter_Name : constant String := Config.Get (Base & ".formatter", "");
+               Formatter : Util.Log.Formatters.Formatter_Access;
+            begin
+               Find_Formatter (Formatter_Name, Formatter);
+               Appender := Util.Log.Appenders.Create (Name, Formatter, Config, Default_Level);
+               if Appender /= null then
+                  Util.Log.Appenders.Lists.Add (Context.Appenders, Appender.all'Access);
+               end if;
+            end;
          end if;
       end Build_Appender;
 
       procedure Create_Default_Appender is
       begin
          if Default_Appender = null then
-            Default_Appender := Consoles.Create ("root", Config, ERROR_LEVEL);
-            Set_Layout (Default_Appender.all, MESSAGE);
-            Util.Log.Appenders.Lists.Add (Context.Appenders, Default_Appender.all'Access);
+            declare
+               Formatter : Util.Log.Formatters.Formatter_Access;
+            begin
+               Find_Formatter ("", Formatter);
+               Default_Appender := Consoles.Create ("root", Formatter, Config, ERROR_LEVEL);
+               Set_Layout (Default_Appender.all, MESSAGE);
+               Util.Log.Appenders.Lists.Add (Context.Appenders, Default_Appender.all'Access);
+            end;
          end if;
       end Create_Default_Appender;
 
@@ -402,7 +416,8 @@ package body Util.Log.Loggers is
             --  The appender configuration refers to a list of appenders.
             --  Example:  DEBUG, out1, console
             if N > 0 then
-               List := Create_List_Appender (Appender_Name);
+               Create_Default_Appender;
+               List := Create_List_Appender (Appender_Name, Default_Formatter);
                loop
                   Build_Appender (Trim (Appender_Name (Last_Pos .. N - 1), Both), A);
                   exit when A = null;
@@ -425,9 +440,8 @@ package body Util.Log.Loggers is
       --  ------------------------------
       --  Find an appender given the property value
       --  ------------------------------
-      procedure Find_Formatter (Property  : in String;
+      procedure Find_Formatter (Name      : in String;
                                 Formatter : out Formatter_Access) is
-         Name  : constant String := Get_Formatter (Property);
       begin
          if Name'Length > 0 then
             declare
@@ -540,7 +554,7 @@ package body Util.Log.Loggers is
                    3 => Arg3'Unrestricted_Access,
                    4 => Arg4'Unrestricted_Access);
          begin
-            Instance.Formatter.Format (Result, Level, Instance.Name, Message, Args);
+            Instance.Formatter.Format_Message (Result, Level, Instance.Name, Message, Args);
             if Util.Strings.Builders.Length (Result) > 0 then
                Instance.Appender.Append (Result, Date, Level, Instance.Name);
             end if;

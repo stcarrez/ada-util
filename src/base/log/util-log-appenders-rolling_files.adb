@@ -211,12 +211,14 @@ package body Util.Log.Appenders.Rolling_Files is
    --  Create a file appender and configure it according to the properties
    --  ------------------------------
    function Create (Name       : in String;
+                    Formatter  : in Formatter_Access;
                     Properties : in Util.Properties.Manager;
                     Default    : in Level_Type)
                    return Appender_Access is
       Base    : constant String := "appender." & Name;
       Result  : constant File_Appender_Access
         := new File_Appender '(Limited_Controlled with Length => Name'Length,
+                               Formatter => Formatter,
                                Name => Name,
                                others => <>);
    begin

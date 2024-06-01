@@ -15,8 +15,6 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-with Ada.Calendar.Formatting;
-with Ada.Calendar.Time_Zones;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 
@@ -99,18 +97,6 @@ package body Util.Log.Appenders is
       Self.Layout := Layout;
    end Set_Layout;
 
-   function Format (Self : in Appender;
-                    Date : in Ada.Calendar.Time) return String is
-   begin
-      if Self.Use_UTC then
-         return Calendar.Formatting.Image (Date);
-      else
-         return Calendar.Formatting.Image
-           (Date, False,
-            Ada.Calendar.Time_Zones.UTC_Time_Offset (Date));
-      end if;
-   end Format;
-
    --  ------------------------------
    --  Format the event into a string
    --  ------------------------------
@@ -119,22 +105,7 @@ package body Util.Log.Appenders is
                     Level : in Level_Type;
                     Logger : in String) return String is
    begin
-      case Self.Layout is
-         when MESSAGE =>
-            return "";
-
-         when LEVEL_MESSAGE =>
-            return Get_Level_Name (Level) & ": ";
-
-         when DATE_LEVEL_MESSAGE =>
-            return "[" & Self.Format (Date) & "] "
-              & Get_Level_Name (Level) & ": ";
-
-         when FULL =>
-            return "[" & Self.Format (Date)
-              & "] " & Get_Level_Name (Level) & " - " & Logger & " - : ";
-
-      end case;
+      return Self.Formatter.Format_Event (Self.Layout, Date, Self.Use_UTC, Level, Logger);
    end Format;
 
    overriding
@@ -175,9 +146,11 @@ package body Util.Log.Appenders is
    --  ------------------------------
    --  Create a list appender and configure it according to the properties
    --  ------------------------------
-   function Create_List_Appender (Name : in String) return List_Appender_Access is
+   function Create_List_Appender (Name      : in String;
+                                  Formatter : in Formatter_Access) return List_Appender_Access is
       Result : constant List_Appender_Access
         := new List_Appender '(Limited_Controlled with Length => Name'Length,
+                               Formatter => Formatter,
                                Name => Name,
                                others => <>);
    begin
@@ -187,23 +160,24 @@ package body Util.Log.Appenders is
    --  ------------------------------
    --  Create an appender instance with a factory with the given name.
    --  ------------------------------
-   function Create (Name     : in String;
-                    Config   : in Util.Properties.Manager;
-                    Default  : in Level_Type) return Appender_Access is
+   function Create (Name      : in String;
+                    Formatter : in Formatter_Access;
+                    Config    : in Util.Properties.Manager;
+                    Default   : in Level_Type) return Appender_Access is
       Prop_Name     : constant String := "appender." & Name;
       Appender_Type : constant String := Config.Get (Prop_Name, "console");
       Factory       : Appender_Factory_Access := Appender_Factories;
    begin
       while Factory /= null loop
          if Factory.Name = Appender_Type then
-            return Factory.Factory (Name, Config, Default);
+            return Factory.Factory (Name, Formatter, Config, Default);
          end if;
          Factory := Factory.Next_Factory;
       end loop;
 
       Factory := Appender_Factories;
       if Factory /= null then
-         return Factory.Factory (Name, Config, Default);
+         return Factory.Factory (Name, Formatter, Config, Default);
       end if;
       return null;
    end Create;

@@ -51,6 +51,8 @@
 --     log4j.logger.X.Y=INFO,console,syslog
 --     log4j.appender.test=syslog
 --     log4j.appender.test.level=ERROR
+--
+--  See the log.adb and syslog_appender.adb example.
 generic
    Name   : String;
    Create : Factory_Access;

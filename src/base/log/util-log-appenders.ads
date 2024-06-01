@@ -20,38 +20,25 @@ with Ada.Finalization;
 with Util.Properties;
 with Util.Strings.Builders;
 with Util.Named_Lists;
+with Util.Log.Formatters;
 
---  The log <b>Appender</b> will handle the low level operations to write
+--  The log `Appender` will handle the low level operations to write
 --  the log content to a file, the console, a database.
 package Util.Log.Appenders is
 
-   --  The layout type to indicate how to format the message.
-   --  Unlike Logj4, there is no customizable layout.
-   type Layout_Type
-     is (
-         --  The <b>message</b> layout with only the log message.
-         --  Ex: "Cannot open file"
-         MESSAGE,
-
-         --  The <b>level-message</b> layout with level and message.
-         --  Ex: "ERROR: Cannot open file"
-         LEVEL_MESSAGE,
-
-         --  The <b>date-level-message</b> layout with date
-         --  Ex: "2011-03-04 12:13:34 ERROR: Cannot open file"
-         DATE_LEVEL_MESSAGE,
-
-         --  The <b>full</b> layout with everything (the default).
-         --  Ex: "2011-03-04 12:13:34 ERROR - my.application - Cannot open file"
-         FULL);
+   subtype Layout_Type is Util.Log.Formatters.Layout_Type;
+   use all type Util.Log.Formatters.Layout_Type;
 
    package Lists is new Util.Named_Lists (Ada.Finalization.Limited_Controlled);
 
-   type Appender (Length : Positive) is abstract
+   subtype Formatter_Access is not null Util.Log.Formatters.Formatter_Access;
+
+   type Appender (Length    : Positive;
+                  Formatter : Formatter_Access) is abstract
      new Lists.Named_Element (Length) with record
-      Level    : Level_Type := INFO_LEVEL;
-      Layout   : Layout_Type := FULL;
-      Use_UTC  : Boolean := False;
+      Level     : Level_Type := INFO_LEVEL;
+      Layout    : Layout_Type := FULL;
+      Use_UTC   : Boolean := False;
    end record;
 
    type Appender_Access is access all Appender'Class;
@@ -81,10 +68,6 @@ package Util.Log.Appenders is
                     Level   : in Level_Type;
                     Logger  : in String) return String;
 
-   --  Format the date into a string.
-   function Format (Self : in Appender;
-                    Date : in Ada.Calendar.Time) return String;
-
    --  Append a log event to the appender.  Depending on the log level
    --  defined on the appender, the event can be taken into account or
    --  ignored.
@@ -101,7 +84,8 @@ package Util.Log.Appenders is
    --  List appender
    --  ------------------------------
    --  Write log events to a list of appenders
-   type List_Appender (Length : Positive) is new Appender with private;
+   type List_Appender (Length    : Positive;
+                       Formatter : Formatter_Access) is new Appender with private;
    type List_Appender_Access is access all List_Appender'Class;
 
    --  Max number of appenders that can be added to the list.
@@ -124,17 +108,20 @@ package Util.Log.Appenders is
                            Object : in Appender_Access);
 
    --  Create a list appender and configure it according to the properties
-   function Create_List_Appender (Name : in String) return List_Appender_Access;
+   function Create_List_Appender (Name      : in String;
+                                  Formatter : in Formatter_Access) return List_Appender_Access;
 
-   type Factory_Access is
+   type Factory_Access is not null
      access function (Name       : in String;
+                      Formatter  : in Formatter_Access;
                       Properties : in Util.Properties.Manager;
                       Default    : in Level_Type) return Appender_Access;
 
    --  Create an appender instance with a factory with the given name.
-   function Create (Name    : in String;
-                    Config  : in Util.Properties.Manager;
-                    Default : in Level_Type) return Appender_Access;
+   function Create (Name      : in String;
+                    Formatter : in Formatter_Access;
+                    Config    : in Util.Properties.Manager;
+                    Default   : in Level_Type) return Appender_Access;
 
 private
 
@@ -152,7 +139,9 @@ private
 
    type Appender_Array_Access is array (1 .. MAX_APPENDERS) of Appender_Access;
 
-   type List_Appender (Length : Positive) is new Appender (Length) with record
+   type List_Appender (Length    : Positive;
+                       Formatter : Formatter_Access) is new Appender (Length, Formatter) with
+   record
       Appenders : Appender_Array_Access;
       Count     : Natural := 0;
    end record;

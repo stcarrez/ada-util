@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log-appenders-files -- File log appenders
---  Copyright (C) 2001 - 2021 Stephane Carrez
+--  Copyright (C) 2001 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -70,6 +70,7 @@ package body Util.Log.Appenders.Files is
    --  Create a file appender and configure it according to the properties
    --  ------------------------------
    function Create (Name       : in String;
+                    Formatter  : in Formatter_Access;
                     Properties : in Util.Properties.Manager;
                     Default    : in Level_Type)
                    return Appender_Access is
@@ -80,6 +81,7 @@ package body Util.Log.Appenders.Files is
       Append : constant Boolean := Boolean_Property.Get (Properties, Base & ".append", True);
       Result : constant File_Appender_Access
         := new File_Appender '(Limited_Controlled with Length => Name'Length,
+                               Formatter => Formatter,
                                Name => Name,
                                others => <>);
    begin

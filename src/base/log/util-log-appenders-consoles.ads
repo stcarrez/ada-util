@@ -41,7 +41,8 @@
 --    log4j.appender.console.utc=false
 package Util.Log.Appenders.Consoles is
 
-   type Console_Appender (Length : Positive) is new Appender with private;
+   type Console_Appender (Length    : Positive;
+                          Formatter : Formatter_Access) is new Appender with private;
    type Console_Appender_Access is access all Console_Appender'Class;
 
    overriding
@@ -57,12 +58,15 @@ package Util.Log.Appenders.Consoles is
 
    --  Create a console appender and configure it according to the properties
    function Create (Name       : in String;
+                    Formatter  : in Formatter_Access;
                     Properties : in Util.Properties.Manager;
                     Default    : in Level_Type)
                    return Appender_Access;
 private
 
-   type Console_Appender (Length : Positive) is new Appender (Length) with record
+   type Console_Appender (Length    : Positive;
+                          Formatter : Formatter_Access) is new Appender (Length, Formatter) with
+   record
       Stderr : Boolean := False;
       Utf8   : Boolean := False;
       Prefix : Util.Properties.Value;

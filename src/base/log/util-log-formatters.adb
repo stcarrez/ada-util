@@ -15,17 +15,60 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Ada.Calendar.Time_Zones;
+with Ada.Calendar.Formatting;
 package body Util.Log.Formatters is
 
-   procedure Format (Format    : in Formatter;
-                     Into      : in out Util.Strings.Builders.Builder;
-                     Level     : in Level_Type;
-                     Logger    : in String;
-                     Message   : in String;
-                     Arguments : in String_Array_Access) is
+   procedure Format_Message (Format    : in Formatter;
+                             Into      : in out Util.Strings.Builders.Builder;
+                             Level     : in Level_Type;
+                             Logger    : in String;
+                             Message   : in String;
+                             Arguments : in String_Array_Access) is
    begin
       Strings.Formats.Format (Into, Message, Arguments);
-   end Format;
+   end Format_Message;
+
+   --  ------------------------------
+   --  Format the event into a string
+   --  ------------------------------
+   function Format_Event (Format  : in Formatter;
+                          Layout  : in Layout_Type;
+                          Date    : in Ada.Calendar.Time;
+                          Use_UTC : in Boolean;
+                          Level   : in Level_Type;
+                          Logger  : in String) return String is
+   begin
+      case Layout is
+         when MESSAGE =>
+            return "";
+
+         when LEVEL_MESSAGE =>
+            return Get_Level_Name (Level) & ": ";
+
+         when DATE_LEVEL_MESSAGE =>
+            return "[" & Formatter'Class (Format).Format_Date (Use_UTC, Date) & "] "
+              & Get_Level_Name (Level) & ": ";
+
+         when FULL =>
+            return "[" & Formatter'Class (Format).Format_Date (Use_UTC, Date)
+              & "] " & Get_Level_Name (Level) & " - " & Logger & " - : ";
+
+      end case;
+   end Format_Event;
+
+   function Format_Date (Format  : in Formatter;
+                         Use_UTC : in Boolean;
+                         Date    : in Ada.Calendar.Time) return String is
+   begin
+      if Use_UTC then
+         return Ada.Calendar.Formatting.Image (Date);
+      else
+         return Ada.Calendar.Formatting.Image
+           (Date, False,
+            Ada.Calendar.Time_Zones.UTC_Time_Offset (Date));
+      end if;
+   end Format_Date;
 
    --  ------------------------------
    --  Create a formatter instance with a factory with the given name.
