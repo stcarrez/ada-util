@@ -81,6 +81,14 @@
 --
 --  The above configuration will use the `nlsFormatter` formatter and the `console`
 --  appender to write on the console.
+--
+--  A formatter can also be configured specifically for an appender by
+--  using the following configuration:
+--
+--     log4j.appender.console.formatter=nlsFormatter
+--
+--  In that configuration, the `Format_Event` function of the configured formatter
+--  will be called to format the log level, date and logger's name.
 generic
    Name   : String;
    Create : Factory_Access;
