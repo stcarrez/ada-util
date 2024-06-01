@@ -67,6 +67,7 @@ with Util.Strings.Vectors;
 --  This will return `/usr/bin/ls` on most Unix systems.
 --
 --  @include util-files-rolling.ads
+--  @include util-files-filters.ads
 --  @include util-files-walk.ads
 package Util.Files is
 

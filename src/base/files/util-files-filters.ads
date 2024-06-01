@@ -8,23 +8,37 @@ with Ada.Finalization;
 private with GNAT.Regexp;
 
 --  == Path filters ==
---  The generic package `Util.Files.Filters` defines the `Filter_Type` tagged
---  type to represent and control a set of path patterns associated with values
---  represented by the `Element_Type` generic type.  The package must be
---  instantiated with the type representing values associated to path patterns.
+--  The generic package `Util.Files.Filters` implements a path filter mechanism
+--  that emulates the classical `.gitignore` path filter.  It defines the
+--  `Filter_Type` tagged type to represent and control a set of path patterns
+--  associated with values represented by the `Element_Type` generic type.
+--  The package must be instantiated with the type representing values
+--  associated to path patterns.  A typical instantation for an inclusion,
+--  exclusion filter such as `.gitignore` could be:
+--
+--     type Filter_Mode is (Not_Found, Included, Excluded);
+--
+--     package Path_Filter is
+--        new Util.Files.Filters (Filter_Mode);
+--
+--  It is also possible to use it as a mapping framework to implement a mapping
+--  of a path to a string, for example:
+--
+--     package Language_Mappers is
+--        new Util.Files.Filters (Element_Type => String);
 --
 --  The `Filter_Type` provides one operation to add a pattern in the filter
 --  and associate it with a value.  A pattern can contain fixed paths, wildcards
---  or regular expressions.
---  Similar to `.gitignore` rules, a pattern which starts with a `/` will
---  define a pattern that must match the complete path.  Otherwise, the pattern
---  is a recursive pattern.  Example of pattern setup:
+--  or regular expressions.  When inserting a filter, you can indicate
+--  whether the filter is to be applied locally on recursively
+--  (this is similar to the `.gitignore` rules, with a pattern that starts
+--  with a `/` or without).  Example of pattern setup:
 --
---     Filter : Util.Files.Walk.Filter_Type;
+--     Filter : Path_Filter.Filter_Type;
 --     ...
---     Filter.Exclude ("*.o");
---     Filter.Exclude ("/alire/");
---     Filter.Include ("/docs/*");
+--     Filter.Insert ("*.o", Excluded);
+--     Filter.Insert ("/alire/", Excluded);
+--     Filter.Insert ("/docs/*", Included);
 --
 --  The `Match` function looks in the filter for a match.  The path could be
 --  included, excluded or not found.  For example, the following paths will
