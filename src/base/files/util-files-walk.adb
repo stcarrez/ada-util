@@ -264,7 +264,7 @@ package body Util.Files.Walk is
          begin
             if Name /= "." and then Name /= ".." then
                declare
-                  Full_Path : constant String := AD.Full_Name (Ent);
+                  Full_Path : constant String := Util.Files.Compose (Path, Name);
                   Kind      : constant AD.File_Kind := AD.Kind (Full_Path);
                   Result    : constant Filter_Result := Match (Filter, Name);
                begin
