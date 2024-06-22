@@ -15,9 +15,11 @@ package body Util.Files.Filters is
                         Value : in Element_Type);
 
    function Match_Recursive_Pattern (Recursive : in Pattern_Access;
-                                     Path      : in String) return Pattern_Access;
-   function Match_Pattern (Root : in Pattern_Access;
-                           Path : in String) return Pattern_Access;
+                                     Path      : in String;
+                                     Ext_Pos   : in Natural) return Pattern_Access;
+   function Match_Pattern (Root    : in Pattern_Access;
+                           Path    : in String;
+                           Ext_Pos : in Natural) return Pattern_Access;
    function Get_Result (Pattern : in Pattern_Access) return Filter_Result;
 
    function Get_Value (Result : in Filter_Result) return Element_Type is
@@ -64,6 +66,20 @@ package body Util.Files.Filters is
 
       function Is_Multi_Wildcard (Name : String)
                                   return Boolean is (Name = "**");
+
+      function Is_Extension (Name : String) return Boolean;
+
+      function Is_Extension (Name : String) return Boolean is
+      begin
+         if Name'Length <= 2 or else Name (Name'First) /= '*' then
+            return False;
+         end if;
+         if Name (Name'First + 1) /= '.' then
+            return False;
+         end if;
+         return (for all C of Name (Name'First + 2 .. Name'Last)
+                   => C not in '(' | ')' | '[' | ']' | '\' | '*' | '?');
+      end Is_Extension;
 
       function Find_Child (Node : Pattern_Access;
                            Name : String) return Pattern_Access is
@@ -203,6 +219,14 @@ package body Util.Files.Filters is
                    Multi_Wildcard => False,
                    Dir_Only => True,
                    others => <>);
+            elsif Pos > Pattern'Last
+               and then Is_Extension (Pattern (First .. Pattern'Last))
+            then
+               Node := new Extension_Type '(Len  => Pattern'Last - First,
+                                            Ext  => Pattern (First + 1 .. Pattern'Last),
+                                            Multi_Wildcard => False,
+                                            Dir_Only => False,
+                                            others => <>);
             else
                Node := new Regex_Pattern_Type
                  '(Regex => GNAT.Regexp.Compile (Pattern (First .. Pos - 1),
@@ -232,13 +256,14 @@ package body Util.Files.Filters is
    --  Return the last node that matches the path.
    --  ------------------------------
    function Match_Recursive_Pattern (Recursive : in Pattern_Access;
-                                     Path      : in String) return Pattern_Access is
+                                     Path      : in String;
+                                     Ext_Pos   : in Natural) return Pattern_Access is
       Last   : constant Natural := Path'Last;
       Pos    : Natural := Path'First;
       Result : Pattern_Access;
    begin
       while Pos <= Last loop
-         Result := Match_Pattern (Recursive, Path (Pos .. Path'Last));
+         Result := Match_Pattern (Recursive, Path (Pos .. Path'Last), Ext_Pos);
          if Result /= null then
             return Result;
          end if;
@@ -252,8 +277,9 @@ package body Util.Files.Filters is
    --  ------------------------------
    --  Check if a path matches the included or excluded patterns.
    --  ------------------------------
-   function Match_Pattern (Root : in Pattern_Access;
-                           Path : in String) return Pattern_Access is
+   function Match_Pattern (Root    : in Pattern_Access;
+                           Path    : in String;
+                           Ext_Pos : in Natural) return Pattern_Access is
       Last  : constant Natural := Path'Last;
       First : Natural := Path'First;
       Pos   : Natural := First;
@@ -266,7 +292,7 @@ package body Util.Files.Filters is
          Pos := Util.Strings.Index (Path, '/', First);
          if Pos > 0 then
             loop
-               Next := Match (Node, Path (First .. Pos - 1));
+               Next := Match (Node, Path (First .. Pos - 1), 0);
                if Next /= null and then Next.Dir_Only then
                   Node := Next.Child;
                   Pos := Pos + 1;
@@ -277,7 +303,7 @@ package body Util.Files.Filters is
             end loop;
          else
             loop
-               Next := Match (Node, Path (First .. Last));
+               Next := Match (Node, Path (First .. Last), Ext_Pos);
                if Next /= null then
                   --  We found the matching node, if this is not the leaf
                   --  look for a child with an empty name.
@@ -309,10 +335,19 @@ package body Util.Files.Filters is
    function Match (Filter : in Filter_Type;
                    Path   : in String) return Filter_Result is
       Result : Pattern_Access;
+      Pos    : Natural := 0;
    begin
+      for I in reverse Path'Range loop
+         exit when Path (I) = '/';
+         if Path (I) = '.' then
+            Pos := I;
+            exit;
+         end if;
+      end loop;
+
       --  Step 1: find a match with an absolute pattern.
       if Filter.Root /= null then
-         Result := Match_Pattern (Filter.Root, Path);
+         Result := Match_Pattern (Filter.Root, Path, Pos);
          if Result /= null then
             return Get_Result (Result);
          end if;
@@ -322,7 +357,7 @@ package body Util.Files.Filters is
       end if;
 
       --  Step 2: find a match on a recursive pattern.
-      Result := Match_Recursive_Pattern (Filter.Recursive, Path);
+      Result := Match_Recursive_Pattern (Filter.Recursive, Path, Pos);
       return Get_Result (Result);
    end Match;
 
@@ -395,7 +430,8 @@ package body Util.Files.Filters is
    end Create;
 
    function Is_Matched (Pattern : Pattern_Type;
-                        Name    : String) return Boolean is
+                        Name    : String;
+                        Ext_Pos : Natural) return Boolean is
       pragma Unreferenced (Name);
    begin
       return Pattern.Wildcard;
@@ -422,11 +458,12 @@ package body Util.Files.Filters is
    end Find_Pattern;
 
    function Match (Pattern : Pattern_Access;
-                   Name    : String) return Pattern_Access is
+                   Name    : String;
+                   Ext_Pos : Natural) return Pattern_Access is
       P : Pattern_Access := Pattern;
    begin
       while P /= null loop
-         if P.Is_Matched (Name) then
+         if P.Is_Matched (Name, Ext_Pos) then
             return P;
          end if;
          P := P.Next;
@@ -434,8 +471,9 @@ package body Util.Files.Filters is
       return null;
    end Match;
 
-   function Match_Sibling (Filter : access constant Filter_Info_Type;
-                           Name   : String) return Pattern_Access is
+   function Match_Sibling (Filter  : access constant Filter_Info_Type;
+                           Name    : String;
+                           Ext_Pos : Natural) return Pattern_Access is
       P : Pattern_Access := Filter.Current;
    begin
       if P = null then
@@ -448,42 +486,43 @@ package body Util.Files.Filters is
          end if;
       end loop;
       if P.Child /= null then
-         return Match (P.Child, Name);
+         return Match (P.Child, Name, Ext_Pos);
       end if;
       return P;
    end Match_Sibling;
 
-   function Match (Filter : Filter_Info_Type;
-                   Name   : String) return Pattern_Access is
+   function Match (Filter  : Filter_Info_Type;
+                   Name    : String;
+                   Ext_Pos : Natural) return Pattern_Access is
       F : access constant Filter_Info_Type;
       Match1, Match2, Match3, Match4, Match5, Match6 : Pattern_Access := null;
    begin
       if Filter.Local /= null then
-         Match1 := Match (Filter.Local, Name);
+         Match1 := Match (Filter.Local, Name, Ext_Pos);
          if Match1 /= null and then not Match1.Exclude then
             return Match1;
          end if;
       end if;
       if Filter.Current /= null then
-         Match2 := Match (Filter.Current, Name);
+         Match2 := Match (Filter.Current, Name, Ext_Pos);
          if Match2 /= null and then not Match2.Exclude then
             return Match2;
          end if;
          if Filter.Current.Child /= null then
-            Match6 := Match (Filter.Current.Child, Name);
+            Match6 := Match (Filter.Current.Child, Name, Ext_Pos);
             if Match6 /= null and then not Match6.Exclude then
                return Match6;
             end if;
          end if;
       end if;
       if Filter.Local_Recursive /= null then
-         Match3 := Match (Filter.Local_Recursive, Name);
+         Match3 := Match (Filter.Local_Recursive, Name, Ext_Pos);
          if Match3 /= null and then not Match3.Exclude then
             return Match3;
          end if;
       end if;
       if Filter.Recursive /= null then
-         Match4 := Match (Filter.Recursive, Name);
+         Match4 := Match (Filter.Recursive, Name, Ext_Pos);
          if Match4 /= null and then not Match4.Exclude then
             return Match4;
          end if;
@@ -491,12 +530,12 @@ package body Util.Files.Filters is
       if Filter.Previous /= null then
          F := Filter.Previous;
          while F /= null loop
-            Match5 := Match_Sibling (F, Name);
+            Match5 := Match_Sibling (F, Name, Ext_Pos);
             if Match5 /= null and then not Match5.Exclude then
                return Match5;
             end if;
             if F.Local_Recursive /= null then
-               Match5 := Match (F.Local_Recursive, Name);
+               Match5 := Match (F.Local_Recursive, Name, Ext_Pos);
                if Match5 /= null and then not Match5.Exclude then
                   return Match5;
                end if;
@@ -505,7 +544,7 @@ package body Util.Files.Filters is
                end if;
             end if;
             if F.Recursive /= null then
-               Match5 := Match (F.Recursive, Name);
+               Match5 := Match (F.Recursive, Name, Ext_Pos);
                if Match5 /= null and then not Match5.Exclude then
                   return Match5;
                end if;
@@ -526,8 +565,17 @@ package body Util.Files.Filters is
    function Match (Filter : in Filter_Context_Type;
                    Path   : in String) return Filter_Result is
       Pattern : Pattern_Access;
+      Pos : Natural := 0;
    begin
-      Pattern := Match (Filter.Filter, Path);
+      for I in reverse Path'Range loop
+         exit when Path (I) = '/';
+         if Path (I) = '.' then
+            Pos := I;
+            exit;
+         end if;
+      end loop;
+
+      Pattern := Match (Filter.Filter, Path, Pos);
       return Get_Result (Pattern);
    end Match;
 

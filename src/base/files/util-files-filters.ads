@@ -168,7 +168,8 @@ private
    end record;
 
    function Is_Matched (Pattern : Pattern_Type;
-                        Name    : String) return Boolean;
+                        Name    : String;
+                        Ext_Pos : Natural) return Boolean;
 
    function Is_Pattern (Pattern : Pattern_Type;
                         Name    : String) return Boolean;
@@ -182,7 +183,8 @@ private
 
    overriding
    function Is_Matched (Pattern : Name_Pattern_Type;
-                        Name    : String)
+                        Name    : String;
+                        Ext_Pos : Natural)
                         return Boolean is (Pattern.Name = Name);
 
    overriding
@@ -195,9 +197,25 @@ private
 
    overriding
    function Is_Matched (Pattern : Regex_Pattern_Type;
-                        Name    : String)
+                        Name    : String;
+                        Ext_Pos : Natural)
                         return Boolean is (GNAT.Regexp.Match (Name,
                                            Pattern.Regex));
+
+   type Extension_Type (Len : Natural) is new Pattern_Type with record
+      Ext : String (1 .. Len);
+   end record;
+
+   overriding
+   function Is_Matched (Pattern : Extension_Type;
+                        Name    : String;
+                        Ext_Pos : Natural)
+                        return Boolean
+      is (Ext_Pos > 0 and then Pattern.Ext = Name (Ext_Pos .. Name'Last));
+
+   overriding
+   function Is_Pattern (Pattern : Extension_Type;
+                        Name    : String) return Boolean is (Pattern.Ext = Name);
 
    type Filter_Info_Type is limited record
       Previous        : access constant Filter_Info_Type;
@@ -207,12 +225,15 @@ private
       Local_Recursive : Pattern_Access;
    end record;
 
-   function Match (Filter : Filter_Info_Type;
-                   Name   : String) return Pattern_Access;
+   function Match (Filter  : Filter_Info_Type;
+                   Name    : String;
+                   Ext_Pos : Natural) return Pattern_Access;
    function Match (Pattern : Pattern_Access;
-                   Name    : String) return Pattern_Access;
-   function Match_Sibling (Filter : access constant Filter_Info_Type;
-                           Name   : String) return Pattern_Access;
+                   Name    : String;
+                   Ext_Pos : Natural) return Pattern_Access;
+   function Match_Sibling (Filter  : access constant Filter_Info_Type;
+                           Name    : String;
+                           Ext_Pos : Natural) return Pattern_Access;
 
    type Filter_Context_Type is limited record
       Filter  : aliased Filter_Info_Type;
