@@ -184,8 +184,7 @@ private
    overriding
    function Is_Matched (Pattern : Name_Pattern_Type;
                         Name    : String;
-                        Ext_Pos : Natural)
-                        return Boolean is (Pattern.Name = Name);
+                        Ext_Pos : Natural) return Boolean;
 
    overriding
    function Is_Pattern (Pattern : Name_Pattern_Type;
@@ -198,9 +197,7 @@ private
    overriding
    function Is_Matched (Pattern : Regex_Pattern_Type;
                         Name    : String;
-                        Ext_Pos : Natural)
-                        return Boolean is (GNAT.Regexp.Match (Name,
-                                           Pattern.Regex));
+                        Ext_Pos : Natural) return Boolean;
 
    type Extension_Type (Len : Natural) is new Pattern_Type with record
       Ext : String (1 .. Len);

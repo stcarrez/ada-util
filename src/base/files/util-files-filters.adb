@@ -185,21 +185,6 @@ package body Util.Files.Filters is
                      Node.Next := Previous.Child;
                      Previous.Child := Node;
                   end if;
-               --  else
-               --   if Node.Child /= null then
-               --      Previous := Node;
-               --      Node := Find_Pattern (Previous.Child, "");
-               --      if Node = null then
-               --         Node := new Name_Pattern_Type
-               --           '(Len  => 0,
-               --             Name => "",
-               --             Dir_Only => False,
-               --             Next => Previous.Child,
-               --             others => <>);
-               --         Previous.Child := Node;
-               --      end if;
-               --   end if;
-               --   Node.Dir_Only := False;
                end if;
                Set_Value (Node, Value);
                return;
@@ -444,6 +429,24 @@ package body Util.Files.Filters is
       return False;
    end Is_Pattern;
 
+   overriding
+   function Is_Matched (Pattern : Name_Pattern_Type;
+                        Name    : String;
+                        Ext_Pos : Natural) return Boolean is
+      pragma Unreferenced (Ext_Pos);
+   begin
+      return Pattern.Name = Name;
+   end Is_Matched;
+
+   overriding
+   function Is_Matched (Pattern : Regex_Pattern_Type;
+                        Name    : String;
+                        Ext_Pos : Natural) return Boolean is
+      pragma Unreferenced (Ext_Pos);
+   begin
+      return GNAT.Regexp.Match (Name, Pattern.Regex);
+   end Is_Matched;
+
    function Find_Pattern (Node : in Pattern_Access;
                           Name : in String) return Pattern_Access is
       N : Pattern_Access := Node;
@@ -561,7 +564,9 @@ package body Util.Files.Filters is
               else Match6);
    end Match;
 
+   --  ------------------------------
    --  Check if a path matches the included or excluded patterns.
+   --  ------------------------------
    function Match (Filter : in Filter_Context_Type;
                    Path   : in String) return Filter_Result is
       Pattern : Pattern_Access;
