@@ -28,7 +28,7 @@ An alternate HTTP backend is provided by CURL with `utilada_curl`.
 
 [[depends-on]]
 utilada = "^2.7.0"
-aws = "~23.0"
+aws = "^24.0"
 
 [gpr-externals]
 UTIL_BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
