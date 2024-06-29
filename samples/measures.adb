@@ -1,22 +1,14 @@
 -----------------------------------------------------------------------
 --  measures -- Example of Runtime Benchmark
---  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010 Stephane Carrez
+--  Copyright (C) 2001, 2002, 2003, 2006, 2008, 2009, 2010, 2023 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
---
---  Licensed under the Apache License, Version 2.0 (the "License");
---  you may not use this file except in compliance with the License.
---  You may obtain a copy of the License at
---
---      http://www.apache.org/licenses/LICENSE-2.0
---
---  Unless required by applicable law or agreed to in writing, software
---  distributed under the License is distributed on an "AS IS" BASIS,
---  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
---  See the License for the specific language governing permissions and
---  limitations under the License.
+--  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 with Ada.Text_IO;
+with Gnat.Regexp;
+with Gnat.Regpat;
 with Util.Measures;
+with Util.Strings.Sets;
 
 --
 --  This example performs several measures and dumps the result.
@@ -52,6 +44,68 @@ procedure Measures is
       Util.Measures.Report (Perf, S, "Empty");
    end Empty;
 
+   procedure Check_Regexp (Name : in String; Found : out Boolean) is
+      P : Gnat.Regexp.Regexp := Gnat.Regexp.Compile (".*.o");
+   begin
+      Found := False;
+      declare
+         S : Util.Measures.Stamp;
+      begin
+         for I in 1 .. 1_000 loop
+            if Gnat.Regexp.Match (Name, P) then
+               Found := True;
+            end if;
+         end loop;
+
+      Util.Measures.Report (Perf, S,
+                            "GNAT.Regexp.Match 1000 times");
+      end;
+   end Check_Regexp;
+
+   procedure Check_Pattern (Name : in String; Found : out Boolean) is
+      P : Gnat.Regpat.Pattern_Matcher := Gnat.Regpat.Compile (".*.o");
+   begin
+      Found := False;
+      declare
+         S : Util.Measures.Stamp;
+      begin
+         for I in 1 .. 1_000 loop
+            if Gnat.Regpat.Match (P, Name) then
+               Found := True;
+            end if;
+         end loop;
+
+      Util.Measures.Report (Perf, S,
+                            "GNAT.Regpat.Match 1000 times");
+      end;
+   end Check_Pattern;
+
+   procedure Check_Contains (Name : in String; Found : out Boolean) is
+      Set : Util.Strings.Sets.Set;
+   begin
+      Set.Include ("abdc");
+      Set.Include ("bdc");
+      Set.Include ("dsdc");
+      Set.Include ("dsdsdsdc");
+      for I in 1 .. 1_000 loop
+         Set.Include ("a" & I'Image);
+      end loop;
+      Found := False;
+      declare
+         S : Util.Measures.Stamp;
+      begin
+         for I in 1 .. 1_000 loop
+            if Set.Contains (Name) then
+               Found := True;
+            end if;
+         end loop;
+
+      Util.Measures.Report (Perf, S,
+                            "Util.Strings.Sets.Contains 1000 times");
+      end;
+   end Check_Contains;
+
+   Found : Boolean;
 begin
    Print;
    Print;
@@ -84,6 +138,10 @@ begin
       Util.Measures.Report (Perf, S,
                             "No tracking Empty procedure called 1000 times");
    end;
+
+   Check_Regexp ("testing.ads", Found);
+   Check_Pattern ("testing.ads", Found);
+   Check_Contains ("testing.ads", Found);
 
    --  Dump the result
    Util.Measures.Write (Perf, "Example of measures",

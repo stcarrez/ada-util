@@ -2,18 +2,7 @@
 --  multipro -- Points out multiprocessor issues when incrementing counters
 --  Copyright (C) 2010, 2011 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
---
---  Licensed under the Apache License, Version 2.0 (the "License");
---  you may not use this file except in compliance with the License.
---  You may obtain a copy of the License at
---
---      http://www.apache.org/licenses/LICENSE-2.0
---
---  Unless required by applicable law or agreed to in writing, software
---  distributed under the License is distributed on an "AS IS" BASIS,
---  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
---  See the License for the specific language governing permissions and
---  limitations under the License.
+--  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 with Util.Log;
 with Util.Log.Loggers;
@@ -28,11 +17,16 @@ procedure Multipro is
    Log  : constant Loggers.Logger := Loggers.Create ("multipro");
 
    --  Target counter value we would like.
-   Max_Counter       : constant Integer := 10_000_000;
+   Max_Counter       : constant Integer := 2000_000_000;
 
    --  Max number of tasks for executing the concurrent increment.
-   Max_Tasks         : constant Integer := 16;
+   Max_Tasks         : constant Integer := 8;
 
+   type Ad is record
+      S : String (1 .. 32);
+      C : Util.Concurrent.Counters.Counter;
+   end record;
+   C : array (1 .. Max_Tasks) of Ad;
    --  Performance measurement.
    Perf    : Util.Measures.Measure_Set;
    T       : Util.Measures.Stamp;
@@ -46,24 +40,26 @@ begin
          Unsafe  : Integer := 0;
 
          --  Counter protected by concurrent accesses.
-         Counter : Util.Concurrent.Counters.Counter;
+         --  Counter : Util.Concurrent.Counters.Counter;
       begin
          declare
             --  A task that increments the shared counter <b>Unsafe</b> and <b>Counter</b> by
             --  the specified amount.
             task type Worker is
-               entry Start (Count : in Natural);
+               entry Start (Id : in Natural; Count : in Natural);
             end Worker;
 
             task body Worker is
                Cnt : Natural;
+	       Cid : Natural;
             begin
-               accept Start (Count : in Natural) do
+               accept Start (Id : in Natural; Count : in Natural) do
+	          Cid := Id;
                   Cnt := Count;
                end Start;
                --  Increment the two counters as many times as necessary.
                for I in 1 .. Cnt loop
-                  Util.Concurrent.Counters.Increment (Counter);
+                  --  Util.Concurrent.Counters.Increment (C (Cid).C);
                   Unsafe := Unsafe + 1;
                end loop;
             end Worker;
@@ -75,7 +71,7 @@ begin
          begin
             Log.Info ("Starting " & Integer'Image (Task_Count) & " tasks");
             for I in Tasks'Range loop
-               Tasks (I).Start (Increment_By_Task);
+               Tasks (I).Start (I, Increment_By_Task);
             end loop;
 
             --  Leaving the Worker task scope means we are waiting for our tasks to finish.
@@ -91,7 +87,7 @@ begin
          --  the number of tasks increases.
          Log.Info ("Expected value at the end      : "
                    & Integer'Image (Increment_By_Task * Task_Count));
-         Log.Info ("Counter value at the end       : " & Integer'Image (Value (Counter)));
+         --  Log.Info ("Counter value at the end       : " & Integer'Image (Value (Counter)));
          Log.Info ("Unprotected counter at the end : " & Integer'Image (Unsafe));
       end;
    end loop;
