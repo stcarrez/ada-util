@@ -191,7 +191,7 @@ endef
 define alire_publish
   publish::
 	-rm -f $(aliredir)/$(2)/$(3)
-	cd $(1) && alr -f --no-tty publish
+	cd $(1) && alr -f --no-tty publish --skip-submit
 	mkdir -p $(aliredir)/$(2)
 	cp $(1)/alire/releases/$(3) $(aliredir)/$(2)/$(3)
 
