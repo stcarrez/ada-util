@@ -5,6 +5,7 @@ Version 2.7.0  - Jun 2024
   - Fix #49: Perf report generates incorrect XML title attributes
   - Fix #50: 128Bit AES-CTR Encoding doesn't work (thanks Adam Jasinski)
   - Fix #53: Executor does not always stop the worker tasks
+  - Used [spdx-tool](https://gitlab.com/stcarrez/spdx-tool) to use `SPDX-License-Identifier` in headers
 
 Version 2.6.0  - Jul 2023
   - New encoder/decoder for Base32
