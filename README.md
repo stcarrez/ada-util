@@ -34,24 +34,13 @@ Ada Util also provides a small test utility library on top of
 Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
 framework as it provides better reports.
 
-## Version 2.7.0  - Under development
+## Version 2.7.0  - Jun 2024
   - New package Util.Files.Walk to iterate over directory trees and honor .gitignore
   - Add support for custom log formatter (allow to translate log messages, filter messages, ...)
   - Feature #48: Change the log time from UTC to Local Time (configurable)
   - Fix #49: Perf report generates incorrect XML title attributes
   - Fix #50: 128Bit AES-CTR Encoding doesn't work (thanks Adam Jasinski)
   - Fix #53: Executor does not always stop the worker tasks
-
-## Version 2.6.0  - Jul 2023
-  - New encoder/decoder for Base32
-  - Feature #32: Custom log appender
-  - Feature #36: Add HOTP algorithm
-  - Feature #38: Allow to read stdout and stderr as separate streams when spawning a process
-  - Feature #40: Input stream reader to read parts from another stream
-  - Feature #41: Support to ignore line breaks when decoding Base64 streams
-  - Feature #42: Improvement of test framework to launch and verify external program execution and output
-  - Fix #37: Support to build with -gnatW8
-  - Fix #35: utilada_curl crate uses wrong curl dependency
 
 [List all versions](https://github.com/stcarrez/ada-util/blob/master/NEWS.md)
 

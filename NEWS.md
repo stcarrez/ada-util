@@ -1,4 +1,4 @@
-Version 2.7.0  - Under development
+Version 2.7.0  - Jun 2024
   - New package Util.Files.Walk to iterate over directory trees and honor .gitignore
   - Add support for custom log formatter (allow to translate log messages, filter messages, ...)
   - Feature #48: Change the log time from UTC to Local Time (configurable)
