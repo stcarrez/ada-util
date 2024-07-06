@@ -10,10 +10,10 @@
 [![Test Status](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/tests.json)](https://porion.vacs.fr/porion/projects/view/ada-util/xunits)
 [![Coverage](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/coverage.json)](https://porion.vacs.fr/porion/projects/view/ada-util/summary)
 [![Documentation Status](https://readthedocs.org/projects/ada-util/badge/?version=latest)](https://ada-util.readthedocs.io/en/latest/?badge=latest)
-[![Download](https://img.shields.io/badge/download-2.6.0-brightgreen.svg)](http://download.vacs.fr/ada-util/ada-util-2.6.0.tar.gz)
+[![Download](https://img.shields.io/badge/download-2.7.0-brightgreen.svg)](http://download.vacs.fr/ada-util/ada-util-2.7.0.tar.gz)
 [![License](https://img.shields.io/badge/license-APACHE2-blue.svg)](LICENSE)
 [![GitLab](https://img.shields.io/badge/repo-GitLab-6C488A.svg)](https://gitlab.com/stcarrez/ada-util)
-[![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/2.6.0.svg)](Commits)
+[![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/276.0.svg)](Commits)
 
 
 This Ada library contains various utility packages for building
