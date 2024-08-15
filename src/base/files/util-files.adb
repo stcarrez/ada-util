@@ -404,7 +404,7 @@ package body Util.Files is
       end loop;
       loop
          if Result >= Path'Last then
-            return Result;
+            return Path'Last;
          end if;
          if Path (Result) in '/' | '\' then
             return Result - 1;
