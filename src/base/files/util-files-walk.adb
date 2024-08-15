@@ -92,7 +92,7 @@ package body Util.Files.Walk is
       Real_Path : constant String := Util.Files.Realpath (Path);
       Pos       : Natural := Real_Path'Last;
    begin
-      while not Walker.Is_Root (Real_Path (Real_Path'First .. Pos)) loop
+      while not Walker_Type'Class (Walker).Is_Root (Real_Path (Real_Path'First .. Pos)) loop
          declare
             Parent : constant String :=
               Ada.Directories.Containing_Directory (Real_Path (Real_Path'First .. Pos));
