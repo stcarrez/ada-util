@@ -124,10 +124,13 @@ package Util.Files.Walk is
    --  the relative paths from `Path` that must still be sanned before reaching
    --  the `Scan_Path`.  Once the `Rel_Path` becomes empty, calls `Scan_Directory`
    --  with the filter and the ignore files collected up to the root directory.
+   --  The `Level` is incremented each time we enter a sub-directory to load its
+   --  .gitignore file.
    procedure Scan_Subdir_For_Ignore (Walker    : in out Walker_Type;
                                      Path      : in String;
                                      Scan_Path : in String;
                                      Rel_Path  : in String;
+                                     Level     : in Natural;
                                      Filter    : in Filter_Context_Type) with
      Pre => Path'Length > 0 and then Scan_Path'Length > 0;
 

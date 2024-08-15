@@ -131,7 +131,7 @@ package body Util.Files.Walk is
       Log.Debug ("Scanning {0}", Path);
 
       if Rel_Path /= "." then
-         Walker_Type'Class (Walker).Scan_Subdir_For_Ignore (Root, Path, Rel_Path, Dir_Context);
+         Walker_Type'Class (Walker).Scan_Subdir_For_Ignore (Root, Path, Rel_Path, 0, Dir_Context);
       else
          Walker.Scan_Subdir (Path, Dir_Context, Path_Filter.NO_MATCH);
       end if;
@@ -141,6 +141,7 @@ package body Util.Files.Walk is
                                      Path      : in String;
                                      Scan_Path : in String;
                                      Rel_Path  : in String;
+                                     Level     : in Natural;
                                      Filter    : in Filter_Context_Type) is
       Sep : constant Natural := Path_Component_Position (Rel_Path);
       Child_Dir   : constant String := Compose (Path, Rel_Path (Rel_Path'First .. Sep));
@@ -157,6 +158,7 @@ package body Util.Files.Walk is
                Walker_Type'Class (Walker).Scan_Subdir_For_Ignore
                  (Child_Dir, Scan_Path,
                   Rel_Path (Sep + 1 .. Rel_Path'Last),
+                  Level + 1,
                   Dir_Context);
             else
                --  Reached end of relative path to load ignore files, scan from the Scan_Path now.
@@ -172,6 +174,7 @@ package body Util.Files.Walk is
                Walker_Type'Class (Walker).Scan_Subdir_For_Ignore
                  (Child_Dir, Scan_Path,
                   Rel_Path (Sep + 1 .. Rel_Path'Last),
+                  Level + 1,
                   Dir_Context);
             else
                --  Reached end of relative path to load ignore files, scan from the Scan_Path now.
