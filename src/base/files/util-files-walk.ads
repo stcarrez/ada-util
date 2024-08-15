@@ -63,6 +63,11 @@ package Util.Files.Walk is
    package Path_Filter is
       new Util.Files.Filters (Filter_Mode);
 
+   use Path_Filter;
+
+   subtype Filter_Result is Path_Filter.Filter_Result;
+   subtype Filter_Context_Type is Path_Filter.Filter_Context_Type;
+
    type Filter_Type is limited new Path_Filter.Filter_Type with null record;
 
    --  Add a new pattern to include files or directories in the walk.
@@ -113,6 +118,19 @@ package Util.Files.Walk is
                    Filter : in Filter_Type'Class) with
      Pre => Path'Length > 0 and then Ada.Directories.Exists (Path);
 
+   --  Called from `Scan` to give the opportunity to load the ignore files
+   --  from the root directory (see `Find_Root`), down to the inner directory
+   --  that must be scanned (identified by `Scan_Path`).  The `Rel_Path` indicates
+   --  the relative paths from `Path` that must still be sanned before reaching
+   --  the `Scan_Path`.  Once the `Rel_Path` becomes empty, calls `Scan_Directory`
+   --  with the filter and the ignore files collected up to the root directory.
+   procedure Scan_Subdir_For_Ignore (Walker    : in out Walker_Type;
+                                     Path      : in String;
+                                     Scan_Path : in String;
+                                     Rel_Path  : in String;
+                                     Filter    : in Filter_Context_Type) with
+     Pre => Path'Length > 0 and then Scan_Path'Length > 0;
+
    --  Get the path of a file that can be read to get a list of files to ignore
    --  in the given directory (ie, .gitignore).
    function Get_Ignore_Path (Walker : Walker_Type;
@@ -125,15 +143,23 @@ package Util.Files.Walk is
                           Filter : in out Filter_Type'Class) with
      Pre => Path'Length > 0 and then Ada.Directories.Exists (Path);
 
+   --  Returns true if the path corresponds to a root path for a project:
+   --  The default returns True.
+   function Is_Root (Walker : in Walker_Type;
+                     Path   : in String) return Boolean with
+     Pre => Path'Length > 0;
+
+   --  Find the root directory of a project knowing a path of a file or
+   --  directory of that project.  Move up to parent directories until
+   --  a path returns true when `Is_Root` is called.
+   function Find_Root (Walker : in Walker_Type;
+                       Path   : in String) return String with
+     Pre'Class => Path'Length > 0 and then Ada.Directories.Exists (Path);
+
    --  Called when a file is found during the directory tree walk.
    procedure Scan_File (Walker : in out Walker_Type;
                         Path   : String) is null with
      Pre'Class => Path'Length > 0 and then Ada.Directories.Exists (Path);
-
-   use Path_Filter;
-
-   subtype Filter_Result is Path_Filter.Filter_Result;
-   subtype Filter_Context_Type is Path_Filter.Filter_Context_Type;
 
    --  Called when a directory is found during a directory tree walk.
    --  The default implementation checks for a configuration file to ignore

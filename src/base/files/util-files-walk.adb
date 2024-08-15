@@ -73,6 +73,40 @@ package body Util.Files.Walk is
    end Get_Ignore_Path;
 
    --  ------------------------------
+   --  Returns true if the path corresponds to a root path for a project:
+   --  The default returns True.
+   --  ------------------------------
+   function Is_Root (Walker : in Walker_Type;
+                     Path   : in String) return Boolean is
+   begin
+      return True;
+   end Is_Root;
+
+   --  ------------------------------
+   --  Find the root directory of a project knowing a path of a file or
+   --  directory of that project.  Move up to parent directories until
+   --  a path returns true when `Is_Root` is called.
+   --  ------------------------------
+   function Find_Root (Walker : in Walker_Type;
+                       Path   : in String) return String is
+      Real_Path : constant String := Util.Files.Realpath (Path);
+      Pos       : Natural := Real_Path'Last;
+   begin
+      while not Walker.Is_Root (Real_Path (Real_Path'First .. Pos)) loop
+         declare
+            Parent : constant String :=
+              Ada.Directories.Containing_Directory (Real_Path (Real_Path'First .. Pos));
+         begin
+            if Parent'Length = 0 then
+               return Real_Path;
+            end if;
+            Pos := Real_Path'First + Parent'Length - 1;
+         end;
+      end loop;
+      return Real_Path (Real_Path'First .. Pos);
+   end Find_Root;
+
+   --  ------------------------------
    --  Scan the directory tree given by the path for files and sub-directories
    --  matching the filters:
    --  * it calls `Get_Ignore_Path` to get an optional path of files to read
@@ -89,12 +123,63 @@ package body Util.Files.Walk is
    procedure Scan (Walker : in out Walker_Type;
                    Path   : in String;
                    Filter : in Filter_Type'Class) is
+      Dir         : constant String := Util.Files.Realpath (Path);
+      Root        : constant String := Walker_Type'Class (Walker).Find_Root (Dir);
+      Rel_Path    : constant String := Util.Files.Get_Relative_Path (Root, Dir);
       Dir_Context : constant Filter_Context_Type := Filter.Create;
    begin
       Log.Debug ("Scanning {0}", Path);
 
-      Walker.Scan_Subdir (Path, Dir_Context, Path_Filter.NO_MATCH);
+      if Rel_Path /= "." then
+         Walker_Type'Class (Walker).Scan_Subdir_For_Ignore (Root, Path, Rel_Path, Dir_Context);
+      else
+         Walker.Scan_Subdir (Path, Dir_Context, Path_Filter.NO_MATCH);
+      end if;
    end Scan;
+
+   procedure Scan_Subdir_For_Ignore (Walker    : in out Walker_Type;
+                                     Path      : in String;
+                                     Scan_Path : in String;
+                                     Rel_Path  : in String;
+                                     Filter    : in Filter_Context_Type) is
+      Sep : constant Natural := Path_Component_Position (Rel_Path);
+      Child_Dir   : constant String := Compose (Path, Rel_Path (Rel_Path'First .. Sep));
+      Ignore_File : constant String := Walker_Type'Class (Walker).Get_Ignore_Path (Path);
+      Local_Filter : Filter_Type;
+   begin
+      if Ignore_File'Length > 0 and then Ada.Directories.Exists (Ignore_File) then
+         Walker_Type'Class (Walker).Load_Ignore (Ignore_File, Local_Filter);
+         declare
+            Dir_Context  : constant Filter_Context_Type
+              := Local_Filter.Create (Filter);
+         begin
+            if Sep < Rel_Path'Last then
+               Walker_Type'Class (Walker).Scan_Subdir_For_Ignore
+                 (Child_Dir, Scan_Path,
+                  Rel_Path (Sep + 1 .. Rel_Path'Last),
+                  Dir_Context);
+            else
+               --  Reached end of relative path to load ignore files, scan from the Scan_Path now.
+               Walker_Type'Class (Walker).Scan_Directory (Scan_Path, Dir_Context);
+            end if;
+         end;
+      else
+         declare
+            Dir_Context : constant Filter_Context_Type
+              := Path_Filter.Create (Filter);
+         begin
+            if Sep < Rel_Path'Last then
+               Walker_Type'Class (Walker).Scan_Subdir_For_Ignore
+                 (Child_Dir, Scan_Path,
+                  Rel_Path (Sep + 1 .. Rel_Path'Last),
+                  Dir_Context);
+            else
+               --  Reached end of relative path to load ignore files, scan from the Scan_Path now.
+               Walker_Type'Class (Walker).Scan_Directory (Scan_Path, Dir_Context);
+            end if;
+         end;
+      end if;
+   end Scan_Subdir_For_Ignore;
 
    procedure Scan_Subdir (Walker : in out Walker_Type;
                           Path   : in String;
