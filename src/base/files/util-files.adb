@@ -391,6 +391,29 @@ package body Util.Files is
    end Get_Relative_Path;
 
    --  ------------------------------
+   --  Find the position of the end path component in the `Path` starting from the beginning
+   --  or from the given position.  The string Path (From .. Path_Component_Position) gives
+   --  the path component.
+   --  ------------------------------
+   function Path_Component_Position (Path : in String;
+                                     From : in Natural := 0) return Natural is
+      Result : Natural := (if From = 0 then Path'First else From);
+   begin
+      while Result < Path'Last and then Path (Result) in '/' | '\' loop
+         Result := Result + 1;
+      end loop;
+      loop
+         if Result = Path'Last then
+            return Result;
+         end if;
+         if Path (Result) in '/' | '\' then
+            return Result - 1;
+         end if;
+         Result := Result + 1;
+      end loop;
+   end Path_Component_Position;
+
+   --  ------------------------------
    --  Rename the old name into a new name.
    --  ------------------------------
    procedure Rename (Old_Name, New_Name : in String) is

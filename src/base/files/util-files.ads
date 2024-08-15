@@ -151,6 +151,12 @@ package Util.Files is
    function Get_Relative_Path (From : in String;
                                To   : in String) return String;
 
+   --  Find the position of the end path component in the `Path` starting from the beginning
+   --  or from the given position.  The string Path (From .. Path_Component_Position) gives
+   --  the path component.
+   function Path_Component_Position (Path : in String;
+                                     From : in Natural := 0) return Natural;
+
    --  Rename the old name into a new name.
    procedure Rename (Old_Name, New_Name : in String);
 
