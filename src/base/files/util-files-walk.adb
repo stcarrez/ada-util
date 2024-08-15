@@ -130,11 +130,8 @@ package body Util.Files.Walk is
    begin
       Log.Debug ("Scanning {0}", Path);
 
-      if Rel_Path /= "." then
-         Walker_Type'Class (Walker).Scan_Subdir_For_Ignore (Root, Path, Rel_Path, 0, Dir_Context);
-      else
-         Walker.Scan_Subdir (Path, Dir_Context, Path_Filter.NO_MATCH);
-      end if;
+      Walker_Type'Class (Walker).Scan_Subdir_For_Ignore
+        (Root, Path, (if Rel_Path = "." then "" else Rel_Path), 0, Dir_Context);
    end Scan;
 
    procedure Scan_Subdir_For_Ignore (Walker    : in out Walker_Type;
