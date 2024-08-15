@@ -403,7 +403,7 @@ package body Util.Files is
          Result := Result + 1;
       end loop;
       loop
-         if Result = Path'Last then
+         if Result >= Path'Last then
             return Result;
          end if;
          if Path (Result) in '/' | '\' then
