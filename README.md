@@ -34,6 +34,9 @@ Ada Util also provides a small test utility library on top of
 Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
 framework as it provides better reports.
 
+## Version 2.8.0  - Under development
+  - Improvement of Util.Files.Walk to scan and honor a root .gitignore from any child directory
+
 ## Version 2.7.0  - Jun 2024
   - New package Util.Files.Walk to iterate over directory trees and honor .gitignore
   - Add support for custom log formatter (allow to translate log messages, filter messages, ...)
