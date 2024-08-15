@@ -102,14 +102,9 @@ package body Util.Files.Walk is
                           Match  : in Filter_Result) is
       Ignore_File : constant String
         := Walker_Type'Class (Walker).Get_Ignore_Path (Path);
-      --  Dir_Filter  : aliased Filter_Info_Type;
-      --  Dir_Context : Filter_Context_Type;
    begin
       Log.Debug ("Scanning {0}", Path);
 
-      --  Dir_Filter.Previous := Filter.Filter;
-      --  Dir_Filter.Current := Filter.Pattern;
-      --  Dir_Context.Filter := Dir_Filter'Unchecked_Access;
       if Ignore_File'Length > 0
         and then Ada.Directories.Exists (Ignore_File)
       then
@@ -121,8 +116,6 @@ package body Util.Files.Walk is
                Dir_Context  : constant Filter_Context_Type
                  := Local_Filter.Create (Filter);
             begin
-               --  Dir_Filter.Local := Local_Filter.Root;
-               --  Dir_Filter.Local_Recursive := Local_Filter.Recursive;
                Walker_Type'Class (Walker).Scan_Directory (Path,
                                                           Dir_Context);
             end;

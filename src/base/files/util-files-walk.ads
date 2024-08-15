@@ -63,7 +63,7 @@ package Util.Files.Walk is
    package Path_Filter is
       new Util.Files.Filters (Filter_Mode);
 
-   type Filter_Type is limited new AF.Limited_Controlled with private;
+   type Filter_Type is limited new Path_Filter.Filter_Type with null record;
 
    --  Add a new pattern to include files or directories in the walk.
    procedure Include (Filter  : in out Filter_Type;
@@ -94,7 +94,7 @@ package Util.Files.Walk is
                           Path   : String) with
       Pre => Path'Length > 0 and then Ada.Directories.Exists (Path);
 
-   type Walker_Type is limited new AF.Limited_Controlled with private;
+   type Walker_Type is limited new AF.Limited_Controlled with null record;
 
    --  Scan the directory tree given by the path for files and sub-directories
    --  matching the filters:
@@ -154,11 +154,5 @@ package Util.Files.Walk is
                              Path   : String;
                              Filter : Filter_Context_Type) with
      Pre => Path'Length > 0 and then Ada.Directories.Exists (Path);
-
-private
-
-   type Filter_Type is limited new Path_Filter.Filter_Type with null record;
-
-   type Walker_Type is limited new AF.Limited_Controlled with null record;
 
 end Util.Files.Walk;
