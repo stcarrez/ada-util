@@ -24,6 +24,9 @@ package Util.Files.Tests is
    --  Test the Get_Relative_Path operation.
    procedure Test_Get_Relative_Path (T : in out Test);
 
+   --  Test the Path_Component_Position operation.
+   procedure Test_Path_Component_Position (T : in out Test);
+
    --  Test the Delete_Tree operation.
    procedure Test_Delete_Tree (T : in out Test);
 

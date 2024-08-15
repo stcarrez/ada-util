@@ -62,6 +62,8 @@ package body Util.Files.Tests is
                        Test_Filter_Wildcard'Access);
       Caller.Add_Test (Suite, "Test Util.Files.Filters.Insert",
                        Test_Path_Filter'Access);
+      Caller.Add_Test (Suite, "Test Util.Files.Path_Component_Position",
+                       Test_Path_Component_Position'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -213,6 +215,18 @@ package body Util.Files.Tests is
                      Get_Relative_Path ("/home/john/src/asf", "/home/john/src/asf/"),
                      "Invalid relative path");
    end Test_Get_Relative_Path;
+
+   --  ------------------------------
+   --  Test the Path_Component_Position operation.
+   --  ------------------------------
+   procedure Test_Path_Component_Position (T : in out Test) is
+   begin
+      Assert_Equals (T, 1, Path_Component_Position ("a/b/c"), "Invalid position");
+      Assert_Equals (T, 3, Path_Component_Position ("a/b/c", 2), "Invalid position");
+      Assert_Equals (T, 5, Path_Component_Position ("a/b/c", 4), "Invalid position");
+      Assert_Equals (T, 6, Path_Component_Position ("a/b/cd", 4), "Invalid position");
+      Assert_Equals (T, 3, Path_Component_Position ("/aa/bb/cc"), "Invalid position");
+   end Test_Path_Component_Position;
 
    function Sys_Symlink (Target : in System.Address; Link : in System.Address) return Integer
      with Import => True, Convention => C,
