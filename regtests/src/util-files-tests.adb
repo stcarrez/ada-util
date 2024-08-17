@@ -73,7 +73,7 @@ package body Util.Files.Tests is
    procedure Test_Read_File (T : in out Test) is
       Result : Unbounded_String;
    begin
-      Read_File (Path => "regtests/util-files-tests.adb", Into => Result);
+      Read_File (Path => "regtests/src/util-files-tests.adb", Into => Result);
       T.Assert (Index (Result, "Util.Files.Tests") > 0,
                 "Content returned by Read_File is not correct");
       T.Assert (Index (Result, "end Util.Files.Tests;") > 0,
@@ -83,7 +83,7 @@ package body Util.Files.Tests is
    procedure Test_Read_File_Missing (T : in out Test) is
       Unused_Result : Unbounded_String;
    begin
-      Read_File (Path => "regtests/files-test--util.adb", Into => Unused_Result);
+      Read_File (Path => "regtests/src/files-test--util.adb", Into => Unused_Result);
       T.Assert (False, "No exception raised");
    exception
       when others =>
@@ -93,7 +93,7 @@ package body Util.Files.Tests is
    procedure Test_Read_File_Truncate (T : in out Test) is
       Result : Unbounded_String;
    begin
-      Read_File (Path => "regtests/util-files-tests.adb", Into => Result,
+      Read_File (Path => "regtests/src/util-files-tests.adb", Into => Result,
                  Max_Size => 50);
       Assert_Equals (T, Length (Result), 50,
                      "Read_File did not truncate correctly");
@@ -296,6 +296,10 @@ package body Util.Files.Tests is
       function Simplify_Path (Path : String) return String;
 
       overriding
+      function Is_Root (Walker : in Walker_Type;
+                        Path   : in String) return Boolean;
+
+      overriding
       function Get_Ignore_Path (Walker : Walker_Type;
                                 Path   : String) return String;
 
@@ -318,6 +322,14 @@ package body Util.Files.Tests is
             return Path (Pos .. Path'Last);
          end if;
       end Simplify_Path;
+
+      overriding
+      function Is_Root (Walker : in Walker_Type;
+                        Path   : in String) return Boolean is
+         Git_Path : constant String := Compose (Path, ".git");
+      begin
+         return Ada.Directories.Exists (Git_Path);
+      end Is_Root;
 
       overriding
       function Get_Ignore_Path (Walker : Walker_Type;
@@ -359,10 +371,10 @@ package body Util.Files.Tests is
       for S of W.Dirs loop
          Ada.Text_IO.Put_Line (S);
       end loop;
-      T.Assert (W.Files.Contains ("/regtests/util-files-tests.ads"),
-                "Missing '/regtests/util-files-tests.ads'");
-      T.Assert (W.Files.Contains ("/regtests/util-files-tests.adb"),
-                "Missing '/regtests/util-files-tests.adb'");
+      T.Assert (W.Files.Contains ("/regtests/src/util-files-tests.ads"),
+                "Missing '/regtests/src/util-files-tests.ads'");
+      T.Assert (W.Files.Contains ("/regtests/src/util-files-tests.adb"),
+                "Missing '/regtests/src/util-files-tests.adb'");
       T.Assert (W.Dirs.Contains ("/regtests/files"),
                 "Missing dir '/regtests/files");
    end Test_Walk;
