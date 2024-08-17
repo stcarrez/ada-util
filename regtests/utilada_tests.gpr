@@ -9,9 +9,9 @@ with "utilada_unit";
 with "tests_proc";
 with "utilada_xml";
 
-
 project UtilAda_Tests is
 
+   for Create_Missing_Dirs use "True";
    for Languages use ("Ada");
    Mains := ("util_harness.adb");
    for Source_Dirs use ("src", "src/curl", "src/aws");

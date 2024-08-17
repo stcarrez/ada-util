@@ -8,6 +8,8 @@ with "utilada_aws";
 
 project Samples is
 
+   for Create_Missing_Dirs use "True";
+
    Mains := ("measures.adb", "properties.adb", "log.adb",
    "bundles.adb", "escape.adb", "encodes.adb", "popen.adb",
    "multipro.adb", "multipro_refs.adb", "date.adb",
