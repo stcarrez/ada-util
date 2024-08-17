@@ -10,6 +10,11 @@ DYNAMO := $(shell which dynamo)
 
 -include Makefile.conf
 
+HAVE_XML_ADA?=yes
+HAVE_CURL?=yes
+HAVE_AWS?=yes
+HAVE_LZMA?=yes
+
 STATIC_MAKE_ARGS = $(MAKE_ARGS) -XUTIL_LIBRARY_TYPE=static
 SHARED_MAKE_ARGS = $(MAKE_ARGS) -XUTIL_LIBRARY_TYPE=relocatable
 SHARED_MAKE_ARGS += -XXMLADA_BUILD=relocatable
@@ -37,33 +42,33 @@ include Makefile.defaults
 
 setup:: $(UTIL_GEN_FILES)
 
-$(eval $(call ada_library,utilada_core))
-$(eval $(call ada_library,utilada_base))
-$(eval $(call ada_library,utilada_sys))
+$(eval $(call ada_library,utilada_core,.))
+$(eval $(call ada_library,utilada_base,.))
+$(eval $(call ada_library,utilada_sys,.))
 
 ifeq ($(HAVE_XML_ADA),yes)
-$(eval $(call ada_library,utilada_xml))
+$(eval $(call ada_library,utilada_xml,xml))
 endif
 
 ifeq ($(HAVE_CURL),yes)
-$(eval $(call ada_library,utilada_curl))
+$(eval $(call ada_library,utilada_curl,curl))
 endif
 
 ifeq ($(HAVE_AWS),yes)
-$(eval $(call ada_library,utilada_aws))
+$(eval $(call ada_library,utilada_aws,aws))
 endif
 
 ifeq ($(HAVE_LZMA),yes)
-$(eval $(call ada_library,utilada_lzma))
+$(eval $(call ada_library,utilada_lzma,lzma))
 endif
 
-$(eval $(call ada_library,utilada_unit))
+$(eval $(call ada_library,utilada_unit,unit))
 
-install::
-	mkdir -p $(DESTDIR)${prefix}/${ADA_PRJ_BASE}
-	cp utilada_http.gpr $(DESTDIR)${prefix}/${ADA_PRJ_BASE}
-
-$(eval $(call ada_library,utilada_http))
+# install::
+#	mkdir -p $(DESTDIR)${prefix}/${ADA_PRJ_BASE}
+#	cp utilada_http.gpr $(DESTDIR)${prefix}/${ADA_PRJ_BASE}
+#
+# $(eval $(call ada_library,utilada_http))
 
 build-test:: regtests/src/util-testsuite.adb
 	cd regtests && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS)
