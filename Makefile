@@ -67,8 +67,7 @@ install::
 $(eval $(call ada_library,utilada_http))
 
 build-test:: regtests/src/util-testsuite.adb
-	$(GNATMAKE) $(GPRFLAGS) -p -Ptests_proc $(MAKE_ARGS)
-	$(GNATMAKE) $(GPRFLAGS) -p -Putilada_tests $(MAKE_ARGS)
+	cd regtests && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS)
 
 # Build and run the unit tests
 test:	build samples
@@ -82,7 +81,7 @@ regtests/src/util-testsuite.adb: regtests/src/util-testsuite.gpb Makefile.conf
 		 regtests/src/util-testsuite.gpb $@
 
 samples:
-	$(GNATMAKE) $(GPRFLAGS) -p samples.gpr $(MAKE_ARGS)
+	cd samples && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS)
 
 CLEAN_FILES=$(UTIL_GEN_FILES) bin/util_harness
 CLEAN_FILES+= bin/util_test_process bin/utilgen
