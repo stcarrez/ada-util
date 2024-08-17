@@ -10,7 +10,6 @@ DYNAMO := $(shell which dynamo)
 
 -include Makefile.conf
 
-MAKE_ARGS = -XHARDWARE_PLATFORM=$(HARDWARE_PLATFORM)
 STATIC_MAKE_ARGS = $(MAKE_ARGS) -XUTIL_LIBRARY_TYPE=static
 SHARED_MAKE_ARGS = $(MAKE_ARGS) -XUTIL_LIBRARY_TYPE=relocatable
 SHARED_MAKE_ARGS += -XXMLADA_BUILD=relocatable
@@ -153,10 +152,10 @@ bin/utilgen:    support/utilgen.c
 	$(CC) -o $@ $(CFLAGS) -g support/utilgen.c
 
 $(eval $(call alire_publish,.,ut/utilada,utilada-$(VERSION).toml))
-$(eval $(call alire_publish,.alire/unit,ut/utilada_unit,utilada_unit-$(VERSION).toml))
-$(eval $(call alire_publish,.alire/xml,ut/utilada_xml,utilada_xml-$(VERSION).toml))
-$(eval $(call alire_publish,.alire/curl,ut/utilada_curl,utilada_curl-$(VERSION).toml))
-$(eval $(call alire_publish,.alire/aws,ut/utilada_aws,utilada_aws-$(VERSION).toml))
-$(eval $(call alire_publish,.alire/lzma,ut/utilada_lzma,utilada_lzma-$(VERSION).toml))
+$(eval $(call alire_publish,unit,ut/utilada_unit,utilada_unit-$(VERSION).toml))
+$(eval $(call alire_publish,xml,ut/utilada_xml,utilada_xml-$(VERSION).toml))
+$(eval $(call alire_publish,curl,ut/utilada_curl,utilada_curl-$(VERSION).toml))
+$(eval $(call alire_publish,aws,ut/utilada_aws,utilada_aws-$(VERSION).toml))
+$(eval $(call alire_publish,lzma,ut/utilada_lzma,utilada_lzma-$(VERSION).toml))
 
 .PHONY: samples
