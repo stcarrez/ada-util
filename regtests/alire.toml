@@ -1,0 +1,30 @@
+description = "Tests for Ada Utility Library "
+name = "utilada_tests"
+version = "2.8.0"
+authors = ["Stephane.Carrez@gmail.com"]
+licenses = "Apache-2.0"
+maintainers = ["Stephane.Carrez@gmail.com"]
+maintainers-logins = ["stcarrez"]
+project-files = ["utilada_tests.gpr"]
+tags = ["xml", "serialization"]
+website = "https://gitlab.com/stcarrez/ada-util"
+
+[[depends-on]]
+utilada = "^2.7.0"
+utilada_unit = "^2.7.0"
+utilada_xml = "^2.7.0"
+utilada_curl = "^2.7.0"
+utilada_aws = "^2.7.0"
+utilada_lzma = "^2.7.0"
+
+[configuration]
+disabled = true
+
+[[pins]]
+utilada = { path = '..' }
+utilada_unit = { path = '../unit' }
+utilada_xml = { path = '../xml' }
+utilada_curl = { path = '../curl' }
+utilada_aws = { path = '../aws' }
+utilada_lzma = { path = '../lzma' }
+

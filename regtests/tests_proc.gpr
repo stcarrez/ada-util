@@ -1,0 +1,24 @@
+with "utilada_config";
+
+--  This project defines a small executable used by the process execution unit test.
+--  It is now as a separate project because the arm-linux-gnueabi compiler fails
+--  to link due to the AWS shared library that needs the GNARL runtime.  For some
+--  reasons, the -lgnarl-4.6 is not passed on that platform.
+--  By using a specific and simpler project, we avoid dependencies to other Ada libraries
+--  which are in fact not used by this tool.
+project Tests_Proc is
+
+   for Languages use ("Ada");
+   Mains := ("util_test_process.adb");
+   for Source_Dirs use ("src/prog");
+
+   for Main use Mains;
+   for Object_Dir use "../" & UtilAda_Config'Object_Dir & "/obj";
+   for Exec_Dir use "../bin";
+
+   package Binder renames UtilAda_Config.Binder;
+   package Builder renames UtilAda_Config.Builder;
+   package Compiler renames UtilAda_Config.Compiler;
+   package Linker renames UtilAda_Config.Linker;
+
+end Tests_Proc;
