@@ -1,0 +1,42 @@
+description = "Utility Library REST support on top of AWS"
+name = "utilada_aws"
+version = "2.7.0"
+authors = ["Stephane.Carrez@gmail.com"]
+licenses = "Apache-2.0"
+maintainers = ["Stephane.Carrez@gmail.com"]
+maintainers-logins = ["stcarrez"]
+project-files = ["utilada_aws.gpr"]
+tags = ["web", "http"]
+website = "https://gitlab.com/stcarrez/ada-util"
+long-description = """
+
+[![Build Status](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/build.json)](https://porion.vacs.fr/porion/projects/view/ada-util/summary)
+[![Test Status](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/tests.json)](https://porion.vacs.fr/porion/projects/view/ada-util/xunits)
+[![Coverage](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/coverage.json)](https://porion.vacs.fr/porion/projects/view/ada-util/summary)
+[![Documentation Status](https://readthedocs.org/projects/ada-util/badge/?version=latest)](https://ada-util.readthedocs.io/en/latest/?badge=latest)
+
+This small library provides an HTTP backend on top of AWS.
+It can be used by the `Util.Http` package.
+
+An alternate HTTP backend is provided by CURL with `utilada_curl`.
+
+# Documentation
+
+* [Ada Utility Library Programmer's Guide](https://ada-util.readthedocs.io/en/latest/) [PDF](https://github.com/stcarrez/ada-util/blob/master/docs/utilada-book.pdf)
+
+"""
+
+[[depends-on]]
+utilada = "^2.7.0"
+aws = "^24.0"
+
+[gpr-externals]
+UTIL_BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
+UTIL_LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
+UTIL_AWS_IMPL = ["1", "2", "3"]
+
+[gpr-set-externals]
+UTIL_AWS_IMPL = "3"
+
+[configuration]
+disabled = true
