@@ -73,7 +73,7 @@ build-test:: regtests/src/util-testsuite.adb
 test:	build samples
 	-bin/util_harness -v -l $(NAME): -xml util-aunit.xml -timeout ${TEST_TIMEOUT}
 
-regtests/src/util-testsuite.adb: regtests/src/util-testsuite.gpb Makefile.conf
+regtests/src/util-testsuite.adb: regtests/src/util-testsuite.gpb
 	gnatprep -DHAVE_XML=$(HAVE_XML_ADA) -DHAVE_CURL=$(HAVE_CURL) \
                  -DHAVE_AWS=$(HAVE_AWS) \
                  -DHAVE_LZMA=$(HAVE_LZMA) \
@@ -148,7 +148,7 @@ src/sys/http/curl/util-http-clients-curl-constants.ads:	bin/utilgen
 	bin/utilgen curl > $@
 
 # Utility for the generation of util-systems-constants.ads
-bin/utilgen:    support/utilgen.c Makefile.conf
+bin/utilgen:    support/utilgen.c
 	mkdir -p bin
 	$(CC) -o $@ $(CFLAGS) -g support/utilgen.c
 
