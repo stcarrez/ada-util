@@ -1,6 +1,7 @@
 with "utilada_conf";
 with "utilada_sys";
 with "aws";
+with "gnatcoll";
 
 library project UtilAda_Aws is
    Version := "2.6.0";
