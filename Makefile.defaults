@@ -105,9 +105,9 @@ define ada_library
 #	$(BUILD_COMMAND) $(GPRFLAGS) -p -P$(2)$(1).gpr $(STATIC_MAKE_ARGS)
 
   install-static::
-	$(ALR) exec -- gprinstall -p -f --prefix=$(DESTDIR)${prefix} \
+	cd $(2) && $(ALR) exec -- gprinstall -p -f --prefix=$(DESTDIR)${prefix} \
           $(STATIC_MAKE_ARGS) \
-          --build-name=static $(2)$(1).gpr  
+          --build-name=static $(1).gpr  
 
   lib-setup:: obj/$(1)/static
 
@@ -116,16 +116,16 @@ define ada_library
 
 ifeq ($(BUILDS_SHARED),yes)
   shared:: lib-setup
-	$(GNATMAKE) $(GPRFLAGS) -p -P$(2)$(1).gpr $(SHARED_MAKE_ARGS)
+	cd $(2) && $(BUILD_COMMAND) $(GPRFLAGS) $(SHARED_MAKE_ARGS)
 
   install-shared::
-	$(ALR) exec -- gprinstall -p -f --prefix=$(DESTDIR)${prefix} \
+	cd $(2) && $(ALR) exec -- gprinstall -p -f --prefix=$(DESTDIR)${prefix} \
           $(SHARED_MAKE_ARGS) \
-          --build-name=relocatable $(2)$(1).gpr
+          --build-name=relocatable $(1).gpr
 endif
 
   uninstall::
-	-$(ALR) exec -- gprinstall --uninstall -q -f --prefix=$(DESTDIR)${prefix} $(MAKE_ARGS) $(1).gpr
+	-cd $(2) && $(ALR) exec -- gprinstall --uninstall -q -f --prefix=$(DESTDIR)${prefix} $(MAKE_ARGS) $(1).gpr
 
 endef
 
