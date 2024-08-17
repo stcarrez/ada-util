@@ -1,6 +1,5 @@
 *~
 *.log
-config.status
 CHANGES
 Makefile.conf
 access.xml
@@ -11,8 +10,6 @@ acc.xml
 *.log
 ChangeLog
 .settings
-configure.lineno
-util.gpr
 tests.xml
 util-test.xml
 util-aunit.xml
@@ -30,13 +27,6 @@ src/sys/os-generated
 string-append.csv
 string.csv
 util-tests.xml
-utilada.gpr
-utilada_xml.gpr
-utilada_conf.gpr
-utilada_http.gpr
-utilada_unit.gpr
-utilada_lzma.gpr
-utilada_tests.gpr
 *.substvars
 debian/lib*
 debian/.debhelper/

@@ -1,4 +1,12 @@
 NAME=utilada
+VERSION=2.8.0
+
+DIST_DIR=ada-util-$(VERSION)
+DIST_FILE=ada-util-$(VERSION).tar.gz
+
+MAKE_ARGS += -XUTIL_BUILD=$(BUILD)
+PANDOC := $(shell which pandoc)
+DYNAMO := $(shell which dynamo)
 
 -include Makefile.conf
 
@@ -58,7 +66,7 @@ install::
 
 $(eval $(call ada_library,utilada_http))
 
-build-test:: regtests/util-testsuite.adb
+build-test:: regtests/src/util-testsuite.adb
 	$(GNATMAKE) $(GPRFLAGS) -p -Ptests_proc $(MAKE_ARGS)
 	$(GNATMAKE) $(GPRFLAGS) -p -Putilada_tests $(MAKE_ARGS)
 
@@ -66,13 +74,12 @@ build-test:: regtests/util-testsuite.adb
 test:	build samples
 	-bin/util_harness -v -l $(NAME): -xml util-aunit.xml -timeout ${TEST_TIMEOUT}
 
-regtests/util-testsuite.adb: regtests/util-testsuite.gpb Makefile.conf
+regtests/src/util-testsuite.adb: regtests/src/util-testsuite.gpb Makefile.conf
 	gnatprep -DHAVE_XML=$(HAVE_XML_ADA) -DHAVE_CURL=$(HAVE_CURL) \
                  -DHAVE_AWS=$(HAVE_AWS) \
-				 -DHAVE_VECTOR_MAPPERS=$(HAVE_VECTOR_MAPPERS) \
                  -DHAVE_LZMA=$(HAVE_LZMA) \
 		 -DOS_VERSION='"$(OS_VERSION)"' \
-		 regtests/util-testsuite.gpb $@
+		 regtests/src/util-testsuite.gpb $@
 
 samples:
 	$(GNATMAKE) $(GPRFLAGS) -p samples.gpr $(MAKE_ARGS)
