@@ -2,7 +2,8 @@ with "utilada_config";
 with "utilada_core";
 with "utilada_base";
 with "utilada_sys";
-with "utilada_http";
+with "utilada_curl";
+with "utilada_aws";
 with "utilada_lzma";
 with "utilada_unit";
 with "tests_proc";
@@ -13,23 +14,7 @@ project UtilAda_Tests is
 
    for Languages use ("Ada");
    Mains := ("util_harness.adb");
-   for Source_Dirs use ("src");
-
-   case UtilAda_Http.Has_Curl is
-      when "yes" =>
-          for Source_Dirs use project'Source_Dirs & ("src/curl");
-
-      when others =>
-
-   end case;
-
-   case UtilAda_Http.Has_Aws is
-      when "yes" =>
-          for Source_Dirs use project'Source_Dirs & ("src/aws");
-
-      when others =>
-
-   end case;
+   for Source_Dirs use ("src", "src/curl", "src/aws");
 
    case UtilAda_Sys.Os_Version is
       when "unix" | "linux32" | "linux64" | "netbsd32" | "netbsd64" | "freebsd32" | "freebsd64" | "macos64" =>
