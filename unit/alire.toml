@@ -14,8 +14,19 @@ website = "https://gitlab.com/stcarrez/ada-util"
 utilada = "^2.7.0"
 
 [gpr-externals]
-UTIL_BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
-UTIL_LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
+UTIL_UNIT = ["ahven-unix", "ahven-windows", "aunit"]
+
+[gpr-set-externals.'case(os)'.windows]
+UTIL_UNIT = "ahven-windows"
+
+[gpr-set-externals.'case(os)'.linux]
+UTIL_UNIT = "ahven-unix"
+
+[gpr-set-externals.'case(os)'.macos]
+UTIL_UNIT = "ahven-unix"
+
+[gpr-set-externals.'case(os)'.freebsd]
+UTIL_UNIT = "ahven-unix"
 
 [configuration]
 disabled = true

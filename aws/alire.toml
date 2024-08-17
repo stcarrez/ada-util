@@ -31,8 +31,6 @@ utilada = "^2.7.0"
 aws = "^24.0"
 
 [gpr-externals]
-UTIL_BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
-UTIL_LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
 UTIL_AWS_IMPL = ["1", "2", "3"]
 
 [gpr-set-externals]

@@ -1,11 +1,12 @@
 with "utilada_conf";
 with "utilada_sys";
 
-
 library project UtilAda_Unit is
    Version      := UtilAda_Conf.Version;
 
-   Unit : UtilAda_Conf.Unit_Type := UtilAda_Conf.Unit;
+   type Unit_Type is ("none", "ahven-unix", "ahven-windows", "aunit");
+
+   Unit : Unit_Type := external ("UTIL_UNIT", "ahven-unix");
 
    for Library_Name use "utilada_unit";
    for Library_Kind use UtilAda_Conf.Library_Type;

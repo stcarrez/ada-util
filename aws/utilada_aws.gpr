@@ -4,10 +4,11 @@ with "aws";
 with "gnatcoll";
 
 library project UtilAda_Aws is
-   Version := "2.6.0";
-   Library_Dir := "lib";
+   Version := UtilAda_Conf.Version;
 
-   AWS_Impl    : Utilada_Conf.AWS_Impl_Type := Utilada_Conf.AWS_Impl;
+   type AWS_Impl_Type is ("none", "1", "2", "3");
+
+   AWS_Impl    : AWS_Impl_Type := external ("UTIL_AWS_IMPL", "3");
    Has_Aws     : Utilada_Conf.Yes_No := "yes";
 
    for Source_Dirs use ("src");
