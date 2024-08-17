@@ -13,7 +13,7 @@
 [![Download](https://img.shields.io/badge/download-2.7.0-brightgreen.svg)](http://download.vacs.fr/ada-util/ada-util-2.7.0.tar.gz)
 [![License](https://img.shields.io/badge/license-APACHE2-blue.svg)](LICENSE)
 [![GitLab](https://img.shields.io/badge/repo-GitLab-6C488A.svg)](https://gitlab.com/stcarrez/ada-util)
-[![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/276.0.svg)](Commits)
+[![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/2.7.0.svg)](Commits)
 
 
 This Ada library contains various utility packages for building
