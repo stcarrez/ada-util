@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  serialize-io-json-tests -- Unit tests for JSON parser
---  Copyright (C) 2011, 2016, 2017, 2020, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2017, 2020, 2021, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -30,6 +30,8 @@ package body Util.Serialize.IO.JSON.Tests is
                        Test_Parser'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.JSON.Write",
                        Test_Output'Access);
+      Caller.Add_Test (Suite, "Test Util.Serialize.IO.JSON.Write (Indented)",
+                       Test_Output_Indented'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.JSON.Write (Simple)",
                        Test_Simple_Output'Access);
       Caller.Add_Test (Suite, "Test Util.Serialize.IO.JSON.Write (Nullable)",
@@ -193,6 +195,25 @@ package body Util.Serialize.IO.JSON.Tests is
                                      Test    => Path,
                                      Message => "JSON output serialization");
    end Test_Output;
+
+   procedure Test_Output_Indented (T : in out Test) is
+      File   : aliased Util.Streams.Files.File_Stream;
+      Buffer : aliased Util.Streams.Texts.Print_Stream;
+      Stream : Util.Serialize.IO.JSON.Output_Stream;
+      Expect : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream-indented.json");
+      Path   : constant String := Util.Tests.Get_Test_Path ("test-stream-indented.json");
+   begin
+      File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Path);
+      Buffer.Initialize (Output => File'Unchecked_Access, Size => 10000);
+      Stream.Initialize (Output => Buffer'Unchecked_Access);
+      Stream.Set_Indentation (3);
+      Write_Stream (Stream);
+      Stream.Close;
+      Util.Tests.Assert_Equal_Files (T       => T,
+                                     Expect  => Expect,
+                                     Test    => Path,
+                                     Message => "JSON output serialization");
+   end Test_Output_Indented;
 
    --  ------------------------------
    --  Test the JSON output stream generation (simple JSON documents).
