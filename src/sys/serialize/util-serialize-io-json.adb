@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2010 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -33,6 +33,15 @@ package body Util.Serialize.IO.JSON is
    begin
       Stream.Stream := Output;
    end Initialize;
+
+   --  -----------------------
+   --  Set the indentation level when writing JSON.
+   --  -----------------------
+   procedure Set_Indentation (Stream : in out Output_Stream;
+                              Count  : in Natural) is
+   begin
+      Stream.Indent := Count;
+   end Set_Indentation;
 
    --  -----------------------
    --  Flush the buffer (if any) to the sink.
@@ -79,6 +88,7 @@ package body Util.Serialize.IO.JSON is
    procedure Start_Document (Stream : in out Output_Stream) is
       Current : access Node_Info;
    begin
+      Stream.Level := 0;
       Node_Info_Stack.Push (Stream.Stack);
       Current := Node_Info_Stack.Current (Stream.Stack);
       Current.Is_Root := True;
@@ -192,6 +202,14 @@ package body Util.Serialize.IO.JSON is
       Stream.Write ('"');
    end Write_Wide_String;
 
+   procedure Write_Indent (Stream : in out Output_Stream) is
+   begin
+      Stream.Write (Ada.Characters.Latin_1.LF);
+      for I in 1 .. Stream.Level loop
+         Stream.Write (' ');
+      end loop;
+   end Write_Indent;
+
    procedure Write_Field_Name (Stream : in out Output_Stream;
                                Name   : in String) is
       Current : constant access Node_Info := Node_Info_Stack.Current (Stream.Stack);
@@ -202,6 +220,9 @@ package body Util.Serialize.IO.JSON is
          elsif Name'Length > 0 or else not Current.Is_Root then
             Current.Has_Fields := True;
          end if;
+         if Stream.Indent > 0 then
+            Stream.Write_Indent;
+         end if;
       end if;
 
       if (Name'Length > 0 and then (Current = null or else not Current.Is_Array))
@@ -210,6 +231,9 @@ package body Util.Serialize.IO.JSON is
       then
          Stream.Write_String (Name);
          Stream.Write (':');
+         if Stream.Indent > 0 then
+            Stream.Write (' ');
+         end if;
       end if;
    end Write_Field_Name;
 
@@ -236,6 +260,7 @@ package body Util.Serialize.IO.JSON is
       Current.Is_Array := False;
       Current.Is_Root := False;
       Stream.Write ('{');
+      Stream.Level := Stream.Level + Stream.Indent;
    end Start_Entity;
 
    --  -----------------------
@@ -246,6 +271,10 @@ package body Util.Serialize.IO.JSON is
                          Name   : in String) is
       pragma Unreferenced (Name);
    begin
+      Stream.Level := Stream.Level - Stream.Indent;
+      if Stream.Indent > 0 then
+         Stream.Write_Indent;
+      end if;
       Node_Info_Stack.Pop (Stream.Stack);
       Stream.Write ('}');
    end End_Entity;
@@ -504,6 +533,7 @@ package body Util.Serialize.IO.JSON is
          elsif not Current.Is_Root then
             Current.Has_Fields := True;
          elsif Name'Length > 0 then
+            Stream.Level := Stream.Level + Stream.Indent;
             Stream.Write ('{');
             Current.Has_Fields := True;
          else
@@ -519,8 +549,12 @@ package body Util.Serialize.IO.JSON is
       if Name'Length > 0 then
          Stream.Write_String (Name);
          Stream.Write (':');
+         if Stream.Indent > 0 then
+            Stream.Write (' ');
+         end if;
       end if;
       Stream.Write ('[');
+      Stream.Level := Stream.Level + Stream.Indent;
    end Start_Array;
 
    --  -----------------------
@@ -531,6 +565,10 @@ package body Util.Serialize.IO.JSON is
                         Name   : in String) is
       pragma Unreferenced (Name);
    begin
+      Stream.Level := Stream.Level - Stream.Indent;
+      if Stream.Indent > 0 then
+         Stream.Write_Indent;
+      end if;
       Node_Info_Stack.Pop (Stream.Stack);
       Stream.Write (']');
    end End_Array;

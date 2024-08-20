@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-serialize-io-json -- JSON Serialization Driver
---  Copyright (C) 2010, 2011, 2012, 2016, 2017, 2020, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2010 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -22,6 +22,10 @@ package Util.Serialize.IO.JSON is
    --  Set the target output stream.
    procedure Initialize (Stream : in out Output_Stream;
                          Output : in Util.Streams.Texts.Print_Stream_Access);
+
+   --  Set the indentation level when writing JSON.
+   procedure Set_Indentation (Stream : in out Output_Stream;
+                              Count  : in Natural);
 
    --  Flush the buffer (if any) to the sink.
    overriding
@@ -202,7 +206,11 @@ private
    type Output_Stream is limited new Util.Serialize.IO.Output_Stream with record
       Stack  : Node_Info_Stack.Stack;
       Stream : Util.Streams.Texts.Print_Stream_Access;
+      Level  : Natural := 0;
+      Indent : Natural := 0;
    end record;
+
+   procedure Write_Indent (Stream : in out Output_Stream);
 
    procedure Write_Field_Name (Stream : in out Output_Stream;
                                Name   : in String);
