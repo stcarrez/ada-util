@@ -200,7 +200,8 @@ package body Util.Serialize.IO.JSON.Tests is
       File   : aliased Util.Streams.Files.File_Stream;
       Buffer : aliased Util.Streams.Texts.Print_Stream;
       Stream : Util.Serialize.IO.JSON.Output_Stream;
-      Expect : constant String := Util.Tests.Get_Path ("regtests/expect/test-stream-indented.json");
+      Expect : constant String
+        := Util.Tests.Get_Path ("regtests/expect/test-stream-indented.json");
       Path   : constant String := Util.Tests.Get_Test_Path ("test-stream-indented.json");
    begin
       File.Create (Mode => Ada.Streams.Stream_IO.Out_File, Name => Path);
