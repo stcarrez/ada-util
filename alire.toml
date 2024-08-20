@@ -65,3 +65,6 @@ UTIL_OS = "win64"
 
 [configuration]
 disabled = true
+
+[environment]
+DYNAMO_BUNDLE_PATH.prepend = "${CRATE_ROOT}/bundles"
