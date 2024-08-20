@@ -547,6 +547,9 @@ package body Util.Serialize.IO.JSON is
       Current.Is_Array := True;
       Current.Is_Root := False;
       if Name'Length > 0 then
+         if Stream.Indent > 0 then
+            Stream.Write_Indent;
+         end if;
          Stream.Write_String (Name);
          Stream.Write (':');
          if Stream.Indent > 0 then
