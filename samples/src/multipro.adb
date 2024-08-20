@@ -12,7 +12,6 @@ with Ada.Text_IO;
 procedure Multipro is
 
    use Util.Log;
-   use Util.Concurrent.Counters;
 
    Log  : constant Loggers.Logger := Loggers.Create ("multipro");
 
@@ -26,7 +25,6 @@ procedure Multipro is
       S : String (1 .. 32);
       C : Util.Concurrent.Counters.Counter;
    end record;
-   C : array (1 .. Max_Tasks) of Ad;
    --  Performance measurement.
    Perf    : Util.Measures.Measure_Set;
    T       : Util.Measures.Stamp;
@@ -51,10 +49,10 @@ begin
 
             task body Worker is
                Cnt : Natural;
-	       Cid : Natural;
+               Cid : Natural;
             begin
                accept Start (Id : in Natural; Count : in Natural) do
-	          Cid := Id;
+                  Cid := Id;
                   Cnt := Count;
                end Start;
                --  Increment the two counters as many times as necessary.

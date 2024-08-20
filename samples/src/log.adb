@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  log -- Log example
---  Copyright (C) 2010, 2022 Stephane Carrez
+--  Copyright (C) 2010, 2022, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -23,8 +23,6 @@ procedure Log is
    end Report;
 
 begin
-   Syslog_Appenders.Syslog_Factory.Register;
-
    --  Initialization is optional.  Get the log configuration by reading the property
    --  file 'samples/log4j.properties'.  The 'log.util' logger will use a DEBUG level
    --  and write the message in 'result.log'.

@@ -5,8 +5,8 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 with Ada.Text_IO;
-with Gnat.Regexp;
-with Gnat.Regpat;
+with GNAT.Regexp;
+with GNAT.Regpat;
 with Util.Measures;
 with Util.Strings.Sets;
 
@@ -28,6 +28,9 @@ procedure Measures is
 
    procedure Print;
    procedure Empty;
+   procedure Check_Regexp (Name : in String; Found : out Boolean);
+   procedure Check_Pattern (Name : in String; Found : out Boolean);
+   procedure Check_Contains (Name : in String; Found : out Boolean);
 
    Perf : Util.Measures.Measure_Set;
 
@@ -45,38 +48,38 @@ procedure Measures is
    end Empty;
 
    procedure Check_Regexp (Name : in String; Found : out Boolean) is
-      P : Gnat.Regexp.Regexp := Gnat.Regexp.Compile (".*.o");
+      P : constant GNAT.Regexp.Regexp := GNAT.Regexp.Compile (".*.o");
    begin
       Found := False;
       declare
          S : Util.Measures.Stamp;
       begin
          for I in 1 .. 1_000 loop
-            if Gnat.Regexp.Match (Name, P) then
+            if GNAT.Regexp.Match (Name, P) then
                Found := True;
             end if;
          end loop;
 
-      Util.Measures.Report (Perf, S,
-                            "GNAT.Regexp.Match 1000 times");
+         Util.Measures.Report (Perf, S,
+                               "GNAT.Regexp.Match 1000 times");
       end;
    end Check_Regexp;
 
    procedure Check_Pattern (Name : in String; Found : out Boolean) is
-      P : Gnat.Regpat.Pattern_Matcher := Gnat.Regpat.Compile (".*.o");
+      P : constant GNAT.Regpat.Pattern_Matcher := GNAT.Regpat.Compile (".*.o");
    begin
       Found := False;
       declare
          S : Util.Measures.Stamp;
       begin
          for I in 1 .. 1_000 loop
-            if Gnat.Regpat.Match (P, Name) then
+            if GNAT.Regpat.Match (P, Name) then
                Found := True;
             end if;
          end loop;
 
-      Util.Measures.Report (Perf, S,
-                            "GNAT.Regpat.Match 1000 times");
+         Util.Measures.Report (Perf, S,
+                               "GNAT.Regpat.Match 1000 times");
       end;
    end Check_Pattern;
 
@@ -100,8 +103,8 @@ procedure Measures is
             end if;
          end loop;
 
-      Util.Measures.Report (Perf, S,
-                            "Util.Strings.Sets.Contains 1000 times");
+         Util.Measures.Report (Perf, S,
+                               "Util.Strings.Sets.Contains 1000 times");
       end;
    end Check_Contains;
 
