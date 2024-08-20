@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-files-rolling -- Rolling file manager
---  Copyright (C) 2022 Stephane Carrez
+--  Copyright (C) 2022, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -161,7 +161,7 @@ package body Util.Files.Rolling is
    --  ------------------------------
    procedure Rollover (Manager : in out File_Manager) is
    begin
-      case (Manager.Strategy) is
+      case Manager.Strategy is
          when Ascending_Strategy =>
             Manager.Rollover_Ascending;
 
