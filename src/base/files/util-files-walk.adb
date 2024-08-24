@@ -5,8 +5,11 @@
 -----------------------------------------------------------------------
 
 with Ada.Exceptions;
+with Ada.Directories.Hierarchical_File_Names;
 with Util.Log.Loggers;
 package body Util.Files.Walk is
+
+   package AD renames Ada.Directories;
 
    Log : constant Util.Log.Loggers.Logger :=
      Util.Log.Loggers.Create ("Util.Files.Walk");
@@ -89,13 +92,18 @@ package body Util.Files.Walk is
    --  ------------------------------
    function Find_Root (Walker : in Walker_Type;
                        Path   : in String) return String is
+      function Is_Root_Directory_Name (Path : in String) return Boolean
+         renames AD.Hierarchical_File_Names.Is_Root_Directory_Name;
       Real_Path : constant String := Util.Files.Realpath (Path);
       Pos       : Natural := Real_Path'Last;
    begin
       while not Walker_Type'Class (Walker).Is_Root (Real_Path (Real_Path'First .. Pos)) loop
+         if Is_Root_Directory_Name (Real_Path (Real_Path'First .. Pos)) then
+            return Real_Path;
+         end if;
          declare
             Parent : constant String :=
-              Ada.Directories.Containing_Directory (Real_Path (Real_Path'First .. Pos));
+              AD.Containing_Directory (Real_Path (Real_Path'First .. Pos));
          begin
             if Parent'Length = 0 then
                return Real_Path;
