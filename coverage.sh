@@ -3,6 +3,7 @@ NAME=util.cov
 alr exec -- lcov --quiet --base-directory . --directory . \
    --no-external \
    --exclude '*/b__*.adb' \
+   --exclude '*/<unknown>' \
    --exclude '*/samples/*' \
    --exclude '*/regtests*' \
    --exclude '*/src/tests/*' -c -o $NAME
