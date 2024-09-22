@@ -1,7 +1,7 @@
 description = "Utility Library testing framework with Ahven"
 long-description = "\n[![Build Status](https://img.shields.io/jenkins/s/https/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)\n[![Test Status](https://img.shields.io/jenkins/t/https/jenkins.vacs.fr/Ada-Util.svg)](https://jenkins.vacs.fr/job/Ada-Util/)\n[![codecov](https://codecov.io/gh/stcarrez/ada-util/branch/master/graph/badge.svg)](https://codecov.io/gh/stcarrez/ada-util)\n\nThis library provides a testing framework on top of Ahven.\nIt provides various testing helper operations to help in\nwriting unit tests.\n\n"
 name = "utilada_unit"
-version = "2.7.0"
+version = "2.8.0"
 authors = ["Stephane.Carrez@gmail.com"]
 licenses = "Apache-2.0"
 maintainers = ["Stephane.Carrez@gmail.com"]
