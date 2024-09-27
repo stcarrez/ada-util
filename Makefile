@@ -5,8 +5,6 @@ DIST_DIR=ada-util-$(VERSION)
 DIST_FILE=ada-util-$(VERSION).tar.gz
 
 MAKE_ARGS += -XUTIL_BUILD=$(BUILD)
-PANDOC := $(shell which pandoc)
-DYNAMO := $(shell which dynamo)
 
 -include Makefile.conf
 
@@ -78,7 +76,7 @@ test:	build samples
 	-bin/util_harness -v -l $(NAME): -xml util-aunit.xml -timeout ${TEST_TIMEOUT}
 
 regtests/src/util-testsuite.adb: regtests/src/util-testsuite.gpb
-	gnatprep -DHAVE_XML=$(HAVE_XML_ADA) -DHAVE_CURL=$(HAVE_CURL) \
+	$(ALR) exec -- gnatprep -DHAVE_XML=$(HAVE_XML_ADA) -DHAVE_CURL=$(HAVE_CURL) \
                  -DHAVE_AWS=$(HAVE_AWS) \
                  -DHAVE_LZMA=$(HAVE_LZMA) \
 		 -DOS_VERSION='"$(OS_VERSION)"' \
