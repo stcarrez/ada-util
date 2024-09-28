@@ -38,3 +38,6 @@ UTIL_AWS_IMPL = "3"
 
 [configuration]
 disabled = true
+
+[[pins]]
+utilada = { path = '..' }

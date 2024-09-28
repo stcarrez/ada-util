@@ -30,3 +30,6 @@ UTIL_UNIT = "ahven-unix"
 
 [configuration]
 disabled = true
+
+[[pins]]
+utilada = { path = '..' }
