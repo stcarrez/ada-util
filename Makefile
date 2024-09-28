@@ -32,13 +32,17 @@ ifeq ($(HAVE_UTILGEN),yes)
 UTIL_GEN_FILES=src/base/os-generated/util-systems-constants.ads
 UTIL_GEN_FILES+=src/base/os-generated/util-systems-types.ads
 ifeq ($(HAVE_CURL),yes)
-UTIL_GEN_FILES+=src/sys/http/curl/util-http-clients-curl-constants.ads
+UTIL_GEN_FILES+=curl/src/util-http-clients-curl-constants.ads
 endif
 endif
 
 include Makefile.defaults
 
 setup:: $(UTIL_GEN_FILES)
+	echo "HAVE_XML_ADA=$(HAVE_XML_ADA)" >> Makefile.conf
+	echo "HAVE_CURL=$(HAVE_CURL)" >> Makefile.conf
+	echo "HAVE_AWS=$(HAVE_AWS)" >> Makefile.conf
+	echo "HAVE_LZMA=$(HAVE_LZMA)" >> Makefile.conf
 
 $(eval $(call ada_library,utilada_core,.))
 $(eval $(call ada_library,utilada_base,.))
