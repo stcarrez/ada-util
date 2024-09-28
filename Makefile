@@ -12,6 +12,7 @@ HAVE_XML_ADA?=yes
 HAVE_CURL?=yes
 HAVE_AWS?=yes
 HAVE_LZMA?=yes
+HAVE_UTILGEN?=no
 
 STATIC_MAKE_ARGS = $(MAKE_ARGS) -XUTIL_LIBRARY_TYPE=static
 SHARED_MAKE_ARGS = $(MAKE_ARGS) -XUTIL_LIBRARY_TYPE=relocatable
@@ -73,7 +74,7 @@ $(eval $(call ada_library,utilada_unit,unit))
 # $(eval $(call ada_library,utilada_http))
 
 build-test:: regtests/src/util-testsuite.adb
-	cd regtests && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS)
+	cd regtests && $(BUILD_COMMAND) $(MAKE_ARGS)
 
 # Build and run the unit tests
 test:	build samples
@@ -150,7 +151,7 @@ src/base/os-generated/util-systems-types.ads:	bin/utilgen
 	mkdir -p src/base/os-generated
 	bin/utilgen types > $@
 
-src/sys/http/curl/util-http-clients-curl-constants.ads:	bin/utilgen
+curl/src/util-http-clients-curl-constants.ads:	bin/utilgen
 	bin/utilgen curl > $@
 
 # Utility for the generation of util-systems-constants.ads
