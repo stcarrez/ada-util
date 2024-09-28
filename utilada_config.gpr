@@ -8,7 +8,7 @@ abstract project Utilada_Config is
    type Build_Type is ("distrib", "debug", "optimize", "profile", "coverage");
    Mode : Build_Type := external ("UTIL_BUILD", "debug");
 
-   Processors := External ("PROCESSORS", "1");
+   Processors := External ("PROCESSORS", "0");
 
    package Builder is
        for Default_Switches ("Ada") use ("-j" & Processors);
@@ -27,7 +27,7 @@ abstract project Utilada_Config is
 
          when "coverage" =>
             for Default_Switches ("Ada") use defaults & warnings
-               & ("-O2", "-gnata", "-gnatVaMI", "-gnaty3abcefhiklmnprstxM99",
+               & ("-g", "-O2", "-gnata", "-gnatVaMI", "-gnaty3abcefhiklmnprstxM99",
                   "-fprofile-arcs", "-ftest-coverage");
 
          when "optimize" =>
