@@ -1,7 +1,7 @@
 #!/bin/sh
 NAME=util.cov
 alr exec -- lcov --quiet --base-directory . --directory . \
-   --no-external \
+   --no-external  --ignore-errors gcov,unused \
    --exclude '*/b__*.adb' \
    --exclude '*/<unknown>' \
    --exclude '*/samples/*' \
