@@ -32,7 +32,7 @@ make setup BUILD=debug PREFIX=/build/install HAVE_XML_ADA=yes HAVE_CURL=yes HAVE
 
 Then, build:
 ```
-   make
+make
 ```
 
 After building, it is good practice to run the unit tests before installing the library.
