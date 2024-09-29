@@ -49,8 +49,10 @@ framework as it provides better reports.
 
 [List all versions](https://github.com/stcarrez/ada-util/blob/master/NEWS.md)
 
-## Build with Alire
+## Using with Alire
 
+If you are using [Alire](https://alire.ada.dev/) in your project, use the following commands
+to use the library:
 
 ```
 alr with utilada
@@ -61,83 +63,32 @@ alr with utilada_unit
 alr with utilada_xml
 ```
 
-## Build with configure
+## Using without Alire
 
+The library needs [Alire](https://alire.ada.dev/) to compile but you can use it in your
+project if you build the library with the same compiler and then install it.
 For a detailed description on how you can configure, build and install the library
 refer to the [Installation](https://ada-util.readthedocs.io/en/latest/Installation/) guide.
 Otherwise, you can easily configure and build the library with the steps described below.
 
-To use Ahven testing framework, configure and build as follows:
+The support for AWS, Curl, LZMA and XML/Ada are enabled only when a `HAVE_XXX=yes` configuration
+variable has defined.  Run the setup command that records in the `Makefile.conf` the configuration
+you want to build:
 
 ```
-./configure
-make
+make setup BUILD=debug PREFIX=/build/install HAVE_XML_ADA=yes HAVE_CURL=yes HAVE_LZMA=yes HAVE_AWS=yes
 ```
 
-To use AUnit, build with the following commands:
+Then, build, run the test and install:
 ```
-./configure --enable-aunit
-make
-```
-   
-The unit tests are built and executed with:
-```
+   make
    make test
-```
-
-And unit tests are executed with (256 success, 0 failed):
-```
-   bin/util_harness
-```
-For the installation, use the following command:
-```
    make install
 ```
 
-## Build without configure
-
-Since the integration with Alire, you can build without running configure.
-However, there are a number of checks and dependencies which are not verified
-and you must run several commands manually, choosing the correct values for
-`UTIL_ASM_TYPE` and `UTIL_OS` build variables.  The trick is to give `gprbuild`
-the Alire configuration project in `.alire/utilada_conf.gpr`.
-
-For a simple Linux 64-bit build, use:
-
-```
-gprbuild -aP.alire -Putilada_core -p
-gprbuild -aP.alire -Putilada_base -p
-gprbuild -aP.alire -Putilada_sys -p
-gprbuild -aP.alire -Putilada_aws -p
-gprbuild -aP.alire -Putilada_curl -p
-gprbuild -aP.alire -Putilada_xml -p
-```
-
-For a Linux 32-bit build, use
-```
-gprbuild -aP.alire -Putilada_sys -p -XUTIL_OS=linux32
-```
-
-For Windows-64 try:
-```
-gprbuild -aP.alire -Putilada_sys -p -XUTIL_OS=win64
-```
-
-Checkout the file `.alire/utilada_conf.gpr` for other alternatives.
-
-You can then use `gprinstall` for the installation:
-
-```
-gprinstall -aP.alire -Putilada_core -p
-gprinstall -aP.alire -Putilada_base -p
-gprinstall -aP.alire -Putilada_sys -p
-gprinstall -aP.alire -Putilada_aws -p
-gprinstall -aP.alire -Putilada_curl -p
-gprinstall -aP.alire -Putilada_xml -p
-```
-
-I've never tried to build on Windows without msys2.
-I don't know if it works. I suspect there will be problems.
+To use the installed libraries, make sure your `ADA_PROJECT_PATH` contains the directory
+where you installed the libraries (configured by the `PREFIX=<path>` option in the setup phase).
+The installed GNAT projects are the same as those used when using [Alire](https://alire.ada.dev/).
 
 # Samples
 
