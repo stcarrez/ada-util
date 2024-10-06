@@ -39,6 +39,8 @@ endif
 
 include Makefile.defaults
 
+DEFAULT_ADA_PROJECT_PATH=$(SRC_ROOT):$(SRC_ROOT)/xml:$(SRC_ROOT)/unit:$(SRC_ROOT)/curl:$(SRC_ROOT)/aws:$(SRC_ROOT)/lzma:$(ADA_PROJECT_PATH)
+
 setup:: $(UTIL_GEN_FILES)
 	echo "HAVE_XML_ADA=$(HAVE_XML_ADA)" >> Makefile.conf
 	echo "HAVE_CURL=$(HAVE_CURL)" >> Makefile.conf
@@ -74,16 +76,21 @@ $(eval $(call ada_library,utilada_unit,unit))
 # $(eval $(call ada_library,utilada_http))
 
 build-test:: regtests/src/util-testsuite.adb
+ifeq ($(HAVE_ALIRE),yes)
 	cd regtests && $(BUILD_COMMAND) $(MAKE_ARGS)
+else
+	cd regtests && $(BUILD_COMMAND) $(MAKE_ARGS) -Ptests_proc.gpr
+	cd regtests && $(BUILD_COMMAND) $(MAKE_ARGS) -Putilada_tests.gpr
+endif
 
 # Build and run the unit tests
 test:	build samples
 	-bin/util_harness -v -l $(NAME): -xml util-aunit.xml -timeout ${TEST_TIMEOUT}
 
 regtests/src/util-testsuite.adb: regtests/src/util-testsuite.gpb
-	$(ALR) exec -- gnatprep -DHAVE_XML=$(HAVE_XML_ADA) -DHAVE_CURL=$(HAVE_CURL) \
-                 -DHAVE_AWS=$(HAVE_AWS) \
-                 -DHAVE_LZMA=$(HAVE_LZMA) \
+	$(GNATPREP) -DHAVE_XML=$(HAVE_XML_ADA) -DHAVE_CURL=$(HAVE_CURL) \
+		 -DHAVE_AWS=$(HAVE_AWS) \
+		 -DHAVE_LZMA=$(HAVE_LZMA) \
 		 -DOS_VERSION='"$(OS_VERSION)"' \
 		 regtests/src/util-testsuite.gpb $@
 
