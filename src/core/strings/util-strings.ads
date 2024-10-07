@@ -9,6 +9,7 @@ with Ada.Strings.Unbounded;
 with Ada.Containers;
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Hashed_Sets;
+with Ada.Finalization;
 private with Util.Concurrent.Counters;
 package Util.Strings is
 

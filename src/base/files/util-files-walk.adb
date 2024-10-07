@@ -7,6 +7,7 @@
 with Ada.Exceptions;
 with Ada.Directories.Hierarchical_File_Names;
 with Util.Log.Loggers;
+with GNAT.Regexp;
 package body Util.Files.Walk is
 
    package AD renames Ada.Directories;
