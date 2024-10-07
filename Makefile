@@ -39,7 +39,25 @@ endif
 
 include Makefile.defaults
 
-DEFAULT_ADA_PROJECT_PATH=$(SRC_ROOT):$(SRC_ROOT)/xml:$(SRC_ROOT)/unit:$(SRC_ROOT)/curl:$(SRC_ROOT)/aws:$(SRC_ROOT)/lzma:$(ADA_PROJECT_PATH)
+DEFAULT_ADA_PROJECT_PATH=$(SRC_ROOT)
+
+ifeq ($(HAVE_XML_ADA),yes)
+DEFAULT_ADA_PROJECT_PATH:=$(DEFAULT_ADA_PROJECT_PATH):$(SRC_ROOT)/xml
+endif
+
+ifeq ($(HAVE_AWS),yes)
+DEFAULT_ADA_PROJECT_PATH:=$(DEFAULT_ADA_PROJECT_PATH):$(SRC_ROOT)/aws
+endif
+
+ifeq ($(HAVE_CURL),yes)
+DEFAULT_ADA_PROJECT_PATH:=$(DEFAULT_ADA_PROJECT_PATH):$(SRC_ROOT)/curl
+endif
+
+ifeq ($(HAVE_LZMA),yes)
+DEFAULT_ADA_PROJECT_PATH:=$(DEFAULT_ADA_PROJECT_PATH):$(SRC_ROOT)/lzma
+endif
+
+DEFAULT_ADA_PROJECT_PATH:=$(DEFAULT_ADA_PROJECT_PATH):$(SRC_ROOT)/unit:$(ADA_PROJECT_PATH)
 
 setup:: $(UTIL_GEN_FILES)
 	echo "HAVE_XML_ADA=$(HAVE_XML_ADA)" >> Makefile.conf
@@ -75,12 +93,13 @@ $(eval $(call ada_library,utilada_unit,unit))
 #
 # $(eval $(call ada_library,utilada_http))
 
-build-test:: regtests/src/util-testsuite.adb
 ifeq ($(HAVE_ALIRE),yes)
+build-test:: regtests/src/util-testsuite.adb
 	cd regtests && $(BUILD_COMMAND) $(MAKE_ARGS)
 else
+build-test:: regtests/src/util-testsuite.adb regtests/utilada_tests_custom.gpr
 	cd regtests && $(BUILD_COMMAND) $(MAKE_ARGS) -Ptests_proc.gpr
-	cd regtests && $(BUILD_COMMAND) $(MAKE_ARGS) -Putilada_tests.gpr
+	cd regtests && $(BUILD_COMMAND) $(MAKE_ARGS) -Putilada_tests_custom.gpr
 endif
 
 # Build and run the unit tests
@@ -94,8 +113,31 @@ regtests/src/util-testsuite.adb: regtests/src/util-testsuite.gpb
 		 -DOS_VERSION='"$(OS_VERSION)"' \
 		 regtests/src/util-testsuite.gpb $@
 
+regtests/utilada_tests_custom.gpr: regtests/utilada_tests.gpg
+	$(GNATPREP) -DHAVE_XML=$(HAVE_XML_ADA) -DHAVE_CURL=$(HAVE_CURL) \
+		 -DHAVE_AWS=$(HAVE_AWS) \
+		 -DHAVE_LZMA=$(HAVE_LZMA) \
+		 -DOS_VERSION='"$(OS_VERSION)"' \
+		 regtests/utilada_tests.gpg $@
+
+setup::
+	rm -f regtests/src/util-testsuite.adb regtests/utilada_tests_custom.gpr
+
 samples:
+ifeq ($(HAVE_ALIRE),yes)
 	cd samples && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS)
+else
+	cd samples && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS) -Psamples.gpr
+ifeq ($(HAVE_XML_ADA),yes)
+	cd samples && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS) -Psamples_xml.gpr
+endif
+ifeq ($(HAVE_CURL),yes)
+	cd samples && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS) -Psamples_curl.gpr
+endif
+ifeq ($(HAVE_LZMA),yes)
+	cd samples && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS) -Psamples_lzma.gpr
+endif
+endif
 
 CLEAN_FILES=$(UTIL_GEN_FILES) bin/util_harness
 CLEAN_FILES+= bin/util_test_process bin/utilgen
