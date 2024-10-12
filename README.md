@@ -51,11 +51,16 @@ framework as it provides better reports.
 
 ## Using with Alire
 
-If you are using [Alire](https://alire.ada.dev/) in your project, use the following commands
-to use the library:
+If you are using [Alire](https://alire.ada.dev/) in your project, run the following command
+within your [Alire](https://alire.ada.dev/) project to use the library:
 
 ```
 alr with utilada
+```
+
+Depending on your project, you may need one or some of the following other components:
+
+```
 alr with utilada_aws
 alr with utilada_curl
 alr with utilada_lzma
@@ -65,8 +70,9 @@ alr with utilada_xml
 
 ## Using without Alire
 
-The library needs [Alire](https://alire.ada.dev/) to compile but you can use it in your
-project if you build the library with the same compiler and then install it.
+If you don't have [Alire](https://alire.ada.dev/) or want to build and install the library
+on a specific place, run a `setup` command to configure the build as well as installation
+directory.
 For a detailed description on how you can configure, build and install the library
 refer to the [Installation](https://ada-util.readthedocs.io/en/latest/Installation/) guide.
 Otherwise, you can easily configure and build the library with the steps described below.
@@ -79,11 +85,12 @@ you want to build:
 make setup BUILD=debug PREFIX=/build/install HAVE_XML_ADA=yes HAVE_CURL=yes HAVE_LZMA=yes HAVE_AWS=yes
 ```
 
-Then, build, run the test and install:
+Then build, run the unit tests and install by using:
+
 ```
-   make
-   make test
-   make install
+make
+make test
+make install
 ```
 
 To use the installed libraries, make sure your `ADA_PROJECT_PATH` contains the directory
@@ -97,6 +104,13 @@ The samples are built by using:
 cd samples
 alr build
 ```   
+
+or by running:
+
+```
+make samples
+```
+
 
 | Package              | Example                                                                      |
 |----------------------|------------------------------------------------------------------------------|
