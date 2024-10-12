@@ -13,6 +13,11 @@ HAVE_CURL?=yes
 HAVE_AWS?=yes
 HAVE_LZMA?=yes
 HAVE_UTILGEN?=no
+UTIL_OS?=linux64
+
+ifneq ($(HAVE_ALIRE),yes)
+MAKE_ARGS += -XUTIL_OS=$(UTIL_OS)
+endif
 
 STATIC_MAKE_ARGS = $(MAKE_ARGS) -XUTIL_LIBRARY_TYPE=static
 SHARED_MAKE_ARGS = $(MAKE_ARGS) -XUTIL_LIBRARY_TYPE=relocatable
@@ -64,6 +69,7 @@ setup:: $(UTIL_GEN_FILES)
 	echo "HAVE_CURL=$(HAVE_CURL)" >> Makefile.conf
 	echo "HAVE_AWS=$(HAVE_AWS)" >> Makefile.conf
 	echo "HAVE_LZMA=$(HAVE_LZMA)" >> Makefile.conf
+	echo "UTIL_OS=$(UTIL_OS)" >> Makefile.conf
 
 $(eval $(call ada_library,utilada_core,.))
 $(eval $(call ada_library,utilada_base,.))
@@ -110,14 +116,14 @@ regtests/src/util-testsuite.adb: regtests/src/util-testsuite.gpb
 	$(GNATPREP) -DHAVE_XML=$(HAVE_XML_ADA) -DHAVE_CURL=$(HAVE_CURL) \
 		 -DHAVE_AWS=$(HAVE_AWS) \
 		 -DHAVE_LZMA=$(HAVE_LZMA) \
-		 -DOS_VERSION='"$(OS_VERSION)"' \
+		 -DOS_VERSION='"$(UTIL_OS)"' \
 		 regtests/src/util-testsuite.gpb $@
 
 regtests/utilada_tests_custom.gpr: regtests/utilada_tests.gpg
 	$(GNATPREP) -DHAVE_XML=$(HAVE_XML_ADA) -DHAVE_CURL=$(HAVE_CURL) \
 		 -DHAVE_AWS=$(HAVE_AWS) \
 		 -DHAVE_LZMA=$(HAVE_LZMA) \
-		 -DOS_VERSION='"$(OS_VERSION)"' \
+		 -DOS_VERSION='"$(UTIL_OS)"' \
 		 regtests/utilada_tests.gpg $@
 
 setup::
