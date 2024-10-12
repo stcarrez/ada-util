@@ -1,7 +1,7 @@
 ---
 title: "Ada Utility Library Programmer's Guide"
 author: [Stephane Carrez]
-date: 2024-09-29
+date: 2024-10-12
 subject: "Ada Utility Library"
 tags: [Ada, Logging, Streams, Beans, Processes, Serialization, JSON]
 titlepage: true

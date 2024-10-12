@@ -79,10 +79,13 @@ Otherwise, you can easily configure and build the library with the steps describ
 
 The support for AWS, Curl, LZMA and XML/Ada are enabled only when a `HAVE_XXX=yes` configuration
 variable has defined.  Run the setup command that records in the `Makefile.conf` the configuration
-you want to build:
+you want to build.  The example below enables the XML/Ada and AWS components but disables
+the Curl and LZMA support.
 
 ```
-make setup BUILD=debug PREFIX=/build/install HAVE_XML_ADA=yes HAVE_CURL=yes HAVE_LZMA=yes HAVE_AWS=yes
+make setup BUILD=debug PREFIX=/build/install \
+  HAVE_XML_ADA=yes HAVE_AWS=yes \
+  HAVE_CURL=no HAVE_LZMA=no
 ```
 
 Then build, run the unit tests and install by using:

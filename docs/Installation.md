@@ -10,6 +10,11 @@ and setup your project.  Run the following commands to setup your Alire project 
 ```
 alr index --update-all
 alr with utilada
+```
+
+Depending on your project, you may need one or some of the following other components:
+
+```
 alr with utilada_xml
 alr with utilada_unit
 alr with utilada_curl
@@ -19,18 +24,23 @@ alr with utilada_lzma
 
 ## Without Alire
 
-The library needs [Alire](https://alire.ada.dev/) to compile but you can use it in your
-project if you build the library with the same compiler and then install it.
+If you don't have [Alire](https://alire.ada.dev/) or want to build and install the library
+on a specific place, run a `setup` command to configure the build as well as installation
+directory.
 
 The support for AWS, Curl, LZMA and XML/Ada are enabled only when a `HAVE_XXX=yes` configuration
 variable has defined.  Run the setup command that records in the `Makefile.conf` the configuration
-you want to build:
+you want to build.  The example below enables the XML/Ada and AWS components but disables
+the Curl and LZMA support.
 
 ```
-make setup BUILD=debug PREFIX=/build/install HAVE_XML_ADA=yes HAVE_CURL=yes HAVE_LZMA=yes HAVE_AWS=yes
+make setup BUILD=debug PREFIX=/build/install \
+  HAVE_XML_ADA=yes HAVE_AWS=yes \
+  HAVE_CURL=no HAVE_LZMA=no
 ```
 
 Then, build:
+
 ```
 make
 ```
