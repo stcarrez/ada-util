@@ -13,7 +13,7 @@ HAVE_CURL?=yes
 HAVE_AWS?=yes
 HAVE_LZMA?=yes
 HAVE_UTILGEN?=no
-UTIL_OS?=linux64
+UTIL_OS?=unknown
 
 ifneq ($(HAVE_ALIRE),yes)
 MAKE_ARGS += -XUTIL_OS=$(UTIL_OS)
