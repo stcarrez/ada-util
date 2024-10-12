@@ -9,6 +9,7 @@ project Samples_Lzma is
 
    Mains := ("compress.adb", "decompress.adb", "lzma_encrypt.adb", "lzma_decrypt.adb",
              "lzma_encrypt_b64.adb", "lzma_decrypt_b64.adb");
+   for Main use Mains;
 
    for Source_Dirs use ("src");
 
