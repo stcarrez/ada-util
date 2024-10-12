@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  xrds -- XRDS parser example
---  Copyright (C) 2010, 2011 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -14,14 +14,12 @@ with Util.Log.Loggers;
 with Util.Beans;
 with Util.Beans.Objects;
 with Util.Streams.Texts;
-with Util.Streams.Buffered;
 with Util.Serialize.Mappers.Record_Mapper;
 with Util.Serialize.Mappers.Vector_Mapper;
 with Util.Serialize.IO.XML;
 procedure Xmlrd is
 
    use Ada.Containers;
-   use Util.Streams.Buffered;
    use Ada.Strings.Unbounded;
 
    Reader : Util.Serialize.IO.XML.Parser;
@@ -162,7 +160,7 @@ begin
             Output : Util.Serialize.IO.XML.Output_Stream;
          begin
             Buffer.Initialize (Size => 10000);
-            Output.Initialize (Output => Buffer'Unchecked_access);
+            Output.Initialize (Output => Buffer'Unchecked_Access);
             Output.Start_Entity ("XRDS");
             Service_Vector_Mapping.Write (Output, List);
             Output.End_Entity ("XRDS");

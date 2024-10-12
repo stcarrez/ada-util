@@ -7,7 +7,7 @@ project Samples_Xml is
 
    for Create_Missing_Dirs use "True";
 
-   Mains := ("xmi.adb");
+   Mains := ("xmi.adb", "xmlrd.adb");
    for Main use Mains;
 
    for Source_Dirs use ("src");
