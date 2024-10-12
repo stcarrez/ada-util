@@ -147,6 +147,7 @@ endif
 
 CLEAN_FILES=$(UTIL_GEN_FILES) bin/util_harness
 CLEAN_FILES+= bin/util_test_process bin/utilgen
+CLEAN_FILES+= regtests/utilada_tests_custom.gpr regtests/src/util-testsuite.adb
 
 # Clean the root project of all build products.
 clean::
