@@ -79,13 +79,29 @@ Otherwise, you can easily configure and build the library with the steps describ
 
 The support for AWS, Curl, LZMA and XML/Ada are enabled only when a `HAVE_XXX=yes` configuration
 variable has defined.  Run the setup command that records in the `Makefile.conf` the configuration
-you want to build.  The example below enables the XML/Ada and AWS components but disables
-the Curl and LZMA support.
+you want to build.
+
+The `HAVE_ALIRE` configuration allows you to build with [Alire](https://alire.ada.dev/) or not.
+
+The `UTIL_OS` configuration is mandatory for the setup to indicate the build host configuration.
+It must one of the allowed values defined in `utilada_conf.gpr` GNAT project in the
+`Os_Version_Type` declaration:
+
+```
+   type Os_Version_Type is ("none", "unix", "windows",
+                            "linux32", "linux64", "win32", "win64", "macos64",
+                            "netbsd32", "netbsd64", "freebsd32", "freebsd64");
+```
+
+The example below enables the XML/Ada and AWS components but disables
+the Curl and LZMA support and disables the use of [Alire](https://alire.ada.dev/) to build
+the library.
 
 ```
 make setup BUILD=debug PREFIX=/build/install \
+  UTIL_OS=linux64 \
   HAVE_XML_ADA=yes HAVE_AWS=yes \
-  HAVE_CURL=no HAVE_LZMA=no
+  HAVE_CURL=no HAVE_LZMA=no HAVE_ALIRE=no
 ```
 
 Then build, run the unit tests and install by using:
