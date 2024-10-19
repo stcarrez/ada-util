@@ -56,7 +56,10 @@ package body Util.Processes.Tests is
                        Test_Tools_Execute'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Stop",
                        Test_Stop'Access);
-
+      if not Windows then
+         Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Set_Allocate_TTY",
+                          Test_TTY_Pipe'Access);
+      end if;
    end Add_Tests;
 
    --  ------------------------------
@@ -118,6 +121,28 @@ package body Util.Processes.Tests is
       T.Assert (not P.Is_Running, "Process has stopped");
       Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Invalid exit status");
    end Test_Output_Pipe;
+
+   --  ------------------------------
+   --  Test pseudo TTY pipe redirection: read the process standard output
+   --  ------------------------------
+   procedure Test_TTY_Pipe (T : in out Test) is
+      P : aliased Util.Streams.Pipes.Pipe_Stream;
+   begin
+      P.Set_Allocate_TTY (True);
+      P.Open ("tty");
+      declare
+         Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
+         Content : Ada.Strings.Unbounded.Unbounded_String;
+      begin
+         Buffer.Initialize (P'Unchecked_Access, 19);
+         Buffer.Read (Content);
+         P.Close;
+         Util.Tests.Assert_Matches (T, "/dev/pts/", Content,
+                                    "Invalid content");
+      end;
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Invalid exit status");
+   end Test_TTY_Pipe;
 
    --  ------------------------------
    --  Test error pipe redirection: read the process standard output

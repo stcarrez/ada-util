@@ -18,6 +18,9 @@ package Util.Processes.Tests is
    --  Test executing a process
    procedure Test_Spawn (T : in out Test);
 
+   --  Test pseudo TTY pipe redirection: read the process standard output
+   procedure Test_TTY_Pipe (T : in out Test);
+
    --  Test output pipe redirection: read the process standard output
    procedure Test_Output_Pipe (T : in out Test);
 
