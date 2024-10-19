@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-pipes -- Pipe stream to or from a process
---  Copyright (C) 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2011 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -116,6 +116,10 @@ package Util.Streams.Pipes is
    --  The directory must exist or the <b>Invalid_Directory</b> exception will be raised.
    procedure Set_Working_Directory (Stream : in out Pipe_Stream;
                                     Path   : in String);
+
+   --  Set to enable/disable the allocation of a pseudo TTY for the child process.
+   procedure Set_Allocate_TTY (Stream   : in out Pipe_Stream;
+                               Allocate : in Boolean := True);
 
    --  Closes the given file descriptor in the child process before executing the command.
    procedure Add_Close (Stream : in out Pipe_Stream;

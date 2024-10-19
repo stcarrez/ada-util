@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012, 2016, 2018, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2021, 2022, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -79,6 +79,8 @@ private package Util.Processes.Os is
 
 private
 
+   use Util.Systems.Os;
+
    --  Create the output stream to read/write on the process input/output.
    --  Setup the file to be closed on exec.
    function Create_Stream (File : in Util.Systems.Os.File_Type)
@@ -86,5 +88,8 @@ private
 
    procedure Prepare_Working_Directory (Sys : in out System_Process;
                                         Proc : in out Process'Class);
+
+   procedure Prepare_Pseudo_Terminal (Pts_Master : out File_Type;
+                                      Pts_Name   : out Ptr);
 
 end Util.Processes.Os;

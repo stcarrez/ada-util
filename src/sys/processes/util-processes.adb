@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes -- Process creation and control
---  Copyright (C) 2011, 2016, 2018, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2011, 2016, 2018, 2021, 2022, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -99,6 +99,19 @@ package body Util.Processes is
       end if;
       Proc.Shell := To_Unbounded_String (Shell);
    end Set_Shell;
+
+   --  ------------------------------
+   --  Set to enable/disable the allocation of a pseudo TTY for the child process.
+   --  ------------------------------
+   procedure Set_Allocate_TTY (Proc     : in out Process;
+                               Allocate : in Boolean := True) is
+   begin
+      if Proc.Is_Running then
+         Log.Error ("Cannot set TTY allocation while process is running");
+         raise Invalid_State with "Process is running";
+      end if;
+      Proc.Need_TTY := Allocate;
+   end Set_Allocate_TTY;
 
    --  ------------------------------
    --  Closes the given file descriptor in the child process before executing the command.

@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes-os -- System specific and low level operations
---  Copyright (C) 2011, 2012, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Stephane Carrez
+--  Copyright (C) 2011 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -11,7 +11,6 @@ with Ada.Unchecked_Deallocation;
 with Util.Strings;
 package body Util.Processes.Os is
 
-   use Util.Systems.Os;
    use type Interfaces.C.size_t;
    use type Util.Systems.Types.File_Type;
    use type Ada.Directories.File_Kind;
@@ -32,7 +31,7 @@ package body Util.Processes.Os is
       Status : constant Integer := Sys_Fcntl (File, F_SETFL, FD_CLOEXEC);
       pragma Unreferenced (Status);
    begin
-      Stream.Initialize (File);
+      Stream.Initialize (File, Ignore_EIO => True);
       return Stream;
    end Create_Stream;
 
@@ -112,6 +111,34 @@ package body Util.Processes.Os is
       end if;
    end Prepare_Working_Directory;
 
+   procedure Prepare_Pseudo_Terminal (Pts_Master : out File_Type;
+                                      Pts_Name   : out Ptr) is
+      Name : constant Interfaces.C.char_array (1 .. 64)
+        := (64 => Interfaces.C.nul, others => ' ');
+      Result   : Integer;
+   begin
+      Pts_Name := Interfaces.C.Strings.New_Char_Array (Name);
+      --  Pts_Slave := NO_FILE;
+      Pts_Master := Sys_Posix_Openpt (O_RDWR);
+      if Pts_Master < 0 then
+         Interfaces.C.Strings.Free (Pts_Name);
+         return;
+      end if;
+      Result := Sys_Grantpt (Pts_Master);
+      if Result = 0 then
+         Result := Sys_Unlockpt (Pts_Master);
+         if Result = 0 then
+            Result := Sys_Ptsname_R (Pts_Master, Pts_Name, 64);
+         end if;
+      end if;
+      if Result < 0 then
+         Result := Sys_Close (Pts_Master);
+         Interfaces.C.Strings.Free (Pts_Name);
+         Pts_Master := NO_FILE;
+         return;
+      end if;
+   end Prepare_Pseudo_Terminal;
+
    --  ------------------------------
    --  Spawn a new process.
    --  ------------------------------
@@ -127,7 +154,10 @@ package body Util.Processes.Os is
       --  Suppress all checks to make sure the child process will not raise any exception.
       pragma Suppress (All_Checks);
 
-      Result : Integer;
+      Result     : Integer;
+      Pts_Master : File_Type := NO_FILE;
+      Pts_Name   : Ptr;
+      Pts_Slave  : File_Type := NO_FILE;
 
       Stdin_Pipes   : aliased Pipe_Type := (others => NO_FILE);
       Stdout_Pipes  : aliased Pipe_Type := (others => NO_FILE);
@@ -148,23 +178,27 @@ package body Util.Processes.Os is
          raise Program_Error with "Invalid process argument list";
       end if;
 
-      --  Setup the pipes.
-      if Mode in WRITE | READ_WRITE | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
-         if Sys_Pipe (Stdin_Pipes'Address) /= 0 then
-            Cleanup;
-            raise Process_Error with "Cannot create stdin pipe";
+      if Proc.Need_TTY then
+         Prepare_Pseudo_Terminal (Pts_Master, Pts_Name);
+      else
+         --  Setup the pipes.
+         if Mode in WRITE | READ_WRITE | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
+            if Sys_Pipe (Stdin_Pipes'Address) /= 0 then
+               Cleanup;
+               raise Process_Error with "Cannot create stdin pipe";
+            end if;
          end if;
-      end if;
-      if Mode in READ | READ_WRITE | READ_ALL | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
-         if Sys_Pipe (Stdout_Pipes'Address) /= 0 then
-            Cleanup;
-            raise Process_Error with "Cannot create stdout pipe";
+         if Mode in READ | READ_WRITE | READ_ALL | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
+            if Sys_Pipe (Stdout_Pipes'Address) /= 0 then
+               Cleanup;
+               raise Process_Error with "Cannot create stdout pipe";
+            end if;
          end if;
-      end if;
-      if Mode in READ_ERROR | READ_WRITE_ALL_SEPARATE then
-         if Sys_Pipe (Stderr_Pipes'Address) /= 0 then
-            Cleanup;
-            raise Process_Error with "Cannot create stderr pipe";
+         if Mode in READ_ERROR | READ_WRITE_ALL_SEPARATE then
+            if Sys_Pipe (Stderr_Pipes'Address) /= 0 then
+               Cleanup;
+               raise Process_Error with "Cannot create stderr pipe";
+            end if;
          end if;
       end if;
 
@@ -180,6 +214,24 @@ package body Util.Processes.Os is
             for Fd of Proc.To_Close.all loop
                Result := Sys_Close (Fd);
             end loop;
+         end if;
+
+         --  Handle pseudo terminal redirection.
+         if Proc.Need_TTY then
+            Result := Sys_Setsid;
+
+            Pts_Slave := Sys_Open (Pts_Name, O_RDONLY, 0);
+            Result := Sys_Close (Pts_Master);
+            Result := Sys_Dup2 (Pts_Slave, STDIN_FILENO);
+            if Pts_Slave /= STDIN_FILENO then
+               Result := Sys_Close (Pts_Slave);
+            end if;
+            Pts_Slave := Sys_Open (Pts_Name, O_RDWR, 0);
+            Result := Sys_Dup2 (Pts_Slave, STDOUT_FILENO);
+            Result := Sys_Dup2 (Pts_Slave, STDERR_FILENO);
+            if not (Pts_Slave in STDOUT_FILENO | STDERR_FILENO) then
+               Result := Sys_Close (Pts_Slave);
+            end if;
          end if;
 
          --  Handle stdin/stdout/stderr pipe redirections unless they are file-redirected.
@@ -301,19 +353,32 @@ package body Util.Processes.Os is
          raise Process_Error with "Cannot create process";
       end if;
 
-      if Stdin_Pipes (1) /= NO_FILE then
-         Result := Sys_Close (Stdin_Pipes (0));
-         Proc.Input := Create_Stream (Stdin_Pipes (1)).all'Access;
-      end if;
+      if Proc.Need_TTY then
+         Interfaces.C.Strings.Free (Pts_Name);
+         if Mode in WRITE | READ_WRITE | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
+            Proc.Input := Create_Stream (Pts_Master).all'Access;
+         end if;
+         if Mode in READ | READ_WRITE | READ_ALL | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
+            if Mode in READ_WRITE | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
+               Pts_Master := Sys_Dup (Pts_Master);
+            end if;
+            Proc.Output := Create_Stream (Pts_Master).all'Access;
+         end if;
+      else
+         if Stdin_Pipes (1) /= NO_FILE then
+            Result := Sys_Close (Stdin_Pipes (0));
+            Proc.Input := Create_Stream (Stdin_Pipes (1)).all'Access;
+         end if;
 
-      if Stdout_Pipes (0) /= NO_FILE then
-         Result := Sys_Close (Stdout_Pipes (1));
-         Proc.Output := Create_Stream (Stdout_Pipes (0)).all'Access;
-      end if;
+         if Stdout_Pipes (0) /= NO_FILE then
+            Result := Sys_Close (Stdout_Pipes (1));
+            Proc.Output := Create_Stream (Stdout_Pipes (0)).all'Access;
+         end if;
 
-      if Stderr_Pipes (0) /= NO_FILE then
-         Result := Sys_Close (Stderr_Pipes (1));
-         Proc.Error := Create_Stream (Stderr_Pipes (0)).all'Access;
+         if Stderr_Pipes (0) /= NO_FILE then
+            Result := Sys_Close (Stderr_Pipes (1));
+            Proc.Error := Create_Stream (Stderr_Pipes (0)).all'Access;
+         end if;
       end if;
 
    end Spawn;

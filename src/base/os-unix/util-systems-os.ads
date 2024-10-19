@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-systems-os -- Unix system operations
---  Copyright (C) 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2011 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -87,6 +87,10 @@ package Util.Systems.Os is
    function Sys_VFork return Process_Identifier
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "fork";
 
+   --  Create a session and sets the process group ID
+   function Sys_Setsid return Integer
+     with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "setsid";
+
    --  Execute a process with the given arguments.
    function Sys_Execvp (File : in Ptr;
                         Args : in Ptr_Array) return Integer
@@ -108,6 +112,21 @@ package Util.Systems.Os is
    function Sys_Getpid return Integer
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "getpid";
 
+   --  Open a pseudoterminal device.
+   function Sys_Posix_Openpt (Mode : in Interfaces.C.int) return File_Type
+     with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "posix_openpt";
+
+   --  Grant access to the salve pseudoterminal.
+   function Sys_Grantpt (Fd : in File_Type) return Integer
+     with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "grantpt";
+
+   --  Unlock a pseudoterminal master/slave pair.
+   function Sys_Unlockpt (Fd : in File_Type) return Integer
+     with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "unlockpt";
+
+   function Sys_Ptsname_R (Fd : in File_Type; Buf : in Ptr; Buflen : in Size_T) return Integer
+     with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "ptsname_r";
+
    --  Create a bi-directional pipe
    function Sys_Pipe (Fds : in System.Address) return Integer
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "pipe";
@@ -115,6 +134,9 @@ package Util.Systems.Os is
    --  Make <b>fd2</b> the copy of <b>fd1</b>
    function Sys_Dup2 (Fd1, Fd2 : in File_Type) return Integer
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "dup2";
+
+   function Sys_Dup (Fd : in File_Type) return File_Type
+     with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "dup";
 
    --  Close a file
    function Sys_Close (Fd : in File_Type) return Integer

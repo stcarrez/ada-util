@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-processes -- Process creation and control
---  Copyright (C) 2011, 2012, 2016, 2018, 2021, 2022, 2023 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2016, 2018, 2021, 2022, 2023, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -83,6 +83,10 @@ package Util.Processes is
    --  <tt>Spawn</tt> procedure.
    procedure Set_Shell (Proc  : in out Process;
                         Shell : in String);
+
+   --  Set to enable/disable the allocation of a pseudo TTY for the child process.
+   procedure Set_Allocate_TTY (Proc     : in out Process;
+                               Allocate : in Boolean := True);
 
    --  Closes the given file descriptor in the child process before executing the command.
    procedure Add_Close (Proc  : in out Process;
@@ -173,6 +177,7 @@ private
       Shell      : Ada.Strings.Unbounded.Unbounded_String;
       Out_Append : Boolean := False;
       Err_Append : Boolean := False;
+      Need_TTY   : Boolean := False;
       Output     : Util.Streams.Input_Stream_Access := null;
       Input      : Util.Streams.Output_Stream_Access := null;
       Error      : Util.Streams.Input_Stream_Access := null;

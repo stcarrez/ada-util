@@ -1,12 +1,13 @@
 -----------------------------------------------------------------------
 --  util-streams-raw -- Raw streams (OS specific)
---  Copyright (C) 2011, 2016, 2018, 2019, 2022 Stephane Carrez
+--  Copyright (C) 2011 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
 with Ada.IO_Exceptions;
 with Interfaces.C;
+with Util.Systems.Constants;
 package body Util.Streams.Raw is
 
    use Util.Systems.Os;
@@ -21,13 +22,15 @@ package body Util.Streams.Raw is
    --  -----------------------
    --  Initialize the raw stream to read and write on the given file descriptor.
    --  -----------------------
-   procedure Initialize (Stream  : in out Raw_Stream;
-                         File    : in File_Type) is
+   procedure Initialize (Stream     : in out Raw_Stream;
+                         File       : in File_Type;
+                         Ignore_EIO : in Boolean := False) is
    begin
       if Stream.File /= NO_FILE then
          raise Ada.IO_Exceptions.Status_Error;
       end if;
       Stream.File := File;
+      Stream.Ignore_EIO := Ignore_EIO;
    end Initialize;
 
    --  -----------------------
@@ -85,7 +88,12 @@ package body Util.Streams.Raw is
    begin
       Res := Read (Stream.File, Into'Address, Into'Length);
       if Res < 0 then
-         raise Ada.IO_Exceptions.Device_Error;
+         if not Stream.Ignore_EIO
+           or else Util.Systems.Os.Errno /= Util.Systems.Constants.EIO
+         then
+            raise Ada.IO_Exceptions.Device_Error;
+         end if;
+         Res := 0;
       end if;
       Last := Into'First + Ada.Streams.Stream_Element_Offset (Res) - 1;
    end Read;

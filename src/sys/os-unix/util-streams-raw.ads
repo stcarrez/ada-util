@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-raw -- Raw streams for Unix based systems
---  Copyright (C) 2011, 2016, 2018, 2019, 2022 Stephane Carrez
+--  Copyright (C) 2011 - 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -24,8 +24,9 @@ package Util.Streams.Raw is
    type Raw_Stream_Access is access all Raw_Stream'Class;
 
    --  Initialize the raw stream to read and write on the given file descriptor.
-   procedure Initialize (Stream  : in out Raw_Stream;
-                         File    : in Util.Systems.Os.File_Type);
+   procedure Initialize (Stream     : in out Raw_Stream;
+                         File       : in Util.Systems.Os.File_Type;
+                         Ignore_EIO : in Boolean := False);
 
    --  Get the file descriptor associated with the stream.
    function Get_File (Stream : in Raw_Stream) return Util.Systems.Os.File_Type;
@@ -66,6 +67,7 @@ private
    type Raw_Stream is new Ada.Finalization.Limited_Controlled
      and Output_Stream and Input_Stream with record
       File : Util.Systems.Os.File_Type := Util.Systems.Os.NO_FILE;
+      Ignore_EIO : Boolean := False;
    end record;
 
 end Util.Streams.Raw;

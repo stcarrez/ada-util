@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-pipes -- Pipe stream to or from a process
---  Copyright (C) 2011, 2013, 2016, 2017, 2018, 2021 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2016, 2017, 2018, 2021, 2024 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -71,6 +71,15 @@ package body Util.Streams.Pipes is
    begin
       Util.Processes.Set_Working_Directory (Stream.Proc, Path);
    end Set_Working_Directory;
+
+   --  -----------------------
+   --  Set to enable/disable the allocation of a pseudo TTY for the child process.
+   --  -----------------------
+   procedure Set_Allocate_TTY (Stream   : in out Pipe_Stream;
+                               Allocate : in Boolean := True) is
+   begin
+      Util.Processes.Set_Allocate_TTY (Stream.Proc, Allocate);
+   end Set_Allocate_TTY;
 
    --  -----------------------
    --  Open a pipe to read or write to an external process.  The pipe is created and the
