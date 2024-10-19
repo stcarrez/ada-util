@@ -35,8 +35,10 @@ Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
 framework as it provides better reports.
 
 ## Version 2.8.0  - Under development
+  - Cleanup build environment to drop configure
   - Improvement of Util.Files.Walk to scan and honor a root .gitignore from any child directory
   - Feature #55: Support indentation when writing JSON streams
+  - Feature #56: Support for pseudo tty when launching a process
 
 ## Version 2.7.0  - Jun 2024
   - New package Util.Files.Walk to iterate over directory trees and honor .gitignore
