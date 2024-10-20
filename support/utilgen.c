@@ -394,7 +394,9 @@ void gen_termios()
     printf("      c_oflag  : tcflag_t;  --  output mode flags\n");
     printf("      c_cflag  : tcflag_t;  --  control mode flags\n");
     printf("      c_lflag  : tcflag_t;  --  local mode flags\n");
+#if !defined(__NetBSD__) && !defined(__FreeBSD__) && !defined(__DragonFly__)
     printf("      c_line   : cc_t;      --  line discipline\n");
+#endif
     printf("      c_cc     : cc_array;  --  control characters\n");
     printf("      c_ispeed : speed_t;   --  input speed\n");
     printf("      c_ospeed : speed_t;   --  output speed\n");
