@@ -79,8 +79,6 @@ private package Util.Processes.Os is
 
 private
 
-   use Util.Systems.Os;
-
    --  Create the output stream to read/write on the process input/output.
    --  Setup the file to be closed on exec.
    function Create_Stream (File : in Util.Systems.Os.File_Type)
@@ -90,6 +88,6 @@ private
                                         Proc : in out Process'Class);
 
    procedure Prepare_Pseudo_Terminal (Pts_Master : out File_Type;
-                                      Pts_Name   : out Ptr);
+                                      Pts_Slave  : out File_Type);
 
 end Util.Processes.Os;

@@ -11,6 +11,7 @@ with Ada.Unchecked_Deallocation;
 with Util.Strings;
 package body Util.Processes.Os is
 
+   use Util.Systems.Os;
    use type Interfaces.C.size_t;
    use type Util.Systems.Types.File_Type;
    use type Ada.Directories.File_Kind;
@@ -112,13 +113,13 @@ package body Util.Processes.Os is
    end Prepare_Working_Directory;
 
    procedure Prepare_Pseudo_Terminal (Pts_Master : out File_Type;
-                                      Pts_Name   : out Ptr) is
+                                      Pts_Slave  : out File_Type) is
       Name : constant Interfaces.C.char_array (1 .. 64)
         := (64 => Interfaces.C.nul, others => ' ');
+      Pts_Name : Ptr := Interfaces.C.Strings.New_Char_Array (Name);
       Result   : Integer;
    begin
-      Pts_Name := Interfaces.C.Strings.New_Char_Array (Name);
-      --  Pts_Slave := NO_FILE;
+      Pts_Slave := NO_FILE;
       Pts_Master := Sys_Posix_Openpt (O_RDWR);
       if Pts_Master < 0 then
          Interfaces.C.Strings.Free (Pts_Name);
@@ -137,6 +138,8 @@ package body Util.Processes.Os is
          Pts_Master := NO_FILE;
          return;
       end if;
+      Pts_Slave := Sys_Open (Pts_Name, O_RDWR, 0);
+      Interfaces.C.Strings.Free (Pts_Name);
    end Prepare_Pseudo_Terminal;
 
    --  ------------------------------
@@ -154,14 +157,17 @@ package body Util.Processes.Os is
       --  Suppress all checks to make sure the child process will not raise any exception.
       pragma Suppress (All_Checks);
 
-      Result     : Integer;
-      Pts_Master : File_Type := NO_FILE;
-      Pts_Name   : Ptr;
-      Pts_Slave  : File_Type := NO_FILE;
+      Result      : Integer;
+      Pts_Master1 : File_Type := NO_FILE;
+      Pts_Slave1  : File_Type := NO_FILE;
+      Pts_Master2 : File_Type := NO_FILE;
+      Pts_Slave2  : File_Type := NO_FILE;
 
       Stdin_Pipes   : aliased Pipe_Type := (others => NO_FILE);
       Stdout_Pipes  : aliased Pipe_Type := (others => NO_FILE);
       Stderr_Pipes  : aliased Pipe_Type := (others => NO_FILE);
+
+      Termio : aliased Termios;
 
       procedure Cleanup is
       begin
@@ -179,7 +185,10 @@ package body Util.Processes.Os is
       end if;
 
       if Proc.Need_TTY then
-         Prepare_Pseudo_Terminal (Pts_Master, Pts_Name);
+         Prepare_Pseudo_Terminal (Pts_Master1, Pts_Slave1);
+         if Mode in READ_ERROR | READ_WRITE_ALL_SEPARATE then
+            Prepare_Pseudo_Terminal (Pts_Master2, Pts_Slave2);
+         end if;
       else
          --  Setup the pipes.
          if Mode in WRITE | READ_WRITE | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
@@ -220,17 +229,24 @@ package body Util.Processes.Os is
          if Proc.Need_TTY then
             Result := Sys_Setsid;
 
-            Pts_Slave := Sys_Open (Pts_Name, O_RDONLY, 0);
-            Result := Sys_Close (Pts_Master);
-            Result := Sys_Dup2 (Pts_Slave, STDIN_FILENO);
-            if Pts_Slave /= STDIN_FILENO then
-               Result := Sys_Close (Pts_Slave);
+            Result := Sys_Close (Pts_Master1);
+            Result := Sys_Tcgetattr (Pts_Slave1, Termio'Access);
+            Sys_Cfmakeraw (Termio'Access);
+            Result := Sys_Tcsetattr (Pts_Slave1, 0, Termio'Access);
+
+            Result := Sys_Dup2 (Pts_Slave1, STDIN_FILENO);
+            Result := Sys_Dup2 (Pts_Slave1, STDOUT_FILENO);
+            if Pts_Master2 /= NO_FILE then
+               Result := Sys_Close (Pts_Master2);
+               Result := Sys_Dup2 (Pts_Slave2, STDERR_FILENO);
+            else
+               Result := Sys_Dup2 (Pts_Slave1, STDERR_FILENO);
             end if;
-            Pts_Slave := Sys_Open (Pts_Name, O_RDWR, 0);
-            Result := Sys_Dup2 (Pts_Slave, STDOUT_FILENO);
-            Result := Sys_Dup2 (Pts_Slave, STDERR_FILENO);
-            if not (Pts_Slave in STDOUT_FILENO | STDERR_FILENO) then
-               Result := Sys_Close (Pts_Slave);
+            if not (Pts_Slave1 in STDOUT_FILENO | STDERR_FILENO) then
+               Result := Sys_Close (Pts_Slave1);
+            end if;
+            if not (Pts_Slave2 in NO_FILE | STDOUT_FILENO | STDERR_FILENO) then
+               Result := Sys_Close (Pts_Slave2);
             end if;
          end if;
 
@@ -354,15 +370,19 @@ package body Util.Processes.Os is
       end if;
 
       if Proc.Need_TTY then
-         Interfaces.C.Strings.Free (Pts_Name);
+         Result := Sys_Close (Pts_Slave1);
          if Mode in WRITE | READ_WRITE | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
-            Proc.Input := Create_Stream (Pts_Master).all'Access;
+            Proc.Input := Create_Stream (Pts_Master1).all'Access;
          end if;
          if Mode in READ | READ_WRITE | READ_ALL | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
             if Mode in READ_WRITE | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
-               Pts_Master := Sys_Dup (Pts_Master);
+               Pts_Master1 := Sys_Dup (Pts_Master1);
             end if;
-            Proc.Output := Create_Stream (Pts_Master).all'Access;
+            Proc.Output := Create_Stream (Pts_Master1).all'Access;
+         end if;
+         if Pts_Master2 /= NO_FILE then
+            Result := Sys_Close (Pts_Slave2);
+            Proc.Error := Create_Stream (Pts_Master2).all'Access;
          end if;
       else
          if Stdin_Pipes (1) /= NO_FILE then
