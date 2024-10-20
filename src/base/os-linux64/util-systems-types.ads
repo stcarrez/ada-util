@@ -56,10 +56,27 @@ package Util.Systems.Types is
       st_atim    : Timespec;
       st_mtim    : Timespec;
       st_ctim    : Timespec;
-      pad5    : Interfaces.C.unsigned_long;
-      pad6    : Interfaces.C.unsigned_long;
-      pad7    : Interfaces.C.unsigned_long;
+      pad5       : Interfaces.C.unsigned_long;
+      pad6       : Interfaces.C.unsigned_long;
+      pad7       : Interfaces.C.unsigned_long;
    end record;
    pragma Convention (C_Pass_By_Copy, Stat_Type);
+
+   type tcflag_t is new Interfaces.C.unsigned;
+   type speed_t is new Interfaces.C.unsigned;
+   subtype cc_t is Interfaces.C.unsigned_char;
+   type cc_array is array (1 .. 32) of cc_t;
+
+   type Termios_Type is record
+      c_iflag  : tcflag_t;  --  input mode flags
+      c_oflag  : tcflag_t;  --  output mode flags
+      c_cflag  : tcflag_t;  --  control mode flags
+      c_lflag  : tcflag_t;  --  local mode flags
+      c_line   : cc_t;      --  line discipline
+      c_cc     : cc_array;  --  control characters
+      c_ispeed : speed_t;   --  input speed
+      c_ospeed : speed_t;   --  output speed
+   end record;
+   pragma Convention (C_Pass_By_Copy, Termios_Type);
 
 end Util.Systems.Types;

@@ -14,6 +14,7 @@ package Util.Systems.Constants is
    O_APPEND                      : constant Interfaces.C.int := 8#002000#;
    O_CLOEXEC                     : constant Interfaces.C.int := 8#2000000#;
    O_SYNC                        : constant Interfaces.C.int := 8#4010000#;
+   O_DIRECT                      : constant Interfaces.C.int := 0;
    O_NONBLOCK                    : constant Interfaces.C.int := 8#004000#;
 
    --  Some error codes
@@ -43,6 +44,61 @@ package Util.Systems.Constants is
    F_SETFL                       : constant Interfaces.C.int := 4;
    F_GETFL                       : constant Interfaces.C.int := 3;
    FD_CLOEXEC                    : constant Interfaces.C.int := 1;
+
+   --  Flags for termios
+
+   --  Flags for termios c_cflag
+   CSIZE   : constant := 8#000060#; --  Mask for character size
+   CS5     : constant := 8#000000#;
+   CS6     : constant := 8#000020#;
+   CS7     : constant := 8#000040#;
+   CS8     : constant := 8#000060#;
+   CSTOPB  : constant := 8#000100#; --  Send 2 stop bits
+   CREAD   : constant := 8#000200#; --  Enable receiver
+   PARENB  : constant := 8#000400#; --  Event parity
+   PARODD  : constant := 8#001000#; --  use odd parity
+   HUPCL   : constant := 8#002000#; --  Hang up on last close
+   CLOCAL  : constant := 8#004000#; --  Ignore modem status line
+
+   --  Flags for termios c_lflag
+   ISIG    : constant := 8#000001#; --  Enable signals
+   ICANON  : constant := 8#000002#; --  Canonical input (erase and kill or suspend
+   XCASE   : constant := 8#000004#; --  Canonical upper/lower presentation
+   ECHO    : constant := 8#000010#; --  Enable echo
+   ECHOE   : constant := 8#000020#; --  Echo ERASE as an error-correcting backspace
+   ECHOK   : constant := 8#000040#; --  Echo KILL
+   ECHONL  : constant := 8#000100#; --  Echo '\n'
+   NOFLSH  : constant := 8#000200#; --  Disable flush after interrupt, quit
+   TOSTOP  : constant := 8#000400#; --
+   ECHOCTL : constant := 8#001000#; --  Echo ctrl chars as char?
+
+   --  Flags for termios c_iflag
+   IGNBRK  : constant := 8#000001#; --  Ignore break condition
+   BRKINT  : constant := 8#000002#; --  Signal interrupt on break
+   IGNPAR  : constant := 8#000004#; --  Ignore characters with parity errors
+   PARMRK  : constant := 8#000010#; --  Mark parity and framing errors
+   INPCK   : constant := 8#000020#; --  Enable input parity check
+   ISTRIP  : constant := 8#000040#; --  Strip 8th bit off characters
+   INLCR   : constant := 8#000100#; --  Map NL to CR on input
+   IGNCR   : constant := 8#000200#; --  Ignore CR
+   ICRNL   : constant := 8#000400#; --  Map CR to NL on input
+   IXON    : constant := 8#002000#; --  Enable start/stop output control
+   IXANY   : constant := 8#004000#; --  Enable any character to restart output
+   IXOFF   : constant := 8#010000#; --  Enable start/stop input control
+
+   --  Flags for termios c_oflag
+   OPOST   : constant := 8#000001#; --  Post-process output
+   ONLCR   : constant := 8#000004#; --  Map NL to CR-NL on output
+   OCRNL   : constant := 8#000010#; --  Map CR to NL on output
+   ONOCR   : constant := 8#000020#; --  No CR output at column 0
+   ONLRET  : constant := 8#000040#; --  NL performs CR function
+   OFILL   : constant := 8#000100#; --  Use fill characters for delay
+   OFDEL   : constant := 8#000200#; --  Fill is DEL
+
+   --  Flags for termios c_oflag
+   TCSANOW   : constant := 0; --  make change immediately
+   TCSADRAIN : constant := 1; --  drain output, then change
+   TCSAFLUSH : constant := 2; --  drain output, flush input
 
    --  Flags used by dlopen
    RTLD_LAZY                     : constant Interfaces.C.int := 8#000001#;

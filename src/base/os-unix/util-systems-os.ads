@@ -5,7 +5,6 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
-with Ada.Streams;
 with System;
 with Interfaces.C;
 with Interfaces.C.Strings;
@@ -211,20 +210,16 @@ package Util.Systems.Os is
                           R : in Ptr) return Ptr
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "realpath";
 
-   type Termios is record
-      Data : Ada.Streams.Stream_Element_Array (1 .. 128) := (others => 0);
-   end record;
-
    function Sys_Tcgetattr (Fd : in File_Type;
-                           Termio : access Termios) return Integer
+                           Termio : access Types.Termios_Type) return Integer
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "tcgetattr";
 
    function Sys_Tcsetattr (Fd : in File_Type;
                            Actions : in Integer;
-                           Termio : access Termios) return Integer
+                           Termio : access Types.Termios_Type) return Integer
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "tcsetattr";
 
-   procedure Sys_Cfmakeraw (Termio : access Termios)
+   procedure Sys_Cfmakeraw (Termio : access Types.Termios_Type)
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "cfmakeraw";
 
    --  Libc errno.  The __get_errno function is provided by the GNAT runtime.

@@ -167,7 +167,7 @@ package body Util.Processes.Os is
       Stdout_Pipes  : aliased Pipe_Type := (others => NO_FILE);
       Stderr_Pipes  : aliased Pipe_Type := (others => NO_FILE);
 
-      Termio : aliased Termios;
+      Termio : aliased Systems.Types.Termios_Type;
 
       procedure Cleanup is
       begin
