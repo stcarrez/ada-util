@@ -25,6 +25,10 @@
 # define HAVE_DLOPEN
 #endif
 
+#ifdef __NetBSD__
+# define HAVE_DLFCN_H
+#endif
+
 #if defined(__MSYS__) || defined(_WIN32) || defined(_WIN64)
 # undef HAVE_DLFCN_H
 #endif
@@ -593,7 +597,9 @@ int main(int argc, char** argv)
     printf("\n   --  Flags for termios c_lflag\n");
     printf("   ISIG    : constant := 8#%06o#; --  Enable signals\n", ISIG);
     printf("   ICANON  : constant := 8#%06o#; --  Canonical input (erase and kill or suspend\n", ICANON);
+#ifdef XCASE
     printf("   XCASE   : constant := 8#%06o#; --  Canonical upper/lower presentation\n", XCASE);
+#endif
     printf("   ECHO    : constant := 8#%06o#; --  Enable echo\n", ECHO);
     printf("   ECHOE   : constant := 8#%06o#; --  Echo ERASE as an error-correcting backspace\n", ECHOE);
     printf("   ECHOK   : constant := 8#%06o#; --  Echo KILL\n", ECHOK);
@@ -620,10 +626,16 @@ int main(int argc, char** argv)
     printf("   OPOST   : constant := 8#%06o#; --  Post-process output\n", OPOST);
     printf("   ONLCR   : constant := 8#%06o#; --  Map NL to CR-NL on output\n", ONLCR);
     printf("   OCRNL   : constant := 8#%06o#; --  Map CR to NL on output\n", OCRNL);
+#ifdef ONOCR
     printf("   ONOCR   : constant := 8#%06o#; --  No CR output at column 0\n", ONOCR);
+#endif
     printf("   ONLRET  : constant := 8#%06o#; --  NL performs CR function\n", ONLRET);
+#ifdef OFILL
     printf("   OFILL   : constant := 8#%06o#; --  Use fill characters for delay\n", OFILL);
+#endif
+#ifdef OFDEL
     printf("   OFDEL   : constant := 8#%06o#; --  Fill is DEL\n", OFDEL);
+#endif
 
     printf("\n   --  Flags for termios c_oflag\n");
     printf("   TCSANOW   : constant := %d; --  make change immediately\n", TCSANOW);
