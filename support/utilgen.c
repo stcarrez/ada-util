@@ -29,6 +29,11 @@
 # define HAVE_DLFCN_H
 #endif
 
+#ifdef __FreeBSD__
+# define HAVE_DLFCN_H
+# define HAVE_DLOPEN
+#endif
+
 #if defined(__MSYS__) || defined(_WIN32) || defined(_WIN64)
 # undef HAVE_DLFCN_H
 #endif
@@ -276,7 +281,7 @@ void gen_stat(void)
     printf("      st_gen      : %s;\n", get_type(UNSIGNED, sizeof(st.st_gen)));
     printf("   end record;\n");
     printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
-    printf("   for Stat_Type'Size use %d;\n", 8 * sizeof(st));
+    printf("   for Stat_Type'Size use %d;\n", (int) (8 * sizeof(st)));
     printf("\n");
 #elif defined(__APPLE__)
     struct stat st;
