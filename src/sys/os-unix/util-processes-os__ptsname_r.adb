@@ -9,5 +9,5 @@ separate (Util.Processes.Os) function Ptsname (Fd     : in File_Type;
                                                Buf    : in Ptr;
                                                Buflen : in Size_T) return Integer is
 begin
-   return Sys_Ptsname_r (Fd, Buf, Buflen);
+   return Sys_Ptsname_R (Fd, Buf, Buflen);
 end Ptsname;

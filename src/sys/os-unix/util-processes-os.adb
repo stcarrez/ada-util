@@ -10,8 +10,10 @@ with Ada.Unchecked_Deallocation;
 
 with Util.Strings;
 package body Util.Processes.Os is
- 
-   function Ptsname (Fd : in File_Type; Buf : in Ptr; Buflen : in Size_T) return Integer is separate;
+
+   function Ptsname (Fd  : in File_Type;
+                     Buf : in Ptr;
+                     Buflen : in Size_T) return Integer is separate;
 
    use type Interfaces.C.size_t;
    use type Util.Systems.Types.File_Type;
