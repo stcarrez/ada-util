@@ -6,20 +6,15 @@
 -----------------------------------------------------------------------
 
 separate (Util.Processes.Os) function Ptsname (Fd     : in File_Type;
-                                               Buf    : in Ptr;
-                                               Buflen : in Size_T) return Integer is
+                                               Buf    : out Ptr) return Integer is
    use Interfaces.C.Strings;
 
    Name : constant Ptr := Sys_Ptsname (Fd);
-   Len  : Size_T;
 begin
    if Name = Null_Ptr then
+      Buf := Null_Ptr;
       return -1;
    end if;
-   Len := Size_T (Strlen (Name));
-   if Len > Buflen then
-      return -1;
-   end if;
-   Interfaces.C.Strings.Update (Buf, 0, String '(Value (Name)), False);
+   Buf := New_String (Value (Name));
    return 0;
 end Ptsname;
