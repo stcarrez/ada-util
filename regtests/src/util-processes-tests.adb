@@ -137,7 +137,7 @@ package body Util.Processes.Tests is
          Buffer.Initialize (P'Unchecked_Access, 19);
          Buffer.Read (Content);
          P.Close;
-         Util.Tests.Assert_Matches (T, "/dev/pts/", Content,
+         Util.Tests.Assert_Matches (T, "/dev/(pts/|ttyp)", Content,
                                     "Invalid content");
       end;
       T.Assert (not P.Is_Running, "Process has stopped");
