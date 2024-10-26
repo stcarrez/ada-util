@@ -39,6 +39,7 @@ framework as it provides better reports.
   - Improvement of Util.Files.Walk to scan and honor a root .gitignore from any child directory
   - Feature #55: Support indentation when writing JSON streams
   - Feature #56: Support for pseudo tty when launching a process
+  - Feature #57: Support for OpenBSD
 
 ## Version 2.7.0  - Jun 2024
   - New package Util.Files.Walk to iterate over directory trees and honor .gitignore
