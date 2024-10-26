@@ -124,6 +124,9 @@ package Util.Systems.Os is
    function Sys_Unlockpt (Fd : in File_Type) return Integer
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "unlockpt";
 
+   function Sys_Ptsname (Fd : in File_Type) return Ptr
+     with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "ptsname";
+
    function Sys_Ptsname_R (Fd : in File_Type; Buf : in Ptr; Buflen : in Size_T) return Integer
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "ptsname_r";
 

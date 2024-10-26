@@ -43,6 +43,22 @@ library project UtilAda_Sys is
 
    end case;
 
+   package Naming is
+      case UtilAda_Conf.Os_Version is
+         when "none" | "win32" | "win64" | "windows" =>
+	    null;
+
+         when "openbsd32" | "openbsd64" =>
+            for Implementation ("Util.Processes.Os.Ptsname")
+               use "util-processes-os__ptsname.adb";
+
+         when others =>
+            for Implementation ("Util.Processes.Os.Ptsname")
+               use "util-processes-os__ptsname_r.adb";
+
+      end case;
+   end Naming;
+
    for Library_Name use "utilada_sys";
    for Library_Kind use UtilAda_Conf.Library_Type;
    for Library_Version use "lib" & Project'Library_Name & ".so." & Version;

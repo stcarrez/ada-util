@@ -10,8 +10,9 @@ with Ada.Unchecked_Deallocation;
 
 with Util.Strings;
 package body Util.Processes.Os is
+ 
+   function Ptsname (Fd : in File_Type; Buf : in Ptr; Buflen : in Size_T) return Integer is separate;
 
-   use Util.Systems.Os;
    use type Interfaces.C.size_t;
    use type Util.Systems.Types.File_Type;
    use type Ada.Directories.File_Kind;
@@ -129,7 +130,7 @@ package body Util.Processes.Os is
       if Result = 0 then
          Result := Sys_Unlockpt (Pts_Master);
          if Result = 0 then
-            Result := Sys_Ptsname_R (Pts_Master, Pts_Name, 64);
+            Result := Ptsname (Pts_Master, Pts_Name, 64);
          end if;
       end if;
       if Result < 0 then

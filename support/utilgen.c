@@ -22,7 +22,7 @@
 
 #ifdef __linux__
 # define HAVE_DLFCN_H
-# define HAVE_DLOPEN
+# define HAVE_LIBDL
 #endif
 
 #ifdef __NetBSD__
@@ -31,7 +31,11 @@
 
 #ifdef __FreeBSD__
 # define HAVE_DLFCN_H
-# define HAVE_DLOPEN
+# define HAVE_LIBDL
+#endif
+
+#ifdef __OpenBSD__
+# define HAVE_DLFCN_H
 #endif
 
 #if defined(__MSYS__) || defined(_WIN32) || defined(_WIN64)
@@ -351,6 +355,32 @@ void gen_stat(void)
     printf("   end record;\n");
     printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
     printf("\n");
+#elif defined(__OpenBSD__)
+    struct stat st;
+
+    printf("   STAT_NAME  : constant String := \"stat\";\n");
+    printf("   FSTAT_NAME : constant String := \"fstat\";\n");
+    printf("   LSTAT_NAME : constant String := \"lstat\";\n");
+    printf("   type Stat_Type is record\n");
+    printf("      st_mode      : mode_t;\n");
+    printf("      st_dev       : dev_t;\n");
+    printf("      st_ino       : ino_t;\n");
+    printf("      st_nlink     : nlink_t;\n");
+    printf("      st_uid       : uid_t;\n");
+    printf("      st_gid       : gid_t;\n");
+    printf("      st_rdev      : dev_t;\n");
+    printf("      st_atim      : Timespec;\n");
+    printf("      st_mtim      : Timespec;\n");
+    printf("      st_ctim      : Timespec;\n");
+    printf("      st_size      : off_t;\n");
+    printf("      st_blocks    : blkcnt_t;\n");
+    printf("      st_blksize   : blksize_t;\n");
+    printf("      st_flags     : %s;\n", get_type(UNSIGNED, sizeof(st.st_flags)));
+    printf("      st_gen       : %s;\n", get_type(UNSIGNED, sizeof(st.st_gen)));
+    printf("      st_birthtim  : Timespec;\n");
+    printf("   end record;\n");
+    printf("   pragma Convention (C_Pass_By_Copy, Stat_Type);\n");
+    printf("\n");
 #elif defined(_WIN32)
     printf("   type Stat_Type is record\n");
     printf("      st_dev      : dev_t;\n");
@@ -399,7 +429,7 @@ void gen_termios()
     printf("      c_oflag  : tcflag_t;  --  output mode flags\n");
     printf("      c_cflag  : tcflag_t;  --  control mode flags\n");
     printf("      c_lflag  : tcflag_t;  --  local mode flags\n");
-#if !defined(__NetBSD__) && !defined(__FreeBSD__) && !defined(__DragonFly__)
+#if !defined(__NetBSD__) && !defined(__FreeBSD__) && !defined(__DragonFly__) && !defined(__OpenBSD__)
     printf("      c_line   : cc_t;      --  line discipline\n");
 #endif
     printf("      c_cc     : cc_array;  --  control characters\n");
@@ -662,7 +692,7 @@ int main(int argc, char** argv)
 #endif
 
     printf("\n");
-#ifdef HAVE_DLOPEN
+#ifdef HAVE_LIBDL
     printf("   DLL_OPTIONS   : constant String := \"-ldl\";\n");
 #else
     printf("   DLL_OPTIONS   : constant String := \"\";\n");

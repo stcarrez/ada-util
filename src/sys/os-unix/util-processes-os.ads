@@ -90,4 +90,8 @@ private
    procedure Prepare_Pseudo_Terminal (Pts_Master : out File_Type;
                                       Pts_Slave  : out File_Type);
 
+   use Util.Systems.Os;
+
+   function Ptsname (Fd : in File_Type; Buf : in Ptr; Buflen : in Size_T) return Integer;
+
 end Util.Processes.Os;

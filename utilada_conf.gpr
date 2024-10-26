@@ -10,7 +10,8 @@ abstract project UtilAda_Conf is
 
    type Os_Version_Type is ("none", "unix", "windows",
                             "linux32", "linux64", "win32", "win64", "macos64",
-                            "netbsd32", "netbsd64", "freebsd32", "freebsd64");
+                            "netbsd32", "netbsd64", "freebsd32", "freebsd64",
+			    "openbsd32", "openbsd64");
 
    type Asm_Version_Type is ("none", "intrinsic", "x86");
 
