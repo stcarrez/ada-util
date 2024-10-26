@@ -92,6 +92,6 @@ private
 
    use Util.Systems.Os;
 
-   function Ptsname (Fd : in File_Type; Buf : in Ptr; Buflen : in Size_T) return Integer;
+   function Ptsname (Fd : in File_Type; Buf : out Ptr) return Integer;
 
 end Util.Processes.Os;

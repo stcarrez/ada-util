@@ -12,8 +12,7 @@ with Util.Strings;
 package body Util.Processes.Os is
 
    function Ptsname (Fd  : in File_Type;
-                     Buf : in Ptr;
-                     Buflen : in Size_T) return Integer is separate;
+                     Buf : out Ptr) return Integer is separate;
 
    use type Interfaces.C.size_t;
    use type Util.Systems.Types.File_Type;
@@ -117,22 +116,19 @@ package body Util.Processes.Os is
 
    procedure Prepare_Pseudo_Terminal (Pts_Master : out File_Type;
                                       Pts_Slave  : out File_Type) is
-      Name : constant Interfaces.C.char_array (1 .. 64)
-        := (64 => Interfaces.C.nul, others => ' ');
-      Pts_Name : Ptr := Interfaces.C.Strings.New_Char_Array (Name);
+      Pts_Name : Ptr;
       Result   : Integer;
    begin
       Pts_Slave := NO_FILE;
       Pts_Master := Sys_Posix_Openpt (O_RDWR);
       if Pts_Master < 0 then
-         Interfaces.C.Strings.Free (Pts_Name);
          return;
       end if;
       Result := Sys_Grantpt (Pts_Master);
       if Result = 0 then
          Result := Sys_Unlockpt (Pts_Master);
          if Result = 0 then
-            Result := Ptsname (Pts_Master, Pts_Name, 64);
+            Result := Ptsname (Pts_Master, Pts_Name);
          end if;
       end if;
       if Result < 0 then

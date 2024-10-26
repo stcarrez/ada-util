@@ -6,8 +6,10 @@
 -----------------------------------------------------------------------
 
 separate (Util.Processes.Os) function Ptsname (Fd     : in File_Type;
-                                               Buf    : in Ptr;
-                                               Buflen : in Size_T) return Integer is
+                                               Buf    : out Ptr) return Integer is
+   Name : constant Interfaces.C.char_array (1 .. 64)
+        := (64 => Interfaces.C.nul, others => ' ');
 begin
-   return Sys_Ptsname_R (Fd, Buf, Buflen);
+   Buf := Interfaces.C.Strings.New_Char_Array (Name);
+   return Sys_Ptsname_R (Fd, Buf, 64);
 end Ptsname;
