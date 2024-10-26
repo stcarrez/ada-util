@@ -13,6 +13,9 @@ abstract project UtilAda_Conf is
                             "netbsd32", "netbsd64", "freebsd32", "freebsd64",
 			    "openbsd32", "openbsd64");
 
+   --  Moved to UtilAda_Unit project but kept for Alire pins issues.
+   type Unit_Type is ("none", "ahven-unix", "ahven-windows", "aunit");
+
    type Asm_Version_Type is ("none", "intrinsic", "x86");
 
    Asm_Version : Asm_Version_Type := external ("UTIL_ASM_TYPE", "intrinsic");
