@@ -34,6 +34,11 @@
 # define HAVE_LIBDL
 #endif
 
+#ifdef __APPLE__
+# define HAVE_DLFCN_H
+# define HAVE_LIBDL
+#endif
+
 #ifdef __OpenBSD__
 # define HAVE_DLFCN_H
 #endif
