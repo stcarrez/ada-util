@@ -1,4 +1,4 @@
-Version 2.8.0  - Under development
+Version 2.8.0  - Nov 2024
   - Cleanup build environment to drop configure
   - Improvement of Util.Files.Walk to scan and honor a root .gitignore from any child directory
   - Feature #55: Support indentation when writing JSON streams

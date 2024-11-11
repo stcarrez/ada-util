@@ -10,10 +10,10 @@
 [![Test Status](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/tests.json)](https://porion.vacs.fr/porion/projects/view/ada-util/xunits)
 [![Coverage](https://img.shields.io/endpoint?url=https://porion.vacs.fr/porion/api/v1/projects/ada-util/badges/coverage.json)](https://porion.vacs.fr/porion/projects/view/ada-util/summary)
 [![Documentation Status](https://readthedocs.org/projects/ada-util/badge/?version=latest)](https://ada-util.readthedocs.io/en/latest/?badge=latest)
-[![Download](https://img.shields.io/badge/download-2.7.0-brightgreen.svg)](http://download.vacs.fr/ada-util/ada-util-2.7.0.tar.gz)
+[![Download](https://img.shields.io/badge/download-2.8.0-brightgreen.svg)](http://download.vacs.fr/ada-util/ada-util-2.8.0.tar.gz)
 [![License](https://img.shields.io/badge/license-APACHE2-blue.svg)](LICENSE)
 [![GitLab](https://img.shields.io/badge/repo-GitLab-6C488A.svg)](https://gitlab.com/stcarrez/ada-util)
-[![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/2.7.0.svg)](Commits)
+[![Commits](https://img.shields.io/github/commits-since/stcarrez/ada-util/2.8.0.svg)](Commits)
 
 
 This Ada library contains various utility packages for building
@@ -34,21 +34,12 @@ Ada Util also provides a small test utility library on top of
 Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
 framework as it provides better reports.
 
-## Version 2.8.0  - Under development
+## Version 2.8.0  - Nov 2024
   - Cleanup build environment to drop configure
   - Improvement of Util.Files.Walk to scan and honor a root .gitignore from any child directory
   - Feature #55: Support indentation when writing JSON streams
   - Feature #56: Support for pseudo tty when launching a process
   - Feature #57: Support for OpenBSD
-
-## Version 2.7.0  - Jun 2024
-  - New package Util.Files.Walk to iterate over directory trees and honor .gitignore
-  - Add support for custom log formatter (allow to translate log messages, filter messages, ...)
-  - Feature #48: Change the log time from UTC to Local Time (configurable)
-  - Fix #49: Perf report generates incorrect XML title attributes
-  - Fix #50: 128Bit AES-CTR Encoding doesn't work (thanks Adam Jasinski)
-  - Fix #53: Executor does not always stop the worker tasks
-  - Used [spdx-tool](https://gitlab.com/stcarrez/spdx-tool) to use `SPDX-License-Identifier` in headers
 
 [List all versions](https://github.com/stcarrez/ada-util/blob/master/NEWS.md)
 
@@ -93,7 +84,8 @@ It must one of the allowed values defined in `utilada_conf.gpr` GNAT project in 
 ```
    type Os_Version_Type is ("none", "unix", "windows",
                             "linux32", "linux64", "win32", "win64", "macos64",
-                            "netbsd32", "netbsd64", "freebsd32", "freebsd64");
+                            "netbsd32", "netbsd64", "freebsd32", "freebsd64",
+                            "openbsd32", "openbsd64");
 ```
 
 The example below enables the XML/Ada and AWS components but disables
