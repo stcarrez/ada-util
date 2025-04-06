@@ -34,6 +34,9 @@ Ada Util also provides a small test utility library on top of
 Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
 framework as it provides better reports.
 
+## Version 2.8.1  - Under development
+  - Fix #59: Encryption of non-aligned array raises constraint error
+
 ## Version 2.8.0  - Nov 2024
   - Cleanup build environment to drop configure
   - Improvement of Util.Files.Walk to scan and honor a root .gitignore from any child directory
