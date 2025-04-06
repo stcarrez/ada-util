@@ -1,10 +1,11 @@
 -----------------------------------------------------------------------
 --  util-encodes-tests - Test for encoding
---  Copyright (C) 2009 - 2023 Stephane Carrez
+--  Copyright (C) 2009 - 2025 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
+with Util.Assertions;
 with Util.Test_Caller;
 with Util.Measures;
 with Util.Strings.Transforms;
@@ -35,6 +36,9 @@ package body Util.Encoders.Tests is
                             Key    : in String;
                             Value  : in String;
                             Expect : in String);
+
+   procedure Assert_Equals is
+      new Util.Assertions.Assert_Equals_T (Value_Type => Ada.Streams.Stream_Element_Offset);
 
    package Caller is new Util.Test_Caller (Test, "Encoders");
 
@@ -603,7 +607,34 @@ package body Util.Encoders.Tests is
                      "9b09ffa71b942fcb27635fbcd5b0e944bfdc63644f0713938a7f51535c3a35e2");
    end Test_HMAC_SHA256_RFC4231_T7;
 
+   --  Note: this function is not part of the Util.Encoders.AES package because
+   --  it is not a good idea as it only provides the AES-ECB encryption.
+   procedure Decrypt (Input  : in Ada.Streams.Stream_Element_Array;
+                      Output : out Ada.Streams.Stream_Element_Array;
+                      Last   : out Ada.Streams.Stream_Element_Offset;
+                      Key    : in AES.Key_Type)
+     with Pre => Input'Length mod 16 = 0 and then Output'Length mod 16 = 0;
+
+   procedure Decrypt (Input  : in Ada.Streams.Stream_Element_Array;
+                      Output : out Ada.Streams.Stream_Element_Array;
+                      Last   : out Ada.Streams.Stream_Element_Offset;
+                      Key    : in AES.Key_Type) is
+      First  : Ada.Streams.Stream_Element_Offset := Input'First;
+   begin
+      Last := Output'First;
+
+      --  Decrypt every block, including the last one.
+      while First + 15 <= Input'Last loop
+         AES.Decrypt (Input (First .. First + 15),
+                      Output (Last .. Last + 15),
+                      Key);
+         First := First + 16;
+         Last  := Last + 16;
+      end loop;
+   end Decrypt;
+
    procedure Test_AES (T : in out Test) is
+
       PK   : constant Secret_Key := Create ("0123456789abcdef");
       Key  : Util.Encoders.AES.Key_Type;
       B    : Util.Encoders.AES.Block_Type := (others => 1);
@@ -625,6 +656,29 @@ package body Util.Encoders.Tests is
       Ok := (for all E of B => E = 16#ab#);
       T.Assert (Ok, "Encryption and decryption are invalid (block with 16#AB#)");
 
+      for I in Stream_Element_Offset (1) .. 100 loop
+         declare
+            Data    : constant Stream_Element_Array (1 .. I)
+              := (others => Ada.Streams.Stream_Element (I));
+            Result  : Stream_Element_Array (1 .. I + 16) := (others => 0);
+            Result2 : Stream_Element_Array (1 .. I + 16) := (others => 0);
+            Last    : Stream_Element_Offset;
+            Last2   : Stream_Element_Offset;
+         begin
+            Util.Encoders.AES.Set_Encrypt_Key (Key, PK);
+            Util.Encoders.AES.Encrypt (Data, Result, Last, Key);
+            T.Assert (((Last - 1) mod 16) = 0,
+                      "Encrypt must produce multiple of AES blocks");
+
+            Util.Encoders.AES.Set_Decrypt_Key (Key, PK);
+            Decrypt (Result (1 .. Last - 1),
+                     Result2 (1 .. Last - 1),
+                     Last2, Key);
+            Assert_Equals (T, Last, Last2, "Decrypt returned invalid last");
+            T.Assert (Result2 (1 .. Data'Last) = Data,
+                      "Encrypt+decrypt failed");
+         end;
+      end loop;
    end Test_AES;
 
    --  ------------------------------

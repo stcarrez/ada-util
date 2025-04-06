@@ -1524,14 +1524,14 @@ package body Util.Encoders.AES is
       Remain : Ada.Streams.Stream_Element_Offset;
    begin
       Last := Output'First;
-      while First + 16 <= Input'Last loop
+      while First + 15 <= Input'Last loop
          Encrypt (Input (First .. First + 15),
                   Output (Last .. Last + 15),
                   Key);
          First := First + 16;
          Last  := Last + 16;
       end loop;
-      Remain := Input'Last - First;
+      Remain := Input'Last - First + 1;
       if Remain > 0 then
          declare
             B : Block_Type;
@@ -1539,7 +1539,7 @@ package body Util.Encoders.AES is
             Pad := B'Length - Remain;
             B (B'First .. B'First + Remain - 1) := Input (First .. Input'Last);
             B (B'First + Remain .. B'Last) := (others => Stream_Element (Pad));
-            Encrypt (B, Output (Last .. Last + 16), Key);
+            Encrypt (B, Output (Last .. Last + 15), Key);
             Last := Last + 16;
          end;
       end if;
