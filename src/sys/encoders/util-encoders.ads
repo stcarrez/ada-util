@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009 - 2023 Stephane Carrez
+--  Copyright (C) 2009 - 2025 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -28,6 +28,39 @@ with Interfaces;
 --    with "utilada_sys";
 --
 --  @include util-encoders-uri.ads
+--
+--  == Secret keys ==
+--  The `Util.Encoders` package defines the `Secret_Key` limited type which is
+--  intended to be used to hold secret keys.  The secret itself can only be
+--  accessed from the `Util.Encoders` packages and its children.  When the object
+--  representing the key is destroyed, the memory that hold the key is cleared.
+--  The `Secret_Key` is basically used for AES encryption but could be used for
+--  other purposes.  The secret key can be created from a string as follows:
+--
+--    Key : constant Util.Encoders.Secret_Key := Create ("password");
+--
+--  === Decoding ==
+--  A secret key is a binary content that sometimes must be retrieved from another
+--  format.  For example, it could be represented as a Base64 string.  To help
+--  and reduce key leaks the `Decode_Key` function can be used.  The first step
+--  is to obtain a `Decoder` object as described at begining:
+--
+--    D : constant Decoder := Util.Encoders.Create ("base64");
+--    K : constant Secret_Key := Util.Encoders.Decode_Key (D, "cGFzc3dvcmQ=");
+--
+--  === Decrypting keys ===
+--  The secret key can also be obtained by using the `Decrypt_Secret` procedure
+--  provided by the AES package.  The procedure only accepts a binary content
+--  and to decrypt that key it is also necessary to know a first encryption key.
+--
+--    Encrypted_Key : Ada.Streams.Stream_Element_Array := ...;
+--    Decipher : Util.Encoders.AES.Decoder;
+--    ...
+--      Decipher.Set_Key (...);
+--      Decipher.Decrypt_Secret (Encrypted_Key, Key);
+--
+--  @include util-encoders-kdf-pbkdf2.ads
+--  @include util-encoders-aes.ads
 --  @include util-encoders-ecc.ads
 --
 package Util.Encoders is

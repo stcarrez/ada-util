@@ -1,14 +1,64 @@
 -----------------------------------------------------------------------
 --  util-encoders-aes -- AES encryption and decryption
---  Copyright (C) 2017, 2019, 2020, 2022 Stephane Carrez
+--  Copyright (C) 2017, 2019, 2020, 2022, 2025 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 with Interfaces;
 private with Ada.Finalization;
 
---  The <b>Util.Encodes.SHA1</b> package generates SHA-1 hash according to
---  RFC3174 or [FIPS-180-1].
+--  == AES Encryption and decryption ==
+--  The `Util.Encoders.AES` package implements the basis for AES encryption
+--  and decryption used by the `Util.Streams.AES` package for AES streams.
+--  Several encryption modes are available and described by the `AES_Mode`
+--  type and the padding is controlled by the `AES_Padding` type.
+--  The encryption is provided by methods on the `Encoder` type.  The `Set_Key`
+--  procedure configures the encryption key and AES encryption mode.  The key
+--  must be 16, 24 or 32 bytes as specified by the pre-condition.  Then, the
+--  `Transform` procedure is called as needed to encrypt the content in a
+--  destination buffer.  It returns the position of the last encoded byte as
+--  well as the position of the last encrypted byte.  It can be called several
+--  times if the data to encrypt does not fit in the destination buffer.
+--  At the end, it is important to call the `Finish` procedure so that it
+--  handles correctly the last AES block which may contain the last encrypted
+--  bytes as well as optional padding.  An encryption function is shown below:
+--
+--    function Encrypt (Key   : in Secret_Key;
+--                      Src   : in Stream_Element_Array) return Stream_Element_Array is
+--       Size    : constant Stream_Element_Offset := AES.Align (Src'Length);
+--       Cipher  : Util.Encoders.AES.Encoder;
+--       Encoded, Last : Stream_Element_Offset;
+--       Result  : Stream_Element_Array (1 .. Size);
+--    begin
+--       Cipher.Set_Key (Key, AES.ECB);
+--       Cipher.Transform (Src, Result (Result'First .. Result'Last - 16),
+--                         Last, Encoded);
+--       Cipher.Finish (Result (Last + 1 .. Result'Last), Last);
+--       return Result;
+--    end Encrypt;
+--
+--  With AES, the encryption result is always a multiple of AES block size (16 bytes).
+--  The `Align` function allows to easily compute the expected encrypted size.
+--
+--  Decrypting a content follows the same principles but with the `Decoder` type.
+--  The source array must be a multiple of AES block and the last AES block may
+--  contain some padding.  The `Finish` procedure will then indicate the last
+--  valid byte in the decrypted buffer.
+--
+--    function Decrypt (Key   : in Secret_Key;
+--                      Src   : in Stream_Element_Array) return Stream_Element_Array is
+--       Size     : constant Stream_Element_Offset := Src'Length;
+--       Decipher : Util.Encoders.AES.Decoder;
+--       Result   : Stream_Element_Array (1 .. Size);
+--       Encoded, Last : Stream_Element_Offset;
+--    begin
+--       Decipher.Set_Key (Key, AES.ECB);
+--       Decipher.Set_Padding (AES.PKCS7_PADDING);
+--       Decipher.Transform (Src, Result, Last, Encoded);
+--       Decipher.Finish (Result (Last + 1 .. Result'Last), Last);
+--       return Result (Result'First .. Last);
+--    end Decrypt;
+--
 package Util.Encoders.AES is
 
    type AES_Mode is (ECB, CBC, PCBC, CFB, OFB, CTR);
@@ -53,6 +103,7 @@ package Util.Encoders.AES is
                       Output : out Word_Block_Type;
                       Key    : in Key_Type);
 
+   --  Encrypt using AES-ECB (not recommended to use, prefer use of Encoder).
    procedure Encrypt (Input  : in Ada.Streams.Stream_Element_Array;
                       Output : out Ada.Streams.Stream_Element_Array;
                       Last   : out Ada.Streams.Stream_Element_Offset;
@@ -98,7 +149,8 @@ package Util.Encoders.AES is
    --  Set the encryption key to use.
    procedure Set_Key (E    : in out Encoder;
                       Data : in Secret_Key;
-                      Mode : in AES_Mode := CBC);
+                      Mode : in AES_Mode := CBC)
+     with Pre => Data.Length in 16 | 24 | 32;
 
    --  Encodes the binary input stream represented by <b>Data</b> into
    --  an SHA-1 hash output stream <b>Into</b>.
@@ -148,7 +200,8 @@ package Util.Encoders.AES is
    --  Set the decryption key to use.
    procedure Set_Key (E    : in out Decoder;
                       Data : in Secret_Key;
-                      Mode : in AES_Mode := CBC);
+                      Mode : in AES_Mode := CBC)
+     with Pre => Data.Length in 16 | 24 | 32;
 
    --  Encodes the binary input stream represented by <b>Data</b> into
    --  an SHA-1 hash output stream <b>Into</b>.
