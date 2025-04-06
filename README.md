@@ -138,7 +138,7 @@ make samples
 | `Util.Beans.Objects.Datasets` | [datasets.adb](https://github.com/stcarrez/ada-util/tree/master/samples/src/datasets.adb)|
 | `Util.Beans.Objects.Iterators` | [jsonread.adb](https://github.com/stcarrez/ada-util/tree/master/samples/src/jsonread.adb)|
 | `Util.Encoders` | [encodes.adb](https://github.com/stcarrez/ada-util/tree/master/samples/src/encodes.adb) |
-| `Util.Encoders.AES` | [decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/src/decrypt.adb), [encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/src/encrypt.adb) |
+| `Util.Encoders.AES` | [decrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/src/decrypt.adb), [encrypt.adb](https://github.com/stcarrez/ada-util/tree/master/samples/src/encrypt.adb), [decrypt_array.adb](https://github.com/stcarrez/ada-util/tree/master/samples/src/decrypt_array.adb), [encrypt_array.adb](https://github.com/stcarrez/ada-util/tree/master/samples/src/encrypt_array.adb) |
 | `Util.Encoders.SHA256` | [sha256.adb](https://github.com/stcarrez/ada-util/tree/master/samples/src/sha256.adb) |
 | `Util.Files` | [realpath.adb](https://github.com/stcarrez/ada-util/tree/master/samples/src/realpath.adb), [gperfhash.adb](https://github.com/stcarrez/ada-util/tree/master/samples/src/gperfhash.adb) |
 | `Util.Files.Rolling` | [rolling_file.adb](https://github.com/stcarrez/ada-util/tree/master/samples/src/rolling_file.adb) |
