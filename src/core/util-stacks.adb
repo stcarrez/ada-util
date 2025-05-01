@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-stacks -- Simple stack
---  Copyright (C) 2010, 2011, 2022 Stephane Carrez
+--  Copyright (C) 2010, 2011, 2022, 2025 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -19,6 +19,11 @@ package body Util.Stacks is
    begin
       return Container.Current;
    end Current;
+
+   function Top (Container : in Stack) return Element_Type is
+   begin
+      return Container.Current.all;
+   end Top;
 
    --  ------------------------------
    --  Push an element on top of the stack making the new element the current one.
@@ -42,6 +47,13 @@ package body Util.Stacks is
       end if;
       Container.Pos := Container.Pos + 1;
       Container.Current := Container.Stack (Container.Pos)'Access;
+   end Push;
+
+   procedure Push (Container : in out Stack;
+                   Element   : in Element_Type) is
+   begin
+      Push (Container);
+      Container.Current.all := Element;
    end Push;
 
    --  ------------------------------
@@ -71,7 +83,7 @@ package body Util.Stacks is
    --  ------------------------------
    --  Returns true if the stack is empty.
    --  ------------------------------
-   function Is_Empty (Container : in out Stack) return Boolean is
+   function Is_Empty (Container : in Stack) return Boolean is
    begin
       return Container.Stack = null or else Container.Pos = Container.Stack'First;
    end Is_Empty;
