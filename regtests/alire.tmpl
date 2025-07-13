@@ -12,10 +12,10 @@ website = "https://gitlab.com/stcarrez/ada-util"
 [[depends-on]]
 utilada = "^2.7.0"
 utilada_unit = "^2.7.0"
-utilada_xml = "^2.7.0"
-utilada_curl = "^2.7.0"
-utilada_aws = "^2.7.0"
-utilada_lzma = "^2.7.0"
+@HAVE_XML@utilada_xml = "^2.7.0"
+@HAVE_CURL@utilada_curl = "^2.7.0"
+@HAVE_AWS@utilada_aws = "^2.7.0"
+@HAVE_LZMA@utilada_lzma = "^2.7.0"
 
 [configuration]
 disabled = true
@@ -23,8 +23,9 @@ disabled = true
 [[pins]]
 utilada = { path = '..' }
 utilada_unit = { path = '../unit' }
-utilada_xml = { path = '../xml' }
-utilada_curl = { path = '../curl' }
-utilada_aws = { path = '../aws' }
-utilada_lzma = { path = '../lzma' }
+@HAVE_XML@utilada_xml = { path = '../xml' }
+@HAVE_CURL@utilada_curl = { path = '../curl' }
+@HAVE_AWS@utilada_aws = { path = '../aws' }
+@HAVE_LZMA@utilada_lzma = { path = '../lzma' }
+
 
