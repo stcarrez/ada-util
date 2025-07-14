@@ -34,15 +34,8 @@ Ada Util also provides a small test utility library on top of
 Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
 framework as it provides better reports.
 
-## Version 2.8.1  - Under development
+## Version 2.8.1  - Jul 2025
   - Fix #59: Encryption of non-aligned array raises constraint error
-
-## Version 2.8.0  - Nov 2024
-  - Cleanup build environment to drop configure
-  - Improvement of Util.Files.Walk to scan and honor a root .gitignore from any child directory
-  - Feature #55: Support indentation when writing JSON streams
-  - Feature #56: Support for pseudo tty when launching a process
-  - Feature #57: Support for OpenBSD
 
 [List all versions](https://github.com/stcarrez/ada-util/blob/master/NEWS.md)
 
@@ -168,7 +161,6 @@ make samples
 # Documentation
 
 * [Ada Utility Library Programmer's Guide](https://ada-util.readthedocs.io/en/latest/) [PDF](https://github.com/stcarrez/ada-util/blob/master/docs/utilada-book.pdf)
-* [Wiki Documentation](https://github.com/stcarrez/ada-util/wiki)
 
 # Articles
 

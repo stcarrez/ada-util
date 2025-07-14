@@ -1,4 +1,4 @@
-Version 2.8.1  - Under development
+Version 2.8.1  - Jul 2025
   - Fix #59: Encryption of non-aligned array raises constraint error
 
 Version 2.8.0  - Nov 2024
