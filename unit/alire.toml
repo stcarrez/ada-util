@@ -11,7 +11,7 @@ tags = ["testing"]
 website = "https://gitlab.com/stcarrez/ada-util"
 
 [[depends-on]]
-utilada = "^2.8.1"
+utilada = "^2.8.0"
 
 [gpr-externals]
 UTIL_UNIT = ["ahven-unix", "ahven-windows", "aunit"]
@@ -26,6 +26,9 @@ UTIL_UNIT = "ahven-unix"
 UTIL_UNIT = "ahven-unix"
 
 [gpr-set-externals.'case(os)'.freebsd]
+UTIL_UNIT = "ahven-unix"
+
+[gpr-set-externals.'case(os)'.openbsd]
 UTIL_UNIT = "ahven-unix"
 
 [configuration]
