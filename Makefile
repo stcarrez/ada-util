@@ -100,12 +100,12 @@ $(eval $(call ada_library,utilada_unit,unit))
 # $(eval $(call ada_library,utilada_http))
 
 ifeq ($(HAVE_ALIRE),yes)
-build-test:: regtests/src/util-testsuite.adb
+build-test:: regtests/src/util-testsuite.adb regtests/utilada_tests.gpr regtests/alire.toml
 	cd regtests && $(BUILD_COMMAND) $(MAKE_ARGS)
 else
-build-test:: regtests/src/util-testsuite.adb regtests/utilada_tests_custom.gpr
+build-test:: regtests/src/util-testsuite.adb regtests/utilada_tests.gpr
 	cd regtests && $(BUILD_COMMAND) $(MAKE_ARGS) -Ptests_proc.gpr
-	cd regtests && $(BUILD_COMMAND) $(MAKE_ARGS) -Putilada_tests_custom.gpr
+	cd regtests && $(BUILD_COMMAND) $(MAKE_ARGS) -Putilada_tests.gpr
 endif
 
 # Build and run the unit tests
@@ -119,15 +119,25 @@ regtests/src/util-testsuite.adb: regtests/src/util-testsuite.gpb
 		 -DOS_VERSION='"$(UTIL_OS)"' \
 		 regtests/src/util-testsuite.gpb $@
 
-regtests/utilada_tests_custom.gpr: regtests/utilada_tests.gpg
+regtests/utilada_tests.gpr: regtests/utilada_tests.gpg
 	$(GNATPREP) -DHAVE_XML=$(HAVE_XML_ADA) -DHAVE_CURL=$(HAVE_CURL) \
 		 -DHAVE_AWS=$(HAVE_AWS) \
 		 -DHAVE_LZMA=$(HAVE_LZMA) \
 		 -DOS_VERSION='"$(UTIL_OS)"' \
 		 regtests/utilada_tests.gpg $@
 
+regtests/alire.toml: regtests/alire.tmpl
+	REP_XML=`test $(HAVE_XML_ADA) = 'yes' || echo '#'` ; \
+        REP_CURL=`test $(HAVE_CURL) = 'yes' || echo '#'` ; \
+        REP_AWS=`test $(HAVE_AWS) = 'yes' || echo '#'` ; \
+        REP_LZMA=`test $(HAVE_LZMA) = 'yes' || echo '#'` ; \
+	sed -e s,^@HAVE_XML@,$$REP_XML, \
+            -e s,^@HAVE_CURL@,$$REP_CURL, \
+            -e s,^@HAVE_AWS@,$$REP_AWS, \
+            -e s,^@HAVE_LZMA@,$$REP_LZMA, regtests/alire.tmpl > $@
+
 setup::
-	rm -f regtests/src/util-testsuite.adb regtests/utilada_tests_custom.gpr
+	rm -f regtests/src/util-testsuite.adb regtests/utilada_tests.gpr
 
 samples:
 ifeq ($(HAVE_ALIRE),yes)
