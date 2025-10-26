@@ -1,3 +1,6 @@
+Version 2.8.2  - Oct 2025
+  - Fix #61: MacOS build is broken
+
 Version 2.8.1  - Jul 2025
   - Fix #59: Encryption of non-aligned array raises constraint error
 

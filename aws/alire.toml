@@ -1,6 +1,6 @@
 description = "Utility Library REST support on top of AWS"
 name = "utilada_aws"
-version = "2.8.1"
+version = "2.8.2"
 authors = ["Stephane.Carrez@gmail.com"]
 licenses = "Apache-2.0"
 maintainers = ["Stephane.Carrez@gmail.com"]
@@ -27,7 +27,7 @@ An alternate HTTP backend is provided by CURL with `utilada_curl`.
 """
 
 [[depends-on]]
-utilada = "^2.8.1"
+utilada = "^2.8.2"
 aws = "^24.0"
 
 [gpr-externals]
