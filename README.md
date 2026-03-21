@@ -167,8 +167,8 @@ make samples
 
 # Articles
 
-* [IO stream composition and serialization with Ada Utility Library](https://blog.vacs.fr/vacs/blogs/post.html?post=2022/03/05/IO-stream-composition-and-serialization-with-Ada-Utility-Library)
-* [Easy reading and writing files with Ada Utility Library](https://blog.vacs.fr/vacs/blogs/post.html?post=2020/08/09/Easy-reading-and-writing-files-with-Ada-Utility-Library)
-* [Process creation in Java and Ada](https://blog.vacs.fr/vacs/blogs/post.html?post=2012/03/16/Process-creation-in-Java-and-Ada)
-* [Ada perfect hash generation with gperfhash](https://blog.vacs.fr/vacs/blogs/post.html?post=2012/01/16/Ada-perfect-hash-generation)
-* [Aunit vs Ahven](https://blog.vacs.fr/vacs/blogs/post.html?post=2011/11/27/Aunit-vs-Ahven)
+* [IO stream composition and serialization with Ada Utility Library](https://blog.vacs.fr/vacs/blogs/posts/2022/03/05/IO-stream-composition-and-serialization-with-Ada-Utility-Library)
+* [Easy reading and writing files with Ada Utility Library](https://blog.vacs.fr/vacs/blogs/posts/2020/08/09/Easy-reading-and-writing-files-with-Ada-Utility-Library)
+* [Process creation in Java and Ada](https://blog.vacs.fr/vacs/blogs/posts/2012/03/16/Process-creation-in-Java-and-Ada)
+* [Ada perfect hash generation with gperfhash](https://blog.vacs.fr/vacs/blogs/posts/2012/01/16/Ada-perfect-hash-generation)
+* [Aunit vs Ahven](https://blog.vacs.fr/vacs/blogs/posts/2011/11/27/Aunit-vs-Ahven)
