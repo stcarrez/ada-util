@@ -15,6 +15,7 @@ package Util.Encoders.Tests is
    procedure Test_Hex (T : in out Test);
    procedure Test_Base64_Encode (T : in out Test);
    procedure Test_Base64_Decode (T : in out Test);
+   procedure Test_Base64_Malleability (T : in out Test);
    procedure Test_Base64_URL_Encode (T : in out Test);
    procedure Test_Base64_URL_Decode (T : in out Test);
    procedure Test_Base32_Encode (T : in out Test);
