@@ -86,7 +86,7 @@ package body Util.Encoders.Tests is
                        Test_HMAC_SHA1_Sign'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Encode_LEB128",
                        Test_LEB128'Access);
-      Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Encode",
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Encode_LEB128",
                        Test_Base64_LEB128'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA256.Sign_SHA1 (RFC4231 test1)",
                        Test_HMAC_SHA256_RFC4231_T1'Access);
