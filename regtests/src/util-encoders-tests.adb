@@ -52,6 +52,8 @@ package body Util.Encoders.Tests is
                        Test_Base64_Encode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Decode",
                        Test_Base64_Decode'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Malleability",
+                       Test_Base64_Malleability'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Encode (URL)",
                        Test_Base64_URL_Encode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Decode (URL)",
@@ -86,7 +88,7 @@ package body Util.Encoders.Tests is
                        Test_HMAC_SHA1_Sign'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Encode_LEB128",
                        Test_LEB128'Access);
-      Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Encode",
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base64.Encode_LEB128",
                        Test_Base64_LEB128'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA256.Sign_SHA1 (RFC4231 test1)",
                        Test_HMAC_SHA256_RFC4231_T1'Access);
@@ -143,6 +145,91 @@ package body Util.Encoders.Tests is
       Assert_Equals (T, "|~~", Util.Encoders.Decode (D, "fH5+"));
       Test_Encoder (T, C, D);
    end Test_Base64_Decode;
+
+   procedure Test_Base64_Malleability (T : in out Test) is
+   begin
+      declare
+         C : constant Util.Encoders.Encoder := Create ("base64");
+      begin
+         Assert_Equals (T, "SGVsbG8=", Util.Encoders.Encode (C, "Hello"));
+         Assert_Equals (T, "SGVsbA==", Util.Encoders.Encode (C, "Hell"));
+      end;
+      declare
+         D : constant Util.Encoders.Decoder := Create ("base64");
+      begin
+         Assert_Equals (T, "Hello", Util.Encoders.Decode (D, "SGVsbG8=")); -- passes ok
+         Assert_Equals (T, "Hello", Util.Encoders.Decode (D, "SGVsbG9=")); -- shall not pass?
+         -- Assert_Equals (T, "Hello", Util.Encoders.Decode (D, "SGVsbG9")); -- fails
+         Assert_Equals (T, "Hell", Util.Encoders.Decode (D, "SGVsbA==")); -- shall not pass?
+         Assert_Equals (T, "Hell", Util.Encoders.Decode (D, "SGVsbA=")); -- passes ok
+         -- Assert_Equals (T, "Hell", Util.Encoders.Decode (D, "SGVsbA===="));
+      end;
+
+      begin
+         declare
+            double_padding : constant Util.Encoders.Decoder := Create ("base64");
+            S : constant String := Util.Encoders.Decode (double_padding, "SGVsbA====");
+         begin
+            Fail (T, "No exception raised for ==== base64 padding, got: " & S);
+        end;
+      exception
+        when Encoding_Error => null;
+      end;
+
+      declare
+         doubtful : constant Util.Encoders.Decoder := Create ("base64");
+      begin
+         Assert_Equals (T, "Hello", Util.Encoders.Decode (doubtful, "SGVsbG9="));
+      end;
+
+      declare
+         doubtful : constant Util.Encoders.Decoder := Create ("base64");
+      begin
+         Assert_Equals (T, "Hello", Util.Encoders.Decode (doubtful, "SGVsbG9"));
+      end;
+
+      declare
+         wrong_right : constant Util.Encoders.Decoder := Create ("base64");
+      begin
+         Assert_Equals (T, "Hello", Util.Encoders.Decode (wrong_right, "SGVsbG9"));
+         -- Assert_Equals (T, "Hello", Util.Encoders.Decode (wrong_right, "SGVsbG8="));
+      end;
+
+      declare
+         right_wrong : constant Util.Encoders.Decoder := Create ("base64");
+      begin
+         Assert_Equals (T, "Hello", Util.Encoders.Decode (right_wrong, "SGVsbG8="));
+         Assert_Equals (T, "Hello", Util.Encoders.Decode (right_wrong, "SGVsbG9"));
+      end;
+
+      declare
+         standalone : constant Util.Encoders.Decoder := Create ("base64");
+      begin
+         Assert_Equals (T, "Hell", Util.Encoders.Decode (standalone, "SGVsbA="));
+      end;
+
+      declare
+         doubtful : constant Util.Encoders.Decoder := Create ("base64");
+      begin
+         Assert_Equals (T, "Hell", Util.Encoders.Decode (doubtful, "SGVsbA"));
+      end;
+
+-- Invalid character '=' ERROR
+--       declare
+--          wrong_right : constant Util.Encoders.Decoder := Create ("base64");
+--       begin
+--          Assert_Equals (T, "Hell", Util.Encoders.Decode (wrong_right, "SGVsbA"));
+--          Assert_Equals (T, "Hell", Util.Encoders.Decode (wrong_right, "SGVsbA="));
+--       end;
+
+-- util-encoders-tests.adb:230: Test failed: expecting 'Hell' value was '[
+--       declare
+--          right_wrong : constant Util.Encoders.Decoder := Create ("base64");
+--       begin
+--          Assert_Equals (T, "Hell", Util.Encoders.Decode (right_wrong, "SGVsbA="));
+--          Assert_Equals (T, "Hell", Util.Encoders.Decode (right_wrong, "SGVsbA"));
+--       end;
+   end Test_Base64_Malleability;
 
    procedure Test_Base64_URL_Encode (T : in out Test) is
       C : constant Util.Encoders.Encoder := Create ("base64url");

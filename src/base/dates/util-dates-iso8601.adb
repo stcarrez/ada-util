@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-iso8601 -- ISO8601 dates
---  Copyright (C) 2011, 2013, 2015, 2016, 2017, 2018, 2020, 2022 Stephane Carrez
+--  Copyright (C) 2011 - 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -190,6 +190,25 @@ package body Util.Dates.ISO8601 is
       Result (19) := To_Char (Date.Second mod 10);
       if Precision = SECOND then
          return Result (1 .. 19);
+      end if;
+      if Precision = SECOND_TZ then
+         if Date.Time_Zone = 0 then
+            Result (20) := 'Z';
+            return Result (1 .. 20);
+         end if;
+         if Date.Time_Zone < 0 then
+            Result (20) := '-';
+            Tz := Natural (-Date.Time_Zone);
+         else
+            Result (20) := '+';
+            Tz := Natural (Date.Time_Zone);
+         end if;
+         Result (21) := To_Char (Tz / 600);
+         Result (22) := To_Char ((Tz / 60) mod 10);
+         Tz := Tz mod 60;
+         Result (23) := To_Char (Tz / 10);
+         Result (24) := To_Char (Tz mod 10);
+         return Result (1 .. 24);
       end if;
       N := Natural (Date.Sub_Second * 1000.0);
       Result (21) := To_Char (N / 100);
