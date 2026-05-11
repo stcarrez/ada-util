@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-iso8601 -- ISO8601 dates
---  Copyright (C) 2011, 2013, 2016, 2018 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2016, 2018, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -19,7 +19,7 @@ with Ada.Calendar;
 --  A `Constraint_Error` exception is raised when the date string is not in the correct format.
 package Util.Dates.ISO8601 is
 
-   type Precision_Type is (YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, SUBSECOND);
+   type Precision_Type is (YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, SECOND_TZ, SUBSECOND);
 
    --  Parses an ISO8601 date and return it as a calendar time.
    --  Raises Constraint_Error if the date format is not recognized.
