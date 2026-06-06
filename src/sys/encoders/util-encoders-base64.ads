@@ -86,6 +86,12 @@ package Util.Encoders.Base64 is
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset);
 
+   --  Finish decoding the input array.
+   overriding
+   procedure Finish (E    : in out Decoder;
+                     Into : in out Ada.Streams.Stream_Element_Array;
+                     Last : in out Ada.Streams.Stream_Element_Offset);
+
    --  Set the decoder to use the base64 URL alphabet when <b>Mode</b> is True.
    --  The URL alphabet uses the '-' and '_' instead of the '+' and '/' characters.
    procedure Set_URL_Mode (E    : in out Decoder;

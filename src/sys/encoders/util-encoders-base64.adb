@@ -317,6 +317,20 @@ package body Util.Encoders.Base64 is
    end Transform;
 
    --  ------------------------------
+   --  Finish decoding the input array.
+   --  ------------------------------
+   overriding
+   procedure Finish (E    : in out Decoder;
+                     Into : in out Ada.Streams.Stream_Element_Array;
+                     Last : in out Ada.Streams.Stream_Element_Offset) is
+      pragma Unreferenced (Into, Last);
+   begin
+      if E.State /= 0 then
+         raise Encoding_Error;
+      end if;
+   end Finish;
+
+   --  ------------------------------
    --  Set the decoder to use the base64 URL alphabet when <b>Mode</b> is True.
    --  The URL alphabet uses the '-' and '_' instead of the '+' and '/' characters.
    --  ------------------------------
