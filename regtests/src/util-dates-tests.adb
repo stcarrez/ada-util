@@ -1,13 +1,17 @@
 -----------------------------------------------------------------------
 --  util-dates-tests - Test for dates
---  Copyright (C) 2018, 2019, 2020, 2022 Stephane Carrez
+--  Copyright (C) 2018, 2019, 2020, 2022, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 with Util.Test_Caller;
 with Util.Dates.ISO8601;
 with Util.Dates.Simple_Format;
+with Util.Assertions;
 package body Util.Dates.Tests is
+
+   procedure Assert_Equals is
+      new Util.Assertions.Assert_Equals_T (Value_Type => Nanosecond_Type);
 
    package Caller is new Util.Test_Caller (Test, "Dates");
 
@@ -25,6 +29,8 @@ package body Util.Dates.Tests is
                        Test_Get_Day_Count'Access);
       Caller.Add_Test (Suite, "Test Util.Dates.Simple_Format",
                        Test_Simple_Format'Access);
+      Caller.Add_Test (Suite, "Test Util.Dates.To_Nanoseconds",
+                       Test_To_Nanoseconds'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -192,5 +198,17 @@ package body Util.Dates.Tests is
       Check ("Year: YYYY Month: MM Day: dd", "Year: 2021 Month: 02 Day: 12");
       Check ("HH:mm:ss", "13:31:04");
    end Test_Simple_Format;
+
+   --  ------------------------------
+   --  Test the To_Nanoseconds and To_Ada_Time
+   --  ------------------------------
+   procedure Test_To_Nanoseconds (T : in out Test) is
+      Date : constant Ada.Calendar.Time := Ada.Calendar.Formatting.Time_Of (2021, 02, 12,
+                                                                            13, 31, 4, 0.123456);
+   begin
+      Assert_Equals (T, 1613136664123456000, To_Nanoseconds (Date), "Invalid date");
+      Assert_Equals (T, 1513136664123456000,
+                     To_Nanoseconds (To_Ada_Time (1513136664123456000)), "Invalid date");
+   end Test_To_Nanoseconds;
 
 end Util.Dates.Tests;

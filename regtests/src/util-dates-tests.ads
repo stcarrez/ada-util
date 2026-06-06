@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates-tests - Test for dates
---  Copyright (C) 2018, 2020, 2022 Stephane Carrez
+--  Copyright (C) 2018, 2020, 2022, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -29,5 +29,8 @@ package Util.Dates.Tests is
 
    --  Test the Simple_Format option.
    procedure Test_Simple_Format (T : in out Test);
+
+   --  Test the To_Nanoseconds and To_Ada_Time
+   procedure Test_To_Nanoseconds (T : in out Test);
 
 end Util.Dates.Tests;
