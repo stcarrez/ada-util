@@ -1,10 +1,21 @@
 -----------------------------------------------------------------------
 --  util-dates -- Date utilities
---  Copyright (C) 2011, 2013, 2014, 2018, 2020, 2022 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2014, 2018, 2020, 2022, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+with Ada.Calendar.Conversions;
+with Interfaces.C;
 package body Util.Dates is
+
+   function To_Nanoseconds (Time : in Ada.Calendar.Time) return Nanosecond_Type is
+   begin
+      return Nanosecond_Type (Ada.Calendar.Conversions.To_Unix_Nano_Time (Time));
+   end To_Nanoseconds;
+
+   --  Use util-dates-to_ada_time_64.adb for gcc >= 15
+   --  Use util-dates-to_ada_time_32.adb for gcc < 15
+   function To_Ada_Time (Value : Nanosecond_Type) return Ada.Calendar.Time is separate;
 
    --  ------------------------------
    --  Split the date into a date record (See Ada.Calendar.Formatting.Split).

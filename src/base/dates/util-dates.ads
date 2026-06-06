@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-dates -- Date utilities
---  Copyright (C) 2011, 2013, 2018, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2013, 2018, 2019, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -9,6 +9,7 @@ with Ada.Calendar;
 with Ada.Calendar.Formatting;
 with Ada.Calendar.Arithmetic;
 with Ada.Calendar.Time_Zones;
+with Interfaces;
 
 --  = Date Utilities =
 --  The `Util.Dates` package provides various date utilities to help in formatting and parsing
@@ -39,6 +40,12 @@ with Ada.Calendar.Time_Zones;
 --  @include util-dates-iso8601.ads
 --  @include util-dates-formats.ads
 package Util.Dates is
+
+   type Nanosecond_Type is new Interfaces.Unsigned_64;
+
+   function To_Nanoseconds (Time : in Ada.Calendar.Time) return Nanosecond_Type;
+
+   function To_Ada_Time (Value : in Nanosecond_Type) return Ada.Calendar.Time;
 
    --  The Unix equivalent of 'struct tm'.
    type Date_Record is record

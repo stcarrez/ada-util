@@ -5,9 +5,8 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
-with Interfaces.C;
 with Ada.Calendar.Formatting;
-with Ada.Calendar.Conversions;
+with Util.Dates;
 
 package body Util.Beans.Objects.Time is
 
@@ -95,7 +94,7 @@ package body Util.Beans.Objects.Time is
             exception
                   --  Last chance, try to convert a Unix time displayed as an integer.
                when Constraint_Error =>
-                  return Ada.Calendar.Conversions.To_Ada_Time (Interfaces.C.long'Value (T));
+                  return Util.Dates.To_Ada_Time (Util.Dates.Nanosecond_Type'Value (T));
 
             end;
 
