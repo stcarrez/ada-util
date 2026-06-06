@@ -28,6 +28,17 @@ library project UtilAda_Base is
 
       end case;
 
+      case UtilAda_Conf.Has_Time_64 is
+         when "yes" =>
+            for Implementation ("Util.Dates.To_Ada_Time")
+               use "util-dates-to_ada_time_64.adb";
+
+         when "no" =>
+            for Implementation ("Util.Dates.To_Ada_Time")
+               use "util-dates-to_ada_time_32.adb";
+
+      end case;
+
       --  The GNAT traceback is not available for shared libraries.
       case UtilAda_Conf.Library_Type is
          when "relocatable" =>

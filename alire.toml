@@ -1,6 +1,6 @@
 description = "Utility Library with streams, processes, logs, serialization, encoders"
 name = "utilada"
-version = "2.8.2"
+version = "2.9.0"
 authors = ["Stephane.Carrez@gmail.com"]
 licenses = "Apache-2.0"
 maintainers = ["Stephane.Carrez@gmail.com"]
@@ -42,6 +42,7 @@ Ada applications.  This includes:
 UTIL_BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
 UTIL_LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
 UTIL_OS = ["win32", "win64", "linux32", "linux64", "macos64", "netbsd32", "netbsd64", "freebsd32", "freebsd64", "openbsd32", "openbsd64"]
+UTIL_HAS_TIME_64 = ["yes", "no"]
 
 [gpr-set-externals."case(os)".linux."case(word-size)".bits-32]
 UTIL_OS = "linux32"

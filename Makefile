@@ -14,10 +14,13 @@ HAVE_AWS?=yes
 HAVE_LZMA?=yes
 HAVE_UTILGEN?=no
 UTIL_OS?=unknown
+UTIL_TIME_64?=yes
 
 ifneq ($(HAVE_ALIRE),yes)
 MAKE_ARGS += -XUTIL_OS=$(UTIL_OS)
 endif
+
+MAKE_ARGS += -XUTIL_TIME_64=$(UTIL_TIME_64)
 
 STATIC_MAKE_ARGS = $(MAKE_ARGS) -XUTIL_LIBRARY_TYPE=static
 SHARED_MAKE_ARGS = $(MAKE_ARGS) -XUTIL_LIBRARY_TYPE=relocatable
@@ -70,6 +73,7 @@ setup:: $(UTIL_GEN_FILES)
 	echo "HAVE_AWS=$(HAVE_AWS)" >> Makefile.conf
 	echo "HAVE_LZMA=$(HAVE_LZMA)" >> Makefile.conf
 	echo "UTIL_OS=$(UTIL_OS)" >> Makefile.conf
+	echo "UTIL_TIME_64=$(UTIL_TIME_64)" >> Makefile.conf
 
 $(eval $(call ada_library,utilada_core,.))
 $(eval $(call ada_library,utilada_base,.))

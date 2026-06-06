@@ -25,6 +25,9 @@ abstract project UtilAda_Conf is
    Library_Type : UtilAda_Config.Library_Type_Type := external ("UTIL_LIBRARY_TYPE", "static");
 
    Os_Version  : Os_Version_Type := external ("UTIL_OS", "linux64");
+
+   Has_Time_64 : UtilAda_Config.Yes_No := external ("UTIL_TIME_64", "yes");
+
    Xml_Version : Xml_Version_Type := "4";
    Has_Curl    : UtilAda_Config.Yes_No := "yes";
    Has_AWS     : UtilAda_Config.Yes_No := "yes";
