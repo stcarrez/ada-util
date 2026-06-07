@@ -33,6 +33,7 @@ with Util.Streams.Sockets.Tests;
 with Util.Streams.Tests;
 #if HAVE_LZMA = "yes"
 with Util.Streams.Buffered.Lzma.Tests;
+with Util.Log.Lzma_Tests;
 # end if;
 with Util.Texts.Builders_Tests;
 with Util.Beans.Objects.Discretes;
@@ -93,6 +94,7 @@ package body Util.Testsuite is
       Util.Streams.Tests.Add_Tests (Result);
 #if HAVE_LZMA = "yes"
       Util.Streams.Buffered.Lzma.Tests.Add_Tests (Result);
+      Util.Log.Lzma_Tests.Add_Tests (Result);
 #end if;
       Util.Streams.Texts.Tests.Add_Tests (Result);
       Util.Streams.Sockets.Tests.Add_Tests (Result);
