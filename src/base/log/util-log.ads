@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-log -- Utility Log Package
---  Copyright (C) 2001 - 2024 Stephane Carrez
+--  Copyright (C) 2001 - 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -147,6 +147,7 @@
 --  @include util-log-appenders-consoles.ads
 --  @include util-log-appenders-files.ads
 --  @include util-log-appenders-rolling_files.ads
+--  @include util-log-appenders-rolling_files-lzma.ads
 --  @include util-log-appenders-factories.ads
 --  @include util-log-formatters-factories.ads
 package Util.Log is

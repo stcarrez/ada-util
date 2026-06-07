@@ -1,17 +1,16 @@
 -----------------------------------------------------------------------
 --  util-log-appenders-rolling_files -- Rolling file log appenders
---  Copyright (C) 2022, 2024 Stephane Carrez
+--  Copyright (C) 2022, 2024, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
-with Ada.Text_IO;
 with Ada.Calendar;
 with Util.Properties;
-private with Util.Refs;
-private with Util.Files.Rolling;
+with Util.Files.Rolling;
 
 --  === Rolling file appender ===
---  The `RollingFile` appender recognises the following configurations:
+--  The `RollingFile` appender writes logs in a file and provides automatic log
+--  rotation when some condition occur. It recognises the following configurations:
 --
 --  | Name           | Description                                                          |
 --  | -------------- | --------------------------------------------------------------       |
@@ -97,42 +96,24 @@ package Util.Log.Appenders.Rolling_Files is
                     Default    : in Level_Type)
      return Appender_Access;
 
+   function Get_Policy (Base       : in String;
+                        Properties : in Util.Properties.Manager)
+                        return Util.Files.Rolling.Policy_Type;
+
+   function Get_Strategy (Base       : in String;
+                          Properties : in Util.Properties.Manager)
+                          return Util.Files.Rolling.Strategy_Type;
+
 private
 
-   type File_Entity is new Util.Refs.Ref_Entity with record
-      Output          : Ada.Text_IO.File_Type;
-   end record;
-   type File_Access is access all File_Entity;
-
-   --  Finalize the referenced object.  This is called before the object is freed.
-   overriding
-   procedure Finalize (Object : in out File_Entity);
-
-   package File_Refs is new Util.Refs.References (File_Entity, File_Access);
-
-   protected type Rolling_File is
-
-      procedure Initialize (Name       : in String;
-                            Base       : in String;
-                            Properties : in Util.Properties.Manager);
-
-      procedure Openlog (File : out File_Refs.Ref);
-
-      procedure Flush (File : out File_Refs.Ref);
-
-      procedure Closelog;
-
-   private
-      Manager    : Util.Files.Rolling.File_Manager;
-      Current    : File_Refs.Ref;
-      Append     : Boolean;
-   end Rolling_File;
+   package Rolling_File_Manager is
+      new Util.Files.Rolling.Protected_Manager (Util.Files.Rolling.File_Manager);
 
    type File_Appender (Length    : Positive;
                        Formatter : Formatter_Access) is new Appender (Length, Formatter) with
    record
       Immediate_Flush : Boolean := False;
-      File            : Rolling_File;
+      File            : Rolling_File_Manager.Rolling_File;
    end record;
 
 end Util.Log.Appenders.Rolling_Files;

@@ -1,21 +1,19 @@
 -----------------------------------------------------------------------
 --  util-log-appenders-rolling_files -- Rolling file log appenders
---  Copyright (C) 2001 - 2026 Stephane Carrez
+--  Copyright (C) 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 with Ada.Finalization;
-with Ada.Directories;
 with Ada.Text_IO;
 with Util.Properties.Basic;
 with Util.Log.Appenders.Formatter;
-package body Util.Log.Appenders.Rolling_Files is
+package body Util.Log.Appenders.Rolling_Files.Lzma is
 
    use Ada;
    use Ada.Finalization;
 
    package Bool_Prop renames Util.Properties.Basic.Boolean_Property;
-   package Int_Prop renames Util.Properties.Basic.Integer_Property;
 
    overriding
    procedure Append (Self    : in out File_Appender;
@@ -72,58 +70,6 @@ package body Util.Log.Appenders.Rolling_Files is
       Self.File.Closelog;
    end Finalize;
 
-   function Get_Policy (Base       : in String;
-                        Properties : in Util.Properties.Manager)
-                        return Util.Files.Rolling.Policy_Type is
-      Str   : constant String := Properties.Get (Base & ".policy", "time");
-      Inter : constant Integer := Int_Prop.Get (Properties, Base & ".policyInterval", 1);
-      Size  : constant String := Properties.Get (Base & ".minSize", "1000000");
-   begin
-      if Str = "none" then
-         return (Kind => Util.Files.Rolling.No_Policy);
-      elsif Str = "time" then
-         return (Kind => Util.Files.Rolling.Time_Policy,
-                 Size => 0,
-                 Interval => Inter);
-      elsif Str = "size-time" or else Str = "time-size" then
-         return (Kind => Util.Files.Rolling.Size_Time_Policy,
-                 Size => Ada.Directories.File_Size'Value (Size),
-                 Interval => Inter);
-      else
-         return (Kind => Util.Files.Rolling.Size_Policy,
-                 Size => Ada.Directories.File_Size'Value (Size),
-                 Interval => 0);
-      end if;
-
-   exception
-      when others =>
-         return (Kind => Util.Files.Rolling.No_Policy);
-   end Get_Policy;
-
-   function Get_Strategy (Base       : in String;
-                          Properties : in Util.Properties.Manager)
-                          return Util.Files.Rolling.Strategy_Type is
-      Str   : constant String := Properties.Get (Base & ".strategy", "ascending");
-      Min   : constant Integer := Int_Prop.Get (Properties, Base & ".policyMin", 0);
-      Max   : constant Integer := Int_Prop.Get (Properties, Base & ".policyMax", 0);
-   begin
-      if Str = "direct" then
-         return (Kind => Util.Files.Rolling.Direct_Strategy,
-                 Max_Files => Max);
-
-      elsif Str = "descending" then
-         return (Kind      => Util.Files.Rolling.Descending_Strategy,
-                 Min_Index => Min,
-                 Max_Index => Max);
-
-      else
-         return (Kind      => Util.Files.Rolling.Ascending_Strategy,
-                 Min_Index => Min,
-                 Max_Index => Max);
-
-      end if;
-   end Get_Strategy;
-
    --  ------------------------------
    --  Create a file appender and configure it according to the properties
    --  ------------------------------
@@ -153,4 +99,4 @@ package body Util.Log.Appenders.Rolling_Files is
       return Result.all'Access;
    end Create;
 
-end Util.Log.Appenders.Rolling_Files;
+end Util.Log.Appenders.Rolling_Files.Lzma;
