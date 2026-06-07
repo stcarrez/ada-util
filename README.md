@@ -36,6 +36,7 @@ framework as it provides better reports.
 
 ## Version 2.9.0  - Under development
   - Feature #67: Add To_Nanoseconds and To_Ada_Time to solve GNAT warnings
+  - Feature #68: Log rolling file with LZMA compression
 
 ## Version 2.8.2  - Oct 2025
   - Fix #61: MacOS build is broken
