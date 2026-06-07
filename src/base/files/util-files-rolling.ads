@@ -1,12 +1,14 @@
 -----------------------------------------------------------------------
 --  util-files-rolling -- Rolling file manager
---  Copyright (C) 2022 Stephane Carrez
+--  Copyright (C) 2022, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 with Ada.Calendar;
 with Ada.Directories;
+with Ada.Text_IO;
 with Util.Strings.Vectors;
+with Util.Refs;
 
 --  == Rolling file manager ==
 --  The `Util.Files.Rolling` package provides a simple support to roll a file
@@ -116,6 +118,45 @@ package Util.Files.Rolling is
    function Get_Purge_Pattern (Manager : in File_Manager;
                                Date    : in Ada.Calendar.Time) return String;
 
+   type File_Entity is new Util.Refs.Ref_Entity with record
+      Output          : Ada.Text_IO.File_Type;
+   end record;
+   type File_Access is access all File_Entity;
+
+   --  Finalize the referenced object.  This is called before the object is freed.
+   overriding
+   procedure Finalize (Object : in out File_Entity);
+
+   package File_Refs is new Util.Refs.References (File_Entity, File_Access);
+
+   generic
+      type Manager_Type is new File_Manager with private;
+   package Protected_Manager is
+
+      protected type Rolling_File is
+
+         --  Initialize the file manager to roll the file referred by `Path` by using
+         --  the pattern defined in `Pattern`.
+         procedure Initialize (Path        : in String;
+                               Pattern     : in String;
+                               Policy      : in Policy_Type;
+                               Strategy    : in Strategy_Type;
+                               Mode_Append : in Boolean);
+
+         procedure Openlog (File : out File_Refs.Ref);
+
+         procedure Flush (File : out File_Refs.Ref);
+
+         procedure Closelog;
+
+      private
+         Manager    : Manager_Type;
+         Current    : File_Refs.Ref;
+         Append     : Boolean;
+      end Rolling_File;
+
+   end Protected_Manager;
+
 private
 
    --  Find the files that are eligible to purge in the given directory.
@@ -128,6 +169,10 @@ private
 
    procedure Rename (Manager : in out File_Manager;
                      Old     : in String);
+
+   procedure Rename (Manager  : in out File_Manager;
+                     Old_Name : in String;
+                     New_Name : in String);
 
    type File_Manager is tagged limited record
       Policy    : Policy_Kind := No_Policy;

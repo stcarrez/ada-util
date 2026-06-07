@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-files-rolling -- Rolling file manager
---  Copyright (C) 2022, 2024 Stephane Carrez
+--  Copyright (C) 2022, 2024, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -226,10 +226,19 @@ package body Util.Files.Rolling is
             Ada.Directories.Create_Path (Dir);
          end if;
 
-         Util.Files.Rename (Old_Name => Old,
-                            New_Name => Path);
+         File_Manager'Class (Manager).Rename (Old_Name => Old,
+                                              New_Name => Path);
          Manager.Last_Path := To_Unbounded_String (Path);
       end if;
+   end Rename;
+
+   procedure Rename (Manager  : in out File_Manager;
+                     Old_Name : in String;
+                     New_Name : in String) is
+      pragma Unreferenced (Manager);
+   begin
+      Util.Files.Rename (Old_Name => Old_Name,
+                         New_Name => New_Name);
    end Rename;
 
    procedure Rollover_Descending (Manager : in out File_Manager) is
@@ -386,5 +395,84 @@ package body Util.Files.Rolling is
          Last_Index := Manager.Min_Index;
       end if;
    end Eligible_Files;
+
+   --  ------------------------------
+   --  Finalize the referenced object.  This is called before the object is freed.
+   --  ------------------------------
+   overriding
+   procedure Finalize (Object : in out File_Entity) is
+   begin
+      Ada.Text_IO.Close (File => Object.Output);
+   end Finalize;
+
+   package body Protected_Manager is
+
+      protected body Rolling_File is
+         --  Initialize the file manager to roll the file referred by `Path` by using
+         --  the pattern defined in `Pattern`.
+         procedure Initialize (Path        : in String;
+                               Pattern     : in String;
+                               Policy      : in Policy_Type;
+                               Strategy    : in Strategy_Type;
+                               Mode_Append : in Boolean) is
+         begin
+            Append := Mode_Append;
+            Manager.Initialize (Path     => Path,
+                                Pattern  => Pattern,
+                                Policy   => Policy,
+                                Strategy => Strategy);
+         end Initialize;
+
+         procedure Openlog (File : out File_Refs.Ref) is
+         begin
+            if not Current.Is_Null then
+               if not Manager.Is_Rollover_Necessary then
+                  File := Current;
+                  return;
+               end if;
+
+               Closelog;
+               Manager.Rollover;
+            end if;
+
+            Current := File_Refs.Create;
+            declare
+               Path : constant String := Manager.Get_Current_Path;
+               Dir  : constant String := Ada.Directories.Containing_Directory (Path);
+            begin
+               if not Ada.Directories.Exists (Dir) then
+                  Ada.Directories.Create_Path (Dir);
+               end if;
+
+               if not Ada.Directories.Exists (Path) then
+                  Ada.Text_IO.Create (File => Current.Value.Output,
+                                      Name => Path);
+               else
+                  Ada.Text_IO.Open (File => Current.Value.Output,
+                                    Name => Path,
+                                    Mode => (if Append then Ada.Text_IO.Append_File
+                                             else Ada.Text_IO.Out_File));
+               end if;
+               File := Current;
+            end;
+         end Openlog;
+
+         procedure Flush (File : out File_Refs.Ref) is
+         begin
+            if not Current.Is_Null then
+               File := Current;
+            end if;
+         end Flush;
+
+         procedure Closelog is
+            Empty : File_Refs.Ref;
+         begin
+            --  Close the current log by releasing its reference counter.
+            Current := Empty;
+         end Closelog;
+
+      end Rolling_File;
+
+   end Protected_Manager;
 
 end Util.Files.Rolling;
