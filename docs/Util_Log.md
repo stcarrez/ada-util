@@ -258,6 +258,32 @@ they are rotated on a day basis and moved in a directory whose name contains the
 and month number.  At the same time, debug messages are written in the `debug.log`
 file.
 
+### LZMA Rolling file appender
+The `LzmaRollingFile` appender is similar to the `RollingFile` appender
+but it compresses the file using LZMA when rotation occurs.
+To use it, it is necessary to add `utilada_lzma` GNAT project and
+declare `LzmaRollingFile` factory by using:
+
+```Ada
+with Util.Log.Appenders.Factories;
+with Util.Log.Appenders.Rolling_Files.Lzma;
+...
+package Lzma_Rolling_Factory is
+   new Util.Log.Appenders.Factories
+     (Name   => "LzmaRollingFile",
+      Create => Util.Log.Appenders.Rolling_Files.Lzma.Create'Access)
+        with Unreferenced;
+```
+
+Then, you can use the `LzmaRollingFile` appender by using the same
+definitions as in the `Rolling file appender` but replacing `RollingFile`
+by the name you have defined, and by adding a `.xz` extension, for example:
+
+```Ada
+log4j.appender.applogger=RollingFile
+log4j.appender.applogger.filePattern=logs/debug-%d{YYYY-MM}/debug-%{dd}-%i.log.xz
+```
+
 ## Custom appender
 It is possible to write a customer log appender and use it in the generation
 of logs.  This is done in two steps:
