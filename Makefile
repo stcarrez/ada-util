@@ -1,5 +1,5 @@
 NAME=utilada
-VERSION=2.8.2
+VERSION=2.9.0
 
 DIST_DIR=ada-util-$(VERSION)
 DIST_FILE=ada-util-$(VERSION).tar.gz
