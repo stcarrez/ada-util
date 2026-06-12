@@ -325,7 +325,7 @@ package body Util.Encoders.Base64 is
                      Last : in out Ada.Streams.Stream_Element_Offset) is
       pragma Unreferenced (Into, Last);
    begin
-      if E.State /= 0 then
+      if E.State /= 0 and then E.Values = BASE64_VALUES'Access then
          raise Encoding_Error;
       end if;
    end Finish;
