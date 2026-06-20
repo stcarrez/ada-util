@@ -62,12 +62,6 @@ UTIL_OS = "openbsd32"
 [gpr-set-externals."case(os)".openbsd."case(word-size)".bits-64]
 UTIL_OS = "openbsd64"
 
-[gpr-set-externals."case(os)".netbsd."case(word-size)".bits-32]
-UTIL_OS = "netbsd32"
-
-[gpr-set-externals."case(os)".netbsd."case(word-size)".bits-64]
-UTIL_OS = "netbsd64"
-
 [gpr-set-externals."case(os)".windows."case(word-size)".bits-32]
 UTIL_OS = "win32"
 
