@@ -114,6 +114,20 @@ To use the installed libraries, make sure your `ADA_PROJECT_PATH` contains the d
 where you installed the libraries (configured by the `PREFIX=<path>` option in the setup phase).
 The installed GNAT projects are the same as those used when using [Alire](https://alire.ada.dev/).
 
+## Building with GNAT 14 and below
+
+If your GNAT compiler is GNAT 14 or below, the `Ada.Calendar.Conversions.To_Ada_Time_64` function
+is not available.  You must build and use the legacy `To_Ada_Time` function.  For this, update
+the configuration by running:
+
+```
+make setup UTIL_TIME_64=no
+```
+
+and follow the build instruction.
+
+With Alire, you may add the option `-XUTIL_TIME_64=no`
+
 # Samples
 
 The samples are built by using:
