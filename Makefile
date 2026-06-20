@@ -18,6 +18,10 @@ UTIL_TIME_64?=yes
 
 ifneq ($(HAVE_ALIRE),yes)
 MAKE_ARGS += -XUTIL_OS=$(UTIL_OS)
+else
+ifneq ($(UTIL_OS),unknown)
+MAKE_ARGS += -XUTIL_OS=$(UTIL_OS)
+endif
 endif
 
 MAKE_ARGS += -XUTIL_TIME_64=$(UTIL_TIME_64)
