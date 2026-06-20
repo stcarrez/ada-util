@@ -147,21 +147,33 @@ regtests/alire.toml: regtests/alire.tmpl
             -e s,^@HAVE_LZMA@,$$REP_LZMA, regtests/alire.tmpl > $@
 
 setup::
-	rm -f regtests/src/util-testsuite.adb regtests/utilada_tests.gpr
+	rm -f regtests/alire.toml regtests/src/util-testsuite.adb regtests/utilada_tests.gpr
 
 samples:
 ifeq ($(HAVE_ALIRE),yes)
 	cd samples && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS)
 else
 	cd samples && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS) -Psamples.gpr
+endif
 ifeq ($(HAVE_XML_ADA),yes)
-	cd samples && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS) -Psamples_xml.gpr
+ifeq ($(HAVE_ALIRE),yes)
+	cd samples-xml && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS)
+else
+	cd samples-xml && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS) -Psamples_xml.gpr
+endif
 endif
 ifeq ($(HAVE_CURL),yes)
-	cd samples && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS) -Psamples_curl.gpr
+ifeq ($(HAVE_ALIRE),yes)
+	cd samples-curl && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS)
+else
+	cd samples-curl && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS) -Psamples_curl.gpr
+endif
 endif
 ifeq ($(HAVE_LZMA),yes)
-	cd samples && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS) -Psamples_lzma.gpr
+ifeq ($(HAVE_ALIRE),yes)
+	cd samples-lzma && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS)
+else
+	cd samples-lzma && $(BUILD_COMMAND) $(GPRFLAGS) $(MAKE_ARGS) -Psamples_lzma.gpr
 endif
 endif
 

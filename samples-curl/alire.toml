@@ -1,16 +1,18 @@
 description = "Examples for Utility Library"
-name = "utilada_samples"
+name = "utilada_samples_curl"
 version = "2.9.0"
 authors = ["Stephane.Carrez@gmail.com"]
 licenses = "Apache-2.0"
 maintainers = ["Stephane.Carrez@gmail.com"]
 maintainers-logins = ["stcarrez"]
-project-files = ["samples.gpr"]
-tags = ["lzma", "streams"]
+project-files = ["samples_curl.gpr"]
+tags = ["curl", "streams"]
 website = "https://gitlab.com/stcarrez/ada-util"
 
 [[depends-on]]
+lzmada = "^1.1.2"
 utilada = "^2.9.0"
+utilada_xml = "^2.9.0"
 
 [gpr-externals]
 UTIL_BUILD = ["distrib", "debug", "optimize", "profile", "coverage"]
@@ -21,3 +23,5 @@ disabled = true
 
 [[pins]]
 utilada = { path = '..' }
+utilada_xml = { path = '../xml' }
+utilada_curl = { path = '../curl' }

@@ -1,7 +1,6 @@
 with "utilada_config";
 with "utilada_conf";
 with "utilada_sys";
-with "utilada_xml";
 
 project Samples is
 
@@ -13,7 +12,7 @@ project Samples is
    "csv_reader.adb", "launch.adb", "gperfhash.adb", "proplist.adb",
    "cut.adb", "serialize.adb", "json.adb", "env.adb",
    "encrypt.adb", "decrypt.adb", "csv_city.adb", "realpath.adb",
-   "rolling_file.adb", "copy.adb", "serialize_xml.adb", "jsonobj.adb",
+   "rolling_file.adb", "copy.adb", "jsonobj.adb",
    "sha256.adb", "jsonread.adb", "datasets.adb", "objcalc.adb",
    "genentities.adb", "multipart.adb", "dumpcert.adb", "tree.adb",
    "encrypt_array.adb", "decrypt_array.adb");
