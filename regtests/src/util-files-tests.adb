@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-files-tests -- Unit tests for files
---  Copyright (C) 2009, 2010, 2011, 2012, 2013, 2019, 2022, 2024 Stephane Carrez
+--  Copyright (C) 2009 - 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -175,7 +175,9 @@ package body Util.Files.Tests is
       Assert_Equals (T, "regtests/bundles",
                      Compose_Path ("src;regtests", "bundles"),
                      "Invalid path composition");
-      if Ada.Directories.Exists ("/usr/bin") then
+      if Ada.Directories.Exists ("/usr/bin")
+        and then Ada.Directories.Exists ("/usr/local/bin")
+      then
          Assert_Equals (T, "/usr/bin;/usr/local/bin;/usr/bin",
                         Compose_Path ("/usr;/usr/local;/usr", "bin"),
                         "Invalid path composition");
