@@ -1,4 +1,4 @@
-Version 2.9.0  - Under development
+Version 2.9.0  - Jun 2026
   - Feature #67: Add To_Nanoseconds and To_Ada_Time to solve GNAT warnings
   - Feature #68: Log rolling file with LZMA compression
 

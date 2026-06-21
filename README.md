@@ -34,7 +34,7 @@ Ada Util also provides a small test utility library on top of
 Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
 framework as it provides better reports.
 
-## Version 2.9.0  - Under development
+## Version 2.9.0  - Jun 2026
   - Feature #67: Add To_Nanoseconds and To_Ada_Time to solve GNAT warnings
   - Feature #68: Log rolling file with LZMA compression
 
