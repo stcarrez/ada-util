@@ -1,3 +1,6 @@
+Version 2.10.0 - Under development
+  - New encoder/decoder for Base62
+
 Version 2.9.0  - Jun 2026
   - Feature #67: Add To_Nanoseconds and To_Ada_Time to solve GNAT warnings
   - Feature #68: Log rolling file with LZMA compression
