@@ -12,7 +12,7 @@ with Interfaces;
 --  The `Util.Encoders` package defines the `Encoder` and `Decoder` types
 --  which provide a mechanism to transform a stream from one format into
 --  another format.  The basic encoder and decoder support `base16`,
---  `base32`, `base64`, `base64url` and `sha1`.
+--  `base32`, `base62`, `base64`, `base64url` and `sha1`.
 --  The following code extract will encode in `base64`:
 --
 --    C : constant Encoder := Util.Encoders.Create ("base64");
@@ -78,6 +78,9 @@ package Util.Encoders is
    --  Encoder/decoder for Base64 (RFC 4648) using the URL alphabet
    --  (+ and / are replaced by - and _)
    BASE_64_URL : constant String := "base64url";
+
+   --  Encoder/decoder for Base62 (alphabet 0-9, A-Z, a-z)
+   BASE_62     : constant String := "base62";
 
    --  Encoder/decoder for Base32 (RFC 4648)
    BASE_32     : constant String := "base32";

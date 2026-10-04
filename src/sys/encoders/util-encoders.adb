@@ -8,6 +8,7 @@ with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 with Util.Encoders.Base16;
 with Util.Encoders.Base32;
+with Util.Encoders.Base62;
 with Util.Encoders.Base64;
 with Util.Encoders.SHA1;
 package body Util.Encoders is
@@ -257,8 +258,9 @@ package body Util.Encoders is
 
                --  If the encoder generated nothing, move the position backward
                --  to take into account the remaining bytes not taken into account.
+               --  (the encoder can consume some bytes and keep them until the next call).
                if Last < 1 then
-                  Next_Pos := Next_Pos - Natural (Size - First_Encoded + 1);
+                  Next_Pos := Next_Pos - Natural (Size - Last_Encoded);
                   exit;
                end if;
                for I in 1 .. Last loop
@@ -509,6 +511,11 @@ package body Util.Encoders is
             E.Encode := Util.Encoders.Base32.Create_Encoder;
          end return;
 
+      elsif Name = BASE_62 then
+         return E : Encoder do
+            E.Encode := Util.Encoders.Base62.Create_Encoder;
+         end return;
+
       elsif Name = HASH_SHA1 then
          return E : Encoder do
             E.Encode := new Util.Encoders.SHA1.Encoder;
@@ -540,6 +547,11 @@ package body Util.Encoders is
       elsif Name = BASE_32 then
          return E : Decoder do
             E.Decode := Util.Encoders.Base32.Create_Decoder;
+         end return;
+
+      elsif Name = BASE_62 then
+         return E : Decoder do
+            E.Decode := Util.Encoders.Base62.Create_Decoder;
          end return;
 
       elsif Name = HASH_SHA1 then
