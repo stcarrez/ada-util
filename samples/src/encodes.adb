@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  encodes -- Encodes strings
---  Copyright (C) 2010 - 2023 Stephane Carrez
+--  Copyright (C) 2010 - 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -21,6 +21,7 @@ begin
       Ada.Text_IO.Put_Line ("Encoders: " & Util.Encoders.BASE_64 & ", "
                             & Util.Encoders.BASE_64_URL & ", "
                             & Util.Encoders.BASE_32 & ", "
+                            & Util.Encoders.BASE_62 & ", "
                             & Util.Encoders.BASE_16 & ", "
                             & Util.Encoders.HASH_SHA1);
       return;
