@@ -86,6 +86,12 @@ package body Util.Samples_Tests is
       T.Execute ("bin/encodes base32 -d NBSWY3DP", Result);
       Assert_Matches (T, "Decodes base32: hello", Result);
 
+      T.Execute ("bin/encodes base62 hello", Result);
+      Assert_Matches (T, "Encodes base62: 7tQLFHz", Result);
+
+      T.Execute ("bin/encodes base62 -d 7tQLFHz", Result);
+      Assert_Matches (T, "Decodes base62: hello", Result);
+
       T.Execute ("bin/encodes sha1 hello", Result);
       Assert_Matches (T, "Encodes sha1: AAF4C61DDCC5E8A2DABEDE0F3B482CD9AEA9434D", Result);
    end Test_Encodes;

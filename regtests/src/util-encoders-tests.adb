@@ -64,6 +64,10 @@ package body Util.Encoders.Tests is
                        Test_Base32_Encode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.Base32.Decode",
                        Test_Base32_Decode'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base62.Encode",
+                       Test_Base62_Encode'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.Base62.Decode",
+                       Test_Base62_Decode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.SHA1.Encode",
                        Test_SHA1_Encode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.SHA1.Benchmark",
@@ -303,6 +307,80 @@ package body Util.Encoders.Tests is
       Assert_Equals (T, "abcde", Util.Encoders.Decode (D, "MFRGGZDF"));
       Test_Encoder (T, C, D);
    end Test_Base32_Decode;
+
+   procedure Test_Base62_Encode (T : in out Test) is
+      C : constant Util.Encoders.Encoder := Create ("base62");
+      D : constant Util.Encoders.Decoder := Create ("base62");
+   begin
+      Assert_Equals (T, "", Util.Encoders.Encode (C, ""));
+      Assert_Equals (T, "1Z", Util.Encoders.Encode (C, "a"));
+      Assert_Equals (T, "6U6", Util.Encoders.Encode (C, "ab"));
+      Assert_Equals (T, "0QmIN", Util.Encoders.Encode (C, "abc"));
+      Assert_Equals (T, "1mZPsa", Util.Encoders.Encode (C, "abcd"));
+      Assert_Equals (T, "7MYErOH", Util.Encoders.Encode (C, "abcde"));
+      Assert_Equals (T, "0UP7NMSFq", Util.Encoders.Encode (C, "abcdef"));
+      Assert_Equals (T, "21XiSSifQN", Util.Encoders.Encode (C, "abcdefg"));
+      Assert_Equals (T, "8MNDZWaR2ue", Util.Encoders.Encode (C, "abcdefgh"));
+      Assert_Equals (T, "8MNDZWaR2ue1h", Util.Encoders.Encode (C, "abcdefghi"));
+      Assert_Equals (T, "010", C.Encode_Unsigned_16 (62));
+      Assert_Equals (T, "H31", C.Encode_Unsigned_16 (16#FFFF#));
+      Assert_Equals (T, "44pZgF", C.Encode_Unsigned_32 (16#DEADBEEF#));
+      Assert_Equals (T, "00000000000", C.Encode_Unsigned_64 (0));
+      Assert_Equals (T, "1TCKi1nFuNh", C.Encode_Unsigned_64 (1234567890123456789));
+      Assert_Equals (T, "LygHa16AHYF", C.Encode_Unsigned_64 (Interfaces.Unsigned_64'Last));
+      Test_Encoder (T, C, D);
+   end Test_Base62_Encode;
+
+   procedure Test_Base62_Decode (T : in out Test) is
+      procedure Check_Error (Value : in String);
+
+      C : constant Util.Encoders.Encoder := Create ("base62");
+      D : constant Util.Encoders.Decoder := Create ("base62");
+
+      procedure Check_Error (Value : in String) is
+      begin
+         T.Fail ("No Encoding_Error exception raised for: " & Value
+                 & " result: " & Util.Encoders.Decode (D, Value));
+
+      exception
+         when Encoding_Error =>
+            null;
+      end Check_Error;
+
+   begin
+      Assert_Equals (T, "", Util.Encoders.Decode (D, ""));
+      Assert_Equals (T, "a", Util.Encoders.Decode (D, "1Z"));
+      Assert_Equals (T, "ab", Util.Encoders.Decode (D, "6U6"));
+      Assert_Equals (T, "abc", Util.Encoders.Decode (D, "0QmIN"));
+      Assert_Equals (T, "abcd", Util.Encoders.Decode (D, "1mZPsa"));
+      Assert_Equals (T, "abcde", Util.Encoders.Decode (D, "7MYErOH"));
+      Assert_Equals (T, "abcdef", Util.Encoders.Decode (D, "0UP7NMSFq"));
+      Assert_Equals (T, "abcdefg", Util.Encoders.Decode (D, "21XiSSifQN"));
+      Assert_Equals (T, "abcdefgh", Util.Encoders.Decode (D, "8MNDZWaR2ue"));
+      Assert_Equals (T, "abcdefghi", Util.Encoders.Decode (D, "8MNDZWaR2ue1h"));
+
+      --  Invalid characters.
+      Check_Error ("1Z=");
+      Check_Error ("8MNDZWaR2u-");
+      Check_Error ("8MNDZWaR2ue+h");
+
+      --  Invalid length for the last block.
+      Check_Error ("1");
+      Check_Error ("1mZP");
+      Check_Error ("0UP7NMSF");
+      Check_Error ("8MNDZWaR2ue1");
+
+      --  Value too large for the block.
+      Check_Error ("48");
+      Check_Error ("H32");
+      Check_Error ("zzzzz");
+      Check_Error ("LygHa16AHYG");
+      Check_Error ("zzzzzzzzzzz");
+
+      --  The decoder must be usable after an error.
+      Assert_Equals (T, "abcdefghi", Util.Encoders.Decode (D, "8MNDZWaR2ue1h"));
+      Test_Encoder (T, C, D);
+   end Test_Base62_Decode;
 
    procedure Test_Encoder (T : in out Test;
                            C : in Util.Encoders.Encoder;

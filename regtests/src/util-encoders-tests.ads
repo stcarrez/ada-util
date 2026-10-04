@@ -20,6 +20,8 @@ package Util.Encoders.Tests is
    procedure Test_Base64_URL_Decode (T : in out Test);
    procedure Test_Base32_Encode (T : in out Test);
    procedure Test_Base32_Decode (T : in out Test);
+   procedure Test_Base62_Encode (T : in out Test);
+   procedure Test_Base62_Decode (T : in out Test);
    procedure Test_Encoder (T : in out Test;
                            C : in Util.Encoders.Encoder;
                            D : in Util.Encoders.Decoder);
