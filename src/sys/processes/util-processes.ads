@@ -88,6 +88,16 @@ package Util.Processes is
    procedure Set_Allocate_TTY (Proc     : in out Process;
                                Allocate : in Boolean := True);
 
+   --  Set the size of the terminal allocated by <tt>Set_Allocate_TTY</tt>:
+   --  some programs query their terminal size and misbehave when it is
+   --  unset (0x0). The size is applied on the pseudo terminal before the
+   --  process is created. It is ignored when no pseudo terminal is
+   --  allocated, and on Windows where no pseudo terminal is allocated.
+   --  Raises <b>Invalid_State</b> if the process is running.
+   procedure Set_Terminal_Size (Proc : in out Process;
+                                 Rows  : in Positive;
+                                 Cols  : in Positive);
+
    --  Closes the given file descriptor in the child process before executing the command.
    procedure Add_Close (Proc  : in out Process;
                         Fd    : in File_Type);
@@ -178,6 +188,8 @@ private
       Out_Append : Boolean := False;
       Err_Append : Boolean := False;
       Need_TTY   : Boolean := False;
+      TTY_Rows   : Natural := 0;
+      TTY_Cols   : Natural := 0;
       Output     : Util.Streams.Input_Stream_Access := null;
       Input      : Util.Streams.Output_Stream_Access := null;
       Error      : Util.Streams.Input_Stream_Access := null;

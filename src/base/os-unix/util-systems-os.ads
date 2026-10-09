@@ -46,6 +46,9 @@ package Util.Systems.Os is
    --  The following values should be externalized.  They are valid for GNU/Linux.
    F_SETFL    : constant Interfaces.C.int := Util.Systems.Constants.F_SETFL;
    FD_CLOEXEC : constant Interfaces.C.int := Util.Systems.Constants.FD_CLOEXEC;
+   --  ioctl request to set the terminal window size (TIOCSWINSZ)
+   TIOCSWINSZ : constant Interfaces.C.unsigned_long :=
+                 Util.Systems.Constants.TIOCSWINSZ;
 
    --  These values are specific to Linux.
    O_RDONLY   : constant Interfaces.C.int := Util.Systems.Constants.O_RDONLY;
@@ -224,6 +227,14 @@ package Util.Systems.Os is
 
    procedure Sys_Cfmakeraw (Termio : access Types.Termios_Type)
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "cfmakeraw";
+
+   --  Control a device.  The C ioctl is a variadic function: it is called
+   --  here with a fixed profile for the pointer argument forms, which is
+   --  valid on the Unix calling conventions.
+   function Sys_Ioctl (Fd      : in File_Type;
+                       Request : in Interfaces.C.unsigned_long;
+                       Arg     : in System.Address) return Integer
+     with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "ioctl";
 
    --  Libc errno.  The __get_errno function is provided by the GNAT runtime.
    function Errno return Integer

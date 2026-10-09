@@ -109,6 +109,9 @@ package Util.Systems.Constants is
    RTLD_NODELETE                 : constant Interfaces.C.int := 8#000200#;
 
    DLL_OPTIONS   : constant String := "-ldl";
+   --  ioctl request to set the terminal window size (TIOCSWINSZ)
+   TIOCSWINSZ : constant Interfaces.C.unsigned_long := 16#80087468#;
+
    SYMBOL_PREFIX : constant String := "_";
 
 end Util.Systems.Constants;
