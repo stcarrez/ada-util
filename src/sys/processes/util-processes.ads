@@ -130,6 +130,19 @@ package Util.Processes is
    --  Wait for the process to terminate.
    procedure Wait (Proc : in out Process);
 
+   --  Wait for the process to terminate, at most <b>Timeout</b> seconds.
+   --  A negative timeout waits for the process termination, as <tt>Wait</tt>
+   --  does. Otherwise, the call returns when the process is terminated and
+   --  reaped, or when the timeout has elapsed: the process may then still
+   --  be running, and <tt>Is_Running</tt> returns True. A zero timeout only
+   --  checks the process termination, without blocking. When the process
+   --  is reaped, its exit status is available through <tt>Get_Exit_Status</tt>.
+   --  On a timeout elapse, the process standard input is left open, so that
+   --  a caller only checking the termination does not cut the process input;
+   --  it is closed once the process is reaped.
+   procedure Wait (Proc    : in out Process;
+                  Timeout : in Duration);
+
    --  Terminate the process by sending a signal on Unix and exiting the process on Windows.
    --  This operation is not portable and has a different behavior between Unix and Windows.
    --  Its intent is to stop the process.
