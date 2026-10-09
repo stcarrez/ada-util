@@ -315,6 +315,20 @@ package body Util.Processes is
    end Wait;
 
    --  ------------------------------
+   --  Wait for the process to terminate, at most Timeout seconds.
+   --  ------------------------------
+   procedure Wait (Proc    : in out Process;
+                   Timeout : in Duration) is
+   begin
+      if not Is_Running (Proc) then
+         return;
+      end if;
+
+      Log.Info ("Waiting for process {0}", Process_Identifier'Image (Proc.Pid));
+      Proc.Sys.Wait (Proc, Timeout);
+   end Wait;
+
+   --  ------------------------------
    --  Terminate the process by sending a signal on Unix and exiting the process on Windows.
    --  This operation is not portable and has a different behavior between Unix and Windows.
    --  Its intent is to stop the process.
