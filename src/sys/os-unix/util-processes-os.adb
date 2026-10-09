@@ -188,6 +188,22 @@ package body Util.Processes.Os is
          if Mode in READ_ERROR | READ_WRITE_ALL_SEPARATE then
             Prepare_Pseudo_Terminal (Pts_Master2, Pts_Slave2);
          end if;
+         if Proc.TTY_Rows > 0 then
+            --  Give the terminal a size: an unset size (0x0) makes the
+            --  programs querying their terminal size misbehave.
+            declare
+               Win : aliased Systems.Types.Win_Size_Type :=
+                       (Row    => Interfaces.C.unsigned_short (Proc.TTY_Rows),
+                        Col    => Interfaces.C.unsigned_short (Proc.TTY_Cols),
+                        Xpixel => 0,
+                        Ypixel => 0);
+            begin
+               Result := Sys_Ioctl (Pts_Master1, TIOCSWINSZ, Win'Address);
+               if Pts_Master2 /= NO_FILE then
+                  Result := Sys_Ioctl (Pts_Master2, TIOCSWINSZ, Win'Address);
+               end if;
+            end;
+         end if;
       else
          --  Setup the pipes.
          if Mode in WRITE | READ_WRITE | READ_WRITE_ALL | READ_WRITE_ALL_SEPARATE then
