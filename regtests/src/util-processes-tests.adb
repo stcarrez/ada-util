@@ -56,6 +56,10 @@ package body Util.Processes.Tests is
                        Test_Tools_Execute'Access);
       Caller.Add_Test (Suite, "Test Util.Processes.Stop",
                        Test_Stop'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Wait(Timeout elapse)",
+                       Test_Wait_Timeout'Access);
+      Caller.Add_Test (Suite, "Test Util.Processes.Wait(Timeout reap)",
+                       Test_Wait_Timeout_Reap'Access);
       if not Windows then
          Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Set_Allocate_TTY",
                           Test_TTY_Pipe'Access);
@@ -497,6 +501,36 @@ package body Util.Processes.Tests is
       Util.Processes.Wait (P);
       T.Assert (not P.Is_Running, "Process has stopped");
    end Test_Stop;
+
+   --  ------------------------------
+   --  Test the bounded Wait: the timeout elapses on a running process.
+   --  ------------------------------
+   procedure Test_Wait_Timeout (T : in out Test) is
+      P : Process;
+   begin
+      Util.Processes.Spawn (P, "sleep 3600");
+      T.Assert (P.Is_Running, "Process is running");
+      P.Wait (Timeout => 0.5);
+      T.Assert (P.Is_Running, "Process is still running after the timeout");
+      P.Wait (Timeout => 0.0);
+      T.Assert (P.Is_Running, "Zero timeout does not wait for the process");
+      Util.Processes.Stop (P);
+      P.Wait (Timeout => 2.0);
+      T.Assert (not P.Is_Running, "The stopped process is reaped");
+   end Test_Wait_Timeout;
+
+   --  ------------------------------
+   --  Test the bounded Wait: a terminated process is reaped before the timeout.
+   --  ------------------------------
+   procedure Test_Wait_Timeout_Reap (T : in out Test) is
+      P : Process;
+   begin
+      --  Launch the test process => exit code 2
+      P.Spawn ("bin/util_test_process");
+      P.Wait (Timeout => 10.0);
+      T.Assert (not P.Is_Running, "The process is reaped before the timeout");
+      Util.Tests.Assert_Equals (T, 2, P.Get_Exit_Status, "Invalid exit status");
+   end Test_Wait_Timeout_Reap;
 
    --  ------------------------------
    --  Test various errors (pipe streams)).

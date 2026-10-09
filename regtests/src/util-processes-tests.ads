@@ -54,6 +54,12 @@ package Util.Processes.Tests is
    --  Test launching and stopping a process.
    procedure Test_Stop (T : in out Test);
 
+   --  Test the bounded Wait: the timeout elapses on a running process.
+   procedure Test_Wait_Timeout (T : in out Test);
+
+   --  Test the bounded Wait: a terminated process is reaped before the timeout.
+   procedure Test_Wait_Timeout_Reap (T : in out Test);
+
    --  Test various errors (pipe streams).
    procedure Test_Pipe_Errors (T : in out Test);
 
