@@ -114,6 +114,21 @@ package body Util.Processes is
    end Set_Allocate_TTY;
 
    --  ------------------------------
+   --  Set the size of the terminal allocated to the child process.
+   --  ------------------------------
+   procedure Set_Terminal_Size (Proc : in out Process;
+                                 Rows : in Positive;
+                                 Cols : in Positive) is
+   begin
+      if Proc.Is_Running then
+         Log.Error ("Cannot set the terminal size while process is running");
+         raise Invalid_State with "Process is running";
+      end if;
+      Proc.TTY_Rows := Rows;
+      Proc.TTY_Cols := Cols;
+   end Set_Terminal_Size;
+
+   --  ------------------------------
    --  Closes the given file descriptor in the child process before executing the command.
    --  ------------------------------
    procedure Add_Close (Proc  : in out Process;

@@ -91,4 +91,12 @@ package Util.Systems.Types is
    end record;
    pragma Convention (C_Pass_By_Copy, Termios_Type);
 
+   type Win_Size_Type is record
+      Row    : Interfaces.C.unsigned_short;  --  rows, in characters
+      Col    : Interfaces.C.unsigned_short;  --  columns, in characters
+      Xpixel : Interfaces.C.unsigned_short;  --  horizontal size, pixels
+      Ypixel : Interfaces.C.unsigned_short;  --  vertical size, pixels
+   end record;
+   pragma Convention (C_Pass_By_Copy, Win_Size_Type);
+
 end Util.Systems.Types;

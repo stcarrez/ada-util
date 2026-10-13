@@ -21,6 +21,9 @@ package Util.Processes.Tests is
    --  Test pseudo TTY pipe redirection: read the process standard output
    procedure Test_TTY_Pipe (T : in out Test);
 
+   --  Test the size of the pseudo TTY allocated to the process
+   procedure Test_TTY_Size (T : in out Test);
+
    --  Test output pipe redirection: read the process standard output
    procedure Test_Output_Pipe (T : in out Test);
 

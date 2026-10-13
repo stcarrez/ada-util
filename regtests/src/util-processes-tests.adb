@@ -57,6 +57,8 @@ package body Util.Processes.Tests is
       Caller.Add_Test (Suite, "Test Util.Processes.Stop",
                        Test_Stop'Access);
       if not Windows then
+         Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Set_Terminal_Size",
+                          Test_TTY_Size'Access);
          Caller.Add_Test (Suite, "Test Util.Streams.Pipes.Set_Allocate_TTY",
                           Test_TTY_Pipe'Access);
       end if;
@@ -143,6 +145,30 @@ package body Util.Processes.Tests is
       T.Assert (not P.Is_Running, "Process has stopped");
       Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Invalid exit status");
    end Test_TTY_Pipe;
+
+   --  ------------------------------
+   --  Test the size of the pseudo TTY allocated to the process: the child
+   --  queries its terminal size and reports it.
+   --  ------------------------------
+   procedure Test_TTY_Size (T : in out Test) is
+      P : aliased Util.Streams.Pipes.Pipe_Stream;
+   begin
+      P.Set_Allocate_TTY (True);
+      P.Set_Terminal_Size (Rows => 24, Cols => 80);
+      P.Open ("stty size");
+      declare
+         Buffer  : Util.Streams.Buffered.Input_Buffer_Stream;
+         Content : Ada.Strings.Unbounded.Unbounded_String;
+      begin
+         Buffer.Initialize (P'Unchecked_Access, 8);
+         Buffer.Read (Content);
+         P.Close;
+         Util.Tests.Assert_Matches (T, "24 80", Content,
+                                    "Invalid terminal size");
+      end;
+      T.Assert (not P.Is_Running, "Process has stopped");
+      Util.Tests.Assert_Equals (T, 0, P.Get_Exit_Status, "Invalid exit status");
+   end Test_TTY_Size;
 
    --  ------------------------------
    --  Test error pipe redirection: read the process standard output

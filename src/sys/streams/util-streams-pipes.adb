@@ -82,6 +82,16 @@ package body Util.Streams.Pipes is
    end Set_Allocate_TTY;
 
    --  -----------------------
+   --  Set the size of the terminal allocated to the child process.
+   --  -----------------------
+   procedure Set_Terminal_Size (Stream : in out Pipe_Stream;
+                                Rows   : in Positive;
+                                Cols   : in Positive) is
+   begin
+      Util.Processes.Set_Terminal_Size (Stream.Proc, Rows, Cols);
+   end Set_Terminal_Size;
+
+   --  -----------------------
    --  Open a pipe to read or write to an external process.  The pipe is created and the
    --  command is executed with the input and output streams redirected through the pipe.
    --  -----------------------

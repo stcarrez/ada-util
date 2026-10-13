@@ -121,6 +121,12 @@ package Util.Streams.Pipes is
    procedure Set_Allocate_TTY (Stream   : in out Pipe_Stream;
                                Allocate : in Boolean := True);
 
+   --  Set the size of the terminal allocated by <tt>Set_Allocate_TTY</tt>.
+   --  Raises <b>Invalid_State</b> if the process is running.
+   procedure Set_Terminal_Size (Stream : in out Pipe_Stream;
+                                Rows   : in Positive;
+                                Cols   : in Positive);
+
    --  Closes the given file descriptor in the child process before executing the command.
    procedure Add_Close (Stream : in out Pipe_Stream;
                         Fd     : in Util.Processes.File_Type);
