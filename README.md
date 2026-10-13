@@ -35,6 +35,8 @@ Ahven or AUnit to help in writing unit tests.  Ahven is the default testing
 framework as it provides better reports.
 
 ## Version 2.10.0 - Under development
+  - Feature #74: expose a non blocking termination check (or a Wait with timeout)
+  - Feature #73: Set_Terminal_Size, to give the allocated pseudo terminal a window size
   - New encoder/decoder for Base62
 
 ## Version 2.9.0  - Jun 2026
