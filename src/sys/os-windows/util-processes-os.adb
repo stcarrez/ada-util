@@ -47,17 +47,21 @@ package body Util.Processes.Os is
 
       use type Util.Streams.Output_Stream_Access;
 
+      --  Wait_For_Single_Object result values.
+      Wait_Timeout : constant DWORD := 258;
+
       Result : DWORD;
       T      : DWORD;
       Code   : aliased DWORD;
       Status : BOOL;
    begin
-      --  Close the input stream pipe if there is one.
-      if Proc.Input /= null then
-         Util.Streams.Raw.Raw_Stream'Class (Proc.Input.all).Close;
-      end if;
-
       if Timeout < 0.0 then
+         --  Unbounded wait: close the input pipe first, so that a child
+         --  reading its standard input gets the end of file and can
+         --  terminate, then wait for the process.
+         if Proc.Input /= null then
+            Util.Streams.Raw.Raw_Stream'Class (Proc.Input.all).Close;
+         end if;
          T := DWORD'Last;
       else
          T := DWORD (Timeout * 1000.0);
@@ -68,6 +72,23 @@ package body Util.Processes.Os is
                                         Time => T);
 
       Log.Debug ("Status {0}", DWORD'Image (Result));
+
+      if Result = Wait_Timeout then
+         --  The timeout elapsed and the process is still running: leave
+         --  its exit status untouched (Is_Running is still True), keep its
+         --  standard input open, so that a caller only checking the
+         --  termination does not cut the process input, and keep the
+         --  process handles so that a later wait can complete.
+         return;
+      end if;
+
+      if Timeout >= 0.0 then
+         --  The bounded wait found the process terminated: close the
+         --  input pipe, that was left open during the wait.
+         if Proc.Input /= null then
+            Util.Streams.Raw.Raw_Stream'Class (Proc.Input.all).Close;
+         end if;
+      end if;
 
       Status := Get_Exit_Code_Process (Proc => Sys.Process_Info.hProcess,
                                        Code => Code'Unchecked_Access);

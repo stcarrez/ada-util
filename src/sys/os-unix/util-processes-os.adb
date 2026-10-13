@@ -5,6 +5,7 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
+with Ada.Calendar;
 with Ada.Directories;
 with Ada.Unchecked_Deallocation;
 
@@ -45,25 +46,73 @@ package body Util.Processes.Os is
    procedure Wait (Sys     : in out System_Process;
                    Proc    : in out Process'Class;
                    Timeout : in Duration) is
-      pragma Unreferenced (Sys, Timeout);
+      pragma Unreferenced (Sys);
 
       use type Util.Streams.Output_Stream_Access;
 
-      Result : Integer;
-      Wpid   : Integer;
-   begin
-      --  Close the input stream pipe if there is one.
-      if Proc.Input /= null then
-         Util.Streams.Raw.Raw_Stream'Class (Proc.Input.all).Close;
-      end if;
+      --  waitpid option to return immediately when no child has exited:
+      --  WNOHANG, that is 1 on the POSIX platforms.
+      Wait_No_Hang : constant := 1;
 
-      Wpid := Sys_Waitpid (Integer (Proc.Pid), Result'Address, 0);
-      if Wpid = Integer (Proc.Pid) then
+      --  Interval between two termination polls in the bounded wait.
+      Poll_Interval : constant Duration := 0.01;
+
+      Result : Integer := 0;
+      Wpid   : Integer;
+
+      --  Collect the exit status after the process was reaped.
+      procedure Collect_Exit_Status is
+      begin
          Proc.Exit_Value := Result / 256;
          if Result mod 256 /= 0 then
             Proc.Exit_Value := (Result mod 256) * 1000;
          end if;
+      end Collect_Exit_Status;
+
+      --  Close the input stream pipe if there is one.
+      procedure Close_Input_Stream is
+      begin
+         if Proc.Input /= null then
+            Util.Streams.Raw.Raw_Stream'Class (Proc.Input.all).Close;
+         end if;
+      end Close_Input_Stream;
+
+   begin
+      if Timeout < 0.0 then
+         --  Unbounded wait: close the input pipe first, so that a child
+         --  reading its standard input gets the end of file and can
+         --  terminate, then wait for the process.
+         Close_Input_Stream;
+         Wpid := Sys_Waitpid (Integer (Proc.Pid), Result'Address, 0);
+         if Wpid = Integer (Proc.Pid) then
+            Collect_Exit_Status;
+         end if;
+         return;
       end if;
+
+      --  Bounded wait: poll the process termination without blocking,
+      --  at most Timeout seconds. The input pipe is left open when the
+      --  process is still running, so that a caller checking whether
+      --  the process has terminated does not cut its input; it is
+      --  closed once the process is reaped.
+      declare
+         use Ada.Calendar;
+         Deadline : constant Time := Clock + Timeout;
+         Remaining : Duration;
+      begin
+         loop
+            Wpid := Sys_Waitpid (Integer (Proc.Pid), Result'Address,
+                                 Wait_No_Hang);
+            if Wpid = Integer (Proc.Pid) then
+               Close_Input_Stream;
+               Collect_Exit_Status;
+               return;
+            end if;
+            Remaining := Deadline - Clock;
+            exit when Remaining <= 0.0;
+            delay Duration'Min (Remaining, Poll_Interval);
+         end loop;
+      end;
    end Wait;
 
    --  ------------------------------
