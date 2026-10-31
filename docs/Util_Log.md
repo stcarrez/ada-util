@@ -200,7 +200,8 @@ The `File` appender recognises the following configurations:
 |                | of logs.                                                             |
 
 ### Rolling file appender
-The `RollingFile` appender recognises the following configurations:
+The `RollingFile` appender writes logs in a file and provides automatic log
+rotation when some condition occur. It recognises the following configurations:
 
 | Name           | Description                                                          |
 | -------------- | --------------------------------------------------------------       |
@@ -276,7 +277,7 @@ package Lzma_Rolling_Factory is
 ```
 
 Then, you can use the `LzmaRollingFile` appender by using the same
-definitions as in the `Rolling file appender` but replacing `RollingFile`
+definitions as in the *Rolling file appender* but replacing `RollingFile`
 by the name you have defined, and by adding a `.xz` extension, for example:
 
 ```Ada

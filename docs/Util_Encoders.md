@@ -2,7 +2,7 @@
 The `Util.Encoders` package defines the `Encoder` and `Decoder` types
 which provide a mechanism to transform a stream from one format into
 another format.  The basic encoder and decoder support `base16`,
-`base32`, `base64`, `base64url` and `sha1`.
+`base32`, `base62`, `base64`, `base64url` and `sha1`.
 The following code extract will encode in `base64`:
 
 ```Ada
@@ -195,6 +195,34 @@ case Util.Encoders.ECC.Correct (Data, Expect_Code, New_Code) is
    when NO_ERROR | CORRECTABLE_ERROR => ...
    when others => ...
 end case;
+```
+
+## CRC32
+The `Util.Encoders.CRC32` package implements the standard CRC-32
+checksum (CRC-32/ISO-HDLC) as used by zlib, gzip, ZIP, PNG and Ethernet:
+
+- polynomial    : 16#04C11DB7# (reflected form: 16#EDB88320#)
+- initial value : 16#FFFFFFFF#
+- reflected input and output
+-  final XOR     : 16#FFFFFFFF#
+
+With these settings, the CRC-32 of the ASCII string "123456789" is 16#CBF43926#.
+To compute the CRC32, create a context object and feed it with the content
+by calling `Update`.  At the end, get the result by calling `Finish`:
+
+```Ada
+Context : Util.Encoders.CRC32.Context;
+Digest  : Util.Encoders.Digest;
+...
+  Context.Update ("data...");
+  Context.Finish (Digest);
+```
+
+If you want to use a different polynomial, call `Init` before feeding the
+context:
+
+```Ada
+  Context.Init (16#82F6_3B78#); -- CRC-32C (Castagnoli)
 ```
 
 
