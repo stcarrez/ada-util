@@ -15,7 +15,7 @@ project Samples is
    "rolling_file.adb", "copy.adb", "jsonobj.adb",
    "sha256.adb", "jsonread.adb", "datasets.adb", "objcalc.adb",
    "genentities.adb", "multipart.adb", "dumpcert.adb", "tree.adb",
-   "encrypt_array.adb", "decrypt_array.adb");
+   "encrypt_array.adb", "decrypt_array.adb", "crc32.adb");
 
    for Main use Mains;
 
