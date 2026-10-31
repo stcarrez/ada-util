@@ -1,7 +1,6 @@
 with Ada.Text_IO;
 with Ada.Command_Line;
 with Ada.Streams.Stream_IO;
-with Interfaces;
 with Util.Streams.Files;
 with Util.Encoders.CRC32;
 procedure CRC32 is
@@ -28,7 +27,7 @@ procedure CRC32 is
    end Hash_File;
 
    Result : Util.Encoders.CRC32.Digest;
-   Hex    : Util.Encoders.Encoder := Util.Encoders.Create (Util.Encoders.BASE_16);
+   Hex    : constant Util.Encoders.Encoder := Util.Encoders.Create (Util.Encoders.BASE_16);
 begin
    if Ada.Command_Line.Argument_Count /= 1 then
       Ada.Text_IO.Put_Line ("Usage: crc32 file");
