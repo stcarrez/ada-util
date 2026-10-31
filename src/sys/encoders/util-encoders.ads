@@ -62,6 +62,7 @@ with Interfaces;
 --  @include util-encoders-kdf-pbkdf2.ads
 --  @include util-encoders-aes.ads
 --  @include util-encoders-ecc.ads
+--  @include util-encoders-crc32.ads
 --
 package Util.Encoders is
 
