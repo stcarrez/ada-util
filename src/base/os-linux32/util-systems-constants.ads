@@ -16,6 +16,7 @@ package Util.Systems.Constants is
    O_SYNC                        : constant Interfaces.C.int := 8#4010000#;
    O_DIRECT                      : constant Interfaces.C.int := 0;
    O_NONBLOCK                    : constant Interfaces.C.int := 8#004000#;
+   O_NOCTTY                      : constant Interfaces.C.int := 8#000400#;
 
    --  Some error codes
    EPERM                         : constant := 1;
@@ -112,6 +113,8 @@ package Util.Systems.Constants is
    DLL_OPTIONS   : constant String := "-ldl";
    --  ioctl request to set the terminal window size (TIOCSWINSZ)
    TIOCSWINSZ : constant Interfaces.C.unsigned_long := 16#5414#;
+   --  ioctl request to make the terminal the controlling terminal (TIOCSCTTY)
+   TIOCSCTTY : constant Interfaces.C.unsigned_long := 16#540E#;
 
    SYMBOL_PREFIX : constant String := "";
 
