@@ -16,6 +16,9 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <termios.h>
+#if !defined(_WIN32) && !defined(__MSYS__) && !defined(__MINGW32__)
+#include <sys/ioctl.h>
+#endif
 #ifdef HAVE_CURL
 #include <curl/curl.h>
 #endif
@@ -588,6 +591,9 @@ int main(int argc, char** argv)
 #ifdef O_NONBLOCK
     printf("   O_NONBLOCK                    : constant Interfaces.C.int := 8#%06o#;\n", O_NONBLOCK);
 #endif
+#ifdef O_NOCTTY
+    printf("   O_NOCTTY                      : constant Interfaces.C.int := 8#%06o#;\n", O_NOCTTY);
+#endif
 
     printf("\n");
     printf("   --  Some error codes\n");
@@ -701,6 +707,14 @@ int main(int argc, char** argv)
     printf("   DLL_OPTIONS   : constant String := \"-ldl\";\n");
 #else
     printf("   DLL_OPTIONS   : constant String := \"\";\n");
+#endif
+#if defined(TIOCSWINSZ)
+    printf("   --  ioctl request to set the terminal window size (TIOCSWINSZ)\n");
+    printf("   TIOCSWINSZ : constant Interfaces.C.unsigned_long := 16#%lX#;\n", (unsigned long) TIOCSWINSZ);
+#endif
+#if defined(TIOCSCTTY)
+    printf("   --  ioctl request to make the terminal the controlling terminal (TIOCSCTTY)\n");
+    printf("   TIOCSCTTY : constant Interfaces.C.unsigned_long := 16#%lX#;\n", (unsigned long) TIOCSCTTY);
 #endif
     printf("   SYMBOL_PREFIX : constant String := \"%s\";\n", SYMBOL_PREFIX);
     

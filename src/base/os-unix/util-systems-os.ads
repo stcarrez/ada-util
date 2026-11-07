@@ -49,6 +49,9 @@ package Util.Systems.Os is
    --  ioctl request to set the terminal window size (TIOCSWINSZ)
    TIOCSWINSZ : constant Interfaces.C.unsigned_long :=
                  Util.Systems.Constants.TIOCSWINSZ;
+   --  ioctl request to make the terminal the controlling terminal (TIOCSCTTY)
+   TIOCSCTTY  : constant Interfaces.C.unsigned_long :=
+                 Util.Systems.Constants.TIOCSCTTY;
 
    --  These values are specific to Linux.
    O_RDONLY   : constant Interfaces.C.int := Util.Systems.Constants.O_RDONLY;
@@ -58,6 +61,7 @@ package Util.Systems.Os is
    O_EXCL     : constant Interfaces.C.int := Util.Systems.Constants.O_EXCL;
    O_TRUNC    : constant Interfaces.C.int := Util.Systems.Constants.O_TRUNC;
    O_APPEND   : constant Interfaces.C.int := Util.Systems.Constants.O_APPEND;
+   O_NOCTTY   : constant Interfaces.C.int := Util.Systems.Constants.O_NOCTTY;
 
    type Size_T is mod 2 ** Standard'Address_Size;
 

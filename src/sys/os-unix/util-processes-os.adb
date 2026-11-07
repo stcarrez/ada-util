@@ -8,6 +8,7 @@
 with Ada.Calendar;
 with Ada.Directories;
 with Ada.Unchecked_Deallocation;
+with System;
 
 with Util.Strings;
 package body Util.Processes.Os is
@@ -15,6 +16,7 @@ package body Util.Processes.Os is
    function Ptsname (Fd  : in File_Type;
                      Buf : out Ptr) return Integer is separate;
 
+   use type Interfaces.C.int;
    use type Interfaces.C.size_t;
    use type Util.Systems.Types.File_Type;
    use type Ada.Directories.File_Kind;
@@ -186,7 +188,9 @@ package body Util.Processes.Os is
          Pts_Master := NO_FILE;
          return;
       end if;
-      Pts_Slave := Sys_Open (Pts_Name, O_RDWR, 0);
+      --  O_NOCTTY so that the parent process does not acquire the slave as its
+      --  controlling terminal (it belongs to the child process).
+      Pts_Slave := Sys_Open (Pts_Name, O_RDWR + O_NOCTTY, 0);
       Interfaces.C.Strings.Free (Pts_Name);
    end Prepare_Pseudo_Terminal;
 
@@ -292,6 +296,10 @@ package body Util.Processes.Os is
          --  Handle pseudo terminal redirection.
          if Proc.Need_TTY then
             Result := Sys_Setsid;
+
+            --  Make the slave the controlling terminal of the new session so that
+            --  the child gets the job control signals (SIGINT, SIGTSTP, ...).
+            Result := Sys_Ioctl (Pts_Slave1, TIOCSCTTY, System.Null_Address);
 
             Result := Sys_Close (Pts_Master1);
             Result := Sys_Tcgetattr (Pts_Slave1, Termio'Access);
