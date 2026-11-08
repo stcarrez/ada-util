@@ -12,3 +12,15 @@ RFC 7231                   https://tools.ietf.org/html/rfc7231
 RFC 8018                   https://tools.ietf.org/html/rfc8018
 RFC 3986                   https://tools.ietf.org/html/rfc3986
 RFC 4648                   https://tools.ietf.org/html/rfc4648
+RFC 2047                   https://tools.ietf.org/html/rfc2047
+RFC 2104                   https://tools.ietf.org/html/rfc2104
+RFC 2109                   https://tools.ietf.org/html/rfc2109
+RFC 2616                   https://tools.ietf.org/html/rfc2616
+RFC 3174                   https://tools.ietf.org/html/rfc3174
+RFC 4180                   https://tools.ietf.org/html/rfc4180
+RFC 4226                   https://tools.ietf.org/html/rfc4226
+RFC 5869                   https://tools.ietf.org/html/rfc5869
+RFC 7748                   https://tools.ietf.org/html/rfc7748
+RFC 8017                   https://tools.ietf.org/html/rfc8017
+RFC 8032                   https://tools.ietf.org/html/rfc8032
+RFC 8439                   https://tools.ietf.org/html/rfc8439
