@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-aes -- AES encryption and decryption
---  Copyright (C) 2017, 2019, 2020, 2022, 2025 Stephane Carrez
+--  Copyright (C) 2017, 2019, 2020, 2022, 2025, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -247,12 +247,12 @@ private
    type Block_Key is array (0 .. 59) of Unsigned_32;
 
    type Key_Type is record
-      Key    : Block_Key := (others => 0);
+      Key    : Block_Key := [others => 0];
       Rounds : Natural := 0;
    end record;
 
    type Cipher is limited new Ada.Finalization.Limited_Controlled with record
-      IV         : Word_Block_Type := (others => 0);
+      IV         : Word_Block_Type := [others => 0];
       Key        : Key_Type;
       Mode       : AES_Mode := CBC;
       Padding    : AES_Padding := PKCS7_PADDING;

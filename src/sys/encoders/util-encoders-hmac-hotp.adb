@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-kdf-hotp -- HMAC-based One-Time Password, RFC 4226.
---  Copyright (C) 2023 Stephane Carrez
+--  Copyright (C) 2023, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -13,22 +13,9 @@
 --  value and returned in `Result`.
 --  ------------------------------
 function Util.Encoders.HMAC.HOTP (Secret  : in Secret_Key;
-                                   Counter : in Interfaces.Unsigned_64;
-                                   Count   : in Positive) return Natural is
+                                  Counter : in Interfaces.Unsigned_64;
+                                  Count   : in Positive) return Natural is
    use Interfaces;
-
-   function To_Unsigned_32 (Data   : in Stream_Element_Array;
-                            Offset : in Stream_Element_Offset) return Unsigned_32;
-   pragma Inline_Always (To_Unsigned_32);
-
-   function To_Unsigned_32 (Data   : in Stream_Element_Array;
-                            Offset : in Stream_Element_Offset) return Unsigned_32 is
-   begin
-      return Shift_Left (Unsigned_32 (Data (Offset)), 24) or
-        Shift_Left (Unsigned_32 (Data (Offset + 1)), 16) or
-        Shift_Left (Unsigned_32 (Data (Offset + 2)), 8) or
-        Unsigned_32 (Data (Offset + 3));
-   end To_Unsigned_32;
 
    Data   : Ada.Streams.Stream_Element_Array (1 .. 8);
    Val    : Interfaces.Unsigned_64 := Counter;
@@ -46,7 +33,7 @@ begin
 
    --  Truncate the hash to get the 31-bit value.
    Offset := 1 + Stream_Element_Offset (Into (Into'Last) and 16#0F#);
-   T := To_Unsigned_32 (Into, Offset) and 16#7fffffff#;
+   T := Load_BE32 (Into, Offset) and 16#7fffffff#;
 
    --  Keep only Count digits from that 31-bit value.
    D := 10;
