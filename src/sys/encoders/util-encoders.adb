@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009 - 2023 Stephane Carrez
+--  Copyright (C) 2009 - 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -15,6 +15,8 @@ package body Util.Encoders is
 
    use Ada;
    use Ada.Strings.Unbounded;
+
+   use type Interfaces.Unsigned_32;
 
    subtype Offset is Ada.Streams.Stream_Element_Offset;
 
@@ -363,21 +365,63 @@ package body Util.Encoders is
       Res      : Streams.Stream_Element_Array (1 .. Buf_Size);
       Tmp      : String (1 .. Natural (Buf_Size));
       Result   : Ada.Strings.Unbounded.Unbounded_String;
-      Last_Encoded  : Streams.Stream_Element_Offset;
-      Last          : Streams.Stream_Element_Offset;
+      Pos      : Streams.Stream_Element_Offset := Data'First;
+      Last     : Streams.Stream_Element_Offset;
    begin
+      while Pos <= Data'Last loop
+         declare
+            Last_Encoded  : Streams.Stream_Element_Offset;
+            First_Encoded : Streams.Stream_Element_Offset := Pos;
+            Size          : Streams.Stream_Element_Offset;
+            Chunk_Last    : Streams.Stream_Element_Offset;
+            Next_Pos      : Streams.Stream_Element_Offset;
+         begin
+            --  Take a chunk of the input data.
+            Size := Data'Last - Pos + 1;
+            if Size > Buf_Size then
+               Size := Buf_Size;
+            end if;
+            Chunk_Last := Pos + Size - 1;
+            Next_Pos   := Chunk_Last + 1;
 
-      --  Encode that buffer and put the result in out result string.
-      E.Transform (Data    => Data,
-                   Into    => Res,
-                   Encoded => Last_Encoded,
-                   Last    => Last);
+            --  Encode that chunk and put the result in the result string.
+            loop
+               E.Transform (Data    => Data (First_Encoded .. Chunk_Last),
+                            Into    => Res,
+                            Encoded => Last_Encoded,
+                            Last    => Last);
 
-      E.Finish (Res (Last + 1 .. Res'Last), Last);
-      for I in 1 .. Last loop
-         Tmp (Natural (I)) := Character'Val (Res (I));
+               --  If the encoder generated nothing, move the position backward
+               --  to take into account the remaining bytes not taken into account.
+               --  (the encoder can consume some bytes and keep them until the next call).
+               if Last < 1 then
+                  Next_Pos := Pos + Last_Encoded;
+                  exit;
+               end if;
+               for I in 1 .. Last loop
+                  Tmp (Natural (I)) := Character'Val (Res (I));
+               end loop;
+               Append (Result, Tmp (1 .. Natural (Last)));
+               exit when Last_Encoded = Chunk_Last;
+               First_Encoded := Last_Encoded + 1;
+            end loop;
+
+            --  The encoder cannot encode the data
+            if Pos = Next_Pos then
+               raise Encoding_Error with "Encoding cannot proceed";
+            end if;
+            Pos := Next_Pos;
+         end;
       end loop;
-      Append (Result, Tmp (1 .. Natural (Last)));
+      Last := 0;
+      E.Finish (Into => Res,
+                Last => Last);
+      if Last > 0 then
+         for I in 1 .. Last loop
+            Tmp (Natural (I)) := Character'Val (Res (I));
+         end loop;
+         Append (Result, Tmp (1 .. Natural (Last)));
+      end if;
       return To_String (Result);
    end Transform;
 
@@ -393,19 +437,14 @@ package body Util.Encoders is
    function Transform (E    : in out Transformer'Class;
                        Data : in Streams.Stream_Element_Array)
                        return Streams.Stream_Element_Array is
-      Buf_Size : constant Streams.Stream_Element_Offset := Best_Size (Data'Length);
-      Res      : Streams.Stream_Element_Array (1 .. Buf_Size);
-      Last_Encoded  : Streams.Stream_Element_Offset;
-      Last          : Streams.Stream_Element_Offset;
+      S   : constant String := Transform (E, Data);
+      Res : Streams.Stream_Element_Array (1 .. S'Length);
    begin
-      --  Encode that buffer and put the result in out result string.
-      E.Transform (Data    => Data,
-                   Into    => Res,
-                   Encoded => Last_Encoded,
-                   Last    => Last);
-
-      E.Finish (Res (Last + 1 .. Res'Last), Last);
-      return Res (1 .. Last);
+      for I in S'Range loop
+         Res (Streams.Stream_Element_Offset (I)) :=
+           Streams.Stream_Element'Val (Character'Pos (S (I)));
+      end loop;
+      return Res;
    end Transform;
 
    --  ------------------------------
@@ -485,6 +524,64 @@ package body Util.Encoders is
          Shift := Shift + 7;
       end loop;
    end Decode_LEB128;
+
+   --  ------------------------------
+   --  Load a 32-bit little-endian value from the byte array.
+   --  ------------------------------
+   function Load_LE32 (Data   : in Ada.Streams.Stream_Element_Array;
+                       Offset : in Ada.Streams.Stream_Element_Offset)
+                       return Interfaces.Unsigned_32 is
+   begin
+      return Interfaces.Unsigned_32 (Data (Offset))
+        or Interfaces.Shift_Left (Interfaces.Unsigned_32 (Data (Offset + 1)), 8)
+        or Interfaces.Shift_Left (Interfaces.Unsigned_32 (Data (Offset + 2)), 16)
+        or Interfaces.Shift_Left (Interfaces.Unsigned_32 (Data (Offset + 3)), 24);
+   end Load_LE32;
+
+   --  ------------------------------
+   --  Store the 32-bit value as a little-endian value in the byte array.
+   --  ------------------------------
+   procedure Store_LE32 (Value  : in Interfaces.Unsigned_32;
+                         Data   : out Ada.Streams.Stream_Element_Array;
+                         Offset : in Ada.Streams.Stream_Element_Offset) is
+   begin
+      Data (Offset)     := Ada.Streams.Stream_Element (Value and 16#FF#);
+      Data (Offset + 1) := Ada.Streams.Stream_Element
+        (Interfaces.Shift_Right (Value, 8) and 16#FF#);
+      Data (Offset + 2) := Ada.Streams.Stream_Element
+        (Interfaces.Shift_Right (Value, 16) and 16#FF#);
+      Data (Offset + 3) := Ada.Streams.Stream_Element
+        (Interfaces.Shift_Right (Value, 24) and 16#FF#);
+   end Store_LE32;
+
+   --  ------------------------------
+   --  Load a 32-bit big-endian value from the byte array.
+   --  ------------------------------
+   function Load_BE32 (Data   : in Ada.Streams.Stream_Element_Array;
+                       Offset : in Ada.Streams.Stream_Element_Offset)
+                       return Interfaces.Unsigned_32 is
+   begin
+      return Interfaces.Shift_Left (Interfaces.Unsigned_32 (Data (Offset)), 24)
+        or Interfaces.Shift_Left (Interfaces.Unsigned_32 (Data (Offset + 1)), 16)
+        or Interfaces.Shift_Left (Interfaces.Unsigned_32 (Data (Offset + 2)), 8)
+        or Interfaces.Unsigned_32 (Data (Offset + 3));
+   end Load_BE32;
+
+   --  ------------------------------
+   --  Store the 32-bit value as a big-endian value in the byte array.
+   --  ------------------------------
+   procedure Store_BE32 (Data   : in out Ada.Streams.Stream_Element_Array;
+                         Value  : in Interfaces.Unsigned_32;
+                         Offset : in Ada.Streams.Stream_Element_Offset) is
+   begin
+      Data (Offset)     := Ada.Streams.Stream_Element
+        (Interfaces.Shift_Right (Value, 24));
+      Data (Offset + 1) := Ada.Streams.Stream_Element
+        (Interfaces.Shift_Right (Value, 16) and 16#FF#);
+      Data (Offset + 2) := Ada.Streams.Stream_Element
+        (Interfaces.Shift_Right (Value, 8) and 16#FF#);
+      Data (Offset + 3) := Ada.Streams.Stream_Element (Value and 16#FF#);
+   end Store_BE32;
 
    --  ------------------------------
    --  Create the encoder object for the specified algorithm.

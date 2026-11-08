@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders -- Encode/Decode streams and strings from one format to another
---  Copyright (C) 2009 - 2025 Stephane Carrez
+--  Copyright (C) 2009 - 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -61,8 +61,11 @@ with Interfaces;
 --
 --  @include util-encoders-kdf-pbkdf2.ads
 --  @include util-encoders-aes.ads
+--  @include util-encoders-chacha20.ads
+--  @include util-encoders-poly1305.ads
 --  @include util-encoders-ecc.ads
 --  @include util-encoders-crc32.ads
+--  @include util-encoders-random.ads
 --
 package Util.Encoders is
 
@@ -250,6 +253,34 @@ package Util.Encoders is
                             Pos   : in Ada.Streams.Stream_Element_Offset;
                             Val   : out Interfaces.Unsigned_64;
                             Last  : out Ada.Streams.Stream_Element_Offset);
+
+   --  Load a 32-bit little-endian value from the byte array <b>Data</b> starting
+   --  at position <b>Offset</b>.
+   function Load_LE32 (Data   : in Ada.Streams.Stream_Element_Array;
+                       Offset : in Ada.Streams.Stream_Element_Offset)
+                       return Interfaces.Unsigned_32;
+   pragma Inline_Always (Load_LE32);
+
+   --  Store the 32-bit value <b>Value</b> as a little-endian value in the byte array
+   --  <b>Data</b> starting at position <b>Offset</b>.
+   procedure Store_LE32 (Value  : in Interfaces.Unsigned_32;
+                         Data   : out Ada.Streams.Stream_Element_Array;
+                         Offset : in Ada.Streams.Stream_Element_Offset);
+   pragma Inline_Always (Store_LE32);
+
+   --  Load a 32-bit big-endian value from the byte array <b>Data</b> starting
+   --  at position <b>Offset</b>.
+   function Load_BE32 (Data   : in Ada.Streams.Stream_Element_Array;
+                       Offset : in Ada.Streams.Stream_Element_Offset)
+                       return Interfaces.Unsigned_32;
+   pragma Inline_Always (Load_BE32);
+
+   --  Store the 32-bit value <b>Value</b> as a big-endian value in the byte array
+   --  <b>Data</b> starting at position <b>Offset</b>.
+   procedure Store_BE32 (Data   : in out Ada.Streams.Stream_Element_Array;
+                         Value  : in Interfaces.Unsigned_32;
+                         Offset : in Ada.Streams.Stream_Element_Offset);
+   pragma Inline_Always (Store_BE32);
 
 private
    use Ada.Finalization;
