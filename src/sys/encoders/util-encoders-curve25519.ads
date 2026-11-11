@@ -18,6 +18,8 @@ with Interfaces;
 --  Values are kept reduced in the range [0, p).
 private package Util.Encoders.Curve25519 with Preelaborate is
 
+   use type Interfaces.Unsigned_32;
+
    --  A 256-bit number held as 8 little-endian 32-bit limbs.
    type Limbs8 is array (0 .. 7) of Interfaces.Unsigned_32;
 
@@ -37,8 +39,14 @@ private package Util.Encoders.Curve25519 with Preelaborate is
    Fe_Zero : constant Fe := [others => 0];
    Fe_One  : constant Fe := [0 => 1, others => 0];
 
+   function Fe_Is_Zero (A : Fe) return Boolean is
+     ((for all I in A'Range => A (I) = 0));
+
    --  Build a field element from a 64-bit value.
    function Fe_From_U64 (V : Interfaces.Unsigned_64) return Fe;
+
+   --  Returns True when A >= B.
+   function Fe_Ge (A, B : Fe) return Boolean;
 
    --  If A >= p, returns A - p, otherwise returns A unchanged.
    function Fe_Cond_Sub_P (A : Fe) return Fe;

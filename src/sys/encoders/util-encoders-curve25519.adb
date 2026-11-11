@@ -7,13 +7,23 @@
 
 package body Util.Encoders.Curve25519 is
 
-   use type Interfaces.Unsigned_32;
    use type Interfaces.Unsigned_64;
 
    function Fe_From_U64 (V : Interfaces.Unsigned_64) return Fe is
      (Fe'[0 => Interfaces.Unsigned_32 (V and 16#FFFFFFFF#),
            1 => Interfaces.Unsigned_32 (Interfaces.Shift_Right (V, 32)),
            others => 0]);
+
+   --  Returns True when A >= B.
+   function Fe_Ge (A, B : Fe) return Boolean is
+   begin
+      for I in reverse A'Range loop
+         if A (I) /= B (I) then
+            return A (I) > B (I);
+         end if;
+      end loop;
+      return True;
+   end Fe_Ge;
 
    function Fe_Cond_Sub_P (A : Fe) return Fe is
       R      : Fe;
