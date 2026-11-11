@@ -13,7 +13,7 @@ with Util.Systems.Types;
 
 --  The <b>Util.Systems.Os</b> package defines various types and operations which are specific
 --  to the OS (Unix).
-package Util.Systems.Os is
+package Util.Systems.Os with Preelaborate is
 
    --  The directory separator.
    Directory_Separator : constant Character := '/';
@@ -248,8 +248,6 @@ package Util.Systems.Os is
      with Import => True, Convention => C, Link_Name => SYMBOL_PREFIX & "strerror";
 
    type DIR is new System.Address;
-
-   Null_Dir : constant DIR := DIR (System.Null_Address);
 
    --  Equivalent to Posix opendir (3) but handles some portability issues.
    --  We could use opendir, readdir_r and closedir but the __gnat_* alternative

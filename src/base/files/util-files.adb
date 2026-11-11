@@ -19,6 +19,8 @@ with Util.Systems.Os;
 with Util.Systems.Types;
 package body Util.Files is
 
+   Null_Dir : constant Util.Systems.Os.DIR := Util.Systems.Os.DIR (System.Null_Address);
+
    --  ------------------------------
    --  Read a complete file into a string.
    --  The <b>Max_Size</b> parameter indicates the maximum size that is read.
@@ -476,7 +478,7 @@ package body Util.Files is
       St             : aliased Util.Systems.Types.Stat_Type;
    begin
       Dirp := Util.Systems.Os.Opendir (C_Path);
-      if Dirp = Util.Systems.Os.Null_Dir then
+      if Dirp = Null_Dir then
          raise Ada.Directories.Use_Error with "unreadable directory """ & Path & '"';
       end if;
 
