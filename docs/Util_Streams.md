@@ -360,3 +360,43 @@ Printer.Write ("Hello world!");
 
 ```
 
+## ChaCha20 Encoding Streams
+The `Util.Streams.ChaCha20` package defines the `Encoding_Stream` and
+`Decoding_Stream` types to encrypt and decrypt a stream by using the
+ChaCha20 cipher (RFC 8439) provided by the `Util.Encoders.ChaCha20` package.
+Before using these streams, you must use the `Set_Key` procedure to setup
+the 256-bit encryption key and the `Set_Nonce` procedure to define the
+96-bit nonce.  The nonce must be unique for each message encrypted with
+the same key.  The initial 32-bit block counter can be changed with the
+`Set_Counter` procedure (it is 0 by default).
+
+The encryption and decryption keys are represented by the
+`Util.Encoders.Secret_Key` limited type.  The key must be 32 bytes
+(`Util.Encoders.ChaCha20.Key_Size`).
+
+To write a text, encrypt the content and save the file, we can chain several
+stream objects together.  Because they are chained, the last stream object in
+the chain must be declared first and the first element of the chain will be
+declared last.  The following declaration is used:
+
+```Ada
+  Out_Stream   : aliased Util.Streams.Files.File_Stream;
+  Cipher       : aliased Util.Streams.ChaCha20.Encoding_Stream;
+  Printer      : Util.Streams.Texts.Print_Stream;
+  Out_Stream.Initialize (Mode => Ada.Streams.Stream_IO.Out_File,
+                         Name => "encrypted.chacha20");
+  Cipher.Initialize (Output => Out_Stream'Unchecked_Access,
+                     Size   => 32768);
+  Printer.Initialize (Output => Cipher'Unchecked_Access,
+                      Size   => 4096);
+  Cipher.Set_Key (Key);
+  Cipher.Set_Nonce (Nonce12);
+
+```
+
+It is now possible to write the text by using the `Printer` object:
+
+```Ada
+Printer.Write ("Hello world!");
+```
+
