@@ -44,4 +44,54 @@ package Util.Encoders.SHA256 is
    procedure Finish_Base64 (E    : in out Context;
                             Hash : out Base64_Digest);
 
+   --  ------------------------------
+   --  SHA-256 encoder
+   --  ------------------------------
+   --  This <b>Encoder</b> translates the (binary) input stream into
+   --  an SHA-256 hash stream.  The default output format is hexadecimal.
+   type Encoder is new Util.Encoders.Transformer with private;
+   type Encoder_Access is access all Encoder'Class;
+
+   --  Format produced by the encoder.
+   type Format_Type is (Binary, Base16, Base64, Base64URL);
+
+   --  Set the output format of the SHA-256 encoder.
+   procedure Set_Format (E      : in out Encoder;
+                         Format : in Format_Type);
+
+   --  Encodes the binary input stream represented by <b>Data</b> into
+   --  an SHA-256 hash output stream <b>Into</b>.
+   --
+   --  If the transformer does not have enough room to write the result,
+   --  it must return in <b>Encoded</b> the index of the last encoded
+   --  position in the <b>Data</b> stream.
+   --
+   --  The transformer returns in <b>Last</b> the last valid position
+   --  in the output stream <b>Into</b>.
+   --
+   --  The <b>Encoding_Error</b> exception is raised if the input
+   --  stream cannot be transformed.
+   overriding
+   procedure Transform (E       : in out Encoder;
+                        Data    : in Ada.Streams.Stream_Element_Array;
+                        Into    : out Ada.Streams.Stream_Element_Array;
+                        Last    : out Ada.Streams.Stream_Element_Offset;
+                        Encoded : out Ada.Streams.Stream_Element_Offset);
+
+   --  Finish the encoding: compute the SHA-256 hash of the data accumulated by
+   --  the successive <b>Transform</b> calls and write the digest in <b>Into</b>
+   --  using the output format set by <b>Set_Format</b>.
+   overriding
+   procedure Finish (E    : in out Encoder;
+                     Into : in out Ada.Streams.Stream_Element_Array;
+                     Last : in out Ada.Streams.Stream_Element_Offset);
+
+private
+
+   type Encoder is new Util.Encoders.Transformer with record
+      --  The SHA-256 context which accumulates the data given to Transform.
+      Ctx    : Context;
+      Format : Format_Type := Base16;
+   end record;
+
 end Util.Encoders.SHA256;
