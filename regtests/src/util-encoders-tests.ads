@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encodes-tests - Test for encoding
---  Copyright (C) 2009 - 2023 Stephane Carrez
+--  Copyright (C) 2009 - 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -27,7 +27,11 @@ package Util.Encoders.Tests is
                            D : in Util.Encoders.Decoder);
    procedure Test_Base64_Benchmark (T : in out Test);
    procedure Test_SHA1_Encode (T : in out Test);
+   procedure Test_SHA1_Encode_File (T : in out Test);
+   procedure Test_SHA1_Encode_Base64 (T : in out Test);
+   procedure Test_SHA2_Encoder_Formats (T : in out Test);
    procedure Test_SHA256_Encode (T : in out Test);
+   procedure Test_SHA512_Encode (T : in out Test);
 
    --  Benchmark test for SHA1
    procedure Test_SHA1_Benchmark (T : in out Test);

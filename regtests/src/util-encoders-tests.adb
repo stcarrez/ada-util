@@ -5,7 +5,10 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
+
+with Ada.Strings.Unbounded;
 with Util.Assertions;
+with Util.Files;
 with Util.Test_Caller;
 with Util.Measures;
 with Util.Strings.Transforms;
@@ -13,6 +16,7 @@ with Ada.Text_IO;
 with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 with Util.Encoders.SHA1;
 with Util.Encoders.SHA256;
+with Util.Encoders.SHA512;
 with Util.Encoders.HMAC.SHA1;
 with Util.Encoders.HMAC.SHA256;
 with Util.Encoders.HMAC.HOTP;
@@ -70,10 +74,18 @@ package body Util.Encoders.Tests is
                        Test_Base62_Decode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.SHA1.Encode",
                        Test_SHA1_Encode'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.SHA1.Encode (file, several Transform)",
+                       Test_SHA1_Encode_File'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.SHA1.Encode (base64, base64url)",
+                       Test_SHA1_Encode_Base64'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.SHA256/SHA512.Encoder (formats)",
+                       Test_SHA2_Encoder_Formats'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.SHA1.Benchmark",
                        Test_SHA1_Benchmark'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.SHA256.Encode",
                        Test_SHA256_Encode'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.SHA512.Encode",
+                       Test_SHA512_Encode'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA1.Sign_SHA1 (RFC2202 test1)",
                        Test_HMAC_SHA1_RFC2202_T1'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA1.Sign_SHA1 (RFC2202 test2)",
@@ -137,6 +149,20 @@ package body Util.Encoders.Tests is
       Assert_Equals (T, "fHw=", Util.Encoders.Encode (C, "||"));
       Assert_Equals (T, "fH5+", Util.Encoders.Encode (C, "|~~"));
       Test_Encoder (T, C, D);
+
+      --  Encoding a binary array larger than the internal buffer (64 bytes)
+      --  must give the same result as encoding the equivalent string.
+      declare
+         S    : constant String (1 .. 100) := (others => 'a');
+         Data : Ada.Streams.Stream_Element_Array (1 .. 100);
+      begin
+         for I in S'Range loop
+            Data (Ada.Streams.Stream_Element_Offset (I)) :=
+              Ada.Streams.Stream_Element'Val (Character'Pos (S (I)));
+         end loop;
+         Assert_Equals (T, Util.Encoders.Encode (C, S), C.Encode_Binary (Data),
+                        "Base64 binary encoding differs from string encoding");
+      end;
    end Test_Base64_Encode;
 
    procedure Test_Base64_Decode (T : in out Test) is
@@ -419,6 +445,29 @@ package body Util.Encoders.Tests is
       Assert_Equals (T, "ABCD", C.Encode_Unsigned_16 (16#abcd#));
       Assert_Equals (T, "12345678", C.Encode_Unsigned_32 (16#12345678#));
       Assert_Equals (T, "0000ABCD12345678", C.Encode_Unsigned_64 (16#abcd12345678#));
+
+      --  Encode a binary array larger than the internal buffer (64 bytes):
+      --  the hexadecimal output must not be truncated.
+      declare
+         Data    : constant Ada.Streams.Stream_Element_Array (1 .. 100) := [others => 16#AB#];
+         Encoded : constant String := C.Encode_Binary (Data);
+         Back    : constant Ada.Streams.Stream_Element_Array := D.Decode_Binary (Encoded);
+         Hex     : Util.Encoders.Base16.Encoder;
+         Arr     : constant Ada.Streams.Stream_Element_Array := Hex.Transform (Data);
+         Expect  : String (1 .. 200);
+      begin
+         for I in 1 .. 100 loop
+            Expect (2 * I - 1) := 'A';
+            Expect (2 * I)     := 'B';
+         end loop;
+         Assert_Equals (T, 200, Integer (Encoded'Length),
+                        "Hex encoding of 100 bytes was truncated");
+         Assert_Equals (T, Expect, Encoded, "Invalid hex encoding of 100 bytes");
+         Assert_Equals (T, 200, Integer (Arr'Length),
+                        "Hex Transform (array) of 100 bytes was truncated");
+         Assert_Equals (T, 100, Integer (Back'Length), "Hex decoding was truncated");
+         T.Assert (Back = Data, "Hex encode/decode round trip failed");
+      end;
    end Test_Hex;
 
    procedure Test_Base64_Benchmark (T : in out Test) is
@@ -507,18 +556,227 @@ package body Util.Encoders.Tests is
    end Test_SHA1_Encode;
 
    --  ------------------------------
+   --  Test the SHA1 encoder by feeding a file content with several
+   --  Transform calls and checking that Finish computes the SHA1 of
+   --  the whole file.
+   --  ------------------------------
+   procedure Test_SHA1_Encode_File (T : in out Test) is
+      use Ada.Strings.Unbounded;
+
+      Path    : constant String := Util.Tests.Get_Path ("regtests/files/public.pem");
+      Content : Unbounded_String;
+      Ctx     : Util.Encoders.SHA1.Context;
+      Expect  : Util.Encoders.SHA1.Digest;
+      E       : Util.Encoders.SHA1.Encoder;
+      Res     : Ada.Streams.Stream_Element_Array (1 .. 2 * Util.Encoders.SHA1.HASH_SIZE);
+      Chunk   : constant := 7;
+      Pos     : Natural := 1;
+      Last    : Ada.Streams.Stream_Element_Offset;
+      Encoded : Ada.Streams.Stream_Element_Offset;
+   begin
+      Util.Files.Read_File (Path, Content);
+
+      --  Reference SHA1 of the whole file content.
+      Util.Encoders.SHA1.Update (Ctx, To_String (Content));
+      Util.Encoders.SHA1.Finish (Ctx, Expect);
+
+      --  Feed the file content to the encoder in several Transform calls.
+      while Pos <= Length (Content) loop
+         declare
+            N    : constant Natural := Natural'Min (Chunk, Length (Content) - Pos + 1);
+            Data : Ada.Streams.Stream_Element_Array
+              (1 .. Ada.Streams.Stream_Element_Offset (N));
+         begin
+            for I in 1 .. N loop
+               Data (Ada.Streams.Stream_Element_Offset (I))
+                 := Ada.Streams.Stream_Element'Val (Character'Pos (Element (Content, Pos + I - 1)));
+            end loop;
+            E.Transform (Data, Res, Last, Encoded);
+            Assert_Equals (T, Natural (Data'Last), Natural (Encoded),
+                           "Transform did not consume the whole chunk");
+            Assert (T, Last < Res'First, "Transform must not produce output before Finish");
+            Pos := Pos + N;
+         end;
+      end loop;
+
+      --  Finish computes the SHA1 of the whole file.
+      E.Finish (Res, Last);
+      Assert_Equals (T, Natural (2 * Util.Encoders.SHA1.HASH_SIZE), Natural (Last),
+                     "Invalid digest size");
+      declare
+         Got : String (1 .. Natural (Last));
+      begin
+         for I in 1 .. Natural (Last) loop
+            Got (I) := Character'Val (Res (Ada.Streams.Stream_Element_Offset (I)));
+         end loop;
+         Assert_Equals (T, Expect, Got, "Invalid SHA1 of the file content");
+      end;
+
+      --  The one-shot Encode on the same content gives the same hash.
+      Assert_Equals (T, Expect,
+                     Util.Encoders.Encode (Util.Encoders.Create ("sha1"), To_String (Content)),
+                     "Invalid one-shot SHA1 of the file content");
+   end Test_SHA1_Encode_File;
+
+   --  ------------------------------
+   --  Test the SHA1 encoders created with HASH_SHA1_B64 and HASH_SHA1_B64URL:
+   --  the final output is the base64/base64url encoding of the raw SHA1 hash
+   --  (without the '=' padding).
+   --  ------------------------------
+   procedure Test_SHA1_Encode_Base64 (T : in out Test) is
+      --  SHA1("abc") = A9993E364706816ABA3E25717850C26C9CD0D89D
+      --  SHA1("abcdbcdecdef...nopq") = 84983E441C3BD26EBAAE4AA1F95129E5E54670F1
+      Long : constant String := "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
+   begin
+      --  The default sha1 encoder still produces the hexadecimal digest.
+      Assert_Equals (T, "A9993E364706816ABA3E25717850C26C9CD0D89D",
+                     Util.Encoders.Encode (Util.Encoders.Create (Util.Encoders.HASH_SHA1),
+                                           "abc"),
+                     "Invalid hex SHA1");
+
+      Assert_Equals (T, "qZk+NkcGgWq6PiVxeFDCbJzQ2J0=",
+                     Util.Encoders.Encode (Util.Encoders.Create (Util.Encoders.HASH_SHA1_B64),
+                                           "abc"),
+                     "Invalid base64 SHA1 of 'abc'");
+      Assert_Equals (T, "qZk-NkcGgWq6PiVxeFDCbJzQ2J0=",
+                     Util.Encoders.Encode (Util.Encoders.Create (Util.Encoders.HASH_SHA1_B64URL),
+                                           "abc"),
+                     "Invalid base64url SHA1 of 'abc'");
+
+      Assert_Equals (T, "hJg+RBw70m66rkqh+VEp5eVGcPE=",
+                     Util.Encoders.Encode (Util.Encoders.Create (Util.Encoders.HASH_SHA1_B64),
+                                           Long),
+                     "Invalid base64 SHA1 of the long string");
+      Assert_Equals (T, "hJg-RBw70m66rkqh-VEp5eVGcPE=",
+                     Util.Encoders.Encode (Util.Encoders.Create (Util.Encoders.HASH_SHA1_B64URL),
+                                           Long),
+                     "Invalid base64url SHA1 of the long string");
+   end Test_SHA1_Encode_Base64;
+
+   --  ------------------------------
+   --  Test the SHA256/SHA512 Encoder transformer with the different output
+   --  formats (binary, base16, base64, base64url), feeding the input with
+   --  several Transform calls.
+   --  ------------------------------
+   procedure Test_SHA2_Encoder_Formats (T : in out Test) is
+      Data : constant Ada.Streams.Stream_Element_Array (1 .. 3)
+        := [Character'Pos ('a'), Character'Pos ('b'), Character'Pos ('c')];
+
+      procedure Check_SHA256 (T : in out Test);
+      procedure Check_SHA512 (T : in out Test);
+
+      Hex_Enc : constant Util.Encoders.Encoder := Util.Encoders.Create ("hex");
+
+      function Hex (B : Ada.Streams.Stream_Element_Array) return String is
+        (Hex_Enc.Encode_Binary (B));
+
+      function To_String (B : Ada.Streams.Stream_Element_Array) return String is
+         R : String (1 .. B'Length);
+      begin
+         for I in B'Range loop
+            R (Integer (I - B'First) + 1) := Character'Val (B (I));
+         end loop;
+         return R;
+      end To_String;
+
+      procedure Check_SHA256 (T : in out Test) is
+         E   : Util.Encoders.SHA256.Encoder;
+         Res : Ada.Streams.Stream_Element_Array (1 .. 128);
+         Last, Encoded : Ada.Streams.Stream_Element_Offset;
+      begin
+         --  Default format is base16 (hex); feed "ab" then "c".
+         E.Transform (Data (1 .. 2), Res, Last, Encoded);
+         E.Transform (Data (3 .. 3), Res, Last, Encoded);
+         E.Finish (Res, Last);
+         Assert_Equals (T,
+                       "BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD",
+                       To_String (Res (1 .. Last)),
+                       "Invalid SHA256 hex digest");
+
+         E.Set_Format (Util.Encoders.SHA256.Base64);
+         E.Transform (Data, Res, Last, Encoded);
+         E.Finish (Res, Last);
+         Assert_Equals (T, "ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=",
+                       To_String (Res (1 .. Last)),
+                       "Invalid SHA256 base64 digest");
+
+         E.Set_Format (Util.Encoders.SHA256.Base64URL);
+         E.Transform (Data, Res, Last, Encoded);
+         E.Finish (Res, Last);
+         Assert_Equals (T, "ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0=",
+                       To_String (Res (1 .. Last)),
+                       "Invalid SHA256 base64url digest");
+
+         E.Set_Format (Util.Encoders.SHA256.Binary);
+         E.Transform (Data, Res, Last, Encoded);
+         E.Finish (Res, Last);
+         Assert_Equals (T, Natural (Util.Encoders.SHA256.HASH_SIZE), Natural (Last),
+                       "Invalid SHA256 binary digest size");
+         Assert_Equals (T,
+                       "BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD",
+                       Hex (Res (1 .. Last)),
+                       "Invalid SHA256 binary digest");
+      end Check_SHA256;
+
+      procedure Check_SHA512 (T : in out Test) is
+         E   : Util.Encoders.SHA512.Encoder;
+         Res : Ada.Streams.Stream_Element_Array (1 .. 128);
+         Last, Encoded : Ada.Streams.Stream_Element_Offset;
+      begin
+         E.Transform (Data (1 .. 2), Res, Last, Encoded);
+         E.Transform (Data (3 .. 3), Res, Last, Encoded);
+         E.Finish (Res, Last);
+         Assert_Equals (T,
+                       "DDAF35A193617ABACC417349AE20413112E6FA4E89A97EA20A9EEEE64B55D39A" &
+                       "2192992A274FC1A836BA3C23A3FEEBBD454D4423643CE80E2A9AC94FA54CA49F",
+                       To_String (Res (1 .. Last)),
+                       "Invalid SHA512 hex digest");
+
+         E.Set_Format (Util.Encoders.SHA512.Base64);
+         E.Transform (Data, Res, Last, Encoded);
+         E.Finish (Res, Last);
+         Assert_Equals (T,
+                       "3a81oZNherrMQXNJriBBMRLm+k6JqX6iCp7u5ktV05ohkpkqJ0/BqDa6PCOj/uu9RU1EI2Q86A4qmslPpUyknw==",
+                       To_String (Res (1 .. Last)),
+                       "Invalid SHA512 base64 digest");
+
+         E.Set_Format (Util.Encoders.SHA512.Base64URL);
+         E.Transform (Data, Res, Last, Encoded);
+         E.Finish (Res, Last);
+         Assert_Equals (T,
+                       "3a81oZNherrMQXNJriBBMRLm-k6JqX6iCp7u5ktV05ohkpkqJ0_BqDa6PCOj_uu9RU1EI2Q86A4qmslPpUyknw==",
+                       To_String (Res (1 .. Last)),
+                       "Invalid SHA512 base64url digest");
+
+         E.Set_Format (Util.Encoders.SHA512.Binary);
+         E.Transform (Data, Res, Last, Encoded);
+         E.Finish (Res, Last);
+         Assert_Equals (T, Natural (Util.Encoders.SHA512.HASH_SIZE), Natural (Last),
+                       "Invalid SHA512 binary digest size");
+         Assert_Equals (T,
+                       "DDAF35A193617ABACC417349AE20413112E6FA4E89A97EA20A9EEEE64B55D39A" &
+                       "2192992A274FC1A836BA3C23A3FEEBBD454D4423643CE80E2A9AC94FA54CA49F",
+                       Hex (Res (1 .. Last)),
+                       "Invalid SHA512 binary digest");
+      end Check_SHA512;
+   begin
+      Check_SHA256 (T);
+      Check_SHA512 (T);
+   end Test_SHA2_Encoder_Formats;
+
+   --  ------------------------------
    --  Benchmark test for SHA1
    --  ------------------------------
    procedure Test_SHA1_Benchmark (T : in out Test) is
       pragma Unreferenced (T);
 
       Hash  : Util.Encoders.SHA1.Digest;
-      Sizes : constant array (1 .. 6) of Positive := (1, 10, 100, 1000, 10000, 100000);
+      Sizes : constant array (1 .. 6) of Positive := [1, 10, 100, 1000, 10000, 100000];
    begin
       for I in Sizes'Range loop
          declare
             Size : constant Positive := Sizes (I);
-            S    : constant String (1 .. Size) := (others => '0');
+            S    : constant String (1 .. Size) := [others => '0'];
             T1   : Util.Measures.Stamp;
             C    : Util.Encoders.SHA1.Context;
          begin
@@ -577,6 +835,105 @@ package body Util.Encoders.Tests is
                   "ZGrFiFCpzbCzN8xfRoVd5VmMlRU7PDMAPZRN34GaAJo=");
    end Test_SHA256_Encode;
 
+   --  ------------------------------
+   --  Test the SHA-512 hash (FIPS 180-4 test vectors).
+   --  ------------------------------
+   procedure Test_SHA512_Encode (T : in out Test) is
+      procedure Check_Hash (Value  : in String;
+                            Expect : in String);
+
+      C       : Util.Encoders.SHA512.Context;
+      Hash    : Util.Encoders.SHA512.Digest;
+      Sign    : Util.Encoders.SHA512.Hash_Array;
+      Digest  : Util.Encoders.SHA512.Base64_Digest;
+      Hex_Enc : constant Util.Encoders.Encoder := Util.Encoders.Create ("hex");
+
+      --  Check the base64 digest computed with several Update calls
+      --  using increasing chunk sizes.
+      procedure Check_Hash (Value  : in String;
+                            Expect : in String) is
+         J, N : Natural;
+         Ctx  : Util.Encoders.SHA512.Context;
+      begin
+         for I in 1 .. Value'Length loop
+            J := Value'First;
+            while J <= Value'Last loop
+               if J + I <= Value'Last then
+                  N := J + I;
+               else
+                  N := Value'Last;
+               end if;
+               Util.Encoders.SHA512.Update (Ctx, Value (J .. N));
+               J := N + 1;
+            end loop;
+            Util.Encoders.SHA512.Finish_Base64 (Ctx, Digest);
+            Assert_Equals (T, Expect, Digest, "Invalid SHA512-base64 digest for: " & Value);
+         end loop;
+      end Check_Hash;
+
+   begin
+      Util.Encoders.SHA512.Update (C, "a");
+      Util.Encoders.SHA512.Finish (C, Hash);
+      Assert_Equals (T, "1f40fc92da241694750979ee6cf582f2d5d7d28e18335de05abc54d0560e0f53028"
+                     & "60c652bf08d560252aa5e74210546f369fbbbce8c12cfc7957b2652fe9a75",
+                     Hash,
+                     "Invalid SHA512 hash for 'a'");
+
+      --  Finish resets the context: a new hash starts from the initial state.
+      Util.Encoders.SHA512.Update (C, "abc");
+      Util.Encoders.SHA512.Finish (C, Hash);
+      Assert_Equals (T, "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a21"
+                     & "92992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
+                     Hash,
+                     "Invalid SHA512 hash for 'abc'");
+
+      --  Hash of the empty string.
+      Util.Encoders.SHA512.Finish (C, Hash);
+      Assert_Equals (T, "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47"
+                     & "d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+                     Hash,
+                     "Invalid SHA512 hash for ''");
+
+      --  Message spanning two SHA-512 blocks (block size is 128 bytes).
+      Util.Encoders.SHA512.Update (C, "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq");
+      Util.Encoders.SHA512.Finish (C, Hash);
+      Assert_Equals (T, "204a8fc6dda82f0a0ced7beb8e08a41657c16ef468b228a8279be331a703c335"
+                     & "96fd15c13b1b07f9aa1d3bea57789ca031ad85c7a71dd70354ec631238ca3445",
+                     Hash,
+                     "Invalid SHA512 hash for 'abcdbcde...'");
+
+      --  The binary hash matches the hexadecimal digest (the hex encoding
+      --  of a 64-byte array must not be truncated).
+      Util.Encoders.SHA512.Update (C, "The quick brown fox jumps over the lazy dog");
+      Util.Encoders.SHA512.Finish (C, Sign);
+      Assert_Equals (T, "07e547d9586f6a73f73fbac0435ed76951218fb7d0c8d788a309d785436bbb642"
+                     & "e93a252a954f23912547d1e8a3b5ed6e1bfd7097821233fa0538f3db854fee6",
+                     Util.Strings.Transforms.To_Lower_Case (Hex_Enc.Encode_Binary (Sign)),
+                     "Invalid SHA512 binary hash for 'The quick brown fox...'");
+
+      --  Base64 digest with incremental updates of all chunk sizes.
+      Check_Hash ("ut", "SaKamt8QccNEahowGPc2m762g6s2l/mgxVG9KFZ0MQU5cjI8/78TGeFYRXTXkJkKZp"
+                  & "X7sL801fl+cbTAMBAhqQ==");
+      Check_Hash ("Uti", "ud6pdlptV8nXaThtTwtDium3oH/UyjriEEzq0x/yfFn/EtqyPpgyMrQFmSRoA7AT"
+                   & "HFyL7NY593SFFBOr+u8bdA==");
+      Check_Hash ("Util", "lnytSvxyke7sqJNCx4qgHRUedVHz3/cTreXlpC6jdxjH1fyzo63kyrZvl63VNS"
+                    & "qomP/DN1j6hxrzi+0IizUi9Q==");
+      Check_Hash ("Util.Encoders", "A8Otl50QBi1sI+1HF1dnMzTQ3S09s8XRE+3G0KmebEiCy69xtfSU20CU"
+                               & "e8VqcI+IoQzthsaC46p6OsjNCEdJ7A==");
+
+      --  One million 'a' characters (FIPS 180-4 test vector).
+      declare
+         S : constant String (1 .. 1_000_000) := [others => 'a'];
+      begin
+         Util.Encoders.SHA512.Update (C, S);
+         Util.Encoders.SHA512.Finish (C, Hash);
+         Assert_Equals (T, "e718483d0ce769644e2e42c7bc15b4638e1f98b13b2044285632a803afa973eb"
+                        & "de0ff244877ea60a4cb0432ce577c31beb009c5c2c49aa2e4eadb217ad8cc09b",
+                        Hash,
+                        "Invalid SHA512 hash for 1000000 x 'a'");
+      end;
+   end Test_SHA512_Encode;
+
    procedure Check_HMAC (T      : in out Test'Class;
                          Key    : in String;
                          Value  : in String;
@@ -613,7 +970,7 @@ package body Util.Encoders.Tests is
    --  Test HMAC-SHA1
    --  ------------------------------
    procedure Test_HMAC_SHA1_RFC2202_T1 (T : in out Test) is
-      Key : constant String (1 .. 20) := (others => Character'Val (16#0b#));
+      Key : constant String (1 .. 20) := [others => Character'Val (16#0b#)];
    begin
       Check_HMAC (T, Key, "Hi There", "b617318655057264e28bc0b6fb378c8ef146be00");
    end Test_HMAC_SHA1_RFC2202_T1;
@@ -625,8 +982,8 @@ package body Util.Encoders.Tests is
    end Test_HMAC_SHA1_RFC2202_T2;
 
    procedure Test_HMAC_SHA1_RFC2202_T3 (T : in out Test) is
-      Key  : constant String (1 .. 20) := (others => Character'Val (16#aa#));
-      Data : constant String (1 .. 50) := (others => Character'Val (16#dd#));
+      Key  : constant String (1 .. 20) := [others => Character'Val (16#aa#)];
+      Data : constant String (1 .. 50) := [others => Character'Val (16#dd#)];
    begin
       Check_HMAC (T, Key, Data,
                   "125d7342b9ac11cd91a39af48aa17b4f63f175d3");
@@ -636,14 +993,14 @@ package body Util.Encoders.Tests is
       C    : constant Util.Encoders.Decoder := Create ("hex");
       Key  : constant String := Util.Encoders.Decode (C, "0102030405060708090a0b0c0d0e0f"
                                                       & "10111213141516171819");
-      Data : constant String (1 .. 50) := (others => Character'Val (16#cd#));
+      Data : constant String (1 .. 50) := [others => Character'Val (16#cd#)];
    begin
       Check_HMAC (T, Key, Data,
                   "4c9007f4026250c6bc8414f9bf50c86c2d7235da");
    end Test_HMAC_SHA1_RFC2202_T4;
 
    procedure Test_HMAC_SHA1_RFC2202_T5 (T : in out Test) is
-      Key  : constant String (1 .. 20) := (others => Character'Val (16#0c#));
+      Key  : constant String (1 .. 20) := [others => Character'Val (16#0c#)];
    begin
       --  RFC2202 test case 5 but without truncation...
       Check_HMAC (T, Key, "Test With Truncation",
@@ -651,14 +1008,14 @@ package body Util.Encoders.Tests is
    end Test_HMAC_SHA1_RFC2202_T5;
 
    procedure Test_HMAC_SHA1_RFC2202_T6 (T : in out Test) is
-      Key  : constant String (1 .. 80) := (others => Character'Val (16#aa#));
+      Key  : constant String (1 .. 80) := [others => Character'Val (16#aa#)];
    begin
       Check_HMAC (T, Key, "Test Using Larger Than Block-Size Key - Hash Key First",
                   "aa4ae5e15272d00e95705637ce8a3b55ed402112");
    end Test_HMAC_SHA1_RFC2202_T6;
 
    procedure Test_HMAC_SHA1_RFC2202_T7 (T : in out Test) is
-      Key  : constant String (1 .. 80) := (others => Character'Val (16#Aa#));
+      Key  : constant String (1 .. 80) := [others => Character'Val (16#Aa#)];
    begin
       Check_HMAC (T, Key, "Test Using Larger Than Block-Size Key and Larger "
                     & "Than One Block-Size Data",
@@ -666,7 +1023,7 @@ package body Util.Encoders.Tests is
    end Test_HMAC_SHA1_RFC2202_T7;
 
    procedure Test_HMAC_SHA1_Sign (T : in out Test) is
-      Key  : constant String (1 .. 20) := (others => Character'Val (16#0c#));
+      Key  : constant String (1 .. 20) := [others => Character'Val (16#0c#)];
       D : Util.Encoders.SHA1.Base64_Digest;
    begin
       D := Util.Encoders.HMAC.SHA1.Sign_Base64 (Key, "Test With Truncation");
@@ -742,7 +1099,7 @@ package body Util.Encoders.Tests is
    --  Test HMAC-SHA256
    --  ------------------------------
    procedure Test_HMAC_SHA256_RFC4231_T1 (T : in out Test) is
-      Key : constant String (1 .. 20) := (others => Character'Val (16#0b#));
+      Key : constant String (1 .. 20) := [others => Character'Val (16#0b#)];
    begin
       Check_HMAC256 (T, Key, "Hi There",
                      "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7");
@@ -755,8 +1112,8 @@ package body Util.Encoders.Tests is
    end Test_HMAC_SHA256_RFC4231_T2;
 
    procedure Test_HMAC_SHA256_RFC4231_T3 (T : in out Test) is
-      Key  : constant String (1 .. 20) := (others => Character'Val (16#aa#));
-      Data : constant String (1 .. 50) := (others => Character'Val (16#dd#));
+      Key  : constant String (1 .. 20) := [others => Character'Val (16#aa#)];
+      Data : constant String (1 .. 50) := [others => Character'Val (16#dd#)];
    begin
       Check_HMAC256 (T, Key, Data,
                      "773ea91e36800e46854db8ebd09181a72959098b3ef8c122d9635514ced565fe");
@@ -766,14 +1123,14 @@ package body Util.Encoders.Tests is
       C    : constant Util.Encoders.Decoder := Create ("hex");
       Key  : constant String := Util.Encoders.Decode (C, "0102030405060708090a0b0c0d0e0f"
                                                       & "10111213141516171819");
-      Data : constant String (1 .. 50) := (others => Character'Val (16#cd#));
+      Data : constant String (1 .. 50) := [others => Character'Val (16#cd#)];
    begin
       Check_HMAC256 (T, Key, Data,
                      "82558a389a443c0ea4cc819899f2083a85f0faa3e578f8077a2e3ff46729665b");
    end Test_HMAC_SHA256_RFC4231_T4;
 
    procedure Test_HMAC_SHA256_RFC4231_T5 (T : in out Test) is
-      Key  : constant String (1 .. 20) := (others => Character'Val (16#0c#));
+      Key  : constant String (1 .. 20) := [others => Character'Val (16#0c#)];
       H    : constant String := Util.Encoders.HMAC.SHA256.Sign (Key, "Test With Truncation");
    begin
       Assert_Equals (T, "a3b6167473100ee06e0c796c2955552b",
@@ -782,14 +1139,14 @@ package body Util.Encoders.Tests is
    end Test_HMAC_SHA256_RFC4231_T5;
 
    procedure Test_HMAC_SHA256_RFC4231_T6 (T : in out Test) is
-      Key  : constant String (1 .. 131) := (others => Character'Val (16#aa#));
+      Key  : constant String (1 .. 131) := [others => Character'Val (16#aa#)];
    begin
       Check_HMAC256 (T, Key, "Test Using Larger Than Block-Size Key - Hash Key First",
                      "60e431591ee0b67f0d8a26aacbf5b77f8e0bc6213728c5140546040f0ee37f54");
    end Test_HMAC_SHA256_RFC4231_T6;
 
    procedure Test_HMAC_SHA256_RFC4231_T7 (T : in out Test) is
-      Key  : constant String (1 .. 131) := (others => Character'Val (16#Aa#));
+      Key  : constant String (1 .. 131) := [others => Character'Val (16#Aa#)];
    begin
       Check_HMAC256 (T, Key, "This is a test using a larger than block-size ke"
                      & "y and a larger than block-size data. The key nee"
@@ -827,8 +1184,8 @@ package body Util.Encoders.Tests is
 
       PK   : constant Secret_Key := Create ("0123456789abcdef");
       Key  : Util.Encoders.AES.Key_Type;
-      B    : Util.Encoders.AES.Block_Type := (others => 1);
-      E    : Util.Encoders.AES.Block_Type := (others => 0);
+      B    : Util.Encoders.AES.Block_Type := [others => 1];
+      E    : Util.Encoders.AES.Block_Type := [others => 0];
       Ok   : Boolean;
    begin
       Util.Encoders.AES.Set_Encrypt_Key (Key, PK);
@@ -838,7 +1195,7 @@ package body Util.Encoders.Tests is
       Ok := (for all E of B => E = 1);
       T.Assert (Ok, "Encryption and decryption are invalid (block with 1)");
 
-      B := (others => 16#ab#);
+      B := [others => 16#ab#];
       Util.Encoders.AES.Set_Encrypt_Key (Key, PK);
       Util.Encoders.AES.Encrypt (B, E, Key);
       Util.Encoders.AES.Set_Decrypt_Key (Key, PK);
@@ -849,9 +1206,9 @@ package body Util.Encoders.Tests is
       for I in Stream_Element_Offset (1) .. 100 loop
          declare
             Data    : constant Stream_Element_Array (1 .. I)
-              := (others => Ada.Streams.Stream_Element (I));
-            Result  : Stream_Element_Array (1 .. I + 16) := (others => 0);
-            Result2 : Stream_Element_Array (1 .. I + 16) := (others => 0);
+               := [others => Ada.Streams.Stream_Element (I)];
+            Result  : Stream_Element_Array (1 .. I + 16) := [others => 0];
+            Result2 : Stream_Element_Array (1 .. I + 16) := [others => 0];
             Last    : Stream_Element_Offset;
             Last2   : Stream_Element_Offset;
          begin
