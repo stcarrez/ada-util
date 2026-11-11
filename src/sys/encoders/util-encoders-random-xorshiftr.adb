@@ -9,6 +9,9 @@ package body Util.Encoders.Random.Xorshiftr is
 
    use Interfaces;
 
+   function Splitmix64 (X : in out Unsigned_64) return Unsigned_64;
+   procedure Fix_Zero_State (Gen : in out Xorshiftr_Generator);
+
    --  ------------------------------
    --  SplitMix64 generator used to expand a 64-bit seed into the 128-bit state.
    --  ------------------------------
@@ -71,7 +74,8 @@ package body Util.Encoders.Random.Xorshiftr is
       for I in 0 .. Size - 1 loop
          Value := Next (Gen);
          for J in 0 .. 7 loop
-            Into (Into'First + 8 * I + Stream_Element_Offset (J)) := Stream_Element (Value and 16#FF#);
+            Into (Into'First + 8 * I + Stream_Element_Offset (J))
+              := Stream_Element (Value and 16#FF#);
             Value := Shift_Right (Value, 8);
          end loop;
       end loop;
