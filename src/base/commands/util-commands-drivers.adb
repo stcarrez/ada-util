@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Util.Log.Loggers;
 with Util.Strings.Formats;
 package body Util.Commands.Drivers is
@@ -84,7 +85,7 @@ package body Util.Commands.Drivers is
          Name : constant String := To_String (Cmd.Name);
          Desc : constant String := To_String (Cmd.Description);
          Max  : constant Positive := 3 + Column + Desc'Length;
-         Line : String (1 .. Max) := (others => ' ');
+         Line : String (1 .. Max) := [others => ' '];
       begin
          Line (3 .. 3 + Name'Length - 1) := Name;
          Line (Column + 4 .. Line'Last) := Desc;

@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with System;
 with Interfaces.C;
 with Interfaces.C.Strings;
@@ -216,7 +217,7 @@ package body Util.Files is
                             Done : out Boolean) is
          use Ada.Directories;
 
-         Filter  : constant Filter_Type := (Ordinary_File => True, others => False);
+         Filter  : constant Filter_Type := [Ordinary_File => True, others => False];
          Ent     : Directory_Entry_Type;
          Search  : Search_Type;
       begin

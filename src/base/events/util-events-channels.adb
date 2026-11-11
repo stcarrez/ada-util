@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Util.Strings;
 
 package body Util.Events.Channels is
@@ -23,8 +24,8 @@ package body Util.Events.Channels is
    DIRECT_NAME : aliased constant String := "direct";
 
    Factory : constant Factory_Table (1 .. 1) :=
-     (1 => (Name    => DIRECT_NAME'Access,
-            Creator => Create_Direct_Channel'Access));
+     [1 => (Name    => DIRECT_NAME'Access,
+            Creator => Create_Direct_Channel'Access)];
 
    --  -----------------------
    --  Get the name of this event channel.

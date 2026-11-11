@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 package body Util.Commands.Consoles.Text is
 
    procedure Set_Col (Console : in out Console_Type;
@@ -13,7 +14,7 @@ package body Util.Commands.Consoles.Text is
          declare
             Count  : constant Positive := Col - Console.Cur_Col;
             Spaces : constant String (1 .. Count)
-              := (others => ' ');
+              := [others => ' '];
          begin
             IO.Put (Spaces);
             Console.Cur_Col := Col;
@@ -119,8 +120,8 @@ package body Util.Commands.Consoles.Text is
    procedure Start_Title (Console : in out Console_Type) is
    begin
       Console.Field_Count := 0;
-      Console.Sizes := (others => 0);
-      Console.Cols := (others => 1);
+      Console.Sizes := [others => 0];
+      Console.Cols := [others => 1];
    end Start_Title;
 
    --  ------------------------------

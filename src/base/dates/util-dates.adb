@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Ada.Calendar.Conversions;
 with Interfaces.C;
 package body Util.Dates is
@@ -118,8 +119,8 @@ package body Util.Dates is
 
    Month_Day_Count : constant array (Ada.Calendar.Month_Number)
      of Ada.Calendar.Arithmetic.Day_Count
-       := (1 => 31, 2 => 28, 3 => 31, 4 => 30, 5 => 31, 6 => 30,
-           7 => 31, 8 => 31, 9 => 30, 10 => 31, 11 => 30, 12 => 31);
+       := [1 => 31, 2 => 28, 3 => 31, 4 => 30, 5 => 31, 6 => 30,
+           7 => 31, 8 => 31, 9 => 30, 10 => 31, 11 => 30, 12 => 31];
 
    --  ------------------------------
    --  Get the number of days in the given month.

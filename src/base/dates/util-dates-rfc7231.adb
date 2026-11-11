@@ -5,18 +5,19 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
+
 package body Util.Dates.RFC7231 is
 
    use Ada.Calendar;
    use Ada.Calendar.Formatting;
 
    Day_Names : constant array (Day_Name) of String (1 .. 3)
-     := (Sunday => "Sun", Monday => "Mon", Tuesday => "Tue",
-         Wednesday => "Wed", Thursday => "Thu", Friday => "Fri", Saturday => "Sat");
+     := [Sunday => "Sun", Monday => "Mon", Tuesday => "Tue",
+         Wednesday => "Wed", Thursday => "Thu", Friday => "Fri", Saturday => "Sat"];
 
    Month_Names : constant array (Month_Number) of String (1 .. 3)
-     := ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
-         "Sep", "Oct", "Nov", "Dec");
+     := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+         "Sep", "Oct", "Nov", "Dec"];
 
    procedure Append_Digits (Into  : in out Util.Strings.Builders.Builder;
                             Value : in Natural);

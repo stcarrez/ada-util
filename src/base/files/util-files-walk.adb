@@ -4,6 +4,7 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
+
 with Ada.Exceptions;
 with Ada.Directories.Hierarchical_File_Names;
 with Util.Log.Loggers;
@@ -334,9 +335,9 @@ package body Util.Files.Walk is
       package AD renames Ada.Directories;
       use type AD.File_Kind;
 
-      Dir_Filter  : constant AD.Filter_Type := (AD.Ordinary_File => True,
+      Dir_Filter  : constant AD.Filter_Type := [AD.Ordinary_File => True,
                                                 AD.Directory     => True,
-                                                others           => False);
+                                                others           => False];
       Ent    : AD.Directory_Entry_Type;
       Search : AD.Search_Type;
    begin

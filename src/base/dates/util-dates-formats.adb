@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Ada.Containers;
 with Ada.Calendar;
 with Ada.Characters.Handling;
@@ -62,25 +63,25 @@ package body Util.Dates.Formats is
    December_Short_Name  : aliased constant String := "Dec";
 
    Day_Names          : constant String_Array (1 .. 7)
-     := (Monday_Name'Access, Tuesday_Name'Access, Wednesday_Name'Access,
-         Thursday_Name'Access, Friday_Name'Access, Saturday_Name'Access, Sunday_Name'Access);
+     := [Monday_Name'Access, Tuesday_Name'Access, Wednesday_Name'Access,
+         Thursday_Name'Access, Friday_Name'Access, Saturday_Name'Access, Sunday_Name'Access];
 
    Day_Short_Names    : constant String_Array (1 .. 7)
-     := (Monday_Short_Name'Access, Tuesday_Short_Name'Access, Wednesday_Short_Name'Access,
+     := [Monday_Short_Name'Access, Tuesday_Short_Name'Access, Wednesday_Short_Name'Access,
          Thursday_Short_Name'Access, Friday_Short_Name'Access,
-         Saturday_Short_Name'Access, Sunday_Short_Name'Access);
+         Saturday_Short_Name'Access, Sunday_Short_Name'Access];
 
    Month_Names        : constant String_Array (1 .. 12)
-     := (January_Name'Access, February_Name'Access, March_Name'Access,
+     := [January_Name'Access, February_Name'Access, March_Name'Access,
          April_Name'Access, May_Name'Access, June_Name'Access,
          July_Name'Access, August_Name'Access, September_Name'Access,
-         October_Name'Access, November_Name'Access, December_Name'Access);
+         October_Name'Access, November_Name'Access, December_Name'Access];
 
    Month_Short_Names  : constant String_Array (1 .. 12)
-     := (January_Short_Name'Access, February_Short_Name'Access, March_Short_Name'Access,
+     := [January_Short_Name'Access, February_Short_Name'Access, March_Short_Name'Access,
          April_Short_Name'Access, May_Short_Name'Access, June_Short_Name'Access,
          July_Short_Name'Access, August_Short_Name'Access, September_Short_Name'Access,
-         October_Short_Name'Access, November_Short_Name'Access, December_Short_Name'Access);
+         October_Short_Name'Access, November_Short_Name'Access, December_Short_Name'Access];
 
    function Get_Label (Bundle : in Util.Properties.Manager'Class;
                        Prefix : in String;

@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with GNAT.Regpat;
 with Util.Dates.Simple_Format;
 package body Util.Files.Rolling is
@@ -340,9 +341,9 @@ package body Util.Files.Rolling is
       function Compare (Left, Right : in String) return Boolean;
 
       Search_Filter : constant Ada.Directories.Filter_Type
-        := (Ada.Directories.Ordinary_File => True,
+        := [Ada.Directories.Ordinary_File => True,
             Ada.Directories.Directory     => False,
-            Ada.Directories.Special_File  => False);
+            Ada.Directories.Special_File  => False];
       Pattern  : constant String := Manager.Get_Purge_Pattern (Date);
       Regex    : constant GNAT.Regpat.Pattern_Matcher := GNAT.Regpat.Compile (Pattern);
       Glob1    : constant String := Util.Strings.Replace (Pattern, "([0-9]+)", "*", False);

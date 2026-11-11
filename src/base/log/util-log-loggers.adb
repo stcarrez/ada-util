@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Calendar;
@@ -538,10 +539,10 @@ package body Util.Log.Loggers is
             Result : Util.Strings.Builders.Builder (256);
             Date   : constant Ada.Calendar.Time := Ada.Calendar.Clock;
             Args   : constant String_Array_Access (1 .. 4)
-               := (1 => Arg1'Unrestricted_Access,
+               := [1 => Arg1'Unrestricted_Access,
                    2 => Arg2'Unrestricted_Access,
                    3 => Arg3'Unrestricted_Access,
-                   4 => Arg4'Unrestricted_Access);
+                   4 => Arg4'Unrestricted_Access];
          begin
             Instance.Formatter.Format_Message (Result, Level, Instance.Name, Message, Args);
             if Util.Strings.Builders.Length (Result) > 0 then

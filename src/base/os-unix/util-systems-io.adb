@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-systems-io -- System low level and raw IO operations
---  Copyright (C) 2023 Stephane Carrez
+--  Copyright (C) 2023, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -25,7 +25,7 @@ package body Util.Systems.IO is
 
    procedure Put (File    : in File_Type;
                   C       : in Character) is
-      S : constant String (1 .. 1) := (others => C);
+      S : constant String (1 .. 1) := [others => C];
    begin
       Put (File, S);
    end Put;
@@ -42,7 +42,7 @@ package body Util.Systems.IO is
 
    procedure Put_UTF_8 (File : in File_Type;
                         C    : in Wide_Wide_Character) is
-      S : constant Wide_Wide_String (1 .. 1) := (others => C);
+      S : constant Wide_Wide_String (1 .. 1) := [others => C];
    begin
       Put_UTF_8 (File, S);
    end Put_UTF_8;

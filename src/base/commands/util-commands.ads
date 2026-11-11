@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 private with Util.Strings.Vectors;
 private with Ada.Strings.Unbounded;
 
@@ -184,8 +185,8 @@ private
       Count     : Natural := 0;
       Length    : Natural := 0;
       Line      : String (1 .. Max_Length);
-      Start_Pos : Argument_Pos (0 .. Max_Args) := (others => 0);
-      End_Pos   : Argument_Pos (0 .. Max_Args) := (others => 0);
+      Start_Pos : Argument_Pos (0 .. Max_Args) := [others => 0];
+      End_Pos   : Argument_Pos (0 .. Max_Args) := [others => 0];
    end record;
 
    type Dynamic_Argument_List is limited new Argument_List with record
