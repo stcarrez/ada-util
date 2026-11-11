@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with GNAT.Command_Line;
 with GNAT.Regpat;
 with GNAT.Traceback.Symbolic;
@@ -559,7 +560,7 @@ package body Util.Tests is
       XML       : Boolean := False;
       Output    : Ada.Strings.Unbounded.Unbounded_String;
       Chdir     : Ada.Strings.Unbounded.Unbounded_String;
-      Label     : String (1 .. 16) := (others => ' ');
+      Label     : String (1 .. 16) := [others => ' '];
    begin
       loop
          case Getopt ("h u v l: x: t: p: c: config: d: r: update help xml: timeout:") is
@@ -588,7 +589,7 @@ package body Util.Tests is
                if Parameter'Length > Label'Length then
                   Label := Parameter (Parameter'First .. Parameter'First + Label'Length - 1);
                else
-                  Label := (others => ' ');
+                  Label := [others => ' '];
                   Label (Label'First .. Label'First + Parameter'Length - 1) := Parameter;
                end if;
 
