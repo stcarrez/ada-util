@@ -5,8 +5,6 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
-package Util.Encoders.HMAC is
-
-   pragma Preelaborate;
+package Util.Encoders.HMAC with Preelaborate is
 
 end Util.Encoders.HMAC;

@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Interfaces;
 package body Util.Encoders.ECC is
 
@@ -14,7 +15,7 @@ package body Util.Encoders.ECC is
    type Parity_Table is array (Ada.Streams.Stream_Element) of Interfaces.Unsigned_8;
 
    Parity : constant Parity_Table
-     := (16#FF#, 16#D4#, 16#D2#, 16#F9#, 16#CC#, 16#E7#, 16#E1#, 16#CA#,
+     := [16#FF#, 16#D4#, 16#D2#, 16#F9#, 16#CC#, 16#E7#, 16#E1#, 16#CA#,
          16#CA#, 16#E1#, 16#E7#, 16#CC#, 16#F9#, 16#D2#, 16#D4#, 16#FF#,
          16#B4#, 16#9F#, 16#99#, 16#B2#, 16#87#, 16#AC#, 16#AA#, 16#81#,
          16#81#, 16#AA#, 16#AC#, 16#87#, 16#B2#, 16#99#, 16#9F#, 16#B4#,
@@ -45,10 +46,10 @@ package body Util.Encoders.ECC is
          16#B4#, 16#9F#, 16#99#, 16#B2#, 16#87#, 16#AC#, 16#AA#, 16#81#,
          16#81#, 16#AA#, 16#AC#, 16#87#, 16#B2#, 16#99#, 16#9F#, 16#B4#,
          16#FF#, 16#D4#, 16#D2#, 16#F9#, 16#CC#, 16#E7#, 16#E1#, 16#CA#,
-         16#CA#, 16#E1#, 16#E7#, 16#CC#, 16#F9#, 16#D2#, 16#D4#, 16#FF#);
+         16#CA#, 16#E1#, 16#E7#, 16#CC#, 16#F9#, 16#D2#, 16#D4#, 16#FF#];
 
    Bit_Count_Table : constant Byte_Table
-     := (0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
+     := [0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
          1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
          1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
          2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
@@ -63,7 +64,7 @@ package body Util.Encoders.ECC is
          2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
          3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
          3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-         4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8);
+         4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8];
 
    function Count (Data : Ada.Streams.Stream_Element) return Natural;
 

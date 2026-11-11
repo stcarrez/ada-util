@@ -5,9 +5,7 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
-package Util.Encoders.Quoted_Printable is
-
-   pragma Preelaborate;
+package Util.Encoders.Quoted_Printable with Preelaborate is
 
    --  Decode the Quoted-Printable string and return the result.
    --  When Strict is true, raises the Encoding_Error exception if the

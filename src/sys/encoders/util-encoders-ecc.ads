@@ -35,7 +35,7 @@
 --       when NO_ERROR | CORRECTABLE_ERROR => ...
 --       when others => ...
 --    end case;
-package Util.Encoders.ECC is
+package Util.Encoders.ECC with Preelaborate is
 
    type ECC_Result is (NO_ERROR, CORRECTABLE_ERROR, UNCORRECTABLE_ERROR, ECC_ERROR);
 

@@ -5,6 +5,6 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
-package Util.Encoders.KDF is
+package Util.Encoders.KDF with Preelaborate is
 
 end Util.Encoders.KDF;

@@ -10,9 +10,7 @@ with Util.Encoders.SHA1;
 
 --  The <b>Util.Encodes.HMAC.SHA1</b> package generates HMAC-SHA1 authentication
 --  (See RFC 2104 - HMAC: Keyed-Hashing for Message Authentication).
-package Util.Encoders.HMAC.SHA1 is
-
-   pragma Preelaborate;
+package Util.Encoders.HMAC.SHA1 with Preelaborate is
 
    HASH_SIZE : constant := Util.Encoders.SHA1.HASH_SIZE;
 

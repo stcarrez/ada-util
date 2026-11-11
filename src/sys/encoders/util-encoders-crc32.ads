@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Ada.Streams;
 with Interfaces;
 
@@ -31,7 +32,7 @@ with Interfaces;
 --
 --      Context.Init (16#82F6_3B78#); -- CRC-32C (Castagnoli)
 --
-package Util.Encoders.CRC32 is
+package Util.Encoders.CRC32 with Preelaborate is
 
    subtype Unsigned_32 is Interfaces.Unsigned_32;
    subtype Digest is Interfaces.Unsigned_32;
@@ -69,7 +70,7 @@ private
 
    --  CRC32 table for the standard polynomial 16#EDB88320# (see samples/crc32table.adb)
    Crc32_Table : constant Crc_Table :=
-      (16#00000000#, 16#77073096#, 16#EE0E612C#, 16#990951BA#,
+      [16#00000000#, 16#77073096#, 16#EE0E612C#, 16#990951BA#,
        16#076DC419#, 16#706AF48F#, 16#E963A535#, 16#9E6495A3#,
        16#0EDB8832#, 16#79DCB8A4#, 16#E0D5E91E#, 16#97D2D988#,
        16#09B64C2B#, 16#7EB17CBD#, 16#E7B82D07#, 16#90BF1D91#,
@@ -132,7 +133,7 @@ private
        16#BDBDF21C#, 16#CABAC28A#, 16#53B39330#, 16#24B4A3A6#,
        16#BAD03605#, 16#CDD70693#, 16#54DE5729#, 16#23D967BF#,
        16#B3667A2E#, 16#C4614AB8#, 16#5D681B02#, 16#2A6F2B94#,
-       16#B40BBE37#, 16#C30C8EA1#, 16#5A05DF1B#, 16#2D02EF8D#);
+       16#B40BBE37#, 16#C30C8EA1#, 16#5A05DF1B#, 16#2D02EF8D#];
 
    type Context is tagged limited record
       Value : Digest := 16#FFFF_FFFF#;

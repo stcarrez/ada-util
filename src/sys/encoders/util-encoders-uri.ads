@@ -5,6 +5,7 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
+
 --  == URI Encoder and Decoder ==
 --  The `Util.Encoders.URI` package provides operations to encode and decode
 --  using the URI percent encoding and decoding scheme.
@@ -24,30 +25,28 @@
 --
 --    Encoded : constant String := Util.Encoders.URI.Encode (" /:");
 --
-package Util.Encoders.URI is
-
-   pragma Preelaborate;
+package Util.Encoders.URI with Preelaborate is
 
    type Encoding_Array is array (Character) of Boolean;
 
    --  Strict encoding of reserved characters RFC3986
    HREF_STRICT : constant Encoding_Array
-     := ('0' .. '9' => False,
+     := ['0' .. '9' => False,
          'a' .. 'z' => False,
          'A' .. 'Z' => False,
          '-' => False, '.' => False, '_' => False, '~' => False,
-         others => True);
+         others => True];
 
    --  Loose encoding where punctuation reserved characters are not encoded.
    HREF_LOOSE  : constant Encoding_Array
-     := ('0' .. '9' => False,
+     := ['0' .. '9' => False,
          'a' .. 'z' => False,
          'A' .. 'Z' => False,
          '-' => False, '.' => False, '_' => False, '~' => False, '+' => False,
          ''' => False, '*' => False, '(' => False, '&' => False, '$' => False,
          ')' => False, ',' => False, '%' => False, '#' => False, '@' => False,
          '?' => False, '=' => False, ';' => False, ':' => False, '/' => False,
-         others => True);
+         others => True];
 
    --  Compute the length of the encoded URI string with percent encoding
    --  and with the given encoding array.  Characters for which the `Encoding` array
