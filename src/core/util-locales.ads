@@ -5,6 +5,7 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
+
 with Ada.Containers;
 
 --  The <b>Locales</b> package defines the <b>Locale</b> type to represent
@@ -243,7 +244,7 @@ private
    VIETNAMESE_VIETNAM_STR                   : aliased constant String := "vi_VN.vie.VNM";
 
    --  The locales must be sorted on the locale string.
-   Locales : constant Locale_Array (1 .. 152) := (
+   Locales : constant Locale_Array (1 .. 152) := [
                                                   ARABIC_STR'Access,
                                                   ARABIC_UNITED_ARAB_EMIRATES_STR'Access,
                                                   ARABIC_BAHRAIN_STR'Access,
@@ -395,7 +396,7 @@ private
                                                   CHINESE_CHINA_STR'Access,
                                                   CHINESE_HONG_KONG_STR'Access,
                                                   CHINESE_SINGAPORE_STR'Access,
-                                                  CHINESE_TAIWAN_STR'Access);
+                                                  CHINESE_TAIWAN_STR'Access];
 
    NULL_LOCALE : constant Locale := null;
 

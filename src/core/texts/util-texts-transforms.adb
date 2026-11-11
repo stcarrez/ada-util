@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Interfaces;
 package body Util.Texts.Transforms is
 
@@ -39,7 +40,7 @@ package body Util.Texts.Transforms is
    --  ------------------------------
    procedure To_Hex (Into  : in out Stream;
                      Value : in Code) is
-      S          : String (1 .. 6) := (1 => '\', 2 => 'u', others => '0');
+      S          : String (1 .. 6) := [1 => '\', 2 => 'u', others => '0'];
       P          : Code := Value;
       N          : Code;
       I          : Positive := S'Last;
@@ -56,7 +57,7 @@ package body Util.Texts.Transforms is
 
    procedure Put_Dec (Into  : in out Stream;
                       Value : in Code) is
-      S : String (1 .. 9) := (others => '0');
+      S : String (1 .. 9) := [others => '0'];
       P : Code := Value;
       N : Code;
       I : Positive := S'Last;

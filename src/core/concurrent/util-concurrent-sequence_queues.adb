@@ -5,6 +5,7 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
+
 with Ada.Unchecked_Deallocation;
 package body Util.Concurrent.Sequence_Queues is
 
@@ -213,7 +214,7 @@ package body Util.Concurrent.Sequence_Queues is
          elsif Elements = null then
             Elements := new Element_Array (First_Pos .. Capacity);
             States := new Boolean_Array (First_Pos .. Capacity);
-            States.all := (others => False);
+            States.all := [others => False];
          else
             declare
                New_Array : constant Element_Array_Access
@@ -221,7 +222,7 @@ package body Util.Concurrent.Sequence_Queues is
                New_State : constant Boolean_Array_Access
                  := new Boolean_Array (First_Pos .. Capacity);
             begin
-               New_State.all := (others => False);
+               New_State.all := [others => False];
                if Capacity > Elements'Length then
                   New_Array (First_Pos .. Elements'Last) := Elements (First_Pos .. Elements'Last);
                   New_State (First_Pos .. Elements'Last) := States (First_Pos .. Elements'Last);
