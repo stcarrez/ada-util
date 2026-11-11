@@ -67,9 +67,7 @@ with Interfaces;
 --  @include util-encoders-crc32.ads
 --  @include util-encoders-random.ads
 --
-package Util.Encoders is
-
-   pragma Preelaborate;
+package Util.Encoders with Preelaborate is
 
    use Ada.Streams;
 
@@ -94,7 +92,9 @@ package Util.Encoders is
    HEX         : constant String := "hex";
 
    --  Encoder for SHA1 (RFC 3174)
-   HASH_SHA1   : constant String := "sha1";
+   HASH_SHA1        : constant String := "sha1";
+   HASH_SHA1_B64    : constant String := "sha1-base64";
+   HASH_SHA1_B64URL : constant String := "sha1-base64url";
 
    --  ------------------------------
    --  Secret key
@@ -286,7 +286,7 @@ private
    use Ada.Finalization;
 
    type Secret_Key (Length : Key_Length) is limited new Limited_Controlled with record
-      Secret : Ada.Streams.Stream_Element_Array (1 .. Length) := (others => 0);
+      Secret : Ada.Streams.Stream_Element_Array (1 .. Length) := [others => 0];
    end record;
 
    overriding

@@ -127,8 +127,6 @@ package body Util.Encoders is
 
    function Encode_Unsigned_32 (E     : in Encoder;
                                 Value : in Interfaces.Unsigned_32) return String is
-      use type Interfaces.Unsigned_32;
-
       Data : Ada.Streams.Stream_Element_Array (1 .. 4);
       Val  : Interfaces.Unsigned_32 := Value;
    begin
@@ -617,6 +615,29 @@ package body Util.Encoders is
          return E : Encoder do
             E.Encode := new Util.Encoders.SHA1.Encoder;
          end return;
+
+      elsif Name = HASH_SHA1_B64 then
+         return E : Encoder do
+            declare
+               En : constant Util.Encoders.SHA1.Encoder_Access
+                 := new Util.Encoders.SHA1.Encoder;
+            begin
+               E.Encode := En.all'Access;
+               En.Set_Format (Util.Encoders.SHA1.Base64);
+            end;
+         end return;
+
+      elsif Name = HASH_SHA1_B64URL then
+         return E : Encoder do
+            declare
+               En : constant Util.Encoders.SHA1.Encoder_Access
+                 := new Util.Encoders.SHA1.Encoder;
+            begin
+               E.Encode := En.all'Access;
+               En.Set_Format (Util.Encoders.SHA1.Base64URL);
+            end;
+         end return;
+
       end if;
       raise Not_Supported with "Invalid encoder: " & Name;
    end Create;
