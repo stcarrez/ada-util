@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Ada.Strings;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
@@ -192,7 +193,7 @@ package body Util.Strings.Tests is
    procedure Test_Measure_Copy (T : in out Test) is
       pragma Unreferenced (T);
 
-      Buf : constant Ada.Streams.Stream_Element_Array (1 .. 10_024) := (others => 23);
+      Buf : constant Ada.Streams.Stream_Element_Array (1 .. 10_024) := [others => 23];
       pragma Suppress (All_Checks, Buf);
    begin
       declare

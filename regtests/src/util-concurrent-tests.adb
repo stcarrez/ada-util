@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Finalization;
@@ -243,7 +244,7 @@ package body Util.Concurrent.Tests is
          L : Long_Long_Integer := 1;
          B : Boolean := False;
          F : Float := 1.0;
-         S : String (1 .. 10) := (others => ' ');
+         S : String (1 .. 10) := [others => ' '];
       end record;
 
       package Data_Atomic is new Util.Concurrent.Copies (Data);

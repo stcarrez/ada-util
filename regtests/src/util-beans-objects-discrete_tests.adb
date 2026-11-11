@@ -5,6 +5,7 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
+
 with Ada.Containers;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
@@ -104,7 +105,7 @@ package body Util.Beans.Objects.Discrete_Tests is
       pragma Unmodified (T);
 
       Pos, Next   : Natural;
-      Hash_Values : array (Test_Values'Range) of Hash_Type := (others => 0);
+      Hash_Values : array (Test_Values'Range) of Hash_Type := [others => 0];
       Nb_Hash     : Natural := 0;
    begin
       Pos := Test_Values'First;

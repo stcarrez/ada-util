@@ -238,7 +238,7 @@ private
    K_224           : aliased constant String := "YEAR_MONTH";
    K_225           : aliased constant String := "ZEROFILL";
 
-   Keywords : constant Keyword_Array := (
+   Keywords : constant Keyword_Array := [
       K_0'Access, K_1'Access, K_2'Access, K_3'Access,
       K_4'Access, K_5'Access, K_6'Access, K_7'Access,
       K_8'Access, K_9'Access, K_10'Access, K_11'Access,
@@ -295,5 +295,5 @@ private
       K_212'Access, K_213'Access, K_214'Access, K_215'Access,
       K_216'Access, K_217'Access, K_218'Access, K_219'Access,
       K_220'Access, K_221'Access, K_222'Access, K_223'Access,
-      K_224'Access, K_225'Access);
+      K_224'Access, K_225'Access];
 end Util.Perfect_Hash;

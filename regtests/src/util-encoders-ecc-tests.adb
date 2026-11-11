@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Interfaces;
 with Util.Test_Caller;
 
@@ -83,18 +84,18 @@ package body Util.Encoders.ECC.Tests is
    --  Test ECC correction on 256 bytes block.
    --  ------------------------------
    procedure Test_ECC_Block_256 (T : in out Test) is
-      Data   : Ada.Streams.Stream_Element_Array (0 .. 255) := (others => 0);
+      Data   : Ada.Streams.Stream_Element_Array (0 .. 255) := [others => 0];
    begin
-      Test_ECC_Block (T, Data, (16#ff#, 16#ff#, 16#ff#), "Zero block");
+      Test_ECC_Block (T, Data, [16#ff#, 16#ff#, 16#ff#], "Zero block");
 
       Data (45) := 16#20#;
-      Test_ECC_Block (T, Data, (16#59#, 16#a6#, 16#67#), "Zero block, @45=20");
+      Test_ECC_Block (T, Data, [16#59#, 16#a6#, 16#67#], "Zero block, @45=20");
 
       Data (45) := 16#10#;
-      Test_ECC_Block (T, Data, (16#59#, 16#a6#, 16#6b#), "Zero block, @45=10");
+      Test_ECC_Block (T, Data, [16#59#, 16#a6#, 16#6b#], "Zero block, @45=10");
 
       Data (45) := 16#41#;
-      Test_ECC_Block (T, Data, (16#ff#, 16#ff#, 16#0f#), "Zero block, @45=41");
+      Test_ECC_Block (T, Data, [16#ff#, 16#ff#, 16#0f#], "Zero block, @45=41");
 
    end Test_ECC_Block_256;
 
@@ -102,18 +103,18 @@ package body Util.Encoders.ECC.Tests is
    --  Test ECC correction on 512 bytes block.
    --  ------------------------------
    procedure Test_ECC_Block_512 (T : in out Test) is
-      Data   : Ada.Streams.Stream_Element_Array (0 .. 511) := (others => 0);
+      Data   : Ada.Streams.Stream_Element_Array (0 .. 511) := [others => 0];
    begin
-      Test_ECC_Block (T, Data, (16#ff#, 16#ff#, 16#ff#), "Zero block 512");
+      Test_ECC_Block (T, Data, [16#ff#, 16#ff#, 16#ff#], "Zero block 512");
 
       Data (45) := 16#20#;
-      Test_ECC_Block (T, Data, (16#59#, 16#a6#, 16#66#), "Zero block 512, @45=20");
+      Test_ECC_Block (T, Data, [16#59#, 16#a6#, 16#66#], "Zero block 512, @45=20");
 
       Data (45) := 16#10#;
-      Test_ECC_Block (T, Data, (16#59#, 16#a6#, 16#6a#), "Zero block 512, @45=10");
+      Test_ECC_Block (T, Data, [16#59#, 16#a6#, 16#6a#], "Zero block 512, @45=10");
 
       Data (45) := 16#41#;
-      Test_ECC_Block (T, Data, (16#ff#, 16#ff#, 16#0f#), "Zero block 512, @45=41");
+      Test_ECC_Block (T, Data, [16#ff#, 16#ff#, 16#0f#], "Zero block 512, @45=41");
 
    end Test_ECC_Block_512;
 

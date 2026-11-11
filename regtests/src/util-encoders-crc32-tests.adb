@@ -4,13 +4,11 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Ada.Streams;
-with Interfaces;
 with Util.Test_Caller;
 
 package body Util.Encoders.CRC32.Tests is
-
-   use Interfaces;
 
    package Caller is new Util.Test_Caller (Test, "Encoders.CRC32");
 
@@ -111,9 +109,9 @@ package body Util.Encoders.CRC32.Tests is
    --  ------------------------------
    procedure Test_CRC32_Binary (T : in out Test) is
       Digits_Data : constant Ada.Streams.Stream_Element_Array (1 .. 9) :=
-        (16#31#, 16#32#, 16#33#, 16#34#, 16#35#, 16#36#, 16#37#, 16#38#, 16#39#);
-      FFs    : constant Ada.Streams.Stream_Element_Array (1 .. 8) := (others => 16#FF#);
-      Data   : Ada.Streams.Stream_Element_Array (0 .. 255) := (others => 0);
+        [16#31#, 16#32#, 16#33#, 16#34#, 16#35#, 16#36#, 16#37#, 16#38#, 16#39#];
+      FFs    : constant Ada.Streams.Stream_Element_Array (1 .. 8) := [others => 16#FF#];
+      Data   : Ada.Streams.Stream_Element_Array (0 .. 255) := [others => 0];
    begin
       --  "123456789" as a binary array gives the same CRC32 as the string.
       Check_CRC32 (T, Digits_Data, 16#CBF4_3926#, "123456789 binary");
