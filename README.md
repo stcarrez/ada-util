@@ -39,6 +39,8 @@ framework as it provides better reports.
   - Feature #73: Set_Terminal_Size, to give the allocated pseudo terminal a window size
   - New encoder/decoder for Base62
   - New encoder for CRC32, Poly1305
+  - Add random bytes and token generation with several generators suitable for
+    nonce, secret keys, access tokens...
 
 ## Version 2.9.0  - Jun 2026
   - Feature #67: Add To_Nanoseconds and To_Ada_Time to solve GNAT warnings
