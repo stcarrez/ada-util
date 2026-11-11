@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-sha1 -- Compute SHA-1 hash
---  Copyright (C) 2011, 2012, 2017, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2012, 2017, 2019, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -11,6 +11,15 @@ with Util.Encoders.Base64;
 --  The <b>Util.Encodes.SHA1</b> package generates SHA-1 hash according to
 --  RFC3174 or [FIPS-180-1].
 package body Util.Encoders.SHA1 is
+
+   --  ------------------------------
+   --  Set the output format of the SHA1 encoder.
+   --  ------------------------------
+   procedure Set_Format (E      : in out Encoder;
+                         Format : in Format_Type) is
+   begin
+      E.Format := Format;
+   end Set_Format;
 
    --  ------------------------------
    --  Encodes the binary input stream represented by <b>Data</b> into
@@ -32,22 +41,59 @@ package body Util.Encoders.SHA1 is
                         Into    : out Ada.Streams.Stream_Element_Array;
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset) is
-      pragma Unreferenced (E);
-
-      Hex_Encoder : Util.Encoders.Base16.Encoder;
-      Sha_Encoder : Context;
-      Hash        : Ada.Streams.Stream_Element_Array (0 .. 19);
+      pragma Unmodified (Into);
    begin
-      Update (Sha_Encoder, Data);
-      Finish (Sha_Encoder, Hash);
-      Hex_Encoder.Transform (Data => Hash,
-                             Into => Into,
-                             Last => Last,
-                             Encoded => Encoded);
+      --  Accumulate the data in the encoder context and consume it all.
+      --  The hash is not computed here but by the Finish procedure so that
+      --  several Transform calls compute the hash of the whole input.
+      Update (E.Ctx, Data);
+      Last    := Into'First - 1;
       Encoded := Data'Last;
    end Transform;
 
-   Padding : constant String (1 .. 64) := (1 => Character'Val (16#80#), 2 .. 64 => ASCII.NUL);
+   overriding
+   procedure Finish (E    : in out Encoder;
+                     Into : in out Ada.Streams.Stream_Element_Array;
+                     Last : in out Ada.Streams.Stream_Element_Offset) is
+      Hash        : Hash_Array;
+      Encoded     : Ada.Streams.Stream_Element_Offset;
+   begin
+      Finish (E.Ctx, Hash);
+      case E.Format is
+         when Binary =>
+            Into (Into'First .. Into'First + Hash'Length - 1) := Hash;
+            Last    := Into'First + Hash'Length - 1;
+            Encoded := Last;
+
+         when Base16 =>
+            declare
+               Hex_Encoder : Util.Encoders.Base16.Encoder;
+            begin
+               Hex_Encoder.Transform (Data    => Hash,
+                                      Into    => Into,
+                                      Last    => Last,
+                                      Encoded => Encoded);
+            end;
+
+         when Base64 | Base64URL =>
+            declare
+               B64_Encoder : Util.Encoders.Base64.Encoder;
+            begin
+               B64_Encoder.Set_URL_Mode (E.Format = Base64URL);
+               B64_Encoder.Transform (Data    => Hash,
+                                      Into    => Into,
+                                      Last    => Last,
+                                      Encoded => Encoded);
+               --  Flush the trailing partial group (with the '=' padding).
+               B64_Encoder.Finish (Into => Into (Last + 1 .. Into'Last),
+                                   Last => Last);
+            end;
+
+      end case;
+   end Finish;
+
+   Padding : constant String (1 .. 64)
+     := [1 => Character'Val (16#80#), 2 .. 64 => ASCII.NUL];
 
    --  ------------------------------
    --  Computes the SHA1 hash and returns the raw binary hash in <b>Hash</b>.

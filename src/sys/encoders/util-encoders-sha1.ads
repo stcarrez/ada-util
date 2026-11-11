@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-sha1 -- Compute SHA-1 hash
---  Copyright (C) 2011, 2017, 2019 Stephane Carrez
+--  Copyright (C) 2011, 2017, 2019, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -9,9 +9,7 @@ with Interfaces;
 
 --  The <b>Util.Encodes.SHA1</b> package generates SHA-1 hash according to
 --  RFC3174 or [FIPS-180-1].
-package Util.Encoders.SHA1 is
-
-   pragma Preelaborate;
+package Util.Encoders.SHA1 with Preelaborate is
 
    HASH_SIZE : constant := 20;
 
@@ -53,7 +51,15 @@ package Util.Encoders.SHA1 is
    --  ------------------------------
    --  This <b>Encoder</b> translates the (binary) input stream into
    --  an SHA1 hexadecimal stream.  The encoding alphabet is: 0123456789ABCDEF.
-   type Encoder is new Util.Encoders.Transformer with private;
+   type Encoder is limited new Util.Encoders.Transformer with private;
+   type Encoder_Access is access all Encoder'Class;
+
+   --  Format produced by the encoder.
+   type Format_Type is (Binary, Base16, Base64, Base64URL);
+
+   --  Set the output format of the SHA1 encoder.
+   procedure Set_Format (E : in out Encoder;
+                         Format : in Format_Type);
 
    --  Encodes the binary input stream represented by <b>Data</b> into
    --  an SHA-1 hash output stream <b>Into</b>.
@@ -74,9 +80,15 @@ package Util.Encoders.SHA1 is
                         Last    : out Ada.Streams.Stream_Element_Offset;
                         Encoded : out Ada.Streams.Stream_Element_Offset);
 
-private
+   --  Finish the encoding: compute the SHA-1 hash of the data accumulated by
+   --  the successive <b>Transform</b> calls and write the hexadecimal digest
+   --  (40 characters) in <b>Into</b>.
+   overriding
+   procedure Finish (E    : in out Encoder;
+                     Into : in out Ada.Streams.Stream_Element_Array;
+                     Last : in out Ada.Streams.Stream_Element_Offset);
 
-   type Encoder is new Util.Encoders.Transformer with null record;
+private
 
    use Interfaces;
 
@@ -98,5 +110,11 @@ private
    --  Initialize the SHA-1 context.
    overriding
    procedure Initialize (E : in out Context);
+
+   type Encoder is limited new Util.Encoders.Transformer with record
+      --  The SHA-1 context which accumulates the data given to Transform.
+      Ctx    : Context;
+      Format : Format_Type := Base16;
+   end record;
 
 end Util.Encoders.SHA1;
