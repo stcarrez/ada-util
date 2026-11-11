@@ -10,6 +10,17 @@ with Util.Encoders.Base64;
 package body Util.Encoders.SHA512 is
 
    --  ------------------------------
+   --  Compute the SHA-512 digest of the data in a single pass.
+   --  ------------------------------
+   procedure Hash (Data : in Ada.Streams.Stream_Element_Array;
+                   Hash : out Hash_Array) is
+      Ctx : Util.Encoders.SHA512.Context;
+   begin
+      Update (Ctx, Data);
+      Finish (Ctx, Hash);
+   end Hash;
+
+   --  ------------------------------
    --  Computes the SHA512 hash and returns the raw binary hash in <b>Hash</b>.
    --  ------------------------------
    procedure Finish (E    : in out Context;

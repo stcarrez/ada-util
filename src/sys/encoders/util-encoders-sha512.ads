@@ -44,6 +44,10 @@ package Util.Encoders.SHA512 is
    procedure Finish_Base64 (E    : in out Context;
                             Hash : out Base64_Digest);
 
+   --  Compute the SHA-512 digest of the data in a single pass.
+   procedure Hash (Data : in Ada.Streams.Stream_Element_Array;
+                   Hash : out Hash_Array);
+
    --  ------------------------------
    --  SHA-512 encoder
    --  ------------------------------
