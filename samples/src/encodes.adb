@@ -19,17 +19,15 @@ begin
    if Count <= 1 then
       Ada.Text_IO.Put_Line ("Usage: encodes {encoder} [-d|-e] string...");
       Ada.Text_IO.Put_Line ("Encoders: " & Util.Encoders.BASE_64 & ", "
-                            & Util.Encoders.BASE_64_URL & ", "
-                            & Util.Encoders.BASE_32 & ", "
-                            & Util.Encoders.BASE_62 & ", "
-                            & Util.Encoders.BASE_16 & ", "
-                            & Util.Encoders.HASH_SHA1);
+                              & Util.Encoders.BASE_64_URL & ", "
+                              & Util.Encoders.BASE_32 & ", "
+                              & Util.Encoders.BASE_62 & ", "
+                              & Util.Encoders.BASE_16 & ", "
+                              & Util.Encoders.HASH_SHA1);
       return;
    end if;
    declare
       Name : constant String := Ada.Command_Line.Argument (1);
-      C    : constant Encoder := Util.Encoders.Create (Name);
-      D    : constant Decoder := Util.Encoders.Create (Name);
    begin
       for I in 2 .. Count loop
          declare
@@ -40,11 +38,23 @@ begin
             elsif S = "-e" then
                Encode := True;
             elsif Encode then
-               Ada.Text_IO.Put_Line ("Encodes " & Name & ": " & C.Encode (S));
+               declare
+                  C    : constant Encoder := Util.Encoders.Create (Name);
+               begin
+                  Ada.Text_IO.Put_Line ("Encodes " & Name & ": " & C.Encode (S));
+               end;
             else
-               Ada.Text_IO.Put_Line ("Decodes " & Name & ": " & D.Decode (S));
+               declare
+                  D    : constant Decoder := Util.Encoders.Create (Name);
+               begin
+                  Ada.Text_IO.Put_Line ("Decodes " & Name & ": " & D.Decode (S));
+               end;
             end if;
          end;
       end loop;
    end;
+
+exception
+   when Util.Encoders.Not_Supported =>
+      Ada.Text_IO.Put_Line ("Encoder or decoder not supported");
 end Encodes;
