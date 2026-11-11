@@ -5,6 +5,7 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
+
 with Interfaces;
 package body Util.Streams is
 
@@ -62,7 +63,7 @@ package body Util.Streams is
    procedure Write (Stream : in out Output_Stream'Class;
                     Item   : in Character) is
       Buf : constant Ada.Streams.Stream_Element_Array (1 .. 1)
-        := (1 => Ada.Streams.Stream_Element (Character'Pos (Item)));
+        := [1 => Ada.Streams.Stream_Element (Character'Pos (Item))];
    begin
       Stream.Write (Buf);
    end Write;

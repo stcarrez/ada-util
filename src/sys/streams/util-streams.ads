@@ -34,6 +34,7 @@ with Ada.Streams;
 --  @include util-streams-base16.ads
 --  @include util-streams-base64.ads
 --  @include util-streams-aes.ads
+--  @include util-streams-chacha20.ads
 package Util.Streams is
 
    pragma Preelaborate;
