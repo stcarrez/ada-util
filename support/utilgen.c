@@ -1,5 +1,5 @@
 /* Generate a package from system header definitions
---  Copyright (C) 2011 - 2020 Stephane Carrez
+--  Copyright (C) 2011 - 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 */
@@ -488,7 +488,7 @@ int main(int argc, char** argv)
 #endif
       
     printf("with Interfaces.C;\n");
-    printf("package Util.Systems.Types is\n");
+    printf("package Util.Systems.Types with Preelaborate is\n");
     printf("\n");
     gen_type("dev_t", UNSIGNED, sizeof(st.st_dev));
     gen_type("ino_t", UNSIGNED, sizeof(st.st_ino));
@@ -561,7 +561,7 @@ int main(int argc, char** argv)
 
   } else {
     printf("with Interfaces.C;\n");
-    printf("package Util.Systems.Constants is\n");
+    printf("package Util.Systems.Constants with Preelaborate is\n");
     printf("\n");
     printf("   pragma Pure;\n");
 
