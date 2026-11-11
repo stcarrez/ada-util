@@ -12,7 +12,7 @@ with Util.Systems.Types;
 --  == Raw files ==
 --  The <b>Util.Streams.Raw</b> package provides a stream directly on top of
 --  file system operations <b>read</b> and <b>write</b>.
-package Util.Streams.Raw is
+package Util.Streams.Raw with Preelaborate is
 
    --  -----------------------
    --  File stream
