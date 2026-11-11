@@ -5,6 +5,7 @@ Version 2.10.0 - Under development
   - New encoder for CRC32, Poly1305
   - Add random bytes and token generation with several generators suitable for
     nonce, secret keys, access tokens...
+  - Add Ed25519 digital signature signing and verification (RFC 8032)
 
 Version 2.9.0  - Jun 2026
   - Feature #67: Add To_Nanoseconds and To_Ada_Time to solve GNAT warnings
