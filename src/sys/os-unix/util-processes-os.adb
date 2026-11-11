@@ -202,7 +202,6 @@ package body Util.Processes.Os is
                     Proc : in out Process'Class;
                     Mode : in Pipe_Mode := NONE) is
       use Interfaces.C.Strings;
-      use type Interfaces.C.int;
 
       procedure Cleanup;
 
@@ -215,9 +214,9 @@ package body Util.Processes.Os is
       Pts_Master2 : File_Type := NO_FILE;
       Pts_Slave2  : File_Type := NO_FILE;
 
-      Stdin_Pipes   : aliased Pipe_Type := (others => NO_FILE);
-      Stdout_Pipes  : aliased Pipe_Type := (others => NO_FILE);
-      Stderr_Pipes  : aliased Pipe_Type := (others => NO_FILE);
+      Stdin_Pipes   : aliased Pipe_Type := [others => NO_FILE];
+      Stdout_Pipes  : aliased Pipe_Type := [others => NO_FILE];
+      Stderr_Pipes  : aliased Pipe_Type := [others => NO_FILE];
 
       Termio : aliased Systems.Types.Termios_Type;
 

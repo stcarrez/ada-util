@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Util.Strings;
 package Util.Http.Mimes is
 
@@ -29,10 +30,10 @@ package Util.Http.Mimes is
 
    --  List of mime types for images.
    Images : aliased constant Mime_List
-     := (Jpg'Access, Png'Access, Gif'Access, Ico'Access, Svg'Access);
+     := [Jpg'Access, Png'Access, Gif'Access, Ico'Access, Svg'Access];
 
    --  List of mime types for HTTP responses.
-   Api    : aliased constant Mime_List := (Json'Access, Xml'Access);
+   Api    : aliased constant Mime_List := [Json'Access, Xml'Access];
 
    --  Returns true if the Content-Type header uses the given mime type.
    --  The `Header` parameter is assumed to follow the media type specification
