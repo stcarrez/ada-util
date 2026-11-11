@@ -5,6 +5,7 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
+with Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Streams.Stream_IO;
 with Util.Test_Caller;
@@ -40,6 +41,8 @@ package body Util.Streams.Buffered.Tests is
                        Test_Parts_4'Access);
       Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Parts (5)",
                        Test_Parts_5'Access);
+      Caller.Add_Test (Suite, "Test Util.Streams.Buffered.Parts (6)",
+                       Test_Parts_6'Access);
    end Add_Tests;
 
    --  ------------------------------
@@ -318,5 +321,30 @@ package body Util.Streams.Buffered.Tests is
          end;
       end loop;
    end Test_Parts_5;
+
+   --  ------------------------------
+   --  Test reading an empty input stream with a boundary: the input buffer is
+   --  empty when the parts are read.  Setting the boundary fails the
+   --  Set_Boundary precondition because the boundary is longer than the empty
+   --  buffer, so a Constraint_Error is raised.
+   --  ------------------------------
+   procedure Test_Parts_6 (T : in out Test) is
+      SEP : constant String := "" & ASCII.LF;
+
+      procedure Check is
+         Parts : Util.Streams.Buffered.Parts.Input_Part_Stream;
+         Head  : Ada.Strings.Unbounded.Unbounded_String;
+      begin
+         Parts.Initialize ("");
+         Parts.Set_Boundary ("--AB--" & SEP);
+         Parts.Read (Head);
+         T.Fail ("No Constraint_Error raised when reading parts of an empty input");
+      exception
+         when Constraint_Error | Ada.Assertions.Assertion_Error =>
+            null;
+      end Check;
+   begin
+      Check;
+   end Test_Parts_6;
 
 end Util.Streams.Buffered.Tests;
