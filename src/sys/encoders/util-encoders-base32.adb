@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 package body Util.Encoders.Base32 is
 
    use Interfaces;
@@ -139,7 +140,7 @@ package body Util.Encoders.Base32 is
             when 1 =>
                E.State := 0;
                Into (Pos) := Alphabet (R);
-               Into (Pos + 1 .. Pos + 7) := (others => Character'Pos ('='));
+               Into (Pos + 1 .. Pos + 7) := [others => Character'Pos ('=')];
                Pos := Pos + 7;
 
             when 2 =>
@@ -151,13 +152,13 @@ package body Util.Encoders.Base32 is
             when 3 =>
                E.State := 0;
                Into (Pos) := Alphabet (R);
-               Into (Pos + 1 .. Pos + 5) := (others => Character'Pos ('='));
+               Into (Pos + 1 .. Pos + 5) := [others => Character'Pos ('=')];
                Pos := Pos + 5;
 
             when 4 =>
                E.State := 0;
                Into (Pos) := Alphabet (R);
-               Into (Pos + 1 .. Pos + 4) := (others => Character'Pos ('='));
+               Into (Pos + 1 .. Pos + 4) := [others => Character'Pos ('=')];
                Pos := Pos + 4;
 
             when 5 =>

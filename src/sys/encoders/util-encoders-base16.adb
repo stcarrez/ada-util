@@ -5,6 +5,7 @@
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
 
+
 package body Util.Encoders.Base16 is
 
    package body Encoding is
@@ -16,7 +17,7 @@ package body Util.Encoders.Base16 is
       type Conv_Table is array (0 .. 15) of Output_Char;
 
       Conversion : constant Conv_Table :=
-        (0 => Output_Char'Val (Character'Pos ('0')),
+        [0 => Output_Char'Val (Character'Pos ('0')),
          1 => Output_Char'Val (Character'Pos ('1')),
          2 => Output_Char'Val (Character'Pos ('2')),
          3 => Output_Char'Val (Character'Pos ('3')),
@@ -31,7 +32,7 @@ package body Util.Encoders.Base16 is
          12 => Output_Char'Val (Character'Pos ('C')),
          13 => Output_Char'Val (Character'Pos ('D')),
          14 => Output_Char'Val (Character'Pos ('E')),
-         15 => Output_Char'Val (Character'Pos ('F')));
+         15 => Output_Char'Val (Character'Pos ('F'))];
 
       --  Encode the input stream in hexadecimal and write the result
       --  in the output stream

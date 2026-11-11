@@ -8,9 +8,7 @@ with Ada.Streams;
 
 --  The <b>Util.Encodes.Base16</b> packages encodes and decodes streams
 --  in hexadecimal.
-package Util.Encoders.Base16 is
-
-   pragma Preelaborate;
+package Util.Encoders.Base16 with Preelaborate is
 
    use type Interfaces.Unsigned_8;
 

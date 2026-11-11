@@ -59,7 +59,7 @@ private with Ada.Finalization;
 --       return Result (Result'First .. Last);
 --    end Decrypt;
 --
-package Util.Encoders.AES is
+package Util.Encoders.AES with Preelaborate is
 
    type AES_Mode is (ECB, CBC, PCBC, CFB, OFB, CTR);
 

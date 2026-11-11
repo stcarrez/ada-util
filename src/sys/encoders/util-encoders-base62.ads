@@ -4,6 +4,7 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Ada.Streams;
 with Interfaces;
 
@@ -17,9 +18,7 @@ with Interfaces;
 --  6, 7, 9 and 10 characters for a block of 1, 2, 3, 4, 5, 6 and 7 bytes.
 --  There is no padding since the length of the last block identifies
 --  the number of bytes.
-package Util.Encoders.Base62 is
-
-   pragma Preelaborate;
+package Util.Encoders.Base62 with Preelaborate is
 
    --  ------------------------------
    --  Base62 encoder
@@ -101,7 +100,7 @@ private
      array (Interfaces.Unsigned_64 range 0 .. 61) of Ada.Streams.Stream_Element;
 
    BASE62_ALPHABET : constant Alphabet :=
-     (Character'Pos ('0'), Character'Pos ('1'), Character'Pos ('2'), Character'Pos ('3'),
+     [Character'Pos ('0'), Character'Pos ('1'), Character'Pos ('2'), Character'Pos ('3'),
       Character'Pos ('4'), Character'Pos ('5'), Character'Pos ('6'), Character'Pos ('7'),
       Character'Pos ('8'), Character'Pos ('9'), Character'Pos ('A'), Character'Pos ('B'),
       Character'Pos ('C'), Character'Pos ('D'), Character'Pos ('E'), Character'Pos ('F'),
@@ -116,7 +115,7 @@ private
       Character'Pos ('m'), Character'Pos ('n'), Character'Pos ('o'), Character'Pos ('p'),
       Character'Pos ('q'), Character'Pos ('r'), Character'Pos ('s'), Character'Pos ('t'),
       Character'Pos ('u'), Character'Pos ('v'), Character'Pos ('w'), Character'Pos ('x'),
-      Character'Pos ('y'), Character'Pos ('z'));
+      Character'Pos ('y'), Character'Pos ('z')];
 
    --  Number of bytes of the current block already collected by the encoder.
    type Encode_State_Type is new Natural range 0 .. BLOCK_LENGTH - 1;
@@ -126,7 +125,7 @@ private
      array (Encode_State_Type range 1 .. Encode_State_Type'Last)
      of Ada.Streams.Stream_Element_Offset;
 
-   ENCODE_LENGTHS : constant Encode_Length_Array := (2, 3, 5, 6, 7, 9, 10);
+   ENCODE_LENGTHS : constant Encode_Length_Array := [2, 3, 5, 6, 7, 9, 10];
 
    type Encoder is new Util.Encoders.Transformer with record
       Value : Interfaces.Unsigned_64 := 0;
@@ -136,7 +135,7 @@ private
    type Alphabet_Values is array (Ada.Streams.Stream_Element) of Interfaces.Unsigned_8;
 
    BASE62_VALUES : constant Alphabet_Values :=
-     (Character'Pos ('0') => 0,  Character'Pos ('1') => 1,
+     [Character'Pos ('0') => 0,  Character'Pos ('1') => 1,
       Character'Pos ('2') => 2,  Character'Pos ('3') => 3,
       Character'Pos ('4') => 4,  Character'Pos ('5') => 5,
       Character'Pos ('6') => 6,  Character'Pos ('7') => 7,
@@ -167,7 +166,7 @@ private
       Character'Pos ('u') => 56, Character'Pos ('v') => 57,
       Character'Pos ('w') => 58, Character'Pos ('x') => 59,
       Character'Pos ('y') => 60, Character'Pos ('z') => 61,
-      others => 16#FF#);
+      others => 16#FF#];
 
    --  Number of characters of the current block already collected by the decoder.
    type Decode_State_Type is new Natural range 0 .. ENCODE_LENGTH - 1;
@@ -178,7 +177,7 @@ private
      array (Decode_State_Type range 1 .. Decode_State_Type'Last)
      of Ada.Streams.Stream_Element_Offset;
 
-   DECODE_LENGTHS : constant Decode_Length_Array := (0, 1, 2, 0, 3, 4, 5, 0, 6, 7);
+   DECODE_LENGTHS : constant Decode_Length_Array := [0, 1, 2, 0, 3, 4, 5, 0, 6, 7];
 
    type Decoder is new Util.Encoders.Transformer with record
       Value : Interfaces.Unsigned_64 := 0;

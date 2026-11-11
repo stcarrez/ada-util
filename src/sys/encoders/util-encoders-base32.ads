@@ -4,14 +4,13 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Ada.Streams;
 with Interfaces;
 
 --  The `Util.Encodes.Base32` packages encodes and decodes streams
 --  in Base32 (See rfc4648: The Base16, Base32, and Base64 Data Encodings).
-package Util.Encoders.Base32 is
-
-   pragma Preelaborate;
+package Util.Encoders.Base32 with Preelaborate is
 
    --  ------------------------------
    --  Base32 encoder
@@ -99,14 +98,14 @@ private
    type Alphabet_Access is not null access constant Alphabet;
 
    BASE32_ALPHABET : aliased constant Alphabet :=
-     (Character'Pos ('A'), Character'Pos ('B'), Character'Pos ('C'), Character'Pos ('D'),
+     [Character'Pos ('A'), Character'Pos ('B'), Character'Pos ('C'), Character'Pos ('D'),
       Character'Pos ('E'), Character'Pos ('F'), Character'Pos ('G'), Character'Pos ('H'),
       Character'Pos ('I'), Character'Pos ('J'), Character'Pos ('K'), Character'Pos ('L'),
       Character'Pos ('M'), Character'Pos ('N'), Character'Pos ('O'), Character'Pos ('P'),
       Character'Pos ('Q'), Character'Pos ('R'), Character'Pos ('S'), Character'Pos ('T'),
       Character'Pos ('U'), Character'Pos ('V'), Character'Pos ('W'), Character'Pos ('X'),
       Character'Pos ('Y'), Character'Pos ('Z'), Character'Pos ('2'), Character'Pos ('3'),
-      Character'Pos ('4'), Character'Pos ('5'), Character'Pos ('6'), Character'Pos ('7'));
+      Character'Pos ('4'), Character'Pos ('5'), Character'Pos ('6'), Character'Pos ('7')];
 
    type Encode_State_Type is new Natural range 0 .. 7;
 
@@ -121,7 +120,7 @@ private
    type Alphabet_Values_Access is not null access constant Alphabet_Values;
 
    BASE32_VALUES : aliased constant Alphabet_Values :=
-     (Character'Pos ('A') => 0,  Character'Pos ('B') => 1,
+     [Character'Pos ('A') => 0,  Character'Pos ('B') => 1,
       Character'Pos ('C') => 2,  Character'Pos ('D') => 3,
       Character'Pos ('E') => 4,  Character'Pos ('F') => 5,
       Character'Pos ('G') => 6,  Character'Pos ('H') => 7,
@@ -137,7 +136,7 @@ private
       Character'Pos ('2') => 26, Character'Pos ('3') => 27,
       Character'Pos ('4') => 28, Character'Pos ('5') => 29,
       Character'Pos ('6') => 30, Character'Pos ('7') => 31,
-     others => 16#FF#);
+     others => 16#FF#];
 
    type Decode_State_Type is new Natural range 0 .. 7 + 6;
 

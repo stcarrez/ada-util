@@ -4,14 +4,13 @@
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
+
 with Ada.Streams;
 with Interfaces;
 
 --  The <b>Util.Encodes.Base64</b> packages encodes and decodes streams
 --  in Base64 (See rfc4648: The Base16, Base32, and Base64 Data Encodings).
-package Util.Encoders.Base64 is
-
-   pragma Preelaborate;
+package Util.Encoders.Base64 with Preelaborate is
 
    --  Encode the 64-bit value to LEB128 and then base64url.
    function Encode (Value : in Interfaces.Unsigned_64) return String;
@@ -113,7 +112,7 @@ private
    type Alphabet_Access is not null access constant Alphabet;
 
    BASE64_ALPHABET : aliased constant Alphabet :=
-     (Character'Pos ('A'), Character'Pos ('B'), Character'Pos ('C'), Character'Pos ('D'),
+     [Character'Pos ('A'), Character'Pos ('B'), Character'Pos ('C'), Character'Pos ('D'),
       Character'Pos ('E'), Character'Pos ('F'), Character'Pos ('G'), Character'Pos ('H'),
       Character'Pos ('I'), Character'Pos ('J'), Character'Pos ('K'), Character'Pos ('L'),
       Character'Pos ('M'), Character'Pos ('N'), Character'Pos ('O'), Character'Pos ('P'),
@@ -128,10 +127,10 @@ private
       Character'Pos ('w'), Character'Pos ('x'), Character'Pos ('y'), Character'Pos ('z'),
       Character'Pos ('0'), Character'Pos ('1'), Character'Pos ('2'), Character'Pos ('3'),
       Character'Pos ('4'), Character'Pos ('5'), Character'Pos ('6'), Character'Pos ('7'),
-      Character'Pos ('8'), Character'Pos ('9'), Character'Pos ('+'), Character'Pos ('/'));
+      Character'Pos ('8'), Character'Pos ('9'), Character'Pos ('+'), Character'Pos ('/')];
 
    BASE64_URL_ALPHABET : aliased constant Alphabet :=
-     (Character'Pos ('A'), Character'Pos ('B'), Character'Pos ('C'), Character'Pos ('D'),
+     [Character'Pos ('A'), Character'Pos ('B'), Character'Pos ('C'), Character'Pos ('D'),
       Character'Pos ('E'), Character'Pos ('F'), Character'Pos ('G'), Character'Pos ('H'),
       Character'Pos ('I'), Character'Pos ('J'), Character'Pos ('K'), Character'Pos ('L'),
       Character'Pos ('M'), Character'Pos ('N'), Character'Pos ('O'), Character'Pos ('P'),
@@ -146,7 +145,7 @@ private
       Character'Pos ('w'), Character'Pos ('x'), Character'Pos ('y'), Character'Pos ('z'),
       Character'Pos ('0'), Character'Pos ('1'), Character'Pos ('2'), Character'Pos ('3'),
       Character'Pos ('4'), Character'Pos ('5'), Character'Pos ('6'), Character'Pos ('7'),
-      Character'Pos ('8'), Character'Pos ('9'), Character'Pos ('-'), Character'Pos ('_'));
+      Character'Pos ('8'), Character'Pos ('9'), Character'Pos ('-'), Character'Pos ('_')];
 
    type Encoder is new Util.Encoders.Transformer with record
       Alphabet : Alphabet_Access := BASE64_ALPHABET'Access;
@@ -159,7 +158,7 @@ private
    type Alphabet_Values_Access is not null access constant Alphabet_Values;
 
    BASE64_VALUES : aliased constant Alphabet_Values :=
-     (Character'Pos ('A') => 0,  Character'Pos ('B') => 1,
+     [Character'Pos ('A') => 0,  Character'Pos ('B') => 1,
       Character'Pos ('C') => 2,  Character'Pos ('D') => 3,
       Character'Pos ('E') => 4,  Character'Pos ('F') => 5,
       Character'Pos ('G') => 6,  Character'Pos ('H') => 7,
@@ -191,10 +190,10 @@ private
       Character'Pos ('6') => 58, Character'Pos ('7') => 59,
       Character'Pos ('8') => 60, Character'Pos ('9') => 61,
       Character'Pos ('+') => 62, Character'Pos ('/') => 63,
-     others => 16#FF#);
+     others => 16#FF#];
 
    BASE64_URL_VALUES : aliased constant Alphabet_Values :=
-     (Character'Pos ('A') => 0,  Character'Pos ('B') => 1,
+     [Character'Pos ('A') => 0,  Character'Pos ('B') => 1,
       Character'Pos ('C') => 2,  Character'Pos ('D') => 3,
       Character'Pos ('E') => 4,  Character'Pos ('F') => 5,
       Character'Pos ('G') => 6,  Character'Pos ('H') => 7,
@@ -226,7 +225,7 @@ private
       Character'Pos ('6') => 58, Character'Pos ('7') => 59,
       Character'Pos ('8') => 60, Character'Pos ('9') => 61,
       Character'Pos ('-') => 62, Character'Pos ('_') => 63,
-      others => 16#FF#);
+      others => 16#FF#];
 
    type Decode_State_Type is new Natural range 0 .. 3;
 
