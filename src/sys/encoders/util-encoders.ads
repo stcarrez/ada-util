@@ -66,6 +66,7 @@ with Interfaces;
 --  @include util-encoders-ecc.ads
 --  @include util-encoders-crc32.ads
 --  @include util-encoders-random.ads
+--  @include util-encoders-ed25519.ads
 --
 package Util.Encoders with Preelaborate is
 
