@@ -8,7 +8,7 @@
 with Ada.Streams;
 with Util.Encoders.Random;
 
---  == X25519 key exchange and authenticated encryption ==
+--  == X25519 key exchange ==
 --  The `Util.Encoders.X25519` package implements the X25519 key agreement
 --  defined by RFC 7748 (<i>Elliptic Curves for Security</i>).  It can be used
 --  with an HKDF algorithm for authentication with AES or ChaCha20.
