@@ -32,7 +32,7 @@ with Util.Encoders.Random;
 --
 --    Key : Util.Encoders.Ed25519.Private_Key;
 --    ...
---       Util.Encoders.Ed25519.Create_Private_Key (Gen);
+--       Util.Encoders.Ed25519.Create_Private_Key (Gen, Key);
 --
 --  And from the private key, we can obtain the public key:
 --
