@@ -1212,14 +1212,22 @@ package body Util.Encoders.AES is
          when CFB =>
             Encrypt (E.IV,
                      E.Key);
-            E.IV (1) := E.IV (1) xor Load_BE32 (E.Data, E.Data'First);
-            E.IV (2) := E.IV (2) xor Load_BE32 (E.Data, E.Data'First + 4);
-            E.IV (3) := E.IV (3) xor Load_BE32 (E.Data, E.Data'First + 8);
-            E.IV (4) := E.IV (4) xor Load_BE32 (E.Data, E.Data'First + 12);
-            Store_BE32 (Into, E.IV (1), Last);
-            Store_BE32 (Into, E.IV (2), Last + 4);
-            Store_BE32 (Into, E.IV (3), Last + 8);
-            Store_BE32 (Into, E.IV (4), Last + 12);
+            declare
+               Val : Unsigned_32;
+            begin
+               Val := Load_BE32 (E.Data, E.Data'First);
+               Store_BE32 (Into, E.IV (1) xor Val, Last);
+               E.IV (1) := Val;
+               Val := Load_BE32 (E.Data, E.Data'First + 4);
+               Store_BE32 (Into, E.IV (2) xor Val, Last + 4);
+               E.IV (2) := Val;
+               Val := Load_BE32 (E.Data, E.Data'First + 8);
+               Store_BE32 (Into, E.IV (3) xor val, Last + 8);
+               E.IV (3) := Val;
+               Val := Load_BE32 (E.Data, E.Data'First + 12);
+               Store_BE32 (Into, E.IV (4) xor Val, Last + 12);
+               E.IV (4) := Val;
+            end;
 
          when OFB =>
             Encrypt (E.IV,
