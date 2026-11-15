@@ -589,7 +589,8 @@ package body Util.Encoders.Tests is
          begin
             for I in 1 .. N loop
                Data (Ada.Streams.Stream_Element_Offset (I))
-                 := Ada.Streams.Stream_Element'Val (Character'Pos (Element (Content, Pos + I - 1)));
+                 := Ada.Streams.Stream_Element'Val
+                   (Character'Pos (Element (Content, Pos + I - 1)));
             end loop;
             E.Transform (Data, Res, Last, Encoded);
             Assert_Equals (T, Natural (Data'Last), Natural (Encoded),
@@ -664,6 +665,7 @@ package body Util.Encoders.Tests is
 
       procedure Check_SHA256 (T : in out Test);
       procedure Check_SHA512 (T : in out Test);
+      function To_String (B : Ada.Streams.Stream_Element_Array) return String;
 
       Hex_Enc : constant Util.Encoders.Encoder := Util.Encoders.Create ("hex");
 
@@ -736,23 +738,25 @@ package body Util.Encoders.Tests is
          E.Transform (Data, Res, Last, Encoded);
          E.Finish (Res, Last);
          Assert_Equals (T,
-                       "3a81oZNherrMQXNJriBBMRLm+k6JqX6iCp7u5ktV05ohkpkqJ0/BqDa6PCOj/uu9RU1EI2Q86A4qmslPpUyknw==",
-                       To_String (Res (1 .. Last)),
-                       "Invalid SHA512 base64 digest");
+                        "3a81oZNherrMQXNJriBBMRLm+k6JqX6iCp7u5ktV05ohkpkqJ0/"
+                        & "BqDa6PCOj/uu9RU1EI2Q86A4qmslPpUyknw==",
+                        To_String (Res (1 .. Last)),
+                        "Invalid SHA512 base64 digest");
 
          E.Set_Format (Util.Encoders.SHA512.Base64URL);
          E.Transform (Data, Res, Last, Encoded);
          E.Finish (Res, Last);
          Assert_Equals (T,
-                       "3a81oZNherrMQXNJriBBMRLm-k6JqX6iCp7u5ktV05ohkpkqJ0_BqDa6PCOj_uu9RU1EI2Q86A4qmslPpUyknw==",
-                       To_String (Res (1 .. Last)),
-                       "Invalid SHA512 base64url digest");
+                        "3a81oZNherrMQXNJriBBMRLm-k6JqX6iCp7u5ktV05ohkpkqJ0_"
+                        & "BqDa6PCOj_uu9RU1EI2Q86A4qmslPpUyknw==",
+                        To_String (Res (1 .. Last)),
+                        "Invalid SHA512 base64url digest");
 
          E.Set_Format (Util.Encoders.SHA512.Binary);
          E.Transform (Data, Res, Last, Encoded);
          E.Finish (Res, Last);
          Assert_Equals (T, Natural (Util.Encoders.SHA512.HASH_SIZE), Natural (Last),
-                       "Invalid SHA512 binary digest size");
+                        "Invalid SHA512 binary digest size");
          Assert_Equals (T,
                        "DDAF35A193617ABACC417349AE20413112E6FA4E89A97EA20A9EEEE64B55D39A" &
                        "2192992A274FC1A836BA3C23A3FEEBBD454D4423643CE80E2A9AC94FA54CA49F",

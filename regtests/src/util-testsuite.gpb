@@ -33,6 +33,7 @@ with Util.Encoders.Ed25519.Tests;
 with Util.Mail.Tests;
 with Util.Nullables.Tests;
 with Util.Commands.Tests;
+with Util.Streams.AEAD.Tests;
 with Util.Streams.Buffered.Tests;
 with Util.Streams.Files.Tests;
 with Util.Streams.Texts.Tests;
@@ -103,6 +104,7 @@ package body Util.Testsuite is
       Util.Encoders.Ed25519.Tests.Add_Tests (Result);
       --  Util.Encoders.X25519.Tests.Add_Tests (Result);
       Util.Encoders.KDF.Tests.Add_Tests (Result);
+      Util.Streams.AEAD.Tests.Add_Tests (Result);
       Util.Streams.Buffered.Tests.Add_Tests (Result);
       Util.Streams.Files.Tests.Add_Tests (Result);
       Util.Streams.Tests.Add_Tests (Result);
