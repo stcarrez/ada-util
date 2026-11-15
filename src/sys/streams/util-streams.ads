@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams -- Stream utilities
---  Copyright (C) 2010, 2016, 2018, 2019, 2020, 2022, 2023 Stephane Carrez
+--  Copyright (C) 2010, 2016, 2018, 2019, 2020, 2022, 2023, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -35,6 +35,7 @@ with Ada.Streams;
 --  @include util-streams-base64.ads
 --  @include util-streams-aes.ads
 --  @include util-streams-chacha20.ads
+--  @include util-streams-aead.ads
 package Util.Streams is
 
    pragma Preelaborate;

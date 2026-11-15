@@ -65,6 +65,7 @@ with Interfaces;
 --  @include util-encoders-aes.ads
 --  @include util-encoders-chacha20.ads
 --  @include util-encoders-poly1305.ads
+--  @include util-encoders-aead.ads
 --  @include util-encoders-ed25519.ads
 --  @include util-encoders-x25519.ads
 --  @include util-encoders-ecc.ads
