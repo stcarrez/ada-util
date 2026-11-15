@@ -317,6 +317,43 @@ Util.Encoders.Poly1305.Finish (Ctx, Tag);
 
 The `Mac` procedure computes the tag of a complete message in one call.
 
+## AEAD ChaCha20-Poly1305
+The `Util.Encoders.AEAD` package implements the AEAD (Authenticated Encryption
+with Associated Data) construction of [RFC 8439](https://tools.ietf.org/html/rfc8439) combining the ChaCha20 stream
+cipher with the Poly1305 one-time authenticator:
+
+* the one-time Poly1305 key is the first 32 bytes of the ChaCha20 keystream
+  block with counter 0,
+* the message is encrypted with the keystream starting at counter 1,
+* the 128-bit tag authenticates the optional AAD and the ciphertext:
+
+```Ada
+<tt>AAD || pad16 || ciphertext || pad16 || u64le(len(AAD))
+                 || u64le(len(ciphertext))</tt>.
+```
+
+The `Encoder` and `Decoder` types implement the `Util.Encoders.Transformer`
+interface (similar to AES and ChaCha20).  The `Encoder` streams the ciphertext
+in `Transform` and appends the 16-byte tag in `Finish`.  The `Decoder` expects
+the tag as the last 16 bytes of the input stream and verifies it in `Finish`;
+it raises `Encoding_Error` when the tag is invalid.  The decrypted data written
+by `Transform` must not be used before `Finish` has completed without error.
+
+All the state is kept in the object itself: no buffer is dynamically allocated
+and the data is copied only once from the input to the output array.
+
+```Ada
+Enc : Util.Encoders.AEAD.Encoder;
+...
+Enc.Set_Key (Key);
+Enc.Set_Nonce (Nonce12);
+Enc.Update_AAD (AAD);            --  optional, before Transform
+Enc.Transform (Plain, Cipher, Last, Encoded);
+Enc.Finish (Tag_Buf, Tag_Last);  --  16-byte tag
+```
+
+The nonce must be unique for each message encrypted with the same key.
+
 ## Ed25519 digital signature
 The `Util.Encoders.Ed25519` package implements the Ed25519 digital signature
 algorithm defined by [RFC 8032](https://tools.ietf.org/html/rfc8032) (<i>Edwards-curve Digital Signature Algorithm
@@ -366,7 +403,7 @@ And the verification is made by the `Verify` function with the public key:
 Ok : Boolean := Util.Encoders.Ed25519.Verify (S, Data, Pub_Key);
 ```
 
-## X25519 key exchange and authenticated encryption
+## X25519 key exchange
 The `Util.Encoders.X25519` package implements the X25519 key agreement
 defined by [RFC 7748](https://tools.ietf.org/html/rfc7748) (<i>Elliptic Curves for Security</i>).  It can be used
 with an HKDF algorithm for authentication with AES or ChaCha20.
