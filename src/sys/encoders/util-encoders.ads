@@ -60,13 +60,14 @@ with Interfaces;
 --      Decipher.Decrypt_Secret (Encrypted_Key, Key);
 --
 --  @include util-encoders-kdf-pbkdf2.ads
+--  @include util-encoders-kdf-hkdf.ads
+--  @include util-encoders-random.ads
 --  @include util-encoders-aes.ads
 --  @include util-encoders-chacha20.ads
 --  @include util-encoders-poly1305.ads
+--  @include util-encoders-ed25519.ads
 --  @include util-encoders-ecc.ads
 --  @include util-encoders-crc32.ads
---  @include util-encoders-random.ads
---  @include util-encoders-ed25519.ads
 --
 package Util.Encoders with Preelaborate is
 
