@@ -19,6 +19,7 @@ with Util.Encoders.SHA256;
 with Util.Encoders.SHA512;
 with Util.Encoders.HMAC.SHA1;
 with Util.Encoders.HMAC.SHA256;
+with Util.Encoders.HMAC.SHA512;
 with Util.Encoders.HMAC.HOTP;
 with Util.Encoders.Base16;
 with Util.Encoders.Base64;
@@ -37,6 +38,10 @@ package body Util.Encoders.Tests is
                          Value  : in String;
                          Expect : in String);
    procedure Check_HMAC256 (T      : in out Test'Class;
+                            Key    : in String;
+                            Value  : in String;
+                            Expect : in String);
+   procedure Check_HMAC512 (T      : in out Test'Class;
                             Key    : in String;
                             Value  : in String;
                             Expect : in String);
@@ -120,6 +125,20 @@ package body Util.Encoders.Tests is
                        Test_HMAC_SHA256_RFC4231_T6'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA256.Sign_SHA1 (RFC4231 test7)",
                        Test_HMAC_SHA256_RFC4231_T7'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA512.Sign (RFC4231 test1)",
+                       Test_HMAC_SHA512_RFC4231_T1'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA512.Sign (RFC4231 test2)",
+                       Test_HMAC_SHA512_RFC4231_T2'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA512.Sign (RFC4231 test3)",
+                       Test_HMAC_SHA512_RFC4231_T3'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA512.Sign (RFC4231 test4)",
+                       Test_HMAC_SHA512_RFC4231_T4'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA512.Sign (RFC4231 test5)",
+                       Test_HMAC_SHA512_RFC4231_T5'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA512.Sign (RFC4231 test6)",
+                       Test_HMAC_SHA512_RFC4231_T6'Access);
+      Caller.Add_Test (Suite, "Test Util.Encoders.HMAC.SHA512.Sign (RFC4231 test7)",
+                       Test_HMAC_SHA512_RFC4231_T7'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.AES.Encrypt",
                        Test_AES'Access);
       Caller.Add_Test (Suite, "Test Util.Encoders.AES.Encrypt_Secret (CBC)",
@@ -970,6 +989,28 @@ package body Util.Encoders.Tests is
       Assert_Equals (T, H, B16.Encode_Binary (B3), "Invalid HMAC-SHA256 base64");
    end Check_HMAC256;
 
+   procedure Check_HMAC512 (T      : in out Test'Class;
+                            Key    : in String;
+                            Value  : in String;
+                            Expect : in String) is
+      H : constant String := Util.Encoders.HMAC.SHA512.Sign (Key, Value);
+      B : constant Util.Encoders.SHA512.Hash_Array := Util.Encoders.HMAC.SHA512.Sign (Key, Value);
+      C : constant Encoders.SHA512.Base64_Digest := Encoders.HMAC.SHA512.Sign_Base64 (Key, Value);
+      B16 : constant Encoder := Create ("hex");
+      B64 : constant Decoder := Create ("base64");
+      B2 : constant Ada.Streams.Stream_Element_Array := B;
+      S  : constant String := B16.Encode_Binary (B2);
+      B3 : constant Util.Encoders.SHA512.Hash_Array := B64.Decode_Binary (C);
+   begin
+      Assert_Equals (T, Expect, Util.Strings.Transforms.To_Lower_Case (H),
+                     "Invalid HMAC-SHA512");
+      Assert_Equals (T, H, S, "Invalid HMAC-SHA512 binary");
+      if B /= B3 then
+         Ada.Text_IO.Put_Line ("Invalid binary");
+      end if;
+      Assert_Equals (T, H, B16.Encode_Binary (B3), "Invalid HMAC-SHA512 base64");
+   end Check_HMAC512;
+
    --  ------------------------------
    --  Test HMAC-SHA1
    --  ------------------------------
@@ -1157,6 +1198,71 @@ package body Util.Encoders.Tests is
                      & "ds to be hashed before being used by the HMAC algorithm.",
                      "9b09ffa71b942fcb27635fbcd5b0e944bfdc63644f0713938a7f51535c3a35e2");
    end Test_HMAC_SHA256_RFC4231_T7;
+
+   --  ------------------------------
+   --  Test HMAC-SHA512
+   --  ------------------------------
+   procedure Test_HMAC_SHA512_RFC4231_T1 (T : in out Test) is
+      Key : constant String (1 .. 20) := [others => Character'Val (16#0b#)];
+   begin
+      Check_HMAC512 (T, Key, "Hi There",
+                     "87aa7cdea5ef619d4ff0b4241a1d6cb02379f4e2ce4ec2787ad0b30545e17cde" &
+                     "daa833b7d6b8a702038b274eaea3f4e4be9d914eeb61f1702e696c203a126854");
+   end Test_HMAC_SHA512_RFC4231_T1;
+
+   procedure Test_HMAC_SHA512_RFC4231_T2 (T : in out Test) is
+   begin
+      Check_HMAC512 (T, "Jefe", "what do ya want for nothing?",
+                     "164b7a7bfcf819e2e395fbe73b56e0a387bd64222e831fd610270cd7ea25055" &
+                     "49758bf75c05a994a6d034f65f8f0e6fdcaeab1a34d4a6b4b636e070a38bce737");
+   end Test_HMAC_SHA512_RFC4231_T2;
+
+   procedure Test_HMAC_SHA512_RFC4231_T3 (T : in out Test) is
+      Key  : constant String (1 .. 20) := [others => Character'Val (16#aa#)];
+      Data : constant String (1 .. 50) := [others => Character'Val (16#dd#)];
+   begin
+      Check_HMAC512 (T, Key, Data,
+                     "fa73b0089d56a284efb0f0756c890be9b1b5dbdd8ee81a3655f83e33b2279d39" &
+                     "bf3e848279a722c806b485a47e67c807b946a337bee8942674278859e13292fb");
+   end Test_HMAC_SHA512_RFC4231_T3;
+
+   procedure Test_HMAC_SHA512_RFC4231_T4 (T : in out Test) is
+      C    : constant Util.Encoders.Decoder := Create ("hex");
+      Key  : constant String := Util.Encoders.Decode (C, "0102030405060708090a0b0c0d0e0f"
+                                                      & "10111213141516171819");
+      Data : constant String (1 .. 50) := [others => Character'Val (16#cd#)];
+   begin
+      Check_HMAC512 (T, Key, Data,
+                     "b0ba465637458c6990e5a8c5f61d4af7e576d97ff94b872de76f8050361ee3db" &
+                     "a91ca5c11aa25eb4d679275cc5788063a5f19741120c4f2de2adebeb10a298dd");
+   end Test_HMAC_SHA512_RFC4231_T4;
+
+   procedure Test_HMAC_SHA512_RFC4231_T5 (T : in out Test) is
+      Key  : constant String (1 .. 20) := [others => Character'Val (16#0c#)];
+      H    : constant String := Util.Encoders.HMAC.SHA512.Sign (Key, "Test With Truncation");
+   begin
+      Assert_Equals (T, "415fad6271580a531d4179bc891d87a6",
+                     Util.Strings.Transforms.To_Lower_Case (H (1 .. 32)),
+                     "Invalid HMAC-SHA512");
+   end Test_HMAC_SHA512_RFC4231_T5;
+
+   procedure Test_HMAC_SHA512_RFC4231_T6 (T : in out Test) is
+      Key  : constant String (1 .. 131) := [others => Character'Val (16#aa#)];
+   begin
+      Check_HMAC512 (T, Key, "Test Using Larger Than Block-Size Key - Hash Key First",
+                     "80b24263c7c1a3ebb71493c1dd7be8b49b46d1f41b4aeec1121b013783f8f352" &
+                     "6b56d037e05f2598bd0fd2215d6a1e5295e64f73f63f0aec8b915a985d786598");
+   end Test_HMAC_SHA512_RFC4231_T6;
+
+   procedure Test_HMAC_SHA512_RFC4231_T7 (T : in out Test) is
+      Key  : constant String (1 .. 131) := [others => Character'Val (16#aa#)];
+   begin
+      Check_HMAC512 (T, Key, "This is a test using a larger than block-size ke"
+                     & "y and a larger than block-size data. The key nee"
+                     & "ds to be hashed before being used by the HMAC algorithm.",
+                     "e37b6a775dc87dbaa4dfa9f96e5e3ffddebd71f8867289865df5a32d20cdc944b" &
+                     "6022cac3c4982b10d5eeb55c3e4de15134676fb6de0446065c97440fa8c6a58");
+   end Test_HMAC_SHA512_RFC4231_T7;
 
    --  Note: this function is not part of the Util.Encoders.AES package because
    --  it is not a good idea as it only provides the AES-ECB encryption.
