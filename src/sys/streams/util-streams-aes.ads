@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-aes -- AES encoding and decoding streams
---  Copyright (C) 2019, 2022 Stephane Carrez
+--  Copyright (C) 2019, 2022, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -85,7 +85,9 @@ with Util.Streams.Buffered.Encoders;
 package Util.Streams.AES is
 
    package Encoding is
-      new Util.Streams.Buffered.Encoders (Encoder => Util.Encoders.AES.Encoder);
+     new Util.Streams.Buffered.Encoders
+       (Encoder         => Util.Encoders.AES.Encoder,
+        Max_Finish_Size => Util.Encoders.AES.Max_Finish_Size);
 
    package Decoding is
       new Util.Streams.Buffered.Encoders (Encoder => Util.Encoders.AES.Decoder);

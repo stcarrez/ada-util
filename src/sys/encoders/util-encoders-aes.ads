@@ -146,6 +146,8 @@ package Util.Encoders.AES with Preelaborate is
    --  an SHA1 hexadecimal stream.  The encoding alphabet is: 0123456789ABCDEF.
    type Encoder is new Cipher and Util.Encoders.Transformer with private;
 
+   Max_Finish_Size : constant := Block_Type'Length;
+
    --  Set the encryption key to use.
    procedure Set_Key (E    : in out Encoder;
                       Data : in Secret_Key;

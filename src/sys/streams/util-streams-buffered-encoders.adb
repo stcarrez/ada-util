@@ -145,12 +145,23 @@ package body Util.Streams.Buffered.Encoders is
    --  -----------------------
    overriding
    procedure Flush (Stream : in out Encoder_Stream) is
-      Last_Pos : Ada.Streams.Stream_Element_Offset := Stream.Write_Pos - 1;
+      Last_Pos : Ada.Streams.Stream_Element_Offset;
    begin
       if not Stream.Flushed
         and then Stream.Buffer /= null
         and then Stream.Write_Pos >= Stream.Buffer'First
       then
+         --  Write the buffered data first so that the whole buffer is available
+         --  for the final data produced by Finish (tag, padding block, ...).
+         if not Stream.No_Flush
+           and then Stream.Output /= null
+           and then Stream.Write_Pos > Stream.Buffer'First
+           and then Stream.Write_Pos + Max_Finish_Size >= Stream.Buffer'Last
+         then
+            Stream.Output.Write (Stream.Buffer (Stream.Buffer'First .. Stream.Write_Pos - 1));
+            Stream.Write_Pos := Stream.Buffer'First;
+         end if;
+         Last_Pos := Stream.Write_Pos - 1;
          Stream.Transform.Finish (Stream.Buffer (Stream.Write_Pos .. Stream.Buffer'Last),
                                   Last_Pos);
          Stream.Write_Pos := Last_Pos + 1;

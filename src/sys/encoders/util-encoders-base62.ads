@@ -27,6 +27,8 @@ package Util.Encoders.Base62 with Preelaborate is
    --  a Base62 ascii stream.
    type Encoder is new Util.Encoders.Transformer with private;
 
+   Max_Finish_Size : constant := 8;
+
    --  Encodes the binary input stream represented by `Data` into
    --  the a base62 output stream `Into`.
    --

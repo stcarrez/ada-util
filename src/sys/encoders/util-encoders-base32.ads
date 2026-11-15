@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base32 -- Encode/Decode a stream in Base32
---  Copyright (C) 2023 Stephane Carrez
+--  Copyright (C) 2023, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -18,6 +18,8 @@ package Util.Encoders.Base32 with Preelaborate is
    --  This `Encoder` translates the (binary) input stream into
    --  a Base32 ascii stream.
    type Encoder is new Util.Encoders.Transformer with private;
+
+   Max_Finish_Size : constant := 8;
 
    --  Encodes the binary input stream represented by `Data` into
    --  the a base32 output stream `Into`.

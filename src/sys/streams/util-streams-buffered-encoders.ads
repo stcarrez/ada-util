@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-streams-encoders -- Streams with encoding and decoding capabilities
---  Copyright (C) 2017, 2019, 2021, 2022 Stephane Carrez
+--  Copyright (C) 2017, 2019, 2021, 2022, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -40,6 +40,7 @@ with Util.Encoders;
 --  result to another stream.
 generic
    type Encoder is limited new Util.Encoders.Transformer with private;
+   Max_Finish_Size : Ada.Streams.Stream_Element_Count := 0;
 package Util.Streams.Buffered.Encoders is
 
    --  -----------------------

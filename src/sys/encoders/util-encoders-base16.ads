@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base16 -- Encode/Decode a stream in hexadecimal
---  Copyright (C) 2009, 2010, 2011, 2017, 2022 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2017, 2022, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -34,6 +34,8 @@ package Util.Encoders.Base16 with Preelaborate is
    --  This <b>Encoder</b> translates the (binary) input stream into
    --  an ascii hexadecimal stream.  The encoding alphabet is: 0123456789ABCDEF.
    type Encoder is new Util.Encoders.Transformer with private;
+
+   Max_Finish_Size : constant := 0;
 
    --  Encodes the binary input stream represented by <b>Data</b> into
    --  the a base16 (hexadecimal) output stream <b>Into</b>.

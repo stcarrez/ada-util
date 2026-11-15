@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  util-encoders-base64 -- Encode/Decode a stream in Base64
---  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017, 2023 Stephane Carrez
+--  Copyright (C) 2009, 2010, 2011, 2012, 2016, 2017, 2023, 2026 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --  SPDX-License-Identifier: Apache-2.0
 -----------------------------------------------------------------------
@@ -25,6 +25,8 @@ package Util.Encoders.Base64 with Preelaborate is
    --  This <b>Encoder</b> translates the (binary) input stream into
    --  a Base64 ascii stream.
    type Encoder is new Util.Encoders.Transformer with private;
+
+   Max_Finish_Size : constant := 4;
 
    --  Encodes the binary input stream represented by <b>Data</b> into
    --  the a base64 output stream <b>Into</b>.

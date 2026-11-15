@@ -52,6 +52,8 @@ package Util.Encoders.SHA256 is
    type Encoder is new Util.Encoders.Transformer with private;
    type Encoder_Access is access all Encoder'Class;
 
+   Max_Finish_Size : constant := Digest'Length;
+
    --  Format produced by the encoder.
    type Format_Type is (Binary, Base16, Base64, Base64URL);
 
