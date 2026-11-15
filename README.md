@@ -42,6 +42,7 @@ framework as it provides better reports.
   - Add random bytes and token generation with several generators suitable for
     nonce, secret keys, access tokens...
   - Add Ed25519 digital signature signing and verification (RFC 8032)
+  - Add HKDF generic package (RFC 5869) with instantiation with HMAC-256 and HMAC-512
 
 ## Version 2.9.0  - Jun 2026
   - Feature #67: Add To_Nanoseconds and To_Ada_Time to solve GNAT warnings
